@@ -22,7 +22,7 @@ object Libraries {
     private object Versions {
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
-        const val ktx = "1.4.0"
+        const val ktx = "1.3.0"
     }
 
     const val kotlinStdLib     = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"

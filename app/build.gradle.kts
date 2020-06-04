@@ -6,14 +6,16 @@ plugins {
 
 android {
     compileSdkVersion(AndroidSdk.compile)
+
     defaultConfig {
-        applicationId = "com.gradle.kotlindsl"
+        applicationId = "com.wire.android"
         minSdkVersion(AndroidSdk.min)
         targetSdkVersion(AndroidSdk.target)
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
@@ -30,6 +32,7 @@ dependencies {
     implementation(Libraries.constraintLayout)
 
     testImplementation (TestLibraries.junit4)
+
     androidTestImplementation (TestLibraries.testRunner)
     androidTestImplementation (TestLibraries.espresso)
 }

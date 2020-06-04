@@ -30,7 +30,6 @@ android {
     }
 }
 
-
 dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.appCompat)
@@ -38,7 +37,13 @@ dependencies {
     implementation(Libraries.constraintLayout)
 
     testImplementation (TestLibraries.junit4)
+    testImplementation(TestLibraries.mockito)
+    testImplementation(TestLibraries.robolectric)
+    testImplementation(TestLibraries.assertJ)
 
-    androidTestImplementation (TestLibraries.testRunner)
-    androidTestImplementation (TestLibraries.espresso)
+    androidTestImplementation(TestLibraries.testRunner)
+    androidTestImplementation(TestLibraries.espresso)
+    androidTestImplementation(TestLibraries.testExtJunit)
+    androidTestImplementation(TestLibraries.testRules)
+    androidTestImplementation(TestLibraries.mockitoAndroid)
 }

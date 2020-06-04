@@ -34,11 +34,22 @@ object Libraries {
 object TestLibraries {
     private object Versions {
         const val junit4 = "4.13"
+        const val mockito = "2.7.22"
+        const val robolectric = "4.3.1"
+        const val assertJ = "3.16.1"
         const val testRunner = "1.1.0"
-        const val espresso = "3.1.0"
+        const val espresso = "3.2.0"
+        const val testExtensions = "1.1.1"
+        const val testRules = "1.1.0"
     }
 
-    const val junit4     = "junit:junit:${Versions.junit4}"
-    const val testRunner = "androidx.test:runner:${Versions.testRunner}"
-    const val espresso   = "androidx.test.espresso:espresso-core:${Versions.espresso}"
+    const val junit4         = "junit:junit:${Versions.junit4}"
+    const val mockito        = "org.mockito:mockito-core:${Versions.mockito}"
+    const val robolectric    = "org.robolectric:robolectric:${Versions.robolectric}"
+    const val assertJ        = "org.assertj:assertj-core:${Versions.assertJ}"
+    const val testRunner     = "androidx.test:runner:${Versions.testRunner}"
+    const val espresso       = "androidx.test.espresso:espresso-core:${Versions.espresso}"
+    const val testExtJunit   = "androidx.test.ext:junit:${Versions.testExtensions}"
+    const val testRules      = "androidx.test:rules:${Versions.testRules}"
+    const val mockitoAndroid = "org.mockito:mockito-android:${Versions.mockito}"
 }

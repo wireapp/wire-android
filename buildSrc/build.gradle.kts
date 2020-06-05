@@ -3,9 +3,7 @@ repositories {
     google()
 }
 
-plugins {
-    `kotlin-dsl`
-}
+plugins {`kotlin-dsl`}
 
 kotlinDslPluginOptions {
     experimentalWarning.set(false)

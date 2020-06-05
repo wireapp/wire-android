@@ -4,10 +4,10 @@ buildscript {
         jcenter()
 
     }
-//    dependencies {
-//        classpath (BuildPlugins.androidGradlePlugin)
-//        classpath (BuildPlugins.kotlinGradlePlugin)
-//    }
+    dependencies {
+        classpath (BuildPlugins.androidGradlePlugin)
+        classpath (BuildPlugins.kotlinGradlePlugin)
+    }
 }
 
 allprojects {

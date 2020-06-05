@@ -12,6 +12,6 @@ class MainActivityTest : FunctionalTest(MainActivity::class.java) {
 
     @Test
     fun checkHelloMessage() {
-        onView(withId(R.id.hello)).check(matches(isDisplayed()));
+        onView(withId(R.id.hello)).check(matches(isDisplayed()))
     }
 }

@@ -1,8 +1,11 @@
+plugins {
+    id(ScriptPlugins.infrastructure)
+}
+
 buildscript {
     repositories {
         google()
         jcenter()
-
     }
     dependencies {
         classpath (BuildPlugins.androidGradlePlugin)
@@ -15,8 +18,4 @@ allprojects {
         google()
         jcenter()
     }
-}
-
-tasks.register("clean").configure {
-    delete("build")
 }

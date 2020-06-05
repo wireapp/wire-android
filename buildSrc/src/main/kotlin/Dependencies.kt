@@ -1,3 +1,4 @@
+const val projectName = "wire-android-reloaded"
 const val kotlinVersion = "1.3.72"
 
 object BuildPlugins {
@@ -17,6 +18,10 @@ object AndroidSdk {
     const val min = 21
     const val compile = 29
     const val target = compile
+}
+
+object Modules {
+    const val app = ":app"
 }
 
 object Libraries {
@@ -53,4 +58,8 @@ object TestLibraries {
     const val testExtJunit   = "androidx.test.ext:junit:${Versions.testExtensions}"
     const val testRules      = "androidx.test:rules:${Versions.testRules}"
     const val mockitoAndroid = "org.mockito:mockito-android:${Versions.mockito}"
+}
+
+object ScriptPlugins {
+    const val infrastructure = "scripts.infrastructure"
 }

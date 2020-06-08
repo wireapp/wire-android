@@ -60,6 +60,14 @@ object TestLibraries {
     const val mockitoAndroid = "org.mockito:mockito-android:${Versions.mockito}"
 }
 
+object DevLibraries {
+    private object Versions {
+        const val leakCanary = "2.3"
+    }
+
+    const val leakCanary =     "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
+}
+
 object ScriptPlugins {
     const val infrastructure = "scripts.infrastructure"
 }

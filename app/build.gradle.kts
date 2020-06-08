@@ -22,6 +22,11 @@ android {
         getByName("androidTest") { java.srcDir("src/androidTest/kotlin") }
     }
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
@@ -31,19 +36,25 @@ android {
 }
 
 dependencies {
+    // Application dependencies
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.appCompat)
     implementation(Libraries.ktxCore)
     implementation(Libraries.constraintLayout)
 
+    // Unit/Android tests dependencies
     testImplementation (TestLibraries.junit4)
     testImplementation(TestLibraries.mockito)
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.assertJ)
 
+    // Acceptance/Functional tests dependencies
     androidTestImplementation(TestLibraries.testRunner)
     androidTestImplementation(TestLibraries.espresso)
     androidTestImplementation(TestLibraries.testExtJunit)
     androidTestImplementation(TestLibraries.testRules)
     androidTestImplementation(TestLibraries.mockitoAndroid)
+
+    // Development dependencies
+    debugImplementation(DevLibraries.leakCanary)
 }

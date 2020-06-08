@@ -22,6 +22,24 @@ android {
         getByName("androidTest") { java.srcDir("src/androidTest/kotlin") }
     }
 
+    packagingOptions {
+        exclude("LICENSE.txt")
+        exclude("META-INF/DEPENDENCIES")
+        exclude("META-INF/ASL2.0")
+        exclude("META-INF/NOTICE")
+        exclude("META-INF/NOTICE")
+    }
+
+    lintOptions {
+        isQuiet = true
+        isAbortOnError = false
+        isIgnoreWarnings = true
+        disable("InvalidPackage")           //Some libraries have issues with this.
+        disable("OldTargetApi")             //Lint gives this warning related to SDK Beta.
+        disable("IconDensities")            //For testing purpose. This is safe to remove.
+        disable("IconMissingDensityFolder") //For testing purpose. This is safe to remove.
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

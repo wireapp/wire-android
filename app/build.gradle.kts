@@ -8,7 +8,7 @@ android {
     compileSdkVersion(AndroidSdk.compile)
 
     defaultConfig {
-        applicationId = "com.wire.android"
+        applicationId = appId
         minSdkVersion(AndroidSdk.min)
         targetSdkVersion(AndroidSdk.target)
         versionCode = 1

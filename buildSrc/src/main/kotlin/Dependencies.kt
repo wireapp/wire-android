@@ -1,4 +1,5 @@
 const val projectName = "wire-android-reloaded"
+const val appId = "com.wire.android"
 const val kotlinVersion = "1.3.72"
 
 object BuildPlugins {

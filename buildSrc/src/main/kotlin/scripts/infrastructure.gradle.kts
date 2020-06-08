@@ -1,15 +1,10 @@
 package scripts
 
-tasks.register("clean").configure {
-    delete("build")
+tasks.register("clean",Delete::class){
+    delete(rootProject.buildDir)
 }
 
-tasks.create("fernandoCejas") {
-    description = "This is Fernando"
-    println("fernandito")
-}
-
-tasks.create("HelloWorld") {
-    description = "HelloWorld"
-    print("Hello World Fernando! -> ${BuildPlugins.androidApplication} - :)")
+tasks.named<Wrapper>("wrapper") {
+    gradleVersion = BuildPlugins.Versions.gradleVersion
+    distributionType = Wrapper.DistributionType.ALL
 }

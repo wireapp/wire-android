@@ -1,6 +1,7 @@
-package com.android.wire
+package com.wire.android
 
 import androidx.test.platform.app.InstrumentationRegistry
+import com.wire.android.InstrumentationTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

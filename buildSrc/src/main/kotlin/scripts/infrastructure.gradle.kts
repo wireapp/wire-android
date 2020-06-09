@@ -17,7 +17,7 @@ tasks.register("runUnitTests") {
 }
 
 tasks.register("runAcceptanceTests") {
-    description = "Runs all Acceptance Tests."
+    description = "Runs all Acceptance Tests in the connected device."
     dependsOn(":app:connectedAndroidTest")
 }
 

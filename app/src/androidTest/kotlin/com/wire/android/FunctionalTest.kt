@@ -1,4 +1,4 @@
-package com.android.wire
+package com.wire.android
 
 import android.app.Activity
 import androidx.test.ext.junit.runners.AndroidJUnit4

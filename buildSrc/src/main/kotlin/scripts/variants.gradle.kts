@@ -2,15 +2,15 @@ package scripts
 
 plugins { id("core.android") }
 
-enum class BuildTypes(val value: String) {
+private enum class BuildTypes(val value: String) {
     DEBUG("debug"), RELEASE("release")
 }
 
-enum class ProductFlavors(val value: String) {
+private enum class ProductFlavors(val value: String) {
     DEV("dev"), INTERNAL("internal"), PUBLIC("public")
 }
 
-enum class FlavorDimensions(val value: String) {
+private enum class FlavorDimensions(val value: String) {
     VERSION("version")
 }
 

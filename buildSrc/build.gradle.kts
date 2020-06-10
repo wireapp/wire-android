@@ -1,3 +1,7 @@
+private enum class DEPENDENCIES(val value: String) {
+    AndroidBuildTools("com.android.tools.build:gradle:4.0.0")
+}
+
 plugins {
     `kotlin-dsl`
     `kotlin-dsl-precompiled-script-plugins`
@@ -9,5 +13,5 @@ repositories {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:4.0.0")
+    implementation(DEPENDENCIES.AndroidBuildTools.value)
 }

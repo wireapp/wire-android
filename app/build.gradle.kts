@@ -1,7 +1,11 @@
 plugins {
+    // Application Specific plugins
     id(BuildPlugins.androidApplication)
     id(BuildPlugins.kotlinAndroid)
     id(BuildPlugins.kotlinAndroidExtensions)
+
+    // Internal Script plugins
+    id(ScriptPlugins.variants)
 }
 
 android {
@@ -43,35 +47,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    buildTypes {
-        getByName("debug") {
-            isMinifyEnabled = false
-            applicationIdSuffix = ".debug"
-            isDebuggable = true
-        }
-        getByName("release") {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-        }
-    }
-
-    flavorDimensions("version")
-    productFlavors {
-        create("dev") {
-            setDimension("version")
-            applicationIdSuffix = ".dev"
-            versionNameSuffix = "-dev"
-        }
-        create("internal") {
-            setDimension("version")
-            applicationIdSuffix = ".internal"
-            versionNameSuffix = "-internal"
-        }
-        create("public") {
-            setDimension("version")
-        }
     }
 }
 

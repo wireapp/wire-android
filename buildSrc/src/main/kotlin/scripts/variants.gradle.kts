@@ -2,35 +2,45 @@ package scripts
 
 plugins { id("core.android") }
 
+enum class BuildTypes(val value: String) {
+    DEBUG("debug"), RELEASE("release")
+}
 
+enum class ProductFlavors(val value: String) {
+    DEV("dev"), INTERNAL("internal"), PUBLIC("public")
+}
+
+enum class FlavorDimensions(val value: String) {
+    VERSION("version")
+}
 
 android {
     buildTypes {
-        getByName("debug") {
+        getByName(BuildTypes.DEBUG.value) {
             isMinifyEnabled = false
-            applicationIdSuffix = ".debug"
+            applicationIdSuffix = ".${BuildTypes.DEBUG.value}"
             isDebuggable = true
         }
-        getByName("release") {
+        getByName(BuildTypes.RELEASE.value) {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
-    flavorDimensions("version")
+    flavorDimensions(FlavorDimensions.VERSION.value)
     productFlavors {
-        create("dev") {
-            dimension = "version"
-            applicationIdSuffix = ".dev"
-            versionNameSuffix = "-dev"
+        create(ProductFlavors.DEV.value) {
+            dimension = FlavorDimensions.VERSION.value
+            applicationIdSuffix = ".${ProductFlavors.DEV.value}"
+            versionNameSuffix = "-${ProductFlavors.DEV.value}"
         }
-        create("internal") {
-            dimension = "version"
-            applicationIdSuffix = ".internal"
-            versionNameSuffix = "-internal"
+        create(ProductFlavors.INTERNAL.value) {
+            dimension = FlavorDimensions.VERSION.value
+            applicationIdSuffix = ".${ProductFlavors.INTERNAL.value}"
+            versionNameSuffix = "-${ProductFlavors.INTERNAL.value}"
         }
-        create("public") {
-            dimension = "version"
+        create(ProductFlavors.PUBLIC.value) {
+            dimension = FlavorDimensions.VERSION.value
         }
     }
 }

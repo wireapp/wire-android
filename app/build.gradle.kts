@@ -7,6 +7,7 @@ plugins {
     // Internal Script plugins
     id(ScriptPlugins.variants)
     id(ScriptPlugins.quality)
+    id(ScriptPlugins.compilation)
 }
 
 android {
@@ -25,19 +26,6 @@ android {
         getByName("main") { java.srcDir("src/main/kotlin") }
         getByName("test") { java.srcDir("src/test/kotlin") }
         getByName("androidTest") { java.srcDir("src/androidTest/kotlin") }
-    }
-
-    packagingOptions {
-        exclude("LICENSE.txt")
-        exclude("META-INF/DEPENDENCIES")
-        exclude("META-INF/ASL2.0")
-        exclude("META-INF/NOTICE")
-        exclude("META-INF/NOTICE")
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 

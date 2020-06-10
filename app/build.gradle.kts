@@ -6,6 +6,7 @@ plugins {
 
     // Internal Script plugins
     id(ScriptPlugins.variants)
+    id(ScriptPlugins.quality)
 }
 
 android {
@@ -32,16 +33,6 @@ android {
         exclude("META-INF/ASL2.0")
         exclude("META-INF/NOTICE")
         exclude("META-INF/NOTICE")
-    }
-
-    lintOptions {
-        isQuiet = true
-        isAbortOnError = false
-        isIgnoreWarnings = true
-        disable("InvalidPackage")           //Some libraries have issues with this.
-        disable("OldTargetApi")             //Lint gives this warning related to SDK Beta.
-        disable("IconDensities")            //For testing purpose. This is safe to remove.
-        disable("IconMissingDensityFolder") //For testing purpose. This is safe to remove.
     }
 
     compileOptions {

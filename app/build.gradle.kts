@@ -1,7 +1,13 @@
 plugins {
+    // Application Specific plugins
     id(BuildPlugins.androidApplication)
     id(BuildPlugins.kotlinAndroid)
     id(BuildPlugins.kotlinAndroidExtensions)
+
+    // Internal Script plugins
+    id(ScriptPlugins.variants)
+    id(ScriptPlugins.quality)
+    id(ScriptPlugins.compilation)
 }
 
 android {
@@ -20,36 +26,6 @@ android {
         getByName("main") { java.srcDir("src/main/kotlin") }
         getByName("test") { java.srcDir("src/test/kotlin") }
         getByName("androidTest") { java.srcDir("src/androidTest/kotlin") }
-    }
-
-    packagingOptions {
-        exclude("LICENSE.txt")
-        exclude("META-INF/DEPENDENCIES")
-        exclude("META-INF/ASL2.0")
-        exclude("META-INF/NOTICE")
-        exclude("META-INF/NOTICE")
-    }
-
-    lintOptions {
-        isQuiet = true
-        isAbortOnError = false
-        isIgnoreWarnings = true
-        disable("InvalidPackage")           //Some libraries have issues with this.
-        disable("OldTargetApi")             //Lint gives this warning related to SDK Beta.
-        disable("IconDensities")            //For testing purpose. This is safe to remove.
-        disable("IconMissingDensityFolder") //For testing purpose. This is safe to remove.
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-        }
     }
 }
 

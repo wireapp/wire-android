@@ -1,4 +1,3 @@
-const val projectName = "wire-android-reloaded"
 const val appId = "com.wire.android"
 const val kotlinVersion = "1.3.72"
 
@@ -67,4 +66,7 @@ object DevLibraries {
 
 object ScriptPlugins {
     const val infrastructure = "scripts.infrastructure"
+    const val variants = "scripts.variants"
+    const val quality = "scripts.quality"
+    const val compilation = "scripts.compilation"
 }

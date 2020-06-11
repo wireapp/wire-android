@@ -22,12 +22,12 @@ tasks.register("runAcceptanceTests") {
 }
 
 tasks.register("compileApp") {
-    description = "Compiles the Wire Android Client."
+    description = "Compiles the Debug Version of the Wire Android Client."
     dependsOn(":app:assembleDebug")
 }
 
 tasks.register("runApp", Exec::class) {
-    description = "Compiles and runs the Wire Android Client in the connected device."
+    description = "Compiles and runs the Debug Version of the Wire Android Client in the connected device."
     dependsOn("compileApp", ":app:installDebug")
     tasks.findByName(":app:installDebug")?.mustRunAfter("compileApp")
 

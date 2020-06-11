@@ -8,8 +8,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath (BuildPlugins.androidGradlePlugin)
-        classpath (BuildPlugins.kotlinGradlePlugin)
+        classpath(BuildPlugins.androidGradlePlugin)
+        classpath(BuildPlugins.kotlinGradlePlugin)
     }
 }
 

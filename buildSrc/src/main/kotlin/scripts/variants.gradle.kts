@@ -2,45 +2,48 @@ package scripts
 
 plugins { id("core.android") }
 
-private enum class BuildTypes(val value: String) {
-    DEBUG("debug"), RELEASE("release")
+private object BuildTypes {
+    const val DEBUG = "debug"
+    const val RELEASE = "release"
 }
 
-private enum class ProductFlavors(val value: String) {
-    DEV("dev"), INTERNAL("internal"), PUBLIC("public")
+private object ProductFlavors {
+    const val DEV = "dev"
+    const val INTERNAL = "internal"
+    const val PUBLIC = "public"
 }
 
-private enum class FlavorDimensions(val value: String) {
-    VERSION("version")
+private object FlavorDimensions {
+    const val VERSION = "version"
 }
 
 android {
     buildTypes {
-        getByName(BuildTypes.DEBUG.value) {
+        getByName(BuildTypes.DEBUG) {
             isMinifyEnabled = false
-            applicationIdSuffix = ".${BuildTypes.DEBUG.value}"
+            applicationIdSuffix = ".${BuildTypes.DEBUG}"
             isDebuggable = true
         }
-        getByName(BuildTypes.RELEASE.value) {
+        getByName(BuildTypes.RELEASE) {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
-    flavorDimensions(FlavorDimensions.VERSION.value)
+    flavorDimensions(FlavorDimensions.VERSION)
     productFlavors {
-        create(ProductFlavors.DEV.value) {
-            dimension = FlavorDimensions.VERSION.value
-            applicationIdSuffix = ".${ProductFlavors.DEV.value}"
-            versionNameSuffix = "-${ProductFlavors.DEV.value}"
+        create(ProductFlavors.DEV) {
+            dimension = FlavorDimensions.VERSION
+            applicationIdSuffix = ".${ProductFlavors.DEV}"
+            versionNameSuffix = "-${ProductFlavors.DEV}"
         }
-        create(ProductFlavors.INTERNAL.value) {
-            dimension = FlavorDimensions.VERSION.value
-            applicationIdSuffix = ".${ProductFlavors.INTERNAL.value}"
-            versionNameSuffix = "-${ProductFlavors.INTERNAL.value}"
+        create(ProductFlavors.INTERNAL) {
+            dimension = FlavorDimensions.VERSION
+            applicationIdSuffix = ".${ProductFlavors.INTERNAL}"
+            versionNameSuffix = "-${ProductFlavors.INTERNAL}"
         }
-        create(ProductFlavors.PUBLIC.value) {
-            dimension = FlavorDimensions.VERSION.value
+        create(ProductFlavors.PUBLIC) {
+            dimension = FlavorDimensions.VERSION
         }
     }
 }

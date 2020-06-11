@@ -1,5 +1,5 @@
-private enum class DEPENDENCIES(val value: String) {
-    AndroidBuildTools("com.android.tools.build:gradle:4.0.0")
+object Dependencies {
+    const val AndroidBuildTools = "com.android.tools.build:gradle:4.0.0"
 }
 
 plugins {
@@ -13,5 +13,5 @@ repositories {
 }
 
 dependencies {
-    implementation(DEPENDENCIES.AndroidBuildTools.value)
+    implementation(Dependencies.AndroidBuildTools)
 }

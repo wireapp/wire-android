@@ -42,7 +42,7 @@ echo $NDK_HOME'''
 
         stage('Adb devices') {
           steps {
-            sh '''emulator -avd emuTest -noaudio -no-boot-anim -gpu off
+            sh '''emulator -avd android-emulator-1 -noaudio -no-boot-anim -gpu off
 adb devices'''
           }
         }

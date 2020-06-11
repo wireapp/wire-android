@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    dockerfile {
+      filename 'docker-agent/AndroidAgent'
+    }
+
+  }
   stages {
     stage('Precondition Checks') {
       parallel {

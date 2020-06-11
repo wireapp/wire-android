@@ -1,15 +1,6 @@
 pipeline {
   agent any
   stages {
-    stage('Unit Tests') {
-      steps {
-        withGradle() {
-          sh './gradlew runUnitTests'
-        }
-
-      }
-    }
-
     stage('Precondition Checks') {
       parallel {
         stage('Check SDK/NDK') {
@@ -42,6 +33,15 @@ echo $NDK_HOME'''
                         cd app
                         ls -la'''
           }
+        }
+
+      }
+    }
+
+    stage('Unit Tests') {
+      steps {
+        withGradle() {
+          sh './gradlew runUnitTests'
         }
 
       }

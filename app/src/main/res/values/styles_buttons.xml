@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Button" parent="Widget.MaterialComponents.Button" />
+
+    <style name="Button.Primary">
+        <item name="backgroundTint">@color/button_primary_background</item>
+    </style>
+
+    <style name="Button.Secondary" parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@color/button_secondary_textcolor</item>
+        <item name="backgroundTint">@color/button_secondary_background</item>
+    </style>
+
+    <style name="Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="strokeColor">@color/button_outlined_stroke</item>
+    </style>
+
+    <style name="Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton" />
+</resources>

@@ -42,7 +42,8 @@ echo $NDK_HOME'''
 
         stage('Adb devices') {
           steps {
-            sh 'adb devices'
+            sh '''emulator -avd android-emulator-1 -noaudio -no-boot-anim -gpu off
+adb devices'''
           }
         }
 
@@ -62,6 +63,15 @@ echo $NDK_HOME'''
       steps {
         withGradle() {
           sh './gradlew compileApp'
+        }
+
+      }
+    }
+
+    stage('Acceptance Test') {
+      steps {
+        withGradle() {
+          sh './gradlew runAcceptanceTests'
         }
 
       }

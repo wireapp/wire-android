@@ -14,7 +14,7 @@ private object ProductFlavors {
 }
 
 private object FlavorDimensions {
-    const val VERSION = "version"
+    const val DEFAULT = "default"
 }
 
 android {
@@ -30,20 +30,20 @@ android {
         }
     }
 
-    flavorDimensions(FlavorDimensions.VERSION)
+    flavorDimensions(FlavorDimensions.DEFAULT)
     productFlavors {
         create(ProductFlavors.DEV) {
-            dimension = FlavorDimensions.VERSION
+            dimension = FlavorDimensions.DEFAULT
             applicationIdSuffix = ".${ProductFlavors.DEV}"
             versionNameSuffix = "-${ProductFlavors.DEV}"
         }
         create(ProductFlavors.INTERNAL) {
-            dimension = FlavorDimensions.VERSION
+            dimension = FlavorDimensions.DEFAULT
             applicationIdSuffix = ".${ProductFlavors.INTERNAL}"
             versionNameSuffix = "-${ProductFlavors.INTERNAL}"
         }
         create(ProductFlavors.PUBLIC) {
-            dimension = FlavorDimensions.VERSION
+            dimension = FlavorDimensions.DEFAULT
         }
     }
 }

@@ -3,16 +3,18 @@
     package="com.wire.android">
 
     <application
-        android:name="com.wire.android.WireApplication"
+        android:name=".WireApplication"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:allowBackup="false">
-        <activity android:name=".MainActivity">
+        android:theme="@style/AppTheme">
+        <activity android:name=".feature.auth.registration.CreateAccountActivity">
+            <!-- TODO Apply a custom theme that doesn't resolve to Dark one. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -1,0 +1,66 @@
+FROM openjdk:8
+
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get update && \
+    apt-get install -yq libc6 libstdc++6 zlib1g libncurses5 build-essential libssl-dev ruby ruby-dev --no-install-recommends && \
+    apt-get clean \
+    #setup openssh
+    apt-get install -qy openssh-server && \
+    sed -i 's|session    required     pam_loginuid.so|session    optional     pam_loginuid.so|g' /etc/pam.d/sshd && \
+    mkdir -p /var/run/sshd && \
+    # Cleanup old packages
+    apt-get -qy autoremove
+
+RUN gem install bundler
+
+# Cleaning
+RUN apt-get clean
+
+# Download and untar Android SDK tools
+RUN mkdir -p /home/${USER}/android-sdk-linux && \
+    wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip -O tools.zip && \
+    unzip tools.zip -d /home/${USER}/android-sdk-linux && \
+    rm tools.zip
+
+# Add user jenkins to the image
+adduser --quiet jenkins && \
+# Set password for the jenkins user (you may want to alter this).
+echo "jenkins:jenkins" | chpasswd && \
+mkdir /home/jenkins/.m2
+USER ${UID}:${GID}
+WORKDIR /home/${USER}
+ENV HOME /home/${USER}
+
+#ADD settings.xml /home/jenkins/.m2/
+# Copy authorized keys
+COPY .ssh/authorized_keys /home/jenkins/.ssh/authorized_keys
+
+RUN chown -R jenkins:jenkins /home/jenkins/.m2/ && \
+    chown -R jenkins:jenkins /home/jenkins/.ssh/
+
+# Standard SSH port
+EXPOSE 22
+
+# Set environment variable
+ENV ANDROID_HOME /home/${USER}/android-sdk-linux
+ENV ANDROID_NDK_HOME ${ANDROID_HOME}/ndk-bundle
+ENV NDK_HOME ${ANDROID_HOME}/ndk-bundle
+ENV PATH ${ANDROID_HOME}/tools:$ANDROID_HOME/platform-tools:$PATH
+
+# Make license agreement
+RUN mkdir $ANDROID_HOME/licenses && \
+    echo 8933bad161af4178b1185d1a37fbf41ea5269c55 > $ANDROID_HOME/licenses/android-sdk-license && \
+    echo d56f5187479451eabf01fb78af6dfcb131a6481e >> $ANDROID_HOME/licenses/android-sdk-license && \
+    echo 24333f8a63b6825ea9c5514f83c2829b004d1fee >> $ANDROID_HOME/licenses/android-sdk-license && \
+    echo 84831b9409646a918e30573bab4c9c91346d8abd > $ANDROID_HOME/licenses/android-sdk-preview-license
+
+# Update and install using sdkmanager
+RUN $ANDROID_HOME/tools/bin/sdkmanager "tools" "platform-tools" && \
+    $ANDROID_HOME/tools/bin/sdkmanager "build-tools;29.0.2" && \
+    $ANDROID_HOME/tools/bin/sdkmanager "platforms;android-29"&& \
+    $ANDROID_HOME/tools/bin/sdkmanager "extras;android;m2repository" "extras;google;m2repository" && \
+    $ANDROID_HOME/tools/bin/sdkmanager "ndk-bundle"
+
+CMD ["/usr/sbin/sshd", "-D"]
+

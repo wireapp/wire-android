@@ -2,4 +2,10 @@
     <string name="app_name">Wire Android Reloaded</string>
 
     <string name="back">Back</string>
+
+    <string name="app_entry_create_account">Personal</string>
+    <string name="app_entry_create_account_sub">Chat privately with groups of friends and family</string>
+    <string name="app_entry_create_team">Pro</string>
+    <string name="app_entry_create_team_sub">Secure collaboration for businesses, institutions and professional organizations</string>
+
 </resources>

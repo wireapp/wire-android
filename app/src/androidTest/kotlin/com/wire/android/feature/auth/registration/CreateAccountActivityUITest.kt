@@ -12,8 +12,15 @@ class CreateAccountActivityUITest : FunctionalTest(CreateAccountActivity::class.
 
     @Test
     fun launch_uiElementsVisible() {
-        //TODO check other elements
         onView(withId(R.id.createAccountBackButton)).check(matches(isDisplayed()))
+
+        //Personal
+        onView(withId(R.id.createPersonalAccountTitleTextView)).check(matches(isDisplayed()))
+        onView(withId(R.id.createPersonalAccountDescriptionTextView)).check(matches(isDisplayed()))
+
+        //Pro
+        onView(withId(R.id.createProAccountTitleTextView)).check(matches(isDisplayed()))
+        onView(withId(R.id.createProAccountDescriptionTextView)).check(matches(isDisplayed()))
     }
 }
 

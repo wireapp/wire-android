@@ -2,5 +2,10 @@
 <resources>
     <dimen name="back_button_padding">16dp</dimen>
 
+    <!--Create Account -->
     <dimen name="create_account_back_button_elevation">1dp</dimen>
+    <dimen name="create_account_layout_container_margin">16dp</dimen>
+    <item name="create_account_layout_container_width_percent" format="float" type="dimen">0.7</item>
+    <dimen name="create_account_title_drawable_padding">8dp</dimen>
+    <dimen name="create_account_description_padding">32dp</dimen>
 </resources>

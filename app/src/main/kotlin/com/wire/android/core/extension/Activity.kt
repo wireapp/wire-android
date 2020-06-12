@@ -4,10 +4,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 
 fun AppCompatActivity.replaceFragment(frameId: Int, fragment: Fragment, addToBackStack: Boolean = true) =
-    supportFragmentManager.doTransaction {
-        replace(frameId, fragment).apply {
+    supportFragmentManager.inTransaction {
+        replace(frameId, fragment).also {
             if (addToBackStack) {
-                addToBackStack(fragment.tag)
+                it.addToBackStack(fragment.tag)
             }
         }
     }

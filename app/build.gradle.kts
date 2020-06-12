@@ -45,6 +45,7 @@ dependencies {
     androidTestImplementation(TestLibraries.testExtJunit)
     androidTestImplementation(TestLibraries.testRules)
     androidTestImplementation(TestLibraries.mockitoAndroid)
+    androidTestImplementation(TestLibraries.uiAutomator)
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)

@@ -2,12 +2,12 @@ package scripts
 
 plugins { id("core.android") }
 
-private object BuildTypes {
+object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
 }
 
-private object ProductFlavors {
+object ProductFlavors {
     const val DEV = "dev"
     const val INTERNAL = "internal"
     const val PUBLIC = "public"

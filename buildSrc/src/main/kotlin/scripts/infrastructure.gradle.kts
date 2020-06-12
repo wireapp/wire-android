@@ -50,7 +50,7 @@ tasks.register("runApp", Exec::class) {
         val adb = "${sdkDir}/platform-tools/adb"
         
         val applicationPackage = "com.wire.android.${Default.BUILD_FLAVOR}.${Default.BUILD_TYPE}"
-        val launchActivity = "com.wire.android.MainActivity"
+        val launchActivity = "com.wire.android.feature.auth.registration.CreateAccountActivity"
 
         commandLine(adb, "shell", "am", "start", "-n", "${applicationPackage}/${launchActivity}")
     }

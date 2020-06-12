@@ -4,8 +4,10 @@ import scripts.Variants_gradle.*
 import java.util.*
 
 private object Default {
-    val BUILD_TYPE = BuildTypes.DEBUG.capitalize()
-    val BUILD_FLAVOR = ProductFlavors.DEV.capitalize()
+    const val BUILD_TYPE = BuildTypes.DEBUG
+    const val BUILD_FLAVOR = ProductFlavors.DEV
+
+    val VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
 }
 
 tasks.register("clean", Delete::class){
@@ -19,22 +21,22 @@ tasks.named<Wrapper>("wrapper") {
 
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
-    dependsOn(":app:test${Default.BUILD_FLAVOR}${Default.BUILD_TYPE}UnitTest")
+    dependsOn(":app:test${Default.VARIANT}UnitTest")
 }
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
-    dependsOn(":app:connected${Default.BUILD_FLAVOR}${Default.BUILD_TYPE}AndroidTest")
+    dependsOn(":app:connected${Default.VARIANT}AndroidTest")
 }
 
 tasks.register("compileApp") {
     description = "Compiles the Wire Android Client."
-    dependsOn(":app:assemble${Default.BUILD_FLAVOR}${Default.BUILD_TYPE}")
+    dependsOn(":app:assemble${Default.VARIANT}")
 }
 
 tasks.register("runApp", Exec::class) {
     val compileAppTask = "compileApp"
-    val installAppTask = ":app:install${Default.BUILD_FLAVOR}${Default.BUILD_TYPE}"
+    val installAppTask = ":app:install${Default.VARIANT}"
 
     description = "Compiles and runs the Wire Android Client in the connected device."
     dependsOn(compileAppTask, installAppTask)
@@ -47,7 +49,7 @@ tasks.register("runApp", Exec::class) {
         val sdkDir = properties["sdk.dir"]
         val adb = "${sdkDir}/platform-tools/adb"
         
-        val applicationPackage = "com.wire.android.${Default.BUILD_FLAVOR.toLowerCase()}.${Default.BUILD_TYPE.toLowerCase()}"
+        val applicationPackage = "com.wire.android.${Default.BUILD_FLAVOR}.${Default.BUILD_TYPE}"
         val launchActivity = "com.wire.android.MainActivity"
 
         commandLine(adb, "shell", "am", "start", "-n", "${applicationPackage}/${launchActivity}")

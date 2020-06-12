@@ -22,7 +22,6 @@
     <style name="ImageButton" parent="Widget.AppCompat.ImageButton" />
 
     <style name="ImageButton.Back">
-        <item name="contentDescription">@string/back</item>
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:tint">?colorPrimary</item>
         <item name="android:src">?attr/homeAsUpIndicator</item>

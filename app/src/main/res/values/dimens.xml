@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="back_button_padding">16dp</dimen>
+
+    <dimen name="create_account_back_button_elevation">1dp</dimen>
 </resources>

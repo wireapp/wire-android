@@ -11,11 +11,11 @@
         style="@style/ImageButton.Back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:elevation="1dp"
+        android:elevation="@dimen/create_account_back_button_elevation"
         android:padding="@dimen/back_button_padding"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription" />
+        android:contentDescription="@string/back"/>
 
     <FrameLayout
         android:id="@+id/createAccountLayoutContainer"

@@ -7,7 +7,7 @@
     </style>
 
     <style name="Button.Secondary" parent="Widget.AppCompat.Button.Borderless.Colored">
-        <item name="android:textColor">@color/button_secondary_textcolor</item>
+        <item name="android:textColor">@color/button_secondary_text_color</item>
         <item name="backgroundTint">@color/button_secondary_background</item>
     </style>
 

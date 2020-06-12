@@ -22,11 +22,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    sourceSets {
-        getByName("main") { java.srcDir("src/main/kotlin") }
-        getByName("test") { java.srcDir("src/test/kotlin") }
-        getByName("androidTest") { java.srcDir("src/androidTest/kotlin") }
-    }
+    sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
 }
 
 dependencies {
@@ -38,7 +34,7 @@ dependencies {
     implementation(Libraries.material)
 
     // Unit/Android tests dependencies
-    testImplementation (TestLibraries.junit4)
+    testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.mockito)
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.assertJ)

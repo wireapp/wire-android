@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 
-inline fun FragmentManager.doTransaction(func: FragmentTransaction.() -> FragmentTransaction) =
+inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) =
     beginTransaction().func().commit()
 
 //TODO: Fragment shouldn't be aware of activity's view ids

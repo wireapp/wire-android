@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/create_account_center_guideline"
+        android:id="@+id/createAccountCenterGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -17,7 +17,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="@id/create_account_center_guideline"
+        app:layout_constraintRight_toRightOf="@id/createAccountCenterGuideline"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_percent="@dimen/create_account_layout_container_width_percent" />
 
@@ -27,7 +27,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/create_account_center_guideline"
+        app:layout_constraintLeft_toRightOf="@+id/createAccountCenterGuideline"
         app:layout_constraintTop_toTopOf="@id/createPersonalAccountLayoutContainer"
         app:layout_constraintVertical_bias="0.0"
         app:layout_constraintWidth_percent="@dimen/create_account_layout_container_width_percent" />

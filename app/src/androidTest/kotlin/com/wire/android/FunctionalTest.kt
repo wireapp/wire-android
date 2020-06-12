@@ -9,13 +9,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-abstract class FunctionalTest(clazz: Class<*>) {
+abstract class FunctionalTest(clazz: Class<out Activity>) {
 
     @get:Rule
-    var activityRule = activityTestRule(clazz)
-
-    private fun activityTestRule(activityClass: Class<*>): ActivityTestRule<out Activity> {
-        require(activityClass is Activity) { "Wrong class type: Use Android Activity type." }
-        return ActivityTestRule(activityClass.asSubclass(Activity::class.java))
-    }
+    val activityRule = ActivityTestRule(clazz)
 }

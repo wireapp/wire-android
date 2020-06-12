@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Button" parent="Widget.MaterialComponents.Button" />
 
     <style name="Button.Primary">
@@ -17,4 +18,12 @@
     </style>
 
     <style name="Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton" />
+
+    <style name="ImageButton" parent="Widget.AppCompat.ImageButton" />
+
+    <style name="ImageButton.Back">
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:tint">?colorPrimary</item>
+        <item name="android:src">?attr/homeAsUpIndicator</item>
+    </style>
 </resources>

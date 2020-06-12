@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--Top level DayNight theme to be used in AndroidManifest.xml
+        Any custom-defined attribute goes here
+    -->
+    <style name="AppTheme" parent="Theme.Base.Material" />
+
+    <!--Base material theme which will be shared between both light and dark theme variants-->
+    <style name="Theme.Base.Material">
+        <!--Material color attributes (light theme) -->
+        <!--colorPrimary colors map to components and elements, such as app bars and buttons. -->
+        <!--colorSecondary colors are most often used as accents on components, such as FABs and -->
+        <!--selection controls.-->
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryVariant">#121212</item>
+        <item name="colorSecondary">#2492d3</item>
+        <item name="colorSecondaryVariant">#0065a1</item>
+        <!--colorBackground appears behind scrollable content and is used for the default window-->
+        <!--background. colorSurface is mapped to the surface of components such as cards, sheets-->
+        <!--and menus. colorError is used to indicate an error state for components such as-->
+        <!--text fields.-->
+        <item name="android:colorBackground">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorError">#fb0807</item>
+        <!--"On" colors define how text, icons and strokes are colored in relation to the surface-->
+        <!--on which they appear.-->
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorOnBackground">@color/black</item>
+        <item name="colorOnSurface">@color/black</item>
+        <item name="colorOnError">@color/white</item>
+
+        <!--Material type attributes-->
+        <item name="textAppearanceHeadline1">@style/TextView.H1</item>
+        <item name="textAppearanceHeadline2">@style/TextView.H2</item>
+        <item name="textAppearanceHeadline3">@style/TextView.H3</item>
+        <item name="textAppearanceHeadline4">@style/TextView.H4</item>
+        <item name="textAppearanceHeadline5">@style/TextView.H5</item>
+        <item name="textAppearanceHeadline6">@style/TextView.H6</item>
+        <item name="textAppearanceSubtitle1">@style/TextView.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextView.Subtitle2</item>
+        <item name="textAppearanceBody1">@style/TextView.Body1</item>
+        <item name="textAppearanceBody2">@style/TextView.Body2</item>
+        <item name="textAppearanceCaption">@style/TextView.Caption</item>
+        <item name="textAppearanceOverline">@style/TextView.Overline</item>
+
+        <!--Component styles-->
+        <item name="materialAlertDialogTheme">@style/AlertDialog</item>
+        <item name="toolbarStyle">@style/Toolbar</item>
+
+        <!--Widget styles-->
+        <item name="materialButtonOutlinedStyle">@style/Button.Outlined</item>
+    </style>
+
+    <style name="Theme.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor" tools:ignore="NewApi">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
+        <item name="android:navigationBarColor" tools:ignore="NewApi">?android:attr/colorBackground
+        </item>
+        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">true</item>
+        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">?attr/colorControlHighlight</item>
+    </style>
+</resources>

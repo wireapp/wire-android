@@ -31,6 +31,7 @@ dependencies {
     implementation(Libraries.appCompat)
     implementation(Libraries.ktxCore)
     implementation(Libraries.constraintLayout)
+    implementation(Libraries.material)
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.junit4)

@@ -10,11 +10,22 @@ class CreateAccountActivity : AppCompatActivity(R.layout.activity_create_account
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        replaceFragment(R.id.createAccountLayoutContainer, CreateAccountFragment.newInstance(), false)
+        if (savedInstanceState == null) {
+            replaceFragment(
+                R.id.createAccountLayoutContainer,
+                CreateAccountFragment.newInstance(),
+                false
+            )
+        }
         initBackButton()
     }
 
     private fun initBackButton() {
         createAccountBackButton.setOnClickListener { onBackPressed() }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        supportFragmentManager.popBackStack()
     }
 }

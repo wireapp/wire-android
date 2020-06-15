@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="back_button_padding">16dp</dimen>
+    <dimen name="screen_padding">16dp</dimen>
 
     <!--Authentication - Register-->
     <dimen name="create_account_back_button_elevation">1dp</dimen>
@@ -8,4 +9,7 @@
     <item name="create_account_layout_container_width_percent" format="float" type="dimen">0.7</item>
     <dimen name="create_account_title_drawable_padding">8dp</dimen>
     <dimen name="create_account_description_padding">32dp</dimen>
+
+    <dimen name="authentication_view_pager_margin_top">24dp</dimen>
+    <item name="authentication_view_pager_width_percent" format="float" type="dimen">1</item>
 </resources>

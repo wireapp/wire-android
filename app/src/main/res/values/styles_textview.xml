@@ -27,4 +27,10 @@
         <item name="android:paddingEnd">@dimen/create_account_description_padding</item>
     </style>
 
+    <style name="TextView.Authentication.Header" parent="TextView.H2">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:textSize">32sp</item>
+    </style>
+
 </resources>

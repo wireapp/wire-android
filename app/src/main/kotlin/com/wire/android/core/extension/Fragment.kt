@@ -12,3 +12,5 @@ inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> Fragmen
 fun Fragment.replaceFragment(frameId: Int, fragment: Fragment, addToBackStack: Boolean = true) {
     (activity as AppCompatActivity).replaceFragment(frameId, fragment, addToBackStack)
 }
+
+fun Fragment.showKeyboard() = activity?.showKeyboard()

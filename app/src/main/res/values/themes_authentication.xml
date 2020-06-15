@@ -2,6 +2,6 @@
 <resources>
     <style name="AppTheme.Authentication">
         <item name="android:colorBackground">#f8f8f8</item>
-        <item name="android:textColorPrimary">@color/graphite</item>
+        <item name="android:textColorPrimary">#ff33373A</item>
     </style>
 </resources>

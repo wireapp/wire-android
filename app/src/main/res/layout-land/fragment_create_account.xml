@@ -8,7 +8,7 @@
         android:id="@+id/createAccountCenterGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
 
     <include
@@ -16,23 +16,20 @@
         layout="@layout/layout_create_account_personal_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/create_account_layout_container_margin"
-        app:layout_constraintBottom_toTopOf="@+id/createAccountCenterGuideline"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintVertical_bias="0.9"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="@id/createAccountCenterGuideline"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_percent="@dimen/create_account_layout_container_width_percent" />
 
     <include
-        layout="@layout/layout_create_account_pro_container"
         android:id="@+id/createProAccountLayoutContainer"
+        layout="@layout/layout_create_account_pro_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/create_account_layout_container_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createAccountCenterGuideline"
-        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/createAccountCenterGuideline"
+        app:layout_constraintTop_toTopOf="@id/createPersonalAccountLayoutContainer"
+        app:layout_constraintVertical_bias="0.0"
         app:layout_constraintWidth_percent="@dimen/create_account_layout_container_width_percent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

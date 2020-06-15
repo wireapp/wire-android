@@ -22,5 +22,10 @@ class CreateAccountActivityUITest : FunctionalTest(CreateAccountActivity::class.
         onView(withId(R.id.createProAccountTitleTextView)).check(matches(isDisplayed()))
         onView(withId(R.id.createProAccountDescriptionTextView)).check(matches(isDisplayed()))
     }
+
+    @Test
+    fun launch_uiElementsVisibleInLandscape() = inRotatedMode {
+        launch_uiElementsVisible()
+    }
 }
 

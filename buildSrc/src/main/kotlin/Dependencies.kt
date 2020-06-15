@@ -26,6 +26,8 @@ object Libraries {
         const val constraintLayout = "1.1.3"
         const val ktx = "1.3.0"
         const val material = "1.1.0"
+        const val koin = "2.1.6"
+        const val lifecycleKtx = "2.2.0"
     }
 
     const val kotlinStdLib     = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
@@ -33,6 +35,13 @@ object Libraries {
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
     const val ktxCore          = "androidx.core:core-ktx:${Versions.ktx}"
     const val material         = "com.google.android.material:material:${Versions.material}"
+    const val livedataKtx     = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycleKtx}"
+
+    object Koin {
+        const val androidCore  = "org.koin:koin-android:${Versions.koin}"
+        const val androidScope = "org.koin:koin-android-scope:${Versions.koin}"
+        const val viewModel    = "org.koin:koin-android-viewmodel:${Versions.koin}"
+    }
 }
 
 object TestLibraries {

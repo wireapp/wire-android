@@ -14,5 +14,6 @@
 
     <!-- Registration - Personal -->
     <string name="create_personal_account_title">Create an account</string>
+    <string name="create_personal_account_with_email_edit_text_hint">EMAIL</string>
 
 </resources>

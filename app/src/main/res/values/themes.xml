@@ -3,7 +3,9 @@
     <!--Top level DayNight theme to be used in AndroidManifest.xml
         Any custom-defined attribute goes here
     -->
-    <style name="AppTheme" parent="Theme.Base.Material" />
+    <style name="AppTheme" parent="Theme.Base.Material" >
+        <item name="editableFieldBackgroundColor">@color/white</item>
+    </style>
 
     <!--Base material theme which will be shared between both light and dark theme variants-->
     <style name="Theme.Base.Material">
@@ -51,6 +53,7 @@
         <!--Widget styles-->
         <item name="materialButtonOutlinedStyle">@style/Button.Outlined</item>
         <item name="tabStyle">@style/TabLayout</item>
+        <item name="textInputStyle">@style/TextInputLayout.NoBorder</item>
     </style>
 
     <style name="Theme.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">

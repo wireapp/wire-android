@@ -19,6 +19,24 @@
 
     <style name="Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton" />
 
+    <style name="Button.Rounded" parent="Widget.MaterialComponents.Button.Icon">
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="cornerRadius">@dimen/button_rounded_corner_radius</item>
+    </style>
+
+    <style name="Button.Circle" parent="Button.Rounded">
+        <item name="android:layout_width">@dimen/button_circle_diameter</item>
+        <item name="android:layout_height">@dimen/button_circle_diameter</item>
+        <item name="iconSize">@dimen/button_circle_icon_size</item>
+    </style>
+
+    <style name="Button.Primary.Circle" parent="Button.Circle">
+        <item name="backgroundTint">@color/button_primary_background</item>
+    </style>
+
     <style name="ImageButton" parent="Widget.AppCompat.ImageButton" />
 
     <style name="ImageButton.Back">
@@ -26,4 +44,5 @@
         <item name="android:tint">?colorPrimary</item>
         <item name="android:src">?attr/homeAsUpIndicator</item>
     </style>
+
 </resources>

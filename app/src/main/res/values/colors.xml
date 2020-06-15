@@ -3,7 +3,5 @@
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
 
-    <!-- Teams -->
-    <!-- TODO extract into a style -->
-    <color name="authentication_background">#F8F8F8</color>
+    <color name="graphite">#ff33373A</color>
 </resources>

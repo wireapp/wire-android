@@ -30,9 +30,9 @@
         android:layout_marginTop="@dimen/authentication_view_pager_margin_top"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="@dimen/authentication_view_pager_width_percent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountTitleTextView">
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountTitleTextView"
+        app:layout_constraintWidth_percent="@dimen/authentication_view_pager_width_percent">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/createPersonalAccountTabLayout"

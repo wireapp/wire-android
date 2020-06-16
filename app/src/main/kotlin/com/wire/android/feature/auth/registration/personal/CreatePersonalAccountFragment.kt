@@ -21,7 +21,8 @@ class CreatePersonalAccountFragment : Fragment(R.layout.fragment_create_personal
             getString(R.string.authentication_tab_layout_title_phone)
         )
         createPersonalAccountViewPager.adapter = CreatePersonalAccountViewPagerAdapter(
-            childFragmentManager, titles
+            childFragmentManager,
+            titles
         )
     }
 

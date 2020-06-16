@@ -39,7 +39,6 @@ object Libraries {
 
     object Koin {
         const val androidCore  = "org.koin:koin-android:${Versions.koin}"
-        const val androidScope = "org.koin:koin-android-scope:${Versions.koin}"
         const val viewModel    = "org.koin:koin-android-viewmodel:${Versions.koin}"
     }
 }

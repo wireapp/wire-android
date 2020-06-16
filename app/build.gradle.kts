@@ -38,7 +38,6 @@ dependencies {
     implementation(Libraries.material)
     implementation(Libraries.livedataKtx)
     implementation(Libraries.Koin.androidCore)
-    implementation(Libraries.Koin.androidScope)
     implementation(Libraries.Koin.viewModel)
 
     // Unit/Android tests dependencies

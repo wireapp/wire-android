@@ -24,7 +24,7 @@ class CreateAccountActivityUITest : FunctionalTest(CreateAccountActivity::class.
     }
 
     @Test
-    fun launch_uiElementsVisibleInLandscape() = inRotatedMode {
+    fun launch_uiElementsVisibleInLandscape() = rotateScreen {
         launch_uiElementsVisible()
     }
 
@@ -40,7 +40,7 @@ class CreateAccountActivityUITest : FunctionalTest(CreateAccountActivity::class.
     }
 
     @Test
-    fun personal_uiElementsVisibleInLandscape() = inRotatedMode {
+    fun personal_uiElementsVisibleInLandscape() = rotateScreen {
         personal_uiElementsVisible()
     }
 }

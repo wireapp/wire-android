@@ -2,7 +2,7 @@ package com.wire.android.feature.auth.registration.personal
 
 import androidx.fragment.app.FragmentManager
 import com.wire.android.UnitTest
-import org.junit.Assert.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -26,7 +26,7 @@ class CreatePersonalAccountViewPagerAdapterTest : UnitTest() {
     @Test
     fun `given getCount() is called, then return the size of the adapter`() {
         `when`(titles.size).thenReturn(TEST_SIZE)
-        assertEquals(TEST_SIZE, createPersonalAccountViewPagerAdapter.count)
+        assertThat(TEST_SIZE).isEqualTo(createPersonalAccountViewPagerAdapter.count)
     }
 
     @Test
@@ -34,8 +34,10 @@ class CreatePersonalAccountViewPagerAdapterTest : UnitTest() {
         `when`(titles[0]).thenReturn(TEST_TITLE_EMAIL)
         `when`(titles[1]).thenReturn(TEST_TITLE_PHONE)
 
-        assertEquals(TEST_TITLE_EMAIL.toUpperCase(), createPersonalAccountViewPagerAdapter.getPageTitle(0))
-        assertEquals(TEST_TITLE_PHONE.toUpperCase(), createPersonalAccountViewPagerAdapter.getPageTitle(1))
+        with(createPersonalAccountViewPagerAdapter) {
+            assertThat(TEST_TITLE_EMAIL.toUpperCase()).isEqualTo(getPageTitle(0))
+            assertThat(TEST_TITLE_PHONE.toUpperCase()).isEqualTo(getPageTitle(1))
+        }
     }
 
     companion object {

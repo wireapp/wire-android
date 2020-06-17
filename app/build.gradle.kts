@@ -23,6 +23,10 @@ android {
     }
 
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 dependencies {
@@ -32,6 +36,9 @@ dependencies {
     implementation(Libraries.ktxCore)
     implementation(Libraries.constraintLayout)
     implementation(Libraries.material)
+    implementation(Libraries.livedataKtx)
+    implementation(Libraries.Koin.androidCore)
+    implementation(Libraries.Koin.viewModel)
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.junit4)

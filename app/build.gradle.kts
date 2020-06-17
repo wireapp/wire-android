@@ -37,6 +37,7 @@ dependencies {
     implementation(Libraries.constraintLayout)
     implementation(Libraries.material)
     implementation(Libraries.livedataKtx)
+    implementation(Libraries.viewModelKtx)
     implementation(Libraries.Koin.androidCore)
     implementation(Libraries.Koin.viewModel)
 
@@ -45,6 +46,7 @@ dependencies {
     testImplementation(TestLibraries.mockito)
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.assertJ)
+    testImplementation(TestLibraries.coroutinesTest)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(TestLibraries.testRunner)

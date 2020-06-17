@@ -35,7 +35,8 @@ object Libraries {
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
     const val ktxCore          = "androidx.core:core-ktx:${Versions.ktx}"
     const val material         = "com.google.android.material:material:${Versions.material}"
-    const val livedataKtx     = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycleKtx}"
+    const val livedataKtx      = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycleKtx}"
+    const val viewModelKtx     = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycleKtx}"
 
     object Koin {
         const val androidCore  = "org.koin:koin-android:${Versions.koin}"
@@ -46,7 +47,7 @@ object Libraries {
 object TestLibraries {
     private object Versions {
         const val junit4 = "4.13"
-        const val mockito = "2.7.22"
+        const val mockito = "3.3.0"
         const val robolectric = "4.3.1"
         const val assertJ = "3.16.1"
         const val testRunner = "1.1.0"
@@ -54,6 +55,7 @@ object TestLibraries {
         const val testExtensions = "1.1.1"
         const val testRules = "1.1.0"
         const val uiAutomator = "2.2.0"
+        const val coroutines = "1.3.7"
     }
 
     const val junit4         = "junit:junit:${Versions.junit4}"
@@ -66,6 +68,7 @@ object TestLibraries {
     const val testRules      = "androidx.test:rules:${Versions.testRules}"
     const val mockitoAndroid = "org.mockito:mockito-android:${Versions.mockito}"
     const val uiAutomator    = "androidx.test.uiautomator:uiautomator:${Versions.uiAutomator}"
+    const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutines}"
 }
 
 object DevLibraries {

@@ -18,7 +18,7 @@ abstract class FunctionalTest(clazz: Class<out Activity>) {
 
     val uiDevice = UiDevice.getInstance(getInstrumentation())
 
-    fun inRotatedMode(block: () -> Unit) = with(uiDevice) {
+    fun rotateScreen(block: () -> Unit) = with(uiDevice) {
         setOrientationLeft()
         block()
         setOrientationNatural()

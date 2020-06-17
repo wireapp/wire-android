@@ -20,7 +20,7 @@
         <!--and menus. colorError is used to indicate an error state for components such as-->
         <!--text fields.-->
         <item name="android:colorBackground">@color/white</item>
-        <item name="colorSurface">@color/white</item>
+        <item name="colorSurface">?android:attr/colorBackground</item>
         <item name="colorError">#fb0807</item>
         <!--"On" colors define how text, icons and strokes are colored in relation to the surface-->
         <!--on which they appear.-->
@@ -50,6 +50,7 @@
 
         <!--Widget styles-->
         <item name="materialButtonOutlinedStyle">@style/Button.Outlined</item>
+        <item name="tabStyle">@style/TabLayout</item>
     </style>
 
     <style name="Theme.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">

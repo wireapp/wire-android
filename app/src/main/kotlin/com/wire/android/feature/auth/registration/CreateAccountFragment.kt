@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.wire.android.R
 import com.wire.android.core.extension.replaceFragment
+import com.wire.android.feature.auth.registration.personal.CreatePersonalAccountFragment
 import kotlinx.android.synthetic.main.fragment_create_account.*
 
 class CreateAccountFragment : Fragment(R.layout.fragment_create_account) {
@@ -17,9 +18,9 @@ class CreateAccountFragment : Fragment(R.layout.fragment_create_account) {
 
     private fun initCreatePersonalAccount() {
         createPersonalAccountLayoutContainer.setOnClickListener {
-//            replaceFragment(
-//                R.id.activityCreateAccountLayoutContainer,
-//                CreatePersonalAccountFragment.newInstance())
+            replaceFragment(
+                R.id.createAccountLayoutContainer,
+                CreatePersonalAccountFragment.newInstance())
         }
     }
 

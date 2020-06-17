@@ -1,4 +1,4 @@
-object Dependencies {
+private object Dependencies {
     const val AndroidBuildTools = "com.android.tools.build:gradle:4.0.0"
 }
 

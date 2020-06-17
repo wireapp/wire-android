@@ -25,11 +25,7 @@ object Injector {
     fun start(context: Context) {
         startKoin {
             androidContext(context)
-            modules(listOf(
-                coreModules,
-                sharedModules,
-                featureModules
-            ).flatten())
+            modules(listOf(coreModules, sharedModules, featureModules).flatten())
         }
     }
 }

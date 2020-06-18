@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2019 Fernando Cejas Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.wire.android.core.functional
 
 /**
@@ -94,7 +109,7 @@ fun <T, L, R> Either<L, R>.map(fn: (R) -> (T)): Either<L, T> = this.flatMap(fn.c
 
 /**
  * Returns the value from this `Right` or the given argument if this is a `Left`.
- *  Right(12).getOrElse(17) RETURNS 12 and Left(12).getOrElse(17) RETURNS 17
+ * Right(12).getOrElse(17) RETURNS 12 and Left(12).getOrElse(17) RETURNS 17
  */
 fun <L, R> Either<L, R>.getOrElse(value: R): R =
     when (this) {

@@ -21,16 +21,16 @@ object AndroidSdk {
 }
 
 object Libraries {
-    private object Versions {
+    object Versions {
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
         const val ktx = "1.3.0"
         const val material = "1.1.0"
         const val koin = "2.1.6"
         const val lifecycleKtx = "2.2.0"
+        const val coroutines = "1.3.7"
     }
 
-    const val kotlinStdLib     = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
     const val ktxCore          = "androidx.core:core-ktx:${Versions.ktx}"
@@ -41,6 +41,12 @@ object Libraries {
     object Koin {
         const val androidCore  = "org.koin:koin-android:${Versions.koin}"
         const val viewModel    = "org.koin:koin-android-viewmodel:${Versions.koin}"
+    }
+
+    object Kotlin {
+        const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+        const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
+        const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     }
 }
 
@@ -55,7 +61,6 @@ object TestLibraries {
         const val testExtensions = "1.1.1"
         const val testRules = "1.1.0"
         const val uiAutomator = "2.2.0"
-        const val coroutines = "1.3.7"
     }
 
     const val junit4         = "junit:junit:${Versions.junit4}"
@@ -68,7 +73,7 @@ object TestLibraries {
     const val testRules      = "androidx.test:rules:${Versions.testRules}"
     const val mockitoAndroid = "org.mockito:mockito-android:${Versions.mockito}"
     const val uiAutomator    = "androidx.test.uiautomator:uiautomator:${Versions.uiAutomator}"
-    const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutines}"
+    const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libraries.Versions.coroutines}"
 }
 
 object DevLibraries {

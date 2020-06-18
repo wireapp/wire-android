@@ -31,7 +31,7 @@ android {
 
 dependencies {
     // Application dependencies
-    implementation(Libraries.kotlinStdLib)
+    implementation(Libraries.Kotlin.stdLib)
     implementation(Libraries.appCompat)
     implementation(Libraries.ktxCore)
     implementation(Libraries.constraintLayout)
@@ -40,6 +40,8 @@ dependencies {
     implementation(Libraries.viewModelKtx)
     implementation(Libraries.Koin.androidCore)
     implementation(Libraries.Koin.viewModel)
+    implementation(Libraries.Kotlin.coroutinesCore)
+    implementation(Libraries.Kotlin.coroutinesAndroid)
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.junit4)

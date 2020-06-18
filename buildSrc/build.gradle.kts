@@ -1,5 +1,6 @@
 private object Dependencies {
-    const val AndroidBuildTools = "com.android.tools.build:gradle:4.0.0"
+    const val AndroidBuildTools  = "com.android.tools.build:gradle:4.0.0"
+    const val KotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72"
 }
 
 plugins {
@@ -14,4 +15,5 @@ repositories {
 
 dependencies {
     implementation(Dependencies.AndroidBuildTools)
+    implementation(Dependencies.KotlinGradlePlugin)
 }

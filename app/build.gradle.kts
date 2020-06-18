@@ -17,16 +17,12 @@ android {
         applicationId = appId
         minSdkVersion(AndroidSdk.min)
         targetSdkVersion(AndroidSdk.target)
-        versionCode = 1
-        versionName = "1.0"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        versionCode = AndroidSdk.versionCode
+        versionName = AndroidSdk.versionName
+        testInstrumentationRunner = AndroidSdk.testInstrumentationRunner
     }
 
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
 }
 
 dependencies {

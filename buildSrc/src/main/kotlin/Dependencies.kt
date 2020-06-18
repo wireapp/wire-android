@@ -18,6 +18,11 @@ object AndroidSdk {
     const val min = 21
     const val compile = 29
     const val target = compile
+
+    const val versionCode = 1
+    const val versionName = "1.0"
+
+    const val testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 }
 
 object Libraries {

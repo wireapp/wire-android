@@ -27,20 +27,24 @@ android {
 
 dependencies {
     // Application dependencies
-    implementation(Libraries.kotlinStdLib)
+    implementation(Libraries.Kotlin.stdLib)
     implementation(Libraries.appCompat)
     implementation(Libraries.ktxCore)
     implementation(Libraries.constraintLayout)
     implementation(Libraries.material)
     implementation(Libraries.livedataKtx)
+    implementation(Libraries.viewModelKtx)
     implementation(Libraries.Koin.androidCore)
     implementation(Libraries.Koin.viewModel)
+    implementation(Libraries.Kotlin.coroutinesCore)
+    implementation(Libraries.Kotlin.coroutinesAndroid)
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.mockito)
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.assertJ)
+    testImplementation(TestLibraries.coroutinesTest)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(TestLibraries.testRunner)

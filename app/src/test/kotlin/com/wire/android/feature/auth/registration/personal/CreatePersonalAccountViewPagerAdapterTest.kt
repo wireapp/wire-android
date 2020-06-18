@@ -26,7 +26,7 @@ class CreatePersonalAccountViewPagerAdapterTest : UnitTest() {
     @Test
     fun `given getCount() is called, then return the size of the adapter`() {
         `when`(titles.size).thenReturn(TEST_SIZE)
-        assertThat(TEST_SIZE).isEqualTo(createPersonalAccountViewPagerAdapter.count)
+        assertThat(createPersonalAccountViewPagerAdapter.count).isEqualTo(TEST_SIZE)
     }
 
     @Test
@@ -35,8 +35,8 @@ class CreatePersonalAccountViewPagerAdapterTest : UnitTest() {
         `when`(titles[1]).thenReturn(TEST_TITLE_PHONE)
 
         with(createPersonalAccountViewPagerAdapter) {
-            assertThat(TEST_TITLE_EMAIL.toUpperCase()).isEqualTo(getPageTitle(0))
-            assertThat(TEST_TITLE_PHONE.toUpperCase()).isEqualTo(getPageTitle(1))
+            assertThat(getPageTitle(0)).isEqualTo(TEST_TITLE_EMAIL.toUpperCase())
+            assertThat(getPageTitle(1)).isEqualTo(TEST_TITLE_PHONE.toUpperCase())
         }
     }
 

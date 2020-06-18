@@ -9,9 +9,7 @@ import com.wire.android.R
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class CreatePersonalAccountEmailFragment : Fragment(
-    R.layout.fragment_create_personal_account_email
-) {
+class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_personal_account_email) {
 
     //TODO Add loading status
     private val emailViewModel: CreatePersonalAccountEmailViewModel by viewModel()

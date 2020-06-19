@@ -14,8 +14,8 @@ object EmailInvalid : ValidateEmailError()
 class ValidateEmailUseCase : UseCase<Unit, ValidateEmailParams> {
 
     override suspend fun run(params: ValidateEmailParams): Either<Failure, Unit> = when {
-        !emailCharactersValid(params.email) -> Either.Left(EmailInvalid)
         isEmailTooShort(params.email) -> Either.Left(EmailTooShort)
+        !emailCharactersValid(params.email) -> Either.Left(EmailInvalid)
         else -> Either.Right(Unit)
     }
 

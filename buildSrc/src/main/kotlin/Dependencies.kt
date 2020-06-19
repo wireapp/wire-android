@@ -66,6 +66,7 @@ object TestLibraries {
         const val testExtensions = "1.1.1"
         const val testRules = "1.1.0"
         const val uiAutomator = "2.2.0"
+        const val testCore = "2.1.0"
     }
 
     const val junit4         = "junit:junit:${Versions.junit4}"
@@ -79,6 +80,7 @@ object TestLibraries {
     const val mockitoAndroid = "org.mockito:mockito-android:${Versions.mockito}"
     const val uiAutomator    = "androidx.test.uiautomator:uiautomator:${Versions.uiAutomator}"
     const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libraries.Versions.coroutines}"
+    const val testCore       = "androidx.arch.core:core-testing:${Versions.testCore}"
 }
 
 object DevLibraries {

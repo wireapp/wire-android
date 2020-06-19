@@ -50,13 +50,14 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given validateEmail is called, when the validation succeeds then isValidEmail should be true`() = runBlockingTest {
-        `when`(validateEmailUseCase.run(any())).thenReturn(Either.Right(Unit))
+    fun `given validateEmail is called, when the validation succeeds then isValidEmail should be true`() =
+        runBlockingTest {
+            `when`(validateEmailUseCase.run(any())).thenReturn(Either.Right(Unit))
 
-        emailViewModel.validateEmail(TEST_EMAIL)
+            emailViewModel.validateEmail(TEST_EMAIL)
 
-        assertThat(emailViewModel.isValidEmailLiveData.awaitValue()).isTrue()
-    }
+            assertThat(emailViewModel.isValidEmailLiveData.awaitValue()).isTrue()
+        }
 
     @Test
     fun `given validateEmail is called, when the validation fails with EmailTooShort error then isValidEmail should be false`() =

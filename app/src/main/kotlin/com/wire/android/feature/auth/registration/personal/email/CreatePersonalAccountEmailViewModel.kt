@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
-import com.wire.android.core.extension.setFailure
-import com.wire.android.core.extension.setSuccess
+import com.wire.android.core.extension.failure
+import com.wire.android.core.extension.success
 import com.wire.android.core.functional.Either
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
@@ -55,16 +55,16 @@ class CreatePersonalAccountEmailViewModel(
             it.fold(::sendActivationCodeFailure) { sendActivationCodeSuccess() }
         }
 
-    private fun sendActivationCodeSuccess() = _sendActivationCodeLiveData.setSuccess()
+    private fun sendActivationCodeSuccess() = _sendActivationCodeLiveData.success()
 
     private fun sendActivationCodeFailure(failure: Failure) {
         when (failure) {
             is NetworkConnection -> _networkConnectionErrorLiveData.value = Unit
 
-            is EmailBlacklisted -> _sendActivationCodeLiveData.setFailure(
+            is EmailBlacklisted -> _sendActivationCodeLiveData.failure(
                 ErrorMessage(R.string.create_personal_account_with_email_email_blacklisted_error)
             )
-            is EmailInUse -> _sendActivationCodeLiveData.setFailure(
+            is EmailInUse -> _sendActivationCodeLiveData.failure(
                 ErrorMessage(R.string.create_personal_account_with_email_email_in_use_error)
             )
         }

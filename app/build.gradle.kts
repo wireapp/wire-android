@@ -45,6 +45,7 @@ dependencies {
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.assertJ)
     testImplementation(TestLibraries.coroutinesTest)
+    testImplementation(TestLibraries.testCore)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(TestLibraries.testRunner)

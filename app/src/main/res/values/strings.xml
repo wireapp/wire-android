@@ -15,5 +15,8 @@
     <!-- Registration - Personal -->
     <string name="create_personal_account_title">Create an account</string>
     <string name="create_personal_account_with_email_edit_text_hint">EMAIL</string>
+    <string name="create_personal_account_with_email_email_blacklisted_error">This email address is not allowed.</string>
+    <string name="create_personal_account_with_email_email_in_use_error">This email address you used is already linked to an account.\nUse another email address or try to login if you own this account.</string>
+
 
 </resources>

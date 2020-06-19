@@ -24,7 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner
  * framework dependencies or components.
  */
 @RunWith(MockitoJUnitRunner::class)
-abstract class UnitTest {
+open class UnitTest {
 
     @Suppress("LeakingThis")
     @Rule

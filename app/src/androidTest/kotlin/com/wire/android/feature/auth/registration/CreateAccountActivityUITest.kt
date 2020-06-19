@@ -44,4 +44,3 @@ class CreateAccountActivityUITest : FunctionalTest(CreateAccountActivity::class.
         personal_uiElementsVisible()
     }
 }
-

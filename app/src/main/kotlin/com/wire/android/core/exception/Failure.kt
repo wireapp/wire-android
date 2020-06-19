@@ -6,5 +6,10 @@ package com.wire.android.core.exception
  */
 sealed class Failure
 
+sealed class NetworkFailure : Failure()
+object Conflict : NetworkFailure()
+object Forbidden : NetworkFailure()
+object NetworkConnection : NetworkFailure()
+
 /** Extend this class for UseCase specific failures.*/
 abstract class FeatureFailure : Failure()

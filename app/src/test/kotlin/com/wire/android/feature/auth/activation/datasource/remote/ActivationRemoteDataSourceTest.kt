@@ -2,9 +2,9 @@ package com.wire.android.feature.auth.activation.datasource.remote
 
 import com.wire.android.UnitTest
 import com.wire.android.any
-import com.wire.android.core.network.NetworkHandler
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.network.connectedNetworkHandler
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -21,15 +21,11 @@ class ActivationRemoteDataSourceTest : UnitTest() {
     private lateinit var activationApi: ActivationApi
 
     @Mock
-    private lateinit var networkHandler: NetworkHandler
-
-    @Mock
     private lateinit var response: Response<Unit>
 
     @Before
     fun setUp() {
-        `when`(networkHandler.isConnected).thenReturn(true)
-        activationRemoteDataSource = ActivationRemoteDataSource(activationApi, networkHandler)
+        activationRemoteDataSource = ActivationRemoteDataSource(activationApi, connectedNetworkHandler)
     }
 
     @Test

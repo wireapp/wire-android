@@ -1,3 +1,3 @@
 package com.wire.android.core.extension
 
-fun String.Companion.empty() = ""
+val String.Companion.EMPTY get() = ""

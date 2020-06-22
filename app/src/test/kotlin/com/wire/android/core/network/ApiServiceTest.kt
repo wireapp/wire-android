@@ -2,7 +2,7 @@ package com.wire.android.core.network
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.*
-import com.wire.android.core.extension.empty
+import com.wire.android.core.extension.EMPTY
 import com.wire.android.framework.functional.assertLeft
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -18,7 +18,7 @@ class ApiServiceTest : UnitTest() {
     private lateinit var apiService: ApiService
 
     @Mock
-    private lateinit var mockNetworkHandler: NetworkHandler
+    private lateinit var networkHandler: NetworkHandler
 
     @Mock
     private lateinit var response: Response<String>
@@ -29,14 +29,14 @@ class ApiServiceTest : UnitTest() {
     @Before
     fun setUp() {
         apiService = object : ApiService() {
-            override val networkHandler: NetworkHandler = mockNetworkHandler
+            override val networkHandler: NetworkHandler = this@ApiServiceTest.networkHandler
         }
     }
 
     @Test
     fun `given no network connection, when request called, returns NetworkConnection failure immediately`() {
         runBlocking {
-            `when`(mockNetworkHandler.isConnected).thenReturn(false)
+            `when`(networkHandler.isConnected).thenReturn(false)
 
             val result = apiService.request(default = null, call = responseFunc)
 
@@ -48,7 +48,7 @@ class ApiServiceTest : UnitTest() {
     @Test
     fun `given no default argument, when response is successful but has no body, returns EmptyResponseBody failure`() {
         runBlocking {
-            `when`(mockNetworkHandler.isConnected).thenReturn(true)
+            `when`(networkHandler.isConnected).thenReturn(true)
 
             `when`(response.isSuccessful).thenReturn(true)
             `when`(response.body()).thenReturn(null)
@@ -91,13 +91,13 @@ class ApiServiceTest : UnitTest() {
     }
 
     private suspend fun assertHttpError(httpErrorCode: Int, failure: Failure) {
-        `when`(mockNetworkHandler.isConnected).thenReturn(true)
+        `when`(networkHandler.isConnected).thenReturn(true)
 
         `when`(response.isSuccessful).thenReturn(false)
         `when`(response.code()).thenReturn(httpErrorCode)
         val responseFunc: suspend () -> Response<String> = { response }
 
-        val result = apiService.request(String.empty(), responseFunc)
+        val result = apiService.request(String.EMPTY, responseFunc)
 
         result.assertLeft { assertThat(it).isEqualTo(failure) }
     }

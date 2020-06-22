@@ -1,5 +1,5 @@
 const val appId = "com.wire.android"
-const val kotlinVersion = "1.3.72"
+private const val kotlinVersion = "1.3.72"
 
 object BuildPlugins {
     object Versions {
@@ -10,10 +10,10 @@ object BuildPlugins {
 
     const val androidGradlePlugin = "com.android.tools.build:gradle:${Versions.buildToolsVersion}"
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    const val detektGradlePlugin = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Versions.detekt}"
     const val androidApplication = "com.android.application"
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
-    const val detekt = "io.gitlab.arturbosch.detekt"
 }
 
 object AndroidSdk {
@@ -98,4 +98,5 @@ object ScriptPlugins {
     const val variants = "scripts.variants"
     const val quality = "scripts.quality"
     const val compilation = "scripts.compilation"
+    const val detekt = "scripts.detekt"
 }

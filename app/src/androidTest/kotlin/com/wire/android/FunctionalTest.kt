@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-abstract class FunctionalTest(clazz: Class<out Activity>) {
+open class FunctionalTest(clazz: Class<out Activity>) {
 
     @get:Rule
     val activityRule = ActivityTestRule(clazz)

@@ -34,6 +34,8 @@ object Libraries {
         const val koin = "2.1.6"
         const val lifecycleKtx = "2.2.0"
         const val coroutines = "1.3.7"
+        const val retrofit = "2.9.0"
+        const val okHttpLogging = "4.7.2"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -42,6 +44,7 @@ object Libraries {
     const val material         = "com.google.android.material:material:${Versions.material}"
     const val livedataKtx      = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycleKtx}"
     const val viewModelKtx     = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycleKtx}"
+    const val okHttpLogging    = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"
 
     object Koin {
         const val androidCore  = "org.koin:koin-android:${Versions.koin}"
@@ -52,6 +55,11 @@ object Libraries {
         const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
         const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
         const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+    }
+
+    object Retrofit {
+        const val core          = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
+        const val gsonConverter = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
     }
 }
 

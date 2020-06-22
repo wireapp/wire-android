@@ -39,6 +39,10 @@ dependencies {
     implementation(Libraries.Kotlin.coroutinesCore)
     implementation(Libraries.Kotlin.coroutinesAndroid)
 
+    implementation(Libraries.Retrofit.core)
+    implementation(Libraries.Retrofit.gsonConverter)
+    implementation(Libraries.okHttpLogging)
+
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.mockito)

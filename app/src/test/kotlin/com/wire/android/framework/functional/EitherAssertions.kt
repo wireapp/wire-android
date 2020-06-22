@@ -8,3 +8,5 @@ fun <L, R> Either<L, R>.assertLeft(leftAssertion: (L) -> Unit) =
 
 fun <L, R> Either<L, R>.assertRight(rightAssertion: (R) -> Unit) =
     this.fold({ fail<Unit>("Expected a Right value but got Left") }) { rightAssertion(it) }!!
+
+fun <L> Either<L, Unit>.assertRight() = assertRight { }

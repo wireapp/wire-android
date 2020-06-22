@@ -11,5 +11,7 @@ object Conflict : NetworkFailure()
 object Forbidden : NetworkFailure()
 object NetworkConnection : NetworkFailure()
 
+data class ObservableFailure(val throwable: Throwable) : Failure()
+
 /** Extend this class for UseCase specific failures.*/
 abstract class FeatureFailure : Failure()

@@ -6,6 +6,7 @@ import com.wire.android.UnitTest
 import com.wire.android.any
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.functional.Either
+import com.wire.android.core.usecase.executors.OneShotUseCaseExecutor
 import com.wire.android.feature.auth.activation.usecase.EmailBlacklisted
 import com.wire.android.feature.auth.activation.usecase.EmailInUse
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeParams
@@ -38,6 +39,8 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     private lateinit var emailViewModel: CreatePersonalAccountEmailViewModel
 
+    private val oneShotUseCaseExecutor: OneShotUseCaseExecutor = OneShotUseCaseExecutor()
+
     @Mock
     private lateinit var sendActivationCodeUseCase: SendEmailActivationCodeUseCase
 
@@ -46,7 +49,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        emailViewModel = CreatePersonalAccountEmailViewModel(validateEmailUseCase, sendActivationCodeUseCase)
+        emailViewModel = CreatePersonalAccountEmailViewModel(oneShotUseCaseExecutor, validateEmailUseCase, sendActivationCodeUseCase)
     }
 
     @Test

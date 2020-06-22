@@ -10,7 +10,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 
 val registrationModule: Module = module {
-    viewModel { CreatePersonalAccountEmailViewModel(get(), get()) }
+    viewModel { CreatePersonalAccountEmailViewModel(get(), get(), get()) }
     factory { ValidateEmailUseCase() }
     factory { SendEmailActivationCodeUseCase(get()) }
     single<ActivationRepository> { ActivationDataSource() }

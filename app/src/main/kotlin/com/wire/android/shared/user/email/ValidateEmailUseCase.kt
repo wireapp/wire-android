@@ -4,14 +4,13 @@ import androidx.core.util.PatternsCompat
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.FeatureFailure
 import com.wire.android.core.functional.Either
-import com.wire.android.core.usecase.UseCase
-import java.util.regex.Pattern
+import com.wire.android.core.usecase.OneShotUseCase
 
 sealed class ValidateEmailError : FeatureFailure()
 object EmailTooShort : ValidateEmailError()
 object EmailInvalid : ValidateEmailError()
 
-class ValidateEmailUseCase : UseCase<Unit, ValidateEmailParams> {
+class ValidateEmailUseCase : OneShotUseCase<ValidateEmailParams, Unit> {
 
     override suspend fun run(params: ValidateEmailParams): Either<Failure, Unit> = when {
         isEmailTooShort(params.email) -> Either.Left(EmailTooShort)

@@ -8,9 +8,9 @@ import org.koin.core.module.Module
 
 object Injector {
 
-    private val coreModules: List<Module> = listOf()
+    private val coreModules: List<Module> = listOf(coreModule)
 
-    /**
+    /**x
      * Shared modules should contain dependencies that can
      * build up multiple features
      */

@@ -6,98 +6,68 @@
     android:background="?android:colorBackground">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/welcomeLogoGuideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.082" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/welcomeTitleGuideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.304" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/welcomeCreateAccountGuideline"
+        android:id="@+id/welcomeCenterGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.450" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/welcomeLoginGuideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.552" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/welcomeEnterpriseLoginGuideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.889" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/welcomeLogoImageView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:src="@drawable/ic_wire_logo"
+        app:layout_constraintBottom_toTopOf="@+id/welcomeTitleTextView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.084"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcomeLogoGuideline"
-        app:layout_constraintWidth_percent="0.225" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/welcomeTitleTextView"
         style="@style/TextView.Welcome"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/welcome_text"
+        app:layout_constraintBottom_toTopOf="@+id/welcomeCenterGuideline"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.070"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcomeTitleGuideline"
-        app:layout_constraintWidth_percent="0.661" />
+        app:layout_constraintTop_toBottomOf="@+id/welcomeLogoImageView" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/welcomeCreateAccountButton"
         style="@style/Button.Welcome.CreateAccount"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:text="@string/welcome_create_account"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.084"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcomeCreateAccountGuideline"
-        app:layout_constraintWidth_percent="0.908" />
+        app:layout_constraintTop_toBottomOf="@+id/welcomeCenterGuideline"
+        app:layout_constraintWidth_percent="@dimen/welcome_button_width_percent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/welcomeLoginButton"
         style="@style/Button.Welcome.Login"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:text="@string/welcome_login"
+        app:layout_constraintBottom_toTopOf="@+id/welcomeEnterpriseLoginButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.084"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcomeLoginGuideline"
-        app:layout_constraintWidth_percent="0.908" />
+        app:layout_constraintTop_toBottomOf="@+id/welcomeCreateAccountButton"
+        app:layout_constraintVertical_bias="0.01"
+        app:layout_constraintWidth_percent="@dimen/welcome_button_width_percent" />
 
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/welcomeEnterpriseLoginButton"
         style="@style/Button.Welcome.EnterpriseLogin"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:text="@string/welcome_enterprise_login"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.084"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcomeEnterpriseLoginGuideline"
-        app:layout_constraintWidth_percent="0.908" />
+        app:layout_constraintWidth_percent="@dimen/welcome_button_width_percent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

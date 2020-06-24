@@ -11,6 +11,9 @@
     <dimen name="welcome_title_text_size">32sp</dimen>
     <dimen name="welcome_title_line_spacing_extra">8sp</dimen>
     <dimen name="welcome_button_text_size">12sp</dimen>
+    <dimen name="welcome_button_padding">18dp</dimen>
+    <dimen name="welcome_button_enterprise_login_margin_bottom">16dp</dimen>
+    <item name="welcome_button_width_percent" format="float" type="dimen">0.9</item>
 
     <!--Authentication - Register-->
     <dimen name="create_account_back_button_elevation">1dp</dimen>

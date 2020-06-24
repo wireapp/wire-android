@@ -7,6 +7,11 @@
     <dimen name="button_circle_diameter">40dp</dimen>
     <dimen name="button_circle_icon_size">16dp</dimen>
 
+    <!--Welcome-->
+    <dimen name="welcome_title_text_size">32sp</dimen>
+    <dimen name="welcome_title_line_spacing_extra">8sp</dimen>
+    <dimen name="welcome_button_text_size">12sp</dimen>
+
     <!--Authentication - Register-->
     <dimen name="create_account_back_button_elevation">1dp</dimen>
     <dimen name="create_account_layout_container_margin">16dp</dimen>

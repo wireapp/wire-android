@@ -15,6 +15,16 @@
     <style name="TextView.Caption" parent="TextAppearance.MaterialComponents.Caption"/>
     <style name="TextView.Overline" parent="TextAppearance.MaterialComponents.Overline"/>
 
+
+    <style name="TextView.Welcome" parent="TextView.H4">
+        <item name="fontFamily">sans-serif-light</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textSize">@dimen/welcome_title_text_size</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:lineSpacingExtra">@dimen/welcome_title_line_spacing_extra</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
     <style name="TextView.Authentication"/>
     <style name="TextView.Authentication.Title" parent="TextView.H5">
         <item name="android:drawablePadding">@dimen/create_account_title_drawable_padding</item>

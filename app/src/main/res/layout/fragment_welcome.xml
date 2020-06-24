@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/welcomeLogoGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.082" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/welcomeTitleGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.304" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/welcomeCreateAccountGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.450" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/welcomeLoginGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.552" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/welcomeEnterpriseLoginGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.889" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/welcomeLogoImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/ic_wire_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.084"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeLogoGuideline"
+        app:layout_constraintWidth_percent="0.225" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/welcomeTitleTextView"
+        style="@style/TextView.Welcome"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/welcome_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.070"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeTitleGuideline"
+        app:layout_constraintWidth_percent="0.661" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/welcomeCreateAccountButton"
+        style="@style/Button.Welcome.CreateAccount"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/welcome_create_account"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.084"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeCreateAccountGuideline"
+        app:layout_constraintWidth_percent="0.908" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/welcomeLoginButton"
+        style="@style/Button.Welcome.Login"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/welcome_login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.084"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeLoginGuideline"
+        app:layout_constraintWidth_percent="0.908" />
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/welcomeEnterpriseLoginButton"
+        style="@style/Button.Welcome.EnterpriseLogin"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/welcome_enterprise_login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.084"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeEnterpriseLoginGuideline"
+        app:layout_constraintWidth_percent="0.908" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

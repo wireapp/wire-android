@@ -13,9 +13,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".feature.auth.registration.CreateAccountActivity"
-            android:theme="@style/AppTheme.Authentication"
-            android:windowSoftInputMode="adjustResize">
+            android:name=".feature.welcome.WelcomeActivity"
+            android:theme="@style/AppTheme">
             <!-- TODO Theme shouldn't resolve to Dark one. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,6 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".feature.auth.registration.CreateAccountActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/AppTheme.Authentication" />
+
     </application>
 
 </manifest>

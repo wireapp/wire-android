@@ -25,7 +25,7 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/welcomeTitleTextView"
-        style="@style/TextView.Welcome"
+        style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/welcome_text"
@@ -64,6 +64,7 @@
         style="@style/Button.Welcome.EnterpriseLogin"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/welcome_button_enterprise_login_margin_bottom"
         android:text="@string/welcome_enterprise_login"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

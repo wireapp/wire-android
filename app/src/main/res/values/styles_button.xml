@@ -49,7 +49,6 @@
     <style name="Button.Primary.Circle.Confirmation" parent="Button.Primary.Circle">
         <item name="android:contentDescription">@string/confirmation</item>
     </style>
-
     <style name="TextButton.Authentication.About" parent="Button.TextButton">
         <item name="android:gravity">center</item>
         <item name="android:layout_gravity">center</item>

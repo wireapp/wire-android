@@ -12,6 +12,7 @@ import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeP
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.assertLeft
+import com.wire.android.framework.functional.assertRight
 import com.wire.android.framework.livedata.awaitValue
 import com.wire.android.shared.user.email.EmailInvalid
 import com.wire.android.shared.user.email.EmailTooShort
@@ -89,13 +90,15 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given sendActivation is called, when use case is successful, then sets success to sendActivationCodeLiveData`() =
+    fun `given sendActivation is called, when use case is successful, then sets email to sendActivationCodeLiveData`() =
         runBlockingTest {
             `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Right(Unit))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
 
-            assertThat(emailViewModel.sendActivationCodeLiveData.awaitValue()).isEqualTo(Either.Right(Unit))
+            emailViewModel.sendActivationCodeLiveData.awaitValue().assertRight {
+                assertThat(it).isEqualTo(TEST_EMAIL)
+            }
         }
 
     @Test

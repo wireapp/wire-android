@@ -4,7 +4,7 @@ import com.wire.android.UnitTest
 import com.wire.android.core.functional.Either
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -26,17 +26,16 @@ class DefaultUseCaseExecutorTest : UnitTest() {
 
     @Test
     fun `given a scope and a use case, when invoke is called on use case, then applies onResult to returned value`() {
-        runBlockingTest {
+        runBlocking {
             val param = 3
             val result = Either.Right("3")
             `when`(useCase.run(param)).thenReturn(result)
 
             with(executor) {
-                useCase.invoke(this@runBlockingTest, param, Dispatchers.IO) {
+                useCase.invoke(this@runBlocking, param, Dispatchers.IO) {
                     assertThat(it).isEqualTo(result)
                 }
             }
         }
     }
-
 }

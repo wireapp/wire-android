@@ -1,6 +1,7 @@
 package com.wire.android.core.extension
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -14,3 +15,10 @@ fun Fragment.replaceFragment(frameId: Int, fragment: Fragment, addToBackStack: B
 }
 
 fun Fragment.showKeyboard() = activity?.showKeyboard()
+
+@Suppress("SpreadOperator")
+fun <T : Fragment> T.withArgs(vararg args: Pair<String, Any?>): T = this.apply {
+    arguments = bundleOf(*args)
+}
+
+fun <T> Fragment.lazyArg(key: String): Lazy<T> = lazy { arguments!!.get(key) as T }

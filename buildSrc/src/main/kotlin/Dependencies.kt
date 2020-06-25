@@ -36,6 +36,7 @@ object Libraries {
         const val coroutines = "1.3.7"
         const val retrofit = "2.9.0"
         const val okHttpLogging = "4.7.2"
+        const val pinEditText = "1.2.3"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -45,6 +46,7 @@ object Libraries {
     const val livedataKtx      = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycleKtx}"
     const val viewModelKtx     = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycleKtx}"
     const val okHttpLogging    = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"
+    const val pinEditText      = "com.poovam:pin-edittext-field:${Versions.pinEditText}"
 
     object Koin {
         const val androidCore  = "org.koin:koin-android:${Versions.koin}"

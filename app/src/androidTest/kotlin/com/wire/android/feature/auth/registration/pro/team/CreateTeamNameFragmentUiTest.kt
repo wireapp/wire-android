@@ -41,13 +41,13 @@ class CreateTeamNameFragmentUiTest : FunctionalTest() {
     }
 
     @Test
-    fun inputText_confirmationButtonShouldBeEnabled() {
+    fun inputTextIsNotEmpty_confirmationButtonShouldBeEnabled() {
         onView(withId(R.id.createProAccountTeamNameEditText)).perform(typeTextIntoFocusedView(TEST_TEAM_NAME))
         onView(withId(R.id.createProAccountTeamNameInputConfirmationButton)).check(matches(isEnabled()))
     }
 
     @Test
-    fun inputText_confirmationButtonShouldBeDisabled() {
+    fun inputTextIsEmpty_confirmationButtonShouldBeDisabled() {
         onView(withId(R.id.createProAccountTeamNameEditText)).perform(typeText(String.EMPTY))
         onView(allOf(withId(R.id.createProAccountTeamNameInputConfirmationButton), not(isEnabled())))
     }

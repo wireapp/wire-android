@@ -14,4 +14,6 @@
         <item name="boxStrokeWidth">0dp</item>
         <item name="boxStrokeWidthFocused">0dp</item>
     </style>
+
+    <style name="TextInputEditText.OutlineBox" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox" />
 </resources>

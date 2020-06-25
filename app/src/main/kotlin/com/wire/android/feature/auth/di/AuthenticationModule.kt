@@ -36,5 +36,5 @@ private val createProAccountModule: Module = module {
     viewModel { CreateProAccountTeamNameViewModel(get(), get()) }
     factory { GetTeamNameUseCase(get()) }
     factory { UpdateTeamNameUseCase(get()) }
-    factory { TeamDataSource() as TeamsRepository }
+    single { TeamDataSource() as TeamsRepository }
 }

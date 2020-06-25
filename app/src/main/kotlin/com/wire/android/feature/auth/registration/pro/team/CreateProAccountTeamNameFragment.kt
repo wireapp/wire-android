@@ -3,6 +3,7 @@ package com.wire.android.feature.auth.registration.pro.team
 import android.os.Bundle
 import android.view.View
 import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
@@ -19,8 +20,21 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         super.onViewCreated(view, savedInstanceState)
         initTeamInput()
         initAboutButton()
+        initConfirmationButton()
         observerUrlData()
         showKeyboard()
+    }
+
+    private fun initConfirmationButton() {
+        with(createProAccountTeamNameInputConfirmationButton) {
+            isEnabled = false
+            setOnClickListener {
+                //TODO Go to team email screen
+            }
+            createProAccountTeamNameViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
+                isEnabled = it
+            }
+        }
     }
 
     private fun initAboutButton() {
@@ -35,8 +49,10 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         }
     }
 
-    //TODO scala doesn't have validation. Would like to confirm.
     private fun initTeamInput() {
+        createProAccountTeamNameEditText.doOnTextChanged { text, _, _, _ ->
+            createProAccountTeamNameViewModel.onTeamNameTextChanged(text.toString())
+        }
         createProAccountTeamNameEditText.doAfterTextChanged {
             createProAccountTeamNameViewModel.afterTeamNameChanged(it.toString())
         }

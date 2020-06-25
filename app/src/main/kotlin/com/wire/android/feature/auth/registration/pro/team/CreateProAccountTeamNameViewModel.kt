@@ -21,6 +21,9 @@ class CreateProAccountTeamNameViewModel(
     private var _teamNameLiveData = MutableLiveData<String>()
     val teamNameLiveData: LiveData<String> = _teamNameLiveData
 
+    private var _confirmationButtonEnabled = MutableLiveData<Boolean>()
+    val confirmationButtonEnabled: LiveData<Boolean> = _confirmationButtonEnabled
+
     init {
         getTeamName()
     }
@@ -43,6 +46,10 @@ class CreateProAccountTeamNameViewModel(
 
     private fun handleSuccess(teamName: String) {
         _teamNameLiveData.value = teamName
+    }
+
+    fun onTeamNameTextChanged(teamNameInput: String) {
+        _confirmationButtonEnabled.value = teamNameInput.isNotEmpty()
     }
 
     companion object {

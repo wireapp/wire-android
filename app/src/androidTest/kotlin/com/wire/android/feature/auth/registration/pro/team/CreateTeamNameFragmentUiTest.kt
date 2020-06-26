@@ -35,7 +35,7 @@ class CreateTeamNameFragmentUiTest : FunctionalTest() {
         onView(withHint(R.string.create_pro_account_set_team_name_hint)).check(matches(isDisplayed()))
 
         onView(withId(R.id.createProAccountTeamNameInputConfirmationButton)).check(matches(isDisplayed()))
-        onView(allOf(withId(R.id.createProAccountTeamNameInputConfirmationButton))).check(matches(allOf(not(isEnabled()))))
+        onView(withId(R.id.createProAccountTeamNameInputConfirmationButton)).check(matches(allOf(not(isEnabled()))))
 
     }
 
@@ -48,7 +48,7 @@ class CreateTeamNameFragmentUiTest : FunctionalTest() {
     @Test
     fun inputTextIsEmpty_confirmationButtonShouldBeDisabled() {
         onView(withId(R.id.createProAccountTeamNameEditText)).perform(replaceText(String.EMPTY))
-        onView(allOf(withId(R.id.createProAccountTeamNameInputConfirmationButton), not(isEnabled())))
+        onView(withId(R.id.createProAccountTeamNameInputConfirmationButton)).check(matches(allOf(isEnabled())))
     }
 
     @Test

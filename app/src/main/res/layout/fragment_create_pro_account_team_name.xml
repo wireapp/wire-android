@@ -38,7 +38,7 @@
         android:layout_marginTop="@dimen/create_pro_account_team_name_subtitle_margin_top"
         android:gravity="center_horizontal"
         android:text="@string/create_pro_account_set_team_name_subtitle"
-        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameTitleTextView" />
+        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameInputGuideline" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/createProAccountTeamNameTextInputLayout"
@@ -48,7 +48,7 @@
         app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameInputGuideline">
+        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameSubtitleTextView">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/createProAccountTeamNameEditText"

@@ -17,22 +17,21 @@ class CreateAccountFragment : Fragment(R.layout.fragment_create_account) {
         initCreateProAccount()
     }
 
-    private fun initCreatePersonalAccount() {
+    private fun initCreatePersonalAccount() =
         createPersonalAccountLayoutContainer.setOnClickListener {
             replaceFragment(
                 R.id.createAccountLayoutContainer,
-                CreatePersonalAccountFragment.newInstance())
+                CreatePersonalAccountFragment.newInstance()
+            )
         }
-    }
 
-    private fun initCreateProAccount() {
+    private fun initCreateProAccount() =
         createProAccountLayoutContainer.setOnClickListener {
             replaceFragment(
                 R.id.createAccountLayoutContainer,
                 CreateProAccountTeamNameFragment.newInstance()
             )
         }
-    }
 
     companion object {
         fun newInstance() = CreateAccountFragment()

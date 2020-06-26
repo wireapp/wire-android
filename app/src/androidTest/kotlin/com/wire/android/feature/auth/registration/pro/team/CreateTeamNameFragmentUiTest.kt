@@ -4,8 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.typeText
-import androidx.test.espresso.action.ViewActions.typeTextIntoFocusedView
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.wire.android.FunctionalTest
@@ -36,7 +35,7 @@ class CreateTeamNameFragmentUiTest : FunctionalTest() {
         onView(withHint(R.string.create_pro_account_set_team_name_hint)).check(matches(isDisplayed()))
 
         onView(withId(R.id.createProAccountTeamNameInputConfirmationButton)).check(matches(isDisplayed()))
-        onView(allOf(withId(R.id.createProAccountTeamNameInputConfirmationButton), not(isEnabled())))
+        onView(allOf(withId(R.id.createProAccountTeamNameInputConfirmationButton))).check(matches(allOf(not(isEnabled()))))
 
     }
 
@@ -48,7 +47,7 @@ class CreateTeamNameFragmentUiTest : FunctionalTest() {
 
     @Test
     fun inputTextIsEmpty_confirmationButtonShouldBeDisabled() {
-        onView(withId(R.id.createProAccountTeamNameEditText)).perform(typeText(String.EMPTY))
+        onView(withId(R.id.createProAccountTeamNameEditText)).perform(replaceText(String.EMPTY))
         onView(allOf(withId(R.id.createProAccountTeamNameInputConfirmationButton), not(isEnabled())))
     }
 

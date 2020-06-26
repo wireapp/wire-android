@@ -8,10 +8,10 @@ class TeamDataSource : TeamsRepository {
 
     private var teamName = String.EMPTY
 
-    //Get from local cache
+    //TODO Get from local cache
     override suspend fun teamName(): Either<Failure, String> = Either.Right(teamName)
 
-    //Update local cache
+    //TODO Update local cache
     override suspend fun updateTeamName(teamName: String): Either<Failure, Unit> {
         this.teamName = teamName
         return Either.Right(Unit)

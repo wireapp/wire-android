@@ -5,9 +5,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.usecase.UseCase
 import com.wire.android.feature.auth.registration.pro.team.data.TeamsRepository
 
-class UpdateTeamNameUseCase(
-        private val teamsRepository: TeamsRepository
-) : UseCase<Unit, UpdateTeamNameParams> {
+class UpdateTeamNameUseCase(private val teamsRepository: TeamsRepository) : UseCase<Unit, UpdateTeamNameParams> {
 
     override suspend fun run(params: UpdateTeamNameParams): Either<Failure, Unit> =
         teamsRepository.updateTeamName(params.teamName)

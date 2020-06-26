@@ -20,7 +20,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.4" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/createProAccountTeamNameTitleTextView"
         style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
@@ -30,7 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/createProAccountTeamNameTopGuideline" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/createProAccountTeamNameSubtitleTextView"
         style="@style/TextView.Authentication.Description"
         android:layout_width="match_parent"
@@ -63,15 +63,16 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <androidx.appcompat.widget.AppCompatImageButton
+    <Button
         android:id="@+id/createProAccountTeamNameInputConfirmationButton"
-        style="@style/ImageButton.Authentication.TextInput"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/Button.Primary.Circle"
+        android:layout_marginTop="@dimen/authentication_confirmation_button_margin_top"
+        android:layout_marginEnd="@dimen/authentication_confirmation_button_margin_end"
+        app:icon="@drawable/ic_arrow_right"
         app:layout_constraintEnd_toEndOf="@+id/createProAccountTeamNameTextInputLayout"
         app:layout_constraintTop_toTopOf="@+id/createProAccountTeamNameTextInputLayout" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <Button
         android:id="@+id/createProAccountTeamNameAboutButton"
         style="@style/TextButton.Authentication.About"
         android:layout_width="wrap_content"

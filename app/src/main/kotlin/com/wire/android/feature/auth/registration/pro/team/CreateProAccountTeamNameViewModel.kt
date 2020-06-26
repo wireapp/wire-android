@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUseCase
@@ -28,21 +29,16 @@ class CreateProAccountTeamNameViewModel(
         getTeamName()
     }
 
-    private fun getTeamName() {
+    private fun getTeamName() =
         getTeamNameUseCase(viewModelScope, Unit) {
-            it.fold({}) { ::handleSuccess }
+            it.onSuccess { teamName -> handleSuccess(teamName) }
         }
-    }
 
     fun onAboutButtonClicked() {
         _urlLiveData.value = "$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX"
     }
 
-    fun afterTeamNameChanged(teamName: String) {
-        updateTeamNameUseCase(viewModelScope, UpdateTeamNameParams(teamName)) {
-            it.fold({}) { {} }
-        }
-    }
+    fun afterTeamNameChanged(teamName: String) = updateTeamNameUseCase(viewModelScope, UpdateTeamNameParams(teamName))
 
     private fun handleSuccess(teamName: String) {
         _teamNameLiveData.value = teamName

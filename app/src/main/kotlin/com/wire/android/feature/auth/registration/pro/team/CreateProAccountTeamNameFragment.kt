@@ -37,11 +37,10 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         }
     }
 
-    private fun initAboutButton() {
+    private fun initAboutButton() =
         createProAccountTeamNameAboutButton.setOnClickListener {
             createProAccountTeamNameViewModel.onAboutButtonClicked()
         }
-    }
 
     private fun observerUrlData() {
         createProAccountTeamNameViewModel.urlLiveData.observe(viewLifecycleOwner) {

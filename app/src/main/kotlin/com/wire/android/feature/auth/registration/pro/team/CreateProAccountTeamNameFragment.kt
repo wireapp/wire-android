@@ -22,6 +22,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         initAboutButton()
         initConfirmationButton()
         observerUrlData()
+        observeTeamData()
         showKeyboard()
     }
 
@@ -55,6 +56,9 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         createProAccountTeamNameEditText.doAfterTextChanged {
             createProAccountTeamNameViewModel.afterTeamNameChanged(it.toString())
         }
+    }
+
+    private fun observeTeamData() {
         createProAccountTeamNameViewModel.teamNameLiveData.observe(viewLifecycleOwner) {
             createProAccountTeamNameEditText.setText(it)
         }

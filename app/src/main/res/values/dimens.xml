@@ -20,4 +20,12 @@
 
     <dimen name="authentication_view_pager_margin_top">24dp</dimen>
     <item name="authentication_view_pager_width_percent" format="float" type="dimen">1</item>
+    <dimen name="authentication_confirmation_button_margin_end">16dp</dimen>
+    <dimen name="authentication_confirmation_button_margin_top">8dp</dimen>
+    <dimen name="authentication_confirmation_button_padding">8dp</dimen>
+
+    <dimen name="create_pro_account_team_name_subtitle_margin_top">16dp</dimen>
+    <dimen name="create_pro_account_team_name_input_layout_margin_top">16dp</dimen>
+    <dimen name="authentication_about_text_button_text_size">11sp</dimen>
+
 </resources>

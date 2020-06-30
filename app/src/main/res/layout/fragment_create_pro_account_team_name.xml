@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="@dimen/screen_padding"
+    android:paddingEnd="@dimen/screen_padding">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/createProAccountTeamNameTopGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.228" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/createProAccountTeamNameInputGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.4" />
+
+    <TextView
+        android:id="@+id/createProAccountTeamNameTitleTextView"
+        style="@style/TextView.Authentication.Header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_pro_account_set_team_name_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createProAccountTeamNameTopGuideline" />
+
+    <TextView
+        android:id="@+id/createProAccountTeamNameSubtitleTextView"
+        style="@style/TextView.Authentication.Description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/create_pro_account_team_name_subtitle_margin_top"
+        android:gravity="center_horizontal"
+        android:text="@string/create_pro_account_set_team_name_subtitle"
+        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameTitleTextView" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/createProAccountTeamNameTextInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/create_pro_account_team_name_input_layout_margin_top"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent"
+        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameInputGuideline">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/createProAccountTeamNameEditText"
+            style="@style/TextInputEditText.OutlineBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/create_pro_account_set_team_name_hint"
+            android:inputType="textEmailAddress">
+
+            <requestFocus />
+        </com.google.android.material.textfield.TextInputEditText>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/createProAccountTeamNameInputConfirmationButton"
+        style="@style/Button.Primary.Circle"
+        android:layout_marginTop="@dimen/authentication_confirmation_button_margin_top"
+        android:layout_marginEnd="@dimen/authentication_confirmation_button_margin_end"
+        app:icon="@drawable/ic_arrow_right"
+        app:layout_constraintEnd_toEndOf="@+id/createProAccountTeamNameTextInputLayout"
+        app:layout_constraintTop_toTopOf="@+id/createProAccountTeamNameTextInputLayout" />
+
+    <Button
+        android:id="@+id/createProAccountTeamNameAboutButton"
+        style="@style/TextButton.Authentication.About"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_pro_account_set_team_name_about"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameTextInputLayout" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

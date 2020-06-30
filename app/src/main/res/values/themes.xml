@@ -3,7 +3,7 @@
     <!--Top level DayNight theme to be used in AndroidManifest.xml
         Any custom-defined attribute goes here
     -->
-    <style name="AppTheme" parent="Theme.Base.Material" >
+    <style name="AppTheme" parent="Theme.Base.Material">
         <item name="editableFieldBackgroundColor">@color/white</item>
     </style>
 
@@ -62,6 +62,8 @@
         <item name="android:navigationBarColor" tools:ignore="NewApi">?android:attr/colorBackground
         </item>
         <item name="android:windowLightNavigationBar" tools:ignore="NewApi">true</item>
-        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">?attr/colorControlHighlight</item>
+        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">
+            ?attr/colorControlHighlight
+        </item>
     </style>
 </resources>

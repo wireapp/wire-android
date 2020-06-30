@@ -60,5 +60,6 @@ dependencies {
     androidTestImplementation(TestLibraries.uiAutomator)
 
     // Development dependencies
+    debugImplementation(DevLibraries.fragmentTesting)
     debugImplementation(DevLibraries.leakCanary)
 }

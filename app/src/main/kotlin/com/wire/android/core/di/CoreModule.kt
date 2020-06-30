@@ -8,5 +8,6 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 
 val coreModule: Module = module {
-    factory { AccessibilityManagerWrapper(androidContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager) }
+    factory { androidContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager }
+    factory { AccessibilityManagerWrapper(get()) }
 }

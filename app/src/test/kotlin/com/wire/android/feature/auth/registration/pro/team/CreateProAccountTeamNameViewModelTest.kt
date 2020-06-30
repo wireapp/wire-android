@@ -9,11 +9,13 @@ import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUs
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.awaitValue
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
-import org.assertj.core.api.Assertions
-import org.junit.Assert.*
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +52,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     @Test
     fun `given viewModel is initialised, when talk back is off, then propagate focus request up`() {
         runBlockingTest {
-            Assertions.assertThat(viewModel.textInputFocusedLiveData.awaitValue()).isEqualTo(Unit)
+            assertThat(viewModel.textInputFocusedLiveData.awaitValue()).isEqualTo(Unit)
         }
     }
 

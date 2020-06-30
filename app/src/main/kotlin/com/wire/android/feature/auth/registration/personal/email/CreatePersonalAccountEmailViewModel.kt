@@ -28,11 +28,12 @@ class CreatePersonalAccountEmailViewModel(
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _isValidEmailLiveData = MutableLiveData<Boolean>()
-    private val _sendActivationCodeLiveData = MutableLiveData<Either<ErrorMessage, String>>()
-    private val _networkConnectionErrorLiveData = MutableLiveData<Unit>()
-
     val isValidEmailLiveData: LiveData<Boolean> = _isValidEmailLiveData
+
+    private val _sendActivationCodeLiveData = MutableLiveData<Either<ErrorMessage, String>>()
     val sendActivationCodeLiveData: LiveData<Either<ErrorMessage, String>> = _sendActivationCodeLiveData
+
+    private val _networkConnectionErrorLiveData = MutableLiveData<Unit>()
     val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
 
     fun validateEmail(email: String) =

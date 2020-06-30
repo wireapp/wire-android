@@ -5,14 +5,14 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.poovam.pinedittextfield.PinField.OnTextCompleteListener
 import com.wire.android.R
-import com.wire.android.core.extension.lazyArg
 import com.wire.android.core.extension.showKeyboard
 import com.wire.android.core.extension.withArgs
+import com.wire.android.core.ui.arg
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email_code.*
 
 class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create_personal_account_email_code) {
 
-    private val email by lazyArg<String>(KEY_EMAIL)
+    private val email by arg<String>(KEY_EMAIL)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -20,5 +20,3 @@ fun Fragment.showKeyboard() = activity?.showKeyboard()
 fun <T : Fragment> T.withArgs(vararg args: Pair<String, Any?>): T = this.apply {
     arguments = bundleOf(*args)
 }
-
-fun <T> Fragment.lazyArg(key: String): Lazy<T> = lazy { arguments!!.get(key) as T }

@@ -2,5 +2,5 @@
 <resources>
     <item name="create_account_layout_container_width_percent" format="float" type="dimen">0.4</item>
     <item name="authentication_view_pager_width_percent" format="float" type="dimen">0.7</item>
-    <dimen name="create_personal_account_code_digit_edit_text_margin_top">24dp</dimen>
+    <item name="create_personal_account_pin_edittext_guideline_percent" type="dimen">0.5</item>
 </resources>

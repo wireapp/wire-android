@@ -48,6 +48,7 @@
         app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent"
         app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameInputGuideline">
 
         <com.google.android.material.textfield.TextInputEditText

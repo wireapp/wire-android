@@ -3,6 +3,7 @@ package com.wire.android.core.accessibility
 import android.view.View
 import androidx.test.platform.app.InstrumentationRegistry
 import com.wire.android.InstrumentationTest
+import com.wire.android.core.util.AboveAndroidP
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before

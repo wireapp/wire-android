@@ -32,13 +32,13 @@ class AccessibilityManagerWrapperTest : UnitTest() {
 
 
     @Test
-    fun `given an accessibility manager, when it is enabled and services list does not contains Talkback, then isTalkbackEnabled should be false`() {
+    fun `given an accessibility manager, when it is enabled and services list is empty, then isTalkbackEnabled is false`() {
         `when`(accessibilityManager.isEnabled).thenReturn(true)
         assertThat(accessibilityManagerWrapper.isTalkbackEnabled()).isFalse()
     }
 
     @Test
-    fun `given an accessibility manager, when it is enabled and services list does contain Talkback, then isTalkbackEnabled should be false`() {
+    fun `given an accessibility manager, when it is enabled and services list does contain Talkback, then isTalkbackEnabled is false`() {
         val list = listOf(accessibilityServiceInfo)
         `when`(accessibilityManager.isEnabled).thenReturn(true)
         `when`(accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)).thenReturn(list)

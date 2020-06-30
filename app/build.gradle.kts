@@ -53,7 +53,8 @@ dependencies {
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(TestLibraries.testRunner)
-    androidTestImplementation(TestLibraries.espresso)
+    androidTestImplementation(TestLibraries.Espresso.core)
+    androidTestImplementation(TestLibraries.Espresso.accessibility)
     androidTestImplementation(TestLibraries.testExtJunit)
     androidTestImplementation(TestLibraries.testRules)
     androidTestImplementation(TestLibraries.mockitoAndroid)

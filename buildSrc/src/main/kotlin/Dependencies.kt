@@ -77,6 +77,11 @@ object TestLibraries {
         const val testCore = "2.1.0"
     }
 
+    object Espresso {
+        const val core          = "androidx.test.espresso:espresso-core:${Versions.espresso}"
+        const val accessibility = "com.android.support.test.espresso:espresso-accessibility:${Versions.espresso}"
+    }
+
     const val junit4         = "junit:junit:${Versions.junit4}"
     const val mockito        = "org.mockito:mockito-core:${Versions.mockito}"
     const val robolectric    = "org.robolectric:robolectric:${Versions.robolectric}"

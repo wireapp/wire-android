@@ -13,7 +13,7 @@ import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Test
 
-class CreateTeamNameFragmentUiTest : FunctionalActivityTest(CreateAccountActivity::class.java) {
+class CreateProAccountTeamNameFragmentUiTest : FunctionalActivityTest(CreateAccountActivity::class.java) {
 
     @Before
     fun setup() {
@@ -30,7 +30,6 @@ class CreateTeamNameFragmentUiTest : FunctionalActivityTest(CreateAccountActivit
 
         onView(withId(R.id.createProAccountTeamNameInputConfirmationButton)).check(matches(isDisplayed()))
         onView(allOf(withId(R.id.createProAccountTeamNameInputConfirmationButton))).check(matches(allOf(not(isEnabled()))))
-
     }
 
     @Test
@@ -41,8 +40,8 @@ class CreateTeamNameFragmentUiTest : FunctionalActivityTest(CreateAccountActivit
 
     @Test
     fun inputTextIsEmpty_confirmationButtonShouldBeDisabled() {
-        onView(withId(R.id.createProAccountTeamNameEditText)).perform(replaceText(String.EMPTY))
-        onView(allOf(withId(R.id.createProAccountTeamNameInputConfirmationButton), not(isEnabled())))
+        onView(withId(R.id.createProAccountTeamNameEditText)).perform(replaceText(String.EMPTY), closeSoftKeyboard())
+        onView(withId(R.id.createProAccountTeamNameInputConfirmationButton)).check(matches(allOf(not(isEnabled()))))
     }
 
     @Test

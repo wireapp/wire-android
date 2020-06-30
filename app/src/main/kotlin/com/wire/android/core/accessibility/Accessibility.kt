@@ -5,12 +5,11 @@ import android.view.View
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
-
-data class AboveAndroidP(val isAboveAndroidP: Boolean)
+import com.wire.android.core.util.AboveAndroidP
 
 fun View.headingForAccessibility(
         isHeading: Boolean,
-        aboveAndroidP: AboveAndroidP = AboveAndroidP(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+        aboveAndroidP: AboveAndroidP = AboveAndroidP()
 ) =
     if (aboveAndroidP.isAboveAndroidP) {
         isAccessibilityHeading = isHeading

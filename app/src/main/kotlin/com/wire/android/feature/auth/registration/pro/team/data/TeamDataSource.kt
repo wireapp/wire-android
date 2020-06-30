@@ -6,14 +6,17 @@ import com.wire.android.core.functional.Either
 
 class TeamDataSource : TeamsRepository {
 
-    private var teamName = String.EMPTY
+    private val teamDataCache = mutableMapOf<String, String>()
 
-    //TODO Get from local cache
-    override suspend fun teamName(): Either<Failure, String> = Either.Right(teamName)
+    override suspend fun teamName(): Either<Failure, String> =
+        Either.Right(teamDataCache[TEAM_NAME_KEY] ?: String.EMPTY)
 
-    //TODO Update local cache
     override suspend fun updateTeamName(teamName: String): Either<Failure, Unit> {
-        this.teamName = teamName
+        teamDataCache[TEAM_NAME_KEY] = teamName
         return Either.Right(Unit)
+    }
+
+    companion object {
+        private const val TEAM_NAME_KEY = "teamNameKey"
     }
 }

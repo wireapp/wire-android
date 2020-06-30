@@ -38,7 +38,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         }
 
     private fun initAboutButton() =
-        createProAccountTeamNameAboutButton.setOnClickListener {
+        createProAccountTeamNameInputConfirmationButton.setOnClickListener {
             createProAccountTeamNameViewModel.onAboutButtonClicked()
         }
 

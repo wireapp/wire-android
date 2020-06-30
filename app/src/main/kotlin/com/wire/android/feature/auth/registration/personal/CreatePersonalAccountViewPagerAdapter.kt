@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailFragment
+import com.wire.android.feature.auth.registration.personal.phone.CreatePersonalAccountPhoneFragment
 import java.util.Locale
 
 class CreatePersonalAccountViewPagerAdapter(
@@ -14,8 +15,8 @@ class CreatePersonalAccountViewPagerAdapter(
     override fun getCount(): Int = titles.size
 
     override fun getItem(position: Int): Fragment =
-        //TODO add phone fragment
-        CreatePersonalAccountEmailFragment.newInstance()
+        if (position == PHONE_TAB_POSITION) CreatePersonalAccountPhoneFragment.newInstance()
+        else CreatePersonalAccountEmailFragment.newInstance()
 
     override fun getPageTitle(position: Int): CharSequence =
         titles[position].toUpperCase(Locale.getDefault())

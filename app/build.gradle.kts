@@ -59,6 +59,8 @@ dependencies {
     androidTestImplementation(TestLibraries.testRules)
     androidTestImplementation(TestLibraries.mockitoAndroid)
     androidTestImplementation(TestLibraries.uiAutomator)
+    androidTestImplementation(TestLibraries.koinTest)
+    androidTestImplementation(TestLibraries.mockito)
 
     // Development dependencies
     debugImplementation(DevLibraries.fragmentTesting)

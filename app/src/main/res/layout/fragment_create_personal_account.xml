@@ -14,7 +14,7 @@
         app:layout_constraintGuide_percent="0.228" />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/createPersonalAccountTitleTextView"
+        android:id="@+id/createPersonalAccountHeaderTextView"
         style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountTitleTextView"
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountHeaderTextView"
         app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent">
 
         <com.google.android.material.tabs.TabLayout

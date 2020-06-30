@@ -91,6 +91,8 @@ object TestLibraries {
     const val uiAutomator    = "androidx.test.uiautomator:uiautomator:${Versions.uiAutomator}"
     const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libraries.Versions.coroutines}"
     const val testCore       = "androidx.arch.core:core-testing:${Versions.testCore}"
+    const val koinTest       = "org.koin:koin-test:${Libraries.Versions.koin}"
+
 }
 
 

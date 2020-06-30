@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/create_personal_account_with_email_edit_text_hint"
+            android:imeOptions="flagNoExtractUi"
             android:inputType="textEmailAddress"
             android:paddingEnd="@dimen/create_personal_account_text_input_layout_padding_end">
 

@@ -32,7 +32,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountTitleTextView"
-        app:layout_constraintWidth_percent="@dimen/authentication_view_pager_width_percent">
+        app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/createPersonalAccountTabLayout"

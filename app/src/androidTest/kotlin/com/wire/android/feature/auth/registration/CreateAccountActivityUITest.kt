@@ -4,11 +4,11 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
-import com.wire.android.FunctionalTest
+import com.wire.android.FunctionalActivityTest
 import com.wire.android.R
 import org.junit.Test
 
-class CreateAccountActivityUITest : FunctionalTest(CreateAccountActivity::class.java) {
+class CreateAccountActivityUITest : FunctionalActivityTest(CreateAccountActivity::class.java) {
 
     @Test
     fun launch_uiElementsVisible() {

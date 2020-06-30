@@ -9,12 +9,15 @@ import androidx.test.uiautomator.UiDevice
 import org.junit.Rule
 import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
-@LargeTest
-open class FunctionalTest(clazz: Class<out Activity>) {
+open class FunctionalActivityTest(clazz: Class<out Activity>) : FunctionalTest() {
 
     @get:Rule
     val activityRule = ActivityTestRule(clazz)
+}
+
+@RunWith(AndroidJUnit4::class)
+@LargeTest
+open class FunctionalTest {
 
     val uiDevice = UiDevice.getInstance(getInstrumentation())
 

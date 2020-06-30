@@ -2,5 +2,5 @@
 <resources>
     <item name="create_account_layout_container_width_percent" format="float" type="dimen">0.4</item>
     <item name="authentication_view_pager_width_percent" format="float" type="dimen">0.7</item>
-    <dimen name="authentication_authentication_editable_field_width_percent">0.7</dimen>
+    <dimen name="authentication_editable_field_width_percent">0.7</dimen>
 </resources>

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.core.accessibility.AccessibilityManagerWrapper
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
@@ -23,17 +24,30 @@ import com.wire.android.shared.user.email.ValidateEmailUseCase
 import kotlinx.coroutines.Dispatchers
 
 class CreatePersonalAccountEmailViewModel(
-    private val validateEmailUseCase: ValidateEmailUseCase,
-    private val sendActivationUseCase: SendEmailActivationCodeUseCase
+        private val validateEmailUseCase: ValidateEmailUseCase,
+        private val sendActivationUseCase: SendEmailActivationCodeUseCase,
+        private val accessibilityManagerWrapper: AccessibilityManagerWrapper
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _isValidEmailLiveData = MutableLiveData<Boolean>()
     private val _sendActivationCodeLiveData = MutableLiveData<Either<ErrorMessage, Unit>>()
     private val _networkConnectionErrorLiveData = MutableLiveData<Unit>()
+    private val _textInputFocusedLiveData = MutableLiveData<Unit>()
 
     val isValidEmailLiveData: LiveData<Boolean> = _isValidEmailLiveData
     val sendActivationCodeLiveData: LiveData<Either<ErrorMessage, Unit>> = _sendActivationCodeLiveData
     val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
+    val textInputFocusedLiveData: LiveData<Unit> = _textInputFocusedLiveData
+
+    init {
+        requestFocusForInput()
+    }
+
+    private fun requestFocusForInput() {
+        if (!accessibilityManagerWrapper.isTalkbackEnabled()) {
+            _textInputFocusedLiveData.value = Unit
+        }
+    }
 
     fun validateEmail(email: String) =
         validateEmailUseCase(viewModelScope, ValidateEmailParams(email), Dispatchers.Default) {

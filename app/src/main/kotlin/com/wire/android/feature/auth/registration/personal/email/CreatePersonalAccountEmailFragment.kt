@@ -3,10 +3,11 @@ package com.wire.android.feature.auth.registration.personal.email
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.lifecycle.observe
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.observe
 import com.wire.android.R
+import com.wire.android.core.extension.showKeyboard
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.*
@@ -19,11 +20,19 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        observeInputFocusData()
         observeEmailValidationData()
         observeActivationCodeData()
         observeNetworkConnectionError()
         initEmailChangedListener()
         initConfirmationButton()
+    }
+
+    private fun observeInputFocusData() {
+        emailViewModel.textInputFocusedLiveData.observe(viewLifecycleOwner) {
+            createPersonalAccountEmailEditText.requestFocus()
+            showKeyboard()
+        }
     }
 
     private fun observeEmailValidationData() {

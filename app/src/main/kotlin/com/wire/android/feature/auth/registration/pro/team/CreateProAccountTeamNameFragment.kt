@@ -7,6 +7,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
+import com.wire.android.core.accessibility.headingForAccessibility
 import com.wire.android.core.extension.openUrl
 import com.wire.android.core.extension.showKeyboard
 import kotlinx.android.synthetic.main.fragment_create_pro_account_team_name.*
@@ -18,12 +19,16 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initTeamHeader()
         initTeamInput()
         initAboutButton()
         initConfirmationButton()
         observerUrlData()
-        observeTeamData()
-        showKeyboard()
+        observeTeamInput()
+    }
+
+    private fun initTeamHeader() {
+        createProAccountTeamNameTitleTextView.headingForAccessibility(true)
     }
 
     private fun initConfirmationButton() {
@@ -58,9 +63,15 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         }
     }
 
-    private fun observeTeamData() {
-        createProAccountTeamNameViewModel.teamNameLiveData.observe(viewLifecycleOwner) {
-            createProAccountTeamNameEditText.setText(it)
+    private fun observeTeamInput() {
+        with(createProAccountTeamNameViewModel) {
+            textInputFocusedLiveData.observe(viewLifecycleOwner) {
+                showKeyboard()
+                createProAccountTeamNameEditText.requestFocus()
+            }
+            teamNameLiveData.observe(viewLifecycleOwner) {
+                createProAccountTeamNameEditText.setText(it)
+            }
         }
     }
 

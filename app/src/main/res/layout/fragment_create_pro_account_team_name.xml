@@ -55,17 +55,13 @@
             style="@style/TextInputEditText.OutlineBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/create_pro_account_set_team_name_hint"
-            android:inputType="textEmailAddress">
-
-            <requestFocus />
-        </com.google.android.material.textfield.TextInputEditText>
+            android:hint="@string/create_pro_account_set_team_name_hint" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/createProAccountTeamNameInputConfirmationButton"
-        style="@style/Button.Primary.Circle"
+        style="@style/Button.Primary.Circle.Confirmation"
         android:layout_marginTop="@dimen/authentication_confirmation_button_margin_top"
         android:layout_marginEnd="@dimen/authentication_confirmation_button_margin_end"
         app:icon="@drawable/ic_arrow_right"

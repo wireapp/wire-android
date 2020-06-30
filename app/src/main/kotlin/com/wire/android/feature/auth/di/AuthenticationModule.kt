@@ -24,7 +24,7 @@ val authenticationModules: List<Module>
     )
 
 private val createPersonalAccountModule: Module = module {
-    viewModel { CreatePersonalAccountEmailViewModel(get(), get()) }
+    viewModel { CreatePersonalAccountEmailViewModel(get(), get(), get()) }
     factory { ValidateEmailUseCase() }
     factory { SendEmailActivationCodeUseCase(get()) }
     single<ActivationRepository> { ActivationDataSource(get()) }
@@ -33,7 +33,7 @@ private val createPersonalAccountModule: Module = module {
 }
 
 private val createProAccountModule: Module = module {
-    viewModel { CreateProAccountTeamNameViewModel(get(), get()) }
+    viewModel { CreateProAccountTeamNameViewModel(get(), get(), get()) }
     factory { GetTeamNameUseCase(get()) }
     factory { UpdateTeamNameUseCase(get()) }
     single { TeamDataSource() as TeamsRepository }

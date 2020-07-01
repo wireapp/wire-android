@@ -32,8 +32,8 @@ class CreatePersonalAccountEmailViewModel(
     private val _isValidEmailLiveData = MutableLiveData<Boolean>()
     val isValidEmailLiveData: LiveData<Boolean> = _isValidEmailLiveData
 
-    private val _sendActivationCodeLiveData = MutableLiveData<Either<ErrorMessage, Unit>>()
-    val sendActivationCodeLiveData: LiveData<Either<ErrorMessage, Unit>> = _sendActivationCodeLiveData
+    private val _sendActivationCodeLiveData = MutableLiveData<Either<ErrorMessage, String>>()
+    val sendActivationCodeLiveData: LiveData<Either<ErrorMessage, String>> = _sendActivationCodeLiveData
 
     private val _networkConnectionErrorLiveData = MutableLiveData<Unit>()
     val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
@@ -68,10 +68,10 @@ class CreatePersonalAccountEmailViewModel(
 
     fun sendActivationCode(email: String) =
         sendActivationUseCase(viewModelScope, SendEmailActivationCodeParams(email)) {
-            it.fold(::sendActivationCodeFailure) { sendActivationCodeSuccess() }
+            it.fold(::sendActivationCodeFailure) { sendActivationCodeSuccess(email) }
         }
 
-    private fun sendActivationCodeSuccess() = _sendActivationCodeLiveData.success()
+    private fun sendActivationCodeSuccess(email: String) = _sendActivationCodeLiveData.success(email)
 
     private fun sendActivationCodeFailure(failure: Failure) {
         when (failure) {

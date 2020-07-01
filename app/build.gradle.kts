@@ -38,6 +38,7 @@ dependencies {
     implementation(Libraries.Koin.viewModel)
     implementation(Libraries.Kotlin.coroutinesCore)
     implementation(Libraries.Kotlin.coroutinesAndroid)
+    implementation(Libraries.pinEditText)
 
     implementation(Libraries.Retrofit.core)
     implementation(Libraries.Retrofit.gsonConverter)

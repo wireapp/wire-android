@@ -7,11 +7,16 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
-import com.wire.android.core.extension.showKeyboard
+import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.*
 import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.Boolean
+import kotlin.Int
+import kotlin.String
+import kotlin.getValue
+import kotlin.toString
 
 class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_personal_account_email) {
 
@@ -60,17 +65,16 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
     private fun observeActivationCodeData() {
         emailViewModel.sendActivationCodeLiveData.observe(viewLifecycleOwner) {
             it.onSuccess {
-                showEmailCodeScreen()
+                showEmailCodeScreen(it)
             }.onFailure {
                 showGenericErrorDialog(it.message)
             }
         }
     }
 
-    //TODO: proper navigation
-    private fun showEmailCodeScreen() {
-        makeToast("Open e-mail code screen")
-    }
+    private fun showEmailCodeScreen(email: String) = replaceFragment(
+        R.id.createAccountLayoutContainer, CreatePersonalAccountEmailCodeFragment.newInstance(email)
+    )
 
     private fun observeNetworkConnectionError() {
         emailViewModel.networkConnectionErrorLiveData.observe(viewLifecycleOwner) {

@@ -39,7 +39,7 @@ class CreatePersonalAccountFragment : Fragment(R.layout.fragment_create_personal
         createPersonalAccountViewPager.adapter = CreatePersonalAccountViewPagerAdapter(childFragmentManager, titles)
         titles.forEachIndexed { index, title ->
             createPersonalAccountTabLayout.getTabAt(index)?.contentDescription =
-                getString(R.string.create_an_account_tab_content_description, title, index, titles.size)
+                getString(R.string.create_an_account_tab_content_description, title, index + 1, titles.size)
         }
     }
 

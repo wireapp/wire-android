@@ -22,12 +22,10 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
-
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
-import java.util.concurrent.TimeoutException
 
 @ExperimentalCoroutinesApi
 class CreatePersonalAccountEmailViewModelTest : UnitTest() {

@@ -21,7 +21,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import java.util.concurrent.TimeoutException
 
 @ExperimentalCoroutinesApi
 class CreateProAccountTeamNameViewModelTest : UnitTest() {

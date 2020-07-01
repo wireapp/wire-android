@@ -11,7 +11,7 @@ import org.mockito.Mockito.`when`
 
 class AccessibilityManagerWrapperTest : UnitTest() {
 
-    private lateinit var accessibilityManagerWrapper: AccessibilityManagerWrapper
+    private lateinit var accessibilityManagerWrapper: com.wire.android.core.accessibility.AccessibilityManager
 
     @Mock
     private lateinit var accessibilityManager: AccessibilityManager
@@ -21,7 +21,7 @@ class AccessibilityManagerWrapperTest : UnitTest() {
 
     @Before
     fun setup() {
-        accessibilityManagerWrapper = AccessibilityManagerWrapper(accessibilityManager)
+        accessibilityManagerWrapper = AccessibilityManager(accessibilityManager)
     }
 
     @Test

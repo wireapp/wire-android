@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
-import com.wire.android.core.accessibility.AccessibilityManagerWrapper
+import com.wire.android.core.accessibility.AccessibilityManager
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
@@ -26,7 +26,7 @@ import kotlinx.coroutines.Dispatchers
 class CreatePersonalAccountEmailViewModel(
         private val validateEmailUseCase: ValidateEmailUseCase,
         private val sendActivationUseCase: SendEmailActivationCodeUseCase,
-        private val accessibilityManagerWrapper: AccessibilityManagerWrapper
+        private val accessibilityManagerWrapper: AccessibilityManager
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _isValidEmailLiveData = MutableLiveData<Boolean>()

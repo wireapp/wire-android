@@ -2,8 +2,7 @@ package com.wire.android.feature.auth.registration.personal
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.wire.android.UnitTest
-import com.wire.android.core.accessibility.AccessibilityManagerWrapper
-import com.wire.android.framework.coroutines.CoroutinesTestRule
+import com.wire.android.core.accessibility.AccessibilityManager
 import com.wire.android.framework.livedata.awaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
@@ -23,7 +22,7 @@ class CreatePersonalAccountViewModelTest : UnitTest() {
     private lateinit var createPersonalAccountViewModel: CreatePersonalAccountViewModel
 
     @Mock
-    private lateinit var accessibilityManagerWrapper: AccessibilityManagerWrapper
+    private lateinit var accessibilityManagerWrapper: AccessibilityManager
 
     @Before
     fun setup() {

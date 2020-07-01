@@ -37,9 +37,9 @@ class CreatePersonalAccountFragment : Fragment(R.layout.fragment_create_personal
             getString(R.string.authentication_tab_layout_title_phone)
         )
         createPersonalAccountViewPager.adapter = CreatePersonalAccountViewPagerAdapter(childFragmentManager, titles)
-        for (i in 0..titles.size) {
-            val tab = createPersonalAccountTabLayout.getTabAt(i)
-            tab?.contentDescription = getString(R.string.create_an_account_tab_content_description, titles[i], i + 1, titles.size)
+        titles.forEachIndexed { index, title ->
+            createPersonalAccountTabLayout.getTabAt(index)?.contentDescription =
+                getString(R.string.create_an_account_tab_content_description, title, index, titles.size)
         }
     }
 

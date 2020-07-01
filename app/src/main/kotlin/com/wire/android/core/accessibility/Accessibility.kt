@@ -5,14 +5,14 @@ import android.view.View
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
-import com.wire.android.core.util.AboveAndroidP
+import com.wire.android.core.util.CompatibilityManager
 
 @SuppressLint("NewApi")
 fun View.headingForAccessibility(
         isHeading: Boolean,
-        aboveAndroidP: AboveAndroidP = AboveAndroidP()
+        accessibilityConfig: AccessibilityConfig = AccessibilityConfig(CompatibilityManager())
 ) =
-    if (aboveAndroidP.isAboveAndroidP) {
+    if (accessibilityConfig.headingVersionCompatible()) {
         isAccessibilityHeading = isHeading
     } else {
         ViewCompat.setAccessibilityDelegate(this, object : AccessibilityDelegateCompat() {

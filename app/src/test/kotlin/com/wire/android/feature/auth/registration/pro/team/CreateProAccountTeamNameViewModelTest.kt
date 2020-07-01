@@ -2,7 +2,7 @@ package com.wire.android.feature.auth.registration.pro.team
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.wire.android.UnitTest
-import com.wire.android.core.accessibility.AccessibilityManagerWrapper
+import com.wire.android.core.accessibility.AccessibilityManager
 import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUseCase
@@ -40,11 +40,14 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     private lateinit var updateTeamNameUseCase: UpdateTeamNameUseCase
 
     @Mock
-    private lateinit var accessibilityWrapper: AccessibilityManagerWrapper
+    private lateinit var accessibilityWrapper: AccessibilityManager
 
     @Before
     fun setup() {
-        runBlocking { `when`(getTeamNameUseCase.run(Unit)).thenReturn(Either.Right(TEST_TEAM_NAME)) }
+        runBlocking {
+            `when`(getTeamNameUseCase.run(Unit)).thenReturn(Either.Right(TEST_TEAM_NAME))
+            `when`(accessibilityWrapper.isTalkbackEnabled()).thenReturn(false)
+        }
         viewModel = CreateProAccountTeamNameViewModel(getTeamNameUseCase, updateTeamNameUseCase, accessibilityWrapper)
     }
 

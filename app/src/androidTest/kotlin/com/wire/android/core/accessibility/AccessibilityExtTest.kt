@@ -3,15 +3,15 @@ package com.wire.android.core.accessibility
 import android.view.View
 import androidx.test.platform.app.InstrumentationRegistry
 import com.wire.android.InstrumentationTest
-import com.wire.android.core.util.AboveAndroidP
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.`when`
 
 class AccessibilityExtTest : InstrumentationTest() {
 
-    private lateinit var aboveAndroidP: AboveAndroidP
+    private lateinit var accessibilityConfig: AccessibilityConfig
 
     private lateinit var view: View
 
@@ -22,18 +22,18 @@ class AccessibilityExtTest : InstrumentationTest() {
 
     @Test
     fun givenAHeaderView_whenIsHeadingIsTrueAndAndroidSDKIs28OrAbove_thenSetIsAccessibilityHeaderToTrue() {
-        aboveAndroidP = AboveAndroidP(true)
+        `when`(accessibilityConfig.headingVersionCompatible()).thenReturn(true)
 
-        view.headingForAccessibility(true, aboveAndroidP)
+        view.headingForAccessibility(true, accessibilityConfig)
 
         assertTrue(view.isAccessibilityHeading)
     }
 
     @Test
     fun givenAHeaderView_whenIsHeadingIsFalseAndAndroidSDKIs28OrAbove_thenSetIsAccessibilityHeaderToTrue() {
-        aboveAndroidP = AboveAndroidP(true)
+        `when`(accessibilityConfig.headingVersionCompatible()).thenReturn(false)
 
-        view.headingForAccessibility(false, aboveAndroidP)
+        view.headingForAccessibility(false, accessibilityConfig)
 
         assertFalse(view.isAccessibilityHeading)
     }

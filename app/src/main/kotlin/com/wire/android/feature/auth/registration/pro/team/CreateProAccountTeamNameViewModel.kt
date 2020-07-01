@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.core.accessibility.AccessibilityManagerWrapper
+import com.wire.android.core.accessibility.AccessibilityManager
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
@@ -15,7 +15,7 @@ import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNam
 class CreateProAccountTeamNameViewModel(
         private val getTeamNameUseCase: GetTeamNameUseCase,
         private val updateTeamNameUseCase: UpdateTeamNameUseCase,
-        private val accessibilityManagerWrapper: AccessibilityManagerWrapper
+        private val accessibilityManagerWrapper: AccessibilityManager
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _urlLiveData = MutableLiveData<String>()

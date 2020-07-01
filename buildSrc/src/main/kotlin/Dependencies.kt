@@ -79,7 +79,7 @@ object TestLibraries {
 
     object Espresso {
         const val core          = "androidx.test.espresso:espresso-core:${Versions.espresso}"
-        const val accessibility = "com.android.support.test.espresso:espresso-accessibility:${Versions.espresso}"
+        const val accessibility = "androidx.test.espresso:espresso-accessibility:${Versions.espresso}"
     }
 
     const val junit4         = "junit:junit:${Versions.junit4}"

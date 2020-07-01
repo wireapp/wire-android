@@ -31,7 +31,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         createProAccountTeamNameTitleTextView.headingForAccessibility(true)
     }
 
-    private fun initConfirmationButton() {
+    private fun initConfirmationButton() =
         with(createProAccountTeamNameInputConfirmationButton) {
             isEnabled = false
             setOnClickListener {
@@ -41,18 +41,16 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
                 isEnabled = it
             }
         }
-    }
 
     private fun initAboutButton() =
         createProAccountTeamNameInputConfirmationButton.setOnClickListener {
             createProAccountTeamNameViewModel.onAboutButtonClicked()
         }
 
-    private fun observerUrlData() {
+    private fun observerUrlData() =
         createProAccountTeamNameViewModel.urlLiveData.observe(viewLifecycleOwner) {
             openUrl(it)
         }
-    }
 
     private fun initTeamInput() {
         createProAccountTeamNameEditText.doOnTextChanged { text, _, _, _ ->
@@ -63,7 +61,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         }
     }
 
-    private fun observeTeamInput() {
+    private fun observeTeamInput() =
         with(createProAccountTeamNameViewModel) {
             textInputFocusedLiveData.observe(viewLifecycleOwner) {
                 showKeyboard()
@@ -73,7 +71,6 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
                 createProAccountTeamNameEditText.setText(it)
             }
         }
-    }
 
     companion object {
         fun newInstance() = CreateProAccountTeamNameFragment()

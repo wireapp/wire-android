@@ -18,16 +18,16 @@ class CreateProAccountTeamNameViewModel(
         private val accessibilityManagerWrapper: AccessibilityManagerWrapper
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
-    private var _urlLiveData = MutableLiveData<String>()
+    private val _urlLiveData = MutableLiveData<String>()
     val urlLiveData: LiveData<String> = _urlLiveData
 
-    private var _teamNameLiveData = MutableLiveData<String>()
+    private val _teamNameLiveData = MutableLiveData<String>()
     val teamNameLiveData: LiveData<String> = _teamNameLiveData
 
-    private var _confirmationButtonEnabled = MutableLiveData<Boolean>()
+    private val _confirmationButtonEnabled = MutableLiveData<Boolean>()
     val confirmationButtonEnabled: LiveData<Boolean> = _confirmationButtonEnabled
 
-    private var _textInputFocusedLiveData = MutableLiveData<Unit>()
+    private val _textInputFocusedLiveData = MutableLiveData<Unit>()
     val textInputFocusedLiveData: LiveData<Unit> = _textInputFocusedLiveData
 
     init {

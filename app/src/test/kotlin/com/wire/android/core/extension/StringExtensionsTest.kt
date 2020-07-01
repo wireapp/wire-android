@@ -12,4 +12,3 @@ class StringExtensionsTest : UnitTest() {
         assertThat(String.EMPTY).isEqualTo("")
     }
 }
-

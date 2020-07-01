@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="AppTheme.Authentication">
         <item name="android:colorBackground">#f8f8f8</item>
         <item name="android:textColorPrimary">#ff33373A</item>
+        <item name="editTextBackground">@color/white</item>
+        <item name="editTextColor">?colorOnBackground</item>
         <item name="hintTextColor">#bac8d1</item>
     </style>
-
 </resources>

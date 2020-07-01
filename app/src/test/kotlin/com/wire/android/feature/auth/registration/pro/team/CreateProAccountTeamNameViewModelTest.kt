@@ -56,15 +56,6 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
         }
     }
 
-    @Test(expected = TimeoutException::class)
-    fun `given viewModel is initialised, when talk back is off, then don't interact with focus request live data`() {
-        runBlockingTest {
-            `when`(accessibilityWrapper.isTalkbackEnabled()).thenReturn(true)
-            viewModel = CreateProAccountTeamNameViewModel(getTeamNameUseCase, updateTeamNameUseCase, accessibilityWrapper)
-            viewModel.textInputFocusedLiveData.awaitValue()
-        }
-    }
-
     @Test
     fun `given viewModel is initialised, when teamName is available, propagate teamName up to the view`() {
         runBlockingTest {

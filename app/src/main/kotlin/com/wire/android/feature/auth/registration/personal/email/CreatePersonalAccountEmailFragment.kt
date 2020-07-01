@@ -31,7 +31,6 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
     private fun observeInputFocusData() {
         emailViewModel.textInputFocusedLiveData.observe(viewLifecycleOwner) {
             createPersonalAccountEmailEditText.requestFocus()
-            showKeyboard()
         }
     }
 

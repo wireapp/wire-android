@@ -62,15 +62,6 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
         }
     }
 
-    @Test(expected = TimeoutException::class)
-    fun `given viewModel is initialised, when talk back is off, then don't interact with focus request live data`() {
-        runBlockingTest {
-            `when`(accessibilityWrapper.isTalkbackEnabled()).thenReturn(true)
-            emailViewModel = CreatePersonalAccountEmailViewModel(validateEmailUseCase, sendActivationCodeUseCase, accessibilityWrapper)
-            emailViewModel.textInputFocusedLiveData.awaitValue()
-        }
-    }
-
     @Test
     fun `given validateEmail is called, when the validation succeeds then isValidEmail should be true`() =
         runBlockingTest {

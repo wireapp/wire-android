@@ -3,7 +3,6 @@ package com.wire.android.feature.auth.registration.personal
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.headingForAccessibility
 import com.wire.android.core.extension.showKeyboard
@@ -18,11 +17,11 @@ class CreatePersonalAccountFragment : Fragment(R.layout.fragment_create_personal
         super.onViewCreated(view, savedInstanceState)
         initCreateAnAccountTitle()
         initViewPager()
-        observeKeyboardChanges()
+        initKeyboard()
     }
 
-    private fun observeKeyboardChanges() {
-        createPersonalAccountViewModel.keyboardDisplayLiveData.observe(viewLifecycleOwner) {
+    private fun initKeyboard() {
+        if (createPersonalAccountViewModel.shouldShowKeyboard()) {
             showKeyboard()
         }
     }

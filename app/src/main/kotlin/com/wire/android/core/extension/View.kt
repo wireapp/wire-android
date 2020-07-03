@@ -10,9 +10,7 @@ import com.wire.android.core.util.Compatibility
 
 @SuppressLint("NewApi")
 fun View.headingForAccessibility(
-    accessibilityConfig: AccessibilityConfig = AccessibilityConfig(
-        Compatibility()
-    )
+    accessibilityConfig: AccessibilityConfig = AccessibilityConfig(Compatibility())
 ) =
     if (accessibilityConfig.headingVersionCompatible()) {
         isAccessibilityHeading = true

@@ -40,12 +40,6 @@ echo $NDK_HOME'''
           }
         }
 
-        stage('Adb devices') {
-          steps {
-            sh 'adb devices'
-          }
-        }
-
       }
     }
 
@@ -67,12 +61,9 @@ echo $NDK_HOME'''
       }
     }
 
-    stage('Acceptance Test') {
+    stage('Report') {
       steps {
-        withGradle() {
-          sh './gradlew runAcceptanceTests'
-        }
-
+        wireSend(secret: 'de714d86-181d-402f-bc46-bd1b338da4d0', message: 'Reloaded Build Successful')
       }
     }
 

@@ -8,9 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
-import com.wire.android.core.extension.failure
-import com.wire.android.core.extension.success
 import com.wire.android.core.functional.Either
+import com.wire.android.core.ui.event.Event
+import com.wire.android.core.ui.event.MutableEvent
+import com.wire.android.core.ui.event.failureEvent
+import com.wire.android.core.ui.event.successEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.auth.activation.usecase.EmailBlacklisted
@@ -30,8 +32,8 @@ class CreatePersonalAccountEmailViewModel(
     private val _isValidEmailLiveData = MutableLiveData<Boolean>()
     val isValidEmailLiveData: LiveData<Boolean> = _isValidEmailLiveData
 
-    private val _sendActivationCodeLiveData = MutableLiveData<Either<ErrorMessage, String>>()
-    val sendActivationCodeLiveData: LiveData<Either<ErrorMessage, String>> = _sendActivationCodeLiveData
+    private val _sendActivationCodeEvent = MutableEvent<Either<ErrorMessage, String>>()
+    val sendActivationCodeEvent: Event<Either<ErrorMessage, String>> = _sendActivationCodeEvent
 
     private val _networkConnectionErrorLiveData = MutableLiveData<Unit>()
     val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
@@ -56,16 +58,16 @@ class CreatePersonalAccountEmailViewModel(
             it.fold(::sendActivationCodeFailure) { sendActivationCodeSuccess(email) }
         }
 
-    private fun sendActivationCodeSuccess(email: String) = _sendActivationCodeLiveData.success(email)
+    private fun sendActivationCodeSuccess(email: String) = _sendActivationCodeEvent.successEvent(email)
 
     private fun sendActivationCodeFailure(failure: Failure) {
         when (failure) {
             is NetworkConnection -> _networkConnectionErrorLiveData.value = Unit
 
-            is EmailBlacklisted -> _sendActivationCodeLiveData.failure(
+            is EmailBlacklisted -> _sendActivationCodeEvent.failureEvent(
                 ErrorMessage(R.string.create_personal_account_with_email_email_blacklisted_error)
             )
-            is EmailInUse -> _sendActivationCodeLiveData.failure(
+            is EmailInUse -> _sendActivationCodeEvent.failureEvent(
                 ErrorMessage(R.string.create_personal_account_with_email_email_in_use_error)
             )
         }

@@ -10,6 +10,7 @@ import com.wire.android.R
 import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
+import com.wire.android.core.ui.event.onEvent
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -51,7 +52,7 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
     }
 
     private fun observeActivationCodeData() {
-        emailViewModel.sendActivationCodeLiveData.observe(viewLifecycleOwner) {
+        emailViewModel.sendActivationCodeEvent.onEvent(viewLifecycleOwner) {
             it.onSuccess {
                 showEmailCodeScreen(it)
             }.onFailure {

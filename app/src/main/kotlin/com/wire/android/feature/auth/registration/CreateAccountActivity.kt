@@ -14,12 +14,5 @@ class CreateAccountActivity : AppCompatActivity(R.layout.activity_create_account
         initBackButton()
     }
 
-    private fun initBackButton() {
-        createAccountBackButton.setOnClickListener { onBackPressed() }
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        supportFragmentManager.popBackStack()
-    }
+    private fun initBackButton() = createAccountBackButton.setOnClickListener { onBackPressed() }
 }

@@ -96,7 +96,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
 
-            emailViewModel.sendActivationCodeLiveData.awaitValue().assertRight {
+            emailViewModel.sendActivationCodeEvent.awaitValue().peekContent().assertRight {
                 assertThat(it).isEqualTo(TEST_EMAIL)
             }
         }
@@ -118,7 +118,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
 
-            emailViewModel.sendActivationCodeLiveData.awaitValue().assertLeft {
+            emailViewModel.sendActivationCodeEvent.awaitValue().peekContent().assertLeft {
                 assertThat(it.message).isEqualTo(R.string.create_personal_account_with_email_email_blacklisted_error)
             }
         }
@@ -130,7 +130,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
 
-            emailViewModel.sendActivationCodeLiveData.awaitValue().assertLeft {
+            emailViewModel.sendActivationCodeEvent.awaitValue().peekContent().assertLeft {
                 assertThat(it.message).isEqualTo(R.string.create_personal_account_with_email_email_in_use_error)
             }
         }

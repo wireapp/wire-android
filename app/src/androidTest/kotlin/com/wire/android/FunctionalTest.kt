@@ -17,16 +17,6 @@ open class FunctionalActivityTest(clazz: Class<out Activity>) : FunctionalTest()
 
     @get:Rule
     val activityRule = ActivityTestRule(clazz)
-
-    companion object {
-        @BeforeClass
-        @JvmStatic
-        fun enableAllChecks() {
-            AccessibilityChecks.enable()
-                .setRunChecksFromRootView(true)
-                .setSuppressingResultMatcher(matchesCheckNames(`is`("TouchTargetSizeViewCheck")))
-        }
-    }
 }
 
 @RunWith(AndroidJUnit4::class)
@@ -39,5 +29,15 @@ open class FunctionalTest {
         setOrientationLeft()
         block()
         setOrientationNatural()
+    }
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun enableAllChecks() {
+            AccessibilityChecks.enable()
+                .setRunChecksFromRootView(true)
+                .setSuppressingResultMatcher(matchesCheckNames(`is`("TouchTargetSizeViewCheck")))
+        }
     }
 }

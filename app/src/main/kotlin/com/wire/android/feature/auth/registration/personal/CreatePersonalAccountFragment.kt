@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.wire.android.R
-import com.wire.android.core.accessibility.headingForAccessibility
+import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.showKeyboard
 import kotlinx.android.synthetic.main.fragment_create_personal_account.*
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -27,7 +27,7 @@ class CreatePersonalAccountFragment : Fragment(R.layout.fragment_create_personal
     }
 
     private fun initCreateAnAccountTitle() {
-        createPersonalAccountTitleTextView.headingForAccessibility(true)
+        createPersonalAccountTitleTextView.headingForAccessibility()
     }
 
     private fun initViewPager() {

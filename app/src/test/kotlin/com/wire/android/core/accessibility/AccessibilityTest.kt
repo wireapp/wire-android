@@ -9,9 +9,9 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 
-class AccessibilityManagerWrapperTest : UnitTest() {
+class AccessibilityTest : UnitTest() {
 
-    private lateinit var accessibilityManagerWrapper: com.wire.android.core.accessibility.AccessibilityManager
+    private lateinit var accessibility: Accessibility
 
     @Mock
     private lateinit var accessibilityManager: AccessibilityManager
@@ -21,27 +21,29 @@ class AccessibilityManagerWrapperTest : UnitTest() {
 
     @Before
     fun setup() {
-        accessibilityManagerWrapper = AccessibilityManager(accessibilityManager)
+        accessibility = Accessibility(accessibilityManager)
     }
 
     @Test
     fun `given an accessibility manager, when it is not enabled, then isTalkbackEnabled should be false`() {
         `when`(accessibilityManager.isEnabled).thenReturn(false)
-        assertThat(accessibilityManagerWrapper.isTalkbackEnabled()).isFalse()
+        assertThat(accessibility.isTalkbackEnabled()).isFalse()
     }
 
 
     @Test
     fun `given an accessibility manager, when it is enabled and services list is empty, then isTalkbackEnabled is false`() {
         `when`(accessibilityManager.isEnabled).thenReturn(true)
-        assertThat(accessibilityManagerWrapper.isTalkbackEnabled()).isFalse()
+        assertThat(accessibility.isTalkbackEnabled()).isFalse()
     }
 
     @Test
     fun `given an accessibility manager, when it is enabled and services list does contain Talkback, then isTalkbackEnabled is false`() {
         val list = listOf(accessibilityServiceInfo)
         `when`(accessibilityManager.isEnabled).thenReturn(true)
-        `when`(accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)).thenReturn(list)
-        assertThat(accessibilityManagerWrapper.isTalkbackEnabled()).isTrue()
+        `when`(accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)).thenReturn(
+            list
+        )
+        assertThat(accessibility.isTalkbackEnabled()).isTrue()
     }
 }

@@ -60,6 +60,7 @@ dependencies {
     androidTestImplementation(TestLibraries.testRules)
     androidTestImplementation(TestLibraries.mockitoAndroid)
     androidTestImplementation(TestLibraries.uiAutomator)
+    androidTestImplementation(TestLibraries.assertJ)
 
     // Development dependencies
     debugImplementation(DevLibraries.fragmentTesting)

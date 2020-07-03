@@ -4,7 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.wire.android.R
 import com.wire.android.UnitTest
 import com.wire.android.any
-import com.wire.android.core.accessibility.AccessibilityManager
+import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.activation.usecase.EmailBlacklisted
@@ -46,12 +46,12 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
     private lateinit var validateEmailUseCase: ValidateEmailUseCase
 
     @Mock
-    private lateinit var accessibilityWrapper: AccessibilityManager
+    private lateinit var accessibility: Accessibility
 
     @Before
     fun setUp() {
-        `when`(accessibilityWrapper.isTalkbackEnabled()).thenReturn(false)
-        emailViewModel = CreatePersonalAccountEmailViewModel(validateEmailUseCase, sendActivationCodeUseCase, accessibilityWrapper)
+        `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
+        emailViewModel = CreatePersonalAccountEmailViewModel(validateEmailUseCase, sendActivationCodeUseCase, accessibility)
     }
 
     @Test

@@ -7,7 +7,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
-import com.wire.android.core.accessibility.headingForAccessibility
+import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.openUrl
 import com.wire.android.core.extension.showKeyboard
 import kotlinx.android.synthetic.main.fragment_create_pro_account_team_name.*
@@ -28,7 +28,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
     }
 
     private fun initTeamHeader() {
-        createProAccountTeamNameTitleTextView.headingForAccessibility(true)
+        createProAccountTeamNameTitleTextView.headingForAccessibility()
     }
 
     private fun initConfirmationButton() =

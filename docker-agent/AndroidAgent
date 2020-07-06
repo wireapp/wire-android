@@ -46,7 +46,5 @@ RUN mkdir $ANDROID_HOME/licenses && \
 RUN $ANDROID_HOME/tools/bin/sdkmanager "tools" "platform-tools" "build-tools;29.0.2" "platforms;android-29" "emulator" && \
 $ANDROID_HOME/tools/bin/sdkmanager "system-images;android-29;default;x86" && \
 $ANDROID_HOME/tools/bin/sdkmanager "extras;android;m2repository" "extras;google;m2repository" && \
-$ANDROID_HOME/tools/bin/sdkmanager "ndk-bundle" && \
-echo no | $ANDROID_HOME/tools/bin/avdmanager create avd -n android-emulator-1 -k "system-images;android-29;default;x86"
-
+$ANDROID_HOME/tools/bin/sdkmanager "ndk-bundle"
 

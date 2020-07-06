@@ -37,7 +37,7 @@ open class FunctionalTest {
         fun enableAllChecks() {
             AccessibilityChecks.enable()
                 .setRunChecksFromRootView(true)
-                .setSuppressingResultMatcher(matchesCheckNames(`is`("TouchTargetSizeViewCheck")))
+                .setThrowExceptionForErrors(false)
         }
     }
 }

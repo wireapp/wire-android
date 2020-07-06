@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 pipeline {
   agent {
     dockerfile {
@@ -70,4 +72,24 @@ echo $NDK_HOME'''
     }
 
   }
+  post {
+      failure {
+        wireSend(secret: env.WIRE_BOT_SECRET, message: "${params.Flavor}${params.BuildType} **[${BUILD_NUMBER}](${BUILD_URL})** - ❌ FAILED ($last_started) 👎")
+      }
+
+      success {
+        script {
+          lastCommits = sh(
+            script: "git log -5 --pretty=\"%h [%an] %s\" | sed \"s/^/    /\"",
+            returnStdout: true
+          )
+        }
+
+        wireSend(secret: env.WIRE_BOT_SECRET, message: "${params.Flavor}${params.BuildType} **[${BUILD_NUMBER}](${BUILD_URL})** - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
+      }
+
+      aborted {
+        wireSend(secret: env.WIRE_BOT_SECRET, message: "${params.Flavor}${params.BuildType} **[${BUILD_NUMBER}](${BUILD_URL})** - ❌ ABORTED ($last_started) ")
+      }
+    }
 }

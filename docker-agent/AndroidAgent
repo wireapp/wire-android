@@ -32,7 +32,7 @@ ENV ANDROID_HOME /home/${USER}/android-sdk-linux
 ENV ANDROID_SDK=${ANDROID_HOME}
 ENV ANDROID_NDK_HOME ${ANDROID_HOME}/ndk-bundle
 ENV NDK_HOME ${ANDROID_HOME}/ndk-bundle
-ENV PATH ${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/emulator:${ANDROID_HOME}/toools/bin:$PATH
+ENV PATH ${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:$PATH
 ENV CODECOV_TOKEN "8860eab7-2c32-479d-af31-c72786b34cc0"
 
 # Make license agreement
@@ -48,4 +48,5 @@ $ANDROID_HOME/tools/bin/sdkmanager "system-images;android-29;default;x86" && \
 $ANDROID_HOME/tools/bin/sdkmanager "extras;android;m2repository" "extras;google;m2repository" && \
 $ANDROID_HOME/tools/bin/sdkmanager "ndk-bundle" && \
 echo no | $ANDROID_HOME/tools/bin/avdmanager create avd -n android-emulator-1 -k "system-images;android-29;default;x86"
+
 

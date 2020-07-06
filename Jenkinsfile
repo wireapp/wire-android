@@ -61,11 +61,5 @@ echo $NDK_HOME'''
       }
     }
 
-    stage('Report') {
-      steps {
-        wireSend(secret: 'de714d86-181d-402f-bc46-bd1b338da4d0', message: 'Reloaded Build Successful')
-      }
-    }
-
   }
 }

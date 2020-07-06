@@ -26,7 +26,7 @@ pipeline {
           }
         }
 
-        stage('Create ${propertiesFile}') {
+        stage('Create properties file') {
           steps {
             sh '''FILE=/${propertiesFile}
                         if test -f "$FILE"; then

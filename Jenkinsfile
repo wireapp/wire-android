@@ -26,14 +26,14 @@ pipeline {
           }
         }
 
-        stage('Create ${env.propertiesFile}') {
+        stage('Create ${propertiesFile}') {
           steps {
-            sh '''FILE=/${env.propertiesFile}
+            sh '''FILE=/${propertiesFile}
                         if test -f "$FILE"; then
-                            echo "${env.propertiesFile} exists already"
+                            echo "${propertiesFile} exists already"
                         else
-                            echo "sdk.dir="$ANDROID_HOME >> ${env.propertiesFile}
-                            echo "ndk.dir="$NDK_HOME >> ${env.propertiesFile}
+                            echo "sdk.dir="$ANDROID_HOME >> ${propertiesFile}
+                            echo "ndk.dir="$NDK_HOME >> ${propertiesFile}
                         fi
                     '''
           }

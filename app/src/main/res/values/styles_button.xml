@@ -5,16 +5,22 @@
 
     <style name="Button.Primary">
         <item name="backgroundTint">@color/button_primary_background</item>
+        <item name="android:paddingTop">@dimen/button_padding</item>
+        <item name="android:paddingBottom">@dimen/button_padding</item>
     </style>
 
     <style name="Button.Secondary" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:textColor">@color/button_secondary_text_color</item>
         <item name="backgroundTint">@color/button_secondary_background</item>
+        <item name="android:paddingTop">@dimen/button_padding</item>
+        <item name="android:paddingBottom">@dimen/button_padding</item>
     </style>
 
     <style name="Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:textColor">?attr/colorSecondary</item>
         <item name="strokeColor">@color/button_outlined_stroke</item>
+        <item name="android:paddingTop">@dimen/button_padding</item>
+        <item name="android:paddingBottom">@dimen/button_padding</item>
     </style>
 
     <style name="Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton" />
@@ -46,9 +52,11 @@
         <item name="android:src">?attr/homeAsUpIndicator</item>
     </style>
 
+
     <style name="Button.Primary.Circle.Confirmation" parent="Button.Primary.Circle">
         <item name="android:contentDescription">@string/confirmation</item>
     </style>
+
     <style name="TextButton.Authentication.About" parent="Button.TextButton">
         <item name="android:gravity">center</item>
         <item name="android:layout_gravity">center</item>

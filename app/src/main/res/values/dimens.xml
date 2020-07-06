@@ -6,10 +6,9 @@
     <dimen name="button_rounded_corner_radius">48dp</dimen>
     <dimen name="button_circle_diameter">40dp</dimen>
     <dimen name="button_circle_icon_size">16dp</dimen>
+    <dimen name="button_padding">16dp</dimen>
 
     <!--Welcome-->
-    <dimen name="welcome_button_text_size">12sp</dimen>
-    <dimen name="welcome_button_padding">18dp</dimen>
     <dimen name="welcome_button_enterprise_login_margin_bottom">16dp</dimen>
     <item name="welcome_button_width_percent" format="float" type="dimen">0.9</item>
 

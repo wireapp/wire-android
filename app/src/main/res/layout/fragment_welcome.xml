@@ -36,7 +36,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/welcomeCreateAccountButton"
-        style="@style/Button.Welcome.CreateAccount"
+        style="@style/Button.Primary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/welcome_create_account"
@@ -47,7 +47,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/welcomeLoginButton"
-        style="@style/Button.Welcome.Login"
+        style="@style/Button.Outlined"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/welcome_login"
@@ -61,7 +61,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/welcomeEnterpriseLoginButton"
-        style="@style/Button.Welcome.EnterpriseLogin"
+        style="@style/Button.Secondary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/welcome_button_enterprise_login_margin_bottom"

@@ -17,6 +17,7 @@ package com.wire.android
 
 import android.app.Application
 import android.content.Context
+import com.wire.android.feature.auth.registration.CreateAccountActivity
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -32,6 +33,7 @@ import org.robolectric.annotation.Config
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [21])
+@Suppress("UnnecessaryAbstractClass")
 abstract class AndroidTest {
 
     @Suppress("LeakingThis")
@@ -39,7 +41,7 @@ abstract class AndroidTest {
 
     fun context(): Context = RuntimeEnvironment.systemContext.applicationContext
 
-    fun activityContext(): Context = mock(MainActivity::class.java)
+    fun activityContext(): Context = mock(CreateAccountActivity::class.java)
 
     class ApplicationStub : Application()
 }

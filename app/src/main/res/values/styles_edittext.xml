@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextInputLayout.Filled" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="android:background">?attr/editableFieldBackgroundColor</item>
+    </style>
+
+    <style name="TextInputLayout.Outlined" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="backgroundColor">?attr/editableFieldBackgroundColor</item>
+        <item name="boxBackgroundColor">?attr/editableFieldBackgroundColor</item>
+    </style>
+
+    <style name="TextInputLayout.NoBorder" parent="TextInputLayout.Outlined">
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+    </style>
+
+    <style name="TextInputEditText.OutlineBox" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox" />
+
+    <style name="EditText" parent="Widget.AppCompat.EditText" />
+
+    <style name="EditText.Pin">
+        <item name="android:inputType">number</item>
+        <item name="lineThickness">0dp</item>
+        <item name="cornerRadius">2dp</item>
+        <item name="fieldColor">@color/white</item>
+        <item name="fieldBgColor">@color/white</item>
+        <item name="highlightSingleFieldMode">true</item>
+        <item name="noOfFields">6</item>
+        <item name="highlightColor">?colorSecondary</item>
+    </style>
+</resources>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="back_button_padding">16dp</dimen>
+    <dimen name="screen_padding">16dp</dimen>
+
+    <dimen name="button_rounded_corner_radius">48dp</dimen>
+    <dimen name="button_circle_diameter">40dp</dimen>
+    <dimen name="button_circle_icon_size">16dp</dimen>
+
+    <!--Authentication - Register-->
+    <dimen name="create_account_back_button_elevation">1dp</dimen>
+    <dimen name="create_account_layout_container_margin">16dp</dimen>
+    <item name="create_account_layout_container_width_percent" format="float" type="dimen">0.7</item>
+    <dimen name="create_account_title_drawable_padding">8dp</dimen>
+    <dimen name="create_account_description_padding">32dp</dimen>
+
+    <dimen name="create_personal_account_text_input_layout_margin_top">14dp</dimen>
+    <dimen name="create_personal_account_text_input_layout_padding_end">60dp</dimen>
+    <dimen name="create_personal_account_confirmation_button_margin_end">8dp</dimen>
+
+    <item name="create_personal_account_pin_edittext_guideline_percent" type="dimen">0.4</item>
+    <item name="create_personal_account_retry_button_vertical_bias" type="dimen">0.15</item>
+
+    <dimen name="authentication_view_pager_margin_top">24dp</dimen>
+    <item name="authentication_editable_field_width_percent" format="float" type="dimen">1</item>
+
+    <dimen name="authentication_confirmation_button_margin_end">16dp</dimen>
+    <dimen name="authentication_confirmation_button_margin_top">8dp</dimen>
+    <dimen name="authentication_confirmation_button_padding">8dp</dimen>
+
+    <dimen name="create_pro_account_team_name_subtitle_margin_top">8dp</dimen>
+    <dimen name="create_pro_account_team_name_input_layout_margin_top">16dp</dimen>
+    <dimen name="authentication_about_text_button_text_size">11sp</dimen>
+</resources>

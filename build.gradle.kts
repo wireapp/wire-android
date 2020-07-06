@@ -1,5 +1,6 @@
 plugins {
     id(ScriptPlugins.infrastructure)
+    id(ScriptPlugins.detekt)
 }
 
 buildscript {
@@ -8,8 +9,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath (BuildPlugins.androidGradlePlugin)
-        classpath (BuildPlugins.kotlinGradlePlugin)
+        classpath(BuildPlugins.androidGradlePlugin)
+        classpath(BuildPlugins.kotlinGradlePlugin)
     }
 }
 

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="tabIndicatorHeight">1dp</item>
+        <item name="tabMaxWidth">0dp</item> <!-- no limit, so that it stretches to full width -->
+        <item name="tabGravity">fill</item>
+    </style>
+</resources>

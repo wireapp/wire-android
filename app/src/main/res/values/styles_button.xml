@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Button" parent="Widget.MaterialComponents.Button" />
+
+    <style name="Button.Primary">
+        <item name="backgroundTint">@color/button_primary_background</item>
+    </style>
+
+    <style name="Button.Secondary" parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@color/button_secondary_text_color</item>
+        <item name="backgroundTint">@color/button_secondary_background</item>
+    </style>
+
+    <style name="Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="strokeColor">@color/button_outlined_stroke</item>
+    </style>
+
+    <style name="Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton" />
+
+    <style name="Button.Rounded" parent="Widget.MaterialComponents.Button.Icon">
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="cornerRadius">@dimen/button_rounded_corner_radius</item>
+    </style>
+
+    <style name="Button.Circle" parent="Button.Rounded">
+        <item name="android:layout_width">@dimen/button_circle_diameter</item>
+        <item name="android:layout_height">@dimen/button_circle_diameter</item>
+        <item name="iconSize">@dimen/button_circle_icon_size</item>
+    </style>
+
+    <style name="Button.Primary.Circle" parent="Button.Circle">
+        <item name="backgroundTint">@color/button_primary_background</item>
+    </style>
+
+    <style name="ImageButton" parent="Widget.AppCompat.ImageButton" />
+
+    <style name="ImageButton.Back">
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:tint">?colorPrimary</item>
+        <item name="android:src">?attr/homeAsUpIndicator</item>
+    </style>
+
+    <style name="TextButton.Authentication.About" parent="Button.TextButton">
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textSize">@dimen/authentication_about_text_button_text_size</item>
+    </style>
+
+</resources>

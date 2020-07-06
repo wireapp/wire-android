@@ -3,19 +3,27 @@ package com.wire.android
 import android.app.Activity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.ActivityTestRule
+import androidx.test.uiautomator.UiDevice
 import org.junit.Rule
 import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
-@LargeTest
-abstract class FunctionalTest(clazz: Class<*>) {
+open class FunctionalActivityTest(clazz: Class<out Activity>) : FunctionalTest() {
 
     @get:Rule
-    var activityRule = activityTestRule(clazz)
+    val activityRule = ActivityTestRule(clazz)
+}
 
-    private fun activityTestRule(activityClass: Class<*>): ActivityTestRule<out Activity> {
-        require(activityClass is Activity) { "Wrong class type: Use Android Activity type." }
-        return ActivityTestRule(activityClass.asSubclass(Activity::class.java))
+@RunWith(AndroidJUnit4::class)
+@LargeTest
+open class FunctionalTest {
+
+    val uiDevice = UiDevice.getInstance(getInstrumentation())
+
+    fun rotateScreen(block: () -> Unit) = with(uiDevice) {
+        setOrientationLeft()
+        block()
+        setOrientationNatural()
     }
 }

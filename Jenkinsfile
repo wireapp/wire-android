@@ -45,6 +45,10 @@ echo $NDK_HOME'''
 
     stage('Unit Tests') {
       steps {
+        script {
+          last_started = env.STAGE_NAME
+        }
+
         withGradle() {
           sh './gradlew runUnitTests'
         }
@@ -54,6 +58,10 @@ echo $NDK_HOME'''
 
     stage('Build') {
       steps {
+        script {
+          last_started = env.STAGE_NAME
+        }
+
         withGradle() {
           sh './gradlew compileApp'
         }

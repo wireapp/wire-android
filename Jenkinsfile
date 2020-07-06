@@ -85,11 +85,11 @@ echo $NDK_HOME'''
           )
         }
 
-        wireSend(secret: env.WIRE_BOT_SECRET, message: "${BRANCH_NAME}]**[${BUILD_NUMBER}](${BUILD_URL})** - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
+        wireSend(secret: env.WIRE_BOT_SECRET, message: "[${BRANCH_NAME}]**[${BUILD_NUMBER}](${BUILD_URL})** - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
       }
 
       aborted {
-        wireSend(secret: env.WIRE_BOT_SECRET, message: "${BRANCH_NAME}]**[${BUILD_NUMBER}](${BUILD_URL})** - ❌ ABORTED ($last_started) ")
+        wireSend(secret: env.WIRE_BOT_SECRET, message: "[${BRANCH_NAME}]**[${BUILD_NUMBER}](${BUILD_URL})** - ❌ ABORTED ($last_started) ")
       }
     }
 }

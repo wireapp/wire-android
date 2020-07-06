@@ -7,8 +7,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.ActivityTestRule
 import androidx.test.uiautomator.UiDevice
-import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResultUtils.matchesCheckNames
-import org.hamcrest.core.Is.`is`
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.runner.RunWith

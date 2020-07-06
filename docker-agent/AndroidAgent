@@ -12,12 +12,12 @@ RUN gem install bundler
 RUN apt-get clean
 
 ARG USER=android-agent
-ARG UID=1000
-ARG GID=1000
+ARG USER_ID=1000
+ARG GROUP_ID=1000
 # default password for user
-ARG PW=1234567890
-RUN useradd -m ${USER} --uid=${UID} && echo "${USER}:${PW}" | chpasswd
-USER ${UID}:${GID}
+ARG USER_PASSWORD=1234567890
+RUN useradd -m ${USER} --uid=${USER_ID} && echo "${USER}:${USER_PASSWORD}" | chpasswd
+USER ${USER_ID}:${GROUP_ID}
 WORKDIR /home/${USER}
 ENV HOME /home/${USER}
 

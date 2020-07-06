@@ -7,6 +7,11 @@ pipeline {
     }
 
   }
+
+  environment {
+    propertiesFile='local.properties'
+  }
+
   stages {
     stage('Precondition Checks') {
       parallel {
@@ -21,14 +26,14 @@ pipeline {
           }
         }
 
-        stage('Create local.properties') {
+        stage('Create ${env.propertiesFile}') {
           steps {
-            sh '''FILE=/local.properties
+            sh '''FILE=/${env.propertiesFile}
                         if test -f "$FILE"; then
-                            echo "local.properties exists already"
+                            echo "${env.propertiesFile} exists already"
                         else
-                            echo "sdk.dir="$ANDROID_HOME >> local.properties
-                            echo "ndk.dir="$NDK_HOME >> local.properties
+                            echo "sdk.dir="$ANDROID_HOME >> ${env.propertiesFile}
+                            echo "ndk.dir="$NDK_HOME >> ${env.propertiesFile}
                         fi
                     '''
           }

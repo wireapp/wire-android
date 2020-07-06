@@ -17,7 +17,7 @@ pipeline {
             }
 
             sh '''echo $ANDROID_HOME
-echo $NDK_HOME'''
+                  echo $NDK_HOME'''
           }
         }
 
@@ -33,15 +33,6 @@ echo $NDK_HOME'''
                     '''
           }
         }
-
-        stage('ls') {
-          steps {
-            sh '''ls -la
-                        cd app
-                        ls -la'''
-          }
-        }
-
       }
     }
 

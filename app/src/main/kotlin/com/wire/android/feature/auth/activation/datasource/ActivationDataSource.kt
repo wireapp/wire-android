@@ -4,10 +4,12 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.activation.ActivationRepository
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemoteDataSource
-import kotlinx.coroutines.delay
 
 class ActivationDataSource(private val activationRemoteDataSource: ActivationRemoteDataSource) : ActivationRepository {
 
     override suspend fun sendEmailActivationCode(email: String): Either<Failure, Unit> =
         activationRemoteDataSource.sendEmailActivationCode(email)
+
+    override suspend fun activateEmail(email: String, code: String): Either<Failure, Unit> =
+        activationRemoteDataSource.activateEmail(email, code)
 }

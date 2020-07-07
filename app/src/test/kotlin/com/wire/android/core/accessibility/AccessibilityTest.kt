@@ -38,7 +38,7 @@ class AccessibilityTest : UnitTest() {
     }
 
     @Test
-    fun `given an accessibility manager, when it is enabled and services list does contain Talkback, then isTalkbackEnabled is false`() {
+    fun `given an accessibility manager, when it is enabled and services list does contain Talkback, then isTalkbackEnabled is true`() {
         val list = listOf(accessibilityServiceInfo)
         `when`(accessibilityManager.isEnabled).thenReturn(true)
         `when`(accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)).thenReturn(

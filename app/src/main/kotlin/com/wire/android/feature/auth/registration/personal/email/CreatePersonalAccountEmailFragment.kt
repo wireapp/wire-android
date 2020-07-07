@@ -12,13 +12,9 @@ import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.*
 import org.koin.android.viewmodel.ext.android.viewModel
-import kotlin.Boolean
-import kotlin.Int
-import kotlin.String
-import kotlin.getValue
-import kotlin.toString
 
-class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_personal_account_email) {
+class CreatePersonalAccountEmailFragment :
+    Fragment(R.layout.fragment_create_personal_account_email) {
 
     //TODO Add loading status
     private val emailViewModel: CreatePersonalAccountEmailViewModel by viewModel()
@@ -63,8 +59,8 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
     }
 
     private fun observeActivationCodeData() {
-        emailViewModel.sendActivationCodeLiveData.observe(viewLifecycleOwner) {
-            it.onSuccess {
+        emailViewModel.sendActivationCodeLiveData.observe(viewLifecycleOwner) { response ->
+            response.onSuccess {
                 showEmailCodeScreen(it)
             }.onFailure {
                 showGenericErrorDialog(it.message)
@@ -87,7 +83,8 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
     private fun showGenericErrorDialog(messageResId: Int) = makeToast(getString(messageResId))
 
     //TODO: temporary method until we add error dialog structure.
-    private fun makeToast(msg: String) = Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+    private fun makeToast(msg: String) =
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
 
     companion object {
         fun newInstance() = CreatePersonalAccountEmailFragment()

@@ -30,7 +30,7 @@ class CreatePersonalAccountEmailFragment :
     }
 
     private fun observeInputFocusData() {
-        emailViewModel.textInputFocusedLiveData.observe(viewLifecycleOwner) {
+        if (emailViewModel.shouldFocusInput()) {
             createPersonalAccountEmailEditText.requestFocus()
         }
     }

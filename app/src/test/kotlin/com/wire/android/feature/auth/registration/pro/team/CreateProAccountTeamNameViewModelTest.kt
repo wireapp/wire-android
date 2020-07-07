@@ -44,17 +44,27 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     @Before
     fun setup() {
-        runBlocking {
-            `when`(getTeamNameUseCase.run(Unit)).thenReturn(Either.Right(TEST_TEAM_NAME))
-            `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
-        }
-        viewModel = CreateProAccountTeamNameViewModel(getTeamNameUseCase, updateTeamNameUseCase, accessibility)
+        runBlocking { `when`(getTeamNameUseCase.run(Unit)).thenReturn(Either.Right(TEST_TEAM_NAME)) }
+        viewModel = CreateProAccountTeamNameViewModel(
+            getTeamNameUseCase,
+            updateTeamNameUseCase,
+            accessibility
+        )
     }
 
     @Test
-    fun `given viewModel is initialised, when talk back is off, then propagate focus request up`() {
+    fun `given shouldFocusInput is queried, when talkback is not enabled, then return true`() {
         runBlockingTest {
-            assertThat(viewModel.textInputFocusedLiveData.awaitValue()).isEqualTo(Unit)
+            `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
+            assertThat(viewModel.shouldFocusInput()).isEqualTo(true)
+        }
+    }
+
+    @Test
+    fun `given shouldFocusInput is queried, when talkback is enabled, then return false `() {
+        runBlockingTest {
+            `when`(accessibility.isTalkbackEnabled()).thenReturn(true)
+            assertThat(viewModel.shouldFocusInput()).isEqualTo(false)
         }
     }
 

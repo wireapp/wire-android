@@ -50,14 +50,26 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
-        emailViewModel = CreatePersonalAccountEmailViewModel(validateEmailUseCase, sendActivationCodeUseCase, accessibility)
+        emailViewModel = CreatePersonalAccountEmailViewModel(
+            validateEmailUseCase,
+            sendActivationCodeUseCase,
+            accessibility
+        )
     }
 
     @Test
-    fun `given viewModel is initialised, when talk back is off, then propagate focus request up`() {
+    fun `given shouldFocusInput is queried, when talkback is not enabled, then return true`() {
         runBlockingTest {
-            assertThat(emailViewModel.textInputFocusedLiveData.awaitValue()).isEqualTo(Unit)
+            `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
+            assertThat(emailViewModel.shouldFocusInput()).isEqualTo(true)
+        }
+    }
+
+    @Test
+    fun `given shouldFocusInput is queried, when talkback is enabled, then return false `() {
+        runBlockingTest {
+            `when`(accessibility.isTalkbackEnabled()).thenReturn(true)
+            assertThat(emailViewModel.shouldFocusInput()).isEqualTo(false)
         }
     }
 
@@ -92,13 +104,14 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
         }
 
     @Test
-    fun `given sendActivation is called, then calls SendEmailActivationCodeUseCase`() = runBlockingTest {
-        val params = SendEmailActivationCodeParams(TEST_EMAIL)
-        `when`(sendActivationCodeUseCase.run(params)).thenReturn(Either.Right(Unit))
+    fun `given sendActivation is called, then calls SendEmailActivationCodeUseCase`() =
+        runBlockingTest {
+            val params = SendEmailActivationCodeParams(TEST_EMAIL)
+            `when`(sendActivationCodeUseCase.run(params)).thenReturn(Either.Right(Unit))
 
-        emailViewModel.sendActivationCode(TEST_EMAIL)
-        verify(sendActivationCodeUseCase).run(params)
-    }
+            emailViewModel.sendActivationCode(TEST_EMAIL)
+            verify(sendActivationCodeUseCase).run(params)
+        }
 
     @Test
     fun `given sendActivation is called, when use case is successful, then sets email to sendActivationCodeLiveData`() =

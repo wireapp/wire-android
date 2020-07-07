@@ -63,7 +63,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
 
     private fun observeTeamInput() =
         with(createProAccountTeamNameViewModel) {
-            textInputFocusedLiveData.observe(viewLifecycleOwner) {
+            if (shouldFocusInput()) {
                 showKeyboard()
                 createProAccountTeamNameEditText.requestFocus()
             }

@@ -1,6 +1,7 @@
 package com.wire.android.core.di
 
 import android.content.Context
+import com.wire.android.core.network.di.networkModule
 import com.wire.android.feature.auth.di.authenticationModules
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -8,7 +9,11 @@ import org.koin.core.module.Module
 
 object Injector {
 
-    private val coreModules: List<Module> = listOf(coreModulesList).flatten()
+    private val coreModules: List<Module> = listOf(
+        accessibilityModule,
+        networkModule,
+        compatibilityModule
+    ).flatten()
 
     /**
      * Shared modules should contain dependencies that can

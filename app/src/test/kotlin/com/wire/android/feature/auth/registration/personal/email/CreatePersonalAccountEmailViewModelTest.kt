@@ -19,6 +19,7 @@ import com.wire.android.shared.user.email.EmailInvalid
 import com.wire.android.shared.user.email.EmailTooShort
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before

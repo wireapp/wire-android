@@ -25,6 +25,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         initConfirmationButton()
         observerUrlData()
         observeTeamInput()
+        shouldFocusInput()
     }
 
     private fun initTeamHeader() {
@@ -61,12 +62,15 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         }
     }
 
+    private fun shouldFocusInput() {
+        if (createProAccountTeamNameViewModel.shouldFocusInput()) {
+            showKeyboard()
+            createProAccountTeamNameEditText.requestFocus()
+        }
+    }
+
     private fun observeTeamInput() =
         with(createProAccountTeamNameViewModel) {
-            if (shouldFocusInput()) {
-                showKeyboard()
-                createProAccountTeamNameEditText.requestFocus()
-            }
             teamNameLiveData.observe(viewLifecycleOwner) {
                 createProAccountTeamNameEditText.setText(it)
             }

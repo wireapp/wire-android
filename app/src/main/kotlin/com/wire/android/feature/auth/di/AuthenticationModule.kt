@@ -7,7 +7,9 @@ import com.wire.android.feature.auth.activation.datasource.remote.ActivationApi
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemoteDataSource
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
 import com.wire.android.feature.auth.registration.personal.CreatePersonalAccountViewModel
+import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailCodeViewModel
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailViewModel
+import com.wire.android.feature.auth.registration.personal.email.usecase.ActivateEmailUseCase
 import com.wire.android.feature.auth.registration.pro.team.CreateProAccountTeamNameViewModel
 import com.wire.android.feature.auth.registration.pro.team.data.TeamDataSource
 import com.wire.android.feature.auth.registration.pro.team.data.TeamsRepository
@@ -32,6 +34,9 @@ private val createPersonalAccountModule: Module = module {
     single<ActivationRepository> { ActivationDataSource(get()) }
     single { ActivationRemoteDataSource(get(), get()) }
     factory { get<NetworkClient>().create(ActivationApi::class.java) }
+
+    viewModel { CreatePersonalAccountEmailCodeViewModel(get()) }
+    factory { ActivateEmailUseCase() }
 }
 
 private val createProAccountModule: Module = module {

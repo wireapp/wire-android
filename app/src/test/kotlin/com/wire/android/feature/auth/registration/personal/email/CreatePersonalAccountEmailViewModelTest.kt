@@ -1,6 +1,5 @@
 package com.wire.android.feature.auth.registration.personal.email
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.wire.android.R
 import com.wire.android.UnitTest
 import com.wire.android.any
@@ -30,9 +29,6 @@ import org.mockito.Mockito.verify
 
 @ExperimentalCoroutinesApi
 class CreatePersonalAccountEmailViewModelTest : UnitTest() {
-
-    @get:Rule
-    val rule = InstantTaskExecutorRule()
 
     @get:Rule
     val coroutinesTestRule = CoroutinesTestRule()

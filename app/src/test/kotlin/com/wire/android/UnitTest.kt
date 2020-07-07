@@ -15,6 +15,7 @@
  */
 package com.wire.android
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
@@ -31,4 +32,7 @@ abstract class UnitTest {
     @Rule
     @JvmField
     val injectMocks = InjectMocksRule.create(this@UnitTest)
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 }

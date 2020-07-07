@@ -1,12 +1,12 @@
 package com.wire.android.feature.auth.registration.personal.email
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.core.accessibility.Accessibility
+import com.wire.android.core.exception.ErrorMessage
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
@@ -61,8 +61,7 @@ class CreatePersonalAccountEmailViewModel(
             it.fold(::sendActivationCodeFailure) { sendActivationCodeSuccess(email) }
         }
 
-    private fun sendActivationCodeSuccess(email: String) =
-        _sendActivationCodeLiveData.success(email)
+    private fun sendActivationCodeSuccess(email: String) = _sendActivationCodeLiveData.success(email)
 
     private fun sendActivationCodeFailure(failure: Failure) {
         when (failure) {
@@ -77,5 +76,3 @@ class CreatePersonalAccountEmailViewModel(
         }
     }
 }
-
-data class ErrorMessage(@StringRes val message: Int)

@@ -13,7 +13,7 @@ object Injector {
         accessibilityModule,
         networkModule,
         compatibilityModule
-    ).flatten()
+    )
 
     /**
      * Shared modules should contain dependencies that can

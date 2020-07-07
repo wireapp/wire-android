@@ -16,7 +16,7 @@ class WelcomeFragment : Fragment(R.layout.fragment_welcome) {
 
     private fun initCreateAccountButton() {
         welcomeCreateAccountButton.setOnClickListener {
-            startActivity(CreateAccountActivity.newIntent(requireActivity().applicationContext))
+            startActivity(CreateAccountActivity.newIntent(requireContext()))
         }
     }
 

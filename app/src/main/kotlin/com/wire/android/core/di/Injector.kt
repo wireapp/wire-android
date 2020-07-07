@@ -8,8 +8,7 @@ import org.koin.core.module.Module
 
 object Injector {
 
-    private val coreModules: List<Module> = listOf(coreModulesList)
-        .flatten()
+    private val coreModules: List<Module> = listOf(coreModulesList).flatten()
 
     /**
      * Shared modules should contain dependencies that can

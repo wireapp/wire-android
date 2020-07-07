@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="create_account_layout_container_width_percent" format="float" type="dimen">0.4</item>
+    <item name="authentication_view_pager_width_percent" format="float" type="dimen">0.7</item>
     <item name="authentication_editable_field_width_percent" format="float" type="dimen">0.7</item>
     <item name="create_personal_account_pin_edittext_guideline_percent" type="dimen">0.5</item>
 </resources>

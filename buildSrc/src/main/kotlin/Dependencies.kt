@@ -71,12 +71,19 @@ object TestLibraries {
         const val mockito = "3.3.0"
         const val robolectric = "4.3.1"
         const val assertJ = "3.16.1"
-        const val testRunner = "1.1.0"
+        const val testRunner = "1.2.0"
         const val espresso = "3.2.0"
         const val testExtensions = "1.1.1"
-        const val testRules = "1.1.0"
+        const val testRules = "1.2.0"
         const val uiAutomator = "2.2.0"
         const val testCore = "2.1.0"
+    }
+
+    object Espresso {
+        const val core                = "androidx.test.espresso:espresso-core:${Versions.espresso}"
+        //Androidx isn't support yet. Please see:
+        //https://github.com/android/android-test/issues/492
+        const val accessibility = "com.android.support.test.espresso:espresso-accessibility:${Versions.espresso}"
     }
 
     const val junit4         = "junit:junit:${Versions.junit4}"
@@ -84,7 +91,6 @@ object TestLibraries {
     const val robolectric    = "org.robolectric:robolectric:${Versions.robolectric}"
     const val assertJ        = "org.assertj:assertj-core:${Versions.assertJ}"
     const val testRunner     = "androidx.test:runner:${Versions.testRunner}"
-    const val espresso       = "androidx.test.espresso:espresso-core:${Versions.espresso}"
     const val testExtJunit   = "androidx.test.ext:junit:${Versions.testExtensions}"
     const val testRules      = "androidx.test:rules:${Versions.testRules}"
     const val mockitoAndroid = "org.mockito:mockito-android:${Versions.mockito}"

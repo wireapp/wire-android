@@ -8,7 +8,7 @@ android {
         exclude("META-INF/DEPENDENCIES")
         exclude("META-INF/ASL2.0")
         exclude("META-INF/NOTICE")
-        exclude("META-INF/NOTICE")
+        exclude("META-INF/licenses/ASM")
     }
 
     compileOptions {

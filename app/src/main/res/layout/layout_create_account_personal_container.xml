@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:contentDescription="@string/personal_account_creation_content_description"
         android:drawableTop="@drawable/ic_personal"
         android:text="@string/app_entry_create_account" />
 
@@ -21,4 +22,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/app_entry_create_account_sub" />
+
 </LinearLayout>

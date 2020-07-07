@@ -1,11 +1,13 @@
 package com.wire.android
 
 import android.app.Activity
+import androidx.test.espresso.accessibility.AccessibilityChecks
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.ActivityTestRule
 import androidx.test.uiautomator.UiDevice
+import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.runner.RunWith
 
@@ -25,5 +27,15 @@ open class FunctionalTest {
         setOrientationLeft()
         block()
         setOrientationNatural()
+    }
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun enableAllChecks() {
+            AccessibilityChecks.enable()
+                .setRunChecksFromRootView(true)
+                .setThrowExceptionForErrors(false)
+        }
     }
 }

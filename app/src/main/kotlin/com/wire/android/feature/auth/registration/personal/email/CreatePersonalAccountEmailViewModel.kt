@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
@@ -24,7 +25,8 @@ import kotlinx.coroutines.Dispatchers
 
 class CreatePersonalAccountEmailViewModel(
     private val validateEmailUseCase: ValidateEmailUseCase,
-    private val sendActivationUseCase: SendEmailActivationCodeUseCase
+    private val sendActivationUseCase: SendEmailActivationCodeUseCase,
+    private val accessibility: Accessibility
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _isValidEmailLiveData = MutableLiveData<Boolean>()
@@ -35,6 +37,8 @@ class CreatePersonalAccountEmailViewModel(
 
     private val _networkConnectionErrorLiveData = MutableLiveData<Unit>()
     val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
+
+    fun shouldFocusInput() = !accessibility.isTalkbackEnabled()
 
     fun validateEmail(email: String) =
         validateEmailUseCase(viewModelScope, ValidateEmailParams(email), Dispatchers.Default) {
@@ -56,7 +60,8 @@ class CreatePersonalAccountEmailViewModel(
             it.fold(::sendActivationCodeFailure) { sendActivationCodeSuccess(email) }
         }
 
-    private fun sendActivationCodeSuccess(email: String) = _sendActivationCodeLiveData.success(email)
+    private fun sendActivationCodeSuccess(email: String) =
+        _sendActivationCodeLiveData.success(email)
 
     private fun sendActivationCodeFailure(failure: Failure) {
         when (failure) {

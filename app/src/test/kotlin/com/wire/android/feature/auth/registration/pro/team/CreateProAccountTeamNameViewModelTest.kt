@@ -2,26 +2,25 @@ package com.wire.android.feature.auth.registration.pro.team
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.wire.android.UnitTest
-import com.wire.android.capture
+import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUseCase
-import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameParams
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.awaitValue
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Assert.*
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.Captor
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 
 @ExperimentalCoroutinesApi
 class CreateProAccountTeamNameViewModelTest : UnitTest() {
@@ -40,13 +39,33 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     @Mock
     private lateinit var updateTeamNameUseCase: UpdateTeamNameUseCase
 
-    @Captor
-    private lateinit var paramsArgumentCaptor: ArgumentCaptor<UpdateTeamNameParams>
+    @Mock
+    private lateinit var accessibility: Accessibility
 
     @Before
     fun setup() {
         runBlocking { `when`(getTeamNameUseCase.run(Unit)).thenReturn(Either.Right(TEST_TEAM_NAME)) }
-        viewModel = CreateProAccountTeamNameViewModel(getTeamNameUseCase, updateTeamNameUseCase)
+        viewModel = CreateProAccountTeamNameViewModel(
+            getTeamNameUseCase,
+            updateTeamNameUseCase,
+            accessibility
+        )
+    }
+
+    @Test
+    fun `given shouldFocusInput is queried, when talkback is not enabled, then return true`() {
+        runBlockingTest {
+            `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
+            assertThat(viewModel.shouldFocusInput()).isEqualTo(true)
+        }
+    }
+
+    @Test
+    fun `given shouldFocusInput is queried, when talkback is enabled, then return false `() {
+        runBlockingTest {
+            `when`(accessibility.isTalkbackEnabled()).thenReturn(true)
+            assertThat(viewModel.shouldFocusInput()).isEqualTo(false)
+        }
     }
 
     @Test

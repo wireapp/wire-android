@@ -14,8 +14,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".feature.auth.registration.CreateAccountActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/AppTheme.Authentication">
+            android:theme="@style/AppTheme.Authentication"
+            android:windowSoftInputMode="adjustResize">
             <!-- TODO Theme shouldn't resolve to Dark one. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
@@ -12,8 +13,9 @@ import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNam
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
 
 class CreateProAccountTeamNameViewModel(
-        private val getTeamNameUseCase: GetTeamNameUseCase,
-        private val updateTeamNameUseCase: UpdateTeamNameUseCase
+    private val getTeamNameUseCase: GetTeamNameUseCase,
+    private val updateTeamNameUseCase: UpdateTeamNameUseCase,
+    private val accessibility: Accessibility
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _urlLiveData = MutableLiveData<String>()
@@ -29,6 +31,8 @@ class CreateProAccountTeamNameViewModel(
         getTeamName()
     }
 
+    fun shouldFocusInput() = !accessibility.isTalkbackEnabled()
+
     private fun getTeamName() =
         getTeamNameUseCase(viewModelScope, Unit) {
             it.onSuccess { teamName -> handleSuccess(teamName) }
@@ -38,7 +42,8 @@ class CreateProAccountTeamNameViewModel(
         _urlLiveData.value = "$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX"
     }
 
-    fun afterTeamNameChanged(teamName: String) = updateTeamNameUseCase(viewModelScope, UpdateTeamNameParams(teamName))
+    fun afterTeamNameChanged(teamName: String) =
+        updateTeamNameUseCase(viewModelScope, UpdateTeamNameParams(teamName))
 
     private fun handleSuccess(teamName: String) {
         _teamNameLiveData.value = teamName

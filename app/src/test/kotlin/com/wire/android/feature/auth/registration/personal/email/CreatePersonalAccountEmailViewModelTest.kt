@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.wire.android.R
 import com.wire.android.UnitTest
 import com.wire.android.any
+import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.activation.usecase.EmailBlacklisted
@@ -22,7 +23,6 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
-
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
@@ -45,9 +45,32 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
     @Mock
     private lateinit var validateEmailUseCase: ValidateEmailUseCase
 
+    @Mock
+    private lateinit var accessibility: Accessibility
+
     @Before
     fun setUp() {
-        emailViewModel = CreatePersonalAccountEmailViewModel(validateEmailUseCase, sendActivationCodeUseCase)
+        emailViewModel = CreatePersonalAccountEmailViewModel(
+            validateEmailUseCase,
+            sendActivationCodeUseCase,
+            accessibility
+        )
+    }
+
+    @Test
+    fun `given shouldFocusInput is queried, when talkback is not enabled, then return true`() {
+        runBlockingTest {
+            `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
+            assertThat(emailViewModel.shouldFocusInput()).isEqualTo(true)
+        }
+    }
+
+    @Test
+    fun `given shouldFocusInput is queried, when talkback is enabled, then return false `() {
+        runBlockingTest {
+            `when`(accessibility.isTalkbackEnabled()).thenReturn(true)
+            assertThat(emailViewModel.shouldFocusInput()).isEqualTo(false)
+        }
     }
 
     @Test
@@ -81,13 +104,14 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
         }
 
     @Test
-    fun `given sendActivation is called, then calls SendEmailActivationCodeUseCase`() = runBlockingTest {
-        val params = SendEmailActivationCodeParams(TEST_EMAIL)
-        `when`(sendActivationCodeUseCase.run(params)).thenReturn(Either.Right(Unit))
+    fun `given sendActivation is called, then calls SendEmailActivationCodeUseCase`() =
+        runBlockingTest {
+            val params = SendEmailActivationCodeParams(TEST_EMAIL)
+            `when`(sendActivationCodeUseCase.run(params)).thenReturn(Either.Right(Unit))
 
-        emailViewModel.sendActivationCode(TEST_EMAIL)
-        verify(sendActivationCodeUseCase).run(params)
-    }
+            emailViewModel.sendActivationCode(TEST_EMAIL)
+            verify(sendActivationCodeUseCase).run(params)
+        }
 
     @Test
     fun `given sendActivation is called, when use case is successful, then sets email to sendActivationCodeLiveData`() =

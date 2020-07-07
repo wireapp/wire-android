@@ -42,7 +42,12 @@
     <style name="ImageButton.Back">
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:tint">?colorPrimary</item>
+        <item name="android:contentDescription">@string/back</item>
         <item name="android:src">?attr/homeAsUpIndicator</item>
+    </style>
+
+    <style name="Button.Primary.Circle.Confirmation" parent="Button.Primary.Circle">
+        <item name="android:contentDescription">@string/confirmation</item>
     </style>
 
     <style name="TextButton.Authentication.About" parent="Button.TextButton">
@@ -50,5 +55,4 @@
         <item name="android:layout_gravity">center</item>
         <item name="android:textSize">@dimen/authentication_about_text_button_text_size</item>
     </style>
-
 </resources>

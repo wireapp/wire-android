@@ -6,7 +6,7 @@ import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import com.wire.android.core.accessibility.AccessibilityConfig
-import com.wire.android.core.util.Compatibility
+import com.wire.android.core.compatibility.Compatibility
 
 @SuppressLint("NewApi")
 fun View.headingForAccessibility(

@@ -1,4 +1,4 @@
-package com.wire.android.core.util
+package com.wire.android.core.compatibility
 
 import android.os.Build
 

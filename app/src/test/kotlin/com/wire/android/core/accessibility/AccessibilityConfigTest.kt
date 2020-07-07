@@ -2,7 +2,7 @@ package com.wire.android.core.accessibility
 
 import android.os.Build
 import com.wire.android.UnitTest
-import com.wire.android.core.util.Compatibility
+import com.wire.android.core.compatibility.Compatibility
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test

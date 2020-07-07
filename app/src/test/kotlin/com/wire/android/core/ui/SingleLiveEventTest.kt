@@ -42,9 +42,8 @@ class SingleLiveEventTest : UnitTest() {
         }
     }
 
-
     @Test
-    fun `given that value is already consumed, when lifecycleOwner is stopped and started again, does not notify observer for the second time`() {
+    fun `given that value's already consumed, when lifecycleOwner is stopped & started again, does not notify observer for the 2nd time`() {
         singleLiveEvent.value = TEST_VALUE
 
         var observedOnce = false
@@ -93,5 +92,4 @@ class SingleLiveEventTest : UnitTest() {
     companion object {
         private const val TEST_VALUE = 2
     }
-
 }

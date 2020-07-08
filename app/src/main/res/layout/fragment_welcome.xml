@@ -12,18 +12,18 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.450" />
 
-
-    <androidx.appcompat.widget.AppCompatImageView
+    <ImageView
         android:id="@+id/welcomeLogoImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:importantForAccessibility="no"
         android:src="@drawable/ic_wire_logo"
         app:layout_constraintBottom_toTopOf="@+id/welcomeTitleTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/welcomeTitleTextView"
         style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
@@ -57,7 +57,6 @@
         app:layout_constraintTop_toBottomOf="@+id/welcomeCreateAccountButton"
         app:layout_constraintVertical_bias="0.01"
         app:layout_constraintWidth_percent="@dimen/welcome_button_width_percent" />
-
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/welcomeEnterpriseLoginButton"

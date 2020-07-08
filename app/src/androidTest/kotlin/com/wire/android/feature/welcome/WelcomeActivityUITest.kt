@@ -6,17 +6,15 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.wire.android.FunctionalTest
+import androidx.test.espresso.matcher.ViewMatchers.*
+import com.wire.android.FunctionalActivityTest
 import com.wire.android.R
 import com.wire.android.feature.auth.registration.CreateAccountActivity
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-class WelcomeActivityUITest : FunctionalTest(WelcomeActivity::class.java) {
+class WelcomeActivityUITest : FunctionalActivityTest(WelcomeActivity::class.java) {
 
     @Before
     fun init() {

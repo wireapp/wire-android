@@ -18,7 +18,7 @@ import com.wire.android.shared.user.email.EmailInvalid
 import com.wire.android.shared.user.email.EmailTooShort
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -55,7 +55,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given shouldFocusInput is queried, when talkback is not enabled, then return true`() {
-        runBlockingTest {
+        runBlocking {
             `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
             assertThat(emailViewModel.shouldFocusInput()).isEqualTo(true)
         }
@@ -63,55 +63,59 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given shouldFocusInput is queried, when talkback is enabled, then return false `() {
-        runBlockingTest {
+        runBlocking {
             `when`(accessibility.isTalkbackEnabled()).thenReturn(true)
             assertThat(emailViewModel.shouldFocusInput()).isEqualTo(false)
         }
     }
 
     @Test
-    fun `given validateEmail is called, when the validation succeeds then isValidEmail should be true`() =
-        runBlockingTest {
+    fun `given validateEmail is called, when the validation succeeds then isValidEmail should be true`() {
+        runBlocking {
             `when`(validateEmailUseCase.run(any())).thenReturn(Either.Right(Unit))
 
             emailViewModel.validateEmail(TEST_EMAIL)
 
             assertThat(emailViewModel.isValidEmailLiveData.awaitValue()).isTrue()
         }
+    }
 
     @Test
-    fun `given validateEmail is called, when the validation fails with EmailTooShort error then isValidEmail should be false`() =
-        runBlockingTest {
+    fun `given validateEmail is called, when the validation fails with EmailTooShort error then isValidEmail should be false`() {
+        runBlocking {
             `when`(validateEmailUseCase.run(any())).thenReturn(Either.Left(EmailTooShort))
 
             emailViewModel.validateEmail(TEST_EMAIL)
 
             assertThat(emailViewModel.isValidEmailLiveData.awaitValue()).isFalse()
         }
+    }
 
     @Test
-    fun `given validateEmail is called, when the validation fails with EmailInvalid error then isValidEmail should be false`() =
-        runBlockingTest {
+    fun `given validateEmail is called, when the validation fails with EmailInvalid error then isValidEmail should be false`() {
+        runBlocking {
             `when`(validateEmailUseCase.run(any())).thenReturn(Either.Left(EmailInvalid))
 
             emailViewModel.validateEmail(TEST_EMAIL)
 
             assertThat(emailViewModel.isValidEmailLiveData.awaitValue()).isFalse()
         }
+    }
 
     @Test
-    fun `given sendActivation is called, then calls SendEmailActivationCodeUseCase`() =
-        runBlockingTest {
+    fun `given sendActivation is called, then calls SendEmailActivationCodeUseCase`() {
+        runBlocking {
             val params = SendEmailActivationCodeParams(TEST_EMAIL)
             `when`(sendActivationCodeUseCase.run(params)).thenReturn(Either.Right(Unit))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
             verify(sendActivationCodeUseCase).run(params)
         }
+    }
 
     @Test
-    fun `given sendActivation is called, when use case is successful, then sets email to sendActivationCodeLiveData`() =
-        runBlockingTest {
+    fun `given sendActivation is called, when use case is successful, then sets email to sendActivationCodeLiveData`() {
+        runBlocking {
             `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Right(Unit))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
@@ -120,20 +124,22 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
                 assertThat(it).isEqualTo(TEST_EMAIL)
             }
         }
+    }
 
     @Test
-    fun `given sendActivation is called, when use case returns networkError, then updates networkConnectionErrorLiveData`() =
-        runBlockingTest {
+    fun `given sendActivation is called, when use case returns networkError, then updates networkConnectionErrorLiveData`() {
+        runBlocking {
             `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Left(NetworkConnection))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
 
             assertThat(emailViewModel.networkConnectionErrorLiveData.awaitValue()).isEqualTo(Unit)
         }
+    }
 
     @Test
-    fun `given sendActivation is called, when use case returns EmailBlacklisted, then sets error message to sendActivationCodeLiveData`() =
-        runBlockingTest {
+    fun `given sendActivation is called, when use case returns EmailBlacklisted, then sets error message to sendActivationCodeLiveData`() {
+        runBlocking {
             `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Left(EmailBlacklisted))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
@@ -142,10 +148,11 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
                 assertThat(it.message).isEqualTo(R.string.create_personal_account_with_email_email_blacklisted_error)
             }
         }
+    }
 
     @Test
-    fun `given sendActivation is called, when use case returns EmailInUse, then sets error message to sendActivationCodeLiveData`() =
-        runBlockingTest {
+    fun `given sendActivation is called, when use case returns EmailInUse, then sets error message to sendActivationCodeLiveData`() {
+        runBlocking {
             `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Left(EmailInUse))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
@@ -154,6 +161,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
                 assertThat(it.message).isEqualTo(R.string.create_personal_account_with_email_email_in_use_error)
             }
         }
+    }
 
     companion object {
         private const val TEST_EMAIL = "test@wire.com"

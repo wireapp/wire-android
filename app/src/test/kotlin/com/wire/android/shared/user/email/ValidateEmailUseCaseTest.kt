@@ -3,7 +3,6 @@ package com.wire.android.shared.user.email
 import com.wire.android.UnitTest
 import com.wire.android.core.functional.Either
 import kotlinx.coroutines.*
-import kotlinx.coroutines.test.runBlockingTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -27,7 +26,7 @@ class ValidateEmailUseCaseTest : UnitTest() {
     fun `Given run is executed, when email doesn't match regex, then return EmailInvalid failure`() {
         `when`(validateEmailParams.email).thenReturn("email")
 
-        runBlockingTest {
+        runBlocking {
             assertThat(validationEmailUseCase.run(validateEmailParams)).isEqualTo(Either.Left(EmailInvalid))
         }
     }
@@ -37,7 +36,7 @@ class ValidateEmailUseCaseTest : UnitTest() {
         val email = "t"
         `when`(validateEmailParams.email).thenReturn(email)
 
-        runBlockingTest {
+        runBlocking {
             assertThat(validationEmailUseCase.run(validateEmailParams)).isEqualTo(Either.Left(EmailTooShort))
         }
     }
@@ -46,7 +45,7 @@ class ValidateEmailUseCaseTest : UnitTest() {
     fun `Given run is executed, when email matches regex and email fits requirements then return success`() {
         `when`(validateEmailParams.email).thenReturn(VALID_TEST_EMAIL)
 
-        runBlockingTest {
+        runBlocking {
             assertThat(validationEmailUseCase.run(validateEmailParams)).isEqualTo(Either.Right(Unit))
         }
     }

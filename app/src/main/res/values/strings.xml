@@ -4,6 +4,12 @@
     <string name="back">Back</string>
     <string name="confirmation">Confirmation</string>
 
+    <!-- Welcome -->
+    <string name="welcome_text">Welcome to Wire</string>
+    <string name="welcome_create_account">Create an Account</string>
+    <string name="welcome_login">Log in</string>
+    <string name="welcome_enterprise_login">Enterprise Login</string>
+
     <!-- Registration / Login -->
     <string name="app_entry_create_account">Personal</string>
     <string name="app_entry_create_account_sub">Chat privately with groups of friends and family</string>

@@ -3,7 +3,7 @@ package com.wire.android.feature.auth.registration.pro.team.data
 import com.wire.android.UnitTest
 import com.wire.android.framework.functional.assertRight
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -20,7 +20,7 @@ class TeamDataSourceTest : UnitTest() {
 
     @Test
     fun `given team name, when cache is updated, then check if name is correct`() {
-        runBlockingTest {
+        runBlocking {
             teamsRepository.updateTeamName(TEST_TEAM_NAME)
 
             teamsRepository.teamName().assertRight {

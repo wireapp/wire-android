@@ -13,7 +13,6 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -54,7 +53,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     @Test
     fun `given shouldFocusInput is queried, when talkback is not enabled, then return true`() {
-        runBlockingTest {
+        runBlocking {
             `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
             assertThat(viewModel.shouldFocusInput()).isEqualTo(true)
         }
@@ -62,7 +61,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     @Test
     fun `given shouldFocusInput is queried, when talkback is enabled, then return false `() {
-        runBlockingTest {
+        runBlocking {
             `when`(accessibility.isTalkbackEnabled()).thenReturn(true)
             assertThat(viewModel.shouldFocusInput()).isEqualTo(false)
         }
@@ -70,14 +69,14 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     @Test
     fun `given viewModel is initialised, when teamName is available, propagate teamName up to the view`() {
-        runBlockingTest {
+        runBlocking {
             assertEquals(TEST_TEAM_NAME, viewModel.teamNameLiveData.awaitValue())
         }
     }
 
     @Test
     fun `given about button is clicked, when url is provided, propagate url back to the view`() {
-        runBlockingTest {
+        runBlocking {
             viewModel.onAboutButtonClicked()
             assertEquals("$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX", viewModel.urlLiveData.awaitValue())
         }
@@ -85,7 +84,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     @Test
     fun `given empty team name, when on team name text is changed, confirmation button should be disabled`() {
-        runBlockingTest {
+        runBlocking {
             viewModel.onTeamNameTextChanged(String.EMPTY)
             assertFalse(viewModel.confirmationButtonEnabled.awaitValue())
         }
@@ -93,7 +92,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     @Test
     fun `given empty team name, when on team name text is changed, confirmation button should be enabled`() {
-        runBlockingTest {
+        runBlocking {
             viewModel.onTeamNameTextChanged(TEST_TEAM_NAME)
             assertTrue(viewModel.confirmationButtonEnabled.awaitValue())
         }

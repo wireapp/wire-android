@@ -3,7 +3,7 @@ package com.wire.android.feature.auth.registration.personal
 import com.wire.android.UnitTest
 import com.wire.android.core.accessibility.Accessibility
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -25,7 +25,7 @@ class CreatePersonalAccountViewModelTest : UnitTest() {
 
     @Test
     fun `given shouldShowKeyboard is queried, when talkback is not enabled, then return true `() {
-        runBlockingTest {
+        runBlocking {
             `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
 
             assertThat(createPersonalAccountViewModel.shouldShowKeyboard()).isEqualTo(true)
@@ -34,7 +34,7 @@ class CreatePersonalAccountViewModelTest : UnitTest() {
 
     @Test
     fun `given shouldShowKeyboard is queried, when talkback is enabled, then return false `() {
-        runBlockingTest {
+        runBlocking {
             `when`(accessibility.isTalkbackEnabled()).thenReturn(true)
             assertThat(createPersonalAccountViewModel.shouldShowKeyboard()).isEqualTo(false)
         }

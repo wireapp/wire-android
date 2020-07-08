@@ -4,7 +4,7 @@ import com.wire.android.UnitTest
 import com.wire.android.eq
 import com.wire.android.feature.auth.registration.pro.team.data.TeamsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -25,7 +25,7 @@ class UpdateTeamNameUseCaseTest : UnitTest() {
 
     @Test
     fun `given team name, then request update to repository`() {
-        runBlockingTest {
+        runBlocking {
             val params = UpdateTeamNameParams(TEST_TEAM_NAME)
 
             updateTeamNameUseCase.run(params)

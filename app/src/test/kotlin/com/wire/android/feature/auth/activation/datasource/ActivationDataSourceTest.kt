@@ -50,7 +50,7 @@ class ActivationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `Given activateEmail() is called and remote request fails then return failure`() = runBlockingTest {
+    fun `Given activateEmail() is called and remote request fails then return failure`() = runBlocking {
         `when`(remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE)).thenReturn(Either.Left(ServerError))
 
         val response = activationDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
@@ -60,7 +60,7 @@ class ActivationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `Given activateEmail() is called and remote request success then return success`() = runBlockingTest {
+    fun `Given activateEmail() is called and remote request success then return success`() = runBlocking {
         `when`(remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE)).thenReturn(Either.Right(Unit))
 
         val response = activationDataSource.activateEmail(TEST_EMAIL, TEST_CODE)

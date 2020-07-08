@@ -36,7 +36,7 @@ class WelcomeActivityUITest : FunctionalActivityTest(WelcomeActivity::class.java
 
     @Test
     fun createAccountButtonClick() {
-        onView(withId(R.id.fragmentWelcomeCreateAccountButton)).perform(click())
+        onView(withId(R.id.welcomeCreateAccountButton)).perform(click())
         intended(hasComponent(CreateAccountActivity::class.java.name))
     }
 

@@ -17,11 +17,11 @@ class WelcomeFragment : Fragment(R.layout.fragment_welcome) {
     }
 
     private fun initWelcomeTitle() {
-        fragmentWelcomeTitleTextView.headingForAccessibility()
+        welcomeTitleTextView.headingForAccessibility()
     }
 
     private fun initCreateAccountButton() {
-        fragmentWelcomeCreateAccountButton.setOnClickListener {
+        welcomeCreateAccountButton.setOnClickListener {
             startActivity(CreateAccountActivity.newIntent(requireContext()))
         }
     }

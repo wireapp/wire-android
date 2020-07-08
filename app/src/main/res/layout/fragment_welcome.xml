@@ -13,18 +13,18 @@
         app:layout_constraintGuide_percent="0.450" />
 
     <ImageView
-        android:id="@+id/fragmentWelcomeLogoImageView"
+        android:id="@+id/welcomeLogoImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:importantForAccessibility="no"
         android:src="@drawable/ic_wire_logo"
-        app:layout_constraintBottom_toTopOf="@+id/fragmentWelcomeTitleTextView"
+        app:layout_constraintBottom_toTopOf="@+id/welcomeTitleTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/fragmentWelcomeTitleTextView"
+        android:id="@+id/welcomeTitleTextView"
         style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,10 +32,10 @@
         app:layout_constraintBottom_toTopOf="@+id/welcomeCenterGuideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragmentWelcomeLogoImageView" />
+        app:layout_constraintTop_toBottomOf="@+id/welcomeLogoImageView" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/fragmentWelcomeCreateAccountButton"
+        android:id="@+id/welcomeCreateAccountButton"
         style="@style/Button.Primary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -46,20 +46,20 @@
         app:layout_constraintWidth_percent="@dimen/welcome_button_width_percent" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/fragmentWelcomeLoginButton"
+        android:id="@+id/welcomeLoginButton"
         style="@style/Button.Outlined"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/welcome_login"
-        app:layout_constraintBottom_toTopOf="@+id/fragmentWelcomeEnterpriseLoginButton"
+        app:layout_constraintBottom_toTopOf="@+id/welcomeEnterpriseLoginButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragmentWelcomeCreateAccountButton"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeCreateAccountButton"
         app:layout_constraintVertical_bias="0.01"
         app:layout_constraintWidth_percent="@dimen/welcome_button_width_percent" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/fragmentWelcomeEnterpriseLoginButton"
+        android:id="@+id/welcomeEnterpriseLoginButton"
         style="@style/Button.Secondary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

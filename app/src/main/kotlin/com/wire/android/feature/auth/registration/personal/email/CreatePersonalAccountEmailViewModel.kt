@@ -12,6 +12,7 @@ import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
 import com.wire.android.core.extension.success
 import com.wire.android.core.functional.Either
+import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.auth.activation.usecase.EmailBlacklisted
@@ -32,7 +33,7 @@ class CreatePersonalAccountEmailViewModel(
     private val _isValidEmailLiveData = MutableLiveData<Boolean>()
     val isValidEmailLiveData: LiveData<Boolean> = _isValidEmailLiveData
 
-    private val _sendActivationCodeLiveData = MutableLiveData<Either<ErrorMessage, String>>()
+    private val _sendActivationCodeLiveData = SingleLiveEvent<Either<ErrorMessage, String>>()
     val sendActivationCodeLiveData: LiveData<Either<ErrorMessage, String>> = _sendActivationCodeLiveData
 
     private val _networkConnectionErrorLiveData = MutableLiveData<Unit>()

@@ -17,31 +17,21 @@ import kotlin.coroutines.suspendCoroutine
 suspend fun <T> LiveData<T>.awaitValue(timeout: Long = 2L): T = suspendCoroutine { cont ->
     val latch = CountDownLatch(1)
 
-    val observer = OneTimeObserver<T> {
+    this.observeOnce {
         latch.countDown()
         cont.resume(it)
     }
-    this.observe(observer, observer)
 
     if (!latch.await(timeout, TimeUnit.SECONDS)) {
-        cont.resumeWithException(
-            TimeoutException("Didn't receive LiveData value after $timeout seconds")
-        )
+        cont.resumeWithException(TimeoutException("Didn't receive LiveData value after $timeout seconds"))
     }
 }
 
+private fun <T> LiveData<T>.observeOnce(onChanged: (T) -> Unit) {
+    val lifecycleOwner = TestLifecycleOwner()
 
-private class OneTimeObserver<T>(private val handler: (T) -> Unit) : Observer<T>, LifecycleOwner {
-    private val lifecycle = LifecycleRegistry(this)
-
-    init {
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
-    }
-
-    override fun getLifecycle(): Lifecycle = lifecycle
-
-    override fun onChanged(t: T) {
-        handler(t)
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    }
+    observe(lifecycleOwner, Observer {
+        onChanged(it)
+        lifecycleOwner.destroy()
+    })
 }

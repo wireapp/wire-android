@@ -3,7 +3,7 @@ package com.wire.android.feature.auth.registration.pro.team.usecase
 import com.wire.android.UnitTest
 import com.wire.android.feature.auth.registration.pro.team.data.TeamsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -24,7 +24,7 @@ class GetTeamNameUseCaseTest : UnitTest() {
 
     @Test
     fun `given teamName is request, then request repository for team name`() {
-        runBlockingTest {
+        runBlocking {
             getTeamNameUseCase.run(Unit)
 
             verify(teamsRepository).teamName()

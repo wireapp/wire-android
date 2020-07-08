@@ -1,6 +1,5 @@
 package com.wire.android.feature.auth.registration.pro.team
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.wire.android.UnitTest
 import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.extension.EMPTY
@@ -25,9 +24,6 @@ import org.mockito.Mockito.`when`
 class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     @get:Rule
-    val rule = InstantTaskExecutorRule()
-
-    @get:Rule
     val coroutinesTestRule = CoroutinesTestRule()
 
     private lateinit var viewModel: CreateProAccountTeamNameViewModel
@@ -44,11 +40,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     @Before
     fun setup() {
         runBlocking { `when`(getTeamNameUseCase.run(Unit)).thenReturn(Either.Right(TEST_TEAM_NAME)) }
-        viewModel = CreateProAccountTeamNameViewModel(
-            getTeamNameUseCase,
-            updateTeamNameUseCase,
-            accessibility
-        )
+        viewModel = CreateProAccountTeamNameViewModel(getTeamNameUseCase, updateTeamNameUseCase, accessibility)
     }
 
     @Test

@@ -1,20 +1,15 @@
 package com.wire.android.core.ui
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.wire.android.UnitTest
 import com.wire.android.framework.livedata.*
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.TimeoutException
 
 class SingleLiveEventTest : UnitTest() {
-
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var singleLiveEvent: SingleLiveEvent<Int>
 

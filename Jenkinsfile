@@ -35,14 +35,14 @@ pipeline {
       }
     }
 
-    stage('Unit Tests') {
+    stage('Compile') {
       steps {
         script {
           last_started = env.STAGE_NAME
         }
 
         withGradle() {
-          sh './gradlew runUnitTests'
+          sh './gradlew compileApp'
         }
 
       }
@@ -61,16 +61,35 @@ pipeline {
       }
     }
 
-    stage('Build') {
+    stage('Unit Tests') {
       steps {
         script {
           last_started = env.STAGE_NAME
         }
 
         withGradle() {
-          sh './gradlew compileApp'
+          sh './gradlew runUnitTests'
         }
 
+      }
+    }
+
+    stage('Assemble') {
+      steps {
+        script {
+          last_started = env.STAGE_NAME
+        }
+
+        withGradle() {
+          sh './gradlew assembleApp'
+        }
+
+      }
+    }
+
+    stage('Archive') {
+      steps {
+        archiveArtifacts(artifacts: 'app*.apk', allowEmptyArchive: true, onlyIfSuccessful: true)
       }
     }
 
@@ -80,7 +99,7 @@ pipeline {
   }
   post {
     failure {
-      wireSend(secret: env.WIRE_BOT_SECRET, message: "[${BRANCH_NAME}]**[${BUILD_NUMBER}](${BUILD_URL})** - ❌ FAILED ($last_started) 👎")
+      wireSend(secret: env.WIRE_BOT_SECRET, message: "**#[${BUILD_NUMBER}](${BUILD_URL})** [${BRANCH_NAME} - ${GIT_COMMIT}] - ❌ FAILED ($last_started) 👎")
     }
 
     success {
@@ -91,11 +110,11 @@ pipeline {
         )
       }
 
-      wireSend(secret: env.WIRE_BOT_SECRET, message: "[${BRANCH_NAME}]**[${BUILD_NUMBER}](${BUILD_URL})** - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
+      wireSend(secret: env.WIRE_BOT_SECRET, message: "**#[${BUILD_NUMBER}](${BUILD_URL})** [${BRANCH_NAME} - ${GIT_COMMIT}] - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
     }
 
     aborted {
-      wireSend(secret: env.WIRE_BOT_SECRET, message: "[${BRANCH_NAME}]**[${BUILD_NUMBER}](${BUILD_URL})** - ❌ ABORTED ($last_started) ")
+      wireSend(secret: env.WIRE_BOT_SECRET, message: "**#[${BUILD_NUMBER}](${BUILD_URL})** [${BRANCH_NAME} - ${GIT_COMMIT}] - ❌ ABORTED ($last_started) ")
     }
 
   }

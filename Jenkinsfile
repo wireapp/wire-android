@@ -89,7 +89,7 @@ pipeline {
 
     stage('Archive') {
       steps {
-        archiveArtifacts(artifacts: 'app*.apk', allowEmptyArchive: true, onlyIfSuccessful: true)
+        archiveArtifacts(artifacts: 'app/build/outputs/apk/dev/debug/app*.apk', allowEmptyArchive: true, onlyIfSuccessful: true)
       }
     }
 

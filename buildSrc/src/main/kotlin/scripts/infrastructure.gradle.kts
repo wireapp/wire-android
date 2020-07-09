@@ -36,16 +36,21 @@ tasks.register("runAcceptanceTests") {
     dependsOn(":app:connected${Default.VARIANT}AndroidTest")
 }
 
-tasks.register("compileApp") {
-    description = "Compiles the Wire Android Client."
+tasks.register("assembleApp") {
+    description = "assemble the Wire Android Client."
     dependsOn(":app:assemble${Default.VARIANT}")
 }
 
+tasks.register("compileApp") {
+    description = "compiles the Wire Android Client source."
+    dependsOn(":app:compile${Default.VARIANT}Sources")
+}
+
 tasks.register("runApp", Exec::class) {
-    val compileAppTask = "compileApp"
+    val compileAppTask = "assembleApp"
     val installAppTask = ":app:install${Default.VARIANT}"
 
-    description = "Compiles and runs the Wire Android Client in the connected device."
+    description = "assembles and runs the Wire Android Client in the connected device."
     dependsOn(compileAppTask, installAppTask)
     tasks.findByName(installAppTask)?.mustRunAfter(compileAppTask)
 

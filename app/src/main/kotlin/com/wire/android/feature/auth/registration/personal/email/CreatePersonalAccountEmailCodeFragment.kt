@@ -8,6 +8,7 @@ import androidx.lifecycle.observe
 import com.poovam.pinedittextfield.PinField.OnTextCompleteListener
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
+import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.extension.showKeyboard
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.withArgs
@@ -32,8 +33,12 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
 
         initChangeMailListener()
         initDescriptionTextView()
-        initPinCodeListener()
         requestKeyboardFocus()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        initPinCodeListener()
     }
 
     private fun initChangeMailListener() = createPersonalAccountEmailCodeChangeMailTextView.setOnClickListener {
@@ -69,9 +74,8 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
         }
     }
 
-    private fun showEnterNameScreen() {
-        //TODO: implement next screen
-    }
+    private fun showEnterNameScreen() =
+        replaceFragment(R.id.createAccountLayoutContainer, CreatePersonalAccountEmailNameFragment.newInstance())
 
     private fun showGenericErrorDialog(message: String) {
         //TODO: proper dialog mechanism

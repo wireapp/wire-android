@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="@dimen/create_personal_account_pin_edittext_guideline_percent" />
+        app:layout_constraintGuide_percent="@dimen/create_account_editable_field_guideline_percent" />
 
     <com.poovam.pinedittextfield.SquarePinField
         android:id="@+id/createPersonalAccountEmailCodePinEditText"

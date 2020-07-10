@@ -1,6 +1,6 @@
 package com.wire.android.feature.auth.activation.datasource.remote
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -19,10 +19,8 @@ interface ActivationApi {
     }
 }
 
-data class SendEmailActivationCodeRequest(@SerializedName("email") val email: String)
+@Serializable
+data class SendEmailActivationCodeRequest(val email: String)
 
-data class EmailActivationRequest(
-    @SerializedName("email") val email: String,
-    @SerializedName("code") val code: String,
-    @SerializedName("dryrun") val dryrun: Boolean
-)
+@Serializable
+data class EmailActivationRequest(val email: String, val code: String, val dryrun: Boolean)

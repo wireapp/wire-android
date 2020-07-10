@@ -1,5 +1,5 @@
 const val appId = "com.wire.android"
-private const val kotlinVersion = "1.3.72"
+const val kotlinVersion = "1.3.72"
 
 object BuildPlugins {
     object Versions {
@@ -12,6 +12,7 @@ object BuildPlugins {
     const val androidApplication = "com.android.application"
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
+    const val kotlinSerialization = "plugin.serialization"
 }
 
 object AndroidSdk {
@@ -37,6 +38,8 @@ object Libraries {
         const val retrofit = "2.9.0"
         const val okHttpLogging = "4.7.2"
         const val pinEditText = "1.2.3"
+        const val kotlinSerialization = "0.20.0"
+        const val kotlinRetrofitConverter = "0.5.0"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -57,11 +60,12 @@ object Libraries {
         const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
         const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
         const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+        const val serialization     = "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinSerialization}"
     }
 
     object Retrofit {
-        const val core          = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
-        const val gsonConverter = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
+        const val core             = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
+        const val kotlinxConverter = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:${Versions.kotlinRetrofitConverter}"
     }
 }
 

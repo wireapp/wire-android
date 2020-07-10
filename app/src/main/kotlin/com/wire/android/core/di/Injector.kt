@@ -3,10 +3,12 @@ package com.wire.android.core.di
 import android.content.Context
 import com.wire.android.core.network.di.networkModule
 import com.wire.android.feature.auth.di.authenticationModules
+import kotlinx.serialization.UnstableDefault
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 
+@UnstableDefault
 object Injector {
 
     private val coreModules: List<Module> = listOf(

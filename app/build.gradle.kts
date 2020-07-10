@@ -3,6 +3,7 @@ plugins {
     id(BuildPlugins.androidApplication)
     id(BuildPlugins.kotlinAndroid)
     id(BuildPlugins.kotlinAndroidExtensions)
+    kotlin(BuildPlugins.kotlinSerialization) version kotlinVersion
 
     // Internal Script plugins
     id(ScriptPlugins.variants)
@@ -38,10 +39,11 @@ dependencies {
     implementation(Libraries.Koin.viewModel)
     implementation(Libraries.Kotlin.coroutinesCore)
     implementation(Libraries.Kotlin.coroutinesAndroid)
+    implementation(Libraries.Kotlin.serialization)
     implementation(Libraries.pinEditText)
 
     implementation(Libraries.Retrofit.core)
-    implementation(Libraries.Retrofit.gsonConverter)
+    implementation(Libraries.Retrofit.kotlinxConverter)
     implementation(Libraries.okHttpLogging)
 
     // Unit/Android tests dependencies

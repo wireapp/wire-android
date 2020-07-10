@@ -11,19 +11,10 @@ import org.koin.android.viewmodel.ext.android.viewModel
 
 class CreatePersonalAccountFragment : Fragment(R.layout.fragment_create_personal_account) {
 
-    private val createPersonalAccountViewModel by viewModel<CreatePersonalAccountViewModel>()
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initCreateAnAccountTitle()
         initViewPager()
-        initKeyboard()
-    }
-
-    private fun initKeyboard() {
-        if (createPersonalAccountViewModel.shouldShowKeyboard()) {
-            showKeyboard()
-        }
     }
 
     private fun initCreateAnAccountTitle() {

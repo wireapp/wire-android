@@ -1,19 +1,15 @@
 package com.wire.android.feature.auth.registration.pro.team
 
 import com.wire.android.UnitTest
-import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUseCase
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.awaitValue
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,35 +30,16 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     @Mock
     private lateinit var updateTeamNameUseCase: UpdateTeamNameUseCase
 
-    @Mock
-    private lateinit var accessibility: Accessibility
-
     @Before
     fun setup() {
         runBlocking { `when`(getTeamNameUseCase.run(Unit)).thenReturn(Either.Right(TEST_TEAM_NAME)) }
-        viewModel = CreateProAccountTeamNameViewModel(getTeamNameUseCase, updateTeamNameUseCase, accessibility)
-    }
-
-    @Test
-    fun `given shouldFocusInput is queried, when talkback is not enabled, then return true`() {
-        runBlocking {
-            `when`(accessibility.isTalkbackEnabled()).thenReturn(false)
-            assertThat(viewModel.shouldFocusInput()).isEqualTo(true)
-        }
-    }
-
-    @Test
-    fun `given shouldFocusInput is queried, when talkback is enabled, then return false `() {
-        runBlocking {
-            `when`(accessibility.isTalkbackEnabled()).thenReturn(true)
-            assertThat(viewModel.shouldFocusInput()).isEqualTo(false)
-        }
+        viewModel = CreateProAccountTeamNameViewModel(getTeamNameUseCase, updateTeamNameUseCase)
     }
 
     @Test
     fun `given viewModel is initialised, when teamName is available, propagate teamName up to the view`() {
         runBlocking {
-            assertEquals(TEST_TEAM_NAME, viewModel.teamNameLiveData.awaitValue())
+            assertThat(viewModel.teamNameLiveData.awaitValue()).isEqualTo(TEST_TEAM_NAME)
         }
     }
 
@@ -70,7 +47,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     fun `given about button is clicked, when url is provided, propagate url back to the view`() {
         runBlocking {
             viewModel.onAboutButtonClicked()
-            assertEquals("$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX", viewModel.urlLiveData.awaitValue())
+            assertThat(viewModel.urlLiveData.awaitValue()).isEqualTo("$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX")
         }
     }
 
@@ -78,7 +55,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     fun `given empty team name, when on team name text is changed, confirmation button should be disabled`() {
         runBlocking {
             viewModel.onTeamNameTextChanged(String.EMPTY)
-            assertFalse(viewModel.confirmationButtonEnabled.awaitValue())
+            assertThat(viewModel.confirmationButtonEnabled.awaitValue()).isFalse()
         }
     }
 
@@ -86,7 +63,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     fun `given empty team name, when on team name text is changed, confirmation button should be enabled`() {
         runBlocking {
             viewModel.onTeamNameTextChanged(TEST_TEAM_NAME)
-            assertTrue(viewModel.confirmationButtonEnabled.awaitValue())
+            assertThat(viewModel.confirmationButtonEnabled.awaitValue()).isTrue()
         }
     }
 

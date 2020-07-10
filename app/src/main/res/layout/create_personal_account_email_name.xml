@@ -33,9 +33,11 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/createPersonalAccountEmailNameTextInputLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:hintEnabled="false"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/createPersonalAccountEmailNameGuideline"
         app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent">
 
@@ -56,7 +58,7 @@
         android:enabled="false"
         app:icon="@drawable/ic_arrow_right"
         app:layout_constraintBottom_toBottomOf="@id/createPersonalAccountEmailNameTextInputLayout"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/createPersonalAccountEmailNameTextInputLayout"
         app:layout_constraintTop_toTopOf="@+id/createPersonalAccountEmailNameTextInputLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

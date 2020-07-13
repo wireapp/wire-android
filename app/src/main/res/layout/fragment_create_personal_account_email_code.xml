@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/createPersonalAccountEmailCodeTitleTextView"
         style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.6" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/createPersonalAccountEmailCodeDescriptionTextView"
         style="@style/TextView.Authentication.Description"
         android:layout_width="0dp"
@@ -41,12 +41,10 @@
         style="@style/EditText.Pin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/create_personal_account_email_code_entry_field_content_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountPinEditTextGuideline">
-
-        <requestFocus />
-    </com.poovam.pinedittextfield.SquarePinField>
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountPinEditTextGuideline" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/createPersonalAccountEmailCodeVerticalCenterGuideline"

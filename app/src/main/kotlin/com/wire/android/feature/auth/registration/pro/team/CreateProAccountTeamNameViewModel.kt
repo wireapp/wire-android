@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
@@ -14,8 +13,7 @@ import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNam
 
 class CreateProAccountTeamNameViewModel(
     private val getTeamNameUseCase: GetTeamNameUseCase,
-    private val updateTeamNameUseCase: UpdateTeamNameUseCase,
-    private val accessibility: Accessibility
+    private val updateTeamNameUseCase: UpdateTeamNameUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _urlLiveData = MutableLiveData<String>()
@@ -30,8 +28,6 @@ class CreateProAccountTeamNameViewModel(
     init {
         getTeamName()
     }
-
-    fun shouldFocusInput() = !accessibility.isTalkbackEnabled()
 
     private fun getTeamName() =
         getTeamNameUseCase(viewModelScope, Unit) {

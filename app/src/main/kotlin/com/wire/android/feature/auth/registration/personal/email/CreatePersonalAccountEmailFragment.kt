@@ -7,17 +7,21 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
+import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.replaceFragment
+import com.wire.android.core.extension.showKeyboard
+import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class CreatePersonalAccountEmailFragment :
-    Fragment(R.layout.fragment_create_personal_account_email) {
+class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_personal_account_email) {
 
     //TODO Add loading status
     private val emailViewModel: CreatePersonalAccountEmailViewModel by viewModel()
+
+    private val inputFocusViewModel: InputFocusViewModel by viewModel()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -30,9 +34,7 @@ class CreatePersonalAccountEmailFragment :
     }
 
     private fun observeInputFocusData() {
-        if (emailViewModel.shouldFocusInput()) {
-            createPersonalAccountEmailEditText.requestFocus()
-        }
+        if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountEmailEditText)
     }
 
     private fun observeEmailValidationData() {

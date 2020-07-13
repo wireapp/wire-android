@@ -26,8 +26,7 @@ import kotlinx.coroutines.Dispatchers
 
 class CreatePersonalAccountEmailViewModel(
     private val validateEmailUseCase: ValidateEmailUseCase,
-    private val sendActivationUseCase: SendEmailActivationCodeUseCase,
-    private val accessibility: Accessibility
+    private val sendActivationUseCase: SendEmailActivationCodeUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _isValidEmailLiveData = MutableLiveData<Boolean>()
@@ -38,8 +37,6 @@ class CreatePersonalAccountEmailViewModel(
 
     private val _networkConnectionErrorLiveData = MutableLiveData<Unit>()
     val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
-
-    fun shouldFocusInput() = !accessibility.isTalkbackEnabled()
 
     fun validateEmail(email: String) =
         validateEmailUseCase(viewModelScope, ValidateEmailParams(email), Dispatchers.Default) {

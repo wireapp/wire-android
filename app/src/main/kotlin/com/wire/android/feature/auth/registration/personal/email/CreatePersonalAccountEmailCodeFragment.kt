@@ -7,7 +7,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.poovam.pinedittextfield.PinField.OnTextCompleteListener
 import com.wire.android.R
+import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.showKeyboard
+import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.withArgs
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
@@ -21,6 +23,8 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
 
     private val emailCodeViewModel: CreatePersonalAccountEmailCodeViewModel by viewModel()
 
+    private val inputFocusViewModel: InputFocusViewModel by viewModel()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeActivateEmailData()
@@ -29,7 +33,11 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
         initChangeMailListener()
         initDescriptionTextView()
         initPinCodeListener()
-        showKeyboard()
+        requestKeyboardFocus()
+    }
+
+    private fun initChangeMailListener() = createPersonalAccountEmailCodeChangeMailTextView.setOnClickListener {
+        requireActivity().onBackPressed()
     }
 
     private fun initDescriptionTextView() {
@@ -46,8 +54,8 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
         }
     }
 
-    private fun initChangeMailListener() = createPersonalAccountEmailCodeChangeMailTextView.setOnClickListener {
-        requireActivity().onBackPressed()
+    private fun requestKeyboardFocus() {
+        if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountEmailCodePinEditText)
     }
 
     private fun observeActivateEmailData() {
@@ -57,7 +65,6 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
             }.onFailure {
                 showGenericErrorDialog(getString(it.message))
                 clearPinCode()
-                showKeyboard()
             }
         }
     }

@@ -6,7 +6,6 @@ import com.wire.android.feature.auth.activation.datasource.ActivationDataSource
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationApi
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemoteDataSource
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
-import com.wire.android.feature.auth.registration.personal.CreatePersonalAccountViewModel
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailCodeViewModel
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailViewModel
 import com.wire.android.feature.auth.registration.personal.email.usecase.ActivateEmailUseCase
@@ -27,8 +26,7 @@ val authenticationModules: List<Module>
     )
 
 private val createPersonalAccountModule: Module = module {
-    viewModel { CreatePersonalAccountViewModel(get()) }
-    viewModel { CreatePersonalAccountEmailViewModel(get(), get(), get()) }
+    viewModel { CreatePersonalAccountEmailViewModel(get(), get()) }
     factory { ValidateEmailUseCase() }
     factory { SendEmailActivationCodeUseCase(get()) }
     single<ActivationRepository> { ActivationDataSource(get()) }
@@ -40,7 +38,7 @@ private val createPersonalAccountModule: Module = module {
 }
 
 private val createProAccountModule: Module = module {
-    viewModel { CreateProAccountTeamNameViewModel(get(), get(), get()) }
+    viewModel { CreateProAccountTeamNameViewModel(get(), get()) }
     factory { GetTeamNameUseCase(get()) }
     factory { UpdateTeamNameUseCase(get()) }
     single { TeamDataSource() as TeamsRepository }

@@ -5,25 +5,14 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.wire.android.R
 import com.wire.android.core.extension.headingForAccessibility
-import com.wire.android.core.extension.showKeyboard
 import kotlinx.android.synthetic.main.fragment_create_personal_account.*
-import org.koin.android.viewmodel.ext.android.viewModel
 
 class CreatePersonalAccountFragment : Fragment(R.layout.fragment_create_personal_account) {
-
-    private val createPersonalAccountViewModel by viewModel<CreatePersonalAccountViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initCreateAnAccountTitle()
         initViewPager()
-        initKeyboard()
-    }
-
-    private fun initKeyboard() {
-        if (createPersonalAccountViewModel.shouldShowKeyboard()) {
-            showKeyboard()
-        }
     }
 
     private fun initCreateAnAccountTitle() {

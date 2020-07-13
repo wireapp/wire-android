@@ -49,7 +49,28 @@ class ActivationDataSourceTest : UnitTest() {
         response.assertRight()
     }
 
+    @Test
+    fun `Given activateEmail() is called and remote request fails then return failure`() = runBlocking {
+        `when`(remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE)).thenReturn(Either.Left(ServerError))
+
+        val response = activationDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
+
+        verify(remoteDataSource).activateEmail(TEST_EMAIL, TEST_CODE)
+        response.assertLeft { assertThat(it).isEqualTo(ServerError) }
+    }
+
+    @Test
+    fun `Given activateEmail() is called and remote request success then return success`() = runBlocking {
+        `when`(remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE)).thenReturn(Either.Right(Unit))
+
+        val response = activationDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
+
+        verify(remoteDataSource).activateEmail(TEST_EMAIL, TEST_CODE)
+        response.assertRight()
+    }
+
     companion object {
         private const val TEST_EMAIL = "test@wire.com"
+        private const val TEST_CODE = "123456"
     }
 }

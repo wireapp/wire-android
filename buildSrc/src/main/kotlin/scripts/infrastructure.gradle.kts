@@ -21,6 +21,12 @@ tasks.named<Wrapper>("wrapper") {
     distributionType = Wrapper.DistributionType.ALL
 }
 
+tasks.register("testCoverage") {
+    group = "Reporting"
+    description = "Reports code coverage on tests within the Wire Android codebase"
+    dependsOn(":app:jacocoReport")
+}
+
 tasks.register("staticCodeAnalysis") {
     description = "Analyses code within the Wire Android codebase"
     dependsOn("detektAll")

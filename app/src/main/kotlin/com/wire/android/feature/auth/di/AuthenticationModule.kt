@@ -36,7 +36,7 @@ private val createPersonalAccountModule: Module = module {
     factory { get<NetworkClient>().create(ActivationApi::class.java) }
 
     viewModel { CreatePersonalAccountEmailCodeViewModel(get()) }
-    factory { ActivateEmailUseCase() }
+    factory { ActivateEmailUseCase(get()) }
 
     viewModel { CreatePersonalAccountEmailNameViewModel(get()) }
     factory { ValidateNameUseCase() }

@@ -9,7 +9,6 @@ import com.poovam.pinedittextfield.PinField.OnTextCompleteListener
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.replaceFragment
-import com.wire.android.core.extension.showKeyboard
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.withArgs
 import com.wire.android.core.functional.onFailure

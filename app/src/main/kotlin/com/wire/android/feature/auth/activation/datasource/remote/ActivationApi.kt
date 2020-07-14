@@ -8,7 +8,10 @@ import retrofit2.http.POST
 interface ActivationApi {
 
     @POST("$ACTIVATE$SEND")
-    suspend fun sendActivationCode(@Body name: SendActivationCodeRequest): Response<Unit>
+    suspend fun sendActivationCode(@Body name: SendEmailActivationCodeRequest): Response<Unit>
+
+    @POST(ACTIVATE)
+    suspend fun activateEmail(@Body name: EmailActivationRequest): Response<Unit>
 
     companion object {
         private const val ACTIVATE = "/activate"
@@ -16,9 +19,10 @@ interface ActivationApi {
     }
 }
 
-data class SendActivationCodeRequest(
-    @SerializedName("email") val email: String? = null,
-    @SerializedName("phone") val phone: String? = null,
-    @SerializedName("locale") val locale: String? = null,
-    @SerializedName("voice_call") val voiceCall: Boolean? = null
+data class SendEmailActivationCodeRequest(@SerializedName("email") val email: String)
+
+data class EmailActivationRequest(
+    @SerializedName("email") val email: String,
+    @SerializedName("code") val code: String,
+    @SerializedName("dryrun") val dryrun: Boolean
 )

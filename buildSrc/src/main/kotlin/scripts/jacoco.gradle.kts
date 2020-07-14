@@ -16,7 +16,7 @@ subprojects {
     val jacocoReport by tasks.registering(JacocoReport::class) {
         group = "Reporting"
         description = "Generate Jacoco coverage for all module unit tests on debug builds. "
-        dependsOn(":app:test${Default.VARIANT}UnitTest")
+        dependsOn(":test${Default.VARIANT}UnitTest")
 
         reports {
             xml.isEnabled = true

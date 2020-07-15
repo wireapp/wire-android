@@ -38,18 +38,12 @@ class SingleLiveEvent<T> : MutableLiveData<T>() {
     private val pending = AtomicBoolean(false)
 
     @MainThread
-    override fun observe(owner: LifecycleOwner, observer: Observer<in T?>) {
-        //TODO: mockable logger
-//        if (hasActiveObservers()) {
-//            Log.w(TAG, "Multiple observers registered but only one will be notified of changes.")
-//        }
-
+    override fun observe(owner: LifecycleOwner, observer: Observer<in T?>) =
         super.observe(owner, Observer {
             if (pending.compareAndSet(true, false)) {
                 observer.onChanged(it)
             }
         })
-    }
 
     @MainThread
     override fun setValue(t: T?) {

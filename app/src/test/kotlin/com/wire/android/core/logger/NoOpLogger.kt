@@ -5,8 +5,8 @@ import org.mockito.Mockito.lenient
 import org.mockito.Mockito.mock
 
 /**
- * Creates a mock [Logger] which does not log anything. The real implementation uses [android.util.Log], which throws exceptions in unit test
- * environment due to lack of android dependencies. noOpLogger() can be used for convenience in unit tests to skip any logging calls.
+ * Creates a mock [Logger] which does not log anything. The real implementation uses [android.util.Log], which throws exceptions in unit
+ * test environment due to lack of android dependencies. noOpLogger() can be used for convenience in unit tests to skip any logging calls.
  *
  * ```
  * class MyObjectWithLogger(val logger: Logger) {

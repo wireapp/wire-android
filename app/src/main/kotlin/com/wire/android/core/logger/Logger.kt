@@ -1,15 +1,25 @@
 package com.wire.android.core.logger
 
-interface Logger {
-    fun e(tag: String?, message: String)
-    fun w(tag: String?, message: String)
-    fun d(tag: String?, message: String)
-    fun i(tag: String?, message: String)
-    fun v(tag: String?, message: String)
-}
+import android.util.Log
 
-class LoggerProvider {
-    fun logger(): Logger = AndroidLogger
-}
+class Logger {
+    fun e(tag: String?, message: String) {
+        Log.e(tag, message)
+    }
 
-val logger: Logger get() = LoggerProvider().logger()
+    fun w(tag: String?, message: String) {
+        Log.w(tag, message)
+    }
+
+    fun d(tag: String?, message: String) {
+        Log.d(tag, message)
+    }
+
+    fun i(tag: String?, message: String) {
+        Log.i(tag, message)
+    }
+
+    fun v(tag: String?, message: String) {
+        Log.v(tag, message)
+    }
+}

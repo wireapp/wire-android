@@ -20,7 +20,6 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.wire.android.core.logger.logger
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -39,17 +38,12 @@ class SingleLiveEvent<T> : MutableLiveData<T>() {
     private val pending = AtomicBoolean(false)
 
     @MainThread
-    override fun observe(owner: LifecycleOwner, observer: Observer<in T?>) {
-        if (hasActiveObservers()) {
-            logger.w(TAG, "Multiple observers registered but only one will be notified of changes.")
-        }
-
+    override fun observe(owner: LifecycleOwner, observer: Observer<in T?>) =
         super.observe(owner, Observer {
             if (pending.compareAndSet(true, false)) {
                 observer.onChanged(it)
             }
         })
-    }
 
     @MainThread
     override fun setValue(t: T?) {

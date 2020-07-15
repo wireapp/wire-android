@@ -46,10 +46,7 @@ class CreatePersonalAccountEmailNameFragment : Fragment(R.layout.create_personal
     }
 
     private fun showPasswordScreen() {
-//        replaceFragment(
-//            R.id.activityCreateAccountLayoutContainer,
-//            CreatePersonalAccountPasswordFragment.newInstance()
-//        )
+        //TODO: open password screen
     }
 
     companion object {

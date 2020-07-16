@@ -73,5 +73,4 @@ tasks.register("testCoverage") {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase"
     dependsOn("jacocoReport")
-
 }

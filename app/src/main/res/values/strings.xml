@@ -33,6 +33,9 @@
     <string name="create_personal_account_email_code_invalid_code_error">Please enter a valid code</string>
     <string name="create_personal_account_email_code_entry_field_content_description">Code entry field</string>
 
+    <string name="create_personal_account_email_name_title">Your name</string>
+    <string name="create_personal_account_email_name_text_input_layout_hint">FULL NAME</string>
+
     <!-- Registration - Pro -->
     <string name="create_pro_account_set_team_name_title">Name your team</string>
     <string name="create_pro_account_set_team_name_subtitle">You can always change it later.</string>

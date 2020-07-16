@@ -85,6 +85,8 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
             `when`(sendActivationCodeUseCase.run(params)).thenReturn(Either.Right(Unit))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
+
+            emailViewModel.sendActivationCodeLiveData.awaitValue()
             verify(sendActivationCodeUseCase).run(params)
         }
     }

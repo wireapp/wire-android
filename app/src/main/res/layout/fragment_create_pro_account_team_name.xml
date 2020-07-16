@@ -11,14 +11,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.228" />
+        app:layout_constraintGuide_percent="@dimen/create_account_header_guideline_percent" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/createProAccountTeamNameInputGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.4" />
+        app:layout_constraintGuide_percent="@dimen/create_account_editable_field_guideline_percent" />
 
     <TextView
         android:id="@+id/createProAccountTeamNameTitleTextView"
@@ -48,8 +48,8 @@
         app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent"
-        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameInputGuideline">
+        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameInputGuideline"
+        app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/createProAccountTeamNameEditText"

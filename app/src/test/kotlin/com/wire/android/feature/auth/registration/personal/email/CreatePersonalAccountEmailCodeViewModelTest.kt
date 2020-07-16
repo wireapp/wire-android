@@ -43,7 +43,9 @@ class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
 
             emailCodeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            emailCodeViewModel.activateEmailLiveData.awaitValue().assertRight()
+            emailCodeViewModel.activateEmailLiveData.awaitValue().assertRight {
+                assertThat(it).isEqualTo(TEST_CODE)
+            }
         }
     }
 

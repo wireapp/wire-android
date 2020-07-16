@@ -24,14 +24,14 @@ class CreatePersonalAccountEmailCodeViewModel(
     private val _networkConnectionErrorLiveData = SingleLiveEvent<Unit>()
     val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
 
-    private val _activateEmailLiveData = SingleLiveEvent<Either<ErrorMessage, Unit>>()
-    val activateEmailLiveData: LiveData<Either<ErrorMessage, Unit>> = _activateEmailLiveData
+    private val _activateEmailLiveData = SingleLiveEvent<Either<ErrorMessage, String>>()
+    val activateEmailLiveData: LiveData<Either<ErrorMessage, String>> = _activateEmailLiveData
 
     fun activateEmail(email: String, code: String) = activateEmailUseCase(viewModelScope, ActivateEmailParams(email, code)) {
-        it.fold(::activateEmailFailure) { activateEmailSuccess() }
+        it.fold(::activateEmailFailure) { activateEmailSuccess(code) }
     }
 
-    private fun activateEmailSuccess() = _activateEmailLiveData.success()
+    private fun activateEmailSuccess(code: String) = _activateEmailLiveData.success(code)
 
     private fun activateEmailFailure(failure: Failure) {
         when (failure) {

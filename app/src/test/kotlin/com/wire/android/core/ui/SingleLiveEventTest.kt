@@ -2,7 +2,8 @@ package com.wire.android.core.ui
 
 import androidx.lifecycle.Observer
 import com.wire.android.UnitTest
-import com.wire.android.framework.livedata.*
+import com.wire.android.framework.livedata.TestLifecycleOwner
+import com.wire.android.framework.livedata.awaitValue
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before

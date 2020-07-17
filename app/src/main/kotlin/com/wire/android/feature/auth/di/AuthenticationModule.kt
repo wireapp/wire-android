@@ -6,11 +6,14 @@ import com.wire.android.feature.auth.activation.datasource.ActivationDataSource
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationApi
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemoteDataSource
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
+import com.wire.android.feature.auth.registration.RegistrationRepository
+import com.wire.android.feature.auth.registration.datasource.RegistrationDataSource
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailCodeViewModel
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailNameViewModel
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailPasswordViewModel
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailViewModel
 import com.wire.android.feature.auth.registration.personal.email.usecase.ActivateEmailUseCase
+import com.wire.android.feature.auth.registration.personal.email.usecase.RegisterPersonalAccountWithEmailUseCase
 import com.wire.android.feature.auth.registration.pro.team.CreateProAccountTeamNameViewModel
 import com.wire.android.feature.auth.registration.pro.team.data.TeamDataSource
 import com.wire.android.feature.auth.registration.pro.team.data.TeamsRepository
@@ -23,11 +26,16 @@ import org.koin.dsl.module
 
 val authenticationModules: List<Module>
     get() = listOf(
+        createAccountModule,
         createPersonalAccountModule,
         createProAccountModule
     )
 
-private val createPersonalAccountModule: Module = module {
+private val createAccountModule = module {
+    single<RegistrationRepository> { RegistrationDataSource() }
+}
+
+private val createPersonalAccountModule = module {
     viewModel { CreatePersonalAccountEmailViewModel(get(), get()) }
     factory { ValidateEmailUseCase() }
     factory { SendEmailActivationCodeUseCase(get()) }
@@ -40,10 +48,11 @@ private val createPersonalAccountModule: Module = module {
 
     viewModel { CreatePersonalAccountEmailNameViewModel(get()) }
 
-    viewModel { CreatePersonalAccountEmailPasswordViewModel(get()) }
+    viewModel { CreatePersonalAccountEmailPasswordViewModel(get(), get()) }
+    factory { RegisterPersonalAccountWithEmailUseCase(get()) }
 }
 
-private val createProAccountModule: Module = module {
+private val createProAccountModule = module {
     viewModel { CreateProAccountTeamNameViewModel(get(), get()) }
     factory { GetTeamNameUseCase(get()) }
     factory { UpdateTeamNameUseCase(get()) }

@@ -32,6 +32,9 @@
         0.15
     </item>
 
+    <dimen name="create_personal_account_password_policy_info_margin_top">8dp</dimen>
+    <dimen name="create_personal_account_password_policy_info_padding_start">4dp</dimen>
+
     <dimen name="authentication_view_pager_margin_top">24dp</dimen>
     <item name="authentication_editable_field_width_percent" format="float" type="dimen">1</item>
 

@@ -36,6 +36,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
         observeRegistrationData()
         observeNetworkConnectionError()
 
+        initPasswordPolicyText()
         initPasswordChangedListener()
         initConfirmationButton()
         requestInitialFocus()
@@ -64,6 +65,11 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
         passwordViewModel.networkConnectionErrorLiveData.observe(viewLifecycleOwner) {
             showNetworkConnectionErrorDialog()
         }
+    }
+
+    private fun initPasswordPolicyText() {
+        createPersonalAccountEmailPasswordPolicyTextView.text =
+            getString(R.string.create_personal_account_password_policy_info, passwordViewModel.minPasswordLength())
     }
 
     private fun initPasswordChangedListener() {

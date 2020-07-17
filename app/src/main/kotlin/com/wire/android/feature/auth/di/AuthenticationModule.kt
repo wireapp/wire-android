@@ -17,7 +17,6 @@ import com.wire.android.feature.auth.registration.pro.team.data.TeamsRepository
 import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUseCase
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
 import com.wire.android.shared.user.email.ValidateEmailUseCase
-import com.wire.android.shared.user.name.ValidateNameUseCase
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -40,9 +39,8 @@ private val createPersonalAccountModule: Module = module {
     factory { ActivateEmailUseCase(get()) }
 
     viewModel { CreatePersonalAccountEmailNameViewModel(get()) }
-    factory { ValidateNameUseCase() }
 
-    viewModel { CreatePersonalAccountEmailPasswordViewModel() }
+    viewModel { CreatePersonalAccountEmailPasswordViewModel(get()) }
 }
 
 private val createProAccountModule: Module = module {

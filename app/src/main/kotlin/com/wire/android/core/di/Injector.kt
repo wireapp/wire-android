@@ -3,6 +3,7 @@ package com.wire.android.core.di
 import android.content.Context
 import com.wire.android.core.network.di.networkModule
 import com.wire.android.feature.auth.di.authenticationModules
+import com.wire.android.shared.user.di.userModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -19,7 +20,7 @@ object Injector {
      * Shared modules should contain dependencies that can
      * build up multiple features
      */
-    private val sharedModules: List<Module> = listOf()
+    private val sharedModules: List<Module> = listOf(userModule)
 
     /**
      * Feature modules should contain dependencies that build up specific

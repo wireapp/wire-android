@@ -47,7 +47,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
 
     private fun observePasswordValidationData() {
         passwordViewModel.continueEnabledLiveData.observe(viewLifecycleOwner) {
-            updateConfirmationButtonStatus(it)
+            createPersonalAccountEmailPasswordConfirmationButton.isEnabled = it
         }
     }
 
@@ -83,10 +83,6 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
 
     private fun requestInitialFocus() {
         if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountEmailPasswordEditText)
-    }
-
-    private fun updateConfirmationButtonStatus(status: Boolean) {
-        createPersonalAccountEmailPasswordConfirmationButton.isEnabled = status
     }
 
     private fun registerNewUser() =

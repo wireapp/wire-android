@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
+import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.toast
 import com.wire.android.core.extension.withArgs
@@ -29,6 +30,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpAccessibilityHeading()
 
         observePasswordValidationData()
         observeRegistrationData()
@@ -38,6 +40,9 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
         initConfirmationButton()
         requestInitialFocus()
     }
+
+    private fun setUpAccessibilityHeading() =
+        createPersonalAccountWithEmailPasswordTitleTextView.headingForAccessibility()
 
     private fun observePasswordValidationData() {
         passwordViewModel.continueEnabledLiveData.observe(viewLifecycleOwner) {

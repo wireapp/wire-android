@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
+import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.withArgs
@@ -25,11 +26,15 @@ class CreatePersonalAccountEmailNameFragment : Fragment(R.layout.fragment_create
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpAccessibilityHeading()
         initConfirmationButton()
         observeButtonStatus()
         initNameChangedListener()
         requestInitialFocus()
     }
+
+    private fun setUpAccessibilityHeading() =
+        createPersonalAccountWithEmailNameTitleTextView.headingForAccessibility()
 
     private fun initConfirmationButton() = createPersonalAccountEmailNameConfirmationButton.setOnClickListener {
         showPasswordScreen(createPersonalAccountEmailNameEditText.text.toString())

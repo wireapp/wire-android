@@ -15,7 +15,7 @@ class ValidatePasswordUseCase(private val lengthConfig: PasswordLengthConfig) : 
     fun minLength() = lengthConfig.minLength()
 
     private fun passwordValid(password: String) =
-        Regex(passwordPattern(lengthConfig.minLength(), lengthConfig.maxLength())).matches(password)
+        passwordPattern(lengthConfig.minLength(), lengthConfig.maxLength()).toRegex().matches(password)
 
     companion object {
         private const val REGEX_DIGIT = "(?=.*[0-9])"

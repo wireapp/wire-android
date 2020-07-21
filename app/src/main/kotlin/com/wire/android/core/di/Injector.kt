@@ -13,7 +13,8 @@ object Injector {
     private val coreModules: List<Module> = listOf(
         accessibilityModule,
         networkModule,
-        compatibilityModule
+        compatibilityModule,
+        localeModule
     )
 
     /**
@@ -26,8 +27,7 @@ object Injector {
      * Feature modules should contain dependencies that build up specific
      * features and don't tend to live outside of that feature
      */
-    private val featureModules: List<Module> = listOf(authenticationModules)
-        .flatten()
+    private val featureModules: List<Module> = listOf(authenticationModules).flatten()
 
     fun start(context: Context) {
         startKoin {

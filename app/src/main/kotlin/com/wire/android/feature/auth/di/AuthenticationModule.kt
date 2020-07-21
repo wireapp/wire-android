@@ -8,6 +8,8 @@ import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemo
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
 import com.wire.android.feature.auth.registration.RegistrationRepository
 import com.wire.android.feature.auth.registration.datasource.RegistrationDataSource
+import com.wire.android.feature.auth.registration.datasource.remote.RegistrationApi
+import com.wire.android.feature.auth.registration.datasource.remote.RegistrationRemoteDataSource
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailCodeViewModel
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailNameViewModel
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailPasswordViewModel
@@ -32,7 +34,9 @@ val authenticationModules: List<Module>
     )
 
 private val createAccountModule = module {
-    single<RegistrationRepository> { RegistrationDataSource() }
+    single<RegistrationRepository> { RegistrationDataSource(get()) }
+    factory { get<NetworkClient>().create(RegistrationApi::class.java) }
+    factory { RegistrationRemoteDataSource(get(), get(), get()) }
 }
 
 private val createPersonalAccountModule = module {

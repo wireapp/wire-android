@@ -50,6 +50,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
             viewModel.validatePassword(TEST_PASSWORD)
 
+            viewModel.continueEnabledLiveData.awaitValue()
             verify(validatePasswordUseCase).run(ValidatePasswordParams(TEST_PASSWORD))
         }
     }

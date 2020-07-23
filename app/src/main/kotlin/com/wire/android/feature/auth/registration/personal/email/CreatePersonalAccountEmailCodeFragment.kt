@@ -65,7 +65,7 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
     private fun observeActivateEmailData() {
         emailCodeViewModel.activateEmailLiveData.observe(viewLifecycleOwner) {
             it.onSuccess {
-                showEnterNameScreen()
+                showEnterNameScreen(it)
             }.onFailure {
                 showGenericErrorDialog(getString(it.message))
                 clearPinCode()
@@ -73,8 +73,8 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
         }
     }
 
-    private fun showEnterNameScreen() =
-        replaceFragment(R.id.createAccountLayoutContainer, CreatePersonalAccountEmailNameFragment.newInstance())
+    private fun showEnterNameScreen(code: String) =
+        replaceFragment(R.id.createAccountLayoutContainer, CreatePersonalAccountEmailNameFragment.newInstance(email, code))
 
     private fun showGenericErrorDialog(message: String) {
         //TODO: proper dialog mechanism

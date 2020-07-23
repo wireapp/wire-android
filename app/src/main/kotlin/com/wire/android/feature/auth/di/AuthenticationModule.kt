@@ -8,6 +8,7 @@ import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemo
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailCodeViewModel
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailNameViewModel
+import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailPasswordViewModel
 import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailViewModel
 import com.wire.android.feature.auth.registration.personal.email.usecase.ActivateEmailUseCase
 import com.wire.android.feature.auth.registration.pro.team.CreateProAccountTeamNameViewModel
@@ -40,6 +41,8 @@ private val createPersonalAccountModule: Module = module {
 
     viewModel { CreatePersonalAccountEmailNameViewModel(get()) }
     factory { ValidateNameUseCase() }
+
+    viewModel { CreatePersonalAccountEmailPasswordViewModel() }
 }
 
 private val createProAccountModule: Module = module {

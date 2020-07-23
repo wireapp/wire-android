@@ -6,3 +6,5 @@ WIP Experiment
  - ```./gradlew runApp```: Compiles and runs the Wire Android Client in the connected device.
  - ```./gradlew runUnitTests```: Runs all Unit Tests.
  - ```./gradlew runAcceptanceTests```: Runs all Acceptance Tests in the connected device.
+ - ```./gradlew codeCoverage```: Generates a report for test code coverage 
+ - ```./gradlew staticCodeAnalysis```: Runs static code analysis on the Wire Android codebase

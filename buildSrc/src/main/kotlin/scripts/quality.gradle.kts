@@ -1,6 +1,10 @@
 package scripts
 
-plugins { id("core.android") }
+plugins {
+    id("core.android")
+    id("scripts.coverage")
+    id("scripts.code-analysis")
+}
 
 android {
     lintOptions {

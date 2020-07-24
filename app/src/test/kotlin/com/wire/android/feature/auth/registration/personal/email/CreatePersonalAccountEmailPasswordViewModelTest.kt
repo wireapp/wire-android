@@ -108,6 +108,8 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
+            viewModel.registerStatusLiveData.awaitValue()
+
             verify(registerUseCase).run(
                 EmailRegistrationParams(
                     name = TEST_NAME,

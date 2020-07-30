@@ -38,6 +38,7 @@
 
     <string name="create_personal_account_password_title">Set password</string>
     <string name="create_personal_account_password_text_input_layout_hint">PASSWORD</string>
+    <string name="create_personal_account_password_policy_info">Use at least %d characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
 
     <!-- Registration - Pro -->
     <string name="create_pro_account_set_team_name_title">Name your team</string>

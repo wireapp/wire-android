@@ -36,6 +36,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
         observeRegistrationData()
         observeNetworkConnectionError()
 
+        initPasswordPolicyText()
         initPasswordChangedListener()
         initConfirmationButton()
         requestInitialFocus()
@@ -46,7 +47,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
 
     private fun observePasswordValidationData() {
         passwordViewModel.continueEnabledLiveData.observe(viewLifecycleOwner) {
-            updateConfirmationButtonStatus(it)
+            createPersonalAccountEmailPasswordConfirmationButton.isEnabled = it
         }
     }
 
@@ -66,6 +67,11 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
         }
     }
 
+    private fun initPasswordPolicyText() {
+        createPersonalAccountEmailPasswordPolicyTextView.text =
+            getString(R.string.create_personal_account_password_policy_info, passwordViewModel.minPasswordLength())
+    }
+
     private fun initPasswordChangedListener() {
         createPersonalAccountEmailPasswordEditText.doAfterTextChanged {
             passwordViewModel.validatePassword(it.toString())
@@ -77,10 +83,6 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
 
     private fun requestInitialFocus() {
         if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountEmailPasswordEditText)
-    }
-
-    private fun updateConfirmationButtonStatus(status: Boolean) {
-        createPersonalAccountEmailPasswordConfirmationButton.isEnabled = status
     }
 
     private fun registerNewUser() =

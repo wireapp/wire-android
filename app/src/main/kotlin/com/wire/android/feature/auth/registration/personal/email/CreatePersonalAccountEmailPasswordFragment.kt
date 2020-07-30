@@ -86,7 +86,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
     }
 
     private fun registerNewUser() =
-        passwordViewModel.registerUser(name = name, email = email, activationCode = activationCode, password = password)
+        passwordViewModel.registerUser(name = name, email = email, code = activationCode, password = password)
 
     private fun showMainScreen() {
         //TODO implement main screen and navigate

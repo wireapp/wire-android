@@ -3,17 +3,28 @@ package com.wire.android.feature.auth.registration.personal.email
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.core.exception.ErrorMessage
+import com.wire.android.core.exception.NetworkConnection
+import com.wire.android.core.extension.failure
 import com.wire.android.core.extension.success
 import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.onFailure
+import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
+import com.wire.android.feature.auth.registration.personal.email.usecase.EmailInUse
+import com.wire.android.feature.auth.registration.personal.email.usecase.EmailRegistrationParams
+import com.wire.android.feature.auth.registration.personal.email.usecase.InvalidEmailActivationCode
+import com.wire.android.feature.auth.registration.personal.email.usecase.RegisterPersonalAccountWithEmailUseCase
+import com.wire.android.feature.auth.registration.personal.email.usecase.UnauthorizedEmail
 import com.wire.android.shared.user.password.ValidatePasswordParams
 import com.wire.android.shared.user.password.ValidatePasswordUseCase
 
 class CreatePersonalAccountEmailPasswordViewModel(
-    private val validatePasswordUseCase: ValidatePasswordUseCase
+    private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val registerUseCase: RegisterPersonalAccountWithEmailUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _continueEnabledLiveData = SingleLiveEvent<Boolean>()
@@ -32,8 +43,20 @@ class CreatePersonalAccountEmailPasswordViewModel(
             _continueEnabledLiveData.value = it.isRight
         }
 
-    fun registerUser(name: String, email: String, password: String, activationCode: String) {
-        //TODO registration via use case
-        _registerStatusLiveData.success()
-    }
+    fun registerUser(name: String, email: String, password: String, code: String) =
+        registerUseCase(viewModelScope, EmailRegistrationParams(name = name, email = email, password = password, activationCode = code)) {
+            it.onSuccess {
+                _registerStatusLiveData.success()
+            }.onFailure {
+                when (it) {
+                    is NetworkConnection -> _networkConnectionErrorLiveData.value = Unit
+                    is UnauthorizedEmail ->
+                        _registerStatusLiveData.failure(ErrorMessage(R.string.create_personal_account_unauthorized_email_error))
+                    is InvalidEmailActivationCode ->
+                        _registerStatusLiveData.failure(ErrorMessage(R.string.create_personal_account_invalid_activation_code_error))
+                    is EmailInUse ->
+                        _registerStatusLiveData.failure(ErrorMessage(R.string.create_personal_account_email_in_use_error))
+                }
+            }
+        }
 }

@@ -5,7 +5,8 @@ plugins {
 }
 
 val detektAll by tasks.registering(io.gitlab.arturbosch.detekt.Detekt::class) {
-    description = "Runs over whole code base without the starting overhead for each module."
+    group = "Quality"
+    description = "Runs a detekt code analysis ruleset on the Wire Android codebase "
     parallel = true
     buildUponDefaultConfig = true
     setSource(files(rootProject.projectDir))
@@ -17,4 +18,9 @@ val detektAll by tasks.registering(io.gitlab.arturbosch.detekt.Detekt::class) {
         html.enabled = true
         txt.enabled = false
     }
+}
+
+tasks.register("staticCodeAnalysis") {
+    description = "Analyses code within the Wire Android codebase"
+    dependsOn(detektAll)
 }

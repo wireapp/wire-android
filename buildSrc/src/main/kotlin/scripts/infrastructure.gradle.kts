@@ -21,11 +21,6 @@ tasks.named<Wrapper>("wrapper") {
     distributionType = Wrapper.DistributionType.ALL
 }
 
-tasks.register("staticCodeAnalysis") {
-    description = "Analyses code within the Wire Android codebase"
-    dependsOn("detektAll")
-}
-
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
     dependsOn(":app:test${Default.VARIANT}UnitTest")
@@ -47,12 +42,12 @@ tasks.register("compileApp") {
 }
 
 tasks.register("runApp", Exec::class) {
-    val compileAppTask = "assembleApp"
+    val assembleAppTask = "assembleApp"
     val installAppTask = ":app:install${Default.VARIANT}"
 
     description = "assembles and runs the Wire Android Client in the connected device."
-    dependsOn(compileAppTask, installAppTask)
-    tasks.findByName(installAppTask)?.mustRunAfter(compileAppTask)
+    dependsOn(assembleAppTask, installAppTask)
+    tasks.findByName(installAppTask)?.mustRunAfter(assembleAppTask)
 
     val localProperties = File(project.rootDir, "local.properties")
     if (localProperties.exists()) {

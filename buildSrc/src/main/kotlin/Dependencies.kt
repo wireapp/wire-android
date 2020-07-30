@@ -3,12 +3,9 @@ private const val kotlinVersion = "1.3.72"
 
 object BuildPlugins {
     object Versions {
-        const val buildToolsVersion = "4.0.0"
         const val gradleVersion = "6.5"
     }
 
-    const val androidGradlePlugin = "com.android.tools.build:gradle:${Versions.buildToolsVersion}"
-    const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     const val androidApplication = "com.android.application"
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
@@ -115,5 +112,5 @@ object ScriptPlugins {
     const val variants = "scripts.variants"
     const val quality = "scripts.quality"
     const val compilation = "scripts.compilation"
-    const val detekt = "scripts.detekt"
+
 }

@@ -6,6 +6,7 @@ import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.accessibility.AccessibilityConfig
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.compatibility.Compatibility
+import com.wire.android.core.locale.LocaleConfig
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
@@ -20,4 +21,8 @@ val accessibilityModule: Module = module {
 
 val compatibilityModule: Module = module {
     factory { Compatibility() }
+}
+
+val localeModule: Module = module {
+    factory { LocaleConfig(androidContext()) }
 }

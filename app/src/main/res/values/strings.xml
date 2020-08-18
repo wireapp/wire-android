@@ -10,7 +10,7 @@
     <string name="welcome_login">Log in</string>
     <string name="welcome_enterprise_login">Enterprise Login</string>
 
-    <!-- Registration / Login -->
+    <!-- Authentication -->
     <string name="authentication_create_account_title">Personal</string>
     <string name="authentication_create_account_subtitle">Chat privately with groups of friends and family</string>
     <string name="authentication_create_team_title">Pro</string>
@@ -50,5 +50,8 @@
     <string name="create_pro_account_set_team_name_hint">TEAM NAME</string>
     <string name="create_pro_account_set_team_name_about">WHAT IS WIRE FOR TEAMS?</string>
     <string name="pro_account_creation_content_description">Create account selection. Professional account. Item 2 of 2.</string>
+
+    <!-- Login -->
+    <string name="login_header_title">Log in</string>
 
 </resources>

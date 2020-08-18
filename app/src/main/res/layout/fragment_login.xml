@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="@dimen/screen_padding"
-    android:paddingEnd="@dimen/screen_padding">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="@dimen/screen_padding"
+    android:background="?android:colorBackground">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/createPersonalAccountTopGuideline"
+        android:id="@+id/loginTopGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="@dimen/authentication_header_guideline_percent" />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/createPersonalAccountTitleTextView"
+        android:id="@+id/loginTitleTextView"
         style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/create_personal_account_title"
+        android:text="@string/login_header_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountTopGuideline" />
+        app:layout_constraintTop_toBottomOf="@+id/loginTopGuideline" />
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/createPersonalAccountTabLayout"
-        android:layout_width="0dp"
+        android:id="@+id/loginTabLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/authentication_tab_layout_margin_top"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountTitleTextView"
+        app:layout_constraintTop_toBottomOf="@+id/loginTitleTextView"
         app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent" />
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/createPersonalAccountViewPager"
-        android:layout_width="0dp"
+        android:id="@+id/loginViewPager"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountTabLayout"
+        app:layout_constraintTop_toBottomOf="@+id/loginTabLayout"
         app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

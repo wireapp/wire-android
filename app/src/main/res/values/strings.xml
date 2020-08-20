@@ -53,5 +53,6 @@
 
     <!-- Login -->
     <string name="login_header_title">Log in</string>
+    <string name="login_tab_content_description">Log in with %1$s. Item %2$d of %3$d</string>
 
 </resources>

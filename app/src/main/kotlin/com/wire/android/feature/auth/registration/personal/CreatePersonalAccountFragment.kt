@@ -36,7 +36,6 @@ class CreatePersonalAccountFragment : Fragment(R.layout.fragment_create_personal
         }.attach()
     }
 
-
     companion object {
         fun newInstance() = CreatePersonalAccountFragment()
     }

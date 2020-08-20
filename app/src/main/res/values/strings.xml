@@ -11,10 +11,10 @@
     <string name="welcome_enterprise_login">Enterprise Login</string>
 
     <!-- Registration / Login -->
-    <string name="app_entry_create_account">Personal</string>
-    <string name="app_entry_create_account_sub">Chat privately with groups of friends and family</string>
-    <string name="app_entry_create_team">Pro</string>
-    <string name="app_entry_create_team_sub">Secure collaboration for businesses, institutions and professional organizations</string>
+    <string name="authentication_create_account_title">Personal</string>
+    <string name="authentication_create_account_subtitle">Chat privately with groups of friends and family</string>
+    <string name="authentication_create_team_title">Pro</string>
+    <string name="authentication_create_team_subtitle">Secure collaboration for businesses, institutions and professional organizations</string>
 
     <!-- Registration - Personal -->
     <string name="create_personal_account_title">Create an account</string>

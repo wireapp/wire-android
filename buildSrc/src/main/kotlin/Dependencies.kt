@@ -34,6 +34,7 @@ object Libraries {
         const val retrofit = "2.9.0"
         const val okHttpLogging = "4.7.2"
         const val pinEditText = "1.2.3"
+        const val viewPager2 = "1.0.0"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -44,6 +45,7 @@ object Libraries {
     const val viewModelKtx     = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycleKtx}"
     const val okHttpLogging    = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"
     const val pinEditText      = "com.poovam:pin-edittext-field:${Versions.pinEditText}"
+    const val viewPager2       = "androidx.viewpager2:viewpager2:${Versions.viewPager2}"
 
     object Koin {
         const val androidCore  = "org.koin:koin-android:${Versions.koin}"

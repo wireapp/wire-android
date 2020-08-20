@@ -13,7 +13,7 @@
         android:layout_gravity="center"
         android:contentDescription="@string/pro_account_creation_content_description"
         android:drawableTop="@drawable/ic_pro"
-        android:text="@string/app_entry_create_team" />
+        android:text="@string/authentication_create_team_title" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/createProAccountDescriptionTextView"
@@ -21,6 +21,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/app_entry_create_team_sub" />
+        android:text="@string/authentication_create_team_subtitle" />
 
 </LinearLayout>

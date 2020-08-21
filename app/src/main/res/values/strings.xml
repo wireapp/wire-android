@@ -4,6 +4,9 @@
     <string name="back">Back</string>
     <string name="confirmation">Confirmation</string>
 
+    <string name="text_input_layout_password_hint">PASSWORD</string>
+    <string name="text_input_layout_email_hint">EMAIL</string>
+
     <!-- Welcome -->
     <string name="welcome_text">Welcome to Wire</string>
     <string name="welcome_create_account">Create an Account</string>
@@ -18,7 +21,6 @@
 
     <!-- Registration - Personal -->
     <string name="create_personal_account_title">Create an account</string>
-    <string name="create_personal_account_with_email_edit_text_hint">EMAIL</string>
     <string name="create_personal_account_with_email_email_blacklisted_error">This email address is not allowed.</string>
     <string name="create_personal_account_with_email_email_in_use_error">This email address you used is already linked to an account.\nUse another email address or try to login if you own this account.</string>
     <string name="personal_account_creation_content_description">Create account selection. Personal account. Item 1 of 2.</string>
@@ -37,7 +39,6 @@
     <string name="create_personal_account_email_name_text_input_layout_hint">FULL NAME</string>
 
     <string name="create_personal_account_password_title">Set password</string>
-    <string name="create_personal_account_password_text_input_layout_hint">PASSWORD</string>
     <string name="create_personal_account_password_policy_info">Use at least %d characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
 
     <string name="create_personal_account_unauthorized_email_error">Unauthorized e-mail address.</string>

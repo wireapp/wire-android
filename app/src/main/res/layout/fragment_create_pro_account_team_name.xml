@@ -53,7 +53,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/createProAccountTeamNameEditText"
-            style="@style/TextInputEditText.OutlineBox"
+            style="@style/TextInputEditText.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/create_pro_account_set_team_name_hint" />

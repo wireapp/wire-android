@@ -32,6 +32,12 @@ pipeline {
           }
         }
 
+        stage('list linked emulators') {
+          steps {
+            sh '/android-sdk/platform-tools/adb devices'
+          }
+        }
+
       }
     }
 

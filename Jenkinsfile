@@ -34,7 +34,7 @@ pipeline {
 
         stage('list linked emulators') {
           steps {
-            sh '/android-sdk/platform-tools/adb devices'
+            sh '/home/android-agent/android-sdk-linux/platform-tools/adb devices'
           }
         }
 

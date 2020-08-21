@@ -74,6 +74,19 @@ pipeline {
       }
     }
 
+    stage('Acceptance Tests') {
+      steps {
+        script {
+          last_started = env.STAGE_NAME
+        }
+
+        withGradle() {
+          sh './gradlew runAcceptanceTests'
+        }
+
+      }
+    }
+
     stage('Assemble') {
       steps {
         script {

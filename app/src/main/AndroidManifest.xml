@@ -25,7 +25,11 @@
 
         <activity
             android:name=".feature.auth.registration.CreateAccountActivity"
-            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/AppTheme.Authentication"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".feature.auth.login.LoginActivity"
             android:theme="@style/AppTheme.Authentication" />
 
     </application>

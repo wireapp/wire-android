@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="@dimen/create_account_header_guideline_percent" />
+        app:layout_constraintGuide_percent="@dimen/authentication_header_guideline_percent" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/createPersonalAccountEmailNameGuideline"

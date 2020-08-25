@@ -9,6 +9,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.wire.android.FunctionalActivityTest
 import com.wire.android.R
+import com.wire.android.feature.auth.login.LoginActivity
 import com.wire.android.feature.auth.registration.CreateAccountActivity
 import org.junit.After
 import org.junit.Before
@@ -23,7 +24,7 @@ class WelcomeActivityUITest : FunctionalActivityTest(WelcomeActivity::class.java
 
     @After
     fun tearDown() {
-        Intents.release();
+        Intents.release()
     }
 
     @Test
@@ -35,13 +36,19 @@ class WelcomeActivityUITest : FunctionalActivityTest(WelcomeActivity::class.java
     }
 
     @Test
+    fun launch_uiElementsVisibleInLandscape() = rotateScreen {
+        launch_uiElementsVisible()
+    }
+
+    @Test
     fun createAccountButtonClick() {
         onView(withId(R.id.welcomeCreateAccountButton)).perform(click())
         intended(hasComponent(CreateAccountActivity::class.java.name))
     }
 
     @Test
-    fun launch_uiElementsVisibleInLandscape() = rotateScreen {
-        launch_uiElementsVisible()
+    fun loginButtonClick() {
+        onView(withId(R.id.welcomeLoginButton)).perform(click())
+        intended(hasComponent(LoginActivity::class.java.name))
     }
 }

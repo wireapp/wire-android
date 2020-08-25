@@ -6,6 +6,10 @@ import com.wire.android.feature.auth.activation.datasource.ActivationDataSource
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationApi
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemoteDataSource
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
+import com.wire.android.feature.auth.login.email.LoginRepository
+import com.wire.android.feature.auth.login.email.datasource.LoginDataSource
+import com.wire.android.feature.auth.login.email.datasource.remote.LoginApi
+import com.wire.android.feature.auth.login.email.datasource.remote.LoginRemoteDataSource
 import com.wire.android.feature.auth.login.email.ui.LoginWithEmailViewModel
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
 import com.wire.android.feature.auth.registration.RegistrationRepository
@@ -23,6 +27,7 @@ import com.wire.android.feature.auth.registration.pro.team.data.TeamDataSource
 import com.wire.android.feature.auth.registration.pro.team.data.TeamsRepository
 import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUseCase
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
+import com.wire.android.shared.auth.remote.LabelGenerator
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
@@ -30,16 +35,21 @@ import org.koin.dsl.module
 
 val authenticationModules: List<Module>
     get() = listOf(
+        authenticationModule,
         createAccountModule,
         createPersonalAccountModule,
         createProAccountModule,
         loginModule
     )
 
+private val authenticationModule = module {
+    factory { LabelGenerator() }
+}
+
 private val createAccountModule = module {
     single<RegistrationRepository> { RegistrationDataSource(get()) }
     factory { get<NetworkClient>().create(RegistrationApi::class.java) }
-    factory { RegistrationRemoteDataSource(get(), get(), get()) }
+    factory { RegistrationRemoteDataSource(get(), get(), get(), get()) }
 }
 
 private val createPersonalAccountModule = module {
@@ -69,4 +79,7 @@ private val createProAccountModule = module {
 private val loginModule = module {
     viewModel { LoginWithEmailViewModel(get(), get()) }
     factory { LoginWithEmailUseCase(get()) }
+    single<LoginRepository> { LoginDataSource(get()) }
+    single { LoginRemoteDataSource(get(), get(), get()) }
+    factory { get<NetworkClient>().create(LoginApi::class.java) }
 }

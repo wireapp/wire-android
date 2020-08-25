@@ -10,6 +10,7 @@ import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.extension.showKeyboardWithFocusOn
+import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.extension.withArgs
 import com.wire.android.core.ui.arg
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email_name.*
@@ -37,7 +38,7 @@ class CreatePersonalAccountEmailNameFragment : Fragment(R.layout.fragment_create
         createPersonalAccountWithEmailNameTitleTextView.headingForAccessibility()
 
     private fun initConfirmationButton() = createPersonalAccountEmailNameConfirmationButton.setOnClickListener {
-        showPasswordScreen(createPersonalAccountEmailNameEditText.text.toString())
+        showPasswordScreen(createPersonalAccountEmailNameEditText.text.toStringOrEmpty())
     }
 
     private fun observeButtonStatus() {
@@ -48,7 +49,7 @@ class CreatePersonalAccountEmailNameFragment : Fragment(R.layout.fragment_create
 
     private fun initNameChangedListener() {
         createPersonalAccountEmailNameEditText.doAfterTextChanged {
-            nameViewModel.validateName(it.toString())
+            nameViewModel.validateName(it.toStringOrEmpty())
         }
     }
 

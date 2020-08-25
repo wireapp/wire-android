@@ -23,22 +23,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountTopGuideline" />
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/createPersonalAccountViewPager"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/createPersonalAccountTabLayout"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/authentication_view_pager_margin_top"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/authentication_tab_layout_margin_top"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountTitleTextView"
-        app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent">
+        app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent" />
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/createPersonalAccountTabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </androidx.viewpager.widget.ViewPager>
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/createPersonalAccountViewPager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountTabLayout"
+        app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -33,11 +33,13 @@
     <TextView
         android:id="@+id/createProAccountTeamNameSubtitleTextView"
         style="@style/TextView.Authentication.Description"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/create_pro_account_team_name_subtitle_margin_top"
         android:gravity="center_horizontal"
         android:text="@string/create_pro_account_set_team_name_subtitle"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/createProAccountTeamNameTitleTextView" />
 
     <com.google.android.material.textfield.TextInputLayout

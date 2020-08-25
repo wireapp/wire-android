@@ -7,10 +7,12 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/loginWithEmailTextInputLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/authentication_text_input_layout_margin_top"
         app:hintEnabled="false"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText

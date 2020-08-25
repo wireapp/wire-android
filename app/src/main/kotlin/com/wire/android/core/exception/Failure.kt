@@ -16,6 +16,7 @@ object NotFound : NetworkFailure()
 object Cancelled : NetworkFailure()
 object InternalServerError : NetworkFailure()
 object Conflict : NetworkFailure()
+object TooManyRequests : NetworkFailure()
 
 object EmptyResponseBody : NetworkFailure()
 

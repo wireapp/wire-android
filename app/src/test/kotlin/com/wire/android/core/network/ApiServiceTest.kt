@@ -81,6 +81,11 @@ class ApiServiceTest : UnitTest() {
     }
 
     @Test
+    fun `given call fails with http 429 error, then returns TooManyRequests failure`() = runBlocking {
+        assertHttpError(429, TooManyRequests)
+    }
+
+    @Test
     fun `given call fails with http 500 error, then returns InternalServerError failure`() = runBlocking {
         assertHttpError(500, InternalServerError)
     }

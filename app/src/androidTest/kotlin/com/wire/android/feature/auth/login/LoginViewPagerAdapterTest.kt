@@ -4,14 +4,10 @@ import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragment
 import com.wire.android.InstrumentationTest
 import com.wire.android.R
-import com.wire.android.feature.auth.login.email.LoginWithEmailFragment
-import com.wire.android.feature.auth.registration.personal.CreatePersonalAccountFragment
-import com.wire.android.feature.auth.registration.personal.CreatePersonalAccountViewPagerAdapter
-import com.wire.android.feature.auth.registration.personal.email.CreatePersonalAccountEmailFragment
+import com.wire.android.feature.auth.login.email.ui.LoginWithEmailFragment
 import org.assertj.core.api.Assertions
 import org.junit.Before
 
-import org.junit.Assert.*
 import org.junit.Test
 
 class LoginViewPagerAdapterTest : InstrumentationTest() {

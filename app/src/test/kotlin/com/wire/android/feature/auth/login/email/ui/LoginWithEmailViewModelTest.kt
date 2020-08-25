@@ -1,8 +1,13 @@
-package com.wire.android.feature.auth.login.email
+package com.wire.android.feature.auth.login.email.ui
 
 import com.wire.android.UnitTest
+import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
+import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCaseParams
 import com.wire.android.framework.coroutines.CoroutinesTestRule
+import com.wire.android.framework.functional.assertLeft
+import com.wire.android.framework.functional.assertRight
 import com.wire.android.framework.livedata.awaitValue
 import com.wire.android.shared.user.email.EmailInvalid
 import com.wire.android.shared.user.email.ValidateEmailParams
@@ -25,11 +30,14 @@ class LoginWithEmailViewModelTest : UnitTest() {
     @Mock
     private lateinit var validateEmailUseCase: ValidateEmailUseCase
 
+    @Mock
+    private lateinit var loginWithEmailUseCase: LoginWithEmailUseCase
+
     private lateinit var loginWithEmailViewModel: LoginWithEmailViewModel
 
     @Before
     fun setUp() {
-        loginWithEmailViewModel = LoginWithEmailViewModel(validateEmailUseCase)
+        loginWithEmailViewModel = LoginWithEmailViewModel(validateEmailUseCase, loginWithEmailUseCase)
     }
 
     @Test
@@ -105,6 +113,34 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
             assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isTrue()
             verify(validateEmailUseCase).run(ValidateEmailParams(TEST_EMAIL))
+        }
+    }
+
+    @Test
+    fun `given login is called, when loginWithEmailUseCase returns success, then sets success to loginResultLiveData`() {
+        runBlocking {
+            val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
+            `when`(loginWithEmailUseCase.run(params)).thenReturn(Either.Right(Unit))
+
+            loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
+
+            loginWithEmailViewModel.loginResultLiveData.awaitValue().assertRight()
+            verify(loginWithEmailUseCase).run(params)
+        }
+    }
+
+    @Test
+    fun `given login is called, when loginWithEmailUseCase returns error, then sets that error to loginResultLiveData`() {
+        runBlocking {
+            val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
+            `when`(loginWithEmailUseCase.run(params)).thenReturn(Either.Left(ServerError))
+
+            loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
+
+            loginWithEmailViewModel.loginResultLiveData.awaitValue().assertLeft {
+                assertThat(it).isEqualTo(ServerError)
+            }
+            verify(loginWithEmailUseCase).run(params)
         }
     }
 

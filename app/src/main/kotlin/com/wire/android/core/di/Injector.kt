@@ -14,7 +14,8 @@ object Injector {
         accessibilityModule,
         networkModule,
         compatibilityModule,
-        localeModule
+        localeModule,
+        uiModule
     )
 
     /**

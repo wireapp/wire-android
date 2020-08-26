@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
-import com.wire.android.core.exception.ErrorMessage
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
 import com.wire.android.core.extension.success
@@ -12,6 +11,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.SingleLiveEvent
+import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.auth.registration.personal.email.usecase.EmailInUse

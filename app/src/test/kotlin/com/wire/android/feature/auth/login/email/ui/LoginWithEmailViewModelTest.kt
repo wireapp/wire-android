@@ -1,8 +1,16 @@
 package com.wire.android.feature.auth.login.email.ui
 
+import com.wire.android.R
 import com.wire.android.UnitTest
+import com.wire.android.core.exception.Failure
+import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.core.ui.dialog.ErrorMessage
+import com.wire.android.core.ui.dialog.GeneralErrorMessage
+import com.wire.android.core.ui.dialog.NetworkErrorMessage
+import com.wire.android.feature.auth.login.email.usecase.LoginAuthenticationFailure
+import com.wire.android.feature.auth.login.email.usecase.LoginTooFrequentFailure
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCaseParams
 import com.wire.android.framework.coroutines.CoroutinesTestRule
@@ -136,18 +144,45 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given login is called, when loginWithEmailUseCase returns error, then sets that error to loginResultLiveData`() {
-        runBlocking {
-            val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
-            `when`(loginWithEmailUseCase.run(params)).thenReturn(Either.Left(ServerError))
-
-            loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
-
-            loginWithEmailViewModel.loginResultLiveData.awaitValue().assertLeft {
-                assertThat(it).isEqualTo(ServerError)
-            }
-            verify(loginWithEmailUseCase).run(params)
+    fun `given login is called, when use case returns NetworkConnection failure, then sets NetworkErrorMessage to loginResultLiveData`() {
+        verifyLoginResultErrorMessage(NetworkConnection) {
+            assertThat(it).isEqualTo(NetworkErrorMessage)
         }
+    }
+
+    @Test
+    fun `given login is called, when use case returns LoginAuthenticationFailure, then sets proper error message to loginResultLiveData`() {
+        verifyLoginResultErrorMessage(LoginAuthenticationFailure) {
+            assertThat(it.title).isEqualTo(R.string.login_authentication_failure_title)
+            assertThat(it.message).isEqualTo(R.string.login_authentication_failure_message)
+        }
+    }
+
+    @Test
+    fun `given login is called, when use case returns LoginTooFrequentFailure, then sets proper error message to loginResultLiveData`() {
+        verifyLoginResultErrorMessage(LoginTooFrequentFailure) {
+            assertThat(it.title).isEqualTo(R.string.login_too_frequent_failure_title)
+            assertThat(it.message).isEqualTo(R.string.login_too_frequent_failure_message)
+        }
+    }
+
+    @Test
+    fun `given login is called, when loginWithEmailUseCase returns other failure, then sets GeneralErrorMessage to loginResultLiveData`() {
+        verifyLoginResultErrorMessage(ServerError) {
+            assertThat(it).isEqualTo(GeneralErrorMessage)
+        }
+    }
+
+    private fun verifyLoginResultErrorMessage(failure: Failure, errorAssertion: (ErrorMessage) -> Unit) = runBlocking {
+        val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
+        `when`(loginWithEmailUseCase.run(params)).thenReturn(Either.Left(failure))
+
+        loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
+
+        loginWithEmailViewModel.loginResultLiveData.awaitValue().assertLeft {
+            errorAssertion(it)
+        }
+        verify(loginWithEmailUseCase).run(params)
     }
 
     private suspend fun mockEmailValidation(success: Boolean) {

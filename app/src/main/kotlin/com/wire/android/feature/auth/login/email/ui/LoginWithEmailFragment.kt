@@ -10,12 +10,17 @@ import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.extension.toast
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
+import com.wire.android.core.ui.dialog.DialogBuilder
+import com.wire.android.core.ui.dialog.ErrorMessage
 import kotlinx.android.synthetic.main.fragment_login_with_email.*
+import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class LoginWithEmailFragment : Fragment(R.layout.fragment_login_with_email) {
 
     private val viewModel: LoginWithEmailViewModel by viewModel()
+
+    private val dialogBuilder: DialogBuilder by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,12 +59,11 @@ class LoginWithEmailFragment : Fragment(R.layout.fragment_login_with_email) {
             it.onSuccess {
                 //TODO navigate
                 toast("Success!")
-            }.onFailure {
-                //TODO proper error dialog
-                toast("Failure :(")
-            }
+            }.onFailure(::showErrorDialog)
         }
     }
+
+    private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
 
     companion object {
         fun newInstance() = LoginWithEmailFragment()

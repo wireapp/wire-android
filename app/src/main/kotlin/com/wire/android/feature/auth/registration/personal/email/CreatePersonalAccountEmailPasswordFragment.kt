@@ -15,7 +15,11 @@ import com.wire.android.core.extension.withArgs
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.arg
+import com.wire.android.core.ui.dialog.DialogBuilder
+import com.wire.android.core.ui.dialog.ErrorMessage
+import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email_password.*
+import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_create_personal_account_email_password) {
@@ -23,6 +27,8 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
     private val passwordViewModel: CreatePersonalAccountEmailPasswordViewModel by viewModel()
 
     private val inputFocusViewModel : InputFocusViewModel by viewModel()
+
+    private val dialogBuilder: DialogBuilder by inject()
 
     private val name by arg<String>(KEY_NAME)
     private val email by arg<String>(KEY_EMAIL)
@@ -56,15 +62,13 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
         passwordViewModel.registerStatusLiveData.observe(viewLifecycleOwner) {
             it.onSuccess {
                 showMainScreen()
-            }.onFailure {
-                showGenericErrorDialog(it.message)
-            }
+            }.onFailure(::showErrorDialog)
         }
     }
 
     private fun observeNetworkConnectionError() {
         passwordViewModel.networkConnectionErrorLiveData.observe(viewLifecycleOwner) {
-            showNetworkConnectionErrorDialog()
+            showErrorDialog(NetworkErrorMessage)
         }
     }
 
@@ -94,11 +98,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
         toast("User registered! name: $name, email: $email")
     }
 
-    //TODO: proper dialog implementation
-    private fun showNetworkConnectionErrorDialog() = toast("No Internet!!")
-
-    //TODO: proper dialog implementation
-    private fun showGenericErrorDialog(messageResId: Int) = toast(messageResId)
+    private fun showErrorDialog(message: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), message)
 
     companion object {
         private const val KEY_NAME = "name"

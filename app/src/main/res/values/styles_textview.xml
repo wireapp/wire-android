@@ -3,6 +3,7 @@
 
     <style name="TextView" parent="Widget.AppCompat.TextView" />
 
+    <!-- Material TextAppearance Guidelines: https://material.io/develop/android/theming/typography -->
     <style name="TextView.H1" parent="TextAppearance.MaterialComponents.Headline1" />
 
     <style name="TextView.H2" parent="TextAppearance.MaterialComponents.Headline2" />

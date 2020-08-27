@@ -58,6 +58,8 @@ class LoginWithEmailViewModelTest : UnitTest() {
             mockEmailValidation(true)
 
             loginWithEmailViewModel.validatePassword(TEST_EMPTY_PASSWORD)
+            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
+
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
 
             assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
@@ -81,6 +83,8 @@ class LoginWithEmailViewModelTest : UnitTest() {
             mockEmailValidation(false)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
+            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
+
             loginWithEmailViewModel.validatePassword(TEST_VALID_PASSWORD)
 
             assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
@@ -94,6 +98,8 @@ class LoginWithEmailViewModelTest : UnitTest() {
             mockEmailValidation(false)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
+            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
+
             loginWithEmailViewModel.validatePassword(TEST_EMPTY_PASSWORD)
 
             assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
@@ -107,7 +113,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
             mockEmailValidation(true)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
-            loginWithEmailViewModel.continueEnabledLiveData.awaitValue()
+            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
 
             loginWithEmailViewModel.validatePassword(TEST_VALID_PASSWORD)
 

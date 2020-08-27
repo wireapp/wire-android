@@ -38,8 +38,8 @@ class LoginWithEmailFragment : Fragment(R.layout.fragment_login_with_email) {
     private fun initContinueButton() =
         loginWithEmailConfirmationButton.setOnClickListener {
             viewModel.login(
-                email = requireNotNull(loginWithEmailEditText.text).toString(),
-                password = requireNotNull(loginWithEmailPasswordEditText.text).toString()
+                email = loginWithEmailEditText.text.toStringOrEmpty(),
+                password = loginWithEmailPasswordEditText.text.toStringOrEmpty()
             )
         }
 

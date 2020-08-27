@@ -33,7 +33,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given a valid email with no password, sets continueEnabledLiveData to false`() {
+    fun `given a valid email with no password, then sets continueEnabledLiveData to false`() {
         runBlocking {
             mockEmailValidation(true)
 
@@ -45,7 +45,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given a valid email but an empty password, sets continueEnabledLiveData to false`() {
+    fun `given a valid email but an empty password, then sets continueEnabledLiveData to false`() {
         runBlocking {
             mockEmailValidation(true)
 
@@ -58,7 +58,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given a valid password with no email, sets continueEnabledLiveData to false`() {
+    fun `given a valid password with no email, then sets continueEnabledLiveData to false`() {
         runBlocking {
             loginWithEmailViewModel.validatePassword(TEST_VALID_PASSWORD)
 
@@ -68,7 +68,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given a valid password but an invalid email, sets continueEnabledLiveData to false`() {
+    fun `given a valid password but an invalid email, then sets continueEnabledLiveData to false`() {
         runBlocking {
             mockEmailValidation(false)
 
@@ -81,7 +81,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given an invalid email and an empty password, sets continueEnabledLiveData to false`() {
+    fun `given an invalid email and an empty password, then sets continueEnabledLiveData to false`() {
         runBlocking {
             mockEmailValidation(false)
 
@@ -94,7 +94,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given a valid email and a non-empty password, sets continueEnabledLiveData to true`() {
+    fun `given a valid email and a non-empty password, then sets continueEnabledLiveData to true`() {
         runBlocking {
             mockEmailValidation(true)
 

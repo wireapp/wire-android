@@ -3,4 +3,6 @@
     <item name="welcome_button_width_percent" format="float" type="dimen">0.5</item>
     <item name="create_account_layout_container_width_percent" format="float" type="dimen">0.4</item>
     <item name="authentication_editable_field_width_percent" format="float" type="dimen">0.7</item>
+
+    <item name="login_header_guideline_percent" format="float" type="dimen">0.12</item>
 </resources>

@@ -15,7 +15,19 @@
         <item name="boxStrokeWidthFocused">0dp</item>
     </style>
 
-    <style name="TextInputEditText.OutlineBox" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox" />
+    <style name="TextInputEditText.OutlinedBox" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox" >
+        <item name="android:textAlignment">viewStart</item>
+    </style>
+
+    <style name="TextInputEditText.OutlinedBox.Email">
+        <item name="android:inputType">textEmailAddress</item>
+        <item name="android:hint">@string/text_input_layout_email_hint</item>
+    </style>
+
+    <style name="TextInputEditText.OutlinedBox.Password">
+        <item name="android:inputType">textPassword</item>
+        <item name="android:hint">@string/text_input_layout_password_hint</item>
+    </style>
 
     <style name="EditText" parent="Widget.AppCompat.EditText" />
 
@@ -29,4 +41,5 @@
         <item name="noOfFields">6</item>
         <item name="highlightColor">?colorSecondary</item>
     </style>
+
 </resources>

@@ -47,14 +47,14 @@
             android:layout_height="wrap_content"
             android:hint="@string/create_personal_account_email_name_text_input_layout_hint"
             android:inputType="textEmailAddress"
-            android:paddingEnd="@dimen/create_personal_account_text_input_layout_padding_end" />
+            android:paddingEnd="@dimen/text_input_layout_with_confirmation_padding_end" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/createPersonalAccountEmailNameConfirmationButton"
         style="@style/Button.Primary.Circle.Confirmation"
-        android:layout_marginEnd="@dimen/create_personal_account_confirmation_button_margin_end"
+        android:layout_marginEnd="@dimen/authentication_confirmation_button_margin_end"
         android:enabled="false"
         app:icon="@drawable/ic_arrow_right"
         app:layout_constraintBottom_toBottomOf="@id/createPersonalAccountEmailNameTextInputLayout"

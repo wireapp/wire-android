@@ -11,6 +11,7 @@ import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.openUrl
 import com.wire.android.core.extension.showKeyboardWithFocusOn
+import com.wire.android.core.extension.toStringOrEmpty
 import kotlinx.android.synthetic.main.fragment_create_pro_account_team_name.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -58,10 +59,10 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
 
     private fun initTeamInput() {
         createProAccountTeamNameEditText.doOnTextChanged { text, _, _, _ ->
-            createProAccountTeamNameViewModel.onTeamNameTextChanged(text.toString())
+            createProAccountTeamNameViewModel.onTeamNameTextChanged(text.toStringOrEmpty())
         }
         createProAccountTeamNameEditText.doAfterTextChanged {
-            createProAccountTeamNameViewModel.afterTeamNameChanged(it.toString())
+            createProAccountTeamNameViewModel.afterTeamNameChanged(it.toStringOrEmpty())
         }
     }
 

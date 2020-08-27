@@ -9,6 +9,7 @@ import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.showKeyboardWithFocusOn
+import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.extension.toast
 import com.wire.android.core.extension.withArgs
 import com.wire.android.core.functional.onFailure
@@ -26,7 +27,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
     private val name by arg<String>(KEY_NAME)
     private val email by arg<String>(KEY_EMAIL)
     private val activationCode by arg<String>(KEY_ACTIVATION_CODE)
-    private val password: String get() = createPersonalAccountEmailPasswordEditText.text.toString()
+    private val password: String get() = createPersonalAccountEmailPasswordEditText.text.toStringOrEmpty()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -74,7 +75,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
 
     private fun initPasswordChangedListener() {
         createPersonalAccountEmailPasswordEditText.doAfterTextChanged {
-            passwordViewModel.validatePassword(it.toString())
+            passwordViewModel.validatePassword(it.toStringOrEmpty())
         }
     }
 

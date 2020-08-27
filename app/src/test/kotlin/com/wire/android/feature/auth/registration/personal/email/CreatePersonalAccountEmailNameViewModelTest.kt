@@ -39,8 +39,8 @@ class CreatePersonalAccountEmailNameViewModelTest : UnitTest() {
 
             nameViewModel.validateName(TEST_NAME)
 
-            verify(validateNameUseCase).run(ValidateNameParams(TEST_NAME))
             assertThat(nameViewModel.continueEnabled.awaitValue()).isTrue()
+            verify(validateNameUseCase).run(ValidateNameParams(TEST_NAME))
         }
     }
 
@@ -51,8 +51,8 @@ class CreatePersonalAccountEmailNameViewModelTest : UnitTest() {
 
             nameViewModel.validateName(TEST_NAME)
 
-            verify(validateNameUseCase).run(ValidateNameParams(TEST_NAME))
             assertThat(nameViewModel.continueEnabled.awaitValue()).isFalse()
+            verify(validateNameUseCase).run(ValidateNameParams(TEST_NAME))
         }
     }
 

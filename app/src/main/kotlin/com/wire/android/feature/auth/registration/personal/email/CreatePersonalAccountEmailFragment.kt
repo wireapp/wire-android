@@ -2,15 +2,15 @@ package com.wire.android.feature.auth.registration.personal.email
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.replaceFragment
-import com.wire.android.core.extension.showKeyboard
 import com.wire.android.core.extension.showKeyboardWithFocusOn
+import com.wire.android.core.extension.toStringOrEmpty
+import com.wire.android.core.extension.toast
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.*
@@ -49,14 +49,14 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
 
     private fun initEmailChangedListener() {
         createPersonalAccountEmailEditText.doAfterTextChanged {
-            emailViewModel.validateEmail(it.toString())
+            emailViewModel.validateEmail(it.toStringOrEmpty())
         }
     }
 
     private fun initConfirmationButton() {
         updateConfirmationButtonStatus(false)
         createPersonalAccountEmailConfirmationButton.setOnClickListener {
-            emailViewModel.sendActivationCode(createPersonalAccountEmailEditText.text.toString())
+            emailViewModel.sendActivationCode(createPersonalAccountEmailEditText.text.toStringOrEmpty())
         }
     }
 
@@ -77,16 +77,12 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
     private fun observeNetworkConnectionError() {
         emailViewModel.networkConnectionErrorLiveData.observe(viewLifecycleOwner) {
             //TODO proper error dialog
-            makeToast("Network error!!")
+            toast("Network error!!")
         }
     }
 
     //TODO: proper error dialogs
-    private fun showGenericErrorDialog(messageResId: Int) = makeToast(getString(messageResId))
-
-    //TODO: temporary method until we add error dialog structure.
-    private fun makeToast(msg: String) =
-        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+    private fun showGenericErrorDialog(messageResId: Int) = toast(getString(messageResId))
 
     companion object {
         fun newInstance() = CreatePersonalAccountEmailFragment()

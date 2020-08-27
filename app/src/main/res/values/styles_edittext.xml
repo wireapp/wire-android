@@ -15,7 +15,9 @@
         <item name="boxStrokeWidthFocused">0dp</item>
     </style>
 
-    <style name="TextInputEditText.OutlinedBox" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox" />
+    <style name="TextInputEditText.OutlinedBox" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox" >
+        <item name="android:textAlignment">viewStart</item>
+    </style>
 
     <style name="TextInputEditText.OutlinedBox.Email">
         <item name="android:inputType">textEmailAddress</item>

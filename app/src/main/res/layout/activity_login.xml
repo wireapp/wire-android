@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:elevation="@dimen/authentication_back_button_elevation"
         android:padding="@dimen/back_button_padding"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.fragment.app.FragmentContainerView

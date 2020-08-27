@@ -16,7 +16,7 @@ class LoginWithEmailUseCase(private val loginRepository: LoginRepository) : UseC
                 //TODO: should we take "label" in backend response into account?
                 Forbidden -> Either.Left(LoginAuthenticationFailure)
                 TooManyRequests -> Either.Left(LoginTooFrequentFailure)
-                else -> Either.Left(LoginWithEmailFailure)
+                else -> Either.Left(it)
             }
         }) { Either.Right(Unit) }!!
 }
@@ -26,4 +26,3 @@ data class LoginWithEmailUseCaseParams(val email: String, val password: String)
 sealed class LoginWithEmailUseCaseFailure : FeatureFailure()
 object LoginAuthenticationFailure : LoginWithEmailUseCaseFailure()
 object LoginTooFrequentFailure : LoginWithEmailUseCaseFailure()
-object LoginWithEmailFailure : LoginWithEmailUseCaseFailure()

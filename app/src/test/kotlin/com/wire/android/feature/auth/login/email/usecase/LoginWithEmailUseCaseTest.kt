@@ -65,14 +65,14 @@ class LoginWithEmailUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when repository returns any other failure, then returns LoginWithEmailFailure`() {
+    fun `given run is called, when repository returns any other failure, then returns that failure`() {
         runBlocking {
             `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Left(ServerError))
 
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
 
             result.assertLeft {
-                assertThat(it).isEqualTo(LoginWithEmailFailure)
+                assertThat(it).isEqualTo(ServerError)
             }
         }
     }

@@ -115,7 +115,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     companion object {
-        private const val TEST_EMAIL = "email"
+        private const val TEST_EMAIL = "test@wire.com"
         private const val TEST_EMPTY_PASSWORD = ""
         private const val TEST_VALID_PASSWORD = "password"
     }

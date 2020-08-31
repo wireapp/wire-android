@@ -34,6 +34,9 @@ ENV ANDROID_NDK_HOME ${ANDROID_HOME}/ndk-bundle
 ENV NDK_HOME ${ANDROID_HOME}/ndk-bundle
 ENV PATH ${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:$PATH
 
+# copy the emulator list file to the container
+COPY /emulator-information/emulator-list.txt /home/${USER}/emulator-list.txt
+
 #define the values to install/setup via the sdk manager
 ARG BUILD_TOOLS_VERSION=29.0.2
 ARG PLATFORMS_VERSION=android-29

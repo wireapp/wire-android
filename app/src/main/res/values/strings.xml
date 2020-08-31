@@ -66,8 +66,8 @@
 
     <string name="login_authentication_failure_title">Invalid information</string>
     <string name="login_authentication_failure_message">Please verify your details and try again.</string>
-
     <string name="login_too_frequent_failure_title">Too many attempts</string>
     <string name="login_too_frequent_failure_message">Please try to log in later.</string>
 
+    <string name="login_forgot_password">Forgot Password</string>
 </resources>

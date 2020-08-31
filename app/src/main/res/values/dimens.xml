@@ -45,7 +45,7 @@
 
     <dimen name="create_pro_account_team_name_subtitle_margin_top">8dp</dimen>
     <dimen name="create_pro_account_team_name_input_layout_margin_top">16dp</dimen>
-    <dimen name="authentication_about_text_button_text_size">11sp</dimen>
+    <dimen name="authentication_text_button_text_size">12sp</dimen>
 
     <!-- Authentication - Login -->
     <item name="login_header_guideline_percent" format="float" type="dimen">0.228</item>

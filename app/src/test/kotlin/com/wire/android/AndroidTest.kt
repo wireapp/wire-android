@@ -15,12 +15,11 @@
  */
 package com.wire.android
 
-import android.app.Application
 import android.content.Context
-import com.wire.android.feature.auth.registration.CreateAccountActivity
+import org.junit.After
 import org.junit.Rule
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
+import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
@@ -32,16 +31,20 @@ import org.robolectric.annotation.Config
  * @see UnitTest
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [21])
+@Config(sdk = [28]) //TODO: Android SDK 29 requires Java 9. should we switch for tests?
 @Suppress("UnnecessaryAbstractClass")
 abstract class AndroidTest {
 
     @Suppress("LeakingThis")
-    @Rule @JvmField val injectMocks = InjectMocksRule.create(this@AndroidTest)
+    @Rule
+    @JvmField
+    val injectMocks = InjectMocksRule.create(this@AndroidTest)
+
+    @After
+    fun cleanUp() {
+        stopKoin()
+    }
 
     fun context(): Context = RuntimeEnvironment.systemContext.applicationContext
 
-    fun activityContext(): Context = mock(CreateAccountActivity::class.java)
-
-    class ApplicationStub : Application()
 }

@@ -73,7 +73,7 @@
 
     <Button
         android:id="@+id/createProAccountTeamNameAboutButton"
-        style="@style/TextButton.Authentication.About"
+        style="@style/TextButton.Authentication"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/create_pro_account_set_team_name_about"

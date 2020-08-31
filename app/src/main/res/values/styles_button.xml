@@ -57,9 +57,7 @@
         <item name="android:contentDescription">@string/confirmation</item>
     </style>
 
-    <style name="TextButton.Authentication.About" parent="Button.TextButton">
-        <item name="android:gravity">center</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:textSize">@dimen/authentication_about_text_button_text_size</item>
+    <style name="TextButton.Authentication" parent="Button.TextButton">
+        <item name="android:textSize">@dimen/authentication_text_button_text_size</item>
     </style>
 </resources>

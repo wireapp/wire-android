@@ -32,9 +32,15 @@ pipeline {
           }
         }
 
-        stage('list linked emulators') {
+        stage('ink emulators') {
           steps {
-            sh '/home/android-agent/android-sdk-linux/platform-tools/adb devices'
+            sh '''
+
+
+
+
+
+./emulator-information/connect-emulators.sh /emulator-information/emulator-list.txt'''
           }
         }
 

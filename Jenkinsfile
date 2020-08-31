@@ -34,13 +34,7 @@ pipeline {
 
         stage('ink emulators') {
           steps {
-            sh '''
-
-
-
-
-
-./emulator-information/connect-emulators.sh /emulator-information/emulator-list.txt'''
+            sh 'ping 172.30.0.15'
           }
         }
 

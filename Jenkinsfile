@@ -32,15 +32,6 @@ pipeline {
           }
         }
 
-        stage('link emulators') {
-          steps {
-            sh '''while read ip; do
-  echo "connecting to emulator on IP: $ip"
-  /android-sdk/platform-tools/adb connect $ip:5555
-done </home/android-agent/emulator-list.txt'''
-          }
-        }
-
       }
     }
 

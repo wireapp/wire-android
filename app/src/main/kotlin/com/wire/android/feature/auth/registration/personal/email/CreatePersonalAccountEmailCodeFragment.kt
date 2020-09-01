@@ -15,7 +15,6 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.arg
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
-import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email_code.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -33,7 +32,6 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeActivateEmailData()
-        observeNetworkConnectionError()
 
         initChangeMailListener()
         initDescriptionTextView()
@@ -84,12 +82,6 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
     private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
 
     private fun clearPinCode() = createPersonalAccountEmailCodePinEditText.text?.clear()
-
-    private fun observeNetworkConnectionError() {
-        emailCodeViewModel.networkConnectionErrorLiveData.observe(viewLifecycleOwner) {
-            showErrorDialog(NetworkErrorMessage)
-        }
-    }
 
     companion object {
         private const val KEY_EMAIL = "email"

@@ -17,7 +17,6 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.arg
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
-import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email_password.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -41,7 +40,6 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
 
         observePasswordValidationData()
         observeRegistrationData()
-        observeNetworkConnectionError()
 
         initPasswordPolicyText()
         initPasswordChangedListener()
@@ -63,12 +61,6 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
             it.onSuccess {
                 showMainScreen()
             }.onFailure(::showErrorDialog)
-        }
-    }
-
-    private fun observeNetworkConnectionError() {
-        passwordViewModel.networkConnectionErrorLiveData.observe(viewLifecycleOwner) {
-            showErrorDialog(NetworkErrorMessage)
         }
     }
 

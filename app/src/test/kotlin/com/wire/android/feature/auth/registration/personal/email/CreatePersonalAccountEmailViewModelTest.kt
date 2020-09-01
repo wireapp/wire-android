@@ -4,7 +4,10 @@ import com.wire.android.R
 import com.wire.android.UnitTest
 import com.wire.android.any
 import com.wire.android.core.exception.NetworkConnection
+import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.core.ui.dialog.GeneralErrorMessage
+import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.feature.auth.activation.usecase.EmailBlacklisted
 import com.wire.android.feature.auth.activation.usecase.EmailInUse
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeParams
@@ -106,13 +109,15 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given sendActivation is called, when use case returns networkError, then updates networkConnectionErrorLiveData`() {
+    fun `given sendActivation is called, when use case returns NetworkError, then sets NetworkErrorMsg to sendActivationCodeLiveData`() {
         coroutinesTestRule.runTest {
             `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Left(NetworkConnection))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
 
-            assertThat(emailViewModel.networkConnectionErrorLiveData.awaitValue()).isEqualTo(Unit)
+            emailViewModel.sendActivationCodeLiveData.awaitValue().assertLeft {
+                assertThat(it).isEqualTo(NetworkErrorMessage)
+            }
         }
     }
 
@@ -138,6 +143,19 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
             emailViewModel.sendActivationCodeLiveData.awaitValue().assertLeft {
                 assertThat(it.message).isEqualTo(R.string.create_personal_account_with_email_email_in_use_error)
+            }
+        }
+    }
+
+    @Test
+    fun `given sendActivation is called, when use case returns other error, then sets GeneralErrorMessage to sendActivationCodeLiveData`() {
+        coroutinesTestRule.runTest {
+            `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Left(ServerError))
+
+            emailViewModel.sendActivationCode(TEST_EMAIL)
+
+            emailViewModel.sendActivationCodeLiveData.awaitValue().assertLeft {
+                assertThat(it).isEqualTo(GeneralErrorMessage)
             }
         }
     }

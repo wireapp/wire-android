@@ -4,7 +4,10 @@ import com.wire.android.R
 import com.wire.android.UnitTest
 import com.wire.android.any
 import com.wire.android.core.exception.NetworkConnection
+import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.core.ui.dialog.GeneralErrorMessage
+import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.feature.auth.registration.personal.email.usecase.ActivateEmailUseCase
 import com.wire.android.feature.auth.registration.personal.email.usecase.InvalidEmailCode
 import com.wire.android.framework.coroutines.CoroutinesTestRule
@@ -63,13 +66,28 @@ class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given activateEmail is called, when activateEmailUseCase returns NetworkConnection, notifies networkConnectionErrorLiveData`() {
+    fun `given activateEmail is called, when activateEmailUseCase returns NetworkConnection, sets NetworkError to activateEmailLiveData`() {
         coroutinesTestRule.runTest {
             `when`(activateEmailUseCase.run(any())).thenReturn(Either.Left(NetworkConnection))
 
             emailCodeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            assertThat(emailCodeViewModel.networkConnectionErrorLiveData.awaitValue()).isEqualTo(Unit)
+            emailCodeViewModel.activateEmailLiveData.awaitValue().assertLeft {
+                assertThat(it).isEqualTo(NetworkErrorMessage)
+            }
+        }
+    }
+
+    @Test
+    fun `given activateEmail is called, when activateEmailUseCase returns other error, sets GeneralErrorMsg to activateEmailLiveData`() {
+        coroutinesTestRule.runTest {
+            `when`(activateEmailUseCase.run(any())).thenReturn(Either.Left(ServerError))
+
+            emailCodeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
+
+            emailCodeViewModel.activateEmailLiveData.awaitValue().assertLeft {
+                assertThat(it).isEqualTo(GeneralErrorMessage)
+            }
         }
     }
 

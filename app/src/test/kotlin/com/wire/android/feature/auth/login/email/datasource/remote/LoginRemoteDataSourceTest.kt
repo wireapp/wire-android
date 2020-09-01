@@ -92,13 +92,13 @@ class LoginRemoteDataSourceTest : UnitTest() {
             tokenType = "Bearer"
         )
 
-        fun mockSuccessResponse(): Response<LoginWithEmailResponse> =
+        private fun mockSuccessResponse(): Response<LoginWithEmailResponse> =
             (mock(Response::class.java) as Response<LoginWithEmailResponse>).apply {
                 `when`(this.isSuccessful).thenReturn(true)
                 `when`(this.body()).thenReturn(LOGIN_WITH_EMAIL_RESPONSE)
             }
 
-        fun mockErrorResponse(errorCode: Int): Response<LoginWithEmailResponse> =
+        private fun mockErrorResponse(errorCode: Int): Response<LoginWithEmailResponse> =
             (mock(Response::class.java) as Response<LoginWithEmailResponse>).apply {
                 `when`(this.isSuccessful).thenReturn(false)
                 `when`(this.code()).thenReturn(errorCode)

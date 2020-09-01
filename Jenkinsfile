@@ -34,8 +34,12 @@ pipeline {
 
         stage('Connect Android Emulators') {
           steps {
-            sh '''while read ip; do echo "connecting to emulator on IP: $ip" /android-sdk/platform-tools/adb connect $ip:5555 done 
-</emulator-information/emulator-list.txt'''
+            sh '''while read ip; 
+do 
+echo "connecting to emulator on IP: $ip"
+/android-sdk/platform-tools/adb connect $ip:5555
+done</emulator-information/emulator-list.txt
+'''
           }
         }
 

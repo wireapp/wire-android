@@ -35,11 +35,11 @@ pipeline {
 
         stage('Connect Android Emulators') {
           steps {
-            sh '''while read ip; 
-do 
-echo "connecting to emulator on IP: $ip"
-/android-sdk/platform-tools/adb connect $ip:5555
-done</emulator-information/emulator-list.txt
+            sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'docker-compose-files_nexus\' |grep -Eo \'1[0-9]{2}.*\')
+do
+        echo  "found emulator with ip $i:5555"
+        adb connect $i:5555
+done
 '''
           }
         }

@@ -17,7 +17,6 @@ import com.wire.android.shared.user.email.EmailInvalid
 import com.wire.android.shared.user.email.EmailTooShort
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -42,12 +41,14 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        emailViewModel = CreatePersonalAccountEmailViewModel(validateEmailUseCase, sendActivationCodeUseCase)
+        emailViewModel = CreatePersonalAccountEmailViewModel(
+            coroutinesTestRule.dispatcherProvider, validateEmailUseCase, sendActivationCodeUseCase
+        )
     }
 
     @Test
     fun `given validateEmail is called, when the validation succeeds then isValidEmail should be true`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(validateEmailUseCase.run(any())).thenReturn(Either.Right(Unit))
 
             emailViewModel.validateEmail(TEST_EMAIL)
@@ -58,7 +59,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given validateEmail is called, when the validation fails with EmailTooShort error then isValidEmail should be false`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(validateEmailUseCase.run(any())).thenReturn(Either.Left(EmailTooShort))
 
             emailViewModel.validateEmail(TEST_EMAIL)
@@ -69,7 +70,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given validateEmail is called, when the validation fails with EmailInvalid error then isValidEmail should be false`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(validateEmailUseCase.run(any())).thenReturn(Either.Left(EmailInvalid))
 
             emailViewModel.validateEmail(TEST_EMAIL)
@@ -80,7 +81,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given sendActivation is called, then calls SendEmailActivationCodeUseCase`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             val params = SendEmailActivationCodeParams(TEST_EMAIL)
             `when`(sendActivationCodeUseCase.run(params)).thenReturn(Either.Right(Unit))
 
@@ -93,7 +94,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given sendActivation is called, when use case is successful, then sets email to sendActivationCodeLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Right(Unit))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
@@ -106,7 +107,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given sendActivation is called, when use case returns networkError, then updates networkConnectionErrorLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Left(NetworkConnection))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
@@ -117,7 +118,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given sendActivation is called, when use case returns EmailBlacklisted, then sets error message to sendActivationCodeLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Left(EmailBlacklisted))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)
@@ -130,7 +131,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given sendActivation is called, when use case returns EmailInUse, then sets error message to sendActivationCodeLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(sendActivationCodeUseCase.run(any())).thenReturn(Either.Left(EmailInUse))
 
             emailViewModel.sendActivationCode(TEST_EMAIL)

@@ -13,7 +13,6 @@ import com.wire.android.shared.user.email.EmailInvalid
 import com.wire.android.shared.user.email.ValidateEmailParams
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -37,12 +36,14 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        loginWithEmailViewModel = LoginWithEmailViewModel(validateEmailUseCase, loginWithEmailUseCase)
+        loginWithEmailViewModel = LoginWithEmailViewModel(
+            coroutinesTestRule.dispatcherProvider, validateEmailUseCase, loginWithEmailUseCase
+        )
     }
 
     @Test
-    fun `given a valid email with no password, then sets continueEnabledLiveData to false`() {
-        runBlocking {
+    fun `given a valid email with no password, then sets continueEnabledLiveData to false`() =
+        coroutinesTestRule.runTest {
             mockEmailValidation(true)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
@@ -50,11 +51,10 @@ class LoginWithEmailViewModelTest : UnitTest() {
             assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
             verify(validateEmailUseCase).run(ValidateEmailParams(TEST_EMAIL))
         }
-    }
 
     @Test
     fun `given a valid email but an empty password, then sets continueEnabledLiveData to false`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             mockEmailValidation(true)
 
             loginWithEmailViewModel.validatePassword(TEST_EMPTY_PASSWORD)
@@ -69,7 +69,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given a valid password with no email, then sets continueEnabledLiveData to false`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             loginWithEmailViewModel.validatePassword(TEST_VALID_PASSWORD)
 
             assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
@@ -79,7 +79,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given a valid password but an invalid email, then sets continueEnabledLiveData to false`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             mockEmailValidation(false)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
@@ -94,7 +94,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given an invalid email and an empty password, then sets continueEnabledLiveData to false`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             mockEmailValidation(false)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
@@ -109,7 +109,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given a valid email and a non-empty password, then sets continueEnabledLiveData to true`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             mockEmailValidation(true)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
@@ -124,7 +124,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given login is called, when loginWithEmailUseCase returns success, then sets success to loginResultLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
             `when`(loginWithEmailUseCase.run(params)).thenReturn(Either.Right(Unit))
 
@@ -137,7 +137,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given login is called, when loginWithEmailUseCase returns error, then sets that error to loginResultLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
             `when`(loginWithEmailUseCase.run(params)).thenReturn(Either.Left(ServerError))
 

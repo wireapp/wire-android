@@ -1,8 +1,9 @@
 package com.wire.android.core.usecase
 
 import com.wire.android.UnitTest
+import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.functional.Either
-import kotlinx.coroutines.Dispatchers
+import com.wire.android.framework.coroutines.TestDispatcherProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -19,9 +20,12 @@ class DefaultUseCaseExecutorTest : UnitTest() {
     @Mock
     private lateinit var useCase: UseCase<String, Int>
 
+    private lateinit var dispatcherProvider: DispatcherProvider
+
     @Before
     fun setUp() {
-        executor = DefaultUseCaseExecutor()
+        dispatcherProvider = TestDispatcherProvider()
+        executor = DefaultUseCaseExecutor(dispatcherProvider)
     }
 
     @Test
@@ -32,7 +36,7 @@ class DefaultUseCaseExecutorTest : UnitTest() {
             `when`(useCase.run(param)).thenReturn(result)
 
             with(executor) {
-                useCase.invoke(this@runBlocking, param, Dispatchers.IO) {
+                useCase.invoke(this@runBlocking, param, dispatcherProvider.io()) {
                     assertThat(it).isEqualTo(result)
                 }
             }

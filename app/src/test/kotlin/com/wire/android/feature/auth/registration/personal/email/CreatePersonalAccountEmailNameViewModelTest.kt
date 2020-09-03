@@ -8,7 +8,6 @@ import com.wire.android.shared.user.name.NameTooShort
 import com.wire.android.shared.user.name.ValidateNameParams
 import com.wire.android.shared.user.name.ValidateNameUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -29,12 +28,12 @@ class CreatePersonalAccountEmailNameViewModelTest : UnitTest() {
     private lateinit var nameViewModel: CreatePersonalAccountEmailNameViewModel
     @Before
     fun setUp() {
-        nameViewModel = CreatePersonalAccountEmailNameViewModel(validateNameUseCase)
+        nameViewModel = CreatePersonalAccountEmailNameViewModel(coroutinesTestRule.dispatcherProvider, validateNameUseCase)
     }
 
     @Test
     fun `given validateName() is called with a name, when use case returns success, then sets continueEnabled to true`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(validateNameUseCase.run(ValidateNameParams(TEST_NAME))).thenReturn(Either.Right(Unit))
 
             nameViewModel.validateName(TEST_NAME)
@@ -46,7 +45,7 @@ class CreatePersonalAccountEmailNameViewModelTest : UnitTest() {
 
     @Test
     fun `given validateName() is called with a name, when use case fails, then sets continueEnabled to false`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(validateNameUseCase.run(ValidateNameParams(TEST_NAME))).thenReturn(Either.Left(NameTooShort))
 
             nameViewModel.validateName(TEST_NAME)

@@ -6,6 +6,8 @@ import com.wire.android.feature.auth.activation.datasource.ActivationDataSource
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationApi
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemoteDataSource
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
+import com.wire.android.feature.auth.login.email.LoginRepository
+import com.wire.android.feature.auth.login.email.datasource.LoginDataSource
 import com.wire.android.feature.auth.login.email.ui.LoginWithEmailViewModel
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
 import com.wire.android.feature.auth.registration.RegistrationRepository
@@ -69,4 +71,5 @@ private val createProAccountModule = module {
 private val loginModule = module {
     viewModel { LoginWithEmailViewModel(get(), get()) }
     factory { LoginWithEmailUseCase(get()) }
+    single<LoginRepository> { LoginDataSource() }
 }

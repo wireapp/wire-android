@@ -6,6 +6,7 @@ import com.wire.android.capture
 import com.wire.android.core.locale.LocaleConfig
 import com.wire.android.framework.functional.assertRight
 import com.wire.android.framework.network.connectedNetworkHandler
+import com.wire.android.shared.auth.remote.LabelGenerator
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -23,6 +24,9 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
     private lateinit var api: RegistrationApi
 
     @Mock
+    private lateinit var labelGenerator: LabelGenerator
+
+    @Mock
     private lateinit var localeConfig: LocaleConfig
 
     @Captor
@@ -33,7 +37,8 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
     @Before
     fun setUp() {
         mockLocale().let { `when`(localeConfig.currentLocale()).thenReturn(it) }
-        remoteDataSource = RegistrationRemoteDataSource(api, localeConfig, connectedNetworkHandler)
+        `when`(labelGenerator.newLabel()).thenReturn(TEST_LABEL)
+        remoteDataSource = RegistrationRemoteDataSource(api, labelGenerator, localeConfig, connectedNetworkHandler)
     }
 
     @Test
@@ -50,7 +55,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
                 assertThat(it.password).isEqualTo(TEST_PASSWORD)
                 assertThat(it.emailCode).isEqualTo(TEST_ACTIVATION_CODE)
                 assertThat(it.locale).isEqualTo(TEST_LOCALE)
-                //TODO assert label
+                assertThat(it.label).isEqualTo(TEST_LABEL)
             }
         }
     }
@@ -92,6 +97,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
         private const val TEST_PASSWORD = "abc123!"
         private const val TEST_ACTIVATION_CODE = "123456"
         private const val TEST_LOCALE = "en-US"
+        private const val TEST_LABEL = "label"
 
         private fun mockLocale(): Locale = mock(Locale::class.java).also {
             `when`(it.toLanguageTag()).thenReturn(TEST_LOCALE)

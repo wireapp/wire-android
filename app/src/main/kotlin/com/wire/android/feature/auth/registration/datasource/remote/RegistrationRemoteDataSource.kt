@@ -5,10 +5,11 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.locale.LocaleConfig
 import com.wire.android.core.network.ApiService
 import com.wire.android.core.network.NetworkHandler
-import java.util.UUID
+import com.wire.android.shared.auth.remote.LabelGenerator
 
 class RegistrationRemoteDataSource(
     private val api: RegistrationApi,
+    private val labelGenerator: LabelGenerator,
     private val localeConfig: LocaleConfig,
     override val networkHandler: NetworkHandler
 ) : ApiService() {
@@ -23,7 +24,7 @@ class RegistrationRemoteDataSource(
             RegisterPersonalAccountWithEmailRequest(
                 name = name, email = email, password = password, emailCode = activationCode,
                 locale = localeConfig.currentLocale().toLanguageTag(),
-                label = UUID.randomUUID().toString() //TODO: what is it used for? do not hardcode here!
+                label = labelGenerator.newLabel()
             )
         )
     }

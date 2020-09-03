@@ -12,7 +12,6 @@ import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
 import com.wire.android.framework.livedata.awaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -20,10 +19,10 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 
+@ExperimentalCoroutinesApi
 class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
 
     @get:Rule
-    @ExperimentalCoroutinesApi
     val coroutinesTestRule = CoroutinesTestRule()
 
     @Mock
@@ -33,12 +32,12 @@ class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        emailCodeViewModel = CreatePersonalAccountEmailCodeViewModel(activateEmailUseCase)
+        emailCodeViewModel = CreatePersonalAccountEmailCodeViewModel(coroutinesTestRule.dispatcherProvider, activateEmailUseCase)
     }
 
     @Test
     fun `given activateEmail is called, when activateEmailUseCase returns success, then notifies success to activateEmailLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(activateEmailUseCase.run(any())).thenReturn(Either.Right(Unit))
 
             emailCodeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
@@ -52,7 +51,7 @@ class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
     @Test
     fun `given activateEmail is called, when activateEmailUseCase returns InvalidEmailCode, sets ErrorMessage to activateEmailLiveData`() {
         //TODO: separate feature failures
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(activateEmailUseCase.run(any())).thenReturn(Either.Left(InvalidEmailCode))
 
             emailCodeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
@@ -65,7 +64,7 @@ class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
 
     @Test
     fun `given activateEmail is called, when activateEmailUseCase returns NetworkConnection, notifies networkConnectionErrorLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(activateEmailUseCase.run(any())).thenReturn(Either.Left(NetworkConnection))
 
             emailCodeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)

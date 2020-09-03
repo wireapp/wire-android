@@ -2,7 +2,7 @@ package com.wire.android.feature.auth.login
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.wire.android.feature.auth.login.email.LoginWithEmailFragment
+import com.wire.android.feature.auth.login.email.ui.LoginWithEmailFragment
 
 class LoginViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
 

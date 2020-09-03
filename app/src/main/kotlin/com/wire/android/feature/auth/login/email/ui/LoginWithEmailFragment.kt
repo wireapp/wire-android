@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.login.email
+package com.wire.android.feature.auth.login.email.ui
 
 import android.os.Bundle
 import android.view.View

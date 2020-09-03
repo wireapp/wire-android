@@ -10,6 +10,7 @@ import com.wire.android.core.exception.InternalServerError
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.exception.NotFound
 import com.wire.android.core.exception.ServerError
+import com.wire.android.core.exception.TooManyRequests
 import com.wire.android.core.exception.Unauthorized
 import com.wire.android.core.functional.Either
 import kotlinx.coroutines.CancellationException
@@ -53,6 +54,7 @@ abstract class ApiService {
             CODE_FORBIDDEN -> Either.Left(Forbidden)
             CODE_NOT_FOUND -> Either.Left(NotFound)
             CODE_CONFLICT -> Either.Left(Conflict)
+            CODE_TOO_MANY_REQUESTS -> Either.Left(TooManyRequests)
             CODE_INTERNAL_SERVER_ERROR -> Either.Left(InternalServerError)
             else -> Either.Left(ServerError)
         }
@@ -64,6 +66,7 @@ abstract class ApiService {
         private const val CODE_FORBIDDEN = 403
         private const val CODE_NOT_FOUND = 404
         private const val CODE_CONFLICT = 409
+        private const val CODE_TOO_MANY_REQUESTS = 429
         private const val CODE_INTERNAL_SERVER_ERROR = 500
     }
 }

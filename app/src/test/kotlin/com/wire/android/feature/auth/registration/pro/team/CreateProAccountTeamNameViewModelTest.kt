@@ -33,19 +33,19 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     @Before
     fun setup() {
         runBlocking { `when`(getTeamNameUseCase.run(Unit)).thenReturn(Either.Right(TEST_TEAM_NAME)) }
-        viewModel = CreateProAccountTeamNameViewModel(getTeamNameUseCase, updateTeamNameUseCase)
+        viewModel = CreateProAccountTeamNameViewModel(coroutinesTestRule.dispatcherProvider, getTeamNameUseCase, updateTeamNameUseCase)
     }
 
     @Test
     fun `given viewModel is initialised, when teamName is available, propagate teamName up to the view`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             assertThat(viewModel.teamNameLiveData.awaitValue()).isEqualTo(TEST_TEAM_NAME)
         }
     }
 
     @Test
     fun `given about button is clicked, when url is provided, propagate url back to the view`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             viewModel.onAboutButtonClicked()
             assertThat(viewModel.urlLiveData.awaitValue()).isEqualTo("$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX")
         }
@@ -53,7 +53,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     @Test
     fun `given empty team name, when on team name text is changed, confirmation button should be disabled`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             viewModel.onTeamNameTextChanged(String.EMPTY)
             assertThat(viewModel.confirmationButtonEnabled.awaitValue()).isFalse()
         }
@@ -61,7 +61,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     @Test
     fun `given empty team name, when on team name text is changed, confirmation button should be enabled`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             viewModel.onTeamNameTextChanged(TEST_TEAM_NAME)
             assertThat(viewModel.confirmationButtonEnabled.awaitValue()).isTrue()
         }

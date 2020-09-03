@@ -35,14 +35,14 @@ import org.koin.dsl.module
 
 val authenticationModules: List<Module>
     get() = listOf(
-        authenticationModule,
+        authenticationCommonModule,
         createAccountModule,
         createPersonalAccountModule,
         createProAccountModule,
         loginModule
     )
 
-private val authenticationModule = module {
+private val authenticationCommonModule = module {
     factory { LabelGenerator() }
 }
 

@@ -11,6 +11,7 @@ import org.koin.core.module.Module
 object Injector {
 
     private val coreModules: List<Module> = listOf(
+        asyncModule,
         accessibilityModule,
         networkModule,
         compatibilityModule,

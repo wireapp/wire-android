@@ -19,7 +19,6 @@ import com.wire.android.shared.user.password.InvalidPasswordFailure
 import com.wire.android.shared.user.password.ValidatePasswordParams
 import com.wire.android.shared.user.password.ValidatePasswordUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -43,7 +42,9 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        viewModel = CreatePersonalAccountEmailPasswordViewModel(validatePasswordUseCase, registerUseCase)
+        viewModel = CreatePersonalAccountEmailPasswordViewModel(
+            coroutinesTestRule.dispatcherProvider, validatePasswordUseCase, registerUseCase
+        )
     }
 
     @Test
@@ -57,7 +58,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Test
     fun `given a password, when validatePassword is called, then calls validatePasswordUseCase with correct params`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(validatePasswordUseCase.run(any())).thenReturn(Either.Right(Unit))
 
             viewModel.validatePassword(TEST_PASSWORD)
@@ -69,7 +70,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Test
     fun `given validatePassword is called, when useCase returns success, then sets continueEnabledLiveData to true`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(validatePasswordUseCase.run(any())).thenReturn(Either.Right(Unit))
 
             viewModel.validatePassword(TEST_PASSWORD)
@@ -80,7 +81,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Test
     fun `given validatePassword is called, when useCase returns InvalidPasswordFailure, then sets continueEnabledLiveData to false`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(validatePasswordUseCase.run(any())).thenReturn(Either.Left(InvalidPasswordFailure))
 
             viewModel.validatePassword(TEST_PASSWORD)
@@ -91,7 +92,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Test
     fun `given validatePassword is called, when useCase returns general Failure, then sets continueEnabledLiveData to false`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             val failure = mock(Failure::class.java)
             `when`(validatePasswordUseCase.run(any())).thenReturn(Either.Left(failure))
 
@@ -103,7 +104,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Test
     fun `given params, when registerUser is called, then calls registerUseCase with correct params`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(registerUseCase.run(any())).thenReturn(Either.Right(Unit))
 
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
@@ -123,7 +124,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Test
     fun `given registerUser is called, when use case returns success, then sets success to registerStatusLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(registerUseCase.run(any())).thenReturn(Either.Right(Unit))
 
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
@@ -134,7 +135,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Test
     fun `given registerUser is called, when use case returns NetworkConnection error, then sets error to networkConnectionErrorLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(registerUseCase.run(any())).thenReturn(Either.Left(NetworkConnection))
 
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
@@ -145,7 +146,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Test
     fun `given registerUser is called, when use case returns UnauthorizedEmail error, then sets error message to registerStatusLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(registerUseCase.run(any())).thenReturn(Either.Left(UnauthorizedEmail))
 
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
@@ -158,7 +159,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Test
     fun `given registerUser is called, when use case returns InvalidEmailActivationCode, then sets error msg to registerStatusLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(registerUseCase.run(any())).thenReturn(Either.Left(InvalidEmailActivationCode))
 
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
@@ -171,7 +172,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
     @Test
     fun `given registerUser is called, when use case returns EmailInUse error, then sets error message to registerStatusLiveData`() {
-        runBlocking {
+        coroutinesTestRule.runTest {
             `when`(registerUseCase.run(any())).thenReturn(Either.Left(EmailInUse))
 
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)

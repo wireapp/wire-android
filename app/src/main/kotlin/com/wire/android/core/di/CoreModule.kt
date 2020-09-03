@@ -5,6 +5,8 @@ import android.view.accessibility.AccessibilityManager
 import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.accessibility.AccessibilityConfig
 import com.wire.android.core.accessibility.InputFocusViewModel
+import com.wire.android.core.async.DefaultDispatcherProvider
+import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.compatibility.Compatibility
 import com.wire.android.core.locale.LocaleConfig
 import org.koin.android.ext.koin.androidContext
@@ -25,4 +27,8 @@ val compatibilityModule: Module = module {
 
 val localeModule: Module = module {
     factory { LocaleConfig(androidContext()) }
+}
+
+val asyncModule: Module = module {
+    single<DispatcherProvider> { DefaultDispatcherProvider() }
 }

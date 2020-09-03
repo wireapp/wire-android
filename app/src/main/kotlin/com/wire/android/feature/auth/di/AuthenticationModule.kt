@@ -45,31 +45,31 @@ private val createAccountModule = module {
 }
 
 private val createPersonalAccountModule = module {
-    viewModel { CreatePersonalAccountEmailViewModel(get(), get()) }
+    viewModel { CreatePersonalAccountEmailViewModel(get(), get(), get()) }
     factory { ValidateEmailUseCase() }
     factory { SendEmailActivationCodeUseCase(get()) }
     single<ActivationRepository> { ActivationDataSource(get()) }
     single { ActivationRemoteDataSource(get(), get()) }
     factory { get<NetworkClient>().create(ActivationApi::class.java) }
 
-    viewModel { CreatePersonalAccountEmailCodeViewModel(get()) }
+    viewModel { CreatePersonalAccountEmailCodeViewModel(get(), get()) }
     factory { ActivateEmailUseCase(get()) }
 
-    viewModel { CreatePersonalAccountEmailNameViewModel(get()) }
+    viewModel { CreatePersonalAccountEmailNameViewModel(get(), get()) }
 
-    viewModel { CreatePersonalAccountEmailPasswordViewModel(get(), get()) }
+    viewModel { CreatePersonalAccountEmailPasswordViewModel(get(), get(), get()) }
     factory { RegisterPersonalAccountWithEmailUseCase(get()) }
 }
 
 private val createProAccountModule = module {
-    viewModel { CreateProAccountTeamNameViewModel(get(), get()) }
+    viewModel { CreateProAccountTeamNameViewModel(get(), get(), get()) }
     factory { GetTeamNameUseCase(get()) }
     factory { UpdateTeamNameUseCase(get()) }
     single { TeamDataSource() as TeamsRepository }
 }
 
 private val loginModule = module {
-    viewModel { LoginWithEmailViewModel(get(), get()) }
+    viewModel { LoginWithEmailViewModel(get(), get(), get()) }
     factory { LoginWithEmailUseCase(get()) }
     single<LoginRepository> { LoginDataSource() }
 }

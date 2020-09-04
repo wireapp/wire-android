@@ -87,6 +87,12 @@ done
     }
 
     stage('Acceptance Tests') {
+      when {
+        expression {
+          params.AcceptanceTests
+        }
+
+      }
       steps {
         script {
           last_started = env.STAGE_NAME

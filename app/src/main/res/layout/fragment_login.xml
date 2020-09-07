@@ -36,11 +36,20 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/loginViewPager"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/loginTabLayout"
         app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent" />
+
+    <Button
+        android:id="@+id/loginForgotPasswordButton"
+        style="@style/TextButton.Authentication"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/login_forgot_password"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loginViewPager" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

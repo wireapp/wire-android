@@ -3,6 +3,7 @@
 package com.wire.android.core.network.di
 
 import com.wire.android.BuildConfig
+import com.wire.android.core.network.BackendConfig
 import com.wire.android.core.network.NetworkClient
 import com.wire.android.core.network.NetworkHandler
 import com.wire.android.core.network.RetrofitClient
@@ -18,12 +19,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object NetworkDependencyProvider {
-    //TODO: dynamic base url
-    private const val BASE_URL = "https://staging-nginz-https.zinfra.io"
 
-    fun retrofit(okHttpClient: OkHttpClient): Retrofit =
+    fun retrofit(okHttpClient: OkHttpClient, baseUrl: String): Retrofit =
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(baseUrl)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -41,5 +40,7 @@ val networkModule: Module = module {
     single { NetworkHandler(androidContext()) }
     single<NetworkClient> { RetrofitClient(get()) }
     single { defaultHttpClient() }
-    single { retrofit(get()) }
+    single { retrofit(get(), get<BackendConfig>().baseUrl) }
+
+    single { BackendConfig() }
 }

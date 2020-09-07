@@ -37,8 +37,8 @@ pipeline {
           steps {
             sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'docker-compose-files_nexus\' |grep -Eo \'1[0-9]{2}.*\')
 do
-        echo  "found emulator with ip $i:${env.ADB_PORT}"
-        adb connect $i:${env.ADB_PORT}
+        echo  "found emulator with ip $i:${ADB_PORT}"
+        adb connect $i:${ADB_PORT}
 done
 '''
           }
@@ -127,6 +127,7 @@ done
   }
   environment {
     propertiesFile = 'local.properties'
+    ADB_PORT = '5555'
   }
   post {
     failure {

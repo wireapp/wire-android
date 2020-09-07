@@ -13,6 +13,8 @@ import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.ui.dialog.ErrorMessage
+import com.wire.android.core.ui.dialog.GeneralErrorMessage
+import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.auth.registration.personal.email.usecase.EmailInUse
@@ -32,9 +34,6 @@ class CreatePersonalAccountEmailPasswordViewModel(
     private val _continueEnabledLiveData = SingleLiveEvent<Boolean>()
     val continueEnabledLiveData: LiveData<Boolean> = _continueEnabledLiveData
 
-    private val _networkConnectionErrorLiveData = SingleLiveEvent<Unit>()
-    val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
-
     private val _registerStatusLiveData = SingleLiveEvent<Either<ErrorMessage, Unit>>()
     val registerStatusLiveData: LiveData<Either<ErrorMessage, Unit>> = _registerStatusLiveData
 
@@ -50,15 +49,14 @@ class CreatePersonalAccountEmailPasswordViewModel(
             it.onSuccess {
                 _registerStatusLiveData.success()
             }.onFailure {
-                when (it) {
-                    is NetworkConnection -> _networkConnectionErrorLiveData.value = Unit
-                    is UnauthorizedEmail ->
-                        _registerStatusLiveData.failure(ErrorMessage(R.string.create_personal_account_unauthorized_email_error))
-                    is InvalidEmailActivationCode ->
-                        _registerStatusLiveData.failure(ErrorMessage(R.string.create_personal_account_invalid_activation_code_error))
-                    is EmailInUse ->
-                        _registerStatusLiveData.failure(ErrorMessage(R.string.create_personal_account_email_in_use_error))
+                val errorMessage = when (it) {
+                    is NetworkConnection -> NetworkErrorMessage
+                    is UnauthorizedEmail -> ErrorMessage(R.string.create_personal_account_unauthorized_email_error)
+                    is InvalidEmailActivationCode -> ErrorMessage(R.string.create_personal_account_invalid_activation_code_error)
+                    is EmailInUse -> ErrorMessage(R.string.create_personal_account_email_in_use_error)
+                    else -> GeneralErrorMessage
                 }
+                _registerStatusLiveData.failure(errorMessage)
             }
         }
 }

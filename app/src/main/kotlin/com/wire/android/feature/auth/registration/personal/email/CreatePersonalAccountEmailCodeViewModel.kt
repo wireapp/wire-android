@@ -5,13 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.core.async.DispatcherProvider
-import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
 import com.wire.android.core.extension.success
 import com.wire.android.core.functional.Either
 import com.wire.android.core.ui.SingleLiveEvent
+import com.wire.android.core.ui.dialog.ErrorMessage
+import com.wire.android.core.ui.dialog.GeneralErrorMessage
+import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.auth.registration.personal.email.usecase.ActivateEmailParams
@@ -23,9 +25,6 @@ class CreatePersonalAccountEmailCodeViewModel(
     private val activateEmailUseCase: ActivateEmailUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    private val _networkConnectionErrorLiveData = SingleLiveEvent<Unit>()
-    val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
-
     private val _activateEmailLiveData = SingleLiveEvent<Either<ErrorMessage, String>>()
     val activateEmailLiveData: LiveData<Either<ErrorMessage, String>> = _activateEmailLiveData
 
@@ -36,11 +35,11 @@ class CreatePersonalAccountEmailCodeViewModel(
     private fun activateEmailSuccess(code: String) = _activateEmailLiveData.success(code)
 
     private fun activateEmailFailure(failure: Failure) {
-        when (failure) {
-            is NetworkConnection -> _networkConnectionErrorLiveData.value = Unit
-            is InvalidEmailCode -> _activateEmailLiveData.failure(
-                ErrorMessage(R.string.create_personal_account_email_code_invalid_code_error)
-            )
+        val errorMessage = when (failure) {
+            is NetworkConnection -> NetworkErrorMessage
+            is InvalidEmailCode -> ErrorMessage(R.string.create_personal_account_email_code_invalid_code_error)
+            else -> GeneralErrorMessage
         }
+        _activateEmailLiveData.failure(errorMessage)
     }
 }

@@ -5,7 +5,10 @@ import com.wire.android.UnitTest
 import com.wire.android.any
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
+import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.core.ui.dialog.GeneralErrorMessage
+import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.feature.auth.registration.personal.email.usecase.EmailInUse
 import com.wire.android.feature.auth.registration.personal.email.usecase.EmailRegistrationParams
 import com.wire.android.feature.auth.registration.personal.email.usecase.InvalidEmailActivationCode
@@ -134,13 +137,15 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given registerUser is called, when use case returns NetworkConnection error, then sets error to networkConnectionErrorLiveData`() {
+    fun `given registerUser is called, when use case returns NetworkConnection error, then sets NetworkError to registerStatusLiveData`() {
         coroutinesTestRule.runTest {
             `when`(registerUseCase.run(any())).thenReturn(Either.Left(NetworkConnection))
 
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            assertThat(viewModel.networkConnectionErrorLiveData.awaitValue()).isEqualTo(Unit)
+            viewModel.registerStatusLiveData.awaitValue().assertLeft {
+                assertThat(it).isEqualTo(NetworkErrorMessage)
+            }
         }
     }
 
@@ -179,6 +184,19 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
 
             viewModel.registerStatusLiveData.awaitValue().assertLeft {
                 assertThat(it.message).isEqualTo(R.string.create_personal_account_email_in_use_error)
+            }
+        }
+    }
+
+    @Test
+    fun `given registerUser is called, when use case returns other error, then sets GeneralErrorMessage to registerStatusLiveData`() {
+        coroutinesTestRule.runTest {
+            `when`(registerUseCase.run(any())).thenReturn(Either.Left(ServerError))
+
+            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+
+            viewModel.registerStatusLiveData.awaitValue().assertLeft {
+                assertThat(it).isEqualTo(GeneralErrorMessage)
             }
         }
     }

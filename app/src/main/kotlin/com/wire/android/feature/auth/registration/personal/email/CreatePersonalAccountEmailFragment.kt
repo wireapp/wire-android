@@ -14,7 +14,6 @@ import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
-import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -33,7 +32,6 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
         observeInputFocusData()
         observeEmailValidationData()
         observeActivationCodeData()
-        observeNetworkConnectionError()
         initEmailChangedListener()
         initConfirmationButton()
     }
@@ -78,12 +76,6 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
     private fun showEmailCodeScreen(email: String) = replaceFragment(
         R.id.createAccountLayoutContainer, CreatePersonalAccountEmailCodeFragment.newInstance(email)
     )
-
-    private fun observeNetworkConnectionError() {
-        emailViewModel.networkConnectionErrorLiveData.observe(viewLifecycleOwner) {
-            showErrorDialog(NetworkErrorMessage)
-        }
-    }
 
     private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
 

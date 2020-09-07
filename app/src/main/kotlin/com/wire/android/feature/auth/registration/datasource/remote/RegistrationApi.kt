@@ -7,7 +7,7 @@ import retrofit2.http.POST
 interface RegistrationApi {
 
     @POST(REGISTER)
-    suspend fun register(@Body body: RegisterPersonalAccountWithEmailRequest): Response<UserResponse>
+    suspend fun registerPersonalAccount(@Body body: RegisterPersonalAccountRequest): Response<UserResponse>
 
     companion object {
         private const val REGISTER = "/register"

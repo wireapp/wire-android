@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -16,11 +16,11 @@ import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
-import com.wire.android.feature.auth.registration.personal.email.usecase.ActivateEmailParams
-import com.wire.android.feature.auth.registration.personal.email.usecase.ActivateEmailUseCase
-import com.wire.android.feature.auth.registration.personal.email.usecase.InvalidEmailCode
+import com.wire.android.feature.auth.registration.personal.usecase.ActivateEmailParams
+import com.wire.android.feature.auth.registration.personal.usecase.ActivateEmailUseCase
+import com.wire.android.feature.auth.registration.personal.usecase.InvalidEmailCode
 
-class CreatePersonalAccountEmailCodeViewModel(
+class CreatePersonalAccountCodeViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val activateEmailUseCase: ActivateEmailUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
@@ -37,7 +37,7 @@ class CreatePersonalAccountEmailCodeViewModel(
     private fun activateEmailFailure(failure: Failure) {
         val errorMessage = when (failure) {
             is NetworkConnection -> NetworkErrorMessage
-            is InvalidEmailCode -> ErrorMessage(R.string.create_personal_account_email_code_invalid_code_error)
+            is InvalidEmailCode -> ErrorMessage(R.string.create_personal_account_code_invalid_code_error)
             else -> GeneralErrorMessage
         }
         _activateEmailLiveData.failure(errorMessage)

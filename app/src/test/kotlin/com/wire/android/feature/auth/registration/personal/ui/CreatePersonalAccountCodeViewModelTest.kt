@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import com.wire.android.R
 import com.wire.android.UnitTest
@@ -8,8 +8,8 @@ import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
-import com.wire.android.feature.auth.registration.personal.email.usecase.ActivateEmailUseCase
-import com.wire.android.feature.auth.registration.personal.email.usecase.InvalidEmailCode
+import com.wire.android.feature.auth.registration.personal.usecase.ActivateEmailUseCase
+import com.wire.android.feature.auth.registration.personal.usecase.InvalidEmailCode
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
@@ -23,7 +23,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 
 @ExperimentalCoroutinesApi
-class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
+class CreatePersonalAccountCodeViewModelTest : UnitTest() {
 
     @get:Rule
     val coroutinesTestRule = CoroutinesTestRule()
@@ -31,11 +31,14 @@ class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
     @Mock
     private lateinit var activateEmailUseCase: ActivateEmailUseCase
 
-    private lateinit var emailCodeViewModel: CreatePersonalAccountEmailCodeViewModel
+    private lateinit var codeViewModel: CreatePersonalAccountCodeViewModel
 
     @Before
     fun setUp() {
-        emailCodeViewModel = CreatePersonalAccountEmailCodeViewModel(coroutinesTestRule.dispatcherProvider, activateEmailUseCase)
+        codeViewModel = CreatePersonalAccountCodeViewModel(
+            coroutinesTestRule.dispatcherProvider,
+            activateEmailUseCase
+        )
     }
 
     @Test
@@ -43,9 +46,12 @@ class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             `when`(activateEmailUseCase.run(any())).thenReturn(Either.Right(Unit))
 
-            emailCodeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
+            codeViewModel.activateEmail(
+                TEST_EMAIL,
+                TEST_CODE
+            )
 
-            emailCodeViewModel.activateEmailLiveData.awaitValue().assertRight {
+            codeViewModel.activateEmailLiveData.awaitValue().assertRight {
                 assertThat(it).isEqualTo(TEST_CODE)
             }
         }
@@ -57,10 +63,13 @@ class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             `when`(activateEmailUseCase.run(any())).thenReturn(Either.Left(InvalidEmailCode))
 
-            emailCodeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
+            codeViewModel.activateEmail(
+                TEST_EMAIL,
+                TEST_CODE
+            )
 
-            emailCodeViewModel.activateEmailLiveData.awaitValue().assertLeft {
-                assertThat(it.message).isEqualTo(R.string.create_personal_account_email_code_invalid_code_error)
+            codeViewModel.activateEmailLiveData.awaitValue().assertLeft {
+                assertThat(it.message).isEqualTo(R.string.create_personal_account_code_invalid_code_error)
             }
         }
     }
@@ -70,9 +79,12 @@ class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             `when`(activateEmailUseCase.run(any())).thenReturn(Either.Left(NetworkConnection))
 
-            emailCodeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
+            codeViewModel.activateEmail(
+                TEST_EMAIL,
+                TEST_CODE
+            )
 
-            emailCodeViewModel.activateEmailLiveData.awaitValue().assertLeft {
+            codeViewModel.activateEmailLiveData.awaitValue().assertLeft {
                 assertThat(it).isEqualTo(NetworkErrorMessage)
             }
         }
@@ -83,9 +95,9 @@ class CreatePersonalAccountEmailCodeViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             `when`(activateEmailUseCase.run(any())).thenReturn(Either.Left(ServerError))
 
-            emailCodeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
+            codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            emailCodeViewModel.activateEmailLiveData.awaitValue().assertLeft {
+            codeViewModel.activateEmailLiveData.awaitValue().assertLeft {
                 assertThat(it).isEqualTo(GeneralErrorMessage)
             }
         }

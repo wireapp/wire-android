@@ -14,14 +14,14 @@ class RegistrationRemoteDataSource(
     override val networkHandler: NetworkHandler
 ) : ApiService() {
 
-    suspend fun registerPersonalAccountWithEmail(
+    suspend fun registerPersonalAccount(
         name: String,
         email: String,
         password: String,
         activationCode: String
     ): Either<Failure, UserResponse> = request {
-        api.register(
-            RegisterPersonalAccountWithEmailRequest(
+        api.registerPersonalAccount(
+            RegisterPersonalAccountRequest(
                 name = name, email = email, password = password, emailCode = activationCode,
                 locale = localeConfig.currentLocale().toLanguageTag(),
                 label = labelGenerator.newLabel()

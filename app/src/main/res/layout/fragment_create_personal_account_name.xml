@@ -7,58 +7,58 @@
     android:paddingEnd="@dimen/screen_padding">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/createPersonalAccountEmailNameHeaderGuideline"
+        android:id="@+id/createPersonalAccountNameHeaderGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="@dimen/authentication_header_guideline_percent" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/createPersonalAccountEmailNameGuideline"
+        android:id="@+id/createPersonalAccountNameGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="@dimen/create_account_editable_field_guideline_percent" />
 
     <TextView
-        android:id="@+id/createPersonalAccountWithEmailNameTitleTextView"
+        android:id="@+id/createPersonalAccountNameTitleTextView"
         style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="@string/create_personal_account_email_name_title"
+        android:text="@string/create_personal_account_name_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountEmailNameHeaderGuideline" />
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountNameHeaderGuideline" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/createPersonalAccountEmailNameTextInputLayout"
+        android:id="@+id/createPersonalAccountNameTextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:hintEnabled="false"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/createPersonalAccountEmailNameGuideline"
+        app:layout_constraintTop_toBottomOf="@id/createPersonalAccountNameGuideline"
         app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/createPersonalAccountEmailNameEditText"
+            android:id="@+id/createPersonalAccountNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/create_personal_account_email_name_text_input_layout_hint"
+            android:hint="@string/create_personal_account_name_text_input_layout_hint"
             android:inputType="textEmailAddress"
             android:paddingEnd="@dimen/text_input_layout_with_confirmation_padding_end" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/createPersonalAccountEmailNameConfirmationButton"
+        android:id="@+id/createPersonalAccountNameConfirmationButton"
         style="@style/Button.Primary.Circle.Confirmation"
         android:layout_marginEnd="@dimen/authentication_confirmation_button_margin_end"
         android:enabled="false"
         app:icon="@drawable/ic_arrow_right"
-        app:layout_constraintBottom_toBottomOf="@id/createPersonalAccountEmailNameTextInputLayout"
-        app:layout_constraintEnd_toEndOf="@+id/createPersonalAccountEmailNameTextInputLayout"
-        app:layout_constraintTop_toTopOf="@+id/createPersonalAccountEmailNameTextInputLayout" />
+        app:layout_constraintBottom_toBottomOf="@id/createPersonalAccountNameTextInputLayout"
+        app:layout_constraintEnd_toEndOf="@+id/createPersonalAccountNameTextInputLayout"
+        app:layout_constraintTop_toTopOf="@+id/createPersonalAccountNameTextInputLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

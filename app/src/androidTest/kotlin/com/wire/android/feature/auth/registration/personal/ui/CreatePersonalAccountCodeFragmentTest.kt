@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import androidx.core.os.bundleOf
 import androidx.fragment.app.testing.FragmentScenario
@@ -13,9 +13,9 @@ import org.hamcrest.Matchers.containsString
 import org.junit.Before
 import org.junit.Test
 
-class CreatePersonalAccountEmailCodeFragmentTest : FunctionalTest() {
+class CreatePersonalAccountCodeFragmentTest : FunctionalTest() {
 
-    private lateinit var scenario: FragmentScenario<CreatePersonalAccountEmailCodeFragment>
+    private lateinit var scenario: FragmentScenario<CreatePersonalAccountCodeFragment>
 
     @Before
     fun setUp() {
@@ -27,7 +27,7 @@ class CreatePersonalAccountEmailCodeFragmentTest : FunctionalTest() {
 
     @Test
     fun emailDescription_hasCorrectEmailFromBundle() {
-        onView(withId(R.id.createPersonalAccountEmailCodeDescriptionTextView)).check(matches(withText(containsString(ARG_EMAIL))))
+        onView(withId(R.id.createPersonalAccountCodeDescriptionTextView)).check(matches(withText(containsString(ARG_EMAIL))))
     }
 
     //TODO find a way to mock VM and add tests here

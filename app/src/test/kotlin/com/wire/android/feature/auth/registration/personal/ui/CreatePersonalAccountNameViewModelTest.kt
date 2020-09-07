@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import com.wire.android.UnitTest
 import com.wire.android.core.functional.Either
@@ -17,7 +17,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 
 @ExperimentalCoroutinesApi
-class CreatePersonalAccountEmailNameViewModelTest : UnitTest() {
+class CreatePersonalAccountNameViewModelTest : UnitTest() {
 
     @get:Rule
     val coroutinesTestRule = CoroutinesTestRule()
@@ -25,10 +25,10 @@ class CreatePersonalAccountEmailNameViewModelTest : UnitTest() {
     @Mock
     private lateinit var validateNameUseCase: ValidateNameUseCase
 
-    private lateinit var nameViewModel: CreatePersonalAccountEmailNameViewModel
+    private lateinit var nameViewModel: CreatePersonalAccountNameViewModel
     @Before
     fun setUp() {
-        nameViewModel = CreatePersonalAccountEmailNameViewModel(coroutinesTestRule.dispatcherProvider, validateNameUseCase)
+        nameViewModel = CreatePersonalAccountNameViewModel(coroutinesTestRule.dispatcherProvider, validateNameUseCase)
     }
 
     @Test

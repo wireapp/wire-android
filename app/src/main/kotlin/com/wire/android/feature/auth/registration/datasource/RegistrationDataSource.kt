@@ -8,10 +8,10 @@ import com.wire.android.feature.auth.registration.datasource.remote.Registration
 
 class RegistrationDataSource(private val remoteDataSource: RegistrationRemoteDataSource) : RegistrationRepository {
 
-    override suspend fun registerPersonalAccountWithEmail(
+    override suspend fun registerPersonalAccount(
         name: String, email: String, password: String, activationCode: String
     ): Either<Failure, Unit> =
-        remoteDataSource.registerPersonalAccountWithEmail(name = name, email = email, password = password, activationCode = activationCode)
+        remoteDataSource.registerPersonalAccount(name = name, email = email, password = password, activationCode = activationCode)
             .map {
                 //TODO save user locally, etc.
                 Unit

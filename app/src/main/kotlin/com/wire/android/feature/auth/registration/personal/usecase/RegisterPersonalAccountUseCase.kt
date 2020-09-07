@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email.usecase
+package com.wire.android.feature.auth.registration.personal.usecase
 
 import com.wire.android.core.exception.Conflict
 import com.wire.android.core.exception.Failure
@@ -9,12 +9,12 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.usecase.UseCase
 import com.wire.android.feature.auth.registration.RegistrationRepository
 
-class RegisterPersonalAccountWithEmailUseCase(
+class RegisterPersonalAccountUseCase(
     private val registrationRepository: RegistrationRepository
-) : UseCase<Unit, EmailRegistrationParams> {
+) : UseCase<Unit, RegisterPersonalAccountParams> {
 
-    override suspend fun run(params: EmailRegistrationParams): Either<Failure, Unit> = with(params) {
-        registrationRepository.registerPersonalAccountWithEmail(name, email, password, activationCode).fold({
+    override suspend fun run(params: RegisterPersonalAccountParams): Either<Failure, Unit> = with(params) {
+        registrationRepository.registerPersonalAccount(name, email, password, activationCode).fold({
             when (it) {
                 is Forbidden -> Either.Left(UnauthorizedEmail)
                 is NotFound -> Either.Left(InvalidEmailActivationCode)
@@ -25,10 +25,10 @@ class RegisterPersonalAccountWithEmailUseCase(
     }
 }
 
-data class EmailRegistrationParams(val name: String, val email: String, val password: String, val activationCode: String)
+data class RegisterPersonalAccountParams(val name: String, val email: String, val password: String, val activationCode: String)
 
-sealed class RegisterPersonalAccountWithEmailFailure : FeatureFailure()
+sealed class RegisterPersonalAccountFailure : FeatureFailure()
 
-object UnauthorizedEmail : RegisterPersonalAccountWithEmailFailure()
-object InvalidEmailActivationCode : RegisterPersonalAccountWithEmailFailure()
-object EmailInUse : RegisterPersonalAccountWithEmailFailure()
+object UnauthorizedEmail : RegisterPersonalAccountFailure()
+object InvalidEmailActivationCode : RegisterPersonalAccountFailure()
+object EmailInUse : RegisterPersonalAccountFailure()

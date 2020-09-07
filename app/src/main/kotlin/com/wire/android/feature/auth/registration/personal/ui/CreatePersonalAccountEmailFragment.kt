@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import android.os.Bundle
 import android.view.View
@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
+import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.toStringOrEmpty
@@ -29,11 +30,16 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initCreateAccountTitle()
         observeInputFocusData()
         observeEmailValidationData()
         observeActivationCodeData()
         initEmailChangedListener()
         initConfirmationButton()
+    }
+
+    private fun initCreateAccountTitle() {
+        createPersonalAccountEmailTitleTextView.headingForAccessibility()
     }
 
     private fun observeInputFocusData() {
@@ -74,7 +80,7 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
     }
 
     private fun showEmailCodeScreen(email: String) = replaceFragment(
-        R.id.createAccountLayoutContainer, CreatePersonalAccountEmailCodeFragment.newInstance(email)
+        R.id.createAccountLayoutContainer, CreatePersonalAccountCodeFragment.newInstance(email)
     )
 
     private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)

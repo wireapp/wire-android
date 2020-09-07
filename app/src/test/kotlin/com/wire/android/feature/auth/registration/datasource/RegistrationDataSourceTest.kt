@@ -28,38 +28,38 @@ class RegistrationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given credentials, when registerPersonalAccountWithEmail() is called, then calls remote data source with  credentials`() {
+    fun `given credentials, when registerPersonalAccount() is called, then calls remote data source with  credentials`() {
         runBlocking {
             val userResponse = mock(UserResponse::class.java)
-            `when`(remoteDataSource.registerPersonalAccountWithEmail(any(), any(), any(), any())).thenReturn(Either.Right(userResponse))
+            `when`(remoteDataSource.registerPersonalAccount(any(), any(), any(), any())).thenReturn(Either.Right(userResponse))
 
-            registrationDataSource.registerPersonalAccountWithEmail(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            verify(remoteDataSource).registerPersonalAccountWithEmail(
+            verify(remoteDataSource).registerPersonalAccount(
                 name = TEST_NAME, email = TEST_EMAIL, password = TEST_PASSWORD, activationCode = TEST_ACTIVATION_CODE
             )
         }
     }
 
     @Test
-    fun `given registerPersonalAccountWithEmail() is called, when remote data source returns success, then returns success`() {
+    fun `given registerPersonalAccount() is called, when remote data source returns success, then returns success`() {
         runBlocking {
             val userResponse = mock(UserResponse::class.java)
-            `when`(remoteDataSource.registerPersonalAccountWithEmail(any(), any(), any(), any())).thenReturn(Either.Right(userResponse))
+            `when`(remoteDataSource.registerPersonalAccount(any(), any(), any(), any())).thenReturn(Either.Right(userResponse))
 
-            val result = registrationDataSource.registerPersonalAccountWithEmail(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            val result = registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             result.assertRight()
         }
     }
 
     @Test
-    fun `given registerPersonalAccountWithEmail() is called, when remote data source returns failure, then returns that failure`() {
+    fun `given registerPersonalAccount() is called, when remote data source returns failure, then returns that failure`() {
         runBlocking {
             val failure = mock(Failure::class.java)
-            `when`(remoteDataSource.registerPersonalAccountWithEmail(any(), any(), any(), any())).thenReturn(Either.Left(failure))
+            `when`(remoteDataSource.registerPersonalAccount(any(), any(), any(), any())).thenReturn(Either.Left(failure))
 
-            val result = registrationDataSource.registerPersonalAccountWithEmail(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            val result = registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             result.assertLeft {
                 assertThat(it).isEqualTo(failure)

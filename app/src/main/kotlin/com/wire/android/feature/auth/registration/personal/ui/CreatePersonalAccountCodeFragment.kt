@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import android.os.Bundle
 import android.view.View
@@ -15,15 +15,15 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.arg
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
-import kotlinx.android.synthetic.main.fragment_create_personal_account_email_code.*
+import kotlinx.android.synthetic.main.fragment_create_personal_account_code.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create_personal_account_email_code) {
+class CreatePersonalAccountCodeFragment : Fragment(R.layout.fragment_create_personal_account_code) {
 
     private val email by arg<String>(KEY_EMAIL)
 
-    private val emailCodeViewModel: CreatePersonalAccountEmailCodeViewModel by viewModel()
+    private val codeViewModel: CreatePersonalAccountCodeViewModel by viewModel()
 
     private val inputFocusViewModel: InputFocusViewModel by viewModel()
 
@@ -43,30 +43,30 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
         initPinCodeListener()
     }
 
-    private fun initChangeMailListener() = createPersonalAccountEmailCodeChangeMailTextView.setOnClickListener {
+    private fun initChangeMailListener() = createPersonalAccountCodeChangeMailTextView.setOnClickListener {
         requireActivity().onBackPressed()
     }
 
     private fun initDescriptionTextView() {
-        createPersonalAccountEmailCodeDescriptionTextView.text =
-            getString(R.string.create_personal_account_email_code_description, email)
+        createPersonalAccountCodeDescriptionTextView.text =
+            getString(R.string.create_personal_account_code_description, email)
     }
 
     private fun initPinCodeListener() {
-        createPersonalAccountEmailCodePinEditText.onTextCompleteListener = object : OnTextCompleteListener {
+        createPersonalAccountCodePinEditText.onTextCompleteListener = object : OnTextCompleteListener {
             override fun onTextComplete(enteredText: String): Boolean {
-                emailCodeViewModel.activateEmail(email, enteredText)
+                codeViewModel.activateEmail(email, enteredText)
                 return false
             }
         }
     }
 
     private fun requestKeyboardFocus() {
-        if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountEmailCodePinEditText)
+        if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountCodePinEditText)
     }
 
     private fun observeActivateEmailData() {
-        emailCodeViewModel.activateEmailLiveData.observe(viewLifecycleOwner) {
+        codeViewModel.activateEmailLiveData.observe(viewLifecycleOwner) {
             it.onSuccess {
                 showEnterNameScreen(it)
             }.onFailure {
@@ -77,17 +77,16 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
     }
 
     private fun showEnterNameScreen(code: String) =
-        replaceFragment(R.id.createAccountLayoutContainer, CreatePersonalAccountEmailNameFragment.newInstance(email, code))
+        replaceFragment(R.id.createAccountLayoutContainer, CreatePersonalAccountNameFragment.newInstance(email, code))
 
     private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
 
-    private fun clearPinCode() = createPersonalAccountEmailCodePinEditText.text?.clear()
+    private fun clearPinCode() = createPersonalAccountCodePinEditText.text?.clear()
 
     companion object {
         private const val KEY_EMAIL = "email"
 
-        fun newInstance(email: String) = CreatePersonalAccountEmailCodeFragment().withArgs(
-            KEY_EMAIL to email
-        )
+        fun newInstance(email: String) =
+            CreatePersonalAccountCodeFragment().withArgs(KEY_EMAIL to email)
     }
 }

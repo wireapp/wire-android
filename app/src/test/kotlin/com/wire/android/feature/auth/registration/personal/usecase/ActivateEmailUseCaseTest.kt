@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email.usecase
+package com.wire.android.feature.auth.registration.personal.usecase
 
 import com.wire.android.UnitTest
 import com.wire.android.any

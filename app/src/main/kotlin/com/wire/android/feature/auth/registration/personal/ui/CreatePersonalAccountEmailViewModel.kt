@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

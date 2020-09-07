@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -17,18 +17,18 @@ import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
-import com.wire.android.feature.auth.registration.personal.email.usecase.EmailInUse
-import com.wire.android.feature.auth.registration.personal.email.usecase.EmailRegistrationParams
-import com.wire.android.feature.auth.registration.personal.email.usecase.InvalidEmailActivationCode
-import com.wire.android.feature.auth.registration.personal.email.usecase.RegisterPersonalAccountWithEmailUseCase
-import com.wire.android.feature.auth.registration.personal.email.usecase.UnauthorizedEmail
+import com.wire.android.feature.auth.registration.personal.usecase.EmailInUse
+import com.wire.android.feature.auth.registration.personal.usecase.InvalidEmailActivationCode
+import com.wire.android.feature.auth.registration.personal.usecase.RegisterPersonalAccountParams
+import com.wire.android.feature.auth.registration.personal.usecase.RegisterPersonalAccountUseCase
+import com.wire.android.feature.auth.registration.personal.usecase.UnauthorizedEmail
 import com.wire.android.shared.user.password.ValidatePasswordParams
 import com.wire.android.shared.user.password.ValidatePasswordUseCase
 
-class CreatePersonalAccountEmailPasswordViewModel(
+class CreatePersonalAccountPasswordViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
-    private val registerUseCase: RegisterPersonalAccountWithEmailUseCase
+    private val registerUseCase: RegisterPersonalAccountUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _continueEnabledLiveData = SingleLiveEvent<Boolean>()
@@ -45,7 +45,10 @@ class CreatePersonalAccountEmailPasswordViewModel(
         }
 
     fun registerUser(name: String, email: String, password: String, code: String) =
-        registerUseCase(viewModelScope, EmailRegistrationParams(name = name, email = email, password = password, activationCode = code)) {
+        registerUseCase(
+            viewModelScope,
+            RegisterPersonalAccountParams(name = name, email = email, password = password, activationCode = code)
+        ) {
             it.onSuccess {
                 _registerStatusLiveData.success()
             }.onFailure {

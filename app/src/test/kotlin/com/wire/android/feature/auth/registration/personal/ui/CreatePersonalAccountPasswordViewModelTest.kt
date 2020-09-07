@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import com.wire.android.R
 import com.wire.android.UnitTest
@@ -9,11 +9,11 @@ import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
-import com.wire.android.feature.auth.registration.personal.email.usecase.EmailInUse
-import com.wire.android.feature.auth.registration.personal.email.usecase.EmailRegistrationParams
-import com.wire.android.feature.auth.registration.personal.email.usecase.InvalidEmailActivationCode
-import com.wire.android.feature.auth.registration.personal.email.usecase.RegisterPersonalAccountWithEmailUseCase
-import com.wire.android.feature.auth.registration.personal.email.usecase.UnauthorizedEmail
+import com.wire.android.feature.auth.registration.personal.usecase.EmailInUse
+import com.wire.android.feature.auth.registration.personal.usecase.RegisterPersonalAccountParams
+import com.wire.android.feature.auth.registration.personal.usecase.InvalidEmailActivationCode
+import com.wire.android.feature.auth.registration.personal.usecase.RegisterPersonalAccountUseCase
+import com.wire.android.feature.auth.registration.personal.usecase.UnauthorizedEmail
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
@@ -30,7 +30,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 
 @ExperimentalCoroutinesApi
-class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
+class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
     @get:Rule
     val coroutinesTestRule = CoroutinesTestRule()
@@ -39,13 +39,13 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
     private lateinit var validatePasswordUseCase: ValidatePasswordUseCase
 
     @Mock
-    private lateinit var registerUseCase: RegisterPersonalAccountWithEmailUseCase
+    private lateinit var registerUseCase: RegisterPersonalAccountUseCase
 
-    private lateinit var viewModel: CreatePersonalAccountEmailPasswordViewModel
+    private lateinit var viewModel: CreatePersonalAccountPasswordViewModel
 
     @Before
     fun setUp() {
-        viewModel = CreatePersonalAccountEmailPasswordViewModel(
+        viewModel = CreatePersonalAccountPasswordViewModel(
             coroutinesTestRule.dispatcherProvider, validatePasswordUseCase, registerUseCase
         )
     }
@@ -115,7 +115,7 @@ class CreatePersonalAccountEmailPasswordViewModelTest : UnitTest() {
             viewModel.registerStatusLiveData.awaitValue()
 
             verify(registerUseCase).run(
-                EmailRegistrationParams(
+                RegisterPersonalAccountParams(
                     name = TEST_NAME,
                     email = TEST_EMAIL,
                     password = TEST_PASSWORD,

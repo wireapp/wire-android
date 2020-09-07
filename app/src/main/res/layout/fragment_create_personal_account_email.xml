@@ -3,17 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:paddingStart="@dimen/screen_padding"
+    android:paddingEnd="@dimen/screen_padding">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/createPersonalAccountEmailTopGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="@dimen/authentication_header_guideline_percent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/createPersonalAccountEmailInputGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="@dimen/create_account_editable_field_guideline_percent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/createPersonalAccountEmailTitleTextView"
+        style="@style/TextView.Authentication.Header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_personal_account_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountEmailTopGuideline" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/createPersonalAccountEmailTextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/authentication_text_input_layout_margin_top"
         app:hintEnabled="false"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/createPersonalAccountEmailInputGuideline"
+        app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/createPersonalAccountEmailEditText"

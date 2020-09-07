@@ -5,11 +5,11 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/createPersonalAccountEmailCodeTitleTextView"
+        android:id="@+id/createPersonalAccountCodeTitleTextView"
         style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/create_personal_account_email_code_title"
+        android:text="@string/create_personal_account_code_title"
         app:layout_constraintBottom_toTopOf="@+id/createPersonalAccountPinEditTextGuideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -17,16 +17,16 @@
         app:layout_constraintVertical_bias="0.6" />
 
     <TextView
-        android:id="@+id/createPersonalAccountEmailCodeDescriptionTextView"
+        android:id="@+id/createPersonalAccountCodeDescriptionTextView"
         style="@style/TextView.Authentication.Description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="@string/create_personal_account_email_code_description"
+        android:text="@string/create_personal_account_code_description"
         app:layout_constraintBottom_toTopOf="@+id/createPersonalAccountPinEditTextGuideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountEmailCodeTitleTextView"
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountCodeTitleTextView"
         app:layout_constraintVertical_bias="0.3" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -37,49 +37,49 @@
         app:layout_constraintGuide_percent="@dimen/create_account_editable_field_guideline_percent" />
 
     <com.poovam.pinedittextfield.SquarePinField
-        android:id="@+id/createPersonalAccountEmailCodePinEditText"
+        android:id="@+id/createPersonalAccountCodePinEditText"
         style="@style/EditText.Pin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/create_personal_account_email_code_entry_field_content_description"
+        android:contentDescription="@string/create_personal_account_code_entry_field_content_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountPinEditTextGuideline" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/createPersonalAccountEmailCodeVerticalCenterGuideline"
+        android:id="@+id/createPersonalAccountCodeVerticalCenterGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5"
-        app:layout_constraintTop_toBottomOf="@id/createPersonalAccountEmailCodePinEditText" />
+        app:layout_constraintTop_toBottomOf="@id/createPersonalAccountCodePinEditText" />
 
     <Button
-        android:id="@+id/createPersonalAccountEmailCodeResendCodeTextView"
+        android:id="@+id/createPersonalAccountCodeResendCodeTextView"
         style="@style/Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="@string/create_personal_account_email_code_resend_code"
+        android:text="@string/create_personal_account_code_resend_code"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/createPersonalAccountEmailCodeVerticalCenterGuideline"
+        app:layout_constraintEnd_toStartOf="@id/createPersonalAccountCodeVerticalCenterGuideline"
         app:layout_constraintHorizontal_bias="0.75"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountEmailCodePinEditText"
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountCodePinEditText"
         app:layout_constraintVertical_bias="@dimen/create_personal_account_retry_button_vertical_bias" />
 
     <Button
-        android:id="@+id/createPersonalAccountEmailCodeChangeMailTextView"
+        android:id="@+id/createPersonalAccountCodeChangeMailTextView"
         style="@style/Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="@string/create_personal_account_email_code_change_email"
+        android:text="@string/create_personal_account_code_change_email"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.25"
-        app:layout_constraintStart_toEndOf="@id/createPersonalAccountEmailCodeVerticalCenterGuideline"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountEmailCodePinEditText"
+        app:layout_constraintStart_toEndOf="@id/createPersonalAccountCodeVerticalCenterGuideline"
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountCodePinEditText"
         app:layout_constraintVertical_bias="@dimen/create_personal_account_retry_button_vertical_bias" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,5 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 
 interface RegistrationRepository {
-    suspend fun registerPersonalAccountWithEmail(
-        name: String, email: String, password: String, activationCode: String
-    ): Either<Failure, Unit>
+    suspend fun registerPersonalAccount(name: String, email: String, password: String, activationCode: String): Either<Failure, Unit>
 }

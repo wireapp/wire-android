@@ -10,12 +10,12 @@
 
     <style name="AlertDialogTitle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
-        <item name="lineHeight">28sp</item>
+        <item name="lineHeight">@dimen/alert_dialog_title_line_height</item>
     </style>
 
     <style name="AlertDialogBody" parent="MaterialAlertDialog.MaterialComponents.Body.Text">
-        <item name="android:textSize">16sp</item>
-        <item name="lineHeight">24sp</item>
+        <item name="android:textSize">@dimen/alert_dialog_body_text_size</item>
+        <item name="lineHeight">@dimen/alert_dialog_body_line_height</item>
         <item name="android:textAlignment">viewStart</item>
     </style>
 </resources>

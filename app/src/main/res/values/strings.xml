@@ -10,10 +10,10 @@
 
     <!-- Dialogs -->
     <string name="network_error_dialog_title">No Internet Connection</string>
-    <string name="network_error_dialog_message">Please check your Internet connection and try again</string>
+    <string name="network_error_dialog_message">Please check your Internet connection and try again.</string>
 
     <string name="general_error_dialog_title">Something went wrong</string>
-    <string name="general_error_dialog_message">Please try again</string>
+    <string name="general_error_dialog_message">Please try again.</string>
 
     <!-- Welcome -->
     <string name="welcome_text">Welcome to Wire</string>
@@ -66,6 +66,7 @@
 
     <string name="login_authentication_failure_title">Invalid information</string>
     <string name="login_authentication_failure_message">Please verify your details and try again.</string>
+
     <string name="login_too_frequent_failure_title">Too many attempts</string>
     <string name="login_too_frequent_failure_message">Please try to log in later.</string>
 

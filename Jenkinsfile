@@ -2,7 +2,7 @@ pipeline {
   agent {
     dockerfile {
       filename 'docker-agent/AndroidAgent'
-      args '-u ${GUID_AGENT} --network ${DOCKER_NETWORK} -v ${AGENT_SOCK_VOLUME} -e DOCKER_HOST=${DOCKER_HOST}'
+      args '-u 1000:133 --network docker-compose-files_build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
     }
 
   }

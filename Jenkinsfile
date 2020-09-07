@@ -2,7 +2,7 @@ pipeline {
   agent {
     dockerfile {
       filename 'docker-agent/AndroidAgent'
-      args '-u env.GUID_AGENT --network env.DOCKER_NETWORK -v env.AGENT_SOCK_VOLUME -e DOCKER_HOST=env.DOCKER_HOST'
+      args '-u ${GUID_AGENT} --network ${DOCKER_NETWORK} -v ${AGENT_SOCK_VOLUME} -e DOCKER_HOST=${DOCKER_HOST}'
     }
 
   }

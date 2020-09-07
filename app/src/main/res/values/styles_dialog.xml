@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AlertDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert"/>
+
+    <!-- Material AlertDialog Guidelines: https://material.io/develop/android/components/dialogs#alert-dialog -->
+    <style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="android:backgroundDimAmount">0.1</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/AlertDialogTitle</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/AlertDialogBody</item>
+    </style>
+
+    <style name="AlertDialogTitle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+        <item name="lineHeight">@dimen/alert_dialog_title_line_height</item>
+    </style>
+
+    <style name="AlertDialogBody" parent="MaterialAlertDialog.MaterialComponents.Body.Text">
+        <item name="android:textSize">@dimen/alert_dialog_body_text_size</item>
+        <item name="lineHeight">@dimen/alert_dialog_body_line_height</item>
+        <item name="android:textAlignment">viewStart</item>
+    </style>
 </resources>

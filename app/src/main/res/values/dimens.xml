@@ -10,6 +10,10 @@
 
     <dimen name="text_input_layout_with_confirmation_padding_end">60dp</dimen>
 
+    <dimen name="alert_dialog_title_line_height">28sp</dimen>
+    <dimen name="alert_dialog_body_text_size">16sp</dimen>
+    <dimen name="alert_dialog_body_line_height">24sp</dimen>
+
     <!-- Welcome -->
     <dimen name="welcome_button_enterprise_login_margin_bottom">16dp</dimen>
     <item name="welcome_button_width_percent" format="float" type="dimen">0.9</item>

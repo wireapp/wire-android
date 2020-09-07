@@ -2,7 +2,6 @@ package com.wire.android.feature.auth.registration.personal.email
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.poovam.pinedittextfield.PinField.OnTextCompleteListener
@@ -14,7 +13,11 @@ import com.wire.android.core.extension.withArgs
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.arg
+import com.wire.android.core.ui.dialog.DialogBuilder
+import com.wire.android.core.ui.dialog.ErrorMessage
+import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email_code.*
+import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create_personal_account_email_code) {
@@ -24,6 +27,8 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
     private val emailCodeViewModel: CreatePersonalAccountEmailCodeViewModel by viewModel()
 
     private val inputFocusViewModel: InputFocusViewModel by viewModel()
+
+    private val dialogBuilder: DialogBuilder by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -67,7 +72,7 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
             it.onSuccess {
                 showEnterNameScreen(it)
             }.onFailure {
-                showGenericErrorDialog(getString(it.message))
+                showErrorDialog(it)
                 clearPinCode()
             }
         }
@@ -76,21 +81,15 @@ class CreatePersonalAccountEmailCodeFragment : Fragment(R.layout.fragment_create
     private fun showEnterNameScreen(code: String) =
         replaceFragment(R.id.createAccountLayoutContainer, CreatePersonalAccountEmailNameFragment.newInstance(email, code))
 
-    private fun showGenericErrorDialog(message: String) {
-        //TODO: proper dialog mechanism
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
+    private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
 
     private fun clearPinCode() = createPersonalAccountEmailCodePinEditText.text?.clear()
 
     private fun observeNetworkConnectionError() {
         emailCodeViewModel.networkConnectionErrorLiveData.observe(viewLifecycleOwner) {
-            showNetworkConnectionErrorDialog()
+            showErrorDialog(NetworkErrorMessage)
         }
     }
-
-    //TODO: proper error
-    private fun showNetworkConnectionErrorDialog() = showGenericErrorDialog("Network connection error!!!!")
 
     companion object {
         private const val KEY_EMAIL = "email"

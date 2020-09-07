@@ -9,6 +9,7 @@ import com.wire.android.core.async.DefaultDispatcherProvider
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.compatibility.Compatibility
 import com.wire.android.core.locale.LocaleConfig
+import com.wire.android.core.ui.dialog.DialogBuilder
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
@@ -31,4 +32,8 @@ val localeModule: Module = module {
 
 val asyncModule: Module = module {
     single<DispatcherProvider> { DefaultDispatcherProvider() }
+}
+
+val uiModule = module {
+    factory { DialogBuilder() }
 }

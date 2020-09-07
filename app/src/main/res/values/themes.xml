@@ -47,7 +47,7 @@
         <item name="textAppearanceOverline">@style/TextView.Overline</item>
 
         <!--Component styles-->
-        <item name="materialAlertDialogTheme">@style/AlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>
         <item name="toolbarStyle">@style/Toolbar</item>
 
         <!--Widget styles-->

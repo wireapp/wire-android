@@ -1,11 +1,19 @@
 <resources>
     <string name="app_name">Wire Android Reloaded</string>
 
+    <string name="ok">OK</string>
     <string name="back">Back</string>
     <string name="confirmation">Confirmation</string>
 
     <string name="text_input_layout_password_hint">PASSWORD</string>
     <string name="text_input_layout_email_hint">EMAIL</string>
+
+    <!-- Dialogs -->
+    <string name="network_error_dialog_title">No Internet Connection</string>
+    <string name="network_error_dialog_message">Please check your Internet connection and try again.</string>
+
+    <string name="general_error_dialog_title">Something went wrong</string>
+    <string name="general_error_dialog_message">Please try again.</string>
 
     <!-- Welcome -->
     <string name="welcome_text">Welcome to Wire</string>
@@ -22,7 +30,7 @@
     <!-- Registration - Personal -->
     <string name="create_personal_account_title">Create an account</string>
     <string name="create_personal_account_with_email_email_blacklisted_error">This email address is not allowed.</string>
-    <string name="create_personal_account_with_email_email_in_use_error">This email address you used is already linked to an account.\nUse another email address or try to login if you own this account.</string>
+    <string name="create_personal_account_with_email_email_in_use_error">This email address you used is already linked to an account.\nUse another email address or try to log in if you own this account.</string>
     <string name="personal_account_creation_content_description">Create account selection. Personal account. Item 1 of 2.</string>
     <string name="create_an_account_tab_content_description">Create an account with %1$s. Item %2$d of %3$d</string>
     <string name="authentication_tab_layout_title_email">EMAIL</string>
@@ -55,5 +63,11 @@
     <!-- Login -->
     <string name="login_header_title">Log in</string>
     <string name="login_tab_content_description">Log in with %1$s. Item %2$d of %3$d</string>
+
+    <string name="login_authentication_failure_title">Invalid information</string>
+    <string name="login_authentication_failure_message">Please verify your details and try again.</string>
+
+    <string name="login_too_frequent_failure_title">Too many attempts</string>
+    <string name="login_too_frequent_failure_message">Please try to log in later.</string>
 
 </resources>

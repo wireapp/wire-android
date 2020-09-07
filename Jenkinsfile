@@ -2,7 +2,7 @@ pipeline {
   agent {
     dockerfile {
       filename 'docker-agent/AndroidAgent'
-      args '-u 1000:133 --network docker-compose-files_build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
+      args '-u env.GUID_AGENT --network env.DOCKER_NETWORK -v env.AGENT_SOCK_VOLUME -e DOCKER_HOST=env.DOCKER_HOST'
     }
 
   }
@@ -37,8 +37,8 @@ pipeline {
           steps {
             sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'docker-compose-files_nexus\' |grep -Eo \'1[0-9]{2}.*\')
 do
-        echo  "found emulator with ip $i:5555"
-        adb connect $i:5555
+        echo  "found emulator with ip $i:${env.ADB_PORT}"
+        adb connect $i:${env.ADB_PORT}
 done
 '''
           }

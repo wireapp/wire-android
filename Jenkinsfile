@@ -2,6 +2,7 @@ pipeline {
   agent {
     dockerfile {
       filename 'docker-agent/AndroidAgent'
+      args '-u 1000:133 --network docker-compose-files_build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
     }
 
   }
@@ -29,6 +30,17 @@ pipeline {
                             echo "ndk.dir="$NDK_HOME >> ${propertiesFile}
                         fi
                     '''
+          }
+        }
+
+        stage('Connect Android Emulators') {
+          steps {
+            sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'docker-compose-files_nexus\' |grep -Eo \'1[0-9]{2}.*\')
+do
+        echo  "found emulator with ip $i:${ADB_PORT}"
+        adb connect $i:${ADB_PORT}
+done
+'''
           }
         }
 
@@ -74,6 +86,25 @@ pipeline {
       }
     }
 
+    stage('Acceptance Tests') {
+      when {
+        expression {
+          params.AcceptanceTests
+        }
+
+      }
+      steps {
+        script {
+          last_started = env.STAGE_NAME
+        }
+
+        withGradle() {
+          sh './gradlew runAcceptanceTests'
+        }
+
+      }
+    }
+
     stage('Assemble') {
       steps {
         script {
@@ -96,6 +127,7 @@ pipeline {
   }
   environment {
     propertiesFile = 'local.properties'
+    ADB_PORT = '5555'
   }
   post {
     failure {

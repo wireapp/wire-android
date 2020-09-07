@@ -3,7 +3,7 @@ FROM openjdk:8
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get update && \
-    apt-get install -yq libc6 libstdc++6 zlib1g libncurses5 build-essential libssl-dev ruby ruby-dev --no-install-recommends && \
+    apt-get install -yq libc6 libstdc++6 zlib1g libncurses5 build-essential libssl-dev ruby ruby-dev --no-install-recommends docker.io && \
     apt-get clean
 
 RUN gem install bundler
@@ -14,9 +14,7 @@ RUN apt-get clean
 ARG USER=android-agent
 ARG USER_ID=1000
 ARG GROUP_ID=1000
-# default password for user
-ARG USER_PASSWORD=1234567890
-RUN useradd -m ${USER} --uid=${USER_ID} && echo "${USER}:${USER_PASSWORD}" | chpasswd
+RUN useradd -m ${USER} --uid=${USER_ID}
 USER ${USER_ID}:${GROUP_ID}
 WORKDIR /home/${USER}
 ENV HOME /home/${USER}
@@ -43,5 +41,5 @@ ARG ARCHITECTURE=x86
 RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
 
 # Update and install using sdkmanager
-RUN $ANDROID_HOME/tools/bin/sdkmanager "tools" "platform-tools" "build-tools;${BUILD_TOOLS_VERSION}" "platforms;${PLATFORMS_VERSION}" "emulator" "system-images;${PLATFORMS_VERSION};default;${ARCHITECTURE}" "extras;android;m2repository" "extras;google;m2repository" "ndk-bundle"
+RUN $ANDROID_HOME/tools/bin/sdkmanager "tools" "platform-tools" "build-tools;${BUILD_TOOLS_VERSION}" "platforms;${PLATFORMS_VERSION}" "system-images;${PLATFORMS_VERSION};default;${ARCHITECTURE}" "extras;android;m2repository" "extras;google;m2repository" "ndk-bundle"
 

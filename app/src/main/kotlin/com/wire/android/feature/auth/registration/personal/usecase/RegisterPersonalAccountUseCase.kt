@@ -8,9 +8,12 @@ import com.wire.android.core.exception.NotFound
 import com.wire.android.core.functional.Either
 import com.wire.android.core.usecase.UseCase
 import com.wire.android.feature.auth.registration.RegistrationRepository
+import com.wire.android.shared.activeusers.ActiveUsersRepository
+import kotlinx.coroutines.runBlocking
 
 class RegisterPersonalAccountUseCase(
-    private val registrationRepository: RegistrationRepository
+    private val registrationRepository: RegistrationRepository,
+    private val activeUsersRepository: ActiveUsersRepository
 ) : UseCase<Unit, RegisterPersonalAccountParams> {
 
     override suspend fun run(params: RegisterPersonalAccountParams): Either<Failure, Unit> = with(params) {
@@ -21,7 +24,12 @@ class RegisterPersonalAccountUseCase(
                 is Conflict -> Either.Left(EmailInUse)
                 else -> Either.Left(it)
             }
-        }) { Either.Right(it) }!!
+        }) {
+            //TODO: find a suspendable Either solution
+            runBlocking {
+                activeUsersRepository.saveActiveUser(it)
+            }
+        }!!
     }
 }
 

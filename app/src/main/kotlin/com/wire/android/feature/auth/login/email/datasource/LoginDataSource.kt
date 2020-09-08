@@ -8,6 +8,6 @@ import com.wire.android.feature.auth.login.email.datasource.remote.LoginRemoteDa
 
 class LoginDataSource(private val remoteDataSource: LoginRemoteDataSource) : LoginRepository {
 
-    override suspend fun loginWithEmail(email: String, password: String): Either<Failure, Unit> =
-        remoteDataSource.loginWithEmail(email = email, password = password).map { Unit }
+    override suspend fun loginWithEmail(email: String, password: String): Either<Failure, String> =
+        remoteDataSource.loginWithEmail(email = email, password = password).map { it.userId }
 }

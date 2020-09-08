@@ -30,7 +30,7 @@ class RegistrationDataSourceTest : UnitTest() {
     @Test
     fun `given credentials, when registerPersonalAccount() is called, then calls remote data source with  credentials`() {
         runBlocking {
-            val userResponse = mock(UserResponse::class.java)
+            val userResponse = mockUserResponse()
             `when`(remoteDataSource.registerPersonalAccount(any(), any(), any(), any())).thenReturn(Either.Right(userResponse))
 
             registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
@@ -42,14 +42,16 @@ class RegistrationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given registerPersonalAccount() is called, when remote data source returns success, then returns success`() {
+    fun `given registerPersonalAccount() is called, when remote data source returns a UserResponse, then returns the user's id`() {
         runBlocking {
-            val userResponse = mock(UserResponse::class.java)
+            val userResponse = mockUserResponse()
             `when`(remoteDataSource.registerPersonalAccount(any(), any(), any(), any())).thenReturn(Either.Right(userResponse))
 
             val result = registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            result.assertRight()
+            result.assertRight {
+                assertThat(it).isEqualTo(TEST_USER_ID)
+            }
         }
     }
 
@@ -72,5 +74,10 @@ class RegistrationDataSourceTest : UnitTest() {
         private const val TEST_EMAIL = "test@wire.com"
         private const val TEST_PASSWORD = "abc123!"
         private const val TEST_ACTIVATION_CODE = "123456"
+        private const val TEST_USER_ID = "1234ds-dkfsdf-324"
+
+        private fun mockUserResponse() = mock(UserResponse::class.java).also {
+            lenient().`when`(it.id).thenReturn(TEST_USER_ID)
+        }
     }
 }

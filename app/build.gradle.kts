@@ -3,6 +3,7 @@ plugins {
     id(BuildPlugins.androidApplication)
     id(BuildPlugins.kotlinAndroid)
     id(BuildPlugins.kotlinAndroidExtensions)
+    id(BuildPlugins.kotlinKapt)
 
     // Internal Script plugins
     id(ScriptPlugins.variants)
@@ -23,6 +24,11 @@ android {
     }
 
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
+
+    packagingOptions {
+        pickFirst("META-INF/AL2.0")
+        pickFirst("META-INF/LGPL2.1")
+    }
 }
 
 dependencies {
@@ -45,6 +51,10 @@ dependencies {
     implementation(Libraries.Retrofit.gsonConverter)
     implementation(Libraries.okHttpLogging)
 
+    implementation(Libraries.Room.runtime)
+    implementation(Libraries.Room.ktx)
+    kapt(Libraries.Room.compiler)
+
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.mockito)
@@ -60,9 +70,12 @@ dependencies {
     androidTestImplementation(TestLibraries.Espresso.accessibility)
     androidTestImplementation(TestLibraries.testExtJunit)
     androidTestImplementation(TestLibraries.testRules)
-    androidTestImplementation(TestLibraries.mockitoAndroid)
+    androidTestImplementation(TestLibraries.mockitoAndroid) {
+        exclude(module = "mockito-core")
+    }
     androidTestImplementation(TestLibraries.uiAutomator)
     androidTestImplementation(TestLibraries.assertJ)
+    androidTestImplementation(TestLibraries.coroutinesTest)
 
     // Development dependencies
     debugImplementation(DevLibraries.fragmentTesting)

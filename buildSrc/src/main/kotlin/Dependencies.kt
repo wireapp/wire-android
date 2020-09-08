@@ -9,6 +9,7 @@ object BuildPlugins {
     const val androidApplication = "com.android.application"
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
+    const val kotlinKapt = "kotlin-kapt"
 }
 
 object AndroidSdk {
@@ -35,6 +36,7 @@ object Libraries {
         const val okHttpLogging = "4.7.2"
         const val pinEditText = "1.2.3"
         const val viewPager2 = "1.0.0"
+        const val room = "2.2.5"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -61,6 +63,12 @@ object Libraries {
     object Retrofit {
         const val core          = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
         const val gsonConverter = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
+    }
+
+    object Room {
+        const val runtime  = "androidx.room:room-runtime:${Versions.room}"
+        const val ktx      = "androidx.room:room-ktx:${Versions.room}"
+        const val compiler = "androidx.room:room-compiler:${Versions.room}"
     }
 }
 

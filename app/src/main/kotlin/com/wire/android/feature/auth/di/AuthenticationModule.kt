@@ -67,7 +67,7 @@ private val createPersonalAccountModule = module {
     viewModel { CreatePersonalAccountNameViewModel(get(), get()) }
 
     viewModel { CreatePersonalAccountPasswordViewModel(get(), get(), get()) }
-    factory { RegisterPersonalAccountUseCase(get()) }
+    factory { RegisterPersonalAccountUseCase(get(), get()) }
 }
 
 private val createProAccountModule = module {
@@ -80,7 +80,8 @@ private val createProAccountModule = module {
 private val loginModule = module {
     viewModel { LoginViewModel(get()) }
     viewModel { LoginWithEmailViewModel(get(), get(), get()) }
-    factory { LoginWithEmailUseCase(get()) }
+    factory { LoginWithEmailUseCase(get(), get()) }
+
     single<LoginRepository> { LoginDataSource(get()) }
     single { LoginRemoteDataSource(get(), get(), get()) }
     factory { get<NetworkClient>().create(LoginApi::class.java) }

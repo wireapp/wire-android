@@ -3,7 +3,7 @@ package scripts
 import BuildPlugins
 import scripts.Variants_gradle.BuildTypes
 import scripts.Variants_gradle.ProductFlavors
-import java.util.*
+import java.util.Properties
 
 private object Default {
     const val BUILD_TYPE = BuildTypes.DEBUG
@@ -57,7 +57,7 @@ tasks.register("runApp", Exec::class) {
         val adb = "${sdkDir}/platform-tools/adb"
 
         val applicationPackage = "com.wire.android.${Default.BUILD_FLAVOR}.${Default.BUILD_TYPE}"
-        val launchActivity = "com.wire.android.feature.welcome.WelcomeActivity"
+        val launchActivity = "com.wire.android.feature.launch.ui.LauncherActivity"
 
         commandLine(adb, "shell", "am", "start", "-n", "${applicationPackage}/${launchActivity}")
     }

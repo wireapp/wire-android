@@ -33,10 +33,7 @@ class CreateAccountActivityUITest : FunctionalActivityTest(CreateAccountActivity
         onView(withId(R.id.createPersonalAccountTitleTextView)).perform(click())
 
         onView(withText(R.string.create_personal_account_title)).check(matches(isDisplayed()))
-        onView(withText(R.string.authentication_tab_layout_title_email)).check(matches(isDisplayed()))
-        onView(withText(R.string.authentication_tab_layout_title_phone)).check(matches(isDisplayed()))
-
-        //TODO: check whether Email entry area is visible
+        onView(withHint(R.string.text_input_layout_email_hint)).check(matches(isDisplayed()))
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import android.os.Bundle
 import android.view.View
@@ -13,14 +13,14 @@ import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.extension.withArgs
 import com.wire.android.core.ui.arg
-import kotlinx.android.synthetic.main.fragment_create_personal_account_email_name.*
+import kotlinx.android.synthetic.main.fragment_create_personal_account_name.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class CreatePersonalAccountEmailNameFragment : Fragment(R.layout.fragment_create_personal_account_email_name) {
+class CreatePersonalAccountNameFragment : Fragment(R.layout.fragment_create_personal_account_name) {
 
     private val inputFocusViewModel: InputFocusViewModel by viewModel()
 
-    private val nameViewModel: CreatePersonalAccountEmailNameViewModel by viewModel()
+    private val nameViewModel: CreatePersonalAccountNameViewModel by viewModel()
 
     private val email by arg<String>(KEY_EMAIL)
     private val activationCode by arg<String>(KEY_ACTIVATION_CODE)
@@ -35,31 +35,31 @@ class CreatePersonalAccountEmailNameFragment : Fragment(R.layout.fragment_create
     }
 
     private fun setUpAccessibilityHeading() =
-        createPersonalAccountWithEmailNameTitleTextView.headingForAccessibility()
+        createPersonalAccountNameTitleTextView.headingForAccessibility()
 
-    private fun initConfirmationButton() = createPersonalAccountEmailNameConfirmationButton.setOnClickListener {
-        showPasswordScreen(createPersonalAccountEmailNameEditText.text.toStringOrEmpty())
+    private fun initConfirmationButton() = createPersonalAccountNameConfirmationButton.setOnClickListener {
+        showPasswordScreen(createPersonalAccountNameEditText.text.toStringOrEmpty())
     }
 
     private fun observeButtonStatus() {
         nameViewModel.continueEnabled.observe(viewLifecycleOwner) {
-            createPersonalAccountEmailNameConfirmationButton.isEnabled = it
+            createPersonalAccountNameConfirmationButton.isEnabled = it
         }
     }
 
     private fun initNameChangedListener() {
-        createPersonalAccountEmailNameEditText.doAfterTextChanged {
+        createPersonalAccountNameEditText.doAfterTextChanged {
             nameViewModel.validateName(it.toStringOrEmpty())
         }
     }
 
     private fun requestInitialFocus() {
-        if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountEmailNameEditText)
+        if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountNameEditText)
     }
 
     private fun showPasswordScreen(name: String) = replaceFragment(
         R.id.createAccountLayoutContainer,
-        CreatePersonalAccountEmailPasswordFragment.newInstance(name = name, email = email, activationCode = activationCode)
+        CreatePersonalAccountPasswordFragment.newInstance(name = name, email = email, activationCode = activationCode)
     )
 
     companion object {
@@ -67,7 +67,7 @@ class CreatePersonalAccountEmailNameFragment : Fragment(R.layout.fragment_create
         private const val KEY_ACTIVATION_CODE = "activationCode"
 
         fun newInstance(email: String, activationCode: String) =
-            CreatePersonalAccountEmailNameFragment().withArgs(
+            CreatePersonalAccountNameFragment().withArgs(
                 KEY_EMAIL to email, KEY_ACTIVATION_CODE to activationCode
             )
     }

@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email.usecase
+package com.wire.android.feature.auth.registration.personal.usecase
 
 import com.wire.android.UnitTest
 import com.wire.android.any
@@ -17,16 +17,16 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.*
 
-class RegisterPersonalAccountWithEmailUseCaseTest : UnitTest() {
+class RegisterPersonalAccountUseCaseTest : UnitTest() {
 
     @Mock
     private lateinit var repository: RegistrationRepository
 
-    private lateinit var useCase: RegisterPersonalAccountWithEmailUseCase
+    private lateinit var useCase: RegisterPersonalAccountUseCase
 
     @Before
     fun setUp() {
-        useCase = RegisterPersonalAccountWithEmailUseCase(repository)
+        useCase = RegisterPersonalAccountUseCase(repository)
     }
 
     @Test
@@ -35,7 +35,7 @@ class RegisterPersonalAccountWithEmailUseCaseTest : UnitTest() {
             mockRepositoryResponse(Either.Right(Unit))
             useCase.run(params)
 
-            verify(repository).registerPersonalAccountWithEmail(
+            verify(repository).registerPersonalAccount(
                 name = TEST_NAME, email = TEST_EMAIL, password = TEST_PASSWORD, activationCode = TEST_ACTIVATION_CODE
             )
         }
@@ -107,7 +107,7 @@ class RegisterPersonalAccountWithEmailUseCaseTest : UnitTest() {
 
     private fun mockRepositoryResponse(response: Either<Failure, Unit>) {
         runBlocking {
-            `when`(repository.registerPersonalAccountWithEmail(any(), any(), any(), any())).thenReturn(response)
+            `when`(repository.registerPersonalAccount(any(), any(), any(), any())).thenReturn(response)
         }
     }
 
@@ -116,6 +116,6 @@ class RegisterPersonalAccountWithEmailUseCaseTest : UnitTest() {
         private const val TEST_EMAIL = "email"
         private const val TEST_PASSWORD = "password"
         private const val TEST_ACTIVATION_CODE = "123456"
-        private val params = EmailRegistrationParams(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        private val params = RegisterPersonalAccountParams(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
     }
 }

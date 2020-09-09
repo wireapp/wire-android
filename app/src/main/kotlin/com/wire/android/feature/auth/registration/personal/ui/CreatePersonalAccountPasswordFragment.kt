@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.email
+package com.wire.android.feature.auth.registration.personal.ui
 
 import android.os.Bundle
 import android.view.View
@@ -17,13 +17,13 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.arg
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
-import kotlinx.android.synthetic.main.fragment_create_personal_account_email_password.*
+import kotlinx.android.synthetic.main.fragment_create_personal_account_password.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_create_personal_account_email_password) {
+class CreatePersonalAccountPasswordFragment : Fragment(R.layout.fragment_create_personal_account_password) {
 
-    private val passwordViewModel: CreatePersonalAccountEmailPasswordViewModel by viewModel()
+    private val passwordViewModel: CreatePersonalAccountPasswordViewModel by viewModel()
 
     private val inputFocusViewModel : InputFocusViewModel by viewModel()
 
@@ -32,7 +32,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
     private val name by arg<String>(KEY_NAME)
     private val email by arg<String>(KEY_EMAIL)
     private val activationCode by arg<String>(KEY_ACTIVATION_CODE)
-    private val password: String get() = createPersonalAccountEmailPasswordEditText.text.toStringOrEmpty()
+    private val password: String get() = createPersonalAccountPasswordEditText.text.toStringOrEmpty()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,11 +48,11 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
     }
 
     private fun setUpAccessibilityHeading() =
-        createPersonalAccountWithEmailPasswordTitleTextView.headingForAccessibility()
+        createPersonalAccountPasswordTitleTextView.headingForAccessibility()
 
     private fun observePasswordValidationData() {
         passwordViewModel.continueEnabledLiveData.observe(viewLifecycleOwner) {
-            createPersonalAccountEmailPasswordConfirmationButton.isEnabled = it
+            createPersonalAccountPasswordConfirmationButton.isEnabled = it
         }
     }
 
@@ -70,16 +70,16 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
     }
 
     private fun initPasswordChangedListener() {
-        createPersonalAccountEmailPasswordEditText.doAfterTextChanged {
+        createPersonalAccountPasswordEditText.doAfterTextChanged {
             passwordViewModel.validatePassword(it.toStringOrEmpty())
         }
     }
 
     private fun initConfirmationButton() =
-        createPersonalAccountEmailPasswordConfirmationButton.setOnClickListener { registerNewUser() }
+        createPersonalAccountPasswordConfirmationButton.setOnClickListener { registerNewUser() }
 
     private fun requestInitialFocus() {
-        if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountEmailPasswordEditText)
+        if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountPasswordEditText)
     }
 
     private fun registerNewUser() =
@@ -98,7 +98,7 @@ class CreatePersonalAccountEmailPasswordFragment : Fragment(R.layout.fragment_cr
         private const val KEY_ACTIVATION_CODE = "activationCode"
 
         fun newInstance(name: String, email: String, activationCode: String) =
-            CreatePersonalAccountEmailPasswordFragment().withArgs(
+            CreatePersonalAccountPasswordFragment().withArgs(
                 KEY_NAME to name,
                 KEY_EMAIL to email,
                 KEY_ACTIVATION_CODE to activationCode

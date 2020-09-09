@@ -30,7 +30,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
     private lateinit var localeConfig: LocaleConfig
 
     @Captor
-    private lateinit var registerPersonalAccountWithEmailRequestCaptor: ArgumentCaptor<RegisterPersonalAccountWithEmailRequest>
+    private lateinit var registerPersonalAccountRequestCaptor: ArgumentCaptor<RegisterPersonalAccountRequest>
 
     private lateinit var remoteDataSource: RegistrationRemoteDataSource
 
@@ -42,14 +42,14 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given credentials, when registerPersonalAccountWithEmail() is called, calls the api with correct params`() {
+    fun `given credentials, when registerPersonalAccount() is called, calls the api with correct params`() {
         runBlocking {
-            mockUserResponse().let { `when`(api.register(any())).thenReturn(it) }
+            mockUserResponse().let { `when`(api.registerPersonalAccount(any())).thenReturn(it) }
 
-            remoteDataSource.registerPersonalAccountWithEmail(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            verify(api).register(capture(registerPersonalAccountWithEmailRequestCaptor))
-            registerPersonalAccountWithEmailRequestCaptor.value.let {
+            verify(api).registerPersonalAccount(capture(registerPersonalAccountRequestCaptor))
+            registerPersonalAccountRequestCaptor.value.let {
                 assertThat(it.name).isEqualTo(TEST_NAME)
                 assertThat(it.email).isEqualTo(TEST_EMAIL)
                 assertThat(it.password).isEqualTo(TEST_PASSWORD)
@@ -61,15 +61,15 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given registerPersonalAccountWithEmail() is called, when api returns UserResponse, returns success with UserResponse`() {
+    fun `given registerPersonalAccount() is called, when api returns UserResponse, returns success with UserResponse`() {
         runBlocking {
             val userResponse = mock(UserResponse::class.java)
             mockUserResponse().let {
                 `when`(it.body()).thenReturn(userResponse)
-                `when`(api.register(any())).thenReturn(it)
+                `when`(api.registerPersonalAccount(any())).thenReturn(it)
             }
 
-            val result = remoteDataSource.registerPersonalAccountWithEmail(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            val result = remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             result.assertRight {
                 assertThat(it).isEqualTo(userResponse)
@@ -78,14 +78,14 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given registerPersonalAccountWithEmail() is called, when api returns error, returns failure`() {
+    fun `given registerPersonalAccount() is called, when api returns error, returns failure`() {
         runBlocking {
             val response = mockUserResponse(successful = false)
             `when`(response.code()).thenReturn(400)
 
-            `when`(api.register(any())).thenReturn(response)
+            `when`(api.registerPersonalAccount(any())).thenReturn(response)
 
-            val result = remoteDataSource.registerPersonalAccountWithEmail(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            val result = remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             assertThat(result.isLeft).isTrue()
         }

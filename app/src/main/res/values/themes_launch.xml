@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme.Launch">
+        <item name="android:colorBackground">@color/black</item>
+        <item name="android:windowBackground">@drawable/launcher_window_backgroud</item>
+    </style>
+
+</resources>

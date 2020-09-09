@@ -8,6 +8,6 @@ import org.koin.dsl.module
 
 val activeUsersModule = module {
     single<ActiveUsersRepository> { ActiveUsersDataSource(get()) }
-    single { ActiveUsersLocalDataSource(get()) }
+    single { ActiveUsersLocalDataSource(get(), get()) }
     factory { get<GlobalDatabase>().activeUsersDao() }
 }

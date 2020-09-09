@@ -50,6 +50,20 @@ class ActiveUsersDataSourceTest : UnitTest() {
         }
     }
 
+    @Test
+    fun `given hasActiveUser is called, when localDataSource returns null user id, then returns false`() {
+        `when`(localDataSource.activeUserId()).thenReturn(null)
+
+        assertThat(activeUsersDataSource.hasActiveUser()).isFalse()
+    }
+
+    @Test
+    fun `given hasActiveUser is called, when localDataSource returns a user id, then returns true`() {
+        `when`(localDataSource.activeUserId()).thenReturn(TEST_USER_ID)
+
+        assertThat(activeUsersDataSource.hasActiveUser()).isTrue()
+    }
+
     companion object {
         private const val TEST_USER_ID = "asd123fkgj"
     }

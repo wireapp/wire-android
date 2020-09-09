@@ -32,6 +32,8 @@
             android:name=".feature.auth.login.LoginActivity"
             android:theme="@style/AppTheme.Authentication" />
 
+        <activity android:name=".feature.conversation.list.MainActivity" />
+
     </application>
 
 </manifest>

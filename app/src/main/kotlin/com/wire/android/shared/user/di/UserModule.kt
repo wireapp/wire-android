@@ -1,5 +1,6 @@
 package com.wire.android.shared.user.di
 
+import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 import com.wire.android.shared.user.name.ValidateNameUseCase
 import com.wire.android.shared.user.password.PasswordLengthConfig
 import com.wire.android.shared.user.password.ValidatePasswordUseCase
@@ -10,4 +11,6 @@ val userModule = module {
     factory { ValidatePasswordUseCase(get()) }
 
     factory { PasswordLengthConfig() }
+
+    factory { GetActiveUserUseCase() }
 }

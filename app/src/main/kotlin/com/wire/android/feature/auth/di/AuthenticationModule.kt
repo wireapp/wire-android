@@ -31,11 +31,10 @@ import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNam
 import com.wire.android.shared.auth.remote.LabelGenerator
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import org.koin.android.viewmodel.dsl.viewModel
-import org.koin.core.module.Module
 import org.koin.dsl.module
 
-val authenticationModules: List<Module>
-    get() = listOf(
+val authenticationModules
+    get() = arrayOf(
         authenticationCommonModule,
         createAccountModule,
         createPersonalAccountModule,

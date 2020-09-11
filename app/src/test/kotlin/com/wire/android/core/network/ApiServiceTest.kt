@@ -72,7 +72,7 @@ class ApiServiceTest : UnitTest() {
             `when`(response.isSuccessful).thenReturn(true)
             `when`(response.body()).thenReturn(TEST_BODY)
 
-            val result = apiService.request(default = null, call = ::testCall)
+            val result = apiService.request(default = TEST_DEFAULT_ARGUMENT, call = ::testCall)
 
             result.assertRight { assertThat(it).isEqualTo(TEST_BODY) }
         }

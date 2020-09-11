@@ -13,6 +13,7 @@ import com.wire.android.core.exception.ServerError
 import com.wire.android.core.exception.TooManyRequests
 import com.wire.android.core.exception.Unauthorized
 import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.flatMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,21 +22,26 @@ import retrofit2.Response
 abstract class ApiService {
     abstract val networkHandler: NetworkHandler
 
-    suspend fun <T> request(default: T? = null, call: suspend () -> Response<T>): Either<Failure, T> =
+    suspend fun <T> rawRequest(call: suspend () -> Response<T>): Either<Failure, Response<T>> =
         withContext(Dispatchers.IO) {
             return@withContext when (networkHandler.isConnected) {
-                true -> performRequest(call, default)
+                true -> performRequest(call)
                 false, null -> Either.Left(NetworkConnection)
             }
         }
 
+    suspend fun <T> request(default: T? = null, call: suspend () -> Response<T>): Either<Failure, T> = rawRequest(call).flatMap {
+        it.body()?.let { Either.Right(it) }
+            ?: default?.let { Either.Right(it) }
+            ?: Either.Left(EmptyResponseBody)
+    }
+
     @Suppress("TooGenericExceptionCaught")
-    private suspend fun <T> performRequest(call: suspend () -> Response<T>, default: T? = null): Either<Failure, T> {
+    private suspend fun <T> performRequest(call: suspend () -> Response<T>): Either<Failure, Response<T>> {
         return try {
             val response = call()
             if (response.isSuccessful) {
-                response.body()?.let { Either.Right(it) }
-                    ?: (default?.let { Either.Right(it) } ?: Either.Left(EmptyResponseBody))
+                Either.Right(response)
             } else {
                 handleRequestError(response)
             }
@@ -47,7 +53,7 @@ abstract class ApiService {
         }
     }
 
-    private fun <T> handleRequestError(response: Response<T>): Either<Failure, T> {
+    private fun <T> handleRequestError(response: Response<T>): Either<Failure, Response<T>> {
         return when (response.code()) {
             CODE_BAD_REQUEST -> Either.Left(BadRequest)
             CODE_UNAUTHORIZED -> Either.Left(Unauthorized)

@@ -62,28 +62,32 @@ class EitherTest : UnitTest() {
         assertThat(result).isEqualTo(either)
     }
 
-    @Test(expected = TestBlockExecutionCheck::class)
+    @Test
     fun `given onFailure is called, when either is Left, invokes function with left value and returns original Either`() {
         either = Either.Left(12)
 
+        var methodCalled = false
         val result = either.onFailure {
             assertThat(it).isEqualTo(12)
-            throw TestBlockExecutionCheck()
+            methodCalled = true
         }
 
         assertThat(result).isEqualTo(either)
+        assertThat(methodCalled).isTrue()
     }
 
-    @Test(expected = TestBlockExecutionCheck::class)
+    @Test
     fun `given onSuccess is called, when either is Right, invokes function with right value and returns original Either`() {
         either = Either.Right("Right")
 
+        var methodCalled = false
         val result = either.onSuccess {
             assertThat(it).isEqualTo("Right")
-            throw TestBlockExecutionCheck()
+            methodCalled = true
         }
 
         assertThat(result).isEqualTo(either)
+        assertThat(methodCalled).isTrue()
     }
 
     @Test
@@ -119,6 +123,4 @@ class EitherTest : UnitTest() {
 
         assertThat(result).isEqualTo(either)
     }
-
-    private class TestBlockExecutionCheck : Exception()
 }

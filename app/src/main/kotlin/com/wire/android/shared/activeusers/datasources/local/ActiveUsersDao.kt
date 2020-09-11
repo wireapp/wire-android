@@ -11,6 +11,6 @@ interface ActiveUsersDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: ActiveUserEntity)
 
-    @Query("SELECT * from ActiveUsers")
+    @Query("SELECT * from active_user")
     suspend fun activeUsers(): List<ActiveUserEntity>
 }

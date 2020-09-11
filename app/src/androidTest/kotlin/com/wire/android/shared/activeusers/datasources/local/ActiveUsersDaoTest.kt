@@ -28,13 +28,13 @@ class ActiveUsersDaoTest : DatabaseTest() {
     }
 
     @Test
-    fun insert_canBeReadByActiveAccounts() = runTest {
+    fun insertEntity_readActiveUsers_containsInsertedItem() = runTest {
         val entity = ActiveUserEntity(TEST_USER_ID)
 
         activeUsersDao.insert(entity)
         val activeUsers = activeUsersDao.activeUsers()
 
-        assertThat(entity).isEqualTo(activeUsers[0])
+        assertThat(entity).isEqualTo(activeUsers.first())
     }
 
     //TODO: add insert replace strategy test

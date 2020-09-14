@@ -26,10 +26,7 @@ class ActiveUserLocalDataSourceTest : UnitTest() {
 
     @Before
     fun setUp() {
-        activeUserLocalDataSource = ActiveUserLocalDataSource(
-            activeUserDao,
-            globalPreferences
-        )
+        activeUserLocalDataSource = ActiveUserLocalDataSource(activeUserDao, globalPreferences)
     }
 
     @Test
@@ -53,7 +50,6 @@ class ActiveUserLocalDataSourceTest : UnitTest() {
 
     companion object {
         private const val TEST_USER_ID = "3324flkdnvdf"
-        private val ACTIVE_USER_ENTITY =
-            ActiveUserEntity(TEST_USER_ID)
+        private val ACTIVE_USER_ENTITY = ActiveUserEntity(TEST_USER_ID)
     }
 }

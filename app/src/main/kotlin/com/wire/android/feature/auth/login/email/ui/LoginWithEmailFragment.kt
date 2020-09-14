@@ -6,12 +6,13 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
+import com.wire.android.core.extension.clearStack
 import com.wire.android.core.extension.toStringOrEmpty
-import com.wire.android.core.extension.toast
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
+import com.wire.android.feature.conversation.list.MainActivity
 import kotlinx.android.synthetic.main.fragment_login_with_email.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -57,8 +58,7 @@ class LoginWithEmailFragment : Fragment(R.layout.fragment_login_with_email) {
     private fun observeLoginResult() {
         viewModel.loginResultLiveData.observe(viewLifecycleOwner) {
             it.onSuccess {
-                //TODO navigate
-                toast("Success!")
+                startActivity(MainActivity.newIntent(requireContext()).clearStack())
             }.onFailure(::showErrorDialog)
         }
     }

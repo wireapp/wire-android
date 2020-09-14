@@ -1,3 +1,5 @@
+@file:Suppress("SpreadOperator")
+
 package com.wire.android.core.di
 
 import android.content.Context
@@ -5,6 +7,7 @@ import com.wire.android.core.network.di.networkModule
 import com.wire.android.core.storage.db.di.databaseModule
 import com.wire.android.feature.auth.di.authenticationModules
 import com.wire.android.shared.activeusers.di.activeUsersModule
+import com.wire.android.feature.conversation.list.conversationsModule
 import com.wire.android.shared.user.di.userModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -32,7 +35,7 @@ object Injector {
      * Feature modules should contain dependencies that build up specific
      * features and don't tend to live outside of that feature
      */
-    private val featureModules: List<Module> = listOf(authenticationModules).flatten()
+    private val featureModules: List<Module> = listOf(*authenticationModules, conversationsModule)
 
     fun start(context: Context) {
         startKoin {

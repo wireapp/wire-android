@@ -70,4 +70,6 @@
     <string name="login_too_frequent_failure_message">Please try to log in later.</string>
 
     <string name="login_forgot_password">Forgot Password</string>
+
+    <string name="conversation_list_welcome_text">Welcome %s!</string>
 </resources>

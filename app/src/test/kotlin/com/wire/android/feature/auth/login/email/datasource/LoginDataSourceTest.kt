@@ -28,7 +28,7 @@ class LoginDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given email and password, when loginWithEmail is called, then calls remoteDataSource with given credentials`() {
+    fun `given loginWithEmail is called, then calls remoteDataSource with given credentials`() {
         runBlocking {
             `when`(loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL, password = TEST_PASSWORD))
                 .thenReturn(Either.Right(LOGIN_WITH_EMAIL_RESPONSE))
@@ -40,18 +40,19 @@ class LoginDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given remoteDataSource returns success, when loginWithEmail is called, then returns success`() {
+    fun `given loginWithEmail is called, when remoteDataSource returns a response, then returns the user id from response`() {
         runBlocking {
-            `when`(loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(LOGIN_WITH_EMAIL_RESPONSE))
+            `when`(loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL, password = TEST_PASSWORD))
+                .thenReturn(Either.Right(LOGIN_WITH_EMAIL_RESPONSE))
 
-            val result = loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
-
-            result.assertRight()
+            loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD).assertRight {
+                assertThat(it).isEqualTo(TEST_USER_ID)
+            }
         }
     }
 
     @Test
-    fun `given remoteDataSource returns a failure, when loginWithEmail is called, then returns that failure`() {
+    fun `given loginWithEmail is called, when remoteDataSource returns a failure, then returns that failure`() {
         runBlocking {
             `when`(loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Left(ServerError))
 
@@ -66,10 +67,11 @@ class LoginDataSourceTest : UnitTest() {
     companion object {
         private const val TEST_EMAIL = "test@wire.com"
         private const val TEST_PASSWORD = "123456"
+        private const val TEST_USER_ID = "123wierkfjkl"
         private val LOGIN_WITH_EMAIL_RESPONSE = LoginWithEmailResponse(
             expiresIn = 900,
             accessToken = "AccessToken",
-            userId = "123",
+            userId = TEST_USER_ID,
             tokenType = "Bearer"
         )
     }

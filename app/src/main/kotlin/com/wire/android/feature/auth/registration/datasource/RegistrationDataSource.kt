@@ -10,10 +10,7 @@ class RegistrationDataSource(private val remoteDataSource: RegistrationRemoteDat
 
     override suspend fun registerPersonalAccount(
         name: String, email: String, password: String, activationCode: String
-    ): Either<Failure, Unit> =
+    ): Either<Failure, String> =
         remoteDataSource.registerPersonalAccount(name = name, email = email, password = password, activationCode = activationCode)
-            .map {
-                //TODO save user locally, etc.
-                Unit
-            }
+            .map { it.id }
 }

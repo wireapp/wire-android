@@ -7,8 +7,13 @@ import com.wire.android.core.exception.TooManyRequests
 import com.wire.android.core.functional.Either
 import com.wire.android.core.usecase.UseCase
 import com.wire.android.feature.auth.login.email.LoginRepository
+import com.wire.android.shared.activeusers.ActiveUsersRepository
+import kotlinx.coroutines.runBlocking
 
-class LoginWithEmailUseCase(private val loginRepository: LoginRepository) : UseCase<Unit, LoginWithEmailUseCaseParams> {
+class LoginWithEmailUseCase(
+    private val loginRepository: LoginRepository,
+    private val activeUsersRepository: ActiveUsersRepository
+) : UseCase<Unit, LoginWithEmailUseCaseParams> {
 
     override suspend fun run(params: LoginWithEmailUseCaseParams): Either<Failure, Unit> =
         loginRepository.loginWithEmail(email = params.email, password = params.password).fold({
@@ -18,7 +23,12 @@ class LoginWithEmailUseCase(private val loginRepository: LoginRepository) : UseC
                 TooManyRequests -> Either.Left(LoginTooFrequentFailure)
                 else -> Either.Left(it)
             }
-        }) { Either.Right(Unit) }!!
+        }) {
+            //TODO: find a suspendable Either solution
+            runBlocking {
+                activeUsersRepository.saveActiveUser(it)
+            }
+        }!!
 }
 
 data class LoginWithEmailUseCaseParams(val email: String, val password: String)

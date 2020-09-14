@@ -7,7 +7,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.wire.android.FunctionalActivityTest
 import com.wire.android.R
 import com.wire.android.core.extension.EMPTY
-import org.hamcrest.CoreMatchers
+import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.junit.Test
 
@@ -27,8 +27,8 @@ class CreateProAccountTeamEmailFragmentUITest : FunctionalActivityTest(
 
         onView(withId(R.id.createProAccountTeamEmailInputConfirmationButton))
             .check(matches(isDisplayed()))
-        onView(CoreMatchers.allOf(withId(R.id.createProAccountTeamEmailInputConfirmationButton)))
-            .check(matches(CoreMatchers.allOf(not(isEnabled()))))
+        onView(allOf(withId(R.id.createProAccountTeamEmailInputConfirmationButton)))
+            .check(matches(allOf(not(isEnabled()))))
     }
 
     @Test
@@ -46,7 +46,7 @@ class CreateProAccountTeamEmailFragmentUITest : FunctionalActivityTest(
             closeSoftKeyboard()
         )
         onView(withId(R.id.createProAccountTeamEmailInputConfirmationButton))
-            .check(matches(CoreMatchers.allOf(not(isEnabled()))))
+            .check(matches(allOf(not(isEnabled()))))
     }
 
     @Test
@@ -55,6 +55,6 @@ class CreateProAccountTeamEmailFragmentUITest : FunctionalActivityTest(
     }
 
     companion object {
-        private const val TEST_TEAM_EMAIL = "Team@wire.com"
+        private const val TEST_TEAM_EMAIL = "team@wire.com"
     }
 }

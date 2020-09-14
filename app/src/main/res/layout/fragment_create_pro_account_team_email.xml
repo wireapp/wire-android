@@ -46,7 +46,7 @@
         android:id="@+id/createProAccountTeamEmailTextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/create_pro_account_team_name_input_layout_margin_top"
+        android:layout_marginTop="@dimen/create_pro_account_team_email_input_layout_margin_top"
         app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

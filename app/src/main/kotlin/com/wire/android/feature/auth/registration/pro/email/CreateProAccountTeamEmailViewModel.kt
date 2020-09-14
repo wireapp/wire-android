@@ -25,15 +25,15 @@ class CreateProAccountTeamEmailViewModel(
         //TODO call team email use-case and return email
     }
 
-    fun afterTeamNameChanged(teamName: String) {
+    fun afterTeamEmailChanged(teamEmail: String) {
         //TODO call update team email use-case
     }
 
-    private fun handleSuccess(teamName: String) {
-        _teamEmailLiveData.value = teamName
+    private fun handleSuccess(teamEmail: String) {
+        _teamEmailLiveData.value = teamEmail
     }
 
-    fun onTeamNameTextChanged(teamNameInput: String) {
-        _confirmationButtonEnabled.value = teamNameInput.isNotEmpty()
+    fun onTeamEmailTextChanged(teamEmailInput: String) {
+        _confirmationButtonEnabled.value = teamEmailInput.isNotEmpty()
     }
 }

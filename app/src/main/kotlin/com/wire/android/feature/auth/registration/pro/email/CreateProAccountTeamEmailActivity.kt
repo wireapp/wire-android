@@ -9,9 +9,6 @@ class CreateProAccountTeamEmailActivity : AppCompatActivity(
     R.layout.activity_create_pro_account_team_email
 ) {
     companion object {
-        fun newIntent(context: Context) = Intent(
-            context,
-            CreateProAccountTeamEmailActivity::class.java
-        )
+        fun newIntent(context: Context) = Intent(context, CreateProAccountTeamEmailActivity::class.java)
     }
 }

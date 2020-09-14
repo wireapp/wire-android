@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
-import com.wire.android.core.extension.clearStack
 import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.openUrl
 import com.wire.android.core.extension.showKeyboardWithFocusOn
@@ -42,9 +41,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         with(createProAccountTeamNameInputConfirmationButton) {
             isEnabled = false
             setOnClickListener {
-                startActivity(
-                    CreateProAccountTeamEmailActivity.newIntent(requireContext()).clearStack()
-                )
+                startActivity(CreateProAccountTeamEmailActivity.newIntent(requireContext()))
             }
             createProAccountTeamNameViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
                 isEnabled = it

@@ -55,7 +55,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/createProAccountTeamEmailEditText"
-            style="@style/TextInputEditText.OutlinedBox"
+            style="@style/TextInputEditText.OutlinedBox.Email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/create_pro_account_set_team_email_hint" />

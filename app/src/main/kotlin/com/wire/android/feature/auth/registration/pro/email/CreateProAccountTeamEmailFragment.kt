@@ -54,5 +54,4 @@ class CreateProAccountTeamEmailFragment : Fragment(
             createProAccountTeamNameEditText
         )
     }
-
 }

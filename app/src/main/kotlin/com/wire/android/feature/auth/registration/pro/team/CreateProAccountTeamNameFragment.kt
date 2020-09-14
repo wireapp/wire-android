@@ -8,7 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
-import com.wire.android.core.extension.*
+import com.wire.android.core.extension.clearStack
+import com.wire.android.core.extension.headingForAccessibility
+import com.wire.android.core.extension.openUrl
+import com.wire.android.core.extension.showKeyboardWithFocusOn
+import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailActivity
 import kotlinx.android.synthetic.main.fragment_create_pro_account_team_name.*
 import org.koin.android.viewmodel.ext.android.viewModel

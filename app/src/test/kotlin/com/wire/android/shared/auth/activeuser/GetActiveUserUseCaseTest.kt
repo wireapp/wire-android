@@ -1,7 +1,7 @@
 package com.wire.android.shared.auth.activeuser
 
 import com.wire.android.UnitTest
-import com.wire.android.shared.activeusers.ActiveUsersRepository
+import com.wire.android.shared.activeuser.ActiveUserRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -12,28 +12,28 @@ import org.mockito.Mockito.verify
 class GetActiveUserUseCaseTest : UnitTest() {
 
     @Mock
-    private lateinit var activeUsersRepository: ActiveUsersRepository
+    private lateinit var activeUserRepository: ActiveUserRepository
 
     private lateinit var getActiveUserUseCase: GetActiveUserUseCase
 
     @Before
     fun setUp() {
-        getActiveUserUseCase = GetActiveUserUseCase(activeUsersRepository)
+        getActiveUserUseCase = GetActiveUserUseCase(activeUserRepository)
     }
 
     @Test
-    fun `given hasActiveUser is called, when activeUsersRepo returns true, then returns true`() {
-        `when`(activeUsersRepository.hasActiveUser()).thenReturn(true)
+    fun `given hasActiveUser is called, when activeUserRepository returns true, then returns true`() {
+        `when`(activeUserRepository.hasActiveUser()).thenReturn(true)
 
         assertThat(getActiveUserUseCase.hasActiveUser()).isTrue()
-        verify(activeUsersRepository).hasActiveUser()
+        verify(activeUserRepository).hasActiveUser()
     }
 
     @Test
-    fun `given hasActiveUser is called, when activeUsersRepo returns false, then returns false`() {
-        `when`(activeUsersRepository.hasActiveUser()).thenReturn(false)
+    fun `given hasActiveUser is called, when activeUserRepository returns false, then returns false`() {
+        `when`(activeUserRepository.hasActiveUser()).thenReturn(false)
 
         assertThat(getActiveUserUseCase.hasActiveUser()).isFalse()
-        verify(activeUsersRepository).hasActiveUser()
+        verify(activeUserRepository).hasActiveUser()
     }
 }

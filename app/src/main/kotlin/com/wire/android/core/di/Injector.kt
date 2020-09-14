@@ -8,7 +8,7 @@ import com.wire.android.core.storage.di.storageModule
 import com.wire.android.feature.auth.di.authenticationModules
 import com.wire.android.feature.conversation.list.conversationsModule
 import com.wire.android.feature.launch.di.launcherModule
-import com.wire.android.shared.activeusers.di.activeUsersModule
+import com.wire.android.shared.activeuser.di.activeUserModule
 import com.wire.android.shared.user.di.userModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -30,7 +30,7 @@ object Injector {
      * Shared modules should contain dependencies that can
      * build up multiple features
      */
-    private val sharedModules: List<Module> = listOf(userModule, activeUsersModule)
+    private val sharedModules: List<Module> = listOf(userModule, activeUserModule)
 
     /**
      * Feature modules should contain dependencies that build up specific

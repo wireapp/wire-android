@@ -1,4 +1,4 @@
-package com.wire.android.shared.activeusers.datasources.local
+package com.wire.android.shared.activeuser.datasources.local
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

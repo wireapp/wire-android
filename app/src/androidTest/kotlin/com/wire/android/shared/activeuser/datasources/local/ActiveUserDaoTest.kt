@@ -1,4 +1,4 @@
-package com.wire.android.shared.activeusers.datasources.local
+package com.wire.android.shared.activeuser.datasources.local
 
 import com.wire.android.core.storage.db.DatabaseTest
 import com.wire.android.core.storage.db.global.GlobalDatabase
@@ -10,15 +10,15 @@ import org.junit.Test
 import java.io.IOException
 
 @ExperimentalCoroutinesApi
-class ActiveUsersDaoTest : DatabaseTest() {
+class ActiveUserDaoTest : DatabaseTest() {
 
-    private lateinit var activeUsersDao: ActiveUsersDao
+    private lateinit var activeUserDao: ActiveUserDao
     private lateinit var globalDatabase: GlobalDatabase
 
     @Before
     fun setUp() {
         globalDatabase = buildDatabase()
-        activeUsersDao = globalDatabase.activeUsersDao()
+        activeUserDao = globalDatabase.activeUserDao()
     }
 
     @After
@@ -31,8 +31,8 @@ class ActiveUsersDaoTest : DatabaseTest() {
     fun insertEntity_readActiveUsers_containsInsertedItem() = runTest {
         val entity = ActiveUserEntity(TEST_USER_ID)
 
-        activeUsersDao.insert(entity)
-        val activeUsers = activeUsersDao.activeUsers()
+        activeUserDao.insert(entity)
+        val activeUsers = activeUserDao.activeUsers()
 
         assertThat(entity).isEqualTo(activeUsers.first())
     }

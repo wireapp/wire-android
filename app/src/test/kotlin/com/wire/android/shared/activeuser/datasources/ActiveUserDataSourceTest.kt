@@ -1,11 +1,11 @@
-package com.wire.android.shared.activeusers.datasources
+package com.wire.android.shared.activeuser.datasources
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.DatabaseFailure
 import com.wire.android.core.functional.Either
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
-import com.wire.android.shared.activeusers.datasources.local.ActiveUsersLocalDataSource
+import com.wire.android.shared.activeuser.datasources.local.ActiveUserLocalDataSource
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -14,16 +14,16 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 
-class ActiveUsersDataSourceTest : UnitTest() {
+class ActiveUserDataSourceTest : UnitTest() {
 
     @Mock
-    private lateinit var localDataSource: ActiveUsersLocalDataSource
+    private lateinit var localDataSource: ActiveUserLocalDataSource
 
-    private lateinit var activeUsersDataSource: ActiveUsersDataSource
+    private lateinit var activeUserDataSource: ActiveUserDataSource
 
     @Before
     fun setUp() {
-        activeUsersDataSource = ActiveUsersDataSource(localDataSource)
+        activeUserDataSource = ActiveUserDataSource(localDataSource)
     }
 
     @Test
@@ -31,7 +31,7 @@ class ActiveUsersDataSourceTest : UnitTest() {
         runBlocking {
             `when`(localDataSource.saveActiveUser(TEST_USER_ID)).thenReturn(Either.Right(Unit))
 
-            activeUsersDataSource.saveActiveUser(TEST_USER_ID).assertRight()
+            activeUserDataSource.saveActiveUser(TEST_USER_ID).assertRight()
 
             verify(localDataSource).saveActiveUser(TEST_USER_ID)
         }
@@ -43,7 +43,7 @@ class ActiveUsersDataSourceTest : UnitTest() {
             val failure = DatabaseFailure()
             `when`(localDataSource.saveActiveUser(TEST_USER_ID)).thenReturn(Either.Left(failure))
 
-            activeUsersDataSource.saveActiveUser(TEST_USER_ID).assertLeft {
+            activeUserDataSource.saveActiveUser(TEST_USER_ID).assertLeft {
                 assertThat(it).isEqualTo(failure)
             }
             verify(localDataSource).saveActiveUser(TEST_USER_ID)
@@ -54,14 +54,14 @@ class ActiveUsersDataSourceTest : UnitTest() {
     fun `given hasActiveUser is called, when localDataSource returns null user id, then returns false`() {
         `when`(localDataSource.activeUserId()).thenReturn(null)
 
-        assertThat(activeUsersDataSource.hasActiveUser()).isFalse()
+        assertThat(activeUserDataSource.hasActiveUser()).isFalse()
     }
 
     @Test
     fun `given hasActiveUser is called, when localDataSource returns a user id, then returns true`() {
         `when`(localDataSource.activeUserId()).thenReturn(TEST_USER_ID)
 
-        assertThat(activeUsersDataSource.hasActiveUser()).isTrue()
+        assertThat(activeUserDataSource.hasActiveUser()).isTrue()
     }
 
     companion object {

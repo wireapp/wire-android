@@ -12,5 +12,5 @@ val userModule = module {
 
     factory { PasswordLengthConfig() }
 
-    factory { GetActiveUserUseCase(get()) }
+    factory { GetActiveUserUseCase() }
 }

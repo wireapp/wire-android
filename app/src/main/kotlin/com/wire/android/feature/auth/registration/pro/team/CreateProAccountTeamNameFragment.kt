@@ -12,6 +12,7 @@ import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.openUrl
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.toStringOrEmpty
+import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailActivity
 import kotlinx.android.synthetic.main.fragment_create_pro_account_team_name.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -23,16 +24,16 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initTeamHeader()
-        initTeamInput()
+        initTeamNameHeader()
+        initTeamNameInput()
         initAboutButton()
         initConfirmationButton()
         observerUrlData()
-        observeTeamInput()
+        observeTeamNameInput()
         requestKeyboardFocus()
     }
 
-    private fun initTeamHeader() {
+    private fun initTeamNameHeader() {
         createProAccountTeamNameTitleTextView.headingForAccessibility()
     }
 
@@ -40,7 +41,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         with(createProAccountTeamNameInputConfirmationButton) {
             isEnabled = false
             setOnClickListener {
-                //TODO Go to team email screen
+                startActivity(CreateProAccountTeamEmailActivity.newIntent(requireContext()))
             }
             createProAccountTeamNameViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
                 isEnabled = it
@@ -57,7 +58,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
             openUrl(it)
         }
 
-    private fun initTeamInput() {
+    private fun initTeamNameInput() {
         createProAccountTeamNameEditText.doOnTextChanged { text, _, _, _ ->
             createProAccountTeamNameViewModel.onTeamNameTextChanged(text.toStringOrEmpty())
         }
@@ -67,10 +68,12 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
     }
 
     private fun requestKeyboardFocus() {
-        if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createProAccountTeamNameEditText)
+        if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(
+            createProAccountTeamNameEditText
+        )
     }
 
-    private fun observeTeamInput() =
+    private fun observeTeamNameInput() =
         with(createProAccountTeamNameViewModel) {
             teamNameLiveData.observe(viewLifecycleOwner) {
                 createProAccountTeamNameEditText.setText(it)

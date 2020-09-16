@@ -59,6 +59,10 @@
     <string name="create_pro_account_set_team_name_about">WHAT IS WIRE FOR TEAMS?</string>
     <string name="pro_account_creation_content_description">Create account selection. Professional account. Item 2 of 2.</string>
 
+    <string name="create_pro_account_set_team_email_title">Your account</string>
+    <string name="create_pro_account_set_team_email_subtitle">Enter your work email address.</string>
+    <string name="create_pro_account_set_team_email_hint">YOU@YOURCOMPANY.COM</string>
+
     <!-- Login -->
     <string name="login_header_title">Log in</string>
     <string name="login_tab_content_description">Log in with %1$s. Item %2$d of %3$d</string>

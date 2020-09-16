@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="@dimen/screen_padding"
+    android:paddingEnd="@dimen/screen_padding">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/createProAccountTeamEmailTopGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="@dimen/authentication_header_guideline_percent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/createProAccountTeamEmailInputGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="@dimen/create_account_editable_field_guideline_percent" />
+
+    <TextView
+        android:id="@+id/createProAccountTeamEmailTitleTextView"
+        style="@style/TextView.Authentication.Header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_pro_account_set_team_email_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createProAccountTeamEmailTopGuideline" />
+
+    <TextView
+        android:id="@+id/createProAccountTeamEmailSubtitleTextView"
+        style="@style/TextView.Authentication.Description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/create_pro_account_team_email_subtitle_margin_top"
+        android:gravity="center_horizontal"
+        android:text="@string/create_pro_account_set_team_email_subtitle"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamEmailTitleTextView" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/createProAccountTeamEmailTextInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/create_pro_account_team_email_input_layout_margin_top"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/createProAccountTeamEmailInputGuideline"
+        app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/createProAccountTeamEmailEditText"
+            style="@style/TextInputEditText.OutlinedBox.Email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/create_pro_account_set_team_email_hint" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/createProAccountTeamEmailInputConfirmationButton"
+        style="@style/Button.Primary.Circle.Confirmation"
+        android:layout_marginTop="@dimen/authentication_confirmation_button_margin_top"
+        android:layout_marginEnd="@dimen/authentication_confirmation_button_margin_end"
+        app:icon="@drawable/ic_arrow_right"
+        app:layout_constraintEnd_toEndOf="@+id/createProAccountTeamEmailTextInputLayout"
+        app:layout_constraintTop_toTopOf="@+id/createProAccountTeamEmailTextInputLayout" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

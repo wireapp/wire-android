@@ -22,5 +22,10 @@ abstract class DatabaseTest : InstrumentationTest() {
             .setTransactionExecutor(testDispatcher.asExecutor())
             .build()
 
+    protected fun RoomDatabase.clearTestData() = with(this) {
+        clearAllTables()
+        close()
+    }
+
     fun runTest(test: suspend TestCoroutineScope.() -> Unit) = testScope.runBlockingTest(test)
 }

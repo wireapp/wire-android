@@ -3,6 +3,7 @@ package com.wire.android.core.storage.db
 import android.database.sqlite.SQLiteException
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.DatabaseFailure
+import com.wire.android.core.exception.NoEntityFound
 import com.wire.android.core.exception.SQLiteFailure
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
@@ -11,11 +12,13 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verifyNoInteractions
 
 @ExperimentalCoroutinesApi
 class DatabaseServiceTest : UnitTest() {
 
-    private lateinit var databaseCall: suspend () -> String
+    private lateinit var databaseCall: suspend () -> TestEntity?
 
     private lateinit var databaseService: DatabaseService
 
@@ -25,13 +28,34 @@ class DatabaseServiceTest : UnitTest() {
     }
 
     @Test
-    fun `given request is called, when call is successful, then returns the call's result`() =
+    fun `given request is called, when call returns non-null value, then returns the call's result regardless of the default value`() =
         runBlockingTest {
-            val result = "Success!!"
-            databaseCall = { result }
+            databaseCall = { TEST_CALL_ENTITY }
+            val defaultEntity = mock(TestEntity::class.java)
 
-            databaseService.request(databaseCall).assertRight {
-                assertThat(it).isEqualTo(result)
+            databaseService.request(default = defaultEntity, call = databaseCall).assertRight {
+                assertThat(it).isEqualTo(TEST_CALL_ENTITY)
+            }
+            verifyNoInteractions(defaultEntity)
+        }
+
+    @Test
+    fun `given request is called, when call returns null value and there is a default value, then returns the default value`() =
+        runBlockingTest {
+            databaseCall = { null }
+
+            databaseService.request(default = TEST_DEFAULT_ENTITY, call = databaseCall).assertRight {
+                assertThat(it).isEqualTo(TEST_DEFAULT_ENTITY)
+            }
+        }
+
+    @Test
+    fun `given request is called, when call returns null value and there is no default value, then returns NoEntityFound error`() =
+        runBlockingTest {
+            databaseCall = { null }
+
+            databaseService.request(default = null, call = databaseCall).assertLeft {
+                assertThat(it).isEqualTo(NoEntityFound)
             }
         }
 
@@ -41,7 +65,7 @@ class DatabaseServiceTest : UnitTest() {
             val exception = SQLiteException("Error!!")
             databaseCall = { throw exception }
 
-            databaseService.request(databaseCall).assertLeft {
+            databaseService.request(call = databaseCall).assertLeft {
                 assertThat(it).isEqualTo(SQLiteFailure(exception))
             }
         }
@@ -52,8 +76,15 @@ class DatabaseServiceTest : UnitTest() {
             val exception = Exception("Error!!")
             databaseCall = { throw exception }
 
-            databaseService.request(databaseCall).assertLeft {
+            databaseService.request(call = databaseCall).assertLeft {
                 assertThat(it).isEqualTo(DatabaseFailure(exception))
             }
         }
+
+    private data class TestEntity(val name: String)
+
+    companion object {
+        private val TEST_CALL_ENTITY = TestEntity("testName")
+        private val TEST_DEFAULT_ENTITY = TestEntity("defaultTest")
+    }
 }

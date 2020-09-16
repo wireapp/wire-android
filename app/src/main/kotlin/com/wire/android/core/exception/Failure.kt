@@ -24,6 +24,7 @@ object EmptyResponseBody : NetworkFailure()
 sealed class DatabaseRequestFailure : Failure()
 data class SQLiteFailure(val reason: SQLiteException? = null) : DatabaseRequestFailure()
 data class DatabaseFailure(val reason: Exception? = null) : DatabaseRequestFailure()
+object NoEntityFound : DatabaseRequestFailure()
 
 /** Extend this class for UseCase specific failures.*/
 abstract class FeatureFailure : Failure()

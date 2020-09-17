@@ -23,6 +23,7 @@ import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAcco
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountPasswordViewModel
 import com.wire.android.feature.auth.registration.personal.usecase.ActivateEmailUseCase
 import com.wire.android.feature.auth.registration.personal.usecase.RegisterPersonalAccountUseCase
+import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailViewModel
 import com.wire.android.feature.auth.registration.pro.team.CreateProAccountTeamNameViewModel
 import com.wire.android.feature.auth.registration.pro.team.data.TeamDataSource
 import com.wire.android.feature.auth.registration.pro.team.data.TeamsRepository
@@ -74,6 +75,8 @@ private val createProAccountModule = module {
     factory { GetTeamNameUseCase(get()) }
     factory { UpdateTeamNameUseCase(get()) }
     single { TeamDataSource() as TeamsRepository }
+
+    viewModel { CreateProAccountTeamEmailViewModel(get()) }
 }
 
 private val loginModule = module {

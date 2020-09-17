@@ -2,14 +2,15 @@ package com.wire.android.feature.auth.registration.pro.email
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.showKeyboardWithFocusOn
+import com.wire.android.core.extension.toStringOrEmpty
 import kotlinx.android.synthetic.main.fragment_create_pro_account_team_email.*
-import kotlinx.android.synthetic.main.fragment_create_pro_account_team_name.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class CreateProAccountTeamEmailFragment : Fragment(
@@ -23,7 +24,7 @@ class CreateProAccountTeamEmailFragment : Fragment(
         super.onViewCreated(view, savedInstanceState)
         initTeamEmailHeader()
         initConfirmationButton()
-        observeTeamEmailInput()
+        initTeamEmailInput()
         requestKeyboardFocus()
     }
 
@@ -32,7 +33,7 @@ class CreateProAccountTeamEmailFragment : Fragment(
     }
 
     private fun initConfirmationButton() =
-        with(createProAccountTeamNameInputConfirmationButton) {
+        with(createProAccountTeamEmailInputConfirmationButton) {
             isEnabled = false
             setOnClickListener {
                 //TODO Go to team email verification screen
@@ -42,16 +43,19 @@ class CreateProAccountTeamEmailFragment : Fragment(
             }
         }
 
-    private fun observeTeamEmailInput() =
+    private fun initTeamEmailInput() =
         with(createProAccountTeamEmailViewModel) {
+            createProAccountTeamEmailEditText.doOnTextChanged { text, _, _, _ ->
+                onTeamEmailTextChanged(text.toStringOrEmpty())
+            }
             teamEmailLiveData.observe(viewLifecycleOwner) {
-                createProAccountTeamNameEditText.setText(it)
+                createProAccountTeamEmailEditText.setText(it)
             }
         }
 
     private fun requestKeyboardFocus() {
         if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(
-            createProAccountTeamNameEditText
+            createProAccountTeamEmailEditText
         )
     }
 }

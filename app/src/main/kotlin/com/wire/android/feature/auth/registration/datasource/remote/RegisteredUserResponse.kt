@@ -2,7 +2,7 @@ package com.wire.android.feature.auth.registration.datasource.remote
 
 import com.google.gson.annotations.SerializedName
 
-data class UserResponse(
+data class RegisteredUserResponse(
     @SerializedName("email") val email: String? = null,
     @SerializedName("handle") val handle: String? = null,
     @SerializedName("service") val service: ServiceRef? = null,

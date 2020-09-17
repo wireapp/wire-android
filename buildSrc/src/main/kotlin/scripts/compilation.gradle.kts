@@ -12,6 +12,10 @@ android {
     }
 
     compileOptions {
+        // support Java 8 features in API < 26
+        // https://developer.android.com/studio/write/java8-support#library-desugaring
+        coreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -19,4 +23,8 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
+}
+
+dependencies {
+    coreLibraryDesugaring(Libraries.desugaring)
 }

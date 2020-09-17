@@ -9,7 +9,7 @@ import androidx.room.Query
 interface SessionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSession(session: SessionEntity)
+    suspend fun insert(session: SessionEntity)
 
     @Query("SELECT * FROM session WHERE is_current = 1 LIMIT 1")
     suspend fun currentSession(): SessionEntity?

@@ -29,11 +29,11 @@ class SessionDaoTest : DatabaseTest() {
 
     @Test
     fun insertEntities_readSessions_containsInsertedItems() = runTest {
-        val activeSession = prepareSession("userId-1", true)
-        val inActiveSession = prepareSession("userId-2", false)
+        val activeSession = prepareSession(1, "userId-1", true)
+        val inActiveSession = prepareSession(2, "userId-2", false)
 
-        sessionDao.insertSession(activeSession)
-        sessionDao.insertSession(inActiveSession)
+        sessionDao.insert(activeSession)
+        sessionDao.insert(inActiveSession)
 
         val sessions = sessionDao.sessions()
 
@@ -44,7 +44,7 @@ class SessionDaoTest : DatabaseTest() {
     fun insertCurrentSession_readCurrentSession_returnsInsertedItem() = runTest {
         val session = prepareSession(current = true)
 
-        sessionDao.insertSession(session)
+        sessionDao.insert(session)
 
         assertThat(session).isEqualTo(sessionDao.currentSession())
     }
@@ -53,7 +53,7 @@ class SessionDaoTest : DatabaseTest() {
     fun insertNotCurrentSession_readCurrentSession_returnsNull() = runTest {
         val session = prepareSession(current = false)
 
-        sessionDao.insertSession(session)
+        sessionDao.insert(session)
 
         assertThat(sessionDao.currentSession()).isNull()
     }
@@ -61,8 +61,8 @@ class SessionDaoTest : DatabaseTest() {
     @Test
     fun sessionForUserExists_userDeleted_sessionIsDeletedAutomatically() = runTest {
         val user = UserEntity(TEST_USER_ID)
-        val session = prepareSession(id = user.id, current = true)
-        sessionDao.insertSession(session)
+        val session = prepareSession(userId = user.id, current = true)
+        sessionDao.insert(session)
         assertThat(sessionDao.sessions()).contains(session)
 
         globalDatabase.userDao().delete(user)
@@ -70,11 +70,22 @@ class SessionDaoTest : DatabaseTest() {
         assertThat(sessionDao.sessions()).doesNotContain(session)
     }
 
-    private suspend fun prepareSession(id: String = TEST_USER_ID, current: Boolean): SessionEntity {
-        globalDatabase.userDao().insert(UserEntity(id))
+    @Test
+    fun insertSession_userIdNotUnique_updatesExistingSessionWithSameUserId() = runTest {
+        val session1 = prepareSession(id = 1, userId = TEST_USER_ID, current = true)
+        sessionDao.insert(session1)
+
+        val session2 = prepareSession(id = 2, userId = TEST_USER_ID, current = false)
+        sessionDao.insert(session2)
+
+        assertThat(sessionDao.sessions()).containsExactly(session2)
+    }
+
+    private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean): SessionEntity {
+        globalDatabase.userDao().insert(UserEntity(userId))
 
         return SessionEntity(
-            userId = id, accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE,
+            id = id, userId = userId, accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE,
             refreshToken = TEST_REFRESH_TOKEN, isCurrent = current
         )
     }

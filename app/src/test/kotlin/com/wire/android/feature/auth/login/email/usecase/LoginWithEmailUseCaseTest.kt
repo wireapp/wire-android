@@ -9,7 +9,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.login.email.LoginRepository
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
-import com.wire.android.shared.activeusers.ActiveUsersRepository
+import com.wire.android.shared.user.UserRepository
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -23,25 +23,25 @@ class LoginWithEmailUseCaseTest : UnitTest() {
     private lateinit var loginRepository: LoginRepository
 
     @Mock
-    private lateinit var activeUsersRepository: ActiveUsersRepository
+    private lateinit var userRepository: UserRepository
 
     private lateinit var loginWithEmailUseCase: LoginWithEmailUseCase
 
     @Before
     fun setUp() {
-        loginWithEmailUseCase = LoginWithEmailUseCase(loginRepository, activeUsersRepository)
+        loginWithEmailUseCase = LoginWithEmailUseCase(loginRepository, userRepository)
     }
 
     @Test
-    fun `given run is called, when loginRepository and activeUsersRepository returns success, then returns success`() {
+    fun `given run is called, when loginRepository and userRepository returns success, then returns success`() {
         runBlocking {
             `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(TEST_USER_ID))
-            `when`(activeUsersRepository.saveActiveUser(TEST_USER_ID)).thenReturn(Either.Right(Unit))
+            `when`(userRepository.saveUser(TEST_USER_ID)).thenReturn(Either.Right(Unit))
 
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
 
             verify(loginRepository).loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
-            verify(activeUsersRepository).saveActiveUser(TEST_USER_ID)
+            verify(userRepository).saveUser(TEST_USER_ID)
             result.assertRight()
         }
     }
@@ -56,7 +56,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             result.assertLeft {
                 assertThat(it).isEqualTo(LoginAuthenticationFailure)
             }
-            verifyNoInteractions(activeUsersRepository)
+            verifyNoInteractions(userRepository)
         }
     }
 
@@ -70,7 +70,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             result.assertLeft {
                 assertThat(it).isEqualTo(LoginTooFrequentFailure)
             }
-            verifyNoInteractions(activeUsersRepository)
+            verifyNoInteractions(userRepository)
         }
     }
 
@@ -84,20 +84,20 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             result.assertLeft {
                 assertThat(it).isEqualTo(ServerError)
             }
-            verifyNoInteractions(activeUsersRepository)
+            verifyNoInteractions(userRepository)
         }
     }
 
     @Test
-    fun `given run is called, when loginRepository returns success but activeUsersRepository fails, then returns that failure`() {
+    fun `given run is called, when loginRepository returns success but userRepository fails, then returns that failure`() {
         runBlocking {
             val failure = DatabaseFailure()
             `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(TEST_USER_ID))
-            `when`(activeUsersRepository.saveActiveUser(TEST_USER_ID)).thenReturn(Either.Left(failure))
+            `when`(userRepository.saveUser(TEST_USER_ID)).thenReturn(Either.Left(failure))
 
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
 
-            verify(activeUsersRepository).saveActiveUser(TEST_USER_ID)
+            verify(userRepository).saveUser(TEST_USER_ID)
             result.assertLeft {
                 assertThat(it).isEqualTo(failure)
             }

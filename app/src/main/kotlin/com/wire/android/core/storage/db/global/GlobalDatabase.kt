@@ -2,13 +2,13 @@ package com.wire.android.core.storage.db.global
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.wire.android.shared.activeusers.datasources.local.ActiveUserEntity
-import com.wire.android.shared.activeusers.datasources.local.ActiveUsersDao
+import com.wire.android.shared.user.datasources.local.UserDao
+import com.wire.android.shared.user.datasources.local.UserEntity
 
-@Database(entities = [ActiveUserEntity::class], version = GlobalDatabase.VERSION)
+@Database(entities = [UserEntity::class], version = GlobalDatabase.VERSION)
 abstract class GlobalDatabase : RoomDatabase() {
 
-    abstract fun activeUsersDao(): ActiveUsersDao
+    abstract fun userDao(): UserDao
 
     companion object {
         const val NAME = "Global.db"

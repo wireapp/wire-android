@@ -24,7 +24,7 @@ class UserDaoTest : DatabaseTest() {
     @After
     @Throws(IOException::class)
     fun tearDown() {
-        globalDatabase.close()
+        globalDatabase.clearTestData()
     }
 
     @Test
@@ -34,10 +34,18 @@ class UserDaoTest : DatabaseTest() {
         userDao.insert(entity)
         val activeUsers = userDao.users()
 
-        assertThat(entity).isEqualTo(activeUsers.first())
+        assertThat(activeUsers).containsExactly(entity)
     }
-
     //TODO: add insert replace strategy test
+
+    @Test
+    fun deleteEntity_readUsers_doesNotContainDeletedItem() = runTest {
+        val entity = UserEntity(TEST_USER_ID)
+        userDao.insert(entity)
+
+        userDao.delete(entity)
+        assertThat(userDao.users()).isEmpty()
+    }
 
     companion object {
         private const val TEST_USER_ID = "123435weoiruwe"

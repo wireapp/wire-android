@@ -14,7 +14,7 @@ import androidx.room.PrimaryKey
     indices = [Index(value = ["user_id"], unique = true)]
 )
 data class SessionEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "user_id") val userId: String,
     @ColumnInfo(name = "access_token") val accessToken: String,
     @ColumnInfo(name = "token_type") val tokenType: String,

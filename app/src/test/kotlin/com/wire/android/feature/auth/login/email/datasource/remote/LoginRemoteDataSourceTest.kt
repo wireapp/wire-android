@@ -45,7 +45,7 @@ class LoginRemoteDataSourceTest : UnitTest() {
             loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
 
             verify(labelGenerator).newLabel()
-            verify(loginApi).loginWithEmail(capture(loginWithEmailRequestCaptor))
+            verify(loginApi).loginWithEmail(capture(loginWithEmailRequestCaptor), eq(true))
             loginWithEmailRequestCaptor.value.let {
                 assertThat(it.email).isEqualTo(TEST_EMAIL)
                 assertThat(it.password).isEqualTo(TEST_PASSWORD)
@@ -63,7 +63,7 @@ class LoginRemoteDataSourceTest : UnitTest() {
             val result = loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
 
             result.assertRight {
-                assertThat(it).isInstanceOf(LoginWithEmailResponse::class.java)
+                assertThat(it).isEqualTo(response)
             }
         }
     }
@@ -85,17 +85,10 @@ class LoginRemoteDataSourceTest : UnitTest() {
         private const val TEST_EMAIL = "test@wire.com"
         private const val TEST_PASSWORD = "ssdf34"
         private const val TEST_LABEL = "sdlkf032"
-        private val LOGIN_WITH_EMAIL_RESPONSE = LoginWithEmailResponse(
-            expiresIn = 900,
-            accessToken = "AccessToken",
-            userId = "123",
-            tokenType = "Bearer"
-        )
 
         private fun mockSuccessResponse(): Response<LoginWithEmailResponse> =
             (mock(Response::class.java) as Response<LoginWithEmailResponse>).apply {
                 `when`(this.isSuccessful).thenReturn(true)
-                `when`(this.body()).thenReturn(LOGIN_WITH_EMAIL_RESPONSE)
             }
 
         private fun mockErrorResponse(errorCode: Int): Response<LoginWithEmailResponse> =

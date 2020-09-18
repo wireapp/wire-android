@@ -10,7 +10,7 @@ class LoginRemoteDataSource(
     override val networkHandler: NetworkHandler
 ) : ApiService() {
 
-    suspend fun loginWithEmail(email: String, password: String) = request {
+    suspend fun loginWithEmail(email: String, password: String) = rawRequest {
         val label = labelGenerator.newLabel()
         loginApi.loginWithEmail(LoginWithEmailRequest(email = email, password = password, label = label))
     }

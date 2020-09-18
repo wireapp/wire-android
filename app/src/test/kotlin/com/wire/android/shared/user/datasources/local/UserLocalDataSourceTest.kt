@@ -17,11 +17,17 @@ class UserLocalDataSourceTest : UnitTest() {
     @Mock
     private lateinit var userDao: UserDao
 
+    @Mock
+    private lateinit var sessionDao: SessionDao
+
+    @Mock
+    private lateinit var sessionEntity: SessionEntity
+
     private lateinit var userLocalDataSource : UserLocalDataSource
 
     @Before
     fun setUp() {
-        userLocalDataSource = UserLocalDataSource(userDao)
+        userLocalDataSource = UserLocalDataSource(userDao, sessionDao)
     }
 
     @Test
@@ -39,6 +45,24 @@ class UserLocalDataSourceTest : UnitTest() {
             `when`(userDao.insert(USER_ENTITY)).thenThrow(RuntimeException())
 
             userLocalDataSource.saveUser(TEST_USER_ID).onSuccess { fail("Expected a failure") }
+        }
+    }
+
+    @Test
+    fun `given saveSession is called, when dao insertion is successful, then returns success`() {
+        runBlockingTest {
+            `when`(sessionDao.insert(sessionEntity)).thenReturn(Unit)
+
+            userLocalDataSource.saveSession(sessionEntity).assertRight()
+        }
+    }
+
+    @Test
+    fun `given saveSession is called, when dao insertion fails, then returns failure`() {
+        runBlockingTest {
+            `when`(sessionDao.insert(sessionEntity)).thenThrow(RuntimeException())
+
+            userLocalDataSource.saveSession(sessionEntity).onSuccess { fail("Expected a failure") }
         }
     }
 

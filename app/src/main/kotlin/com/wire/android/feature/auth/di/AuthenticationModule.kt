@@ -84,7 +84,7 @@ private val loginModule = module {
     viewModel { LoginWithEmailViewModel(get(), get(), get()) }
     factory { LoginWithEmailUseCase(get(), get()) }
 
-    single<LoginRepository> { LoginDataSource(get()) }
+    single<LoginRepository> { LoginDataSource(get(), get()) }
     single { LoginRemoteDataSource(get(), get(), get()) }
     factory { get<NetworkClient>().create(LoginApi::class.java) }
 }

@@ -35,7 +35,7 @@ class ConversationListViewModelTest : UnitTest() {
     @Test
     fun `given fetchUserName is called, when GetActiveUserUseCase is successful, then sets user name to userNameLiveData`() =
         coroutinesTestRule.runTest {
-            val user = User(TEST_USER_NAME)
+            val user = User(id = TEST_USER_ID, name = TEST_USER_NAME)
             `when`(getActiveUserUseCase.run(Unit)).thenReturn(Either.Right(user))
 
             conversationListViewModel.fetchUserName()
@@ -54,6 +54,7 @@ class ConversationListViewModelTest : UnitTest() {
         }
 
     companion object {
+        private const val TEST_USER_ID = "user-id-123"
         private const val TEST_USER_NAME = "User Name"
     }
 }

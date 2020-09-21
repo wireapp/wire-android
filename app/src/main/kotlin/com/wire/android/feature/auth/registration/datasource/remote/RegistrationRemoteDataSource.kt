@@ -19,7 +19,7 @@ class RegistrationRemoteDataSource(
         email: String,
         password: String,
         activationCode: String
-    ): Either<Failure, UserResponse> = request {
+    ): Either<Failure, RegisteredUserResponse> = request {
         api.registerPersonalAccount(
             RegisterPersonalAccountRequest(
                 name = name, email = email, password = password, emailCode = activationCode,

@@ -63,7 +63,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
     @Test
     fun `given registerPersonalAccount() is called, when api returns UserResponse, returns success with UserResponse`() {
         runBlocking {
-            val userResponse = mock(UserResponse::class.java)
+            val userResponse = mock(RegisteredUserResponse::class.java)
             mockUserResponse().let {
                 `when`(it.body()).thenReturn(userResponse)
                 `when`(api.registerPersonalAccount(any())).thenReturn(it)
@@ -104,8 +104,8 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
         }
 
         @Suppress("UNCHECKED_CAST")
-        private fun mockUserResponse(successful: Boolean = true): Response<UserResponse> =
-            (mock(Response::class.java) as Response<UserResponse>).also {
+        private fun mockUserResponse(successful: Boolean = true): Response<RegisteredUserResponse> =
+            (mock(Response::class.java) as Response<RegisteredUserResponse>).also {
                 `when`(it.isSuccessful).thenReturn(successful)
             }
     }

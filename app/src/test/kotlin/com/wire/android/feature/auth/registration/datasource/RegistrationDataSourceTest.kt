@@ -5,7 +5,7 @@ import com.wire.android.any
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.registration.datasource.remote.RegistrationRemoteDataSource
-import com.wire.android.feature.auth.registration.datasource.remote.UserResponse
+import com.wire.android.feature.auth.registration.datasource.remote.RegisteredUserResponse
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
 import kotlinx.coroutines.runBlocking
@@ -76,7 +76,7 @@ class RegistrationDataSourceTest : UnitTest() {
         private const val TEST_ACTIVATION_CODE = "123456"
         private const val TEST_USER_ID = "1234ds-dkfsdf-324"
 
-        private fun mockUserResponse() = mock(UserResponse::class.java).also {
+        private fun mockUserResponse() = mock(RegisteredUserResponse::class.java).also {
             lenient().`when`(it.id).thenReturn(TEST_USER_ID)
         }
     }

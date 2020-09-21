@@ -42,7 +42,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when loginRepository returns non-empty user and user & session repos return success, then returns success`() {
+    fun `given run is called, when loginRepository returns a valid user and user & session repos return success, then returns success`() {
         runBlocking {
             `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(session))
             `when`(userRepository.save(TEST_USER_ID)).thenReturn(Either.Right(Unit))

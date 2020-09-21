@@ -2,8 +2,8 @@ package com.wire.android.core.storage.db.global
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.wire.android.shared.user.datasources.local.SessionDao
-import com.wire.android.shared.user.datasources.local.SessionEntity
+import com.wire.android.shared.session.datasources.local.SessionDao
+import com.wire.android.shared.session.datasources.local.SessionEntity
 import com.wire.android.shared.user.datasources.local.UserDao
 import com.wire.android.shared.user.datasources.local.UserEntity
 

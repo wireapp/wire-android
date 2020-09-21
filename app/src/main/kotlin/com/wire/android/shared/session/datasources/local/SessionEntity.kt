@@ -1,10 +1,11 @@
-package com.wire.android.shared.user.datasources.local
+package com.wire.android.shared.session.datasources.local
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.wire.android.shared.user.datasources.local.UserEntity
 
 @Entity(
     tableName = "session",

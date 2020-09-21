@@ -7,8 +7,8 @@ import com.wire.android.feature.auth.login.email.datasource.remote.LoginRemoteDa
 import com.wire.android.feature.auth.login.email.datasource.remote.LoginWithEmailResponse
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
-import com.wire.android.shared.user.UserSession
-import com.wire.android.shared.user.mapper.UserSessionMapper
+import com.wire.android.shared.session.Session
+import com.wire.android.shared.session.mapper.SessionMapper
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -23,19 +23,19 @@ class LoginDataSourceTest : UnitTest() {
     private lateinit var loginRemoteDataSource: LoginRemoteDataSource
 
     @Mock
-    private lateinit var userSessionMapper: UserSessionMapper
+    private lateinit var sessionMapper: SessionMapper
 
     @Mock
     private lateinit var loginWithEmailResponse : Response<LoginWithEmailResponse>
 
     @Mock
-    private lateinit var userSession: UserSession
+    private lateinit var session: Session
 
     private lateinit var loginDataSource: LoginDataSource
 
     @Before
     fun setUp() {
-        loginDataSource = LoginDataSource(loginRemoteDataSource, userSessionMapper)
+        loginDataSource = LoginDataSource(loginRemoteDataSource, sessionMapper)
     }
 
     @Test
@@ -55,12 +55,12 @@ class LoginDataSourceTest : UnitTest() {
         runBlocking {
             `when`(loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL, password = TEST_PASSWORD))
                 .thenReturn(Either.Right(loginWithEmailResponse))
-            `when`(userSessionMapper.fromLoginResponse(loginWithEmailResponse)).thenReturn(userSession)
+            `when`(sessionMapper.fromLoginResponse(loginWithEmailResponse)).thenReturn(session)
 
             loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD).assertRight {
-                assertThat(it).isEqualTo(userSession)
+                assertThat(it).isEqualTo(session)
             }
-            verify(userSessionMapper).fromLoginResponse(loginWithEmailResponse)
+            verify(sessionMapper).fromLoginResponse(loginWithEmailResponse)
         }
     }
 
@@ -74,7 +74,7 @@ class LoginDataSourceTest : UnitTest() {
             result.assertLeft {
                 assertThat(it).isEqualTo(ServerError)
             }
-            verifyNoInteractions(userSessionMapper)
+            verifyNoInteractions(sessionMapper)
         }
     }
 

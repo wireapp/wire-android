@@ -38,12 +38,12 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
     fun `given run is called, when registrationRepository and userRepository return success, then returns success`() {
         runBlocking {
             mockRepositoryResponse(Either.Right(TEST_USER_ID))
-            `when`(userRepository.saveUser(TEST_USER_ID)).thenReturn(Either.Right(Unit))
+            `when`(userRepository.save(TEST_USER_ID)).thenReturn(Either.Right(Unit))
 
             val result = useCase.run(params)
 
             verify(registrationRepository).registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
-            verify(userRepository).saveUser(TEST_USER_ID)
+            verify(userRepository).save(TEST_USER_ID)
             result.assertRight()
         }
     }
@@ -110,7 +110,7 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
         runBlocking {
             mockRepositoryResponse(Either.Right(TEST_USER_ID))
             val failure = DatabaseFailure()
-            `when`(userRepository.saveUser(TEST_USER_ID)).thenReturn(Either.Left(failure))
+            `when`(userRepository.save(TEST_USER_ID)).thenReturn(Either.Left(failure))
 
             val result = useCase.run(params)
 

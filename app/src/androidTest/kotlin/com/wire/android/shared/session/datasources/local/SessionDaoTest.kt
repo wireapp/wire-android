@@ -1,7 +1,8 @@
-package com.wire.android.shared.user.datasources.local
+package com.wire.android.shared.session.datasources.local
 
 import com.wire.android.core.storage.db.DatabaseTest
 import com.wire.android.core.storage.db.global.GlobalDatabase
+import com.wire.android.shared.user.datasources.local.UserEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After

@@ -1,0 +1,42 @@
+package com.wire.android.shared.session.mapper
+
+import com.wire.android.feature.auth.login.email.datasource.remote.LoginWithEmailResponse
+import com.wire.android.shared.session.Session
+import com.wire.android.shared.session.datasources.local.SessionEntity
+import okhttp3.Headers
+import retrofit2.Response
+
+class SessionMapper {
+
+    @Suppress("ReturnCount")
+    fun fromLoginResponse(response: Response<LoginWithEmailResponse>): Session {
+        val body = response.body() ?: return Session.EMPTY
+        val refreshToken = extractRefreshToken(response.headers()) ?: return Session.EMPTY
+
+        return Session(
+            userId = body.userId,
+            accessToken = body.accessToken,
+            tokenType = body.tokenType,
+            refreshToken = refreshToken
+        )
+    }
+
+    private fun extractRefreshToken(headers: Headers): String? =
+        headers[LOGIN_REFRESH_TOKEN_HEADER_KEY]?.let {
+            LOGIN_REFRESH_TOKEN_REGEX.matchEntire(it)?.groups?.get(1)?.value
+        }
+
+    fun toSessionEntity(session: Session, isCurrent: Boolean) =
+        SessionEntity(
+            userId = session.userId,
+            accessToken = session.accessToken,
+            tokenType = session.tokenType,
+            refreshToken = session.refreshToken,
+            isCurrent = isCurrent
+        )
+
+    companion object {
+        private const val LOGIN_REFRESH_TOKEN_HEADER_KEY = "Set-Cookie"
+        private val LOGIN_REFRESH_TOKEN_REGEX = ".*zuid=([^;]+).*".toRegex()
+    }
+}

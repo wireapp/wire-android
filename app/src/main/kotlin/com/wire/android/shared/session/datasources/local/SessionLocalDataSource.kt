@@ -6,7 +6,7 @@ import com.wire.android.core.storage.db.DatabaseService
 
 class SessionLocalDataSource(private val sessionDao: SessionDao) : DatabaseService {
 
-    suspend fun saveSession(sessionEntity: SessionEntity): Either<Failure, Unit> = request {
+    suspend fun save(sessionEntity: SessionEntity): Either<Failure, Unit> = request {
         sessionDao.insert(sessionEntity)
     }
 }

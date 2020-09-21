@@ -13,5 +13,5 @@ class SessionDataSource(
 ) : SessionRepository {
 
     override suspend fun save(session: Session): Either<Failure, Unit> =
-        localDataSource.saveSession(mapper.toSessionEntity(session, true))
+        localDataSource.save(mapper.toSessionEntity(session, true))
 }

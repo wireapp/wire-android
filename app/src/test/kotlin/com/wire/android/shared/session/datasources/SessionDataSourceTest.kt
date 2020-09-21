@@ -48,7 +48,7 @@ class SessionDataSourceTest : UnitTest() {
             sessionDataSource.save(session)
 
             verify(sessionMapper).toSessionEntity(eq(session), eq(true))
-            verify(localDataSource).saveSession(sessionEntity)
+            verify(localDataSource).save(sessionEntity)
         }
     }
 
@@ -56,7 +56,7 @@ class SessionDataSourceTest : UnitTest() {
     fun `given save is called, when localDataSource returns success, then returns success`() {
         runBlocking {
             `when`(sessionMapper.toSessionEntity(session, true)).thenReturn(sessionEntity)
-            `when`(localDataSource.saveSession(sessionEntity)).thenReturn(Either.Right(Unit))
+            `when`(localDataSource.save(sessionEntity)).thenReturn(Either.Right(Unit))
 
             sessionDataSource.save(session).assertRight()
         }
@@ -67,7 +67,7 @@ class SessionDataSourceTest : UnitTest() {
         runBlocking {
             val failure = DatabaseFailure()
             `when`(sessionMapper.toSessionEntity(session, true)).thenReturn(sessionEntity)
-            `when`(localDataSource.saveSession(sessionEntity)).thenReturn(Either.Left(failure))
+            `when`(localDataSource.save(sessionEntity)).thenReturn(Either.Left(failure))
 
             sessionDataSource.save(session).assertLeft {
                 assertThat(it).isEqualTo(failure)

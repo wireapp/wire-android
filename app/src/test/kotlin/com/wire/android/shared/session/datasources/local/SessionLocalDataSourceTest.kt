@@ -28,20 +28,20 @@ class SessionLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given saveSession is called, when dao insertion is successful, then returns success`() {
+    fun `given save is called, when dao insertion is successful, then returns success`() {
         runBlockingTest {
             `when`(sessionDao.insert(sessionEntity)).thenReturn(Unit)
 
-            sessionLocalDataSource.saveSession(sessionEntity).assertRight()
+            sessionLocalDataSource.save(sessionEntity).assertRight()
         }
     }
 
     @Test
-    fun `given saveSession is called, when dao insertion fails, then returns failure`() {
+    fun `given save is called, when dao insertion fails, then returns failure`() {
         runBlockingTest {
             `when`(sessionDao.insert(sessionEntity)).thenThrow(RuntimeException())
 
-            sessionLocalDataSource.saveSession(sessionEntity).onSuccess { fail("Expected a failure") }
+            sessionLocalDataSource.save(sessionEntity).onSuccess { fail("Expected a failure") }
         }
     }
 }

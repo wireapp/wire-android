@@ -17,6 +17,9 @@ class UserLocalDataSourceTest : UnitTest() {
     @Mock
     private lateinit var userDao: UserDao
 
+    @Mock
+    private lateinit var userEntity: UserEntity
+
     private lateinit var userLocalDataSource : UserLocalDataSource
 
     @Before
@@ -25,25 +28,20 @@ class UserLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given saveUser is called, when dao insertion is successful, then returns success`() {
+    fun `given save is called, when dao insertion is successful, then returns success`() {
         runBlockingTest {
-            `when`(userDao.insert(USER_ENTITY)).thenReturn(Unit)
+            `when`(userDao.insert(userEntity)).thenReturn(Unit)
 
-            userLocalDataSource.saveUser(TEST_USER_ID).assertRight()
+            userLocalDataSource.save(userEntity).assertRight()
         }
     }
 
     @Test
-    fun `given saveUser is called, when dao insertion fails, then returns failure`() {
+    fun `given save is called, when dao insertion fails, then returns failure`() {
         runBlockingTest {
-            `when`(userDao.insert(USER_ENTITY)).thenThrow(RuntimeException())
+            `when`(userDao.insert(userEntity)).thenThrow(RuntimeException())
 
-            userLocalDataSource.saveUser(TEST_USER_ID).onSuccess { fail("Expected a failure") }
+            userLocalDataSource.save(userEntity).onSuccess { fail("Expected a failure") }
         }
-    }
-
-    companion object {
-        private const val TEST_USER_ID = "3324flkdnvdf"
-        private val USER_ENTITY = UserEntity(TEST_USER_ID)
     }
 }

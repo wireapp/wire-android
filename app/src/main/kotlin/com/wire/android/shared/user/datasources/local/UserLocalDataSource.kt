@@ -6,7 +6,7 @@ import com.wire.android.core.storage.db.DatabaseService
 
 class UserLocalDataSource(private val userDao: UserDao) : DatabaseService {
 
-    suspend fun saveUser(userId: String): Either<Failure, Unit> = request {
-        userDao.insert(UserEntity(userId))
+    suspend fun save(userEntity: UserEntity): Either<Failure, Unit> = request {
+        userDao.insert(userEntity)
     }
 }

@@ -12,6 +12,7 @@ class SessionDataSource(
     private val mapper: SessionMapper
 ) : SessionRepository {
 
+    //TODO: check isCurrent and if true, update older entities
     override suspend fun save(session: Session): Either<Failure, Unit> =
         localDataSource.save(mapper.toSessionEntity(session, true))
 }

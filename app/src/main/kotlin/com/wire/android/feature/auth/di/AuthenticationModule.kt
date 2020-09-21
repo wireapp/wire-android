@@ -82,9 +82,9 @@ private val createProAccountModule = module {
 private val loginModule = module {
     viewModel { LoginViewModel(get()) }
     viewModel { LoginWithEmailViewModel(get(), get(), get()) }
-    factory { LoginWithEmailUseCase(get(), get()) }
+    factory { LoginWithEmailUseCase(get(), get(), get()) }
 
-    single<LoginRepository> { LoginDataSource(get()) }
+    single<LoginRepository> { LoginDataSource(get(), get()) }
     single { LoginRemoteDataSource(get(), get(), get()) }
     factory { get<NetworkClient>().create(LoginApi::class.java) }
 }

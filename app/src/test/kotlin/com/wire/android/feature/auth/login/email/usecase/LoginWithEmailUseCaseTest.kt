@@ -9,6 +9,8 @@ import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.login.email.LoginRepository
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
+import com.wire.android.shared.session.Session
+import com.wire.android.shared.session.SessionRepository
 import com.wire.android.shared.user.UserRepository
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -25,23 +27,32 @@ class LoginWithEmailUseCaseTest : UnitTest() {
     @Mock
     private lateinit var userRepository: UserRepository
 
+    @Mock
+    private lateinit var sessionRepository: SessionRepository
+
+    @Mock
+    private lateinit var session: Session
+
     private lateinit var loginWithEmailUseCase: LoginWithEmailUseCase
 
     @Before
     fun setUp() {
-        loginWithEmailUseCase = LoginWithEmailUseCase(loginRepository, userRepository)
+        `when`(session.userId).thenReturn(TEST_USER_ID)
+        loginWithEmailUseCase = LoginWithEmailUseCase(loginRepository, userRepository, sessionRepository)
     }
 
     @Test
-    fun `given run is called, when loginRepository and userRepository returns success, then returns success`() {
+    fun `given run is called, when loginRepository returns non-empty user and user & session repos return success, then returns success`() {
         runBlocking {
-            `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(TEST_USER_ID))
-            `when`(userRepository.saveUser(TEST_USER_ID)).thenReturn(Either.Right(Unit))
+            `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(session))
+            `when`(userRepository.save(TEST_USER_ID)).thenReturn(Either.Right(Unit))
+            `when`(sessionRepository.save(session)).thenReturn(Either.Right(Unit))
 
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
 
             verify(loginRepository).loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
-            verify(userRepository).saveUser(TEST_USER_ID)
+            verify(userRepository).save(TEST_USER_ID)
+            verify(sessionRepository).save(session)
             result.assertRight()
         }
     }
@@ -89,18 +100,51 @@ class LoginWithEmailUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when loginRepository returns success but userRepository fails, then returns that failure`() {
+    fun `given run is called, when loginRepository returns empty user session, then directly returns SessionCredentialsMissing`() {
         runBlocking {
-            val failure = DatabaseFailure()
-            `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(TEST_USER_ID))
-            `when`(userRepository.saveUser(TEST_USER_ID)).thenReturn(Either.Left(failure))
+            `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(Session.EMPTY))
 
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
 
-            verify(userRepository).saveUser(TEST_USER_ID)
+            result.assertLeft {
+                assertThat(it).isEqualTo(SessionCredentialsMissing)
+            }
+            verifyNoInteractions(userRepository)
+        }
+    }
+
+    @Test
+    fun `given run is called, when loginRepository returns success but userRepository fails to save user, then returns failure`() {
+        runBlocking {
+            val failure = DatabaseFailure()
+            `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(session))
+            `when`(userRepository.save(TEST_USER_ID)).thenReturn(Either.Left(failure))
+
+            val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
+
             result.assertLeft {
                 assertThat(it).isEqualTo(failure)
             }
+            verify(userRepository).save(TEST_USER_ID)
+            verify(sessionRepository, never()).save(session)
+        }
+    }
+
+    @Test
+    fun `given run is called, when login & user repos return success, but sessionRepository fails to save session, then returns failure`() {
+        runBlocking {
+            val failure = DatabaseFailure()
+            `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(session))
+            `when`(userRepository.save(TEST_USER_ID)).thenReturn(Either.Right(Unit))
+            `when`(sessionRepository.save(session)).thenReturn(Either.Left(failure))
+
+            val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
+
+            result.assertLeft {
+                assertThat(it).isEqualTo(failure)
+            }
+            verify(userRepository).save(TEST_USER_ID)
+            verify(sessionRepository).save(session)
         }
     }
 

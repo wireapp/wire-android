@@ -27,7 +27,7 @@ class RegisterPersonalAccountUseCase(
         }) {
             //TODO: find a suspendable Either solution
             runBlocking {
-                userRepository.saveUser(it)
+                userRepository.save(it)
             }
         }!!
     }

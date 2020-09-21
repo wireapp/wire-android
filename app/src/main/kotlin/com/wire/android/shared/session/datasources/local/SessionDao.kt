@@ -1,4 +1,4 @@
-package com.wire.android.shared.user.datasources.local
+package com.wire.android.shared.session.datasources.local
 
 import androidx.room.Dao
 import androidx.room.Insert

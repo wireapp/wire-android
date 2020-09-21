@@ -27,23 +27,23 @@ class UserDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given saveUser is called, when localDataSource returns success, then returns success`() {
+    fun `given save is called, when localDataSource returns success, then returns success`() {
         runBlocking {
             `when`(localDataSource.saveUser(TEST_USER_ID)).thenReturn(Either.Right(Unit))
 
-            userDataSource.saveUser(TEST_USER_ID).assertRight()
+            userDataSource.save(TEST_USER_ID).assertRight()
 
             verify(localDataSource).saveUser(TEST_USER_ID)
         }
     }
 
     @Test
-    fun `given saveUser is called, when localDataSource returns a failure, then returns that failure`() {
+    fun `given save is called, when localDataSource returns a failure, then returns that failure`() {
         runBlocking {
             val failure = DatabaseFailure()
             `when`(localDataSource.saveUser(TEST_USER_ID)).thenReturn(Either.Left(failure))
 
-            userDataSource.saveUser(TEST_USER_ID).assertLeft {
+            userDataSource.save(TEST_USER_ID).assertLeft {
                 assertThat(it).isEqualTo(failure)
             }
             verify(localDataSource).saveUser(TEST_USER_ID)

@@ -61,7 +61,7 @@ class SessionDaoTest : DatabaseTest() {
 
     @Test
     fun sessionForUserExists_userDeleted_sessionIsDeletedAutomatically() = runTest {
-        val user = UserEntity(TEST_USER_ID)
+        val user = UserEntity(TEST_USER_ID, TEST_USER_NAME)
         val session = prepareSession(userId = user.id, current = true)
         sessionDao.insert(session)
         assertThat(sessionDao.sessions()).contains(session)
@@ -83,7 +83,7 @@ class SessionDaoTest : DatabaseTest() {
     }
 
     private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean): SessionEntity {
-        globalDatabase.userDao().insert(UserEntity(userId))
+        globalDatabase.userDao().insert(UserEntity(userId, TEST_USER_NAME))
 
         return SessionEntity(
             id = id, userId = userId, accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE,
@@ -96,5 +96,6 @@ class SessionDaoTest : DatabaseTest() {
         private const val TEST_ACCESS_TOKEN = "789-Access-Token"
         private const val TEST_TOKEN_TYPE = "Bearer"
         private const val TEST_REFRESH_TOKEN = "123-Refresh-Token"
+        private const val TEST_USER_NAME = "Name"
     }
 }

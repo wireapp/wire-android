@@ -29,25 +29,23 @@ class UserDaoTest : DatabaseTest() {
 
     @Test
     fun insertEntity_readUsers_containsInsertedItem() = runTest {
-        val entity = UserEntity(TEST_USER_ID)
-
-        userDao.insert(entity)
+        userDao.insert(TEST_USER_ENTITY)
         val activeUsers = userDao.users()
 
-        assertThat(activeUsers).containsExactly(entity)
+        assertThat(activeUsers).containsExactly(TEST_USER_ENTITY)
     }
     //TODO: add insert replace strategy test
 
     @Test
     fun deleteEntity_readUsers_doesNotContainDeletedItem() = runTest {
-        val entity = UserEntity(TEST_USER_ID)
-        userDao.insert(entity)
+        userDao.insert(TEST_USER_ENTITY)
 
-        userDao.delete(entity)
+        userDao.delete(TEST_USER_ENTITY)
         assertThat(userDao.users()).isEmpty()
     }
 
     companion object {
         private const val TEST_USER_ID = "123435weoiruwe"
+        private val TEST_USER_ENTITY = UserEntity(TEST_USER_ID, "name")
     }
 }

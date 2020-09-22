@@ -16,4 +16,7 @@ interface SessionDao {
 
     @Query("SELECT * FROM session")
     suspend fun sessions(): List<SessionEntity>
+
+    @Query("UPDATE session SET is_current = 0 WHERE is_current = 1")
+    suspend fun setCurrentSessionToDormant()
 }

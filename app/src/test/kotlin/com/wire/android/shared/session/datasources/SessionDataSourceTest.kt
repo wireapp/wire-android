@@ -2,6 +2,7 @@ package com.wire.android.shared.session.datasources
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.DatabaseFailure
+import com.wire.android.core.exception.SQLiteFailure
 import com.wire.android.core.functional.Either
 import com.wire.android.eq
 import com.wire.android.framework.functional.assertLeft
@@ -15,8 +16,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 
 class SessionDataSourceTest : UnitTest() {
 
@@ -41,37 +41,90 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given save is called, then maps given session to current entity and calls localDataSource`() {
+    fun `given save is called for non-current session, then maps given session to current entity and calls localDataSource for saving`() {
         runBlocking {
+            `when`(sessionMapper.toSessionEntity(session, false)).thenReturn(sessionEntity)
+
+            sessionDataSource.save(session, false)
+
+            verify(sessionMapper).toSessionEntity(eq(session), eq(false))
+            verify(localDataSource).save(sessionEntity)
+            verify(localDataSource, never()).setCurrentSessionToDormant()
+        }
+    }
+
+    @Test
+    fun `given save is called for non-current session, when localDataSource returns success, then returns success`() {
+        runBlocking {
+            `when`(sessionMapper.toSessionEntity(session, false)).thenReturn(sessionEntity)
+            `when`(localDataSource.save(sessionEntity)).thenReturn(Either.Right(Unit))
+
+            sessionDataSource.save(session, false).assertRight()
+
+            verify(sessionMapper).toSessionEntity(eq(session), eq(false))
+            verify(localDataSource, never()).setCurrentSessionToDormant()
+        }
+    }
+
+    @Test
+    fun `given save is called for non-current session, when localDataSource returns a failure, then returns that failure`() {
+        runBlocking {
+            val failure = DatabaseFailure()
+            `when`(sessionMapper.toSessionEntity(session, false)).thenReturn(sessionEntity)
+            `when`(localDataSource.save(sessionEntity)).thenReturn(Either.Left(failure))
+
+            sessionDataSource.save(session, false).assertLeft {
+                assertThat(it).isEqualTo(failure)
+            }
+            verify(sessionMapper).toSessionEntity(eq(session), eq(false))
+            verify(localDataSource, never()).setCurrentSessionToDormant()
+        }
+    }
+
+    @Test
+    fun `given save is called for current session, when localDS updates previous session & saves the current one, then returns success`() {
+        runBlocking {
+            `when`(localDataSource.setCurrentSessionToDormant()).thenReturn(Either.Right(Unit))
             `when`(sessionMapper.toSessionEntity(session, true)).thenReturn(sessionEntity)
+            `when`(localDataSource.save(sessionEntity)).thenReturn(Either.Right(Unit))
 
-            sessionDataSource.save(session)
+            sessionDataSource.save(session, true).assertRight()
 
+            verify(localDataSource).setCurrentSessionToDormant()
             verify(sessionMapper).toSessionEntity(eq(session), eq(true))
             verify(localDataSource).save(sessionEntity)
         }
     }
 
     @Test
-    fun `given save is called, when localDataSource returns success, then returns success`() {
+    fun `given save is called for current session, when localDS fails to update previous session, then directly returns that failure`() {
         runBlocking {
-            `when`(sessionMapper.toSessionEntity(session, true)).thenReturn(sessionEntity)
-            `when`(localDataSource.save(sessionEntity)).thenReturn(Either.Right(Unit))
+            val failure = DatabaseFailure()
+            `when`(localDataSource.setCurrentSessionToDormant()).thenReturn(Either.Left(failure))
 
-            sessionDataSource.save(session).assertRight()
+            sessionDataSource.save(session, true).assertLeft {
+                assertThat(it).isEqualTo(failure)
+            }
+            verify(localDataSource).setCurrentSessionToDormant()
+            verify(sessionMapper, never()).toSessionEntity(eq(session), anyBoolean())
+            verify(localDataSource, never()).save(sessionEntity)
         }
     }
 
     @Test
-    fun `given save is called, when localDataSource returns a failure, then returns that failure`() {
+    fun `given save is called for current session, when localDS updates previous session but fails to save, then returns that failure`() {
         runBlocking {
-            val failure = DatabaseFailure()
+            val failure = SQLiteFailure()
+            `when`(localDataSource.setCurrentSessionToDormant()).thenReturn(Either.Right(Unit))
             `when`(sessionMapper.toSessionEntity(session, true)).thenReturn(sessionEntity)
             `when`(localDataSource.save(sessionEntity)).thenReturn(Either.Left(failure))
 
-            sessionDataSource.save(session).assertLeft {
+            sessionDataSource.save(session, true).assertLeft {
                 assertThat(it).isEqualTo(failure)
             }
+            verify(localDataSource).setCurrentSessionToDormant()
+            verify(sessionMapper).toSessionEntity(eq(session), eq(true))
+            verify(localDataSource).save(sessionEntity)
         }
     }
 }

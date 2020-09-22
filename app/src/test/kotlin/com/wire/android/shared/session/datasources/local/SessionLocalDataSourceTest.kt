@@ -44,4 +44,22 @@ class SessionLocalDataSourceTest : UnitTest() {
             sessionLocalDataSource.save(sessionEntity).onSuccess { fail("Expected a failure") }
         }
     }
+
+    @Test
+    fun `given setCurrentSessionToDormant is called, when dao operation is successful, then returns success`() {
+        runBlockingTest {
+            `when`(sessionDao.setCurrentSessionToDormant()).thenReturn(Unit)
+
+            sessionLocalDataSource.setCurrentSessionToDormant().assertRight()
+        }
+    }
+
+    @Test
+    fun `given setCurrentSessionToDormant is called, when dao operation fails, then returns failure`() {
+        runBlockingTest {
+            `when`(sessionDao.setCurrentSessionToDormant()).thenThrow(RuntimeException())
+
+            sessionLocalDataSource.setCurrentSessionToDormant().onSuccess { fail("Expected a failure") }
+        }
+    }
 }

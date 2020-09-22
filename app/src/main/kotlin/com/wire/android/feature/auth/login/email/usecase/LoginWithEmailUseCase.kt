@@ -29,7 +29,7 @@ class LoginWithEmailUseCase(
                 runBlocking {
                     userRepository.selfUser(accessToken = session.accessToken, tokenType = session.tokenType).flatMap {
                         runBlocking {
-                            sessionRepository.save(session)
+                            sessionRepository.save(session = session, current = true)
                         }
                     }
                 }

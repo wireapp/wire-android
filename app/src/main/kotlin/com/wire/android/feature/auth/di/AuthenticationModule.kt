@@ -48,7 +48,7 @@ private val authenticationCommonModule = module {
 }
 
 private val createAccountModule = module {
-    single<RegistrationRepository> { RegistrationDataSource(get()) }
+    single<RegistrationRepository> { RegistrationDataSource(get(), get()) }
     factory { get<NetworkClient>().create(RegistrationApi::class.java) }
     factory { RegistrationRemoteDataSource(get(), get(), get(), get()) }
 }

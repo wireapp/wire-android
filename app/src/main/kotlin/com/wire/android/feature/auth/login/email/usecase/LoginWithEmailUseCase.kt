@@ -27,7 +27,7 @@ class LoginWithEmailUseCase(
             else {
                 //TODO: find a suspendable Either solution
                 runBlocking {
-                    userRepository.save(session.userId).flatMap {
+                    userRepository.selfUser(accessToken = session.accessToken, tokenType = session.tokenType).flatMap {
                         runBlocking {
                             sessionRepository.save(session)
                         }

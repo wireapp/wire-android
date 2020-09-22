@@ -28,6 +28,7 @@ class RegisterPersonalAccountUseCase(
             //TODO: find a suspendable Either solution
             runBlocking {
                 userRepository.save(it)
+                //TODO get session data
             }
         }!!
     }

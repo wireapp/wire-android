@@ -11,6 +11,7 @@ import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
 import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.SessionRepository
+import com.wire.android.shared.user.User
 import com.wire.android.shared.user.UserRepository
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -30,14 +31,16 @@ class LoginWithEmailUseCaseTest : UnitTest() {
     @Mock
     private lateinit var sessionRepository: SessionRepository
 
-    @Mock
     private lateinit var session: Session
+
+    @Mock
+    private lateinit var user: User
 
     private lateinit var loginWithEmailUseCase: LoginWithEmailUseCase
 
     @Before
     fun setUp() {
-        `when`(session.userId).thenReturn(TEST_USER_ID)
+        session = testSession()
         loginWithEmailUseCase = LoginWithEmailUseCase(loginRepository, userRepository, sessionRepository)
     }
 
@@ -45,13 +48,13 @@ class LoginWithEmailUseCaseTest : UnitTest() {
     fun `given run is called, when loginRepository returns a valid user and user & session repos return success, then returns success`() {
         runBlocking {
             `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(session))
-            `when`(userRepository.save(TEST_USER_ID)).thenReturn(Either.Right(Unit))
+            `when`(userRepository.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)).thenReturn(Either.Right(user))
             `when`(sessionRepository.save(session)).thenReturn(Either.Right(Unit))
 
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
 
             verify(loginRepository).loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
-            verify(userRepository).save(TEST_USER_ID)
+            verify(userRepository).selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
             verify(sessionRepository).save(session)
             result.assertRight()
         }
@@ -114,18 +117,18 @@ class LoginWithEmailUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when loginRepository returns success but userRepository fails to save user, then returns failure`() {
+    fun `given run is called, when loginRepository returns success but userRepository fails to get self user, then returns failure`() {
         runBlocking {
             val failure = DatabaseFailure()
             `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(session))
-            `when`(userRepository.save(TEST_USER_ID)).thenReturn(Either.Left(failure))
+            `when`(userRepository.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)).thenReturn(Either.Left(failure))
 
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
 
             result.assertLeft {
                 assertThat(it).isEqualTo(failure)
             }
-            verify(userRepository).save(TEST_USER_ID)
+            verify(userRepository).selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
             verify(sessionRepository, never()).save(session)
         }
     }
@@ -135,7 +138,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
         runBlocking {
             val failure = DatabaseFailure()
             `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(session))
-            `when`(userRepository.save(TEST_USER_ID)).thenReturn(Either.Right(Unit))
+            `when`(userRepository.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)).thenReturn(Either.Right(user))
             `when`(sessionRepository.save(session)).thenReturn(Either.Left(failure))
 
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
@@ -143,7 +146,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             result.assertLeft {
                 assertThat(it).isEqualTo(failure)
             }
-            verify(userRepository).save(TEST_USER_ID)
+            verify(userRepository).selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
             verify(sessionRepository).save(session)
         }
     }
@@ -151,6 +154,12 @@ class LoginWithEmailUseCaseTest : UnitTest() {
     companion object {
         private const val TEST_EMAIL = "test@wire.com"
         private const val TEST_PASSWORD = "123456"
-        private const val TEST_USER_ID = "ruoe123-3243lk"
+        private const val TEST_ACCESS_TOKEN = "test-access-token-123"
+        private const val TEST_TOKEN_TYPE = "test-token-bearer"
+
+        private fun testSession() = mock(Session::class.java).also {
+            `when`(it.accessToken).thenReturn(TEST_ACCESS_TOKEN)
+            `when`(it.tokenType).thenReturn(TEST_TOKEN_TYPE)
+        }
     }
 }

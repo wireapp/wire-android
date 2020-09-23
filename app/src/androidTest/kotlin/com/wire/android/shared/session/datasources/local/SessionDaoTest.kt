@@ -30,15 +30,14 @@ class SessionDaoTest : DatabaseTest() {
 
     @Test
     fun insertEntities_readSessions_containsInsertedItems() = runTest {
-        val activeSession = prepareSession(1, "userId-1", true)
-        val inActiveSession = prepareSession(2, "userId-2", false)
-
-        sessionDao.insert(activeSession)
-        sessionDao.insert(inActiveSession)
+        val session1 = prepareSession(1, "userId-1", true)
+        val session2 = prepareSession(2, "userId-2", false)
+        sessionDao.insert(session1)
+        sessionDao.insert(session2)
 
         val sessions = sessionDao.sessions()
 
-        assertThat(sessions).containsExactlyInAnyOrder(activeSession, inActiveSession)
+        assertThat(sessions).containsExactlyInAnyOrder(session1, session2)
     }
 
     @Test
@@ -80,6 +79,19 @@ class SessionDaoTest : DatabaseTest() {
         sessionDao.insert(session2)
 
         assertThat(sessionDao.sessions()).containsExactly(session2)
+    }
+
+    @Test
+    fun setCurrentSessionToDormant_aSessionExistsAsCurrent_setsIsCurrentToFalse() = runTest {
+        val session1 = prepareSession(id = 1, userId = "userId-1", current = true)
+        val session2 = prepareSession(id = 2, userId = "userId-2", current = false)
+        sessionDao.insert(session1)
+        sessionDao.insert(session2)
+
+        sessionDao.setCurrentSessionToDormant()
+
+        val sessions = sessionDao.sessions()
+        assertThat(sessions).containsExactlyInAnyOrder(session1.copy(isCurrent = false), session2)
     }
 
     private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean): SessionEntity {

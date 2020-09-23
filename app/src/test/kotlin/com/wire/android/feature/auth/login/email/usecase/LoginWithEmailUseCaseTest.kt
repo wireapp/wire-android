@@ -6,6 +6,7 @@ import com.wire.android.core.exception.Forbidden
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.exception.TooManyRequests
 import com.wire.android.core.functional.Either
+import com.wire.android.eq
 import com.wire.android.feature.auth.login.email.LoginRepository
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
@@ -49,13 +50,13 @@ class LoginWithEmailUseCaseTest : UnitTest() {
         runBlocking {
             `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(session))
             `when`(userRepository.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)).thenReturn(Either.Right(user))
-            `when`(sessionRepository.save(session)).thenReturn(Either.Right(Unit))
+            `when`(sessionRepository.save(session, true)).thenReturn(Either.Right(Unit))
 
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
 
             verify(loginRepository).loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
             verify(userRepository).selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
-            verify(sessionRepository).save(session)
+            verify(sessionRepository).save(eq(session), eq(true))
             result.assertRight()
         }
     }
@@ -129,7 +130,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
                 assertThat(it).isEqualTo(failure)
             }
             verify(userRepository).selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
-            verify(sessionRepository, never()).save(session)
+            verify(sessionRepository, never()).save(eq(session), anyBoolean())
         }
     }
 
@@ -139,7 +140,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             val failure = DatabaseFailure()
             `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(session))
             `when`(userRepository.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)).thenReturn(Either.Right(user))
-            `when`(sessionRepository.save(session)).thenReturn(Either.Left(failure))
+            `when`(sessionRepository.save(session, true)).thenReturn(Either.Left(failure))
 
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
 
@@ -147,7 +148,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
                 assertThat(it).isEqualTo(failure)
             }
             verify(userRepository).selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
-            verify(sessionRepository).save(session)
+            verify(sessionRepository).save(eq(session), eq(true))
         }
     }
 

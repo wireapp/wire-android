@@ -118,6 +118,37 @@ class LoginWithEmailUseCaseTest : UnitTest() {
     }
 
     @Test
+    fun `given run is called, when loginRepository returns a session with null access token, then returns SessionCredentialsMissing`() {
+        runBlocking {
+            `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(
+                Session("user-id", null, TEST_TOKEN_TYPE, "refresh-token")
+            ))
+
+            val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
+
+            result.assertLeft {
+                assertThat(it).isEqualTo(SessionCredentialsMissing)
+            }
+            verifyNoInteractions(userRepository)
+        }
+    }
+
+    @Test
+    fun `given run is called, when loginRepository returns a session with null token type, then returns SessionCredentialsMissing`() {
+        runBlocking {
+            `when`(loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)).thenReturn(Either.Right(
+                Session("user-id", TEST_ACCESS_TOKEN, null, "refresh-token")
+            ))
+            val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
+
+            result.assertLeft {
+                assertThat(it).isEqualTo(SessionCredentialsMissing)
+            }
+            verifyNoInteractions(userRepository)
+        }
+    }
+
+    @Test
     fun `given run is called, when loginRepository returns success but userRepository fails to get self user, then returns failure`() {
         runBlocking {
             val failure = DatabaseFailure()

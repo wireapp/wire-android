@@ -23,8 +23,9 @@ class LoginWithEmailUseCase(
         loginRepository.loginWithEmail(email = params.email, password = params.password).fold({
             handleFailure(it)
         }) { session ->
-            if (session == Session.EMPTY)  Either.Left(SessionCredentialsMissing)
-            else {
+            if (session == Session.EMPTY || session.accessToken == null || session.tokenType == null) {
+                Either.Left(SessionCredentialsMissing)
+            } else {
                 //TODO: find a suspendable Either solution
                 runBlocking {
                     userRepository.selfUser(accessToken = session.accessToken, tokenType = session.tokenType).flatMap {

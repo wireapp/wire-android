@@ -41,7 +41,7 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given save is called for non-current session, then maps given session to current entity and calls localDataSource for saving`() {
+    fun `given save is called for dormant session, then maps given session to current entity and calls localDataSource for saving`() {
         runBlocking {
             `when`(sessionMapper.toSessionEntity(session, false)).thenReturn(sessionEntity)
 
@@ -54,7 +54,7 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given save is called for non-current session, when localDataSource returns success, then returns success`() {
+    fun `given save is called for dormant session, when localDataSource returns success, then returns success`() {
         runBlocking {
             `when`(sessionMapper.toSessionEntity(session, false)).thenReturn(sessionEntity)
             `when`(localDataSource.save(sessionEntity)).thenReturn(Either.Right(Unit))
@@ -67,7 +67,7 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given save is called for non-current session, when localDataSource returns a failure, then returns that failure`() {
+    fun `given save is called for dormant session, when localDataSource returns a failure, then propagates the failure`() {
         runBlocking {
             val failure = DatabaseFailure()
             `when`(sessionMapper.toSessionEntity(session, false)).thenReturn(sessionEntity)
@@ -97,7 +97,7 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given save is called for current session, when localDS fails to update previous session, then directly returns that failure`() {
+    fun `given save is called for current session, when localDS fails to update previous session, then directly propagates the failure`() {
         runBlocking {
             val failure = DatabaseFailure()
             `when`(localDataSource.setCurrentSessionToDormant()).thenReturn(Either.Left(failure))
@@ -112,7 +112,7 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given save is called for current session, when localDS updates previous session but fails to save, then returns that failure`() {
+    fun `given save is called for current session, when localDS updates previous session but fails to save, then propagates the failure`() {
         runBlocking {
             val failure = SQLiteFailure()
             `when`(localDataSource.setCurrentSessionToDormant()).thenReturn(Either.Right(Unit))

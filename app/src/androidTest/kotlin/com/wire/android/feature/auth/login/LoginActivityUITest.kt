@@ -9,11 +9,17 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.wire.android.FunctionalActivityTest
 import com.wire.android.R
+import com.wire.android.framework.retry.RetryTestRule
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 class LoginActivityUITest : FunctionalActivityTest(LoginActivity::class.java) {
+
+    @get:Rule
+    val retryTestRule = RetryTestRule()
 
     @Before
     fun init() {
@@ -43,5 +49,12 @@ class LoginActivityUITest : FunctionalActivityTest(LoginActivity::class.java) {
     fun forgotPassword_click_opensChangePasswordUrl() {
         onView(withId(R.id.loginForgotPasswordButton)).perform(click())
         Intents.intended(hasAction(Intent.ACTION_VIEW))
+    }
+
+    var count = 0
+    @Test
+    fun failingTest() {
+        count++
+        assertThat(count == 3).isTrue()
     }
 }

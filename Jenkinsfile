@@ -148,27 +148,6 @@ done
       }
     }
 
-    stage('Report to CodCov') {
-      when {
-        expression {
-          allOf {
-            environment name: 'CHANGE_ID', value: ''
-            branch 'master'
-          }
-        }
-
-      }
-      steps {
-        script {
-          last_started = env.STAGE_NAME
-        }
-
-        sh './gradlew jacocoReport'
-        sh 'curl -s https://codecov.io/bash > codecov.sh'
-        sh "bash codecov.sh -t ${env.CODECOV_TOKEN}"
-      }
-    }
-
   }
   environment {
     propertiesFile = 'local.properties'
@@ -187,6 +166,9 @@ done
         )
       }
 
+      sh './gradlew jacocoReport'
+      sh 'curl -s https://codecov.io/bash > codecov.sh'
+      sh "bash codecov.sh -t ${env.CODECOV_TOKEN}"
       wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
     }
 

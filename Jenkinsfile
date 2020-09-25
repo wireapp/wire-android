@@ -87,19 +87,30 @@ done
     }
 
     stage('Acceptance Tests') {
-      when {
-        expression {
-          params.AcceptanceTests
+      parallel {
+        stage('Acceptance Tests') {
+          when {
+            expression {
+              params.AcceptanceTests
+            }
+
+          }
+          steps {
+            script {
+              last_started = env.STAGE_NAME
+            }
+
+            withGradle() {
+              sh './gradlew runAcceptanceTests'
+            }
+
+          }
         }
 
-      }
-      steps {
-        script {
-          last_started = env.STAGE_NAME
-        }
-
-        withGradle() {
-          sh './gradlew runAcceptanceTests'
+        stage('Archive Unit Report') {
+          steps {
+            junit(keepLongStdio: true, testResults: 'app/build/reports/tests/testDevDebugUnitTest/*.*')
+          }
         }
 
       }
@@ -118,7 +129,7 @@ done
       }
     }
 
-    stage('Archive') {
+    stage('Archive APK') {
       steps {
         archiveArtifacts(artifacts: 'app/build/outputs/apk/dev/debug/app*.apk', allowEmptyArchive: true, onlyIfSuccessful: true)
       }

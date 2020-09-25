@@ -110,56 +110,63 @@ done
         stage('Publish Unit Report') {
           steps {
             echo 'Publish JUnit report'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'app/build/reports/tests/testDevDebugUnitTest', reportFiles: 'index.html', reportName: 'Unit Test', reportTitles: ''])
+            publishHTML([
+                                      allowMissing: false,
+                                      alwaysLinkToLastBuild: false,
+                                      keepAll: true,
+                                      reportDir: 'tapp/build/reports/tests/testDevDebugUnitTest/',
+                                      reportFiles: 'index.html',
+                                      reportName: 'Unit Test'
+                                  ])
+            }
           }
+
         }
-
       }
-    }
 
-    stage('Assemble') {
-      steps {
+      stage('Assemble') {
+        steps {
+          script {
+            last_started = env.STAGE_NAME
+          }
+
+          withGradle() {
+            sh './gradlew assembleApp'
+          }
+
+        }
+      }
+
+      stage('Archive APK') {
+        steps {
+          archiveArtifacts(artifacts: 'app/build/outputs/apk/dev/debug/app*.apk', allowEmptyArchive: true, onlyIfSuccessful: true)
+        }
+      }
+
+    }
+    environment {
+      propertiesFile = 'local.properties'
+      ADB_PORT = '5555'
+    }
+    post {
+      failure {
+        wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")
+      }
+
+      success {
         script {
-          last_started = env.STAGE_NAME
+          lastCommits = sh(
+            script: "git log -5 --pretty=\"%h [%an] %s\" | sed \"s/^/    /\"",
+            returnStdout: true
+          )
         }
 
-        withGradle() {
-          sh './gradlew assembleApp'
-        }
-
-      }
-    }
-
-    stage('Archive APK') {
-      steps {
-        archiveArtifacts(artifacts: 'app/build/outputs/apk/dev/debug/app*.apk', allowEmptyArchive: true, onlyIfSuccessful: true)
-      }
-    }
-
-  }
-  environment {
-    propertiesFile = 'local.properties'
-    ADB_PORT = '5555'
-  }
-  post {
-    failure {
-      wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")
-    }
-
-    success {
-      script {
-        lastCommits = sh(
-          script: "git log -5 --pretty=\"%h [%an] %s\" | sed \"s/^/    /\"",
-          returnStdout: true
-        )
+        wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
       }
 
-      wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
-    }
+      aborted {
+        wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ ABORTED ($last_started) ")
+      }
 
-    aborted {
-      wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ ABORTED ($last_started) ")
     }
-
   }
-}

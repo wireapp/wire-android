@@ -107,9 +107,10 @@ done
           }
         }
 
-        stage('Archive Unit Report') {
+        stage('Publish Unit Report') {
           steps {
-            junit(keepLongStdio: true, testResults: 'app/build/reports/tests/testDevDebugUnitTest/*.*')
+            echo 'Publish JUnit report'
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'app/build/reports/tests/testDevDebugUnitTest', reportFiles: 'index.html', reportName: 'Unit Test', reportTitles: ''])
           }
         }
 

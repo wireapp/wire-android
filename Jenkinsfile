@@ -163,7 +163,7 @@ done
           last_started = env.STAGE_NAME
         }
 
-        sh './gradlew jacocoTestReport'
+        sh './gradlew jacocoReport'
         sh 'curl -s https://codecov.io/bash > codecov.sh'
         sh "bash codecov.sh -t ${env.CODECOV_TOKEN}"
       }

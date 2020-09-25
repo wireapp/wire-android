@@ -111,13 +111,13 @@ done
           steps {
             echo 'Publish JUnit report'
             publishHTML([
-                                      allowMissing: false,
-                                      alwaysLinkToLastBuild: false,
-                                      keepAll: true,
-                                      reportDir: 'tapp/build/reports/tests/testDevDebugUnitTest/',
-                                      reportFiles: 'index.html',
-                                      reportName: 'Unit Test'
-                                  ])
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: 'app/build/reports/tests/testDevDebugUnitTest/',
+                            reportFiles: 'index.html',
+                            reportName: 'Unit Test'
+                          ])
             }
           }
 

@@ -87,38 +87,62 @@ done
     }
 
     stage('Acceptance Tests') {
-      when {
-        expression {
-          params.AcceptanceTests
+      parallel {
+        stage('Acceptance Tests') {
+          when {
+            expression {
+              params.AcceptanceTests
+            }
+
+          }
+          steps {
+            script {
+              last_started = env.STAGE_NAME
+            }
+
+            withGradle() {
+              sh './gradlew runAcceptanceTests'
+            }
+
+          }
         }
 
-      }
-      steps {
-        script {
-          last_started = env.STAGE_NAME
-        }
-
-        withGradle() {
-          sh './gradlew runAcceptanceTests'
+        stage('Publish Unit Report') {
+          steps {
+            echo 'Publish JUnit report'
+            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/tests/testDevDebugUnitTest/', reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
+          }
         }
 
       }
     }
 
     stage('Assemble') {
-      steps {
-        script {
-          last_started = env.STAGE_NAME
+      parallel {
+        stage('Assemble') {
+          steps {
+            script {
+              last_started = env.STAGE_NAME
+            }
+
+            withGradle() {
+              sh './gradlew assembleApp'
+            }
+
+          }
         }
 
-        withGradle() {
-          sh './gradlew assembleApp'
+        stage('Publish Acceptance Test') {
+          steps {
+            echo 'Publish Acceptance Test'
+            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/androidTest/connected/flavours/DEV/', reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+          }
         }
 
       }
     }
 
-    stage('Archive') {
+    stage('Archive APK') {
       steps {
         archiveArtifacts(artifacts: 'app/build/outputs/apk/dev/debug/app*.apk', allowEmptyArchive: true, onlyIfSuccessful: true)
       }
@@ -142,6 +166,9 @@ done
         )
       }
 
+      sh './gradlew jacocoReport'
+      sh 'curl -s https://codecov.io/bash > codecov.sh'
+      sh "bash codecov.sh -t ${env.CODECOV_TOKEN}"
       wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
     }
 

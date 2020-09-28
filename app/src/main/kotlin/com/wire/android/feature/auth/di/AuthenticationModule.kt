@@ -48,7 +48,7 @@ private val authenticationCommonModule = module {
 }
 
 private val createAccountModule = module {
-    single<RegistrationRepository> { RegistrationDataSource(get(), get()) }
+    single<RegistrationRepository> { RegistrationDataSource(get(), get(), get()) }
     factory { get<NetworkClient>().create(RegistrationApi::class.java) }
     factory { RegistrationRemoteDataSource(get(), get(), get(), get()) }
 }
@@ -67,7 +67,7 @@ private val createPersonalAccountModule = module {
     viewModel { CreatePersonalAccountNameViewModel(get(), get()) }
 
     viewModel { CreatePersonalAccountPasswordViewModel(get(), get(), get()) }
-    factory { RegisterPersonalAccountUseCase(get(), get()) }
+    factory { RegisterPersonalAccountUseCase(get(), get(), get()) }
 }
 
 private val createProAccountModule = module {

@@ -10,9 +10,10 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.feature.auth.registration.personal.usecase.EmailInUse
-import com.wire.android.feature.auth.registration.personal.usecase.RegisterPersonalAccountParams
 import com.wire.android.feature.auth.registration.personal.usecase.InvalidEmailActivationCode
+import com.wire.android.feature.auth.registration.personal.usecase.RegisterPersonalAccountParams
 import com.wire.android.feature.auth.registration.personal.usecase.RegisterPersonalAccountUseCase
+import com.wire.android.feature.auth.registration.personal.usecase.SessionCannotBeCreated
 import com.wire.android.feature.auth.registration.personal.usecase.UnauthorizedEmail
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.assertLeft
@@ -28,6 +29,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.*
+import java.util.concurrent.TimeoutException
 
 @ExperimentalCoroutinesApi
 class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
@@ -133,6 +135,18 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             viewModel.registerStatusLiveData.awaitValue().assertRight()
+        }
+    }
+
+    @Test(expected = TimeoutException::class)
+    fun `given registerUser is called, when use case returns SessionCannotBeCreated error, then logs the user out`() {
+        coroutinesTestRule.runTest {
+            `when`(registerUseCase.run(any())).thenReturn(Either.Left(SessionCannotBeCreated))
+
+            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+
+            //TODO: assertion about logout
+            viewModel.registerStatusLiveData.awaitValue()
         }
     }
 

@@ -22,9 +22,9 @@ class SessionMapper {
         )
     }
 
-    private fun extractRefreshToken(headers: Headers): String? =
-        headers[LOGIN_REFRESH_TOKEN_HEADER_KEY]?.let {
-            LOGIN_REFRESH_TOKEN_REGEX.matchEntire(it)?.groups?.get(1)?.value
+    fun extractRefreshToken(headers: Headers): String? =
+        headers[AUTH_REFRESH_TOKEN_HEADER_KEY]?.let {
+            AUTH_REFRESH_TOKEN_REGEX.matchEntire(it)?.groups?.get(1)?.value
         }
 
     //TODO: what about expiresIn?
@@ -45,7 +45,7 @@ class SessionMapper {
         )
 
     companion object {
-        private const val LOGIN_REFRESH_TOKEN_HEADER_KEY = "Set-Cookie"
-        private val LOGIN_REFRESH_TOKEN_REGEX = ".*zuid=([^;]+).*".toRegex()
+        private const val AUTH_REFRESH_TOKEN_HEADER_KEY = "Set-Cookie"
+        private val AUTH_REFRESH_TOKEN_REGEX = ".*zuid=([^;]+).*".toRegex()
     }
 }

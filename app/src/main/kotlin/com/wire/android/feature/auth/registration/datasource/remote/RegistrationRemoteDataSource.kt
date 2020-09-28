@@ -6,6 +6,7 @@ import com.wire.android.core.locale.LocaleConfig
 import com.wire.android.core.network.ApiService
 import com.wire.android.core.network.NetworkHandler
 import com.wire.android.shared.auth.remote.LabelGenerator
+import retrofit2.Response
 
 class RegistrationRemoteDataSource(
     private val api: RegistrationApi,
@@ -19,7 +20,7 @@ class RegistrationRemoteDataSource(
         email: String,
         password: String,
         activationCode: String
-    ): Either<Failure, RegisteredUserResponse> = request {
+    ): Either<Failure, Response<RegisteredUserResponse>> = rawRequest {
         api.registerPersonalAccount(
             RegisterPersonalAccountRequest(
                 name = name, email = email, password = password, emailCode = activationCode,

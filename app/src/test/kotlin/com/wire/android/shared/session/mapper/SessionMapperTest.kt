@@ -4,6 +4,7 @@ import com.wire.android.UnitTest
 import com.wire.android.feature.auth.login.email.datasource.remote.LoginWithEmailResponse
 import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.datasources.local.SessionEntity
+import com.wire.android.shared.session.datasources.remote.AccessTokenResponse
 import okhttp3.Headers
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -84,6 +85,26 @@ class SessionMapperTest : UnitTest() {
 
         val notCurrentSession = sessionMapper.toSessionEntity(session, false)
         assertThat(notCurrentSession).isEqualTo(testSessionEntity(false))
+    }
+
+    @Test
+    fun `given fromAccessTokenResponse is called with a refresh token, then maps the inputs and returns a Session`() {
+        val accessTokenResponse = AccessTokenResponse(
+            userId = TEST_USER_ID,
+            accessToken = TEST_ACCESS_TOKEN,
+            tokenType = TEST_TOKEN_TYPE,
+            expiresIn = 900
+        )
+
+        val session = sessionMapper.fromAccessTokenResponse(accessTokenResponse, TEST_REFRESH_TOKEN)
+
+        val expectedSession = Session(
+            userId = TEST_USER_ID,
+            accessToken = TEST_ACCESS_TOKEN,
+            tokenType = TEST_TOKEN_TYPE,
+            refreshToken = TEST_REFRESH_TOKEN
+        )
+        assertThat(session).isEqualTo(expectedSession)
     }
 
     companion object {

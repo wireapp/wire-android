@@ -3,6 +3,7 @@ package com.wire.android.shared.session.datasources
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.DatabaseFailure
 import com.wire.android.core.exception.SQLiteFailure
+import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.eq
 import com.wire.android.framework.functional.assertLeft
@@ -10,6 +11,8 @@ import com.wire.android.framework.functional.assertRight
 import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.datasources.local.SessionEntity
 import com.wire.android.shared.session.datasources.local.SessionLocalDataSource
+import com.wire.android.shared.session.datasources.remote.AccessTokenResponse
+import com.wire.android.shared.session.datasources.remote.SessionRemoteDataSource
 import com.wire.android.shared.session.mapper.SessionMapper
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -22,6 +25,9 @@ class SessionDataSourceTest : UnitTest() {
 
     @Mock
     private lateinit var sessionMapper: SessionMapper
+
+    @Mock
+    private lateinit var remoteDataSource: SessionRemoteDataSource
 
     @Mock
     private lateinit var localDataSource: SessionLocalDataSource
@@ -37,7 +43,7 @@ class SessionDataSourceTest : UnitTest() {
 
     @Before
     fun setUp() {
-        sessionDataSource = SessionDataSource(localDataSource, sessionMapper)
+        sessionDataSource = SessionDataSource(remoteDataSource, localDataSource, sessionMapper)
     }
 
     @Test
@@ -125,6 +131,40 @@ class SessionDataSourceTest : UnitTest() {
             verify(localDataSource).setCurrentSessionToDormant()
             verify(sessionMapper).toSessionEntity(eq(session), eq(true))
             verify(localDataSource).save(sessionEntity)
+        }
+    }
+
+    @Test
+    fun `given accessToken is called, when remoteDataSource is successful, then maps the response and returns session`() {
+        runBlocking {
+            val accessTokenResponse = mock(AccessTokenResponse::class.java)
+            val refreshToken = "refresh-token-123"
+            `when`(remoteDataSource.accessToken(refreshToken)).thenReturn(Either.Right(accessTokenResponse))
+            `when`(sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken)).thenReturn(session)
+
+            val result = sessionDataSource.accessToken(refreshToken)
+
+            result.assertRight {
+                assertThat(it).isEqualTo(session)
+            }
+            verify(remoteDataSource).accessToken(refreshToken)
+            verify(sessionMapper).fromAccessTokenResponse(accessTokenResponse, refreshToken)
+        }
+    }
+
+    @Test
+    fun `given accessToken is called, when remoteDataSource fails, then directly propagates that failure`() {
+        runBlocking {
+            val refreshToken = "refresh-token-123"
+            `when`(remoteDataSource.accessToken(refreshToken)).thenReturn(Either.Left(ServerError))
+
+            val result = sessionDataSource.accessToken(refreshToken)
+
+            result.assertLeft {
+                assertThat(it).isEqualTo(ServerError)
+            }
+            verify(remoteDataSource).accessToken(refreshToken)
+            verifyNoInteractions(sessionMapper)
         }
     }
 }

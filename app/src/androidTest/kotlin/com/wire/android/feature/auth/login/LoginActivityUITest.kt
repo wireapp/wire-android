@@ -18,9 +18,6 @@ import org.junit.Test
 
 class LoginActivityUITest : FunctionalActivityTest(LoginActivity::class.java) {
 
-    @get:Rule
-    val retryTestRule = RetryTestRule()
-
     @Before
     fun init() {
         Intents.init()

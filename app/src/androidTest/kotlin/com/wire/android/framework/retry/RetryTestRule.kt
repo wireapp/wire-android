@@ -19,10 +19,13 @@ class RetryTestRule(val retryCount: Int = 3) : TestRule {
                 Log.i(TAG, "${description.displayName}: run #${(i + 1)}")
                 try {
                     base.evaluate()
+                    //TODO if successful without a catch we need to intervent
+                    // here and print out that the test run was successful after a failure
                     return
                 } catch (t: Throwable) {
                     caughtThrowable = t
                     Log.e(TAG, "${description.displayName}: run #${(i + 1)} failed")
+                    //TODO i guess at this point we need to add the reporting modification
                 }
             }
 

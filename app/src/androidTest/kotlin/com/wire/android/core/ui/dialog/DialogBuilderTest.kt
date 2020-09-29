@@ -11,7 +11,9 @@ import com.wire.android.InstrumentationTest
 import com.wire.android.R
 import com.wire.android.feature.welcome.WelcomeFragment
 import com.wire.android.framework.async.awaitResult
+import com.wire.android.framework.retry.RetryTestRule
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
@@ -20,6 +22,9 @@ class DialogBuilderTest : InstrumentationTest() {
     private lateinit var fragmentScenario: FragmentScenario<WelcomeFragment>
 
     private lateinit var dialogBuilder: DialogBuilder
+
+    @get:Rule
+    val retryTestRule = RetryTestRule()
 
     @Before
     fun setUp() {

@@ -42,12 +42,14 @@ class WelcomeActivityUITest : FunctionalActivityTest(WelcomeActivity::class.java
 
     @Test
     fun createAccountButtonClick() {
+        onView(withId(R.id.welcomeCreateAccountButton)).check(matches(isDisplayed()))
         onView(withId(R.id.welcomeCreateAccountButton)).perform(click())
         intended(hasComponent(CreateAccountActivity::class.java.name))
     }
 
     @Test
     fun loginButtonClick() {
+        onView(withId(R.id.welcomeLoginButton)).check(matches(isDisplayed()))
         onView(withId(R.id.welcomeLoginButton)).perform(click())
         intended(hasComponent(LoginActivity::class.java.name))
     }

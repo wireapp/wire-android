@@ -95,21 +95,21 @@ class SessionDaoTest : DatabaseTest() {
     }
 
     @Test
-    fun hasCurrentSession_aSessionExistsAsCurrent_returnsTrue() = runTest {
+    fun doesCurrentSessionExist_aSessionExistsAsCurrent_returnsTrue() = runTest {
         val session = prepareSession(id = 1, userId = "userId-1", current = true)
         sessionDao.insert(session)
 
-        val result = sessionDao.hasCurrentSession()
+        val result = sessionDao.doesCurrentSessionExist()
 
         assertThat(result).isTrue()
     }
 
     @Test
-    fun hasCurrentSession_noSessionExistsAsCurrent_returnsFalse() = runTest {
+    fun doesCurrentSessionExist_noSessionExistsAsCurrent_returnsFalse() = runTest {
         val session = prepareSession(id = 1, userId = "userId-1", current = false)
         sessionDao.insert(session)
 
-        val result = sessionDao.hasCurrentSession()
+        val result = sessionDao.doesCurrentSessionExist()
 
         assertThat(result).isFalse()
     }

@@ -5,7 +5,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.usecase.UseCase
 import com.wire.android.shared.session.SessionRepository
 
-class HasCurrentSessionUseCase(private val sessionRepository: SessionRepository) : UseCase<Boolean, Unit> {
+class CheckCurrentSessionExistsUseCase(private val sessionRepository: SessionRepository) : UseCase<Boolean, Unit> {
 
-    override suspend fun run(params: Unit): Either<Failure, Boolean> = sessionRepository.hasCurrentSession()
+    override suspend fun run(params: Unit): Either<Failure, Boolean> = sessionRepository.doesCurrentSessionExist()
 }

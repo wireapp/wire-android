@@ -170,30 +170,30 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given hasCurrentSession is called, when localDataSource successfully returns true, then propagates the result`() {
-        testHasCurrentSessionSuccess(true)
+    fun `given doesCurrentSessionExist is called, when localDataSource successfully returns true, then propagates the result`() {
+        testDoesCurrentSessionExistSuccessCase(true)
     }
 
     @Test
-    fun `given hasCurrentSession is called, when localDataSource successfully returns false, then propagates the result`() {
-        testHasCurrentSessionSuccess(false)
+    fun `given doesCurrentSessionExist is called, when localDataSource successfully returns false, then propagates the result`() {
+        testDoesCurrentSessionExistSuccessCase(false)
     }
 
-    private fun testHasCurrentSessionSuccess(hasSession: Boolean) = runBlocking {
-        `when`(localDataSource.hasCurrentSession()).thenReturn(Either.Right(hasSession))
+    private fun testDoesCurrentSessionExistSuccessCase(exists: Boolean) = runBlocking {
+        `when`(localDataSource.doesCurrentSessionExist()).thenReturn(Either.Right(exists))
 
-        sessionDataSource.hasCurrentSession().assertRight {
-            assertThat(it).isEqualTo(hasSession)
+        sessionDataSource.doesCurrentSessionExist().assertRight {
+            assertThat(it).isEqualTo(exists)
         }
     }
 
     @Test
-    fun `given hasCurrentSession is called, when localDataSource returns a failure, then propagates the failure`() {
+    fun `given doesCurrentSessionExist is called, when localDataSource returns a failure, then propagates the failure`() {
         runBlocking {
             val failure = mock(Failure::class.java)
-            `when`(localDataSource.hasCurrentSession()).thenReturn(Either.Left(failure))
+            `when`(localDataSource.doesCurrentSessionExist()).thenReturn(Either.Left(failure))
 
-            sessionDataSource.hasCurrentSession().assertLeft {
+            sessionDataSource.doesCurrentSessionExist().assertLeft {
                 assertThat(it).isEqualTo(failure)
             }
         }

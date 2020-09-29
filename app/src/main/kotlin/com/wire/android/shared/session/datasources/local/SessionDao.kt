@@ -21,5 +21,5 @@ interface SessionDao {
     suspend fun setCurrentSessionToDormant()
 
     @Query("SELECT EXISTS(SELECT 1 FROM session WHERE is_current = 1)")
-    suspend fun hasCurrentSession(): Boolean
+    suspend fun doesCurrentSessionExist(): Boolean
 }

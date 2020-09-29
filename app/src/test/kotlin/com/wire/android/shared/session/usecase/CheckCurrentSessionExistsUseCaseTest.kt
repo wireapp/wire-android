@@ -14,16 +14,16 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 
-class HasCurrentSessionUseCaseTest : UnitTest() {
+class CheckCurrentSessionExistsUseCaseTest : UnitTest() {
 
     @Mock
     private lateinit var sessionRepository: SessionRepository
 
-    private lateinit var hasCurrentSessionUseCase: HasCurrentSessionUseCase
+    private lateinit var checkCurrentSessionExistsUseCase: CheckCurrentSessionExistsUseCase
 
     @Before
     fun setUp() {
-        hasCurrentSessionUseCase = HasCurrentSessionUseCase(sessionRepository)
+        checkCurrentSessionExistsUseCase = CheckCurrentSessionExistsUseCase(sessionRepository)
     }
 
     @Test
@@ -36,11 +36,11 @@ class HasCurrentSessionUseCaseTest : UnitTest() {
         testRunWithSuccessfulRepositoryResponse(false)
     }
 
-    private fun testRunWithSuccessfulRepositoryResponse(hasSession: Boolean) = runBlocking {
-        `when`(sessionRepository.hasCurrentSession()).thenReturn(Either.Right(hasSession))
+    private fun testRunWithSuccessfulRepositoryResponse(exists: Boolean) = runBlocking {
+        `when`(sessionRepository.doesCurrentSessionExist()).thenReturn(Either.Right(exists))
 
-        hasCurrentSessionUseCase.run(Unit).assertRight {
-            assertThat(it).isEqualTo(hasSession)
+        checkCurrentSessionExistsUseCase.run(Unit).assertRight {
+            assertThat(it).isEqualTo(exists)
         }
     }
 
@@ -48,9 +48,9 @@ class HasCurrentSessionUseCaseTest : UnitTest() {
     fun `given run is called, when sessionRepository fails, then propagates the failure`() {
         runBlocking {
             val failure = mock(Failure::class.java)
-            `when`(sessionRepository.hasCurrentSession()).thenReturn(Either.Left(failure))
+            `when`(sessionRepository.doesCurrentSessionExist()).thenReturn(Either.Left(failure))
 
-            hasCurrentSessionUseCase.run(Unit).assertLeft {
+            checkCurrentSessionExistsUseCase.run(Unit).assertLeft {
                 assertThat(it).isEqualTo(failure)
             }
         }

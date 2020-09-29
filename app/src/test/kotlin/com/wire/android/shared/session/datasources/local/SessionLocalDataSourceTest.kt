@@ -65,29 +65,29 @@ class SessionLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given hasCurrentSession is called, when dao returns true, then returns success with value of true`() {
-        testHasCurrentSession(true)
+    fun `given doesCurrentSessionExist is called, when dao returns true, then returns success with value of true`() {
+        testDoesCurrentSessionExist(true)
     }
 
     @Test
-    fun `given hasCurrentSession is called, when dao returns false, then returns success with value of false`() {
-        testHasCurrentSession(false)
+    fun `given doesCurrentSessionExist is called, when dao returns false, then returns success with value of false`() {
+        testDoesCurrentSessionExist(false)
     }
 
-    private fun testHasCurrentSession(hasSession: Boolean) = runBlockingTest {
-        `when`(sessionDao.hasCurrentSession()).thenReturn(hasSession)
+    private fun testDoesCurrentSessionExist(exists: Boolean) = runBlockingTest {
+        `when`(sessionDao.doesCurrentSessionExist()).thenReturn(exists)
 
-        sessionLocalDataSource.hasCurrentSession().assertRight {
-            assertThat(it).isEqualTo(hasSession)
+        sessionLocalDataSource.doesCurrentSessionExist().assertRight {
+            assertThat(it).isEqualTo(exists)
         }
     }
 
     @Test
-    fun `given hasCurrentSession is called, when dao operation fails, then returns failure`() {
+    fun `given doesCurrentSessionExist is called, when dao operation fails, then returns failure`() {
         runBlockingTest {
-            `when`(sessionDao.hasCurrentSession()).thenThrow(RuntimeException())
+            `when`(sessionDao.doesCurrentSessionExist()).thenThrow(RuntimeException())
 
-            sessionLocalDataSource.hasCurrentSession().onSuccess { fail("Expected a failure") }
+            sessionLocalDataSource.doesCurrentSessionExist().onSuccess { fail("Expected a failure") }
         }
     }
 }

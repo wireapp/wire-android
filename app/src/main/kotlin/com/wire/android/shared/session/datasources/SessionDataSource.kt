@@ -32,5 +32,5 @@ class SessionDataSource(
             mapper.fromAccessTokenResponse(it, refreshToken)
         }
 
-    override suspend fun hasCurrentSession(): Either<Failure, Boolean> = localDataSource.hasCurrentSession()
+    override suspend fun doesCurrentSessionExist(): Either<Failure, Boolean> = localDataSource.doesCurrentSessionExist()
 }

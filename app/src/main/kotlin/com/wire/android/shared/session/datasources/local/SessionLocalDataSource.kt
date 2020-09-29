@@ -14,7 +14,7 @@ class SessionLocalDataSource(private val sessionDao: SessionDao) : DatabaseServi
         sessionDao.setCurrentSessionToDormant()
     }
 
-    suspend fun hasCurrentSession(): Either<Failure, Boolean> = request {
-        sessionDao.hasCurrentSession()
+    suspend fun doesCurrentSessionExist(): Either<Failure, Boolean> = request {
+        sessionDao.doesCurrentSessionExist()
     }
 }

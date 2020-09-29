@@ -48,13 +48,24 @@ done
     }
 
     stage('Compile') {
-      steps {
-        script {
-          last_started = env.STAGE_NAME
+      parallel {
+        stage('Compile') {
+          steps {
+            script {
+              last_started = env.STAGE_NAME
+            }
+
+            withGradle() {
+              sh './gradlew compileApp'
+            }
+
+          }
         }
 
-        withGradle() {
-          sh './gradlew compileApp'
+        stage('Reboot the Emulators') {
+          steps {
+            sh 'adb devices | tail -n +2 | cut -sf 1 | xargs -I {} adb -s {} reboot'
+          }
         }
 
       }

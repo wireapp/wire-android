@@ -16,12 +16,13 @@ class RetryTestRule(val retryCount: Int = 3) : TestRule {
 
             // implement retry logic here
             for (i in 0 until retryCount) {
+                Log.i(TAG, "${description.displayName}: run #${(i + 1)}")
                 try {
                     base.evaluate()
                     return
                 } catch (t: Throwable) {
                     caughtThrowable = t
-                    Log.e(TAG, "${description.displayName}: run ${(i + 1)} failed")
+                    Log.e(TAG, "${description.displayName}: run #${(i + 1)} failed")
                 }
             }
 

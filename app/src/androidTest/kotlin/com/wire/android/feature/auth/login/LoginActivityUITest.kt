@@ -50,11 +50,4 @@ class LoginActivityUITest : FunctionalActivityTest(LoginActivity::class.java) {
         onView(withId(R.id.loginForgotPasswordButton)).perform(click())
         Intents.intended(hasAction(Intent.ACTION_VIEW))
     }
-
-    var count = 0
-    @Test
-    fun failingTest() {
-        count++
-        assertThat(count == 3).isTrue()
-    }
 }

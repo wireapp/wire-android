@@ -37,8 +37,8 @@ pipeline {
           steps {
             sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'docker-compose-files_nexus\' |grep -Eo \'1[0-9]{2}.*\')
 do
-        echo  "found emulator with ip $i:${ADB_PORT}"
-        adb connect $i:${ADB_PORT}
+        echo  "found emulator with ip $i:${adbPort}"
+        adb connect $i:${adbPort}
 done
 '''
           }
@@ -104,7 +104,7 @@ done
         stage('Publish Unit Report') {
           steps {
             echo 'Publish JUnit report'
-            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/tests/testDevDebugUnitTest/', reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
+            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/tests/test${env.flavor}DebugUnitTest/', reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
           }
         }
 
@@ -129,7 +129,7 @@ done
         stage('Publish Acceptance Test') {
           steps {
             echo 'Publish Acceptance Test'
-            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/androidTest/connected/flavours/DEV/', reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/androidTest/connected/flavors/${env.flavor}/', reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
           }
         }
 
@@ -145,7 +145,8 @@ done
   }
   environment {
     propertiesFile = 'local.properties'
-    ADB_PORT = '5555'
+    flavor = 'DEV'
+    adbPort = '5555'
   }
   post {
     failure {

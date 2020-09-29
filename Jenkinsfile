@@ -86,6 +86,24 @@ done
       }
     }
 
+    stage('Prepare Emulators') {
+      parallel {
+        stage('Uninstall App') {
+          steps {
+            script {
+              last_started = env.STAGE_NAME
+            }
+
+            withGradle() {
+              sh './gradlew :app:uninstallAll'
+            }
+
+          }
+        }
+
+      }
+    }
+
     stage('Acceptance Tests') {
       parallel {
         stage('Acceptance Tests') {

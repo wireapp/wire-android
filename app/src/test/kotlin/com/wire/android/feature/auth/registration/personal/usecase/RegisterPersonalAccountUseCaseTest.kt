@@ -133,9 +133,9 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when registrationRepository returns invalid user, then returns UserInfoMissing failure`() {
+    fun `given run is called, when registrationRepository returns null user, then returns UserInfoMissing failure`() {
         runBlocking {
-            `when`(registrationResult.user).thenReturn(User.EMPTY)
+            `when`(registrationResult.user).thenReturn(null)
             mockRegistrationResponse(Either.Right(registrationResult))
 
             val result = useCase.run(params)
@@ -149,10 +149,10 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when registrationRepository returns invalid refresh token, then returns RefreshTokenMissing failure`() {
+    fun `given run is called, when registrationRepository returns null refresh token, then returns RefreshTokenMissing failure`() {
         runBlocking {
             `when`(registrationResult.user).thenReturn(user)
-            `when`(registrationResult.refreshToken).thenReturn(String.EMPTY)
+            `when`(registrationResult.refreshToken).thenReturn(null)
             mockRegistrationResponse(Either.Right(registrationResult))
 
             val result = useCase.run(params)

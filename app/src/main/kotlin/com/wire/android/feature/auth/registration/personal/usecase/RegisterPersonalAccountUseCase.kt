@@ -25,8 +25,8 @@ class RegisterPersonalAccountUseCase(
             handleRegistrationFailure(it)
         }) {
             when {
-                it.user == User.EMPTY -> Either.Left(UserInfoMissing)
-                it.refreshToken.isEmpty() -> Either.Left(RefreshTokenMissing)
+                it.user == null -> Either.Left(UserInfoMissing)
+                it.refreshToken == null -> Either.Left(RefreshTokenMissing)
                 else -> saveDataAndRetrieveSession(it.user, it.refreshToken)
             }
         }!!

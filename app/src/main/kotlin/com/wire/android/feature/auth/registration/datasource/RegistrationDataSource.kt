@@ -1,14 +1,12 @@
 package com.wire.android.feature.auth.registration.datasource
 
 import com.wire.android.core.exception.Failure
-import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
 import com.wire.android.feature.auth.registration.RegistrationRepository
 import com.wire.android.feature.auth.registration.datasource.remote.RegistrationRemoteDataSource
 import com.wire.android.feature.auth.registration.personal.PersonalAccountRegistrationResult
 import com.wire.android.shared.session.mapper.SessionMapper
-import com.wire.android.shared.user.User
 import com.wire.android.shared.user.mapper.UserMapper
 
 class RegistrationDataSource(
@@ -22,8 +20,8 @@ class RegistrationDataSource(
     ): Either<Failure, PersonalAccountRegistrationResult> =
         remoteDataSource.registerPersonalAccount(name = name, email = email, password = password, activationCode = activationCode).map {
             PersonalAccountRegistrationResult(
-                user = it.body()?.let { userMapper.fromRegisteredUserResponse(it) } ?: User.EMPTY,
-                refreshToken = sessionMapper.extractRefreshToken(it.headers()) ?: String.EMPTY
+                user = it.body()?.let { userMapper.fromRegisteredUserResponse(it) },
+                refreshToken = sessionMapper.extractRefreshToken(it.headers())
             )
         }
 }

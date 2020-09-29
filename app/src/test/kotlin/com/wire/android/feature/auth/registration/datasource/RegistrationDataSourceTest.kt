@@ -3,7 +3,6 @@ package com.wire.android.feature.auth.registration.datasource
 import com.wire.android.UnitTest
 import com.wire.android.any
 import com.wire.android.core.exception.Failure
-import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.registration.datasource.remote.RegisteredUserResponse
 import com.wire.android.feature.auth.registration.datasource.remote.RegistrationRemoteDataSource
@@ -85,7 +84,7 @@ class RegistrationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given registerPersonalAccount() is called, when remoteDS response has a null body, then returns mapping with empty User`() {
+    fun `given registerPersonalAccount() is called, when remoteDS response has a null body, then returns mapping with null User`() {
         runBlocking {
             `when`(registeredUserResponse.body()).thenReturn(null)
             `when`(remoteDataSource.registerPersonalAccount(any(), any(), any(), any())).thenReturn(Either.Right(registeredUserResponse))
@@ -94,7 +93,7 @@ class RegistrationDataSourceTest : UnitTest() {
             val result = registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             result.assertRight {
-                assertThat(it).isEqualTo(PersonalAccountRegistrationResult(User.EMPTY, TEST_REFRESH_TOKEN))
+                assertThat(it).isEqualTo(PersonalAccountRegistrationResult(null, TEST_REFRESH_TOKEN))
             }
             verifyNoInteractions(userMapper)
             verify(sessionMapper).extractRefreshToken(headers)
@@ -102,7 +101,7 @@ class RegistrationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given registerPersonalAccount() is called, when remoteDS response has invalid header, then returns mapping with empty token`() {
+    fun `given registerPersonalAccount() is called, when remoteDS response has invalid header, then returns mapping with null token`() {
         runBlocking {
             `when`(remoteDataSource.registerPersonalAccount(any(), any(), any(), any())).thenReturn(Either.Right(registeredUserResponse))
             `when`(userMapper.fromRegisteredUserResponse(registeredUserResponseBody)).thenReturn(user)
@@ -111,7 +110,7 @@ class RegistrationDataSourceTest : UnitTest() {
             val result = registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             result.assertRight {
-                assertThat(it).isEqualTo(PersonalAccountRegistrationResult(user, String.EMPTY))
+                assertThat(it).isEqualTo(PersonalAccountRegistrationResult(user, null))
             }
             verify(userMapper).fromRegisteredUserResponse(registeredUserResponseBody)
             verify(sessionMapper).extractRefreshToken(headers)

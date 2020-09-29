@@ -8,7 +8,7 @@ import com.wire.android.shared.session.datasources.local.SessionLocalDataSource
 import com.wire.android.shared.session.datasources.remote.SessionApi
 import com.wire.android.shared.session.datasources.remote.SessionRemoteDataSource
 import com.wire.android.shared.session.mapper.SessionMapper
-import com.wire.android.shared.session.usecase.HasCurrentSessionUseCase
+import com.wire.android.shared.session.usecase.CheckCurrentSessionExistsUseCase
 import org.koin.dsl.module
 
 val sessionModule = module {
@@ -19,5 +19,5 @@ val sessionModule = module {
     single { get<NetworkClient>().create(SessionApi::class.java) }
     factory { SessionMapper() }
 
-    factory { HasCurrentSessionUseCase(get()) }
+    factory { CheckCurrentSessionExistsUseCase(get()) }
 }

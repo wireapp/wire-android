@@ -15,17 +15,17 @@ class LauncherActivity : AppCompatActivity(R.layout.activity_launcher) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         observeCurrentSession()
-        viewModel.checkCurrentSessionExists()
+        viewModel.checkIfCurrentSessionExists()
     }
 
     private fun observeCurrentSession() {
-        viewModel.hasCurrentSessionLiveData.observe(this) {
+        viewModel.currentSessionExistsLiveData.observe(this) {
             navigateToNextScreen(it)
         }
     }
 
-    private fun navigateToNextScreen(hasCurrentUser: Boolean) {
-        val nextIntent = if (hasCurrentUser) MainActivity.newIntent(this) else WelcomeActivity.newIntent(this)
+    private fun navigateToNextScreen(sessionExists: Boolean) {
+        val nextIntent = if (sessionExists) MainActivity.newIntent(this) else WelcomeActivity.newIntent(this)
         startActivity(nextIntent)
         finish()
     }

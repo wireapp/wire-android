@@ -7,17 +7,17 @@ import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
-import com.wire.android.shared.session.usecase.HasCurrentSessionUseCase
+import com.wire.android.shared.session.usecase.CheckCurrentSessionExistsUseCase
 
 class LauncherViewModel(
     override val dispatcherProvider: DispatcherProvider,
-    private val hasCurrentSessionUseCase: HasCurrentSessionUseCase
+    private val checkCurrentSessionExistsUseCase: CheckCurrentSessionExistsUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    private val _hasCurrentSessionLiveData = SingleLiveEvent<Boolean>()
-    val hasCurrentSessionLiveData: LiveData<Boolean> = _hasCurrentSessionLiveData
+    private val _currentSessionExistsLiveData = SingleLiveEvent<Boolean>()
+    val currentSessionExistsLiveData: LiveData<Boolean> = _currentSessionExistsLiveData
 
-    fun checkCurrentSessionExists() = hasCurrentSessionUseCase(viewModelScope, Unit) {
-        _hasCurrentSessionLiveData.value = it.fold({ false }) { it }
+    fun checkIfCurrentSessionExists() = checkCurrentSessionExistsUseCase(viewModelScope, Unit) {
+        _currentSessionExistsLiveData.value = it.fold({ false }) { it }
     }
 }

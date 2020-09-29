@@ -104,7 +104,7 @@ done
         stage('Publish Unit Report') {
           steps {
             echo 'Publish JUnit report'
-            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/tests/test${env.flavor}DebugUnitTest/', reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
+            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/tests/test${flavor}DebugUnitTest/', reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
           }
         }
 
@@ -129,7 +129,7 @@ done
         stage('Publish Acceptance Test') {
           steps {
             echo 'Publish Acceptance Test'
-            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/androidTest/connected/flavors/${env.flavor}/', reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/androidTest/connected/flavors/${flavor}/', reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
           }
         }
 

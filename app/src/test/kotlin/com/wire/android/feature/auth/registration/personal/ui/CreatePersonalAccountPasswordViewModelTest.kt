@@ -18,6 +18,7 @@ import com.wire.android.feature.auth.registration.personal.usecase.UnauthorizedE
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.livedata.assertNotUpdated
 import com.wire.android.framework.livedata.awaitValue
 import com.wire.android.shared.user.password.InvalidPasswordFailure
 import com.wire.android.shared.user.password.ValidatePasswordParams
@@ -29,7 +30,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.*
-import java.util.concurrent.TimeoutException
 
 @ExperimentalCoroutinesApi
 class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
@@ -138,7 +138,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
         }
     }
 
-    @Test(expected = TimeoutException::class)
+    @Test
     fun `given registerUser is called, when use case returns SessionCannotBeCreated error, then logs the user out`() {
         coroutinesTestRule.runTest {
             `when`(registerUseCase.run(any())).thenReturn(Either.Left(SessionCannotBeCreated))
@@ -146,7 +146,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             //TODO: assertion about logout
-            viewModel.registerStatusLiveData.awaitValue()
+            viewModel.registerStatusLiveData.assertNotUpdated()
         }
     }
 

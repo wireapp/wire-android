@@ -3,7 +3,6 @@ package com.wire.android.feature.auth.registration.datasource
 import com.wire.android.UnitTest
 import com.wire.android.any
 import com.wire.android.core.exception.Failure
-import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.registration.datasource.remote.RegisteredUserResponse
 import com.wire.android.feature.auth.registration.datasource.remote.RegistrationRemoteDataSource

@@ -87,9 +87,24 @@ done
     }
 
     stage('Acceptance Tests') {
-      steps {
-        script {
-          last_started = env.STAGE_NAME
+      parallel {
+        stage('Acceptance Tests') {
+          when {
+            expression {
+              params.AcceptanceTests
+            }
+
+          }
+          steps {
+            script {
+              last_started = env.STAGE_NAME
+            }
+
+            withGradle() {
+              sh './gradlew runAcceptanceTests'
+            }
+
+          }
         }
 
         stage('Publish Unit Report') {

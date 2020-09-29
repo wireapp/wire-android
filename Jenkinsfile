@@ -129,7 +129,7 @@ done
         stage('Publish Acceptance Test') {
           steps {
             echo 'Publish Acceptance Test'
-            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTest/connected/flavors/${flavor}/", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${flavor.toUpperCase()}/", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
           }
         }
 
@@ -138,14 +138,14 @@ done
 
     stage('Archive APK') {
       steps {
-        archiveArtifacts(artifacts: 'app/build/outputs/apk/dev/debug/app*.apk', allowEmptyArchive: true, onlyIfSuccessful: true)
+        archiveArtifacts(artifacts: "app/build/outputs/apk/${flavor.toLowerCase()}/debug/app*.apk", allowEmptyArchive: true, onlyIfSuccessful: true)
       }
     }
 
   }
   environment {
     propertiesFile = 'local.properties'
-    flavor = 'DEV'
+    flavor = 'Dev'
     adbPort = '5555'
   }
   post {

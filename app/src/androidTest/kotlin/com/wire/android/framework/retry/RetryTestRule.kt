@@ -15,8 +15,8 @@ class RetryTestRule(val retryCount: Int = 3) : TestRule {
             lateinit var caughtThrowable: Throwable
 
             // implement retry logic here
-            for (i in 0 until retryCount) {
-                Log.i(TAG, "${description.displayName}: run #${(i + 1)}")
+            for (i in 1..retryCount) {
+                Log.i(TAG, "${description.displayName}: run #${i}")
                 try {
                     base.evaluate()
                     //TODO if successful without a catch we need to intervent
@@ -24,7 +24,7 @@ class RetryTestRule(val retryCount: Int = 3) : TestRule {
                     return
                 } catch (t: Throwable) {
                     caughtThrowable = t
-                    Log.e(TAG, "${description.displayName}: run #${(i + 1)} failed")
+                    Log.e(TAG, "${description.displayName}: run #${i} failed")
                     //TODO i guess at this point we need to add the reporting modification
                 }
             }

@@ -62,9 +62,15 @@ done
           }
         }
 
-        stage('Reboot the Emulators') {
+        stage('Reboot Emulator Container') {
           steps {
-            sh 'adb devices | tail -n +2 | cut -sf 1 | xargs -I {} adb -s {} reboot'
+            sh '''for i in $(docker inspect -f \'{{.Name}}\' $(docker ps -aq) |grep \'docker-compose-files_nexus\' |grep -Eo \'[a-zA-Z0-9._-]*\')
+do
+        echo  "restarting emulator $i"
+        
+        docker restart $i
+done
+'''
           }
         }
 

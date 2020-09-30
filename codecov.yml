@@ -2,6 +2,12 @@
 # ----------------------
 coverage:
   status:
+    project:
+      default:
+        # basic
+        target: auto
+        threshold: 5%
+        base: auto
     patch: false
 
   range: 70..90     # First number represents red, and second represents green

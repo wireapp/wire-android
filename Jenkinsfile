@@ -1,7 +1,7 @@
 pipeline {
   agent {
-    dockerfile {
-      filename 'docker-agent/AndroidAgent'
+    docker {
+      image 'android-agent:latest'
       args '-u 1000:133 --network docker-compose-files_build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
     }
 
@@ -48,30 +48,13 @@ done
     }
 
     stage('Compile') {
-      parallel {
-        stage('Compile') {
-          steps {
-            script {
-              last_started = env.STAGE_NAME
-            }
-
-            withGradle() {
-              sh './gradlew compileApp'
-            }
-
-          }
+      steps {
+        script {
+          last_started = env.STAGE_NAME
         }
 
-        stage('Reboot Emulator Container') {
-          steps {
-            sh '''for i in $(docker inspect -f \'{{.Name}}\' $(docker ps -aq) |grep \'docker-compose-files_nexus\' |grep -Eo \'[a-zA-Z0-9._-]*\')
-do
-        echo  "restarting emulator $i"
-        
-        docker restart $i
-done
-'''
-          }
+        withGradle() {
+          sh './gradlew compileApp'
         }
 
       }

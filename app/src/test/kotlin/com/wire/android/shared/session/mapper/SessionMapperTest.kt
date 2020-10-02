@@ -50,7 +50,7 @@ class SessionMapperTest : UnitTest() {
     @Test
     fun `given fromLoginResponse is called, when refresh token is not in correct format, then returns empty Session`() {
         `when`(loginWithEmailResponse.body()).thenReturn(loginWithEmailResponseBody)
-        `when`(loginWithEmailResponse.headers()).thenReturn(Headers.headersOf(LOGIN_REFRESH_TOKEN_HEADER_KEY, "dummyValue"))
+        `when`(loginWithEmailResponse.headers()).thenReturn(Headers.headersOf(AUTH_REFRESH_TOKEN_HEADER_KEY, "dummyValue"))
 
         val result = sessionMapper.fromLoginResponse(loginWithEmailResponse)
 
@@ -63,7 +63,7 @@ class SessionMapperTest : UnitTest() {
             LoginWithEmailResponse(expiresIn = 900, accessToken = TEST_ACCESS_TOKEN, userId = TEST_USER_ID, tokenType = TEST_TOKEN_TYPE)
         )
         `when`(loginWithEmailResponse.headers()).thenReturn(
-            Headers.headersOf(LOGIN_REFRESH_TOKEN_HEADER_KEY, TEST_REFRESH_TOKEN_HEADER_VALUE)
+            Headers.headersOf(AUTH_REFRESH_TOKEN_HEADER_KEY, TEST_REFRESH_TOKEN_HEADER_VALUE)
         )
 
         val result = sessionMapper.fromLoginResponse(loginWithEmailResponse)
@@ -71,6 +71,33 @@ class SessionMapperTest : UnitTest() {
         assertThat(result).isEqualTo(
             Session(userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN)
         )
+    }
+
+    @Test
+    fun `given extractRefreshToken is called, when header does not contain refresh token key, then returns null`() {
+        val headers = Headers.headersOf("dummyKey", "dummyValue")
+
+        val result = sessionMapper.extractRefreshToken(headers)
+
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun `given extractRefreshToken is called, when refresh token exists but is in incorrect format, then returns null`() {
+        val headers = Headers.headersOf(AUTH_REFRESH_TOKEN_HEADER_KEY, "dummyValue")
+
+        val result = sessionMapper.extractRefreshToken(headers)
+
+        assertThat(result).isEqualTo(null)
+    }
+
+    @Test
+    fun `given extractRefreshToken is called, when refresh token exists and is in correct format, then returns refresh token`() {
+        val headers = Headers.headersOf(AUTH_REFRESH_TOKEN_HEADER_KEY, TEST_REFRESH_TOKEN_HEADER_VALUE)
+
+        val result = sessionMapper.extractRefreshToken(headers)
+
+        assertThat(result).isEqualTo(TEST_REFRESH_TOKEN)
     }
 
     @Test
@@ -116,7 +143,7 @@ class SessionMapperTest : UnitTest() {
                 ".t=u.l=.u=1c5af167-fd5d-4ee5-a11b-fe93b1882ade.r=73e30faa"
         private const val TEST_REFRESH_TOKEN_HEADER_VALUE = "zuid=$TEST_REFRESH_TOKEN; Path=/access; HttpOnly; Secure"
 
-        private const val LOGIN_REFRESH_TOKEN_HEADER_KEY = "Set-Cookie"
+        private const val AUTH_REFRESH_TOKEN_HEADER_KEY = "Set-Cookie"
 
         private fun testSessionEntity(current: Boolean) = SessionEntity(
             userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN,

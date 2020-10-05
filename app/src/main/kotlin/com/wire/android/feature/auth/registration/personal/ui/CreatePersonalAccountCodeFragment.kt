@@ -7,7 +7,6 @@ import androidx.lifecycle.observe
 import com.poovam.pinedittextfield.PinField.OnTextCompleteListener
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
-import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.withArgs
 import com.wire.android.core.functional.onFailure
@@ -15,6 +14,7 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.arg
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
+import com.wire.android.core.ui.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_create_personal_account_code.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -28,6 +28,8 @@ class CreatePersonalAccountCodeFragment : Fragment(R.layout.fragment_create_pers
     private val inputFocusViewModel: InputFocusViewModel by viewModel()
 
     private val dialogBuilder: DialogBuilder by inject()
+
+    private val navigator: Navigator by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -76,8 +78,7 @@ class CreatePersonalAccountCodeFragment : Fragment(R.layout.fragment_create_pers
         }
     }
 
-    private fun showEnterNameScreen(code: String) =
-        replaceFragment(R.id.createAccountLayoutContainer, CreatePersonalAccountNameFragment.newInstance(email, code))
+    private fun showEnterNameScreen(code: String) = navigator.createAccount.openPersonalNameScreen(requireActivity(), email, code)
 
     private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
 

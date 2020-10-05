@@ -9,11 +9,11 @@ import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.headingForAccessibility
-import com.wire.android.core.extension.openUrl
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.toStringOrEmpty
-import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailActivity
+import com.wire.android.core.ui.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_create_pro_account_team_name.*
+import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_account_team_name) {
@@ -22,13 +22,14 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
 
     private val inputFocusViewModel: InputFocusViewModel by viewModel()
 
+    private val navigator: Navigator by inject()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initTeamNameHeader()
         initTeamNameInput()
         initAboutButton()
         initConfirmationButton()
-        observerUrlData()
         observeTeamNameInput()
         requestKeyboardFocus()
     }
@@ -41,7 +42,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         with(createProAccountTeamNameInputConfirmationButton) {
             isEnabled = false
             setOnClickListener {
-                startActivity(CreateProAccountTeamEmailActivity.newIntent(requireContext()))
+                navigator.createAccount.openProTeamEmailScreen(requireContext())
             }
             createProAccountTeamNameViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
                 isEnabled = it
@@ -49,13 +50,8 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         }
 
     private fun initAboutButton() =
-        createProAccountTeamNameInputConfirmationButton.setOnClickListener {
-            createProAccountTeamNameViewModel.onAboutButtonClicked()
-        }
-
-    private fun observerUrlData() =
-        createProAccountTeamNameViewModel.urlLiveData.observe(viewLifecycleOwner) {
-            openUrl(it)
+        createProAccountTeamNameAboutButton.setOnClickListener {
+            navigator.createAccount.openProAboutTeamScreen(requireContext())
         }
 
     private fun initTeamNameInput() {

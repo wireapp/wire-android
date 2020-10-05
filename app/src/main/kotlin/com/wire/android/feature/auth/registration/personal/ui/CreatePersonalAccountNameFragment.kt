@@ -8,12 +8,13 @@ import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.headingForAccessibility
-import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.extension.withArgs
 import com.wire.android.core.ui.arg
+import com.wire.android.core.ui.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_create_personal_account_name.*
+import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class CreatePersonalAccountNameFragment : Fragment(R.layout.fragment_create_personal_account_name) {
@@ -21,6 +22,8 @@ class CreatePersonalAccountNameFragment : Fragment(R.layout.fragment_create_pers
     private val inputFocusViewModel: InputFocusViewModel by viewModel()
 
     private val nameViewModel: CreatePersonalAccountNameViewModel by viewModel()
+
+    private val navigator: Navigator by inject()
 
     private val email by arg<String>(KEY_EMAIL)
     private val activationCode by arg<String>(KEY_ACTIVATION_CODE)
@@ -57,10 +60,8 @@ class CreatePersonalAccountNameFragment : Fragment(R.layout.fragment_create_pers
         if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountNameEditText)
     }
 
-    private fun showPasswordScreen(name: String) = replaceFragment(
-        R.id.createAccountLayoutContainer,
-        CreatePersonalAccountPasswordFragment.newInstance(name = name, email = email, activationCode = activationCode)
-    )
+    private fun showPasswordScreen(name: String) =
+        navigator.createAccount.openPersonalPasswordScreen(requireActivity(), name, email, activationCode)
 
     companion object {
         private const val KEY_EMAIL = "email"

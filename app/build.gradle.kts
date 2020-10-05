@@ -4,6 +4,7 @@ plugins {
     id(BuildPlugins.kotlinAndroid)
     id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinKapt)
+    id(BuildPlugins.navigationSafeArgs)
 
     // Internal Script plugins
     id(ScriptPlugins.variants)
@@ -46,6 +47,8 @@ dependencies {
     implementation(Libraries.Kotlin.coroutinesAndroid)
     implementation(Libraries.pinEditText)
     implementation(Libraries.viewPager2)
+    implementation(Libraries.Navigation.fragment)
+    implementation(Libraries.Navigation.ui)
 
     implementation(Libraries.Retrofit.core)
     implementation(Libraries.Retrofit.gsonConverter)

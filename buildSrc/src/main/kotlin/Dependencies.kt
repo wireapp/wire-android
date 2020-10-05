@@ -10,6 +10,7 @@ object BuildPlugins {
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val kotlinKapt = "kotlin-kapt"
+    const val navigationSafeArgs = "androidx.navigation.safeargs.kotlin"
 }
 
 object AndroidSdk {
@@ -38,6 +39,7 @@ object Libraries {
         const val viewPager2 = "1.0.0"
         const val room = "2.2.5"
         const val desugaring = "1.0.10"
+        const val navigation = "2.3.0"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -60,6 +62,11 @@ object Libraries {
         const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
         const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
         const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+    }
+
+    object Navigation {
+        const val fragment = "androidx.navigation:navigation-fragment-ktx:${Versions.navigation}"
+        const val ui       = "androidx.navigation:navigation-ui-ktx:${Versions.navigation}"
     }
 
     object Retrofit {

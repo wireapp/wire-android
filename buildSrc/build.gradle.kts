@@ -3,6 +3,7 @@ private object Dependencies {
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10"
     const val detektGradlePlugin = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.9.1"
     const val jacocoGradlePlugin = "org.jacoco:org.jacoco.core:0.8.5"
+    const val navigationGradlePlugin = "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.0"
 }
 
 plugins {
@@ -19,4 +20,5 @@ dependencies {
     implementation(Dependencies.kotlinGradlePlugin)
     implementation(Dependencies.detektGradlePlugin)
     implementation(Dependencies.jacocoGradlePlugin)
+    implementation(Dependencies.navigationGradlePlugin)
 }

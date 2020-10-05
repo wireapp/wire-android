@@ -5,11 +5,13 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.wire.android.R
 import com.wire.android.core.extension.headingForAccessibility
-import com.wire.android.feature.auth.login.LoginActivity
-import com.wire.android.feature.auth.registration.CreateAccountActivity
+import com.wire.android.core.ui.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_welcome.*
+import org.koin.android.ext.android.inject
 
 class WelcomeFragment : Fragment(R.layout.fragment_welcome) {
+
+    private val navigator: Navigator by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -24,11 +26,11 @@ class WelcomeFragment : Fragment(R.layout.fragment_welcome) {
 
     private fun initCreateAccountButton() =
         welcomeCreateAccountButton.setOnClickListener {
-            startActivity(CreateAccountActivity.newIntent(requireContext()))
+            navigator.createAccount.openCreateAccount(requireContext())
         }
 
     private fun initLoginButton() =
         welcomeLoginButton.setOnClickListener {
-            startActivity(LoginActivity.newIntent(requireContext()))
+            navigator.login.openLogin(requireContext())
         }
 }

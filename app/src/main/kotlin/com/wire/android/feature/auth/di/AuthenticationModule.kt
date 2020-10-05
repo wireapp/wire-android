@@ -8,13 +8,13 @@ import com.wire.android.feature.auth.activation.datasource.ActivationDataSource
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationApi
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemoteDataSource
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
-import com.wire.android.feature.auth.login.LoginViewModel
 import com.wire.android.feature.auth.login.email.LoginRepository
 import com.wire.android.feature.auth.login.email.datasource.LoginDataSource
 import com.wire.android.feature.auth.login.email.datasource.remote.LoginApi
 import com.wire.android.feature.auth.login.email.datasource.remote.LoginRemoteDataSource
 import com.wire.android.feature.auth.login.email.ui.LoginWithEmailViewModel
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
+import com.wire.android.feature.auth.login.ui.navigation.LoginNavigator
 import com.wire.android.feature.auth.registration.CreateAccountActivity
 import com.wire.android.feature.auth.registration.RegistrationRepository
 import com.wire.android.feature.auth.registration.datasource.RegistrationDataSource
@@ -90,7 +90,8 @@ private val createProAccountModule = module {
 }
 
 private val loginModule = module {
-    viewModel { LoginViewModel(get()) }
+    single { LoginNavigator(get(), get()) }
+
     viewModel { LoginWithEmailViewModel(get(), get(), get()) }
     factory { LoginWithEmailUseCase(get(), get(), get()) }
 

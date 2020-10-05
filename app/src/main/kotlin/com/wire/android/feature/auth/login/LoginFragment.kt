@@ -1,19 +1,18 @@
 package com.wire.android.feature.auth.login
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.wire.android.R
 import com.wire.android.core.extension.headingForAccessibility
+import com.wire.android.core.ui.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_login.*
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.android.ext.android.inject
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
-    private val loginViewModel: LoginViewModel by viewModel()
+    private val navigator: Navigator by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -41,9 +40,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private fun initForgotPasswordButton() =
         loginForgotPasswordButton.setOnClickListener {
-            openUri(loginViewModel.forgotPasswordUri)
+            navigator.login.openForgotPassword(requireContext())
         }
-
-    //TODO pass to navigator maybe?
-    private fun openUri(uri: Uri) = startActivity(Intent(Intent.ACTION_VIEW, uri))
 }

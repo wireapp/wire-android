@@ -4,15 +4,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
+import androidx.navigation.fragment.navArgs
 import com.poovam.pinedittextfield.PinField.OnTextCompleteListener
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.extension.showKeyboardWithFocusOn
-import com.wire.android.core.extension.withArgs
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
-import com.wire.android.core.ui.arg
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
 import kotlinx.android.synthetic.main.fragment_create_personal_account_code.*
@@ -21,7 +20,8 @@ import org.koin.android.viewmodel.ext.android.viewModel
 
 class CreatePersonalAccountCodeFragment : Fragment(R.layout.fragment_create_personal_account_code) {
 
-    private val email by arg<String>(KEY_EMAIL)
+    private val args: CreatePersonalAccountCodeFragmentArgs by navArgs()
+    private val email: String get() = args.email
 
     private val codeViewModel: CreatePersonalAccountCodeViewModel by viewModel()
 
@@ -82,11 +82,4 @@ class CreatePersonalAccountCodeFragment : Fragment(R.layout.fragment_create_pers
     private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
 
     private fun clearPinCode() = createPersonalAccountCodePinEditText.text?.clear()
-
-    companion object {
-        private const val KEY_EMAIL = "email"
-
-        fun newInstance(email: String) =
-            CreatePersonalAccountCodeFragment().withArgs(KEY_EMAIL to email)
-    }
 }

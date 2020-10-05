@@ -5,10 +5,10 @@ import android.view.View
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.headingForAccessibility
-import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.functional.onFailure
@@ -79,13 +79,9 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
         }
     }
 
-    private fun showEmailCodeScreen(email: String) = replaceFragment(
-        R.id.createAccountLayoutContainer, CreatePersonalAccountCodeFragment.newInstance(email)
+    private fun showEmailCodeScreen(email: String) = findNavController().navigate(
+        CreatePersonalAccountEmailFragmentDirections.actionCreatePersonalAccountEmailFragmentToCreatePersonalAccountCodeFragment(email)
     )
 
     private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
-
-    companion object {
-        fun newInstance() = CreatePersonalAccountEmailFragment()
-    }
 }

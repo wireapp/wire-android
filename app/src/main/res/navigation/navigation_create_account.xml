@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/navigation_create_account"
+    app:startDestination="@id/createAccountFragment">
+
+    <fragment
+        android:id="@+id/createAccountFragment"
+        android:name="com.wire.android.feature.auth.registration.CreateAccountFragment"
+        android:label="CreateAccountFragment" >
+        <action
+            android:id="@+id/action_createAccountFragment_to_createPersonalAccountEmailFragment"
+            app:destination="@id/createPersonalAccountEmailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createPersonalAccountEmailFragment"
+        android:name="com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountEmailFragment"
+        android:label="CreatePersonalAccountEmailFragment" >
+        <action
+            android:id="@+id/action_createPersonalAccountEmailFragment_to_createPersonalAccountCodeFragment"
+            app:destination="@id/createPersonalAccountCodeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createPersonalAccountCodeFragment"
+        android:name="com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountCodeFragment"
+        android:label="CreatePersonalAccountCodeFragment" >
+        <argument
+            android:name="email"
+            app:argType="string" />
+    </fragment>
+</navigation>

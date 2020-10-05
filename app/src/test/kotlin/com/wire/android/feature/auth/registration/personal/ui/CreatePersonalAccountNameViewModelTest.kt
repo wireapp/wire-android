@@ -26,6 +26,7 @@ class CreatePersonalAccountNameViewModelTest : UnitTest() {
     private lateinit var validateNameUseCase: ValidateNameUseCase
 
     private lateinit var nameViewModel: CreatePersonalAccountNameViewModel
+
     @Before
     fun setUp() {
         nameViewModel = CreatePersonalAccountNameViewModel(coroutinesTestRule.dispatcherProvider, validateNameUseCase)

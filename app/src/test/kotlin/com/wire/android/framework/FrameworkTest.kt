@@ -49,7 +49,7 @@ class FrameworkTest : UnitTest() {
 
             liveData.assertNotUpdated()
 
-            liveData.observe(lifecycleOwner, Observer {  })
+            liveData.observe(lifecycleOwner, Observer { })
             lifecycleOwner.destroy()
         }
     }

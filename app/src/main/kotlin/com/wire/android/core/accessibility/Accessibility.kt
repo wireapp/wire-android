@@ -12,7 +12,7 @@ class AccessibilityConfig(private val compatibility: Compatibility) {
 class Accessibility(private val am: AccessibilityManager) {
 
     fun isTalkbackEnabled() = am.isEnabled &&
-            am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
-                .isNotEmpty()
+        am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
+            .isNotEmpty()
 
 }

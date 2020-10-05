@@ -5,7 +5,7 @@ import com.wire.android.AndroidTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class UriExtensionsTest: AndroidTest() {
+class UriExtensionsTest : AndroidTest() {
 
     @Test
     fun uriBuilder_domainAddress_setsSchemeAndAuthority() {

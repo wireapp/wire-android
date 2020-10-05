@@ -16,7 +16,7 @@ class ValidatePasswordUseCaseTest : UnitTest() {
     @Mock
     private lateinit var passwordLengthConfig: PasswordLengthConfig
 
-    private lateinit var useCase : ValidatePasswordUseCase
+    private lateinit var useCase: ValidatePasswordUseCase
 
     @Before
     fun setUp() {
@@ -36,15 +36,15 @@ class ValidatePasswordUseCaseTest : UnitTest() {
 
     @Test
     fun `given a password with length shorter than config's minLength, when run is called, returns InvalidPasswordFailure`() {
-       runBlocking {
-           val password = "12"
+        runBlocking {
+            val password = "12"
 
-           val result = useCase.run(ValidatePasswordParams(password))
+            val result = useCase.run(ValidatePasswordParams(password))
 
-           result.assertLeft {
-               assertThat(it).isEqualTo(InvalidPasswordFailure)
-           }
-       }
+            result.assertLeft {
+                assertThat(it).isEqualTo(InvalidPasswordFailure)
+            }
+        }
     }
 
     @Test

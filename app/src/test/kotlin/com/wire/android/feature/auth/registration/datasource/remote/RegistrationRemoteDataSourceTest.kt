@@ -18,7 +18,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import retrofit2.Response
-import java.util.*
+import java.util.Locale
 
 class RegistrationRemoteDataSourceTest : UnitTest() {
 

@@ -14,11 +14,11 @@ coverage:
 # --------------
 # which folders/files to ignore
 ignore:
-  - */tests/.*
-  - */androidTest/.*
-  - */_version.py
-  - setup.py
-  - versioneer.py
+  - ".*/test/.*"
+  - ".*/androidTest/.*"
+  - ".*/_version.py"
+  - "setup.py"
+  - "versioneer.py"
 
 # Pull request comments:
 # ----------------------

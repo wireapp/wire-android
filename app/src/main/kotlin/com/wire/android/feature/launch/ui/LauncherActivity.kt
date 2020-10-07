@@ -2,6 +2,7 @@ package com.wire.android.feature.launch.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.feature.conversation.list.MainActivity
 import com.wire.android.feature.welcome.WelcomeActivity
@@ -13,15 +14,19 @@ class LauncherActivity : AppCompatActivity(R.layout.activity_launcher) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        navigateToNextScreen()
+        observeCurrentSession()
+        viewModel.checkIfCurrentSessionExists()
     }
 
-    private fun navigateToNextScreen() {
-        if (viewModel.hasActiveUser()) {
-            startActivity(MainActivity.newIntent(this))
-        } else {
-            startActivity(WelcomeActivity.newIntent(this))
+    private fun observeCurrentSession() {
+        viewModel.currentSessionExistsLiveData.observe(this) {
+            navigateToNextScreen(it)
         }
+    }
+
+    private fun navigateToNextScreen(sessionExists: Boolean) {
+        val nextIntent = if (sessionExists) MainActivity.newIntent(this) else WelcomeActivity.newIntent(this)
+        startActivity(nextIntent)
         finish()
     }
 }

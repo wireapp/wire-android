@@ -151,18 +151,6 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given registerUser is called, when use case returns SessionCannotBeCreated error, then logs the user out`() {
-        coroutinesTestRule.runTest {
-            `when`(registerUseCase.run(any())).thenReturn(Either.Left(SessionCannotBeCreated))
-
-            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
-
-            //TODO: assertion about logout
-            viewModel.registerStatusLiveData.assertNotUpdated()
-        }
-    }
-
-    @Test
     fun `given registerUser is called, when use case returns NetworkConnection error, then sets NetworkError to registerStatusLiveData`() {
         coroutinesTestRule.runTest {
             `when`(registerUseCase.run(any())).thenReturn(Either.Left(NetworkConnection))

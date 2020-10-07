@@ -19,4 +19,7 @@ interface SessionDao {
 
     @Query("UPDATE session SET is_current = 0 WHERE is_current = 1")
     suspend fun setCurrentSessionToDormant()
+
+    @Query("SELECT EXISTS(SELECT 1 FROM session WHERE is_current = 1)")
+    suspend fun doesCurrentSessionExist(): Boolean
 }

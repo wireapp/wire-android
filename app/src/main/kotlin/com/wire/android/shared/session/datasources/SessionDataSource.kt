@@ -31,4 +31,6 @@ class SessionDataSource(
         remoteDataSource.accessToken(refreshToken).map {
             mapper.fromAccessTokenResponse(it, refreshToken)
         }
+
+    override suspend fun doesCurrentSessionExist(): Either<Failure, Boolean> = localDataSource.doesCurrentSessionExist()
 }

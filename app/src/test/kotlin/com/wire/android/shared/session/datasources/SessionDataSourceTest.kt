@@ -2,6 +2,7 @@ package com.wire.android.shared.session.datasources
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.DatabaseFailure
+import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.SQLiteFailure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
@@ -165,6 +166,36 @@ class SessionDataSourceTest : UnitTest() {
             }
             verify(remoteDataSource).accessToken(refreshToken)
             verifyNoInteractions(sessionMapper)
+        }
+    }
+
+    @Test
+    fun `given doesCurrentSessionExist is called, when localDataSource successfully returns true, then propagates the result`() {
+        testDoesCurrentSessionExistSuccessCase(true)
+    }
+
+    @Test
+    fun `given doesCurrentSessionExist is called, when localDataSource successfully returns false, then propagates the result`() {
+        testDoesCurrentSessionExistSuccessCase(false)
+    }
+
+    private fun testDoesCurrentSessionExistSuccessCase(exists: Boolean) = runBlocking {
+        `when`(localDataSource.doesCurrentSessionExist()).thenReturn(Either.Right(exists))
+
+        sessionDataSource.doesCurrentSessionExist().assertRight {
+            assertThat(it).isEqualTo(exists)
+        }
+    }
+
+    @Test
+    fun `given doesCurrentSessionExist is called, when localDataSource returns a failure, then propagates the failure`() {
+        runBlocking {
+            val failure = mock(Failure::class.java)
+            `when`(localDataSource.doesCurrentSessionExist()).thenReturn(Either.Left(failure))
+
+            sessionDataSource.doesCurrentSessionExist().assertLeft {
+                assertThat(it).isEqualTo(failure)
+            }
         }
     }
 }

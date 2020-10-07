@@ -94,6 +94,26 @@ class SessionDaoTest : DatabaseTest() {
         assertThat(sessions).containsExactlyInAnyOrder(session1.copy(isCurrent = false), session2)
     }
 
+    @Test
+    fun doesCurrentSessionExist_aSessionExistsAsCurrent_returnsTrue() = runTest {
+        val session = prepareSession(id = 1, userId = "userId-1", current = true)
+        sessionDao.insert(session)
+
+        val result = sessionDao.doesCurrentSessionExist()
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun doesCurrentSessionExist_noSessionExistsAsCurrent_returnsFalse() = runTest {
+        val session = prepareSession(id = 1, userId = "userId-1", current = false)
+        sessionDao.insert(session)
+
+        val result = sessionDao.doesCurrentSessionExist()
+
+        assertThat(result).isFalse()
+    }
+
     private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean): SessionEntity {
         globalDatabase.userDao().insert(UserEntity(userId, TEST_USER_NAME))
 

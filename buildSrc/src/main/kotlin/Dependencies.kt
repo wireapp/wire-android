@@ -1,5 +1,5 @@
 const val appId = "com.wire.android"
-private const val kotlinVersion = "1.3.72"
+private const val kotlinVersion = "1.4.10"
 
 object BuildPlugins {
     object Versions {
@@ -31,7 +31,7 @@ object Libraries {
         const val material = "1.1.0"
         const val koin = "2.1.6"
         const val lifecycleKtx = "2.2.0"
-        const val coroutines = "1.3.7"
+        const val coroutines = "1.3.9"
         const val retrofit = "2.9.0"
         const val okHttpLogging = "4.7.2"
         const val pinEditText = "1.2.3"

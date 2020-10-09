@@ -6,14 +6,14 @@ import com.wire.android.core.extension.replaceFragment
 import org.koin.android.ext.android.get
 import org.koin.core.qualifier.TypeQualifier
 
-class FragmentNavigator {
+class FragmentStackHandler {
 
-    fun openFragment(activity: FragmentActivity, fragment: Fragment, addToBackStack: Boolean = true) = with(activity) {
+    fun replaceFragment(activity: FragmentActivity, fragment: Fragment, addToBackStack: Boolean = true) = with(activity) {
         val containerId = get<FragmentContainerProvider>(TypeQualifier(this::class)).getContainerResId(fragment)
         supportFragmentManager.replaceFragment(containerId, fragment, addToBackStack)
     }
 
-    fun openChildFragment(parent: Fragment, child: Fragment, addToBackStack: Boolean = true) = with(parent) {
+    fun replaceChildFragment(parent: Fragment, child: Fragment, addToBackStack: Boolean = true) = with(parent) {
         val containerId = get<FragmentContainerProvider>(TypeQualifier(this::class)).getContainerResId(child)
         childFragmentManager.replaceFragment(containerId, child, addToBackStack)
     }

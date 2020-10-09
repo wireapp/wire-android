@@ -7,9 +7,11 @@ import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAcco
 
 class CreateAccountNavigator(private val fragmentStackHandler: FragmentStackHandler) {
 
-    fun openEmailScreen(activity: FragmentActivity) =
+    fun openEmailScreen(activity: FragmentActivity) {
         fragmentStackHandler.replaceFragment(activity, CreatePersonalAccountEmailFragment.newInstance())
+    }
 
-    fun openCodeScreen(activity: FragmentActivity, email: String) =
+    fun openCodeScreen(activity: FragmentActivity, email: String) {
         fragmentStackHandler.replaceFragment(activity, CreatePersonalAccountCodeFragment.newInstance(email))
+    }
 }

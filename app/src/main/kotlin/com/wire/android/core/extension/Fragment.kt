@@ -18,7 +18,7 @@ fun Fragment.replaceFragment(frameId: Int, fragment: Fragment, addToBackStack: B
 }
 
 //TODO: delete other "replaceFragment" methods
-fun FragmentManager.replaceFragment(frameId: Int, fragment: Fragment, addToBackStack: Boolean = true) {
+fun FragmentManager.replaceFragment(frameId: Int, fragment: Fragment, addToBackStack: Boolean = true) =
     inTransaction {
         replace(frameId, fragment).also {
             if (addToBackStack) {
@@ -26,7 +26,6 @@ fun FragmentManager.replaceFragment(frameId: Int, fragment: Fragment, addToBackS
             }
         }
     }
-}
 
 //TODO is this the best approach?
 fun Fragment.openUrl(url: String) =

@@ -5,5 +5,5 @@ import com.wire.android.core.functional.Either
 import com.wire.android.shared.session.Session
 
 interface LoginRepository {
-    suspend fun loginWithEmail(email: String, password: String) : Either<Failure, Session>
+    suspend fun loginWithEmail(email: String, password: String): Either<Failure, Session>
 }

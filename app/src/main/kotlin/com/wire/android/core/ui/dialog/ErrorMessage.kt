@@ -4,8 +4,10 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 
 open class ErrorMessage {
-    @StringRes val message: Int
-    @StringRes val title: Int?
+    @StringRes
+    val message: Int
+    @StringRes
+    val title: Int?
 
     constructor(@StringRes message: Int) {
         this.message = message

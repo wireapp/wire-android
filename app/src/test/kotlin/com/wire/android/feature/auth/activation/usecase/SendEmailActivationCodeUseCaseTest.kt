@@ -1,7 +1,9 @@
 package com.wire.android.feature.auth.activation.usecase
 
 import com.wire.android.UnitTest
-import com.wire.android.core.exception.*
+import com.wire.android.core.exception.Conflict
+import com.wire.android.core.exception.Failure
+import com.wire.android.core.exception.Forbidden
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.activation.ActivationRepository
 import com.wire.android.framework.functional.assertLeft
@@ -10,10 +12,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
-
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 
 @ExperimentalCoroutinesApi
 class SendEmailActivationCodeUseCaseTest : UnitTest() {

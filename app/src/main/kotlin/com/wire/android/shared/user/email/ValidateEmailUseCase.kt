@@ -5,7 +5,6 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.FeatureFailure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.usecase.UseCase
-import java.util.regex.Pattern
 
 sealed class ValidateEmailError : FeatureFailure()
 object EmailTooShort : ValidateEmailError()

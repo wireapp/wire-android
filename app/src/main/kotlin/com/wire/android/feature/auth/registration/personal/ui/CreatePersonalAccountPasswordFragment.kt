@@ -26,7 +26,7 @@ class CreatePersonalAccountPasswordFragment : Fragment(R.layout.fragment_create_
 
     private val passwordViewModel: CreatePersonalAccountPasswordViewModel by viewModel()
 
-    private val inputFocusViewModel : InputFocusViewModel by viewModel()
+    private val inputFocusViewModel: InputFocusViewModel by viewModel()
 
     private val dialogBuilder: DialogBuilder by inject()
 

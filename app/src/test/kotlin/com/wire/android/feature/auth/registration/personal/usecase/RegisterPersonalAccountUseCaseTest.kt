@@ -7,7 +7,6 @@ import com.wire.android.core.exception.DatabaseFailure
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.Forbidden
 import com.wire.android.core.exception.NotFound
-import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.registration.RegistrationRepository
 import com.wire.android.feature.auth.registration.personal.PersonalAccountRegistrationResult
@@ -22,7 +21,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.anyBoolean
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoInteractions
 
 class RegisterPersonalAccountUseCaseTest : UnitTest() {
 

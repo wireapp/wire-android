@@ -23,7 +23,7 @@ class LoginWithEmailUseCase(
         loginRepository.loginWithEmail(email = params.email, password = params.password).fold({
             handleFailure(it)
         }) { session ->
-            if (session == Session.EMPTY)  Either.Left(SessionCredentialsMissing)
+            if (session == Session.EMPTY) Either.Left(SessionCredentialsMissing)
             else {
                 //TODO: find a suspendable Either solution
                 runBlocking {
@@ -49,4 +49,4 @@ data class LoginWithEmailUseCaseParams(val email: String, val password: String)
 sealed class LoginWithEmailUseCaseFailure : FeatureFailure()
 object LoginAuthenticationFailure : LoginWithEmailUseCaseFailure()
 object LoginTooFrequentFailure : LoginWithEmailUseCaseFailure()
-object SessionCredentialsMissing: LoginWithEmailUseCaseFailure()
+object SessionCredentialsMissing : LoginWithEmailUseCaseFailure()

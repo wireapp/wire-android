@@ -2,7 +2,8 @@ package com.wire.android.shared.user.email
 
 import com.wire.android.UnitTest
 import com.wire.android.core.functional.Either
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test

@@ -14,7 +14,9 @@ import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import retrofit2.Response
 import java.util.Locale
 
@@ -61,7 +63,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given registerPersonalAccount() is called, when api returns UserResponse, returns success with UserResponse`() {
+    fun `given registerPersonalAccount() is called, when api returns UserResponse, returns success with UserResponse body`() {
         runBlocking {
             val userResponse = mock(RegisteredUserResponse::class.java)
             mockUserResponse().let {
@@ -72,7 +74,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
             val result = remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             result.assertRight {
-                assertThat(it).isEqualTo(userResponse)
+                assertThat(it.body()).isEqualTo(userResponse)
             }
         }
     }

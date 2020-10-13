@@ -5,6 +5,7 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.framework.functional.assertRight
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
 import org.junit.Before
 import org.junit.Test
@@ -60,6 +61,33 @@ class SessionLocalDataSourceTest : UnitTest() {
             `when`(sessionDao.setCurrentSessionToDormant()).thenThrow(RuntimeException())
 
             sessionLocalDataSource.setCurrentSessionToDormant().onSuccess { fail("Expected a failure") }
+        }
+    }
+
+    @Test
+    fun `given doesCurrentSessionExist is called, when dao returns true, then returns success with value of true`() {
+        testDoesCurrentSessionExist(true)
+    }
+
+    @Test
+    fun `given doesCurrentSessionExist is called, when dao returns false, then returns success with value of false`() {
+        testDoesCurrentSessionExist(false)
+    }
+
+    private fun testDoesCurrentSessionExist(exists: Boolean) = runBlockingTest {
+        `when`(sessionDao.doesCurrentSessionExist()).thenReturn(exists)
+
+        sessionLocalDataSource.doesCurrentSessionExist().assertRight {
+            assertThat(it).isEqualTo(exists)
+        }
+    }
+
+    @Test
+    fun `given doesCurrentSessionExist is called, when dao operation fails, then returns failure`() {
+        runBlockingTest {
+            `when`(sessionDao.doesCurrentSessionExist()).thenThrow(RuntimeException())
+
+            sessionLocalDataSource.doesCurrentSessionExist().onSuccess { fail("Expected a failure") }
         }
     }
 }

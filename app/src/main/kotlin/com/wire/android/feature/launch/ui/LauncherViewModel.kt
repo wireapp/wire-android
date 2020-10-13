@@ -1,9 +1,23 @@
 package com.wire.android.feature.launch.ui
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
+import androidx.lifecycle.viewModelScope
+import com.wire.android.core.async.DispatcherProvider
+import com.wire.android.core.ui.SingleLiveEvent
+import com.wire.android.core.usecase.DefaultUseCaseExecutor
+import com.wire.android.core.usecase.UseCaseExecutor
+import com.wire.android.shared.session.usecase.CheckCurrentSessionExistsUseCase
 
-class LauncherViewModel(private val getActiveUserUseCase: GetActiveUserUseCase) : ViewModel() {
+class LauncherViewModel(
+    override val dispatcherProvider: DispatcherProvider,
+    private val checkCurrentSessionExistsUseCase: CheckCurrentSessionExistsUseCase
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    fun hasActiveUser() = getActiveUserUseCase.hasActiveUser()
+    private val _currentSessionExistsLiveData = SingleLiveEvent<Boolean>()
+    val currentSessionExistsLiveData: LiveData<Boolean> = _currentSessionExistsLiveData
+
+    fun checkIfCurrentSessionExists() = checkCurrentSessionExistsUseCase(viewModelScope, Unit) {
+        _currentSessionExistsLiveData.value = it.fold({ false }) { it }
+    }
 }

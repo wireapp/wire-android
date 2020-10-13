@@ -1,6 +1,6 @@
 private object Dependencies {
     const val androidBuildTools = "com.android.tools.build:gradle:4.0.0"
-    const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72"
+    const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10"
     const val detektGradlePlugin = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.9.1"
     const val jacocoGradlePlugin = "org.jacoco:org.jacoco.core:0.8.5"
 }

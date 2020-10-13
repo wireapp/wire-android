@@ -60,14 +60,14 @@ done
       }
     }
 
-    stage('Run Detekt') {
+    stage('Static Code Analysis') {
       steps {
         script {
           last_started = env.STAGE_NAME
         }
 
         withGradle() {
-          sh './gradlew detektAll'
+          sh './gradlew staticCodeAnalysis'
         }
 
       }

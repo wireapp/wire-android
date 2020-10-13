@@ -1,9 +1,7 @@
 package com.wire.android.core.network
 
 import com.wire.android.UnitTest
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
-
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.verify

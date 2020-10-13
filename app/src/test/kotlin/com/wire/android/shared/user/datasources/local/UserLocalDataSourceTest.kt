@@ -20,7 +20,7 @@ class UserLocalDataSourceTest : UnitTest() {
     @Mock
     private lateinit var userEntity: UserEntity
 
-    private lateinit var userLocalDataSource : UserLocalDataSource
+    private lateinit var userLocalDataSource: UserLocalDataSource
 
     @Before
     fun setUp() {

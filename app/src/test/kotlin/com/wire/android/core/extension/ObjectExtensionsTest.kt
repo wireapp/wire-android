@@ -13,7 +13,7 @@ class ObjectExtensionsTest {
 
     @Test
     fun `given a non-null object, when toStringOrEmpty is called, returns its toString() value`() {
-        val x : Int? = 3
+        val x: Int? = 3
         assertThat(x.toStringOrEmpty()).isEqualTo(3.toString())
     }
 }

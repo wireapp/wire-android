@@ -78,7 +78,7 @@ class CreatePersonalAccountCodeFragment : Fragment(R.layout.fragment_create_pers
         }
     }
 
-    private fun showEnterNameScreen(code: String) = navigator.createAccount.openPersonalNameScreen(requireActivity(), email, code)
+    private fun showEnterNameScreen(code: String) = navigator.createAccount.openPersonalAccountNameScreen(requireActivity(), email, code)
 
     private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
 

@@ -20,12 +20,12 @@ class CreateAccountFragment : Fragment(R.layout.fragment_create_account) {
 
     private fun initCreatePersonalAccount() =
         createPersonalAccountLayoutContainer.setOnClickListener {
-            navigator.createAccount.openPersonalEmailScreen(requireActivity())
+            navigator.createAccount.openPersonalAccountEmailScreen(requireActivity())
         }
 
     private fun initCreateProAccount() =
         createProAccountLayoutContainer.setOnClickListener {
-            navigator.createAccount.openProTeamNameScreen(requireActivity())
+            navigator.createAccount.openProAccountTeamNameScreen(requireActivity())
         }
 
     companion object {

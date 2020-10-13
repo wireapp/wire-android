@@ -42,7 +42,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         with(createProAccountTeamNameInputConfirmationButton) {
             isEnabled = false
             setOnClickListener {
-                navigator.createAccount.openProTeamEmailScreen(requireContext())
+                navigator.createAccount.openProAccountTeamEmailScreen(requireContext())
             }
             createProAccountTeamNameViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
                 isEnabled = it
@@ -51,7 +51,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
 
     private fun initAboutButton() =
         createProAccountTeamNameAboutButton.setOnClickListener {
-            navigator.createAccount.openProAboutTeamScreen(requireContext())
+            navigator.createAccount.openProAccountAboutTeamScreen(requireContext())
         }
 
     private fun initTeamNameInput() {

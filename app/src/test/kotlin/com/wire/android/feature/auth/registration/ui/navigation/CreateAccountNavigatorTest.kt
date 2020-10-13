@@ -68,16 +68,16 @@ class CreateAccountNavigatorTest : AndroidTest() {
     }
 
     @Test
-    fun `given openPersonalEmailScreen is called, then replaces an instance of CreatePersonalAccountEmailFragment on given activity`() {
-        createAccountNavigator.openPersonalEmailScreen(activity)
+    fun `given openPersonalAccountEmailScreen is called, then replaces an instance of CreatePersonalAccountEmailFragment on activity`() {
+        createAccountNavigator.openPersonalAccountEmailScreen(activity)
 
         verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
         assertThat(fragmentCaptor.value).isInstanceOf(CreatePersonalAccountEmailFragment::class.java)
     }
 
     @Test
-    fun `given openPersonalCodeScreen is called, then replaces an instance of CreatePersonalAccountCodeFragment with email on activity`() {
-        createAccountNavigator.openPersonalCodeScreen(activity, TEST_EMAIL)
+    fun `given openPersonalAccountCodeScreen is called, then replaces an instance of CreatePersonalAccountCodeFragment on activity`() {
+        createAccountNavigator.openPersonalAccountCodeScreen(activity, TEST_EMAIL)
 
         verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
         fragmentCaptor.value.let {
@@ -88,7 +88,7 @@ class CreateAccountNavigatorTest : AndroidTest() {
 
     @Test
     fun `given openProAccountTeamNameScreen is called, then replaces an instance of CreateProAccountTeamNameFragment on given activity`() {
-        createAccountNavigator.openProTeamNameScreen(activity)
+        createAccountNavigator.openProAccountTeamNameScreen(activity)
 
         verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
         fragmentCaptor.value.let {
@@ -98,8 +98,8 @@ class CreateAccountNavigatorTest : AndroidTest() {
     }
 
     @Test
-    fun `given openPersonalNameScreen is called, then replaces an instance of CreatePersonalAccountNameFragment on given activity`() {
-        createAccountNavigator.openPersonalNameScreen(activity, TEST_EMAIL, TEST_ACTIVATION_CODE)
+    fun `given openPersonalAccountNameScreen is called, then replaces an instance of CreatePersonalAccountNameFragment on activity`() {
+        createAccountNavigator.openPersonalAccountNameScreen(activity, TEST_EMAIL, TEST_ACTIVATION_CODE)
 
         verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
         fragmentCaptor.value.let {
@@ -111,8 +111,8 @@ class CreateAccountNavigatorTest : AndroidTest() {
     }
 
     @Test
-    fun `given openPersonalPasswordScreen is called, then replaces CreatePersonalAccountPasswordFragment on given activity`() {
-        createAccountNavigator.openPersonalPasswordScreen(activity, TEST_NAME, TEST_EMAIL, TEST_ACTIVATION_CODE)
+    fun `given openPersonalAccountPasswordScreen is called, then replaces CreatePersonalAccountPasswordFragment on given activity`() {
+        createAccountNavigator.openPersonalAccountPasswordScreen(activity, TEST_NAME, TEST_EMAIL, TEST_ACTIVATION_CODE)
 
         verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
         fragmentCaptor.value.let {
@@ -124,8 +124,8 @@ class CreateAccountNavigatorTest : AndroidTest() {
     }
 
     @Test
-    fun `given openProTeamNameScreen is called, then replaces CreatePersonalAccountPasswordFragment on given activity`() {
-        createAccountNavigator.openProTeamNameScreen(activity)
+    fun `given openProAccountTeamNameScreen is called, then replaces CreatePersonalAccountPasswordFragment on given activity`() {
+        createAccountNavigator.openProAccountTeamNameScreen(activity)
 
         verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
         fragmentCaptor.value.let {
@@ -135,8 +135,8 @@ class CreateAccountNavigatorTest : AndroidTest() {
     }
 
     @Test
-    fun `given openProTeamEmailScreen is called, then opens CreateProAccountTeamEmailActivity`() {
-        createAccountNavigator.openProTeamEmailScreen(context)
+    fun `given openProAccountTeamEmailScreen is called, then opens CreateProAccountTeamEmailActivity`() {
+        createAccountNavigator.openProAccountTeamEmailScreen(context)
 
         verify(context).startActivity(capture(intentCaptor))
         intentCaptor.value.let {
@@ -146,8 +146,8 @@ class CreateAccountNavigatorTest : AndroidTest() {
     }
 
     @Test
-    fun `given openProAboutTeamScreen is called, then calls uriNavigationHandler to open correct uri`() {
-        createAccountNavigator.openProAboutTeamScreen(context)
+    fun `given openProAccountAboutTeamScreen is called, then calls uriNavigationHandler to open correct uri`() {
+        createAccountNavigator.openProAccountAboutTeamScreen(context)
 
         verify(uriNavigationHandler).openUri(context, "$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX")
     }

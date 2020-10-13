@@ -19,31 +19,31 @@ class CreateAccountNavigator(
 
     fun openCreateAccount(context: Context) = context.startActivity(CreateAccountActivity.newIntent(context))
 
-    fun openPersonalEmailScreen(activity: FragmentActivity) {
+    fun openPersonalAccountEmailScreen(activity: FragmentActivity) {
         fragmentStackHandler.replaceFragment(activity, CreatePersonalAccountEmailFragment.newInstance())
     }
 
-    fun openPersonalCodeScreen(activity: FragmentActivity, email: String) {
+    fun openPersonalAccountCodeScreen(activity: FragmentActivity, email: String) {
         fragmentStackHandler.replaceFragment(activity, CreatePersonalAccountCodeFragment.newInstance(email))
     }
 
-    fun openPersonalNameScreen(activity: FragmentActivity, email: String, activationCode: String) {
+    fun openPersonalAccountNameScreen(activity: FragmentActivity, email: String, activationCode: String) {
         fragmentStackHandler.replaceFragment(activity,
             CreatePersonalAccountNameFragment.newInstance(email = email, activationCode = activationCode))
     }
 
-    fun openPersonalPasswordScreen(activity: FragmentActivity, name: String, email: String, activationCode: String) {
+    fun openPersonalAccountPasswordScreen(activity: FragmentActivity, name: String, email: String, activationCode: String) {
         fragmentStackHandler.replaceFragment(activity, CreatePersonalAccountPasswordFragment.newInstance(name, email, activationCode))
     }
 
-    fun openProTeamNameScreen(activity: FragmentActivity) {
+    fun openProAccountTeamNameScreen(activity: FragmentActivity) {
         fragmentStackHandler.replaceFragment(activity, CreateProAccountTeamNameFragment.newInstance())
     }
 
-    fun openProTeamEmailScreen(context: Context) =
+    fun openProAccountTeamEmailScreen(context: Context) =
         context.startActivity(CreateProAccountTeamEmailActivity.newIntent(context))
 
-    fun openProAboutTeamScreen(context: Context) =
+    fun openProAccountAboutTeamScreen(context: Context) =
         uriNavigationHandler.openUri(context, "$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX")
 
     companion object {

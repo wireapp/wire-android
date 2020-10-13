@@ -61,7 +61,7 @@ class CreatePersonalAccountNameFragment : Fragment(R.layout.fragment_create_pers
     }
 
     private fun showPasswordScreen(name: String) =
-        navigator.createAccount.openPersonalPasswordScreen(requireActivity(), name, email, activationCode)
+        navigator.createAccount.openPersonalAccountPasswordScreen(requireActivity(), name, email, activationCode)
 
     companion object {
         private const val KEY_EMAIL = "email"

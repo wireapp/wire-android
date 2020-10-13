@@ -5,7 +5,9 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-class RetryTestRule(val retryCount: Int = 3) : TestRule {
+const val RETRY_COUNT: Int = 3
+
+class RetryTestRule(val retryCount: Int = RETRY_COUNT) : TestRule {
 
     private val TAG = RetryTestRule::class.java.simpleName
 

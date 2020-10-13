@@ -1,4 +1,4 @@
-package com.wire.android.feature.welcome
+package com.wire.android.feature.welcome.ui
 
 import android.os.Bundle
 import android.view.View

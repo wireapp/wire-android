@@ -9,7 +9,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.wire.android.InstrumentationTest
 import com.wire.android.R
-import com.wire.android.feature.welcome.WelcomeFragment
+import com.wire.android.feature.welcome.ui.WelcomeFragment
 import com.wire.android.framework.async.awaitResult
 import org.junit.Before
 import org.junit.Test

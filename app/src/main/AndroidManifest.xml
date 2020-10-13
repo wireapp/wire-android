@@ -26,7 +26,7 @@
 
         <!-- TODO Theme shouldn't resolve to Dark one. -->
         <activity
-            android:name=".feature.welcome.WelcomeActivity"
+            android:name=".feature.welcome.ui.WelcomeActivity"
             android:theme="@style/AppTheme.Authentication" />
 
         <activity

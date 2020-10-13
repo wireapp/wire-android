@@ -1,4 +1,4 @@
-package com.wire.android.feature.welcome
+package com.wire.android.feature.welcome.ui
 
 import android.content.Context
 import android.content.Intent

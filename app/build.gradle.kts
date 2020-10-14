@@ -62,6 +62,7 @@ dependencies {
     testImplementation(TestLibraries.assertJ)
     testImplementation(TestLibraries.coroutinesTest)
     testImplementation(TestLibraries.testCore)
+    testImplementation(TestLibraries.koinTest)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(TestLibraries.testRunner)

@@ -5,13 +5,15 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-const val RETRY_COUNT: Int = 3
-
 class RetryTestRule(val retryCount: Int = RETRY_COUNT) : TestRule {
+
+    companion object {
+        private const val RETRY_COUNT = 3
+    }
 
     private val TAG = RetryTestRule::class.java.simpleName
 
-    override fun apply(base: Statement, description: Description): Statement = object : Statement() {
+    override fun apply(testStatement: Statement, description: Description): Statement = object : Statement() {
         @Throws(Throwable::class)
         override fun evaluate() {
             lateinit var caughtThrowable: Throwable
@@ -20,7 +22,7 @@ class RetryTestRule(val retryCount: Int = RETRY_COUNT) : TestRule {
             for (i in 1..retryCount) {
                 Log.i(TAG, "${description.displayName}: run #${i}")
                 try {
-                    base.evaluate()
+                    testStatement.evaluate()
                     //TODO if successful without a catch we need to intervent
                     // here and print out that the test run was successful after a failure
                     return

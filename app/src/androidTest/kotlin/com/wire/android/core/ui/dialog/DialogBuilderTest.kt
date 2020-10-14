@@ -23,9 +23,6 @@ class DialogBuilderTest : InstrumentationTest() {
 
     private lateinit var dialogBuilder: DialogBuilder
 
-    @get:Rule
-    val retryTestRule = RetryTestRule()
-
     @Before
     fun setUp() {
         dialogBuilder = DialogBuilder()

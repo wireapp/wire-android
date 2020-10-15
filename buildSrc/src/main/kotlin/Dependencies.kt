@@ -3,7 +3,7 @@ private const val kotlinVersion = "1.4.10"
 
 object BuildPlugins {
     object Versions {
-        const val gradleVersion = "6.5"
+        const val gradleVersion = "6.6.1"
     }
 
     const val androidApplication = "com.android.application"
@@ -78,7 +78,7 @@ object TestLibraries {
     private object Versions {
         const val junit4 = "4.13"
         const val mockito = "3.3.0"
-        const val robolectric = "4.3.1"
+        const val robolectric = "4.4"
         const val assertJ = "3.16.1"
         const val testRunner = "1.2.0"
         const val espresso = "3.2.0"

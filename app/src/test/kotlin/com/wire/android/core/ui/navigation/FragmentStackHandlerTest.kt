@@ -4,8 +4,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.wire.android.AndroidTest
-import com.wire.android.feature.welcome.WelcomeActivity
-import com.wire.android.feature.welcome.WelcomeFragment
+import com.wire.android.feature.welcome.ui.WelcomeActivity
+import com.wire.android.feature.welcome.ui.WelcomeFragment
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

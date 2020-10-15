@@ -4,13 +4,15 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.observe
 import com.wire.android.R
-import com.wire.android.feature.conversation.list.MainActivity
-import com.wire.android.feature.welcome.WelcomeActivity
+import com.wire.android.core.ui.navigation.Navigator
+import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class LauncherActivity : AppCompatActivity(R.layout.activity_launcher) {
 
     private val viewModel: LauncherViewModel by viewModel()
+
+    private val navigator: Navigator by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,8 +27,8 @@ class LauncherActivity : AppCompatActivity(R.layout.activity_launcher) {
     }
 
     private fun navigateToNextScreen(sessionExists: Boolean) {
-        val nextIntent = if (sessionExists) MainActivity.newIntent(this) else WelcomeActivity.newIntent(this)
-        startActivity(nextIntent)
+        if (sessionExists) navigator.main.openMainScreen(this)
+        else navigator.welcome.openWelcomeScreen(this)
         finish()
     }
 }

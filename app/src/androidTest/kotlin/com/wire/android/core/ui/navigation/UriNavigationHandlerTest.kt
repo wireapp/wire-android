@@ -11,7 +11,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import com.wire.android.InstrumentationTest
 import com.wire.android.R
-import com.wire.android.feature.welcome.WelcomeFragment
+import com.wire.android.feature.welcome.ui.WelcomeFragment
 import org.hamcrest.CoreMatchers.allOf
 import org.junit.After
 import org.junit.Before

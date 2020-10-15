@@ -17,6 +17,16 @@ fun Fragment.replaceFragment(frameId: Int, fragment: Fragment, addToBackStack: B
     (activity as AppCompatActivity).replaceFragment(frameId, fragment, addToBackStack)
 }
 
+//TODO: delete other "replaceFragment" methods
+fun FragmentManager.replaceFragment(frameId: Int, fragment: Fragment, addToBackStack: Boolean = true) =
+    inTransaction {
+        replace(frameId, fragment).also {
+            if (addToBackStack) {
+                it.addToBackStack(fragment.tag)
+            }
+        }
+    }
+
 //TODO is this the best approach?
 fun Fragment.openUrl(url: String) =
     requireActivity().startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))

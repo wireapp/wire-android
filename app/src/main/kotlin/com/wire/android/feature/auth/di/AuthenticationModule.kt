@@ -57,7 +57,7 @@ private val createAccountModule = module {
     factory { get<NetworkClient>().create(RegistrationApi::class.java) }
     factory { RegistrationRemoteDataSource(get(), get(), get(), get()) }
 
-    single { CreateAccountNavigator(get()) }
+    single { CreateAccountNavigator(get(), get()) }
     factory(qualifier<CreateAccountActivity>()) {
         FragmentContainerProvider.fixedProvider(R.id.createAccountLayoutContainer)
     }

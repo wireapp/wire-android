@@ -1,22 +1,21 @@
 package com.wire.android.feature.auth.registration.pro.team
 
+import android.content.Intent
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.replaceText
-import androidx.test.espresso.action.ViewActions.typeTextIntoFocusedView
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withHint
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
+import androidx.test.espresso.matcher.ViewMatchers.*
 import com.wire.android.FunctionalActivityTest
 import com.wire.android.R
 import com.wire.android.core.extension.EMPTY
 import com.wire.android.feature.auth.registration.CreateAccountActivity
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -25,6 +24,12 @@ class CreateProAccountTeamNameFragmentUiTest : FunctionalActivityTest(CreateAcco
     @Before
     fun setup() {
         onView(withId(R.id.createProAccountTitleTextView)).perform(click())
+        Intents.init()
+    }
+
+    @After
+    fun tearDown() {
+        Intents.release()
     }
 
     @Test
@@ -56,7 +61,16 @@ class CreateProAccountTeamNameFragmentUiTest : FunctionalActivityTest(CreateAcco
         uiElementsVisible()
     }
 
+    @Test
+    fun aboutButton_click_opensAboutTeamUri() {
+        onView(withId(R.id.createProAccountTeamNameAboutButton)).perform(click())
+        intended(hasAction(Intent.ACTION_VIEW))
+        intended(hasData("$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX"))
+    }
+
     companion object {
         private const val TEST_TEAM_NAME = "Team"
+        private const val CONFIG_URL = "https://wire.com"
+        private const val TEAM_ABOUT_URL_SUFFIX = "/products/pro-secure-team-collaboration/"
     }
 }

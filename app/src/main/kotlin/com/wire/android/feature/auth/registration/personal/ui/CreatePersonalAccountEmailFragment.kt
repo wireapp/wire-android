@@ -80,7 +80,7 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
         }
     }
 
-    private fun showEmailCodeScreen(email: String) = navigator.createAccount.openCodeScreen(requireActivity(), email)
+    private fun showEmailCodeScreen(email: String) = navigator.createAccount.openPersonalAccountCodeScreen(requireActivity(), email)
 
     private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
 

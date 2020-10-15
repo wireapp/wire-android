@@ -44,14 +44,6 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given about button is clicked, when url is provided, propagate url back to the view`() {
-        coroutinesTestRule.runTest {
-            viewModel.onAboutButtonClicked()
-            assertThat(viewModel.urlLiveData.awaitValue()).isEqualTo("$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX")
-        }
-    }
-
-    @Test
     fun `given empty team name, when on team name text is changed, confirmation button should be disabled`() {
         coroutinesTestRule.runTest {
             viewModel.onTeamNameTextChanged(String.EMPTY)

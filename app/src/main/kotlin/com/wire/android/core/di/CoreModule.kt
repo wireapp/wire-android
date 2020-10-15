@@ -40,7 +40,7 @@ val asyncModule: Module = module {
 val uiModule = module {
     factory { DialogBuilder() }
 
-    single { Navigator(get()) }
+    single { Navigator(get(), get()) }
     single { FragmentStackHandler() }
     single { UriNavigationHandler() }
 }

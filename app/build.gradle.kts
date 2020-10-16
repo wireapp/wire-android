@@ -24,11 +24,6 @@ android {
     }
 
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
-
-    packagingOptions {
-        pickFirst("META-INF/AL2.0")
-        pickFirst("META-INF/LGPL2.1")
-    }
 }
 
 dependencies {

@@ -15,12 +15,12 @@ android {
     compileSdkVersion(AndroidSdk.compile)
 
     defaultConfig {
-        applicationId = appId
+        applicationId = AndroidClient.appId
         minSdkVersion(AndroidSdk.min)
         targetSdkVersion(AndroidSdk.target)
-        versionCode = AndroidSdk.versionCode
-        versionName = AndroidSdk.versionName
-        testInstrumentationRunner = AndroidSdk.testInstrumentationRunner
+        versionCode = AndroidClient.versionCode
+        versionName = AndroidClient.versionName
+        testInstrumentationRunner = AndroidClient.testRunner
     }
 
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }

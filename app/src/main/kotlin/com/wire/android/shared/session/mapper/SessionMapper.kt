@@ -44,6 +44,13 @@ class SessionMapper {
             isCurrent = isCurrent
         )
 
+    fun fromSessionEntity(entity: SessionEntity) = Session(
+        userId = entity.userId,
+        accessToken = entity.accessToken,
+        tokenType = entity.tokenType,
+        refreshToken = entity.refreshToken
+    )
+
     companion object {
         private const val AUTH_REFRESH_TOKEN_HEADER_KEY = "Set-Cookie"
         private val AUTH_REFRESH_TOKEN_REGEX = ".*zuid=([^;]+).*".toRegex()

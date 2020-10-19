@@ -4,6 +4,10 @@ import com.wire.android.UnitTest
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.framework.functional.assertRight
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
@@ -43,6 +47,28 @@ class SessionLocalDataSourceTest : UnitTest() {
             `when`(sessionDao.insert(sessionEntity)).thenThrow(RuntimeException())
 
             sessionLocalDataSource.save(sessionEntity).onSuccess { fail("Expected a failure") }
+        }
+    }
+
+    @Test
+    fun `given currentSession is called, when dao emits an item, then propagates it directly`() {
+        `when`(sessionDao.currentSession()).thenReturn(flowOf(sessionEntity))
+
+        runBlocking {
+            sessionLocalDataSource.currentSession().collect {
+                assertThat(it).isEqualTo(sessionEntity)
+            }
+        }
+    }
+
+    @Test
+    fun `given currentSession is called, when dao emits null, then propagates null directly`() {
+        `when`(sessionDao.currentSession()).thenReturn(flow { emit(null) })
+
+        runBlocking {
+            sessionLocalDataSource.currentSession().collect {
+                assertThat(it).isEqualTo(null)
+            }
         }
     }
 

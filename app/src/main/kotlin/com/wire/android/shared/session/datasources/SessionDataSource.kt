@@ -9,6 +9,8 @@ import com.wire.android.shared.session.SessionRepository
 import com.wire.android.shared.session.datasources.local.SessionLocalDataSource
 import com.wire.android.shared.session.datasources.remote.SessionRemoteDataSource
 import com.wire.android.shared.session.mapper.SessionMapper
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 
 class SessionDataSource(
@@ -23,6 +25,10 @@ class SessionDataSource(
                 runBlocking { saveLocally(session, true) }
             }
         } else saveLocally(session, current)
+
+    override fun currentSession(): Flow<Session?> = localDataSource.currentSession().map {
+        it?.let { mapper.fromSessionEntity(it) }
+    }
 
     private suspend fun saveLocally(session: Session, current: Boolean) =
         localDataSource.save(mapper.toSessionEntity(session, current))

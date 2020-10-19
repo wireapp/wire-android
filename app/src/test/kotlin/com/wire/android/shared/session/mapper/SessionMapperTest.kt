@@ -115,6 +115,30 @@ class SessionMapperTest : UnitTest() {
     }
 
     @Test
+    fun `given fromSessionEntity is called, when entity is the current session, then maps the SessionEntity and returns a Session`() {
+        val session = sessionMapper.fromSessionEntity(testSessionEntity(current = true))
+
+        val expectedSession = Session(
+            userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN,
+            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
+        )
+
+        assertThat(session).isEqualTo(expectedSession)
+    }
+
+    @Test
+    fun `given fromSessionEntity is called, when entity is dormant, then maps the SessionEntity and returns a Session`() {
+        val session = sessionMapper.fromSessionEntity(testSessionEntity(current = false))
+
+        val expectedSession = Session(
+            userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN,
+            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
+        )
+
+        assertThat(session).isEqualTo(expectedSession)
+    }
+
+    @Test
     fun `given fromAccessTokenResponse is called with a refresh token, then maps the inputs and returns a Session`() {
         val accessTokenResponse = AccessTokenResponse(
             userId = TEST_USER_ID,

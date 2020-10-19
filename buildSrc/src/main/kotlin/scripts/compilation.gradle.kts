@@ -4,6 +4,8 @@ plugins { id("core.android") }
 
 android {
     packagingOptions {
+        pickFirst("META-INF/AL2.0")
+        pickFirst("META-INF/LGPL2.1")
         exclude("LICENSE.txt")
         exclude("META-INF/DEPENDENCIES")
         exclude("META-INF/ASL2.0")

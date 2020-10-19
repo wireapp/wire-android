@@ -1,35 +1,30 @@
 package scripts
 
-import scripts.Variants_gradle.BuildTypes
-import scripts.Variants_gradle.ProductFlavors
-
-private object Default {
-    const val BUILD_TYPE = BuildTypes.DEBUG
-    const val BUILD_FLAVOR = ProductFlavors.DEV
-    val VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
-    val CLASS_PATH_VARIANT = "$BUILD_FLAVOR${BUILD_TYPE.capitalize()}"
-}
+import scripts.Variants_gradle.Default
 
 apply(plugin = "jacoco")
 
-tasks.register("jacocoReport", JacocoReport::class) {
+val jacocoReport by tasks.registering(JacocoReport::class) {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase"
-    dependsOn("test${Default.VARIANT}UnitTest")
+    dependsOn("test${Default.BUILD_VARIANT}UnitTest")
+
+    val outputDir = "$buildDir/jacoco/html"
+    val classPathBuildVariant = "${Default.BUILD_FLAVOR}${Default.BUILD_TYPE.capitalize()}"
 
     reports {
         xml.isEnabled = true
         html.isEnabled = true
-        html.destination = file("${buildDir}/jacoco/html")
+        html.destination = file(outputDir)
     }
 
     classDirectories.setFrom(
         fileTree(project.buildDir) {
             include(
                 "**/classes/**/main/**",
-                "**/intermediates/classes/${Default.CLASS_PATH_VARIANT}/**",
-                "**/intermediates/javac/${Default.CLASS_PATH_VARIANT}/*/classes/**", // Android Gradle Plugin 3.2.x support.
-                "**/tmp/kotlin-classes/${Default.CLASS_PATH_VARIANT}/**"
+                "**/intermediates/classes/$classPathBuildVariant/**",
+                "**/intermediates/javac/$classPathBuildVariant/*/classes/**",
+                "**/tmp/kotlin-classes/$classPathBuildVariant/**"
             )
             exclude(
                 "**/R.class",
@@ -51,26 +46,17 @@ tasks.register("jacocoReport", JacocoReport::class) {
         }
     )
 
-    sourceDirectories.setFrom(
-        fileTree(project.projectDir) {
-            include(
-                "src/main/java/**",
-                "src/main/kotlin/**"
-            )
-        }
-    )
+    sourceDirectories.setFrom(fileTree(project.projectDir) {
+        include("src/main/java/**", "src/main/kotlin/**") })
 
-    executionData.setFrom(
-        fileTree(project.buildDir) {
-            include(
-                "**/*.exec", "**/*.ec"
-            )
-        }
-    )
+    executionData.setFrom(fileTree(project.buildDir) {
+        include("**/*.exec", "**/*.ec") })
+
+    doLast { println("Report file: $outputDir/index.html") }
 }
 
 tasks.register("testCoverage") {
     group = "Quality"
-    description = "Reports code coverage on tests within the Wire Android codebase"
-    dependsOn("jacocoReport")
+    description = "Reports code coverage on tests within the Wire Android codebase."
+    dependsOn(jacocoReport)
 }

@@ -100,8 +100,7 @@ object TestLibraries {
     object Espresso {
         const val core                = "androidx.test.espresso:espresso-core:${Versions.espresso}"
         const val intents             = "androidx.test.espresso:espresso-intents:${Versions.espresso}"
-        //Androidx isn't support yet. Please see:
-        //https://github.com/android/android-test/issues/492
+        //Androidx isn't support yet: https://github.com/android/android-test/issues/492
         const val accessibility = "com.android.support.test.espresso:espresso-accessibility:${Versions.espresso}"
     }
 

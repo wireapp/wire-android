@@ -1,7 +1,7 @@
 package scripts
 
 plugins {
-    id("core.android")
+    id("com.android.application") apply false
     id("scripts.coverage")
     id("scripts.code-analysis")
 }

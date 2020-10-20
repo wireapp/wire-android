@@ -1,9 +1,14 @@
 package com.wire.android.feature.conversation.list
 
 import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
+import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
+import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val conversationsModule = module {
-    viewModel { ConversationListViewModel(get(), get()) }
+    single { MainNavigator() }
+
+    viewModel { ConversationListViewModel(get(), get(), get()) }
+    factory { GetConversationsUseCase() }
 }

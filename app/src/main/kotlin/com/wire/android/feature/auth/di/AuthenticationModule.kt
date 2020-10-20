@@ -1,18 +1,21 @@
 package com.wire.android.feature.auth.di
 
+import com.wire.android.R
 import com.wire.android.core.network.NetworkClient
+import com.wire.android.core.ui.navigation.FragmentContainerProvider
 import com.wire.android.feature.auth.activation.ActivationRepository
 import com.wire.android.feature.auth.activation.datasource.ActivationDataSource
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationApi
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemoteDataSource
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
-import com.wire.android.feature.auth.login.LoginViewModel
 import com.wire.android.feature.auth.login.email.LoginRepository
 import com.wire.android.feature.auth.login.email.datasource.LoginDataSource
 import com.wire.android.feature.auth.login.email.datasource.remote.LoginApi
 import com.wire.android.feature.auth.login.email.datasource.remote.LoginRemoteDataSource
 import com.wire.android.feature.auth.login.email.ui.LoginWithEmailViewModel
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
+import com.wire.android.feature.auth.login.ui.navigation.LoginNavigator
+import com.wire.android.feature.auth.registration.CreateAccountActivity
 import com.wire.android.feature.auth.registration.RegistrationRepository
 import com.wire.android.feature.auth.registration.datasource.RegistrationDataSource
 import com.wire.android.feature.auth.registration.datasource.remote.RegistrationApi
@@ -29,9 +32,11 @@ import com.wire.android.feature.auth.registration.pro.team.data.TeamDataSource
 import com.wire.android.feature.auth.registration.pro.team.data.TeamsRepository
 import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUseCase
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
+import com.wire.android.feature.auth.registration.ui.navigation.CreateAccountNavigator
 import com.wire.android.shared.auth.remote.LabelGenerator
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import org.koin.android.viewmodel.dsl.viewModel
+import org.koin.core.qualifier.qualifier
 import org.koin.dsl.module
 
 val authenticationModules
@@ -51,6 +56,11 @@ private val createAccountModule = module {
     single<RegistrationRepository> { RegistrationDataSource(get(), get(), get()) }
     factory { get<NetworkClient>().create(RegistrationApi::class.java) }
     factory { RegistrationRemoteDataSource(get(), get(), get(), get()) }
+
+    single { CreateAccountNavigator(get(), get()) }
+    factory(qualifier<CreateAccountActivity>()) {
+        FragmentContainerProvider.fixedProvider(R.id.createAccountLayoutContainer)
+    }
 }
 
 private val createPersonalAccountModule = module {
@@ -80,7 +90,8 @@ private val createProAccountModule = module {
 }
 
 private val loginModule = module {
-    viewModel { LoginViewModel(get()) }
+    single { LoginNavigator(get(), get()) }
+
     viewModel { LoginWithEmailViewModel(get(), get(), get()) }
     factory { LoginWithEmailUseCase(get(), get(), get()) }
 

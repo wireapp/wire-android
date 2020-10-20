@@ -15,20 +15,15 @@ android {
     compileSdkVersion(AndroidSdk.compile)
 
     defaultConfig {
-        applicationId = appId
+        applicationId = AndroidClient.appId
         minSdkVersion(AndroidSdk.min)
         targetSdkVersion(AndroidSdk.target)
-        versionCode = AndroidSdk.versionCode
-        versionName = AndroidSdk.versionName
-        testInstrumentationRunner = AndroidSdk.testInstrumentationRunner
+        versionCode = AndroidClient.versionCode
+        versionName = AndroidClient.versionName
+        testInstrumentationRunner = AndroidClient.testRunner
     }
 
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
-
-    packagingOptions {
-        pickFirst("META-INF/AL2.0")
-        pickFirst("META-INF/LGPL2.1")
-    }
 }
 
 dependencies {
@@ -62,6 +57,7 @@ dependencies {
     testImplementation(TestLibraries.assertJ)
     testImplementation(TestLibraries.coroutinesTest)
     testImplementation(TestLibraries.testCore)
+    testImplementation(TestLibraries.koinTest)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(TestLibraries.testRunner)

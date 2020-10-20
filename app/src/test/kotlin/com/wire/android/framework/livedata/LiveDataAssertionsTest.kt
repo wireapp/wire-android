@@ -1,16 +1,13 @@
-package com.wire.android.framework
+package com.wire.android.framework.livedata
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.wire.android.UnitTest
-import com.wire.android.framework.livedata.TestLifecycleOwner
-import com.wire.android.framework.livedata.assertNotUpdated
-import com.wire.android.framework.livedata.awaitValue
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.util.concurrent.TimeoutException
 
-class FrameworkTest : UnitTest() {
+class LiveDataAssertionsTest : UnitTest() {
 
     @Test
     fun `given awaitValue called on a LiveData, when a value is received, then doesn't disrupt the test`() {

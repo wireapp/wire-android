@@ -8,19 +8,20 @@ import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.headingForAccessibility
-import com.wire.android.core.extension.replaceFragment
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
+import com.wire.android.core.ui.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_personal_account_email) {
 
+    private val navigator: Navigator by inject()
     //TODO Add loading status
     private val emailViewModel: CreatePersonalAccountEmailViewModel by viewModel()
 
@@ -79,9 +80,7 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
         }
     }
 
-    private fun showEmailCodeScreen(email: String) = replaceFragment(
-        R.id.createAccountLayoutContainer, CreatePersonalAccountCodeFragment.newInstance(email)
-    )
+    private fun showEmailCodeScreen(email: String) = navigator.createAccount.openPersonalAccountCodeScreen(requireActivity(), email)
 
     private fun showErrorDialog(errorMessage: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), errorMessage)
 

@@ -45,6 +45,7 @@
         <item name="textAppearanceBody2">@style/TextView.Body2</item>
         <item name="textAppearanceCaption">@style/TextView.Caption</item>
         <item name="textAppearanceOverline">@style/TextView.Overline</item>
+        <item name="android:textDirection">locale</item>
 
         <!--Component styles-->
         <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>

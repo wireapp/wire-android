@@ -1,9 +1,21 @@
 const val appId = "com.wire.android"
-private const val kotlinVersion = "1.4.10"
+
+object AndroidSdk {
+    const val min = 24
+    const val compile = 30
+    const val target = compile
+}
+
+object AndroidClient {
+    const val appId = "com.wire.android"
+    const val versionCode = 1
+    const val versionName = "1.0"
+    const val testRunner = "androidx.test.runner.AndroidJUnitRunner"
+}
 
 object BuildPlugins {
     object Versions {
-        const val gradleVersion = "6.5"
+        const val gradleVersion = "6.6.1"
     }
 
     const val androidApplication = "com.android.application"
@@ -12,26 +24,16 @@ object BuildPlugins {
     const val kotlinKapt = "kotlin-kapt"
 }
 
-object AndroidSdk {
-    const val min = 24
-    const val compile = 30
-    const val target = compile
-
-    const val versionCode = 1
-    const val versionName = "1.0"
-
-    const val testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-}
-
 object Libraries {
     object Versions {
+        const val kotlin = "1.4.10"
+        const val coroutines = "1.3.9"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
         const val ktx = "1.3.0"
         const val material = "1.1.0"
         const val koin = "2.1.6"
         const val lifecycleKtx = "2.2.0"
-        const val coroutines = "1.3.9"
         const val retrofit = "2.9.0"
         const val okHttpLogging = "4.7.2"
         const val pinEditText = "1.2.3"
@@ -57,7 +59,7 @@ object Libraries {
     }
 
     object Kotlin {
-        const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+        const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
         const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
         const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     }
@@ -78,7 +80,7 @@ object TestLibraries {
     private object Versions {
         const val junit4 = "4.13"
         const val mockito = "3.3.0"
-        const val robolectric = "4.3.1"
+        const val robolectric = "4.4"
         const val assertJ = "3.16.1"
         const val testRunner = "1.2.0"
         const val espresso = "3.2.0"
@@ -107,6 +109,7 @@ object TestLibraries {
     const val uiAutomator    = "androidx.test.uiautomator:uiautomator:${Versions.uiAutomator}"
     const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libraries.Versions.coroutines}"
     const val testCore       = "androidx.arch.core:core-testing:${Versions.testCore}"
+    const val koinTest       = "org.koin:koin-test:${Libraries.Versions.koin}"
 }
 
 

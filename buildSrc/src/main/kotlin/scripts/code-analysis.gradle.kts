@@ -20,8 +20,8 @@ val detektAll by tasks.registering(io.gitlab.arturbosch.detekt.Detekt::class) {
 
     reports {
         xml.enabled = true
-        xml.destination = file(outputFile)
         html.enabled = true
+        html.destination = file(outputFile)
         txt.enabled = false
     }
 

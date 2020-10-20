@@ -11,11 +11,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.wire.android.FunctionalActivityTest
 import com.wire.android.R
-import com.wire.android.framework.retry.RetryTestRule
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
 class LoginActivityUITest : FunctionalActivityTest(LoginActivity::class.java) {

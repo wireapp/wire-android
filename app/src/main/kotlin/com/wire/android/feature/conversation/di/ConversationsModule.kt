@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.list
+package com.wire.android.feature.conversation.di
 
 import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
 import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator

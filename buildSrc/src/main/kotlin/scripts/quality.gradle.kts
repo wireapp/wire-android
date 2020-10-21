@@ -57,10 +57,10 @@ tasks.register("staticCodeAnalysis") {
 val jacocoReport by tasks.registering(JacocoReport::class) {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase"
-    dependsOn("test${Variants_gradle.Default.BUILD_VARIANT}UnitTest")
+    dependsOn("test${Default.BUILD_VARIANT}UnitTest")
 
     val outputDir = "$buildDir/jacoco/html"
-    val classPathBuildVariant = "${Variants_gradle.Default.BUILD_FLAVOR}${Variants_gradle.Default.BUILD_TYPE.capitalize()}"
+    val classPathBuildVariant = Default.BUILD_VARIANT.decapitalize()
 
     reports {
         xml.isEnabled = true

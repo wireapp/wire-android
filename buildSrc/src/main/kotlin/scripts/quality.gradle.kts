@@ -60,7 +60,7 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
     dependsOn("test${Default.BUILD_VARIANT}UnitTest")
 
     val outputDir = "$buildDir/jacoco/html"
-    val classPathBuildVariant = Default.BUILD_VARIANT.decapitalize()
+    val classPathBuildVariant =  "${Default.BUILD_FLAVOR}${Default.BUILD_TYPE.capitalize()}"
 
     reports {
         xml.isEnabled = true

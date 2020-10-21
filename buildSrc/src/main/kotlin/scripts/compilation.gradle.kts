@@ -1,6 +1,9 @@
 package scripts
 
-plugins { id("core.android") }
+plugins {
+    id("com.android.application") apply false
+    id("kotlin-android") apply false
+}
 
 android {
     packagingOptions {

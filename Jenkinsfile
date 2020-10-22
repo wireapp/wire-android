@@ -44,6 +44,15 @@ done
           }
         }
 
+        stage('') {
+          steps {
+            withGradle() {
+              sh './gradlew -Porg.gradle.jvmargs=-Xmx16g wrapper'
+            }
+
+          }
+        }
+
       }
     }
 

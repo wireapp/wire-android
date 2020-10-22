@@ -1,7 +1,7 @@
 pipeline {
   agent {
-    dockerfile {
-      filename 'docker-agent/AndroidAgent'
+    docker {
+      image 'android-agent:latest'
       args '-u 1000:133 --network docker-compose-files_build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
     }
 
@@ -37,10 +37,19 @@ pipeline {
           steps {
             sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'docker-compose-files_nexus\' |grep -Eo \'1[0-9]{2}.*\')
 do
-        echo  "found emulator with ip $i:${ADB_PORT}"
-        adb connect $i:${ADB_PORT}
+        echo  "found emulator with ip $i:${adbPort}"
+        adb connect $i:${adbPort}
 done
 '''
+          }
+        }
+
+        stage('') {
+          steps {
+            withGradle() {
+              sh './gradlew -Porg.gradle.jvmargs=-Xmx16g wrapper'
+            }
+
           }
         }
 
@@ -86,15 +95,27 @@ done
       }
     }
 
-    stage('Acceptance Tests') {
+    stage('Prepare Emulators') {
       parallel {
-        stage('Acceptance Tests') {
-          when {
-            expression {
-              params.AcceptanceTests
+        stage('Uninstall App') {
+          steps {
+            script {
+              last_started = env.STAGE_NAME
+            }
+
+            withGradle() {
+              sh './gradlew :app:uninstallAll'
             }
 
           }
+        }
+
+      }
+    }
+
+    stage('Acceptance Tests') {
+      parallel {
+        stage('Acceptance Tests') {
           steps {
             script {
               last_started = env.STAGE_NAME
@@ -110,7 +131,7 @@ done
         stage('Publish Unit Report') {
           steps {
             echo 'Publish JUnit report'
-            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/tests/testDevDebugUnitTest/', reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
+            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}DebugUnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
           }
         }
 
@@ -135,7 +156,7 @@ done
         stage('Publish Acceptance Test') {
           steps {
             echo 'Publish Acceptance Test'
-            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'app/build/reports/androidTest/connected/flavours/DEV/', reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${flavor.toUpperCase()}/", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
           }
         }
 
@@ -144,14 +165,15 @@ done
 
     stage('Archive APK') {
       steps {
-        archiveArtifacts(artifacts: 'app/build/outputs/apk/dev/debug/app*.apk', allowEmptyArchive: true, onlyIfSuccessful: true)
+        archiveArtifacts(artifacts: "app/build/outputs/apk/${flavor.toLowerCase()}/debug/app*.apk", allowEmptyArchive: true, onlyIfSuccessful: true)
       }
     }
 
   }
   environment {
     propertiesFile = 'local.properties'
-    ADB_PORT = '5555'
+    flavor = 'Dev'
+    adbPort = '5555'
   }
   post {
     failure {

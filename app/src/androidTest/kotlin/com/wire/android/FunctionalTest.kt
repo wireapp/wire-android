@@ -6,6 +6,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.ActivityTestRule
 import androidx.test.uiautomator.UiDevice
+import com.wire.android.framework.retry.RetryTestRule
 import org.junit.Rule
 import org.junit.runner.RunWith
 
@@ -14,6 +15,8 @@ abstract class FunctionalActivityTest(clazz: Class<out Activity>) : FunctionalTe
 
     @get:Rule
     val activityRule = ActivityTestRule(clazz)
+    @get:Rule
+    val retryTestRule = RetryTestRule()
 }
 
 @Suppress("UnnecessaryAbstractClass")

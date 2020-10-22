@@ -1,16 +1,8 @@
 package scripts
 
 import BuildPlugins
-import scripts.Variants_gradle.BuildTypes
-import scripts.Variants_gradle.ProductFlavors
+import scripts.Variants_gradle.Default
 import java.util.Properties
-
-private object Default {
-    const val BUILD_TYPE = BuildTypes.DEBUG
-    const val BUILD_FLAVOR = ProductFlavors.DEV
-
-    val VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
-}
 
 tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
@@ -23,27 +15,27 @@ tasks.named<Wrapper>("wrapper") {
 
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
-    dependsOn(":app:test${Default.VARIANT}UnitTest")
+    dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
 }
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
-    dependsOn(":app:connected${Default.VARIANT}AndroidTest")
+    dependsOn(":app:connected${Default.BUILD_VARIANT}AndroidTest")
 }
 
 tasks.register("assembleApp") {
     description = "assemble the Wire Android Client."
-    dependsOn(":app:assemble${Default.VARIANT}")
+    dependsOn(":app:assemble${Default.BUILD_VARIANT}")
 }
 
 tasks.register("compileApp") {
     description = "compiles the Wire Android Client source."
-    dependsOn(":app:compile${Default.VARIANT}Sources")
+    dependsOn(":app:compile${Default.BUILD_VARIANT}Sources")
 }
 
 tasks.register("runApp", Exec::class) {
     val assembleAppTask = "assembleApp"
-    val installAppTask = ":app:install${Default.VARIANT}"
+    val installAppTask = ":app:install${Default.BUILD_VARIANT}"
 
     description = "assembles and runs the Wire Android Client in the connected device."
     dependsOn(assembleAppTask, installAppTask)

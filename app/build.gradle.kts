@@ -58,6 +58,8 @@ dependencies {
     testImplementation(TestLibraries.coroutinesTest)
     testImplementation(TestLibraries.testCore)
     testImplementation(TestLibraries.koinTest)
+    testImplementation(TestLibraries.mockk)
+    testImplementation(TestLibraries.kluent)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(TestLibraries.testRunner)

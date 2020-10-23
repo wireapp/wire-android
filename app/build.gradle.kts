@@ -23,10 +23,6 @@ android {
         testInstrumentationRunner = AndroidClient.testRunner
     }
 
-    testOptions {
-        animationsDisabled = true
-    }
-
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
 }
 

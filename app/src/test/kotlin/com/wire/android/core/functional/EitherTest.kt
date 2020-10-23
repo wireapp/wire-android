@@ -2,8 +2,8 @@ package com.wire.android.core.functional
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.fail
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
 class EitherTest : UnitTest() {
@@ -12,54 +12,54 @@ class EitherTest : UnitTest() {
 
     @Test
     fun `given fold is called, when either is Right, applies fnR and returns its result`() {
-        either = Either.Right("Right")
+        either = Either.Right("Success")
+        val result = either.fold({ fail("Shouldn't be executed") }) { 5 }
 
-        val result = either.fold({ fail<Int>("Shouldn't be executed") }) { 5 }
-
-        assertThat(result).isEqualTo(5)
+        result shouldBe 5
     }
 
     @Test
     fun `given fold is called, when either is Left, applies fnL and returns its result`() {
         either = Either.Left(12)
 
-        val result = either.fold({ "Fold Result" }) { fail<String>("Shouldn't be executed") }
+        val foldResult = "Fold Result"
+        val result = either.fold({ foldResult }) { fail("Shouldn't be executed") }
 
-        assertThat(result).isEqualTo("Fold Result")
+        result shouldBe foldResult
     }
 
     @Test
     fun `given flatMap is called, when either is Right, applies function and returns new Either`() {
-        either = Either.Right("Right")
+        either = Either.Right("Success")
 
         val result = either.flatMap {
-            assertThat(it).isEqualTo("Right")
+            it shouldBe "Success"
             Either.Left(ServerError)
         }
 
-        assertThat(result).isEqualTo(Either.Left(ServerError))
+        result shouldEqual Either.Left(ServerError)
+        result.isLeft shouldBe true
     }
 
     @Test
     fun `given flatMap is called, when either is Left, doesn't invoke function and returns original Either`() {
         either = Either.Left(12)
 
-        val result = either.flatMap {
-            fail<Either<*, *>>("Shouldn't be executed")
-        }
+        val result = either.flatMap { Either.Right(20) }
 
-        assertThat(result).isEqualTo(either)
+        result.isLeft shouldBe true
+        result shouldEqual either
     }
 
     @Test
     fun `given onFailure is called, when either is Right, doesn't invoke function and returns original Either`() {
-        either = Either.Right("Right")
+        val success = "Success"
+        either = Either.Right(success)
 
-        val result = either.onFailure {
-            fail("Shouldn't be executed")
-        }
+        val result = either.onFailure { fail("Shouldn't be executed") }
 
-        assertThat(result).isEqualTo(either)
+        result shouldBe either
+        either.getOrElse("Failure") shouldBe success
     }
 
     @Test
@@ -68,26 +68,27 @@ class EitherTest : UnitTest() {
 
         var methodCalled = false
         val result = either.onFailure {
-            assertThat(it).isEqualTo(12)
+            it shouldBe 12
             methodCalled = true
         }
 
-        assertThat(result).isEqualTo(either)
-        assertThat(methodCalled).isTrue()
+        result shouldBe either
+        methodCalled shouldBe true
     }
 
     @Test
     fun `given onSuccess is called, when either is Right, invokes function with right value and returns original Either`() {
-        either = Either.Right("Right")
+        val success = "Success"
+        either = Either.Right(success)
 
         var methodCalled = false
         val result = either.onSuccess {
-            assertThat(it).isEqualTo("Right")
+            it shouldEqual success
             methodCalled = true
         }
 
-        assertThat(result).isEqualTo(either)
-        assertThat(methodCalled).isTrue()
+        result shouldBe either
+        methodCalled shouldBe true
     }
 
     @Test
@@ -98,29 +99,30 @@ class EitherTest : UnitTest() {
             fail("Shouldn't be executed")
         }
 
-        assertThat(result).isEqualTo(either)
+        result shouldBe either
     }
 
     @Test
     fun `given map is called, when either is Right, invokes function with right value and returns a new Either`() {
-        either = Either.Right("Right")
+        val success = "Success"
+        val resultValue = "Result"
+        either = Either.Right(success)
 
         val result = either.map {
-            assertThat(it).isEqualTo("Right")
-            "Result"
+            it shouldBe success
+            resultValue
         }
 
-        assertThat(result).isEqualTo(Either.Right("Result"))
+        result shouldEqual Either.Right(resultValue)
     }
 
     @Test
     fun `given map is called, when either is Left, doesn't invoke function and returns original Either`() {
         either = Either.Left(12)
 
-        val result = either.map {
-            fail<Unit>("Shouldn't be executed")
-        }
+        val result = either.map { Either.Right(20) }
 
-        assertThat(result).isEqualTo(either)
+        result.isLeft shouldBe true
+        result shouldEqual either
     }
 }

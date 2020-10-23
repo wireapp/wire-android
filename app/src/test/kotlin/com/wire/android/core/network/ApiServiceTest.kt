@@ -1,43 +1,33 @@
 package com.wire.android.core.network
 
 import com.wire.android.UnitTest
-import com.wire.android.core.exception.BadRequest
-import com.wire.android.core.exception.EmptyResponseBody
-import com.wire.android.core.exception.Failure
-import com.wire.android.core.exception.Forbidden
-import com.wire.android.core.exception.InternalServerError
-import com.wire.android.core.exception.NetworkConnection
-import com.wire.android.core.exception.NotFound
-import com.wire.android.core.exception.ServerError
-import com.wire.android.core.exception.TooManyRequests
-import com.wire.android.core.exception.Unauthorized
-import com.wire.android.framework.functional.assertLeft
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.core.exception.*
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.Called
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verifyNoInteractions
 import retrofit2.Response
 
 class ApiServiceTest : UnitTest() {
 
     private lateinit var apiService: ApiService
 
-    @Mock
+    @MockK
     private lateinit var networkHandler: NetworkHandler
 
-    @Mock
+    @MockK
     private lateinit var response: Response<String>
-
-    @Mock
-    private lateinit var responseFunc: suspend () -> Response<String>
 
     @Before
     fun setUp() {
-        `when`(networkHandler.isConnected).thenReturn(true)
+        every { networkHandler.isConnected } returns true
         apiService = object : ApiService() {
             override val networkHandler: NetworkHandler = this@ApiServiceTest.networkHandler
         }
@@ -45,98 +35,97 @@ class ApiServiceTest : UnitTest() {
 
     @Test
     fun `given rawRequest is called, when there's no network connection, then returns NetworkConnection failure immediately`() {
-        runBlocking {
-            `when`(networkHandler.isConnected).thenReturn(false)
+        val responseFunc: suspend () -> Response<String> = mockk(relaxed = true)
+        every { networkHandler.isConnected } returns false
 
+        runBlocking {
             val result = apiService.rawRequest(responseFunc)
 
-            verifyNoInteractions(responseFunc)
-            result.assertLeft { assertThat(it).isEqualTo(NetworkConnection) }
+            verify { responseFunc wasNot Called }
+            result shouldFail { it shouldBe NetworkConnection }
         }
     }
 
     @Test
     fun `given rawRequest is called, when response is successful, then returns the response`() {
+        every { response.isSuccessful } returns true
+
         runBlocking {
-            `when`(response.isSuccessful).thenReturn(true)
-
             val result = apiService.rawRequest(::testCall)
-
-            result.assertRight { assertThat(it).isEqualTo(response) }
+            result shouldSucceed { it shouldBe response }
         }
     }
 
     @Test
     fun `given request is called with a default value, when response is successful and has a body, then returns the body`() {
+        every { response.isSuccessful } returns true
+        every { response.body() } returns TEST_BODY
+
         runBlocking {
-            `when`(response.isSuccessful).thenReturn(true)
-            `when`(response.body()).thenReturn(TEST_BODY)
-
             val result = apiService.request(default = TEST_DEFAULT_ARGUMENT, call = ::testCall)
-
-            result.assertRight { assertThat(it).isEqualTo(TEST_BODY) }
+            result shouldSucceed { it shouldBe TEST_BODY }
         }
     }
 
     @Test
     fun `given request is called with a default value, when response is successful but has no body, then returns default value`() {
+        every { response.isSuccessful } returns true
+        every { response.body() } returns null
+
         runBlocking {
-            `when`(response.isSuccessful).thenReturn(true)
-            `when`(response.body()).thenReturn(null)
-
             val result = apiService.request(default = TEST_DEFAULT_ARGUMENT, call = ::testCall)
-
-            result.assertRight { assertThat(it).isEqualTo(TEST_DEFAULT_ARGUMENT) }
+            result shouldSucceed { it shouldBe TEST_DEFAULT_ARGUMENT }
         }
     }
 
     @Test
     fun `given request is called without default value, when response successful but has no body, then returns EmptyResponseBody error`() {
-        runBlocking {
-            `when`(response.isSuccessful).thenReturn(true)
-            `when`(response.body()).thenReturn(null)
+        every { response.isSuccessful } returns true
+        every { response.body() } returns null
 
+        runBlocking {
             val result = apiService.request(default = null, call = ::testCall)
 
-            result.assertLeft { assertThat(it).isEqualTo(EmptyResponseBody) }
+            result shouldFail { it shouldBe EmptyResponseBody }
         }
     }
 
     @Test
     fun `given rawRequest is called, when call fails with http 400 error, then returns BadRequest failure`() =
-        assertHttpError(400, BadRequest)
+        shouldTriggerHttpError(400, BadRequest)
 
     @Test
     fun `given rawRequest is called, when call fails with http 401 error, then returns Unauthorized failure`() =
-        assertHttpError(401, Unauthorized)
+        shouldTriggerHttpError(401, Unauthorized)
 
     @Test
     fun `given rawRequest is called, when call fails with http 403 error, then returns Forbidden failure`() =
-        assertHttpError(403, Forbidden)
+        shouldTriggerHttpError(403, Forbidden)
 
     @Test
     fun `given rawRequest is called, when call fails with http 404 error, then returns NotFound failure`() =
-        assertHttpError(404, NotFound)
+        shouldTriggerHttpError(404, NotFound)
 
     @Test
     fun `given rawRequest is called, when call fails with http 429 error, then returns TooManyRequests failure`() =
-        assertHttpError(429, TooManyRequests)
+        shouldTriggerHttpError(429, TooManyRequests)
 
     @Test
     fun `given rawRequest is called, when call fails with http 500 error, then returns InternalServerError failure`() =
-        assertHttpError(500, InternalServerError)
+        shouldTriggerHttpError(500, InternalServerError)
 
     @Test
     fun `given rawRequest is called, when call fails with any other error, then returns ServerError failure`() =
-        assertHttpError(-1, ServerError)
+        shouldTriggerHttpError(-1, ServerError)
 
-    private fun assertHttpError(httpErrorCode: Int, failure: Failure): Unit = runBlocking {
-        `when`(response.isSuccessful).thenReturn(false)
-        `when`(response.code()).thenReturn(httpErrorCode)
+    private fun shouldTriggerHttpError(httpErrorCode: Int, failure: Failure) {
+        every { response.isSuccessful } returns false
+        every { response.code() } returns httpErrorCode
 
-        val result = apiService.rawRequest(::testCall)
-
-        result.assertLeft { assertThat(it).isEqualTo(failure) }
+        runBlocking {
+            val result = apiService.rawRequest(::testCall)
+            result shouldFail { it shouldBe failure }
+        }
     }
 
     private suspend fun testCall(): Response<String> = response

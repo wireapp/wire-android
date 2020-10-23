@@ -6,8 +6,8 @@ import org.assertj.core.api.Assertions.fail
 infix fun <L, R> Either<L, R>.shouldSucceed(successAssertion: (R) -> Unit) =
     this.fold({ fail<Unit>("Expected a Right value but got Left") }) { successAssertion(it) }!!
 
-infix fun <L, R> Either<L, R>.shouldFail(successAssertion: (R) -> Unit) =
-    this.fold({ fail<Unit>("Expected a Right value but got Left") }) { successAssertion(it) }!!
+infix fun <L, R> Either<L, R>.shouldFail(failAssertion: (L) -> Unit) =
+    this.fold({ failAssertion(it) }) { fail<Unit>("Expected a Left value but got Right") }!!
 
 //TODO: Refactor this to accept infix
 fun <L> Either<L, Unit>.shouldFail() = shouldFail { }

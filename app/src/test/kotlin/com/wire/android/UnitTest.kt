@@ -35,4 +35,8 @@ abstract class UnitTest {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @Suppress("LeakingThis")
+    @Rule
+    @JvmField val injectMockKs = InjectMockKsRule.create(this@UnitTest)
 }

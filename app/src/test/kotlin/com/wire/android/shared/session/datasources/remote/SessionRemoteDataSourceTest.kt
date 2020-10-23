@@ -1,28 +1,27 @@
 package com.wire.android.shared.session.datasources.remote
 
 import com.wire.android.UnitTest
-import com.wire.android.any
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 import retrofit2.Response
 
 @Suppress("UNCHECKED_CAST")
 class SessionRemoteDataSourceTest : UnitTest() {
 
-    @Mock
+    @MockK
     private lateinit var sessionApi: SessionApi
 
-    @Mock
+    @MockK
     private lateinit var accessTokenResponse: Response<AccessTokenResponse>
 
-    @Mock
+    @MockK
     private lateinit var accessTokenResponseBody: AccessTokenResponse
 
     private lateinit var sessionRemoteDataSource: SessionRemoteDataSource
@@ -34,31 +33,29 @@ class SessionRemoteDataSourceTest : UnitTest() {
 
     @Test
     fun `given accessToken is called, when sessionApi returns response, then returns the response body as success`() {
-        runBlocking {
-            `when`(accessTokenResponse.isSuccessful).thenReturn(true)
-            `when`(accessTokenResponse.body()).thenReturn(accessTokenResponseBody)
-            `when`(sessionApi.accessToken(any())).thenReturn(accessTokenResponse)
+        coEvery { accessTokenResponse.isSuccessful } returns true
+        coEvery { accessTokenResponse.body() } returns accessTokenResponseBody
+        coEvery { sessionApi.accessToken(any()) } returns accessTokenResponse
 
+        runBlocking {
             val result = sessionRemoteDataSource.accessToken(TEST_REFRESH_TOKEN)
 
-            result.assertRight {
-                assertThat(it).isEqualTo(accessTokenResponseBody)
-            }
-            verify(sessionApi).accessToken("$REFRESH_TOKEN_HEADER_PREFIX$TEST_REFRESH_TOKEN")
+            result shouldSucceed { it shouldBe accessTokenResponseBody }
+            coVerify { sessionApi.accessToken("$REFRESH_TOKEN_HEADER_PREFIX$TEST_REFRESH_TOKEN") }
         }
     }
 
     @Test
     fun `given accessToken is called, when sessionApi returns failure, then propagates the failure`() {
-        runBlocking {
-            `when`(accessTokenResponse.isSuccessful).thenReturn(false)
-            `when`(accessTokenResponse.code()).thenReturn(999)
-            `when`(sessionApi.accessToken(any())).thenReturn(accessTokenResponse)
+        coEvery { accessTokenResponse.isSuccessful } returns false
+        coEvery { accessTokenResponse.code() } returns 999
+        coEvery { sessionApi.accessToken(any()) } returns accessTokenResponse
 
+        runBlocking {
             val result = sessionRemoteDataSource.accessToken(TEST_REFRESH_TOKEN)
 
-            assertThat(result.isLeft).isTrue()
-            verify(sessionApi).accessToken("$REFRESH_TOKEN_HEADER_PREFIX$TEST_REFRESH_TOKEN")
+            result.isLeft shouldBe true
+            coVerify { sessionApi.accessToken("$REFRESH_TOKEN_HEADER_PREFIX$TEST_REFRESH_TOKEN") }
         }
     }
 

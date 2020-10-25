@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SessionDao {
@@ -13,7 +12,7 @@ interface SessionDao {
     suspend fun insert(session: SessionEntity)
 
     @Query("SELECT * FROM session WHERE is_current = 1 LIMIT 1")
-    fun currentSession(): Flow<SessionEntity?>
+    suspend fun currentSession(): SessionEntity?
 
     @Query("SELECT * FROM session")
     suspend fun sessions(): List<SessionEntity>

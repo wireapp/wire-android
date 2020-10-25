@@ -4,7 +4,6 @@ import com.wire.android.core.storage.db.DatabaseTest
 import com.wire.android.core.storage.db.global.GlobalDatabase
 import com.wire.android.shared.user.datasources.local.UserEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -47,7 +46,7 @@ class SessionDaoTest : DatabaseTest() {
 
         sessionDao.insert(session)
 
-        assertThat(sessionDao.currentSession().first()).isEqualTo(session)
+        assertThat(sessionDao.currentSession()).isEqualTo(session)
     }
 
     @Test
@@ -56,7 +55,7 @@ class SessionDaoTest : DatabaseTest() {
 
         sessionDao.insert(session)
 
-        assertThat(sessionDao.currentSession().first()).isNull()
+        assertThat(sessionDao.currentSession()).isNull()
     }
 
     @Test
@@ -87,7 +86,7 @@ class SessionDaoTest : DatabaseTest() {
         val session = prepareSession(id = 1, userId = TEST_USER_ID, current = true)
         sessionDao.insert(session)
 
-        assertThat(sessionDao.currentSession().first()).isEqualTo(session)
+        assertThat(sessionDao.currentSession()).isEqualTo(session)
     }
 
     @Test
@@ -95,7 +94,7 @@ class SessionDaoTest : DatabaseTest() {
         val session = prepareSession(id = 1, userId = TEST_USER_ID, current = false)
         sessionDao.insert(session)
 
-        assertThat(sessionDao.currentSession().first()).isNull()
+        assertThat(sessionDao.currentSession()).isNull()
     }
 
     @Test
@@ -103,11 +102,11 @@ class SessionDaoTest : DatabaseTest() {
         val session = prepareSession(id = 1, userId = TEST_USER_ID, current = true)
         sessionDao.insert(session)
 
-        assertThat(sessionDao.currentSession().first()).isEqualTo(session)
+        assertThat(sessionDao.currentSession()).isEqualTo(session)
 
         sessionDao.insert(session.copy(isCurrent = false))
 
-        assertThat(sessionDao.currentSession().first()).isNull()
+        assertThat(sessionDao.currentSession()).isNull()
     }
 
     @Test

@@ -3,7 +3,6 @@ package com.wire.android.shared.session.datasources.local
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.storage.db.DatabaseService
-import kotlinx.coroutines.flow.Flow
 
 class SessionLocalDataSource(private val sessionDao: SessionDao) : DatabaseService {
 
@@ -11,8 +10,9 @@ class SessionLocalDataSource(private val sessionDao: SessionDao) : DatabaseServi
         sessionDao.insert(sessionEntity)
     }
 
-    //TODO: error handling
-    fun currentSession(): Flow<SessionEntity?> = sessionDao.currentSession()
+    suspend fun currentSession(): Either<Failure, SessionEntity> = request {
+        sessionDao.currentSession()
+    }
 
     suspend fun setCurrentSessionToDormant(): Either<Failure, Unit> = request {
         sessionDao.setCurrentSessionToDormant()

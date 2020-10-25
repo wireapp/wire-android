@@ -1,13 +1,11 @@
 package com.wire.android.shared.session.datasources.local
 
 import com.wire.android.UnitTest
+import com.wire.android.core.exception.NoEntityFound
 import com.wire.android.core.functional.onSuccess
+import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
@@ -15,6 +13,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
+import java.sql.SQLException
 
 @ExperimentalCoroutinesApi
 class SessionLocalDataSourceTest : UnitTest() {
@@ -51,24 +50,33 @@ class SessionLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given currentSession is called, when dao emits an item, then propagates it directly`() {
-        `when`(sessionDao.currentSession()).thenReturn(flowOf(sessionEntity))
+    fun `given currentSession is called, when dao returns an entity, then propagates it in Either`() {
+        runBlockingTest {
+            `when`(sessionDao.currentSession()).thenReturn(sessionEntity)
 
-        runBlocking {
-            sessionLocalDataSource.currentSession().collect {
+            sessionLocalDataSource.currentSession().assertRight {
                 assertThat(it).isEqualTo(sessionEntity)
             }
         }
     }
 
     @Test
-    fun `given currentSession is called, when dao emits null, then propagates null directly`() {
-        `when`(sessionDao.currentSession()).thenReturn(flow { emit(null) })
+    fun `given currentSession is called, when dao returns null, then returns NoEntityFound error`() {
+        runBlockingTest {
+            `when`(sessionDao.currentSession()).thenReturn(null)
 
-        runBlocking {
-            sessionLocalDataSource.currentSession().collect {
-                assertThat(it).isEqualTo(null)
+            sessionLocalDataSource.currentSession().assertLeft {
+                assertThat(it).isEqualTo(NoEntityFound)
             }
+        }
+    }
+
+    @Test
+    fun `given currentSession is called, when dao returns error, then returns error`() {
+        runBlockingTest {
+            `when`(sessionDao.currentSession()).thenThrow(SQLException())
+
+            assertThat(sessionLocalDataSource.currentSession().isLeft).isTrue()
         }
     }
 

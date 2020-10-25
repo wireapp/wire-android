@@ -15,9 +15,6 @@ import com.wire.android.shared.session.datasources.local.SessionLocalDataSource
 import com.wire.android.shared.session.datasources.remote.AccessTokenResponse
 import com.wire.android.shared.session.datasources.remote.SessionRemoteDataSource
 import com.wire.android.shared.session.mapper.SessionMapper
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -139,12 +136,12 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given currentSession is called, when localDataSource emits an entity, then maps the entity to Session and emits it`() {
-        `when`(sessionMapper.fromSessionEntity(sessionEntity)).thenReturn(session)
-        `when`(localDataSource.currentSession()).thenReturn(flowOf(sessionEntity))
-
+    fun `given currentSession is called, when localDataSource returns an entity, then maps the entity to Session and returns it`() {
         runBlocking {
-            sessionDataSource.currentSession().collect {
+            `when`(sessionMapper.fromSessionEntity(sessionEntity)).thenReturn(session)
+            `when`(localDataSource.currentSession()).thenReturn(Either.Right(sessionEntity))
+
+            sessionDataSource.currentSession().assertRight {
                 assertThat(it).isEqualTo(session)
                 verify(sessionMapper).fromSessionEntity(sessionEntity)
             }
@@ -152,14 +149,15 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given currentSession is called, when localDataSource emits null, then directly emits null`() {
-        `when`(localDataSource.currentSession()).thenReturn(flow { emit(null) })
-
+    fun `given currentSession is called, when localDataSource returns a failure, then directly propagates the failure`() {
         runBlocking {
-            sessionDataSource.currentSession().collect {
-                assertThat(it).isEqualTo(null)
-                verifyNoInteractions(sessionMapper)
+            val failure = mock(Failure::class.java)
+            `when`(localDataSource.currentSession()).thenReturn(Either.Left(failure))
+
+            sessionDataSource.currentSession().assertLeft {
+                assertThat(it).isEqualTo(failure)
             }
+            verifyNoInteractions(sessionMapper)
         }
     }
 

@@ -6,7 +6,7 @@ import android.content.Context
 import com.wire.android.core.network.di.networkModule
 import com.wire.android.core.storage.db.di.databaseModule
 import com.wire.android.feature.auth.di.authenticationModules
-import com.wire.android.feature.conversation.list.conversationsModule
+import com.wire.android.feature.conversation.di.conversationsModule
 import com.wire.android.feature.launch.di.launcherModule
 import com.wire.android.feature.welcome.di.welcomeModule
 import com.wire.android.shared.session.di.sessionModule

@@ -5,7 +5,8 @@ import com.wire.android.UnitTest
 import com.wire.android.framework.livedata.TestLifecycleOwner
 import com.wire.android.framework.livedata.awaitValue
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.TimeoutException
@@ -24,7 +25,7 @@ class SingleLiveEventTest : UnitTest() {
         singleLiveEvent.value = TEST_VALUE
 
         runBlocking {
-            assertThat(singleLiveEvent.awaitValue()).isEqualTo(TEST_VALUE)
+            singleLiveEvent.awaitValue() shouldEqual TEST_VALUE
         }
     }
 
@@ -52,7 +53,8 @@ class SingleLiveEventTest : UnitTest() {
 
         lifecycleOwner.destroy()
         lifecycleOwner.start()
-        assertThat(observedOnce).isEqualTo(true)
+
+        observedOnce shouldBe true
     }
 
     @Test
@@ -61,21 +63,22 @@ class SingleLiveEventTest : UnitTest() {
 
         var count = 0
         val observer = Observer<Int> {
-            assertThat(it).isEqualTo(if (count == 0) TEST_VALUE else newValue)
+            it shouldBe (if (count == 0) TEST_VALUE else newValue)
             count++
         }
         singleLiveEvent.observeForever(observer)
         singleLiveEvent.value = TEST_VALUE
         singleLiveEvent.value = newValue
         singleLiveEvent.removeObserver(observer)
-        assertThat(count).isEqualTo(2)
+
+        count shouldBe 2
     }
 
     @Test
     fun `given that there are more than 1 active observers, only notifies one of them`() {
         val lifecycleOwner = TestLifecycleOwner()
 
-        val observer1 = Observer<Int?> { assertThat(it).isEqualTo(TEST_VALUE) }
+        val observer1 = Observer<Int?> { it shouldBe TEST_VALUE }
         val observer2 = Observer<Int?> { throw AssertionError("Didn't expect to be notified.") }
 
         singleLiveEvent.observe(lifecycleOwner, observer1)

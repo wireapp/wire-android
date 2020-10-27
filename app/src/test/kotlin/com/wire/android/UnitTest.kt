@@ -39,4 +39,6 @@ abstract class UnitTest {
     @Suppress("LeakingThis")
     @Rule
     @JvmField val injectMockKs = InjectMockKsRule.create(this@UnitTest)
+
+    fun fail(message: String): Nothing = throw AssertionError(message)
 }

@@ -40,6 +40,10 @@ abstract class AndroidTest {
     @JvmField
     val injectMocks = InjectMocksRule.create(this@AndroidTest)
 
+    @Suppress("LeakingThis")
+    @Rule
+    @JvmField val injectMockKs = InjectMockKsRule.create(this@AndroidTest)
+
     @After
     fun cleanUp() {
         stopKoin()

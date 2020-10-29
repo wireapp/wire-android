@@ -38,8 +38,8 @@ class LoginRemoteDataSourceTest : UnitTest() {
         runBlocking {
             loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
 
-            verify { labelGenerator.newLabel() }
-            coVerify { loginApi.loginWithEmail(capture(loginWithEmailRequestSlot), eq(true)) }
+            verify(exactly = 1) { labelGenerator.newLabel() }
+            coVerify(exactly = 1) { loginApi.loginWithEmail(capture(loginWithEmailRequestSlot), eq(true)) }
             loginWithEmailRequestSlot.captured.let {
                 it.email shouldBe TEST_EMAIL
                 it.password shouldBe TEST_PASSWORD

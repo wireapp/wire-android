@@ -46,7 +46,7 @@ class LoginDataSourceTest : UnitTest() {
         runBlocking {
             loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
 
-            coVerify { loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL, password = TEST_PASSWORD) }
+            coVerify(exactly = 1) { loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL, password = TEST_PASSWORD) }
         }
     }
 
@@ -59,7 +59,7 @@ class LoginDataSourceTest : UnitTest() {
         runBlocking {
             loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) shouldSucceed { it shouldBe session }
         }
-        verify { sessionMapper.fromLoginResponse(loginWithEmailResponse) }
+        verify(exactly = 1) { sessionMapper.fromLoginResponse(loginWithEmailResponse) }
     }
 
     @Test
@@ -70,7 +70,7 @@ class LoginDataSourceTest : UnitTest() {
             val result = loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
 
             result shouldFail { it shouldBe ServerError }
-            verify { sessionMapper wasNot Called }
+            verify(exactly = 1) { sessionMapper wasNot Called }
         }
     }
 

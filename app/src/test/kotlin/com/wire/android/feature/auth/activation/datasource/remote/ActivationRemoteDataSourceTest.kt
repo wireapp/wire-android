@@ -36,8 +36,7 @@ class ActivationRemoteDataSourceTest : UnitTest() {
         runBlocking {
             activationRemoteDataSource.sendEmailActivationCode(TEST_EMAIL)
 
-            coVerify { activationApi.sendActivationCode(capture(activationCodeRequestSlot)) }
-
+            coVerify(exactly = 1) { activationApi.sendActivationCode(capture(activationCodeRequestSlot)) }
             activationCodeRequestSlot.captured.email shouldBe TEST_EMAIL
         }
     }
@@ -52,7 +51,7 @@ class ActivationRemoteDataSourceTest : UnitTest() {
 
             val result = activationRemoteDataSource.sendEmailActivationCode(TEST_EMAIL)
 
-            coVerify { activationApi.sendActivationCode(any()) }
+            coVerify(exactly = 1) { activationApi.sendActivationCode(any()) }
             result shouldSucceed {}
         }
     }
@@ -66,7 +65,7 @@ class ActivationRemoteDataSourceTest : UnitTest() {
 
             val result = activationRemoteDataSource.sendEmailActivationCode(TEST_EMAIL)
 
-            coVerify { activationApi.sendActivationCode(any()) }
+            coVerify(exactly = 1) { activationApi.sendActivationCode(any()) }
             result.isLeft shouldBe true
         }
     }
@@ -78,7 +77,7 @@ class ActivationRemoteDataSourceTest : UnitTest() {
         runBlocking {
             activationRemoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            coVerify{ activationApi.activateEmail(capture(activationRequestSlot)) }
+            coVerify(exactly = 1) { activationApi.activateEmail(capture(activationRequestSlot)) }
 
             with(activationRequestSlot.captured) {
                 email shouldBe TEST_EMAIL
@@ -98,7 +97,7 @@ class ActivationRemoteDataSourceTest : UnitTest() {
 
             val result = activationRemoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            coVerify { activationApi.activateEmail(any()) }
+            coVerify(exactly = 1) { activationApi.activateEmail(any()) }
             result shouldSucceed {}
         }
     }
@@ -112,7 +111,7 @@ class ActivationRemoteDataSourceTest : UnitTest() {
 
             val result = activationRemoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            coVerify { activationApi.activateEmail(any()) }
+            coVerify(exactly = 1) { activationApi.activateEmail(any()) }
             result.isLeft shouldBe true
         }
     }

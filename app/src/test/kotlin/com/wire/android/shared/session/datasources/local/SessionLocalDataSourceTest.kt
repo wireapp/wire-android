@@ -1,12 +1,13 @@
 package com.wire.android.shared.session.datasources.local
 
 import com.wire.android.UnitTest
+import com.wire.android.core.exception.NoEntityFound
 import com.wire.android.core.functional.onSuccess
+import com.wire.android.framework.functional.assertLeft
 import com.wire.android.framework.functional.assertRight
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.fail
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -43,6 +44,37 @@ class SessionLocalDataSourceTest : UnitTest() {
             `when`(sessionDao.insert(sessionEntity)).thenThrow(RuntimeException())
 
             sessionLocalDataSource.save(sessionEntity).onSuccess { fail("Expected a failure") }
+        }
+    }
+
+    @Test
+    fun `given currentSession is called, when dao returns an entity, then propagates it in Either`() {
+        runBlockingTest {
+            `when`(sessionDao.currentSession()).thenReturn(sessionEntity)
+
+            sessionLocalDataSource.currentSession().assertRight {
+                assertThat(it).isEqualTo(sessionEntity)
+            }
+        }
+    }
+
+    @Test
+    fun `given currentSession is called, when dao returns null, then returns NoEntityFound error`() {
+        runBlockingTest {
+            `when`(sessionDao.currentSession()).thenReturn(null)
+
+            sessionLocalDataSource.currentSession().assertLeft {
+                assertThat(it).isEqualTo(NoEntityFound)
+            }
+        }
+    }
+
+    @Test
+    fun `given currentSession is called, when dao returns error, then returns error`() {
+        runBlockingTest {
+            `when`(sessionDao.currentSession()).thenThrow(RuntimeException())
+
+            assertThat(sessionLocalDataSource.currentSession().isLeft).isTrue()
         }
     }
 

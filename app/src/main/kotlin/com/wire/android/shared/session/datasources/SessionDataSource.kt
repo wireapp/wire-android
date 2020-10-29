@@ -24,6 +24,10 @@ class SessionDataSource(
             }
         } else saveLocally(session, current)
 
+    override suspend fun currentSession(): Either<Failure, Session> = localDataSource.currentSession().map {
+        mapper.fromSessionEntity(it)
+    }
+
     private suspend fun saveLocally(session: Session, current: Boolean) =
         localDataSource.save(mapper.toSessionEntity(session, current))
 

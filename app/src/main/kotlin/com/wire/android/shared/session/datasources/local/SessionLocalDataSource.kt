@@ -10,6 +10,10 @@ class SessionLocalDataSource(private val sessionDao: SessionDao) : DatabaseServi
         sessionDao.insert(sessionEntity)
     }
 
+    suspend fun currentSession(): Either<Failure, SessionEntity> = request {
+        sessionDao.currentSession()
+    }
+
     suspend fun setCurrentSessionToDormant(): Either<Failure, Unit> = request {
         sessionDao.setCurrentSessionToDormant()
     }

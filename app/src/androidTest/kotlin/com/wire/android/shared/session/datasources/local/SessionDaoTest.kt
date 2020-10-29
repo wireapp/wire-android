@@ -46,7 +46,7 @@ class SessionDaoTest : DatabaseTest() {
 
         sessionDao.insert(session)
 
-        assertThat(session).isEqualTo(sessionDao.currentSession())
+        assertThat(sessionDao.currentSession()).isEqualTo(session)
     }
 
     @Test
@@ -79,6 +79,34 @@ class SessionDaoTest : DatabaseTest() {
         sessionDao.insert(session2)
 
         assertThat(sessionDao.sessions()).containsExactly(session2)
+    }
+
+    @Test
+    fun currentSession_aSessionExistsAsCurrent_emitsThatSession() = runTest {
+        val session = prepareSession(id = 1, userId = TEST_USER_ID, current = true)
+        sessionDao.insert(session)
+
+        assertThat(sessionDao.currentSession()).isEqualTo(session)
+    }
+
+    @Test
+    fun currentSession_noSessionExistsAsCurrent_emitsNull() = runTest {
+        val session = prepareSession(id = 1, userId = TEST_USER_ID, current = false)
+        sessionDao.insert(session)
+
+        assertThat(sessionDao.currentSession()).isNull()
+    }
+
+    @Test
+    fun currentSession_currentSessionIsSetToDormant_emitsNull() = runTest {
+        val session = prepareSession(id = 1, userId = TEST_USER_ID, current = true)
+        sessionDao.insert(session)
+
+        assertThat(sessionDao.currentSession()).isEqualTo(session)
+
+        sessionDao.insert(session.copy(isCurrent = false))
+
+        assertThat(sessionDao.currentSession()).isNull()
     }
 
     @Test

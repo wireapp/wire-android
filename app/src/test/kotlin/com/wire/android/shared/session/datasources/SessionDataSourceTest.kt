@@ -20,12 +20,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.anyBoolean
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoInteractions
+import org.mockito.Mockito.*
 
 class SessionDataSourceTest : UnitTest() {
 
@@ -137,6 +132,32 @@ class SessionDataSourceTest : UnitTest() {
             verify(localDataSource).setCurrentSessionToDormant()
             verify(sessionMapper).toSessionEntity(eq(session), eq(true))
             verify(localDataSource).save(sessionEntity)
+        }
+    }
+
+    @Test
+    fun `given currentSession is called, when localDataSource returns an entity, then maps the entity to Session and returns it`() {
+        runBlocking {
+            `when`(sessionMapper.fromSessionEntity(sessionEntity)).thenReturn(session)
+            `when`(localDataSource.currentSession()).thenReturn(Either.Right(sessionEntity))
+
+            sessionDataSource.currentSession().assertRight {
+                assertThat(it).isEqualTo(session)
+                verify(sessionMapper).fromSessionEntity(sessionEntity)
+            }
+        }
+    }
+
+    @Test
+    fun `given currentSession is called, when localDataSource returns a failure, then directly propagates the failure`() {
+        runBlocking {
+            val failure = mock(Failure::class.java)
+            `when`(localDataSource.currentSession()).thenReturn(Either.Left(failure))
+
+            sessionDataSource.currentSession().assertLeft {
+                assertThat(it).isEqualTo(failure)
+            }
+            verifyNoInteractions(sessionMapper)
         }
     }
 

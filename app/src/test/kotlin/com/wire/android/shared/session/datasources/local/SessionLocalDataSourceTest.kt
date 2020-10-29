@@ -8,12 +8,10 @@ import com.wire.android.framework.functional.assertRight
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.fail
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import java.sql.SQLException
 
 @ExperimentalCoroutinesApi
 class SessionLocalDataSourceTest : UnitTest() {
@@ -74,7 +72,7 @@ class SessionLocalDataSourceTest : UnitTest() {
     @Test
     fun `given currentSession is called, when dao returns error, then returns error`() {
         runBlockingTest {
-            `when`(sessionDao.currentSession()).thenThrow(SQLException())
+            `when`(sessionDao.currentSession()).thenThrow(RuntimeException())
 
             assertThat(sessionLocalDataSource.currentSession().isLeft).isTrue()
         }

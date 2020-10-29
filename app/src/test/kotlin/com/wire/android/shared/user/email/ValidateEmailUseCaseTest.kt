@@ -1,19 +1,21 @@
 package com.wire.android.shared.user.email
 
 import com.wire.android.UnitTest
-import com.wire.android.core.functional.Either
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
 
 @ExperimentalCoroutinesApi
 class ValidateEmailUseCaseTest : UnitTest() {
 
-    @Mock
+    @MockK
     private lateinit var validateEmailParams: ValidateEmailParams
 
     private lateinit var validationEmailUseCase: ValidateEmailUseCase
@@ -25,30 +27,30 @@ class ValidateEmailUseCaseTest : UnitTest() {
 
     @Test
     fun `Given run is executed, when email doesn't match regex, then return EmailInvalid failure`() {
-        `when`(validateEmailParams.email).thenReturn("email")
+        every { validateEmailParams.email } returns "email"
 
-        runBlocking {
-            assertThat(validationEmailUseCase.run(validateEmailParams)).isEqualTo(Either.Left(EmailInvalid))
-        }
+        val result = runBlocking { validationEmailUseCase.run(validateEmailParams) }
+
+        result shouldFail { it shouldEqual EmailInvalid }
     }
 
     @Test
     fun `Given run is executed, when email length is smaller than 5, then return EmailTooShort failure`() {
         val email = "t"
-        `when`(validateEmailParams.email).thenReturn(email)
+        every { validateEmailParams.email } returns email
 
-        runBlocking {
-            assertThat(validationEmailUseCase.run(validateEmailParams)).isEqualTo(Either.Left(EmailTooShort))
-        }
+        val result = runBlocking { validationEmailUseCase.run(validateEmailParams) }
+
+        result shouldFail { it shouldEqual EmailTooShort }
     }
 
     @Test
     fun `Given run is executed, when email matches regex and email fits requirements then return success`() {
-        `when`(validateEmailParams.email).thenReturn(VALID_TEST_EMAIL)
+        every { validateEmailParams.email } returns VALID_TEST_EMAIL
 
-        runBlocking {
-            assertThat(validationEmailUseCase.run(validateEmailParams)).isEqualTo(Either.Right(Unit))
-        }
+        val result = runBlocking { validationEmailUseCase.run(validateEmailParams) }
+
+        result shouldSucceed { it shouldBe Unit }
     }
 
     companion object {

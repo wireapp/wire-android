@@ -2,24 +2,23 @@ package com.wire.android.shared.session.datasources.local
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.NoEntityFound
-import com.wire.android.core.functional.onSuccess
-import com.wire.android.framework.functional.assertLeft
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
 
 @ExperimentalCoroutinesApi
 class SessionLocalDataSourceTest : UnitTest() {
 
-    @Mock
+    @MockK
     private lateinit var sessionDao: SessionDao
 
-    @Mock
+    @MockK
     private lateinit var sessionEntity: SessionEntity
 
     private lateinit var sessionLocalDataSource: SessionLocalDataSource
@@ -31,95 +30,88 @@ class SessionLocalDataSourceTest : UnitTest() {
 
     @Test
     fun `given save is called, when dao insertion is successful, then returns success`() {
-        runBlockingTest {
-            `when`(sessionDao.insert(sessionEntity)).thenReturn(Unit)
+        coEvery { sessionDao.insert(sessionEntity) } returns Unit
 
-            sessionLocalDataSource.save(sessionEntity).assertRight()
+        runBlockingTest {
+            sessionLocalDataSource.save(sessionEntity) shouldSucceed { it shouldBe Unit }
         }
     }
 
     @Test
     fun `given save is called, when dao insertion fails, then returns failure`() {
-        runBlockingTest {
-            `when`(sessionDao.insert(sessionEntity)).thenThrow(RuntimeException())
+        coEvery { sessionDao.insert(sessionEntity) } throws RuntimeException()
 
-            sessionLocalDataSource.save(sessionEntity).onSuccess { fail("Expected a failure") }
+        runBlockingTest {
+            sessionLocalDataSource.save(sessionEntity) shouldFail {}
         }
     }
 
     @Test
     fun `given currentSession is called, when dao returns an entity, then propagates it in Either`() {
-        runBlockingTest {
-            `when`(sessionDao.currentSession()).thenReturn(sessionEntity)
+        coEvery { sessionDao.currentSession() } returns sessionEntity
 
-            sessionLocalDataSource.currentSession().assertRight {
-                assertThat(it).isEqualTo(sessionEntity)
-            }
+        runBlockingTest {
+            sessionLocalDataSource.currentSession() shouldSucceed { it shouldBe sessionEntity }
         }
     }
 
     @Test
     fun `given currentSession is called, when dao returns null, then returns NoEntityFound error`() {
-        runBlockingTest {
-            `when`(sessionDao.currentSession()).thenReturn(null)
+        coEvery { sessionDao.currentSession() } returns null
 
-            sessionLocalDataSource.currentSession().assertLeft {
-                assertThat(it).isEqualTo(NoEntityFound)
-            }
+        runBlockingTest {
+            sessionLocalDataSource.currentSession() shouldFail { it shouldBe NoEntityFound }
         }
     }
 
     @Test
     fun `given currentSession is called, when dao returns error, then returns error`() {
-        runBlockingTest {
-            `when`(sessionDao.currentSession()).thenThrow(RuntimeException())
+        coEvery { sessionDao.currentSession() } throws RuntimeException()
 
-            assertThat(sessionLocalDataSource.currentSession().isLeft).isTrue()
+        runBlockingTest {
+            sessionLocalDataSource.currentSession() shouldFail {}
         }
     }
 
     @Test
     fun `given setCurrentSessionToDormant is called, when dao operation is successful, then returns success`() {
-        runBlockingTest {
-            `when`(sessionDao.setCurrentSessionToDormant()).thenReturn(Unit)
+        coEvery { sessionDao.setCurrentSessionToDormant() } returns Unit
 
-            sessionLocalDataSource.setCurrentSessionToDormant().assertRight()
+        runBlockingTest {
+            sessionLocalDataSource.setCurrentSessionToDormant() shouldSucceed { it shouldBe Unit }
         }
     }
 
     @Test
     fun `given setCurrentSessionToDormant is called, when dao operation fails, then returns failure`() {
-        runBlockingTest {
-            `when`(sessionDao.setCurrentSessionToDormant()).thenThrow(RuntimeException())
+        coEvery { sessionDao.setCurrentSessionToDormant() } throws RuntimeException()
 
-            sessionLocalDataSource.setCurrentSessionToDormant().onSuccess { fail("Expected a failure") }
+        runBlockingTest {
+            sessionLocalDataSource.setCurrentSessionToDormant() shouldFail {}
         }
     }
 
     @Test
-    fun `given doesCurrentSessionExist is called, when dao returns true, then returns success with value of true`() {
+    fun `given doesCurrentSessionExist is called, when dao returns true, then returns success with value of true`() =
         testDoesCurrentSessionExist(true)
-    }
 
     @Test
-    fun `given doesCurrentSessionExist is called, when dao returns false, then returns success with value of false`() {
+    fun `given doesCurrentSessionExist is called, when dao returns false, then returns success with value of false`() =
         testDoesCurrentSessionExist(false)
-    }
 
-    private fun testDoesCurrentSessionExist(exists: Boolean) = runBlockingTest {
-        `when`(sessionDao.doesCurrentSessionExist()).thenReturn(exists)
+    private fun testDoesCurrentSessionExist(exists: Boolean) {
+        coEvery { sessionDao.doesCurrentSessionExist() } returns exists
 
-        sessionLocalDataSource.doesCurrentSessionExist().assertRight {
-            assertThat(it).isEqualTo(exists)
+        runBlockingTest {
+            sessionLocalDataSource.doesCurrentSessionExist() shouldSucceed { it shouldBe exists }
         }
     }
 
     @Test
     fun `given doesCurrentSessionExist is called, when dao operation fails, then returns failure`() {
+        coEvery { sessionDao.doesCurrentSessionExist() } throws RuntimeException()
         runBlockingTest {
-            `when`(sessionDao.doesCurrentSessionExist()).thenThrow(RuntimeException())
-
-            sessionLocalDataSource.doesCurrentSessionExist().onSuccess { fail("Expected a failure") }
+            sessionLocalDataSource.doesCurrentSessionExist() shouldFail {}
         }
     }
 }

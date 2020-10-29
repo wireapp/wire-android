@@ -1,23 +1,23 @@
 package com.wire.android.shared.user.datasources.local
 
 import com.wire.android.UnitTest
-import com.wire.android.core.functional.onSuccess
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
-import org.assertj.core.api.Assertions.fail
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
 
 @ExperimentalCoroutinesApi
 class UserLocalDataSourceTest : UnitTest() {
 
-    @Mock
+    @MockK
     private lateinit var userDao: UserDao
 
-    @Mock
+    @MockK
     private lateinit var userEntity: UserEntity
 
     private lateinit var userLocalDataSource: UserLocalDataSource
@@ -29,19 +29,19 @@ class UserLocalDataSourceTest : UnitTest() {
 
     @Test
     fun `given save is called, when dao insertion is successful, then returns success`() {
-        runBlockingTest {
-            `when`(userDao.insert(userEntity)).thenReturn(Unit)
+        coEvery { userDao.insert(userEntity) } returns Unit
 
-            userLocalDataSource.save(userEntity).assertRight()
+        runBlockingTest {
+            userLocalDataSource.save(userEntity) shouldSucceed { it shouldBe Unit }
         }
     }
 
     @Test
     fun `given save is called, when dao insertion fails, then returns failure`() {
-        runBlockingTest {
-            `when`(userDao.insert(userEntity)).thenThrow(RuntimeException())
+        coEvery { userDao.insert(userEntity) } throws RuntimeException()
 
-            userLocalDataSource.save(userEntity).onSuccess { fail("Expected a failure") }
+        runBlockingTest {
+            userLocalDataSource.save(userEntity) shouldFail {}
         }
     }
 }

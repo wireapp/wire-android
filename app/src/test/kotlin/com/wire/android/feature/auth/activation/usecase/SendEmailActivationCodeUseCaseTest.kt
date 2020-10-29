@@ -42,10 +42,9 @@ class SendEmailActivationCodeUseCaseTest : UnitTest() {
 
         runBlocking {
             val response = sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams)
-
-            coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
             response shouldFail { it shouldBe EmailBlacklisted }
         }
+        coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
     }
 
     @Test

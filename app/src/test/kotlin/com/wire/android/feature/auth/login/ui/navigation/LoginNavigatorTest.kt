@@ -4,36 +4,28 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.wire.android.AndroidTest
-import com.wire.android.capture
 import com.wire.android.core.network.BackendConfig
 import com.wire.android.core.ui.navigation.UriNavigationHandler
-import com.wire.android.eq
 import com.wire.android.feature.auth.login.LoginActivity
-import org.assertj.core.api.Assertions.assertThat
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.slot
+import io.mockk.verify
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.Captor
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 
 class LoginNavigatorTest : AndroidTest() {
 
-    @Mock
+    @MockK
     private lateinit var uriNavigationHandler: UriNavigationHandler
 
-    @Mock
+    @MockK
     private lateinit var backendConfig: BackendConfig
 
-    @Mock
+    @MockK
     private lateinit var context: Context
-
-    @Captor
-    private lateinit var intentCaptor: ArgumentCaptor<Intent>
-
-    @Captor
-    private lateinit var uriCaptor: ArgumentCaptor<Uri>
 
     private lateinit var loginNavigator: LoginNavigator
 
@@ -44,23 +36,25 @@ class LoginNavigatorTest : AndroidTest() {
 
     @Test
     fun `given openLogin is called, then opens LoginActivity`() {
+        val intentSlot = slot<Intent>()
         loginNavigator.openLogin(context)
 
-        verify(context).startActivity(capture(intentCaptor))
-        intentCaptor.value.let {
-            assertThat(it.component?.className).isEqualTo(LoginActivity::class.java.canonicalName)
-            assertThat(it.extras).isNull()
+        verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
+        intentSlot.captured.let {
+            it.component?.className shouldBe LoginActivity::class.java.canonicalName
+            it.extras shouldBe null
         }
     }
 
     @Test
     fun `given openForgotPassword is called, then calls uriNavigationHandler to open correct uri`() {
-        `when`(backendConfig.accountsUrl).thenReturn(TEST_ACCOUNTS_URL)
+        val uriSlot = slot<Uri>()
+        every { backendConfig.accountsUrl } returns TEST_ACCOUNTS_URL
 
         loginNavigator.openForgotPassword(context)
 
-        verify(uriNavigationHandler).openUri(eq(context), capture(uriCaptor))
-        assertThat(uriCaptor.value.toString()).isEqualTo("$TEST_ACCOUNTS_URL/forgot")
+        verify(exactly = 1) { uriNavigationHandler.openUri(eq(context), capture(uriSlot)) }
+        uriSlot.captured.toString() shouldEqual "$TEST_ACCOUNTS_URL/forgot"
     }
 
     companion object {

@@ -4,24 +4,23 @@ import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemoteDataSource
-import com.wire.android.framework.functional.assertLeft
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
 import org.junit.Before
-
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 
 @ExperimentalCoroutinesApi
 class ActivationDataSourceTest : UnitTest() {
 
     private lateinit var activationDataSource: ActivationDataSource
 
-    @Mock
+    @MockK
     private lateinit var remoteDataSource: ActivationRemoteDataSource
 
     @Before
@@ -30,43 +29,51 @@ class ActivationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `Given sendEmailActivationCode() is called and remote request fails then return failure`() = runBlocking {
-        `when`(remoteDataSource.sendEmailActivationCode(TEST_EMAIL)).thenReturn(Either.Left(ServerError))
+    fun `Given sendEmailActivationCode() is called and remote request fails then return failure`() {
+        coEvery { remoteDataSource.sendEmailActivationCode(TEST_EMAIL) } returns Either.Left(ServerError)
 
-        val response = activationDataSource.sendEmailActivationCode(TEST_EMAIL)
+        runBlocking {
+            val response = activationDataSource.sendEmailActivationCode(TEST_EMAIL)
 
-        verify(remoteDataSource).sendEmailActivationCode(TEST_EMAIL)
-        response.assertLeft { assertThat(it).isEqualTo(ServerError) }
+            coVerify(exactly = 1) { remoteDataSource.sendEmailActivationCode(TEST_EMAIL) }
+            response shouldFail { it shouldBe ServerError }
+        }
     }
 
     @Test
-    fun `Given sendEmailActivationCode() is called and remote request is success, then return success`() = runBlocking {
-        `when`(remoteDataSource.sendEmailActivationCode(TEST_EMAIL)).thenReturn(Either.Right(Unit))
+    fun `Given sendEmailActivationCode() is called and remote request is success, then return success`() {
+        coEvery { remoteDataSource.sendEmailActivationCode(TEST_EMAIL) } returns Either.Right(Unit)
 
-        val response = activationDataSource.sendEmailActivationCode(TEST_EMAIL)
+        runBlocking {
+            val response = activationDataSource.sendEmailActivationCode(TEST_EMAIL)
 
-        verify(remoteDataSource).sendEmailActivationCode(TEST_EMAIL)
-        response.assertRight()
+            coVerify(exactly = 1) { remoteDataSource.sendEmailActivationCode(TEST_EMAIL) }
+            response shouldSucceed {}
+        }
     }
 
     @Test
-    fun `Given activateEmail() is called and remote request fails then return failure`() = runBlocking {
-        `when`(remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE)).thenReturn(Either.Left(ServerError))
+    fun `Given activateEmail() is called and remote request fails then return failure`() {
+        coEvery { remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE) } returns Either.Left(ServerError)
 
-        val response = activationDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
+        runBlocking {
+            val response = activationDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
 
-        verify(remoteDataSource).activateEmail(TEST_EMAIL, TEST_CODE)
-        response.assertLeft { assertThat(it).isEqualTo(ServerError) }
+            coVerify(exactly = 1) { remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE) }
+            response shouldFail { it shouldBe ServerError }
+        }
     }
 
     @Test
-    fun `Given activateEmail() is called and remote request success then return success`() = runBlocking {
-        `when`(remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE)).thenReturn(Either.Right(Unit))
+    fun `Given activateEmail() is called and remote request success then return success`() {
+        coEvery { remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE) } returns Either.Right(Unit)
 
-        val response = activationDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
+        runBlocking {
+            val response = activationDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
 
-        verify(remoteDataSource).activateEmail(TEST_EMAIL, TEST_CODE)
-        response.assertRight()
+            coVerify(exactly = 1) { remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE) }
+            response shouldSucceed {}
+        }
     }
 
     companion object {

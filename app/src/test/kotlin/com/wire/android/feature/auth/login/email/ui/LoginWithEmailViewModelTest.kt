@@ -14,21 +14,23 @@ import com.wire.android.feature.auth.login.email.usecase.LoginTooFrequentFailure
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCaseParams
 import com.wire.android.framework.coroutines.CoroutinesTestRule
-import com.wire.android.framework.functional.assertLeft
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.awaitValue
 import com.wire.android.shared.user.email.EmailInvalid
 import com.wire.android.shared.user.email.ValidateEmailParams
 import com.wire.android.shared.user.email.ValidateEmailUseCase
+import io.mockk.Called
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoInteractions
 
 @ExperimentalCoroutinesApi
 class LoginWithEmailViewModelTest : UnitTest() {
@@ -36,10 +38,10 @@ class LoginWithEmailViewModelTest : UnitTest() {
     @get:Rule
     val coroutinesTestRule = CoroutinesTestRule()
 
-    @Mock
+    @MockK
     private lateinit var validateEmailUseCase: ValidateEmailUseCase
 
-    @Mock
+    @MockK
     private lateinit var loginWithEmailUseCase: LoginWithEmailUseCase
 
     private lateinit var loginWithEmailViewModel: LoginWithEmailViewModel
@@ -52,15 +54,15 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given a valid email with no password, then sets continueEnabledLiveData to false`() =
+    fun `given a valid email with no password, then sets continueEnabledLiveData to false`() {
         coroutinesTestRule.runTest {
             mockEmailValidation(true)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
-
-            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
-            verify(validateEmailUseCase).run(ValidateEmailParams(TEST_EMAIL))
+            loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
         }
+        coVerify(exactly = 1) { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
+    }
 
     @Test
     fun `given a valid email but an empty password, then sets continueEnabledLiveData to false`() {
@@ -68,13 +70,12 @@ class LoginWithEmailViewModelTest : UnitTest() {
             mockEmailValidation(true)
 
             loginWithEmailViewModel.validatePassword(TEST_EMPTY_PASSWORD)
-            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
+            loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
-
-            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
-            verify(validateEmailUseCase).run(ValidateEmailParams(TEST_EMAIL))
+            loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
         }
+        coVerify(exactly = 1) { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
     }
 
     @Test
@@ -82,9 +83,9 @@ class LoginWithEmailViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             loginWithEmailViewModel.validatePassword(TEST_VALID_PASSWORD)
 
-            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
-            verifyNoInteractions(validateEmailUseCase)
+            loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
         }
+        verify(exactly = 1) { validateEmailUseCase wasNot Called }
     }
 
     @Test
@@ -93,13 +94,12 @@ class LoginWithEmailViewModelTest : UnitTest() {
             mockEmailValidation(false)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
-            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
+            loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
 
             loginWithEmailViewModel.validatePassword(TEST_VALID_PASSWORD)
-
-            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
-            verify(validateEmailUseCase).run(ValidateEmailParams(TEST_EMAIL))
+            loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
         }
+        coVerify(exactly = 1) { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
     }
 
     @Test
@@ -108,13 +108,12 @@ class LoginWithEmailViewModelTest : UnitTest() {
             mockEmailValidation(false)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
-            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
+            loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
 
             loginWithEmailViewModel.validatePassword(TEST_EMPTY_PASSWORD)
-
-            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
-            verify(validateEmailUseCase).run(ValidateEmailParams(TEST_EMAIL))
+            loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
         }
+        coVerify(exactly = 1) { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
     }
 
     @Test
@@ -123,75 +122,68 @@ class LoginWithEmailViewModelTest : UnitTest() {
             mockEmailValidation(true)
 
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
-            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isFalse()
+            loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
 
             loginWithEmailViewModel.validatePassword(TEST_VALID_PASSWORD)
-
-            assertThat(loginWithEmailViewModel.continueEnabledLiveData.awaitValue()).isTrue()
-            verify(validateEmailUseCase).run(ValidateEmailParams(TEST_EMAIL))
+            loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe true
         }
+        coVerify(exactly = 1) { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
     }
 
     @Test
     fun `given login is called, when loginWithEmailUseCase returns success, then sets success to loginResultLiveData`() {
+        val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
+
         coroutinesTestRule.runTest {
-            val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
-            `when`(loginWithEmailUseCase.run(params)).thenReturn(Either.Right(Unit))
+            coEvery { loginWithEmailUseCase.run(params) } returns Either.Right(Unit)
 
             loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
-
-            loginWithEmailViewModel.loginResultLiveData.awaitValue().assertRight()
-            verify(loginWithEmailUseCase).run(params)
+            loginWithEmailViewModel.loginResultLiveData.awaitValue() shouldSucceed {}
         }
+        coVerify(exactly = 1) { loginWithEmailUseCase.run(params) }
     }
 
     @Test
-    fun `given login is called, when use case returns NetworkConnection failure, then sets NetworkErrorMessage to loginResultLiveData`() {
-        verifyLoginResultErrorMessage(NetworkConnection) {
-            assertThat(it).isEqualTo(NetworkErrorMessage)
-        }
-    }
+    fun `given login is called, when use case returns NetworkConnection failure, then sets NetworkErrorMessage to loginResultLiveData`() =
+        verifyLoginResultErrorMessage(NetworkConnection) { it shouldBe NetworkErrorMessage }
 
     @Test
-    fun `given login is called, when use case returns LoginAuthenticationFailure, then sets proper error message to loginResultLiveData`() {
+    fun `given login is called, when use case returns LoginAuthenticationFailure, then sets proper error message to loginResultLiveData`() =
         verifyLoginResultErrorMessage(LoginAuthenticationFailure) {
-            assertThat(it.title).isEqualTo(R.string.login_authentication_failure_title)
-            assertThat(it.message).isEqualTo(R.string.login_authentication_failure_message)
+            with(it) {
+                title shouldEqual R.string.login_authentication_failure_title
+                message shouldEqual R.string.login_authentication_failure_message
+            }
         }
-    }
 
     @Test
-    fun `given login is called, when use case returns LoginTooFrequentFailure, then sets proper error message to loginResultLiveData`() {
+    fun `given login is called, when use case returns LoginTooFrequentFailure, then sets proper error message to loginResultLiveData`() =
         verifyLoginResultErrorMessage(LoginTooFrequentFailure) {
-            assertThat(it.title).isEqualTo(R.string.login_too_frequent_failure_title)
-            assertThat(it.message).isEqualTo(R.string.login_too_frequent_failure_message)
+            with(it) {
+                title shouldEqual R.string.login_too_frequent_failure_title
+                message shouldEqual R.string.login_too_frequent_failure_message
+            }
         }
-    }
 
     @Test
-    fun `given login is called, when loginWithEmailUseCase returns other failure, then sets GeneralErrorMessage to loginResultLiveData`() {
-        verifyLoginResultErrorMessage(ServerError) {
-            assertThat(it).isEqualTo(GeneralErrorMessage)
-        }
-    }
+    fun `given login is called, when loginWithEmailUseCase returns other failure, then sets GeneralErrorMessage to loginResultLiveData`() =
+        verifyLoginResultErrorMessage(ServerError) { it shouldBe GeneralErrorMessage }
 
-    private fun verifyLoginResultErrorMessage(failure: Failure, errorAssertion: (ErrorMessage) -> Unit) = coroutinesTestRule.runTest {
+    private fun verifyLoginResultErrorMessage(failure: Failure, errorAssertion: (ErrorMessage) -> Unit) {
         val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
-        `when`(loginWithEmailUseCase.run(params)).thenReturn(Either.Left(failure))
+        coEvery { loginWithEmailUseCase.run(params) } returns Either.Left(failure)
 
-        loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
+        coroutinesTestRule.runTest {
+            loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
 
-        loginWithEmailViewModel.loginResultLiveData.awaitValue().assertLeft {
-            errorAssertion(it)
+            loginWithEmailViewModel.loginResultLiveData.awaitValue() shouldFail { errorAssertion(it) }
         }
-        verify(loginWithEmailUseCase).run(params)
+        coVerify(exactly = 1) { loginWithEmailUseCase.run(params) }
     }
 
-    private suspend fun mockEmailValidation(success: Boolean) {
-        `when`(validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL))).thenReturn(
+    private suspend fun mockEmailValidation(success: Boolean) =
+        coEvery { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) } returns
             if (success) Either.Right(Unit) else Either.Left(EmailInvalid)
-        )
-    }
 
     companion object {
         private const val TEST_EMAIL = "test@wire.com"

@@ -39,7 +39,7 @@ class LoginNavigatorTest : AndroidTest() {
         val intentSlot = slot<Intent>()
         loginNavigator.openLogin(context)
 
-        verify { context.startActivity(capture(intentSlot)) }
+        verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
         intentSlot.captured.let {
             it.component?.className shouldBe LoginActivity::class.java.canonicalName
             it.extras shouldBe null
@@ -53,7 +53,7 @@ class LoginNavigatorTest : AndroidTest() {
 
         loginNavigator.openForgotPassword(context)
 
-        verify { uriNavigationHandler.openUri(eq(context), capture(uriSlot)) }
+        verify(exactly = 1) { uriNavigationHandler.openUri(eq(context), capture(uriSlot)) }
         uriSlot.captured.toString() shouldEqual "$TEST_ACCOUNTS_URL/forgot"
     }
 

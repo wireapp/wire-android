@@ -61,7 +61,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
             loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
         }
-        coVerify { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
+        coVerify(exactly = 1) { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
     }
 
     @Test
@@ -75,7 +75,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
             loginWithEmailViewModel.validateEmail(TEST_EMAIL)
             loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
         }
-        coVerify { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
+        coVerify(exactly = 1) { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
     }
 
     @Test
@@ -85,7 +85,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
             loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
         }
-        verify { validateEmailUseCase wasNot Called }
+        verify(exactly = 1) { validateEmailUseCase wasNot Called }
     }
 
     @Test
@@ -99,7 +99,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
             loginWithEmailViewModel.validatePassword(TEST_VALID_PASSWORD)
             loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
         }
-        coVerify { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
+        coVerify(exactly = 1) { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
     }
 
     @Test
@@ -113,7 +113,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
             loginWithEmailViewModel.validatePassword(TEST_EMPTY_PASSWORD)
             loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe false
         }
-        coVerify { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
+        coVerify(exactly = 1) { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
     }
 
     @Test
@@ -127,7 +127,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
             loginWithEmailViewModel.validatePassword(TEST_VALID_PASSWORD)
             loginWithEmailViewModel.continueEnabledLiveData.awaitValue() shouldBe true
         }
-        coVerify { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
+        coVerify(exactly = 1) { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) }
     }
 
     @Test
@@ -140,7 +140,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
             loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
             loginWithEmailViewModel.loginResultLiveData.awaitValue() shouldSucceed {}
         }
-        coVerify { loginWithEmailUseCase.run(params) }
+        coVerify(exactly = 1) { loginWithEmailUseCase.run(params) }
     }
 
     @Test
@@ -178,7 +178,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
             loginWithEmailViewModel.loginResultLiveData.awaitValue() shouldFail { errorAssertion(it) }
         }
-        coVerify { loginWithEmailUseCase.run(params) }
+        coVerify(exactly = 1) { loginWithEmailUseCase.run(params) }
     }
 
     private suspend fun mockEmailValidation(success: Boolean) =

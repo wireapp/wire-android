@@ -35,7 +35,7 @@ class ActivationDataSourceTest : UnitTest() {
         runBlocking {
             val response = activationDataSource.sendEmailActivationCode(TEST_EMAIL)
 
-            coVerify { remoteDataSource.sendEmailActivationCode(TEST_EMAIL) }
+            coVerify(exactly = 1) { remoteDataSource.sendEmailActivationCode(TEST_EMAIL) }
             response shouldFail { it shouldBe ServerError }
         }
     }
@@ -47,7 +47,7 @@ class ActivationDataSourceTest : UnitTest() {
         runBlocking {
             val response = activationDataSource.sendEmailActivationCode(TEST_EMAIL)
 
-            coVerify { remoteDataSource.sendEmailActivationCode(TEST_EMAIL) }
+            coVerify(exactly = 1) { remoteDataSource.sendEmailActivationCode(TEST_EMAIL) }
             response shouldSucceed {}
         }
     }
@@ -59,7 +59,7 @@ class ActivationDataSourceTest : UnitTest() {
         runBlocking {
             val response = activationDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            coVerify { remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE) }
+            coVerify(exactly = 1) { remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE) }
             response shouldFail { it shouldBe ServerError }
         }
     }
@@ -71,7 +71,7 @@ class ActivationDataSourceTest : UnitTest() {
         runBlocking {
             val response = activationDataSource.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            coVerify { remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE) }
+            coVerify(exactly = 1) { remoteDataSource.activateEmail(TEST_EMAIL, TEST_CODE) }
             response shouldSucceed {}
         }
     }

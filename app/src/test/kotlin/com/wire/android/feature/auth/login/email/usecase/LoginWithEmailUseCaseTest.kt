@@ -55,9 +55,9 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             result shouldSucceed {}
         }
 
-        coVerify { loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) }
-        coVerify { userRepository.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
-        coVerify { sessionRepository.save(eq(session), eq(true)) }
+        coVerify(exactly = 1) { loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) }
+        coVerify(exactly = 1) { userRepository.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
+        coVerify(exactly = 1) { sessionRepository.save(eq(session), eq(true)) }
     }
 
     @Test
@@ -68,7 +68,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
             result.shouldFail { it shouldBe LoginAuthenticationFailure }
         }
-        verify { userRepository wasNot Called }
+        verify(exactly = 1) { userRepository wasNot Called }
     }
 
     @Test
@@ -79,7 +79,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
             result shouldFail { it shouldBe LoginTooFrequentFailure }
         }
-        verify { userRepository wasNot Called }
+        verify(exactly = 1) { userRepository wasNot Called }
     }
 
     @Test
@@ -90,7 +90,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
             result shouldFail { it shouldBe ServerError }
         }
-        verify { userRepository wasNot Called }
+        verify(exactly = 1) { userRepository wasNot Called }
     }
 
     @Test
@@ -101,7 +101,7 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
             result shouldFail { it shouldBe SessionCredentialsMissing }
         }
-        verify { userRepository wasNot Called }
+        verify(exactly = 1) { userRepository wasNot Called }
     }
 
     @Test
@@ -114,8 +114,8 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
             result shouldFail { it shouldBe failure }
         }
-        coVerify { userRepository.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
-        coVerify { sessionRepository.save(eq(session), any()) wasNot Called }
+        coVerify(exactly = 1) { userRepository.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
+        coVerify(inverse = true) { sessionRepository.save(eq(session), any()) }
     }
 
     @Test
@@ -129,8 +129,8 @@ class LoginWithEmailUseCaseTest : UnitTest() {
             val result = loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD))
             result shouldFail { it shouldBe failure }
         }
-        coVerify { userRepository.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
-        coVerify { sessionRepository.save(eq(session), eq(true)) }
+        coVerify(exactly = 1) { userRepository.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
+        coVerify(exactly = 1) { sessionRepository.save(eq(session), eq(true)) }
     }
 
     companion object {

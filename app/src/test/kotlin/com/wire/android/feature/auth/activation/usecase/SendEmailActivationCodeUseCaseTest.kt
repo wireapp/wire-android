@@ -43,7 +43,7 @@ class SendEmailActivationCodeUseCaseTest : UnitTest() {
         runBlocking {
             val response = sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams)
 
-            coVerify { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
+            coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
             response shouldFail { it shouldBe EmailBlacklisted }
         }
     }
@@ -55,7 +55,7 @@ class SendEmailActivationCodeUseCaseTest : UnitTest() {
         runBlocking {
             val response = sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams)
 
-            coVerify { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
+            coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
             response shouldFail { it shouldBe EmailInUse }
         }
     }
@@ -68,7 +68,7 @@ class SendEmailActivationCodeUseCaseTest : UnitTest() {
         runBlocking {
             val response = sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams)
 
-            coVerify { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
+            coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
             response shouldFail { it shouldBe mockFailure }
         }
     }
@@ -80,7 +80,7 @@ class SendEmailActivationCodeUseCaseTest : UnitTest() {
         runBlocking {
             val response = sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams)
 
-            coVerify { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
+            coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
             response shouldSucceed  { it shouldBe Unit }
         }
     }

@@ -4,39 +4,37 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.wire.android.AndroidTest
 import com.wire.android.R
-import com.wire.android.any
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.feature.conversation.Conversation
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers.anyInt
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 
 class ConversationViewHolderTest : AndroidTest() {
 
-    @Mock
+    @MockK
     private lateinit var parent: ViewGroup
 
-    @Mock
+    @MockK
     private lateinit var inflater: ViewHolderInflater
 
-    @Mock
+    @MockK
     private lateinit var itemView: TextView
 
     private lateinit var conversationViewHolder: ConversationViewHolder
 
     @Before
     fun setUp() {
-        `when`(inflater.inflate(anyInt(), any())).thenReturn(itemView)
+        every { inflater.inflate(any(), any()) } returns itemView
     }
 
     @Test
     fun `given a ConversationViewHolder is created, then calls inflater to create an itemView from correct layout`() {
         conversationViewHolder = ConversationViewHolder(parent, inflater)
 
-        verify(inflater).inflate(R.layout.item_conversation_list, parent)
+        verify(exactly = 1) { inflater.inflate(R.layout.item_conversation_list, parent) }
     }
 
     //TODO: not very scalable. Move to a UI test when we figure out how to mock data
@@ -46,7 +44,7 @@ class ConversationViewHolderTest : AndroidTest() {
 
         conversationViewHolder.bind(TEST_CONVERSATION)
 
-        verify(itemView).text = TEST_CONVERSATION.name
+        verify(exactly = 1) { itemView.text = TEST_CONVERSATION.name }
     }
 
     companion object {

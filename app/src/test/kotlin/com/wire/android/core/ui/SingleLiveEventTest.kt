@@ -24,9 +24,9 @@ class SingleLiveEventTest : UnitTest() {
     fun `given that value is not consumed yet, when an observer is attached, notifies the observer`() {
         singleLiveEvent.value = TEST_VALUE
 
-        runBlocking {
-            singleLiveEvent.awaitValue() shouldEqual TEST_VALUE
-        }
+        val value = runBlocking { singleLiveEvent.awaitValue()  }
+
+        value shouldEqual TEST_VALUE
     }
 
     @Test(expected = TimeoutException::class)

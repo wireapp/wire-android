@@ -37,12 +37,10 @@ class SessionRemoteDataSourceTest : UnitTest() {
         coEvery { accessTokenResponse.body() } returns accessTokenResponseBody
         coEvery { sessionApi.accessToken(any()) } returns accessTokenResponse
 
-        runBlocking {
-            val result = sessionRemoteDataSource.accessToken(TEST_REFRESH_TOKEN)
+        val result = runBlocking { sessionRemoteDataSource.accessToken(TEST_REFRESH_TOKEN) }
 
-            result shouldSucceed { it shouldBe accessTokenResponseBody }
-            coVerify { sessionApi.accessToken("$REFRESH_TOKEN_HEADER_PREFIX$TEST_REFRESH_TOKEN") }
-        }
+        result shouldSucceed { it shouldBe accessTokenResponseBody }
+        coVerify { sessionApi.accessToken("$REFRESH_TOKEN_HEADER_PREFIX$TEST_REFRESH_TOKEN") }
     }
 
     @Test
@@ -51,12 +49,10 @@ class SessionRemoteDataSourceTest : UnitTest() {
         coEvery { accessTokenResponse.code() } returns 999
         coEvery { sessionApi.accessToken(any()) } returns accessTokenResponse
 
-        runBlocking {
-            val result = sessionRemoteDataSource.accessToken(TEST_REFRESH_TOKEN)
+        val result = runBlocking { sessionRemoteDataSource.accessToken(TEST_REFRESH_TOKEN) }
 
-            result.isLeft shouldBe true
-            coVerify { sessionApi.accessToken("$REFRESH_TOKEN_HEADER_PREFIX$TEST_REFRESH_TOKEN") }
-        }
+        result.isLeft shouldBe true
+        coVerify { sessionApi.accessToken("$REFRESH_TOKEN_HEADER_PREFIX$TEST_REFRESH_TOKEN") }
     }
 
     companion object {

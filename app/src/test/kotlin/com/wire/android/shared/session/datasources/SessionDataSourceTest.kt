@@ -68,10 +68,9 @@ class SessionDataSourceTest : UnitTest() {
         every { sessionMapper.toSessionEntity(session, false) } returns sessionEntity
         coEvery { localDataSource.save(sessionEntity) } returns Either.Right(Unit)
 
-        runBlocking {
-            sessionDataSource.save(session, false) shouldSucceed { it shouldBe Unit }
-        }
+        val result = runBlocking { sessionDataSource.save(session, false) }
 
+        result shouldSucceed { it shouldBe Unit }
         verify(exactly = 1) { sessionMapper.toSessionEntity(session, false) }
         coVerify(inverse = true) { localDataSource.setCurrentSessionToDormant() }
     }
@@ -82,10 +81,9 @@ class SessionDataSourceTest : UnitTest() {
         every { sessionMapper.toSessionEntity(session, false) } returns sessionEntity
         coEvery { localDataSource.save(sessionEntity) } returns Either.Left(failure)
 
-        runBlocking {
-            sessionDataSource.save(session, false) shouldFail { it shouldBe failure }
-        }
+        val result = runBlocking { sessionDataSource.save(session, false) }
 
+        result shouldFail { it shouldBe failure }
         verify(exactly = 1) { sessionMapper.toSessionEntity(session, false) }
         coVerify(inverse = true) { localDataSource.setCurrentSessionToDormant() }
     }
@@ -96,10 +94,9 @@ class SessionDataSourceTest : UnitTest() {
         every { sessionMapper.toSessionEntity(session, true) } returns sessionEntity
         coEvery { localDataSource.save(sessionEntity) } returns Either.Right(Unit)
 
-        runBlocking {
-            sessionDataSource.save(session, true) shouldSucceed { it shouldBe Unit }
-        }
+        val result = runBlocking { sessionDataSource.save(session, true) }
 
+        result shouldSucceed { it shouldBe Unit }
         coVerify(exactly = 1) { localDataSource.setCurrentSessionToDormant() }
         verify(exactly = 1) { sessionMapper.toSessionEntity(session, true) }
         coVerify(exactly = 1) { localDataSource.save(sessionEntity) }
@@ -110,10 +107,9 @@ class SessionDataSourceTest : UnitTest() {
         val failure = DatabaseFailure()
         coEvery { localDataSource.setCurrentSessionToDormant() } returns Either.Left(failure)
 
-        runBlocking {
-            sessionDataSource.save(session, true) shouldFail { it shouldBe failure }
-        }
+        val result = runBlocking { sessionDataSource.save(session, true) }
 
+        result shouldFail { it shouldBe failure }
         coVerify(exactly = 1) { localDataSource.setCurrentSessionToDormant() }
         verify(inverse = true) { sessionMapper.toSessionEntity(session, any()) }
         coVerify(inverse = true) { localDataSource.save(sessionEntity) }
@@ -126,10 +122,9 @@ class SessionDataSourceTest : UnitTest() {
         every { sessionMapper.toSessionEntity(session, true) } returns sessionEntity
         coEvery { localDataSource.save(sessionEntity) } returns Either.Left(failure)
 
-        runBlocking {
-            sessionDataSource.save(session, true) shouldFail { it shouldBe failure }
-        }
+        val result = runBlocking { sessionDataSource.save(session, true) }
 
+        result shouldFail { it shouldBe failure }
         coVerify(exactly = 1) { localDataSource.setCurrentSessionToDormant() }
         verify(exactly = 1) { sessionMapper.toSessionEntity(session, true) }
         coVerify(exactly = 1) { localDataSource.save(sessionEntity) }
@@ -140,10 +135,9 @@ class SessionDataSourceTest : UnitTest() {
         every { sessionMapper.fromSessionEntity(sessionEntity) } returns session
         coEvery { localDataSource.currentSession() } returns Either.Right(sessionEntity)
 
-        runBlocking {
-            sessionDataSource.currentSession() shouldSucceed { it shouldBe session }
-        }
+        val result = runBlocking { sessionDataSource.currentSession() }
 
+        result shouldSucceed { it shouldBe session }
         verify(exactly = 1) { sessionMapper.fromSessionEntity(sessionEntity) }
     }
 
@@ -152,10 +146,9 @@ class SessionDataSourceTest : UnitTest() {
         val failure = mockk<Failure>()
         coEvery { localDataSource.currentSession() } returns Either.Left(failure)
 
-        runBlocking {
-            sessionDataSource.currentSession() shouldFail { it shouldBe failure }
-        }
+        val result = runBlocking { sessionDataSource.currentSession() }
 
+        result shouldFail { it shouldBe failure }
         verify { sessionMapper wasNot Called }
     }
 
@@ -196,9 +189,9 @@ class SessionDataSourceTest : UnitTest() {
     private fun testDoesCurrentSessionExistSuccessCase(exists: Boolean) {
         coEvery { localDataSource.doesCurrentSessionExist() } returns Either.Right(exists)
 
-        runBlocking {
-            sessionDataSource.doesCurrentSessionExist() shouldSucceed { it shouldBe exists }
-        }
+        val result = runBlocking { sessionDataSource.doesCurrentSessionExist() }
+
+        result shouldSucceed { it shouldBe exists }
     }
 
     @Test
@@ -206,8 +199,8 @@ class SessionDataSourceTest : UnitTest() {
         val failure = mockk<Failure>()
         coEvery { localDataSource.doesCurrentSessionExist() } returns Either.Left(failure)
 
-        runBlocking {
-            sessionDataSource.doesCurrentSessionExist() shouldFail { it shouldBe failure }
-        }
+        val result = runBlocking { sessionDataSource.doesCurrentSessionExist() }
+
+        result shouldFail { it shouldBe failure }
     }
 }

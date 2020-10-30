@@ -9,8 +9,12 @@ import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.mapper.SessionMapper
-import io.mockk.*
+import io.mockk.Called
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
@@ -40,25 +44,25 @@ class LoginDataSourceTest : UnitTest() {
 
     @Test
     fun `given loginWithEmail is called, then calls remoteDataSource with given credentials`() {
-        coEvery { loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL,
-            password = TEST_PASSWORD) } returns Either.Right(loginWithEmailResponse)
+        coEvery {
+            loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL, password = TEST_PASSWORD)
+        } returns Either.Right(loginWithEmailResponse)
 
-        runBlocking {
-            loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
+        runBlocking { loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) }
 
-            coVerify(exactly = 1) { loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL, password = TEST_PASSWORD) }
-        }
+        coVerify(exactly = 1) { loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL, password = TEST_PASSWORD) }
     }
 
     @Test
     fun `given loginWithEmail is called, when remoteDataSource returns a response, then maps the result and returns user session`() {
-        coEvery { loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL,
-            password = TEST_PASSWORD) } returns Either.Right(loginWithEmailResponse)
+        coEvery {
+            loginRemoteDataSource.loginWithEmail(email = TEST_EMAIL, password = TEST_PASSWORD)
+        } returns Either.Right(loginWithEmailResponse)
         every { sessionMapper.fromLoginResponse(loginWithEmailResponse) } returns session
 
-        runBlocking {
-            loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) shouldSucceed { it shouldBe session }
-        }
+        val result = runBlocking { loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) }
+
+        result shouldSucceed { it shouldBe session }
         verify(exactly = 1) { sessionMapper.fromLoginResponse(loginWithEmailResponse) }
     }
 
@@ -66,12 +70,10 @@ class LoginDataSourceTest : UnitTest() {
     fun `given loginWithEmail is called, when remoteDataSource returns a failure, then directly returns that failure`() {
         coEvery { loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) } returns Either.Left(ServerError)
 
-        runBlocking {
-            val result = loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
+        val result = runBlocking { loginDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) }
 
-            result shouldFail { it shouldBe ServerError }
-            verify(exactly = 1) { sessionMapper wasNot Called }
-        }
+        result shouldFail { it shouldBe ServerError }
+        verify(exactly = 1) { sessionMapper wasNot Called }
     }
 
     companion object {

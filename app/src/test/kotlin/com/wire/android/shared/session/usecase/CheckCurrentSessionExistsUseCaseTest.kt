@@ -37,9 +37,9 @@ class CheckCurrentSessionExistsUseCaseTest : UnitTest() {
     private fun testRunWithSuccessfulRepositoryResponse(exists: Boolean) {
         coEvery { sessionRepository.doesCurrentSessionExist() } returns Either.Right(exists)
 
-        runBlocking {
-            checkCurrentSessionExistsUseCase.run(Unit) shouldSucceed { it shouldBe exists }
-        }
+        val result = runBlocking { checkCurrentSessionExistsUseCase.run(Unit) }
+
+        result shouldSucceed { it shouldBe exists }
     }
 
     @Test
@@ -47,8 +47,8 @@ class CheckCurrentSessionExistsUseCaseTest : UnitTest() {
         val failure = mockk<Failure>()
         coEvery { sessionRepository.doesCurrentSessionExist() } returns Either.Left(failure)
 
-        runBlocking {
-            checkCurrentSessionExistsUseCase.run(Unit) shouldFail { it shouldBe failure }
-        }
+        val result = runBlocking { checkCurrentSessionExistsUseCase.run(Unit) }
+
+        result shouldFail { it shouldBe failure }
     }
 }

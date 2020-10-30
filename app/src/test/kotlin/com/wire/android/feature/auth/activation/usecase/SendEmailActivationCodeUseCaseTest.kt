@@ -40,10 +40,9 @@ class SendEmailActivationCodeUseCaseTest : UnitTest() {
     fun `given use case is run, when repository returns Forbidden error, then return EmailBlackListed`() {
         coEvery { activationRepository.sendEmailActivationCode(TEST_EMAIL) } returns Either.Left(Forbidden)
 
-        runBlocking {
-            val response = sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams)
-            response shouldFail { it shouldBe EmailBlacklisted }
-        }
+        val response = runBlocking { sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams) }
+
+        response shouldFail { it shouldBe EmailBlacklisted }
         coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
     }
 
@@ -51,12 +50,10 @@ class SendEmailActivationCodeUseCaseTest : UnitTest() {
     fun `given use case is run, when repository returns Conflict error, then return EmailInUse`() {
         coEvery { activationRepository.sendEmailActivationCode(TEST_EMAIL) } returns Either.Left(Conflict)
 
-        runBlocking {
-            val response = sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams)
+        val response = runBlocking { sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams) }
 
-            coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
-            response shouldFail { it shouldBe EmailInUse }
-        }
+        coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
+        response shouldFail { it shouldBe EmailInUse }
     }
 
     @Test
@@ -64,24 +61,20 @@ class SendEmailActivationCodeUseCaseTest : UnitTest() {
         val mockFailure = mockk<Failure>()
         coEvery { activationRepository.sendEmailActivationCode(TEST_EMAIL) } returns Either.Left(mockFailure)
 
-        runBlocking {
-            val response = sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams)
+        val response = runBlocking { sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams) }
 
-            coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
-            response shouldFail { it shouldBe mockFailure }
-        }
+        coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
+        response shouldFail { it shouldBe mockFailure }
     }
 
     @Test
     fun `given send email activation code use case is executed, when there is no error then return success`() {
         coEvery { activationRepository.sendEmailActivationCode(TEST_EMAIL) } returns Either.Right(Unit)
 
-        runBlocking {
-            val response = sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams)
+        val response = runBlocking { sendEmailActivationCodeUseCase.run(sendEmailActivationCodeParams) }
 
-            coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
-            response shouldSucceed  { it shouldBe Unit }
-        }
+        coVerify(exactly = 1) { activationRepository.sendEmailActivationCode(TEST_EMAIL) }
+        response shouldSucceed { it shouldBe Unit }
     }
 
     companion object {

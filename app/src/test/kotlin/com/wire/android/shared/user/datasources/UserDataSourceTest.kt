@@ -102,9 +102,9 @@ class UserDataSourceTest : UnitTest() {
         every { userMapper.toUserEntity(user) } returns userEntity
         coEvery { localDataSource.save(userEntity) } returns Either.Right(Unit)
 
-        runBlocking {
-            userDataSource.save(user) shouldSucceed { it shouldBe Unit }
-        }
+        val result = runBlocking { userDataSource.save(user) }
+
+        result shouldSucceed { it shouldBe Unit }
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
     }
 
@@ -114,9 +114,9 @@ class UserDataSourceTest : UnitTest() {
         every { userMapper.toUserEntity(user) } returns userEntity
         coEvery { localDataSource.save(userEntity) } returns Either.Left(failure)
 
-        runBlocking {
-            userDataSource.save(user) shouldFail { it shouldBe failure }
-        }
+        val result = runBlocking { userDataSource.save(user) }
+
+        result shouldFail { it shouldBe failure }
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
     }
 

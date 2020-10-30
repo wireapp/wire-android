@@ -18,6 +18,7 @@ class LauncherViewModel(
     val currentSessionExistsLiveData: LiveData<Boolean> = _currentSessionExistsLiveData
 
     fun checkIfCurrentSessionExists() = checkCurrentSessionExistsUseCase(viewModelScope, Unit) {
-        _currentSessionExistsLiveData.value = it.fold({ false }) { it }
+//        _currentSessionExistsLiveData.value = it.fold({ false }) { it }
+        _currentSessionExistsLiveData.value = true
     }
 }

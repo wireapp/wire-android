@@ -7,14 +7,14 @@ import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUs
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.awaitValue
+import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
 
 @ExperimentalCoroutinesApi
 class CreateProAccountTeamNameViewModelTest : UnitTest() {
@@ -24,22 +24,22 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     private lateinit var viewModel: CreateProAccountTeamNameViewModel
 
-    @Mock
+    @MockK
     private lateinit var getTeamNameUseCase: GetTeamNameUseCase
 
-    @Mock
+    @MockK
     private lateinit var updateTeamNameUseCase: UpdateTeamNameUseCase
 
     @Before
     fun setup() {
-        runBlocking { `when`(getTeamNameUseCase.run(Unit)).thenReturn(Either.Right(TEST_TEAM_NAME)) }
+        coEvery { getTeamNameUseCase.run(Unit) } returns Either.Right(TEST_TEAM_NAME)
         viewModel = CreateProAccountTeamNameViewModel(coroutinesTestRule.dispatcherProvider, getTeamNameUseCase, updateTeamNameUseCase)
     }
 
     @Test
     fun `given viewModel is initialised, when teamName is available, propagate teamName up to the view`() {
         coroutinesTestRule.runTest {
-            assertThat(viewModel.teamNameLiveData.awaitValue()).isEqualTo(TEST_TEAM_NAME)
+            viewModel.teamNameLiveData.awaitValue() shouldEqual TEST_TEAM_NAME
         }
     }
 
@@ -47,7 +47,8 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     fun `given empty team name, when on team name text is changed, confirmation button should be disabled`() {
         coroutinesTestRule.runTest {
             viewModel.onTeamNameTextChanged(String.EMPTY)
-            assertThat(viewModel.confirmationButtonEnabled.awaitValue()).isFalse()
+
+            viewModel.confirmationButtonEnabled.awaitValue() shouldBe false
         }
     }
 
@@ -55,7 +56,8 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     fun `given empty team name, when on team name text is changed, confirmation button should be enabled`() {
         coroutinesTestRule.runTest {
             viewModel.onTeamNameTextChanged(TEST_TEAM_NAME)
-            assertThat(viewModel.confirmationButtonEnabled.awaitValue()).isTrue()
+
+            viewModel.confirmationButtonEnabled.awaitValue() shouldBe true
         }
     }
 

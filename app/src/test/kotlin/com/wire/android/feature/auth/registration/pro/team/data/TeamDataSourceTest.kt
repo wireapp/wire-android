@@ -1,10 +1,10 @@
 package com.wire.android.feature.auth.registration.pro.team.data
 
 import com.wire.android.UnitTest
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldSucceed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
+import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
 
@@ -23,9 +23,7 @@ class TeamDataSourceTest : UnitTest() {
         runBlocking {
             teamsRepository.updateTeamName(TEST_TEAM_NAME)
 
-            teamsRepository.teamName().assertRight {
-                assertEquals(it, TEST_TEAM_NAME)
-            }
+            teamsRepository.teamName() shouldSucceed { it shouldEqual TEST_TEAM_NAME }
         }
     }
 

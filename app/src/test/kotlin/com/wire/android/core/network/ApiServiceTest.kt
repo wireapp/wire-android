@@ -1,7 +1,16 @@
 package com.wire.android.core.network
 
 import com.wire.android.UnitTest
-import com.wire.android.core.exception.*
+import com.wire.android.core.exception.BadRequest
+import com.wire.android.core.exception.EmptyResponseBody
+import com.wire.android.core.exception.Failure
+import com.wire.android.core.exception.Forbidden
+import com.wire.android.core.exception.InternalServerError
+import com.wire.android.core.exception.NetworkConnection
+import com.wire.android.core.exception.NotFound
+import com.wire.android.core.exception.ServerError
+import com.wire.android.core.exception.TooManyRequests
+import com.wire.android.core.exception.Unauthorized
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.Called
@@ -38,22 +47,19 @@ class ApiServiceTest : UnitTest() {
         val responseFunc: suspend () -> Response<String> = mockk(relaxed = true)
         every { networkHandler.isConnected } returns false
 
-        runBlocking {
-            val result = apiService.rawRequest(responseFunc)
+        val result = runBlocking { apiService.rawRequest(responseFunc) }
 
-            verify { responseFunc wasNot Called }
-            result shouldFail { it shouldBe NetworkConnection }
-        }
+        verify { responseFunc wasNot Called }
+        result shouldFail { it shouldBe NetworkConnection }
     }
 
     @Test
     fun `given rawRequest is called, when response is successful, then returns the response`() {
         every { response.isSuccessful } returns true
 
-        runBlocking {
-            val result = apiService.rawRequest(::testCall)
-            result shouldSucceed { it shouldBe response }
-        }
+        val result = runBlocking { apiService.rawRequest(::testCall) }
+
+        result shouldSucceed { it shouldBe response }
     }
 
     @Test
@@ -61,10 +67,9 @@ class ApiServiceTest : UnitTest() {
         every { response.isSuccessful } returns true
         every { response.body() } returns TEST_BODY
 
-        runBlocking {
-            val result = apiService.request(default = TEST_DEFAULT_ARGUMENT, call = ::testCall)
-            result shouldSucceed { it shouldBe TEST_BODY }
-        }
+        val result = runBlocking { apiService.request(default = TEST_DEFAULT_ARGUMENT, call = ::testCall) }
+
+        result shouldSucceed { it shouldBe TEST_BODY }
     }
 
     @Test
@@ -72,10 +77,9 @@ class ApiServiceTest : UnitTest() {
         every { response.isSuccessful } returns true
         every { response.body() } returns null
 
-        runBlocking {
-            val result = apiService.request(default = TEST_DEFAULT_ARGUMENT, call = ::testCall)
-            result shouldSucceed { it shouldBe TEST_DEFAULT_ARGUMENT }
-        }
+        val result = runBlocking { apiService.request(default = TEST_DEFAULT_ARGUMENT, call = ::testCall) }
+
+        result shouldSucceed { it shouldBe TEST_DEFAULT_ARGUMENT }
     }
 
     @Test
@@ -83,11 +87,9 @@ class ApiServiceTest : UnitTest() {
         every { response.isSuccessful } returns true
         every { response.body() } returns null
 
-        runBlocking {
-            val result = apiService.request(default = null, call = ::testCall)
+        val result = runBlocking { apiService.request(default = null, call = ::testCall) }
 
-            result shouldFail { it shouldBe EmptyResponseBody }
-        }
+        result shouldFail { it shouldBe EmptyResponseBody }
     }
 
     @Test
@@ -122,10 +124,9 @@ class ApiServiceTest : UnitTest() {
         every { response.isSuccessful } returns false
         every { response.code() } returns httpErrorCode
 
-        runBlocking {
-            val result = apiService.rawRequest(::testCall)
-            result shouldFail { it shouldBe failure }
-        }
+        val result = runBlocking { apiService.rawRequest(::testCall) }
+
+        result shouldFail { it shouldBe failure }
     }
 
     private suspend fun testCall(): Response<String> = response

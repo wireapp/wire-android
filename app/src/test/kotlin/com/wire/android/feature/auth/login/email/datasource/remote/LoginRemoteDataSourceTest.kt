@@ -5,8 +5,13 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
 import com.wire.android.shared.auth.remote.LabelGenerator
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockkClass
+import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
@@ -35,16 +40,14 @@ class LoginRemoteDataSourceTest : UnitTest() {
         val response = mockSuccessResponse()
         coEvery { loginApi.loginWithEmail(LoginWithEmailRequest(TEST_EMAIL, TEST_PASSWORD, TEST_LABEL)) } returns response
 
-        runBlocking {
-            loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
+        runBlocking { loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) }
 
-            verify(exactly = 1) { labelGenerator.newLabel() }
-            coVerify(exactly = 1) { loginApi.loginWithEmail(capture(loginWithEmailRequestSlot), eq(true)) }
-            loginWithEmailRequestSlot.captured.let {
-                it.email shouldBe TEST_EMAIL
-                it.password shouldBe TEST_PASSWORD
-                it.label shouldBe TEST_LABEL
-            }
+        verify(exactly = 1) { labelGenerator.newLabel() }
+        coVerify(exactly = 1) { loginApi.loginWithEmail(capture(loginWithEmailRequestSlot), eq(true)) }
+        loginWithEmailRequestSlot.captured.let {
+            it.email shouldBe TEST_EMAIL
+            it.password shouldBe TEST_PASSWORD
+            it.label shouldBe TEST_LABEL
         }
     }
 
@@ -53,11 +56,9 @@ class LoginRemoteDataSourceTest : UnitTest() {
         val response = mockSuccessResponse()
         coEvery { loginApi.loginWithEmail(LoginWithEmailRequest(TEST_EMAIL, TEST_PASSWORD, TEST_LABEL)) } returns response
 
-        runBlocking {
-            val result = loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
+        val result = runBlocking { loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) }
 
-            result shouldSucceed  {it shouldBe response }
-        }
+        result shouldSucceed { it shouldBe response }
     }
 
     @Test
@@ -65,11 +66,9 @@ class LoginRemoteDataSourceTest : UnitTest() {
         val response = mockErrorResponse(errorCode = 404)
         coEvery { loginApi.loginWithEmail(LoginWithEmailRequest(TEST_EMAIL, TEST_PASSWORD, TEST_LABEL)) } returns response
 
-        runBlocking {
-            val result = loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD)
+        val result = runBlocking { loginRemoteDataSource.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) }
 
-            result.onSuccess { fail("Expected failure but got success") }
-        }
+        result.onSuccess { fail("Expected failure but got success") }
     }
 
     @Suppress("UNCHECKED_CAST")

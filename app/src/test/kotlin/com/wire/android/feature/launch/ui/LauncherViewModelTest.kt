@@ -6,13 +6,13 @@ import com.wire.android.core.functional.Either
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.awaitValue
 import com.wire.android.shared.session.usecase.CheckCurrentSessionExistsUseCase
+import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
 
 @ExperimentalCoroutinesApi
 class LauncherViewModelTest : UnitTest() {
@@ -20,7 +20,7 @@ class LauncherViewModelTest : UnitTest() {
     @get:Rule
     val coroutinesTestRule = CoroutinesTestRule()
 
-    @Mock
+    @MockK
     private lateinit var checkCurrentSessionExistsUseCase: CheckCurrentSessionExistsUseCase
 
     private lateinit var launcherViewModel: LauncherViewModel
@@ -31,32 +31,35 @@ class LauncherViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given checkIfCurrentSessionExists is called, when use case returns true, then sets true to currentSessionExistsLiveData`() =
-        coroutinesTestRule.runTest {
-            `when`(checkCurrentSessionExistsUseCase.run(Unit)).thenReturn(Either.Right(true))
+    fun `given checkIfCurrentSessionExists is called, when use case returns true, then sets true to currentSessionExistsLiveData`() {
+        coEvery { checkCurrentSessionExistsUseCase.run(Unit) } returns Either.Right(true)
 
+        coroutinesTestRule.runTest {
             launcherViewModel.checkIfCurrentSessionExists()
 
-            assertThat(launcherViewModel.currentSessionExistsLiveData.awaitValue()).isTrue()
+            launcherViewModel.currentSessionExistsLiveData.awaitValue() shouldEqual true
         }
+    }
 
     @Test
-    fun `given checkIfCurrentSessionExists is called, when use case returns false, then sets false to currentSessionExistsLiveData`() =
-        coroutinesTestRule.runTest {
-            `when`(checkCurrentSessionExistsUseCase.run(Unit)).thenReturn(Either.Right(false))
+    fun `given checkIfCurrentSessionExists is called, when use case returns false, then sets false to currentSessionExistsLiveData`() {
+        coEvery { checkCurrentSessionExistsUseCase.run(Unit) } returns Either.Right(false)
 
+        coroutinesTestRule.runTest {
             launcherViewModel.checkIfCurrentSessionExists()
 
-            assertThat(launcherViewModel.currentSessionExistsLiveData.awaitValue()).isFalse()
+            launcherViewModel.currentSessionExistsLiveData.awaitValue() shouldEqual false
         }
+    }
 
     @Test
-    fun `given checkIfCurrentSessionExists is called, when use case fails, then sets false to currentSessionExistsLiveData`() =
-        coroutinesTestRule.runTest {
-            `when`(checkCurrentSessionExistsUseCase.run(Unit)).thenReturn(Either.Left(SQLiteFailure()))
+    fun `given checkIfCurrentSessionExists is called, when use case fails, then sets false to currentSessionExistsLiveData`() {
+        coEvery { checkCurrentSessionExistsUseCase.run(Unit) } returns Either.Left(SQLiteFailure())
 
+        coroutinesTestRule.runTest {
             launcherViewModel.checkIfCurrentSessionExists()
 
-            assertThat(launcherViewModel.currentSessionExistsLiveData.awaitValue()).isFalse()
+            launcherViewModel.currentSessionExistsLiveData.awaitValue() shouldEqual false
         }
+    }
 }

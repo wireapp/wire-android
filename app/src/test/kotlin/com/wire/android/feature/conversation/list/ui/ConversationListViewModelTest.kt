@@ -6,18 +6,19 @@ import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.assertNotUpdated
 import com.wire.android.framework.livedata.awaitValue
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 import com.wire.android.shared.user.User
+import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
 
 @ExperimentalCoroutinesApi
 class ConversationListViewModelTest : UnitTest() {
@@ -25,10 +26,10 @@ class ConversationListViewModelTest : UnitTest() {
     @get:Rule
     val coroutinesTestRule = CoroutinesTestRule()
 
-    @Mock
+    @MockK
     private lateinit var getActiveUserUseCase: GetActiveUserUseCase
 
-    @Mock
+    @MockK
     private lateinit var getConversationsUseCase: GetConversationsUseCase
 
     private lateinit var conversationListViewModel: ConversationListViewModel
@@ -40,47 +41,49 @@ class ConversationListViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given fetchUserName is called, when GetActiveUserUseCase is successful, then sets user name to userNameLiveData`() =
-        coroutinesTestRule.runTest {
-            val user = User(id = TEST_USER_ID, name = TEST_USER_NAME)
-            `when`(getActiveUserUseCase.run(Unit)).thenReturn(Either.Right(user))
+    fun `given fetchUserName is called, when GetActiveUserUseCase is successful, then sets user name to userNameLiveData`() {
+        val user = User(id = TEST_USER_ID, name = TEST_USER_NAME)
+        coEvery { getActiveUserUseCase.run(Unit) } returns Either.Right(user)
 
+        coroutinesTestRule.runTest {
             conversationListViewModel.fetchUserName()
 
-            assertThat(conversationListViewModel.userNameLiveData.awaitValue()).isEqualTo(TEST_USER_NAME)
+            conversationListViewModel.userNameLiveData.awaitValue() shouldEqual TEST_USER_NAME
         }
+    }
 
     @Test
-    fun `given fetchUserName is called, when GetActiveUserUseCase is successful, then does not set anything to userNameLiveData`() =
-        coroutinesTestRule.runTest {
-            `when`(getActiveUserUseCase.run(Unit)).thenReturn(Either.Left(ServerError))
+    fun `given fetchUserName is called, when GetActiveUserUseCase is successful, then does not set anything to userNameLiveData`() {
+        coEvery { getActiveUserUseCase.run(Unit) } returns Either.Left(ServerError)
 
+        coroutinesTestRule.runTest {
             conversationListViewModel.fetchUserName()
 
             conversationListViewModel.userNameLiveData.assertNotUpdated()
         }
+    }
 
     @Test
-    fun `given fetchConversations is called, when GetConversationsUseCase is successful, then sets value to conversationsLiveData`() =
-        coroutinesTestRule.runTest {
-            `when`(getConversationsUseCase.run(Unit)).thenReturn(Either.Right(TEST_CONVERSATIONS))
+    fun `given fetchConversations is called, when GetConversationsUseCase is successful, then sets value to conversationsLiveData`() {
+        coEvery { getConversationsUseCase.run(Unit) } returns Either.Right(TEST_CONVERSATIONS)
 
+        coroutinesTestRule.runTest {
             conversationListViewModel.fetchConversations()
 
-            conversationListViewModel.conversationsLiveData.awaitValue().assertRight {
-                assertThat(it).isEqualTo(TEST_CONVERSATIONS)
-            }
+            conversationListViewModel.conversationsLiveData.awaitValue() shouldSucceed { it shouldEqual TEST_CONVERSATIONS }
         }
+    }
 
     @Test
-    fun `given fetchConversations is called, when GetConversationsUseCase fails, then sets error to conversationsLiveData`() =
-        coroutinesTestRule.runTest {
-            `when`(getConversationsUseCase.run(Unit)).thenReturn(Either.Left(ServerError))
+    fun `given fetchConversations is called, when GetConversationsUseCase fails, then sets error to conversationsLiveData`() {
+        coEvery { getConversationsUseCase.run(Unit) } returns Either.Left(ServerError)
 
+        coroutinesTestRule.runTest {
             conversationListViewModel.fetchConversations()
 
-            assertThat(conversationListViewModel.conversationsLiveData.awaitValue().isLeft).isTrue()
+            conversationListViewModel.conversationsLiveData.awaitValue() shouldFail {}
         }
+    }
 
     companion object {
         private const val TEST_USER_ID = "user-id-123"

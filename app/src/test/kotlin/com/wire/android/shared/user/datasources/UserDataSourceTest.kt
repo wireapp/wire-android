@@ -5,41 +5,43 @@ import com.wire.android.core.exception.DatabaseFailure
 import com.wire.android.core.exception.SQLiteFailure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
-import com.wire.android.framework.functional.assertLeft
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.datasources.local.UserEntity
 import com.wire.android.shared.user.datasources.local.UserLocalDataSource
 import com.wire.android.shared.user.datasources.remote.SelfUserResponse
 import com.wire.android.shared.user.datasources.remote.UserRemoteDataSource
 import com.wire.android.shared.user.mapper.UserMapper
+import io.mockk.Called
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoInteractions
 
 class UserDataSourceTest : UnitTest() {
 
-    @Mock
+    @MockK
     private lateinit var localDataSource: UserLocalDataSource
 
-    @Mock
+    @MockK
     private lateinit var remoteDataSource: UserRemoteDataSource
 
-    @Mock
+    @MockK
     private lateinit var userMapper: UserMapper
 
-    @Mock
+    @MockK
     private lateinit var selfUserResponse: SelfUserResponse
 
-    @Mock
+    @MockK
     private lateinit var user: User
 
-    @Mock
+    @MockK
     private lateinit var userEntity: UserEntity
 
     private lateinit var userDataSource: UserDataSource
@@ -51,85 +53,71 @@ class UserDataSourceTest : UnitTest() {
 
     @Test
     fun `given selfUser is called, when remote and local data sources return success, then returns user`() {
-        runBlocking {
-            `when`(remoteDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)).thenReturn(Either.Right(selfUserResponse))
-            `when`(userMapper.fromSelfUserResponse(selfUserResponse)).thenReturn(user)
-            `when`(userMapper.toUserEntity(user)).thenReturn(userEntity)
-            `when`(localDataSource.save(userEntity)).thenReturn(Either.Right(Unit))
+        coEvery { remoteDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) } returns Either.Right(selfUserResponse)
+        every { userMapper.fromSelfUserResponse(selfUserResponse) } returns user
+        every { userMapper.toUserEntity(user) } returns userEntity
+        coEvery { localDataSource.save(userEntity) } returns Either.Right(Unit)
 
-            val result = userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)
+        val result = runBlocking { userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) }
 
-            result.assertRight {
-                assertThat(it).isEqualTo(user)
-            }
-            verify(remoteDataSource).selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
-            verify(userMapper).fromSelfUserResponse(selfUserResponse)
-            verify(userMapper).toUserEntity(user)
-            verify(localDataSource).save(userEntity)
-        }
+        result shouldSucceed { it shouldBe user }
+        coVerify(exactly = 1) { remoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
+        verify(exactly = 1) { userMapper.fromSelfUserResponse(selfUserResponse) }
+        verify(exactly = 1) { userMapper.toUserEntity(user) }
+        coVerify(exactly = 1) { localDataSource.save(userEntity) }
     }
 
     @Test
     fun `given selfUser is called, when remoteDataSource returns success but localDataSource fails, then returns the failure`() {
-        runBlocking {
-            val failure = SQLiteFailure()
-            `when`(remoteDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)).thenReturn(Either.Right(selfUserResponse))
-            `when`(userMapper.fromSelfUserResponse(selfUserResponse)).thenReturn(user)
-            `when`(userMapper.toUserEntity(user)).thenReturn(userEntity)
-            `when`(localDataSource.save(userEntity)).thenReturn(Either.Left(failure))
+        val failure = SQLiteFailure()
+        coEvery { remoteDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) } returns Either.Right(selfUserResponse)
+        every { userMapper.fromSelfUserResponse(selfUserResponse) } returns user
+        every { userMapper.toUserEntity(user) } returns userEntity
+        coEvery { localDataSource.save(userEntity) } returns Either.Left(failure)
 
-            val result = userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)
+        val result = runBlocking { userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) }
 
-            result.assertLeft {
-                assertThat(it).isEqualTo(failure)
-            }
-            verify(remoteDataSource).selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
-            verify(userMapper).fromSelfUserResponse(selfUserResponse)
-            verify(userMapper).toUserEntity(user)
-            verify(localDataSource).save(userEntity)
-        }
+        result shouldFail { it shouldBe failure }
+
+        coVerify(exactly = 1) { remoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
+        verify(exactly = 1) { userMapper.fromSelfUserResponse(selfUserResponse) }
+        verify(exactly = 1) { userMapper.toUserEntity(user) }
+        coVerify(exactly = 1) { localDataSource.save(userEntity) }
     }
 
     @Test
     fun `given selfUser is called, when remoteDataSource returns failure, then directly returns the failure`() {
-        runBlocking {
-            `when`(remoteDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)).thenReturn(Either.Left(ServerError))
+        coEvery { remoteDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) } returns Either.Left(ServerError)
 
-            val result = userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE)
+        val result = runBlocking { userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) }
 
-            result.assertLeft {
-                assertThat(it).isEqualTo(ServerError)
-            }
-            verify(remoteDataSource).selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
-            verifyNoInteractions(userMapper)
-            verifyNoInteractions(localDataSource)
-        }
+        result shouldFail { it shouldBe ServerError }
+        coVerify(exactly = 1) { remoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
+        verify { userMapper wasNot Called }
+        verify { localDataSource wasNot Called }
     }
 
     @Test
     fun `given save is called, when localDataSource returns success, then returns success`() {
+        every { userMapper.toUserEntity(user) } returns userEntity
+        coEvery { localDataSource.save(userEntity) } returns Either.Right(Unit)
+
         runBlocking {
-            `when`(userMapper.toUserEntity(user)).thenReturn(userEntity)
-            `when`(localDataSource.save(userEntity)).thenReturn(Either.Right(Unit))
-
-            userDataSource.save(user).assertRight()
-
-            verify(localDataSource).save(userEntity)
+            userDataSource.save(user) shouldSucceed { it shouldBe Unit }
         }
+        coVerify(exactly = 1) { localDataSource.save(userEntity) }
     }
 
     @Test
     fun `given save is called, when localDataSource returns a failure, then returns that failure`() {
-        runBlocking {
-            val failure = DatabaseFailure()
-            `when`(userMapper.toUserEntity(user)).thenReturn(userEntity)
-            `when`(localDataSource.save(userEntity)).thenReturn(Either.Left(failure))
+        val failure = DatabaseFailure()
+        every { userMapper.toUserEntity(user) } returns userEntity
+        coEvery { localDataSource.save(userEntity) } returns Either.Left(failure)
 
-            userDataSource.save(user).assertLeft {
-                assertThat(it).isEqualTo(failure)
-            }
-            verify(localDataSource).save(userEntity)
+        runBlocking {
+            userDataSource.save(user) shouldFail { it shouldBe failure }
         }
+        coVerify(exactly = 1) { localDataSource.save(userEntity) }
     }
 
     companion object {

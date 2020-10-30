@@ -5,22 +5,23 @@ import com.wire.android.feature.auth.login.email.datasource.remote.LoginWithEmai
 import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.datasources.local.SessionEntity
 import com.wire.android.shared.session.datasources.remote.AccessTokenResponse
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import okhttp3.Headers
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import retrofit2.Response
 
 class SessionMapperTest : UnitTest() {
 
     private lateinit var sessionMapper: SessionMapper
 
-    @Mock
+    @MockK
     private lateinit var loginWithEmailResponse: Response<LoginWithEmailResponse>
 
-    @Mock
+    @MockK
     private lateinit var loginWithEmailResponseBody: LoginWithEmailResponse
 
     @Before
@@ -30,47 +31,45 @@ class SessionMapperTest : UnitTest() {
 
     @Test
     fun `given fromLoginResponse is called, when response body is empty, then returns empty Session`() {
-        `when`(loginWithEmailResponse.body()).thenReturn(null)
+        every { loginWithEmailResponse.body() } returns null
 
         val result = sessionMapper.fromLoginResponse(loginWithEmailResponse)
 
-        assertThat(result).isEqualTo(Session.EMPTY)
+        result shouldBe Session.EMPTY
     }
 
     @Test
     fun `given fromLoginResponse is called, when response header does not contain refresh token key, then returns empty Session`() {
-        `when`(loginWithEmailResponse.body()).thenReturn(loginWithEmailResponseBody)
-        `when`(loginWithEmailResponse.headers()).thenReturn(Headers.headersOf("dummyKey", "dummyValue"))
+        every { loginWithEmailResponse.body() } returns loginWithEmailResponseBody
+        every { loginWithEmailResponse.headers() } returns Headers.headersOf("dummyKey", "dummyValue")
 
         val result = sessionMapper.fromLoginResponse(loginWithEmailResponse)
 
-        assertThat(result).isEqualTo(Session.EMPTY)
+        result shouldBe Session.EMPTY
     }
 
     @Test
     fun `given fromLoginResponse is called, when refresh token is not in correct format, then returns empty Session`() {
-        `when`(loginWithEmailResponse.body()).thenReturn(loginWithEmailResponseBody)
-        `when`(loginWithEmailResponse.headers()).thenReturn(Headers.headersOf(AUTH_REFRESH_TOKEN_HEADER_KEY, "dummyValue"))
+        every { loginWithEmailResponse.body() } returns loginWithEmailResponseBody
+        every { loginWithEmailResponse.headers() } returns Headers.headersOf(AUTH_REFRESH_TOKEN_HEADER_KEY, "dummyValue")
 
         val result = sessionMapper.fromLoginResponse(loginWithEmailResponse)
 
-        assertThat(result).isEqualTo(Session.EMPTY)
+        result shouldBe Session.EMPTY
     }
 
     @Test
     fun `given fromLoginResponse is called, when body exists and refresh token is correct, then returns correct Session mapping`() {
-        `when`(loginWithEmailResponse.body()).thenReturn(
+        every { loginWithEmailResponse.body() } returns
             LoginWithEmailResponse(expiresIn = 900, accessToken = TEST_ACCESS_TOKEN, userId = TEST_USER_ID, tokenType = TEST_TOKEN_TYPE)
-        )
-        `when`(loginWithEmailResponse.headers()).thenReturn(
+
+        every { loginWithEmailResponse.headers() } returns
             Headers.headersOf(AUTH_REFRESH_TOKEN_HEADER_KEY, TEST_REFRESH_TOKEN_HEADER_VALUE)
-        )
 
         val result = sessionMapper.fromLoginResponse(loginWithEmailResponse)
 
-        assertThat(result).isEqualTo(
+        result shouldEqual
             Session(userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN)
-        )
     }
 
     @Test
@@ -79,7 +78,7 @@ class SessionMapperTest : UnitTest() {
 
         val result = sessionMapper.extractRefreshToken(headers)
 
-        assertThat(result).isNull()
+        result shouldBe null
     }
 
     @Test
@@ -88,7 +87,7 @@ class SessionMapperTest : UnitTest() {
 
         val result = sessionMapper.extractRefreshToken(headers)
 
-        assertThat(result).isEqualTo(null)
+        result shouldBe null
     }
 
     @Test
@@ -97,7 +96,7 @@ class SessionMapperTest : UnitTest() {
 
         val result = sessionMapper.extractRefreshToken(headers)
 
-        assertThat(result).isEqualTo(TEST_REFRESH_TOKEN)
+        result shouldEqual TEST_REFRESH_TOKEN
     }
 
     @Test
@@ -108,10 +107,10 @@ class SessionMapperTest : UnitTest() {
         )
 
         val currentSession = sessionMapper.toSessionEntity(session, true)
-        assertThat(currentSession).isEqualTo(testSessionEntity(true))
+        currentSession shouldEqual testSessionEntity(true)
 
-        val notCurrentSession = sessionMapper.toSessionEntity(session, false)
-        assertThat(notCurrentSession).isEqualTo(testSessionEntity(false))
+        val dormantSession = sessionMapper.toSessionEntity(session, false)
+        dormantSession shouldEqual testSessionEntity(false)
     }
 
     @Test
@@ -123,7 +122,7 @@ class SessionMapperTest : UnitTest() {
             tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
         )
 
-        assertThat(session).isEqualTo(expectedSession)
+        session shouldEqual expectedSession
     }
 
     @Test
@@ -135,7 +134,7 @@ class SessionMapperTest : UnitTest() {
             tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
         )
 
-        assertThat(session).isEqualTo(expectedSession)
+        session shouldEqual expectedSession
     }
 
     @Test
@@ -155,7 +154,8 @@ class SessionMapperTest : UnitTest() {
             tokenType = TEST_TOKEN_TYPE,
             refreshToken = TEST_REFRESH_TOKEN
         )
-        assertThat(session).isEqualTo(expectedSession)
+
+        session shouldEqual expectedSession
     }
 
     companion object {

@@ -3,7 +3,7 @@ package com.wire.android.shared.user.mapper
 import com.wire.android.UnitTest
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.datasources.remote.SelfUserResponse
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Test
 
@@ -18,12 +18,13 @@ class UserMapperTest : UnitTest() {
 
     @Test
     fun `given fromSelfUserResponse is called with a response model, then returns correct user`() {
-        val selfUserResponse =
-            SelfUserResponse(id = TEST_USER_ID, name = TEST_USER_NAME, email = TEST_EMAIL,
-                locale = TEST_LOCALE, assets = emptyList())
+        val selfUserResponse = SelfUserResponse(
+            id = TEST_USER_ID, name = TEST_USER_NAME,
+            email = TEST_EMAIL, locale = TEST_LOCALE, assets = emptyList()
+        )
         val expectedUser = User(id = TEST_USER_ID, name = TEST_USER_NAME, email = TEST_EMAIL)
 
-        assertThat(userMapper.fromSelfUserResponse(selfUserResponse)).isEqualTo(expectedUser)
+        userMapper.fromSelfUserResponse(selfUserResponse) shouldEqual expectedUser
     }
 
     companion object {

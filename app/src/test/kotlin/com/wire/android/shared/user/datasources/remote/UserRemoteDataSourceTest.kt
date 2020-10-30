@@ -1,27 +1,28 @@
 package com.wire.android.shared.user.datasources.remote
 
 import com.wire.android.UnitTest
-import com.wire.android.any
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 import retrofit2.Response
 
 class UserRemoteDataSourceTest : UnitTest() {
 
-    @Mock
+    @MockK
     private lateinit var userApi: UserApi
 
-    @Mock
+    @MockK
     private lateinit var selfUserResponse: Response<SelfUserResponse>
 
-    @Mock
+    @MockK
     private lateinit var selfUserResponseBody: SelfUserResponse
 
     private lateinit var userRemoteDataSource: UserRemoteDataSource
@@ -33,43 +34,41 @@ class UserRemoteDataSourceTest : UnitTest() {
 
     @Test
     fun `given selfUser is called with access token and token type, then calls userApi with correct auth header`() {
+        every { selfUserResponse.isSuccessful } returns true
+        every { selfUserResponse.body() } returns selfUserResponseBody
+        coEvery { userApi.selfUser(any()) } returns selfUserResponse
+
         runBlocking {
-            `when`(selfUserResponse.isSuccessful).thenReturn(true)
-            `when`(selfUserResponse.body()).thenReturn(selfUserResponseBody)
-            `when`(userApi.selfUser(any())).thenReturn(selfUserResponse)
-
             userRemoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
-
-            verify(userApi).selfUser("$TEST_TOKEN_TYPE $TEST_ACCESS_TOKEN")
         }
+
+        coVerify(exactly = 1) { userApi.selfUser("$TEST_TOKEN_TYPE $TEST_ACCESS_TOKEN") }
     }
 
     @Test
     fun `given selfUser is called, when userApi returns response, then returns the response body as success`() {
-        runBlocking {
-            `when`(selfUserResponse.isSuccessful).thenReturn(true)
-            `when`(selfUserResponse.body()).thenReturn(selfUserResponseBody)
-            `when`(userApi.selfUser(any())).thenReturn(selfUserResponse)
+        every { selfUserResponse.isSuccessful } returns true
+        every { selfUserResponse.body() } returns selfUserResponseBody
+        coEvery { userApi.selfUser(any()) } returns selfUserResponse
 
-            val result = userRemoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
-
-            result.assertRight {
-                assertThat(it).isEqualTo(selfUserResponseBody)
-            }
+        val result = runBlocking {
+            userRemoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
         }
+
+        result shouldSucceed { it shouldBe selfUserResponseBody }
     }
 
     @Test
     fun `given selfUser is called, when userApi returns failure, then returns the failure`() {
-        runBlocking {
-            `when`(selfUserResponse.isSuccessful).thenReturn(false)
-            `when`(selfUserResponse.code()).thenReturn(999)
-            `when`(userApi.selfUser(any())).thenReturn(selfUserResponse)
+        every { selfUserResponse.isSuccessful } returns false
+        every { selfUserResponse.code() } returns 999
+        coEvery { userApi.selfUser(any()) } returns selfUserResponse
 
-            val result = userRemoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
-
-            assertThat(result.isLeft).isTrue()
+        val result = runBlocking {
+            userRemoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE)
         }
+
+        result shouldFail {}
     }
 
     companion object {

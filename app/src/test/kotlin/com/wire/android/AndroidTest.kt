@@ -37,12 +37,7 @@ abstract class AndroidTest {
 
     @Suppress("LeakingThis")
     @Rule
-    @JvmField
-    val injectMocks = InjectMocksRule.create(this@AndroidTest)
-
-    @Suppress("LeakingThis")
-    @Rule
-    @JvmField val injectMockKs = InjectMockKsRule.create(this@AndroidTest)
+    @JvmField val injectMocksRule = InjectMockKsRule.create(this@AndroidTest)
 
     @After
     fun cleanUp() {

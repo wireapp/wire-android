@@ -1,8 +1,7 @@
 package com.wire.android.framework.livedata
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import org.assertj.core.api.Assertions.fail
+import org.junit.Assert.fail
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -16,6 +15,7 @@ import kotlin.coroutines.suspendCoroutine
  *
  * @throws TimeoutException if the value of LiveData is not updated within [timeout] seconds.
  */
+//TODO: re-write w/ mockk
 suspend fun <T> LiveData<T>.awaitValue(timeout: Long = 2L): T = suspendCoroutine { cont ->
     val latch = CountDownLatch(1)
 
@@ -29,6 +29,7 @@ suspend fun <T> LiveData<T>.awaitValue(timeout: Long = 2L): T = suspendCoroutine
     }
 }
 
+//TODO: re-write w/ mockk
 suspend fun <T> LiveData<T>.assertNotUpdated(timeout: Long = 2L) {
     val value: T?
 
@@ -38,13 +39,13 @@ suspend fun <T> LiveData<T>.assertNotUpdated(timeout: Long = 2L) {
         return
     }
 
-    value?.let { fail<Unit>("Didn't expect a value update but got $it") }
+    value?.let { fail("Didn't expect a value update but got $it") }
 }
 
 private fun <T> LiveData<T>.observeOnce(onChanged: (T) -> Unit) {
     val lifecycleOwner = TestLifecycleOwner()
 
-    observe(lifecycleOwner, Observer {
+    observe(lifecycleOwner, {
         onChanged(it)
         lifecycleOwner.destroy()
     })

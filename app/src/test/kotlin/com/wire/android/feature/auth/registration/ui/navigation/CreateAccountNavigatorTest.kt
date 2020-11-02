@@ -60,7 +60,7 @@ class CreateAccountNavigatorTest : AndroidTest() {
 
         verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
         intentSlot.captured.let {
-            it.component?.className shouldEqualTo CreateAccountActivity::class.java.canonicalName
+            it.component?.className.orEmpty() shouldEqualTo CreateAccountActivity::class.java.canonicalName
             it.extras shouldBe null
         }
     }
@@ -140,7 +140,7 @@ class CreateAccountNavigatorTest : AndroidTest() {
 
         verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
         intentSlot.captured.let {
-            it.component?.className shouldEqualTo CreateProAccountTeamEmailActivity::class.java.canonicalName
+            it.component?.className.orEmpty() shouldEqualTo CreateProAccountTeamEmailActivity::class.java.canonicalName
             it.extras shouldBe null
         }
     }

@@ -91,7 +91,7 @@ class CreateAccountNavigatorTest : AndroidTest() {
         verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
         fragmentSlot.captured.let {
             it shouldBeInstanceOf CreateProAccountTeamNameFragment::class.java
-            it shouldBe null
+            it.arguments shouldBe null
         }
     }
 

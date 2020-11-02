@@ -87,7 +87,7 @@ object TestLibraries {
     private object Versions {
         const val junit4 = "4.13"
         const val mockito = "3.3.0"
-        const val mockk = "1.10.0"
+        const val mockk = "1.10.2"
         const val kluent = "1.14"
         const val robolectric = "4.4"
         const val assertJ = "3.16.1"

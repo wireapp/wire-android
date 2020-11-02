@@ -12,7 +12,6 @@ import io.mockk.verify
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 class ConversationListAdapterTest : AndroidTest() {
@@ -42,8 +41,6 @@ class ConversationListAdapterTest : AndroidTest() {
     }
 
     @Test
-    @Ignore("mockk verification fails -> java.lang.ClassCastException: " +
-        "Cannot cast com.wire.android.feature.conversation.Conversation to com.wire.android.feature.conversation.Conversation")
     fun `given onBindViewHolder is called, then calls holder to bind the item at the position`() {
         val holder = mockk<ConversationViewHolder>()
         val conversation = mockk<Conversation>()

@@ -88,7 +88,7 @@ object TestLibraries {
         const val junit4 = "4.13"
         const val mockito = "3.3.0"
         const val mockk = "1.10.2"
-        const val kluent = "1.14"
+        const val kluent = "1.60"
         const val robolectric = "4.4"
         const val assertJ = "3.16.1"
         const val testRunner = "1.2.0"
@@ -107,7 +107,6 @@ object TestLibraries {
     }
 
     const val junit4         = "junit:junit:${Versions.junit4}"
-    const val mockito        = "org.mockito:mockito-core:${Versions.mockito}"
     const val robolectric    = "org.robolectric:robolectric:${Versions.robolectric}"
     const val assertJ        = "org.assertj:assertj-core:${Versions.assertJ}"
     const val testRunner     = "androidx.test:runner:${Versions.testRunner}"

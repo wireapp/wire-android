@@ -2,7 +2,7 @@ package com.wire.android.framework.android
 
 import androidx.core.os.bundleOf
 import com.wire.android.AndroidTest
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
 import org.junit.Test
 
 class FragmentAssertionsTest : AndroidTest() {
@@ -12,8 +12,8 @@ class FragmentAssertionsTest : AndroidTest() {
         val bundle1 = bundleOf("key1" to "value1", "key2" to 4, "key3" to arrayOf("a", "b"), "key4" to bundleOf("x" to 9))
         val bundle2 = bundleOf("key1" to "value1", "key2" to 4, "key3" to arrayOf("a", "b"), "key4" to bundleOf("x" to 9))
 
-        assertThat(bundle1.contentEquals(bundle2)).isTrue()
-        assertThat(bundle2.contentEquals(bundle1)).isTrue()
+        bundle1.contentEquals(bundle2) shouldBe true
+        bundle2.contentEquals(bundle1) shouldBe true
     }
 
     @Test
@@ -21,8 +21,8 @@ class FragmentAssertionsTest : AndroidTest() {
         val bundle1 = bundleOf("key1" to "value1", "key2" to 4, "key3" to arrayOf("a", "b"))
         val bundle2 = bundleOf("key1" to "value1", "key2" to 4)
 
-        assertThat(bundle1.contentEquals(bundle2)).isFalse()
-        assertThat(bundle2.contentEquals(bundle1)).isFalse()
+        bundle1.contentEquals(bundle2) shouldBe false
+        bundle2.contentEquals(bundle1) shouldBe false
     }
 
     @Test
@@ -30,7 +30,7 @@ class FragmentAssertionsTest : AndroidTest() {
         val bundle1 = bundleOf("key3" to arrayOf("a", "b"))
         val bundle2 = bundleOf("key1" to "value1", "key2" to 4)
 
-        assertThat(bundle1.contentEquals(bundle2)).isFalse()
-        assertThat(bundle2.contentEquals(bundle1)).isFalse()
+        bundle1.contentEquals(bundle2) shouldBe false
+        bundle2.contentEquals(bundle1) shouldBe false
     }
 }

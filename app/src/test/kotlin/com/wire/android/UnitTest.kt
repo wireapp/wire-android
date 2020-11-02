@@ -17,28 +17,20 @@ package com.wire.android
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import org.junit.Rule
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
 
 /**
  * Base class for Unit tests. Inherit from it to create test cases which DO NOT contain android
  * framework dependencies or components.
  */
 @Suppress("UnnecessaryAbstractClass")
-@RunWith(MockitoJUnitRunner::class)
 abstract class UnitTest {
-
-    @Suppress("LeakingThis")
-    @Rule
-    @JvmField
-    val injectMocks = InjectMocksRule.create(this@UnitTest)
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Suppress("LeakingThis")
     @Rule
-    @JvmField val injectMockKs = InjectMockKsRule.create(this@UnitTest)
+    @JvmField val injectMocksRule = InjectMockKsRule.create(this@UnitTest)
 
     fun fail(message: String): Nothing = throw AssertionError(message)
 }

@@ -52,9 +52,7 @@ dependencies {
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.junit4)
-    testImplementation(TestLibraries.mockito)
     testImplementation(TestLibraries.robolectric)
-    testImplementation(TestLibraries.assertJ)
     testImplementation(TestLibraries.coroutinesTest)
     testImplementation(TestLibraries.testCore)
     testImplementation(TestLibraries.koinTest)

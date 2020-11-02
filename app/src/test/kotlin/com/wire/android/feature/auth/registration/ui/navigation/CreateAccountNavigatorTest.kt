@@ -5,11 +5,8 @@ import android.content.Intent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.wire.android.AndroidTest
-import com.wire.android.any
-import com.wire.android.capture
 import com.wire.android.core.ui.navigation.FragmentStackHandler
 import com.wire.android.core.ui.navigation.UriNavigationHandler
-import com.wire.android.eq
 import com.wire.android.feature.auth.registration.CreateAccountActivity
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountCodeFragment
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountEmailFragment
@@ -18,41 +15,42 @@ import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAcco
 import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailActivity
 import com.wire.android.feature.auth.registration.pro.team.CreateProAccountTeamNameFragment
 import com.wire.android.framework.android.argumentEquals
-import org.assertj.core.api.Assertions.assertThat
+import io.mockk.CapturingSlot
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.slot
+import io.mockk.verify
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldEqualTo
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.anyBoolean
-import org.mockito.Captor
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 
 class CreateAccountNavigatorTest : AndroidTest() {
 
-    @Mock
+    @MockK
     private lateinit var fragmentStackHandler: FragmentStackHandler
 
-    @Mock
+    @MockK
     private lateinit var uriNavigationHandler: UriNavigationHandler
 
-    @Mock
+    @MockK
     private lateinit var activity: FragmentActivity
 
-    @Mock
+    @MockK
     private lateinit var context: Context
 
-    @Captor
-    private lateinit var fragmentCaptor: ArgumentCaptor<Fragment>
+    private lateinit var fragmentSlot: CapturingSlot<Fragment>
 
-    @Captor
-    private lateinit var intentCaptor: ArgumentCaptor<Intent>
+    private lateinit var intentSlot: CapturingSlot<Intent>
 
     private lateinit var createAccountNavigator: CreateAccountNavigator
 
     @Before
     fun setUp() {
-        `when`(fragmentStackHandler.replaceFragment(any(), any(), anyBoolean())).thenReturn(0)
+        fragmentSlot = slot()
+        intentSlot = slot()
+        every { fragmentStackHandler.replaceFragment(any(), any(), any()) } returns 0
         createAccountNavigator = CreateAccountNavigator(fragmentStackHandler, uriNavigationHandler)
     }
 
@@ -60,10 +58,10 @@ class CreateAccountNavigatorTest : AndroidTest() {
     fun `given openCreateAccount is called, then opens CreateAccountActivity`() {
         createAccountNavigator.openCreateAccount(context)
 
-        verify(context).startActivity(capture(intentCaptor))
-        intentCaptor.value.let {
-            assertThat(it.component?.className).isEqualTo(CreateAccountActivity::class.java.canonicalName)
-            assertThat(it.extras).isNull()
+        verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
+        intentSlot.captured.let {
+            it.component?.className shouldEqualTo CreateAccountActivity::class.java.canonicalName
+            it.extras shouldBe null
         }
     }
 
@@ -71,18 +69,18 @@ class CreateAccountNavigatorTest : AndroidTest() {
     fun `given openPersonalAccountEmailScreen is called, then replaces an instance of CreatePersonalAccountEmailFragment on activity`() {
         createAccountNavigator.openPersonalAccountEmailScreen(activity)
 
-        verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
-        assertThat(fragmentCaptor.value).isInstanceOf(CreatePersonalAccountEmailFragment::class.java)
+        verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
+        fragmentSlot.captured shouldBeInstanceOf CreatePersonalAccountEmailFragment::class.java
     }
 
     @Test
     fun `given openPersonalAccountCodeScreen is called, then replaces an instance of CreatePersonalAccountCodeFragment on activity`() {
         createAccountNavigator.openPersonalAccountCodeScreen(activity, TEST_EMAIL)
 
-        verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
-        fragmentCaptor.value.let {
-            assertThat(it).isInstanceOf(CreatePersonalAccountCodeFragment::class.java)
-            assertThat(it.argumentEquals(CreatePersonalAccountCodeFragment.newInstance(TEST_EMAIL))).isTrue()
+        verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
+        fragmentSlot.captured.let {
+            it shouldBeInstanceOf CreatePersonalAccountCodeFragment::class.java
+            it.argumentEquals(CreatePersonalAccountCodeFragment.newInstance(TEST_EMAIL)) shouldBe true
         }
     }
 
@@ -90,10 +88,10 @@ class CreateAccountNavigatorTest : AndroidTest() {
     fun `given openProAccountTeamNameScreen is called, then replaces an instance of CreateProAccountTeamNameFragment on given activity`() {
         createAccountNavigator.openProAccountTeamNameScreen(activity)
 
-        verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
-        fragmentCaptor.value.let {
-            assertThat(it).isInstanceOf(CreateProAccountTeamNameFragment::class.java)
-            assertThat(it.arguments).isNull()
+        verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
+        fragmentSlot.captured.let {
+            it shouldBeInstanceOf CreateProAccountTeamNameFragment::class.java
+            it.arguments shouldBe null
         }
     }
 
@@ -101,12 +99,12 @@ class CreateAccountNavigatorTest : AndroidTest() {
     fun `given openPersonalAccountNameScreen is called, then replaces an instance of CreatePersonalAccountNameFragment on activity`() {
         createAccountNavigator.openPersonalAccountNameScreen(activity, TEST_EMAIL, TEST_ACTIVATION_CODE)
 
-        verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
-        fragmentCaptor.value.let {
-            assertThat(it).isInstanceOf(CreatePersonalAccountNameFragment::class.java)
-            assertThat(it.argumentEquals(
-                CreatePersonalAccountNameFragment.newInstance(email = TEST_EMAIL, activationCode = TEST_ACTIVATION_CODE))
-            ).isTrue()
+        verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
+        fragmentSlot.captured.let {
+            it shouldBeInstanceOf CreatePersonalAccountNameFragment::class.java
+            it.argumentEquals(
+                CreatePersonalAccountNameFragment.newInstance(email = TEST_EMAIL, activationCode = TEST_ACTIVATION_CODE)
+            ) shouldBe true
         }
     }
 
@@ -114,12 +112,14 @@ class CreateAccountNavigatorTest : AndroidTest() {
     fun `given openPersonalAccountPasswordScreen is called, then replaces CreatePersonalAccountPasswordFragment on given activity`() {
         createAccountNavigator.openPersonalAccountPasswordScreen(activity, TEST_NAME, TEST_EMAIL, TEST_ACTIVATION_CODE)
 
-        verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
-        fragmentCaptor.value.let {
-            assertThat(it).isInstanceOf(CreatePersonalAccountPasswordFragment::class.java)
-            assertThat(it.argumentEquals(CreatePersonalAccountPasswordFragment.newInstance(
-                name = TEST_NAME, email = TEST_EMAIL, activationCode = TEST_ACTIVATION_CODE))
-            ).isTrue()
+        verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
+        fragmentSlot.captured.let {
+            it shouldBeInstanceOf CreatePersonalAccountPasswordFragment::class.java
+            it.argumentEquals(
+                CreatePersonalAccountPasswordFragment.newInstance(
+                    name = TEST_NAME, email = TEST_EMAIL, activationCode = TEST_ACTIVATION_CODE
+                )
+            ) shouldBe true
         }
     }
 
@@ -127,10 +127,10 @@ class CreateAccountNavigatorTest : AndroidTest() {
     fun `given openProAccountTeamNameScreen is called, then replaces CreatePersonalAccountPasswordFragment on given activity`() {
         createAccountNavigator.openProAccountTeamNameScreen(activity)
 
-        verify(fragmentStackHandler).replaceFragment(eq(activity), capture(fragmentCaptor), eq(true))
-        fragmentCaptor.value.let {
-            assertThat(it).isInstanceOf(CreateProAccountTeamNameFragment::class.java)
-            assertThat(it.arguments).isNull()
+        verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
+        fragmentSlot.captured.let {
+            it shouldBeInstanceOf CreateProAccountTeamNameFragment::class.java
+            it.arguments shouldBe null
         }
     }
 
@@ -138,10 +138,10 @@ class CreateAccountNavigatorTest : AndroidTest() {
     fun `given openProAccountTeamEmailScreen is called, then opens CreateProAccountTeamEmailActivity`() {
         createAccountNavigator.openProAccountTeamEmailScreen(context)
 
-        verify(context).startActivity(capture(intentCaptor))
-        intentCaptor.value.let {
-            assertThat(it.component?.className).isEqualTo(CreateProAccountTeamEmailActivity::class.java.canonicalName)
-            assertThat(it.extras).isNull()
+        verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
+        intentSlot.captured.let {
+            it.component?.className shouldEqualTo CreateProAccountTeamEmailActivity::class.java.canonicalName
+            it.extras shouldBe null
         }
     }
 
@@ -149,7 +149,7 @@ class CreateAccountNavigatorTest : AndroidTest() {
     fun `given openProAccountAboutTeamScreen is called, then calls uriNavigationHandler to open correct uri`() {
         createAccountNavigator.openProAccountAboutTeamScreen(context)
 
-        verify(uriNavigationHandler).openUri(context, "$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX")
+        verify(exactly = 1) { uriNavigationHandler.openUri(context, "$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX") }
     }
 
     companion object {

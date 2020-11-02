@@ -1,7 +1,6 @@
 package com.wire.android.feature.auth.registration.personal.usecase
 
 import com.wire.android.UnitTest
-import com.wire.android.any
 import com.wire.android.core.exception.Conflict
 import com.wire.android.core.exception.DatabaseFailure
 import com.wire.android.core.exception.Failure
@@ -10,42 +9,42 @@ import com.wire.android.core.exception.NotFound
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.registration.RegistrationRepository
 import com.wire.android.feature.auth.registration.personal.PersonalAccountRegistrationResult
-import com.wire.android.framework.functional.assertLeft
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.SessionRepository
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.UserRepository
+import io.mockk.Called
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.anyBoolean
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoInteractions
 
 class RegisterPersonalAccountUseCaseTest : UnitTest() {
 
-    @Mock
+    @MockK
     private lateinit var registrationRepository: RegistrationRepository
 
-    @Mock
+    @MockK
     private lateinit var userRepository: UserRepository
 
-    @Mock
+    @MockK
     private lateinit var sessionRepository: SessionRepository
 
-    @Mock
+    @MockK
     private lateinit var registrationResult: PersonalAccountRegistrationResult
 
-    @Mock
+    @MockK
     private lateinit var user: User
 
-    @Mock
+    @MockK
     private lateinit var session: Session
 
     private lateinit var useCase: RegisterPersonalAccountUseCase
@@ -57,183 +56,143 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
 
     @Test
     fun `given run is called, when registrationRepo, userRepo and sessionRepo all return success, then returns success`() {
-        runBlocking {
-            mockRegistrationResponse(Either.Right(registrationResult))
-            `when`(registrationResult.user).thenReturn(user)
-            `when`(registrationResult.refreshToken).thenReturn(TEST_REFRESH_TOKEN)
-            `when`(userRepository.save(user)).thenReturn(Either.Right(Unit))
-            `when`(sessionRepository.accessToken(TEST_REFRESH_TOKEN)).thenReturn(Either.Right(session))
-            `when`(sessionRepository.save(session)).thenReturn(Either.Right(Unit))
+        mockRegistrationResponse(Either.Right(registrationResult))
+        every { registrationResult.user } returns user
+        every { registrationResult.refreshToken } returns TEST_REFRESH_TOKEN
+        coEvery { userRepository.save(user) } returns Either.Right(Unit)
+        coEvery { sessionRepository.accessToken(TEST_REFRESH_TOKEN) } returns Either.Right(session)
+        coEvery { sessionRepository.save(session) } returns Either.Right(Unit)
 
-            val result = useCase.run(params)
+        val result = runBlocking { useCase.run(params) }
 
-            verify(registrationRepository).registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
-            verify(userRepository).save(user)
-            verify(sessionRepository).accessToken(TEST_REFRESH_TOKEN)
-            verify(sessionRepository).save(session, true)
-            result.assertRight()
-        }
+        coVerify(exactly = 1) { registrationRepository.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE) }
+        coVerify(exactly = 1) { userRepository.save(user) }
+        coVerify(exactly = 1) { sessionRepository.accessToken(TEST_REFRESH_TOKEN) }
+        coVerify(exactly = 1) { sessionRepository.save(session, true) }
+        result shouldSucceed { it shouldBe Unit }
     }
 
     @Test
     fun `given run is called, when registrationRepository returns Forbidden, then directly returns UnauthorizedEmail`() {
-        runBlocking {
-            mockRegistrationResponse(Either.Left(Forbidden))
+        mockRegistrationResponse(Either.Left(Forbidden))
 
-            val result = useCase.run(params)
+        val result = runBlocking { useCase.run(params) }
 
-            result.assertLeft {
-                assertThat(it).isEqualTo(UnauthorizedEmail)
-            }
-            verifyNoInteractions(userRepository)
-            verifyNoInteractions(sessionRepository)
-        }
+        result shouldFail { it shouldBe UnauthorizedEmail }
+        verify { userRepository wasNot Called }
+        verify { sessionRepository wasNot Called }
     }
 
     @Test
     fun `given run is called, when registrationRepository returns NotFound, then directly returns InvalidEmailActivationCode`() {
-        runBlocking {
-            mockRegistrationResponse(Either.Left(NotFound))
+        mockRegistrationResponse(Either.Left(NotFound))
 
-            val result = useCase.run(params)
+        val result = runBlocking { useCase.run(params) }
 
-            result.assertLeft {
-                assertThat(it).isEqualTo(InvalidEmailActivationCode)
-            }
-            verifyNoInteractions(userRepository)
-            verifyNoInteractions(sessionRepository)
-        }
+        result shouldFail { it shouldBe InvalidEmailActivationCode }
+        verify { userRepository wasNot Called }
+        verify { sessionRepository wasNot Called }
     }
 
     @Test
     fun `given run is called, when registrationRepository returns Conflict, then directly returns EmailInUse`() {
-        runBlocking {
-            mockRegistrationResponse(Either.Left(Conflict))
+        mockRegistrationResponse(Either.Left(Conflict))
 
-            val result = useCase.run(params)
+        val result = runBlocking { useCase.run(params) }
 
-            result.assertLeft {
-                assertThat(it).isEqualTo(EmailInUse)
-            }
-            verifyNoInteractions(userRepository)
-            verifyNoInteractions(sessionRepository)
-        }
+        result shouldFail { it shouldBe EmailInUse }
+        verify { userRepository wasNot Called }
+        verify { sessionRepository wasNot Called }
     }
 
     @Test
     fun `given run is called, when registrationRepository returns any other failure, then directly returns that failure`() {
-        runBlocking {
-            val failure = mock(Failure::class.java)
-            mockRegistrationResponse(Either.Left(failure))
+        val failure = mockk<Failure>()
+        mockRegistrationResponse(Either.Left(failure))
 
-            val result = useCase.run(params)
+        val result = runBlocking { useCase.run(params) }
 
-            result.assertLeft {
-                assertThat(it).isEqualTo(failure)
-            }
-            verifyNoInteractions(userRepository)
-            verifyNoInteractions(sessionRepository)
-        }
+        result shouldFail { it shouldBe failure }
+        verify { userRepository wasNot Called }
+        verify { sessionRepository wasNot Called }
     }
 
     @Test
     fun `given run is called, when registrationRepository returns null user, then returns UserInfoMissing failure`() {
-        runBlocking {
-            `when`(registrationResult.user).thenReturn(null)
-            mockRegistrationResponse(Either.Right(registrationResult))
+        every { registrationResult.user } returns null
+        mockRegistrationResponse(Either.Right(registrationResult))
 
-            val result = useCase.run(params)
+        val result = runBlocking { useCase.run(params) }
 
-            result.assertLeft {
-                assertThat(it).isEqualTo(UserInfoMissing)
-            }
-        }
-        verifyNoInteractions(userRepository)
-        verifyNoInteractions(sessionRepository)
+        result shouldFail { it shouldBe UserInfoMissing }
+        verify { userRepository wasNot Called }
+        verify { sessionRepository wasNot Called }
     }
 
     @Test
     fun `given run is called, when registrationRepository returns null refresh token, then returns RefreshTokenMissing failure`() {
-        runBlocking {
-            `when`(registrationResult.user).thenReturn(user)
-            `when`(registrationResult.refreshToken).thenReturn(null)
-            mockRegistrationResponse(Either.Right(registrationResult))
+        every { registrationResult.user } returns user
+        every { registrationResult.refreshToken } returns null
+        mockRegistrationResponse(Either.Right(registrationResult))
 
-            val result = useCase.run(params)
+        val result = runBlocking { useCase.run(params) }
 
-            result.assertLeft {
-                assertThat(it).isEqualTo(RefreshTokenMissing)
-            }
-            verifyNoInteractions(userRepository)
-            verifyNoInteractions(sessionRepository)
-        }
+        result shouldFail { it shouldBe RefreshTokenMissing }
+        verify { userRepository wasNot Called }
+        verify { sessionRepository wasNot Called }
     }
 
     @Test
     fun `given run is called, when registrationRepository returns valid data but then userRepository fails, then returns that failure`() {
-        runBlocking {
-            `when`(registrationResult.user).thenReturn(user)
-            `when`(registrationResult.refreshToken).thenReturn(TEST_REFRESH_TOKEN)
-            mockRegistrationResponse(Either.Right(registrationResult))
-            val failure = DatabaseFailure()
-            `when`(userRepository.save(user)).thenReturn(Either.Left(failure))
+        every { registrationResult.user } returns user
+        every { registrationResult.refreshToken } returns TEST_REFRESH_TOKEN
+        mockRegistrationResponse(Either.Right(registrationResult))
+        val failure = DatabaseFailure()
+        coEvery { userRepository.save(user) } returns Either.Left(failure)
 
-            val result = useCase.run(params)
+        val result = runBlocking { useCase.run(params) }
 
-            result.assertLeft {
-                assertThat(it).isEqualTo(failure)
-            }
-            verifyNoInteractions(sessionRepository)
-        }
+        result shouldFail { it shouldBe failure }
+        verify { sessionRepository wasNot Called }
     }
 
     @Test
     fun `given run is called, when regRepo & userRepo are OK but sessionRepo cannot fetch token, then returns SessionCannotBeCreated`() {
-        runBlocking {
-            `when`(registrationResult.user).thenReturn(user)
-            `when`(registrationResult.refreshToken).thenReturn(TEST_REFRESH_TOKEN)
-            mockRegistrationResponse(Either.Right(registrationResult))
-            `when`(userRepository.save(user)).thenReturn(Either.Right(Unit))
+        every { registrationResult.user } returns user
+        every { registrationResult.refreshToken } returns TEST_REFRESH_TOKEN
+        mockRegistrationResponse(Either.Right(registrationResult))
+        coEvery { userRepository.save(user) } returns Either.Right(Unit)
+        val failure = mockk<Failure>()
+        coEvery { sessionRepository.accessToken(TEST_REFRESH_TOKEN) } returns Either.Left(failure)
 
-            val failure = mock(Failure::class.java)
-            `when`(sessionRepository.accessToken(TEST_REFRESH_TOKEN)).thenReturn(Either.Left(failure))
+        val result = runBlocking { useCase.run(params) }
 
-            val result = useCase.run(params)
-
-            result.assertLeft {
-                assertThat(it).isEqualTo(SessionCannotBeCreated)
-            }
-            verify(userRepository).save(user)
-            verify(sessionRepository).accessToken(TEST_REFRESH_TOKEN)
-            verify(sessionRepository, never()).save(any(), anyBoolean())
-        }
+        result shouldFail { it shouldBe SessionCannotBeCreated }
+        coVerify(exactly = 1) { userRepository.save(user) }
+        coVerify(exactly = 1) { sessionRepository.accessToken(TEST_REFRESH_TOKEN) }
+        coVerify(inverse = true) { sessionRepository.save(any(), any()) }
     }
 
     @Test
     fun `given run is called, when registrationRepo & userRepo are successful but sessionRepo cannot save session, then returns failure`() {
-        runBlocking {
-            `when`(registrationResult.user).thenReturn(user)
-            `when`(registrationResult.refreshToken).thenReturn(TEST_REFRESH_TOKEN)
-            mockRegistrationResponse(Either.Right(registrationResult))
-            `when`(userRepository.save(user)).thenReturn(Either.Right(Unit))
+        every { registrationResult.user } returns user
+        every { registrationResult.refreshToken } returns TEST_REFRESH_TOKEN
+        mockRegistrationResponse(Either.Right(registrationResult))
+        coEvery { userRepository.save(user) } returns Either.Right(Unit)
+        coEvery { sessionRepository.accessToken(TEST_REFRESH_TOKEN) } returns Either.Right(session)
+        val failure = mockk<Failure>()
+        coEvery { sessionRepository.save(session) } returns Either.Left(failure)
 
-            `when`(sessionRepository.accessToken(TEST_REFRESH_TOKEN)).thenReturn(Either.Right(session))
-            val failure = mock(Failure::class.java)
-            `when`(sessionRepository.save(session)).thenReturn(Either.Left(failure))
+        val result = runBlocking { useCase.run(params) }
 
-            val result = useCase.run(params)
-
-            result.assertLeft {
-                assertThat(it).isEqualTo(failure)
-            }
-            verify(userRepository).save(user)
-            verify(sessionRepository).accessToken(TEST_REFRESH_TOKEN)
-            verify(sessionRepository).save(session, true)
-        }
+        result shouldFail { it shouldBe failure }
+        coVerify(exactly = 1) { userRepository.save(user) }
+        coVerify(exactly = 1) { sessionRepository.accessToken(TEST_REFRESH_TOKEN) }
+        coVerify(exactly = 1) { sessionRepository.save(session, true) }
     }
 
-    private suspend fun mockRegistrationResponse(response: Either<Failure, PersonalAccountRegistrationResult>) {
-        `when`(registrationRepository.registerPersonalAccount(any(), any(), any(), any())).thenReturn(response)
+    private fun mockRegistrationResponse(response: Either<Failure, PersonalAccountRegistrationResult>) {
+        coEvery { registrationRepository.registerPersonalAccount(any(), any(), any(), any()) } returns response
     }
 
     companion object {

@@ -1,25 +1,24 @@
 package com.wire.android.feature.auth.registration.personal.usecase
 
 import com.wire.android.UnitTest
-import com.wire.android.any
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NotFound
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.activation.ActivationRepository
-import com.wire.android.framework.functional.assertLeft
-import com.wire.android.framework.functional.assertRight
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 
 class ActivateEmailUseCaseTest : UnitTest() {
 
-    @Mock
+    @MockK
     private lateinit var activationRepository: ActivationRepository
 
     private lateinit var activateEmailUseCase: ActivateEmailUseCase
@@ -31,51 +30,39 @@ class ActivateEmailUseCaseTest : UnitTest() {
 
     @Test
     fun `given email and code params, when run is called, then calls repository to activateEmail with correct params`() {
-        runBlocking {
-            `when`(activationRepository.activateEmail(any(), any())).thenReturn(Either.Right(Unit))
+        coEvery { activationRepository.activateEmail(any(), any()) } returns Either.Right(Unit)
 
-            activateEmailUseCase.run(ActivateEmailParams(TEST_EMAIL, TEST_CODE))
+        runBlocking { activateEmailUseCase.run(ActivateEmailParams(TEST_EMAIL, TEST_CODE)) }
 
-            verify(activationRepository).activateEmail(email = TEST_EMAIL, code = TEST_CODE)
-        }
+        coVerify(exactly = 1) { activationRepository.activateEmail(email = TEST_EMAIL, code = TEST_CODE) }
     }
 
     @Test
     fun `given run is called, when repository returns success, then return success`() {
-        runBlocking {
-            `when`(activationRepository.activateEmail(any(), any())).thenReturn(Either.Right(Unit))
+        coEvery { activationRepository.activateEmail(any(), any()) } returns Either.Right(Unit)
 
-            val response = activateEmailUseCase.run(ActivateEmailParams(TEST_EMAIL, TEST_CODE))
+        val response = runBlocking { activateEmailUseCase.run(ActivateEmailParams(TEST_EMAIL, TEST_CODE)) }
 
-            response.assertRight()
-        }
+        response shouldSucceed {}
     }
 
     @Test
     fun `given run is called, when repository returns NotFound, then return InvalidEmailCode`() {
-        runBlocking {
-            `when`(activationRepository.activateEmail(any(), any())).thenReturn(Either.Left(NotFound))
+        coEvery { activationRepository.activateEmail(any(), any()) } returns Either.Left(NotFound)
 
-            val response = activateEmailUseCase.run(ActivateEmailParams(TEST_EMAIL, TEST_CODE))
+        val response = runBlocking { activateEmailUseCase.run(ActivateEmailParams(TEST_EMAIL, TEST_CODE)) }
 
-            response.assertLeft {
-                assertThat(it).isEqualTo(InvalidEmailCode)
-            }
-        }
+        response shouldFail { it shouldBe InvalidEmailCode }
     }
 
     @Test
     fun `given run is called, when repository returns general failure, then return that failure`() {
-        runBlocking {
-            val failure = mock(Failure::class.java)
-            `when`(activationRepository.activateEmail(any(), any())).thenReturn(Either.Left(failure))
+        val failure = mockk<Failure>()
+        coEvery { activationRepository.activateEmail(any(), any()) } returns Either.Left(failure)
 
-            val response = activateEmailUseCase.run(ActivateEmailParams(TEST_EMAIL, TEST_CODE))
+        val response = runBlocking { activateEmailUseCase.run(ActivateEmailParams(TEST_EMAIL, TEST_CODE)) }
 
-            response.assertLeft {
-                assertThat(it).isEqualTo(failure)
-            }
-        }
+        response shouldFail { it shouldBe failure }
     }
 
     companion object {

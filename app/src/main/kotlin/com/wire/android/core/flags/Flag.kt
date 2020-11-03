@@ -18,12 +18,3 @@ internal sealed class Flag(enabled: Boolean) : FeatureFlag(enabled) {
     object Search : Flag(BuildConfig.FEATURE_SEARCH)
     object Conversations : Flag(BuildConfig.FEATURE_CONVERSATIONS)
 }
-
-
-
-
-
-
-
-
-

@@ -21,8 +21,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.slot
 import io.mockk.verify
 import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -60,7 +60,7 @@ class CreateAccountNavigatorTest : AndroidTest() {
 
         verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
         intentSlot.captured.let {
-            it.component?.className.orEmpty() shouldEqualTo CreateAccountActivity::class.java.canonicalName
+            it.component?.className shouldBeEqualTo CreateAccountActivity::class.java.canonicalName
             it.extras shouldBe null
         }
     }
@@ -140,7 +140,7 @@ class CreateAccountNavigatorTest : AndroidTest() {
 
         verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
         intentSlot.captured.let {
-            it.component?.className.orEmpty() shouldEqualTo CreateProAccountTeamEmailActivity::class.java.canonicalName
+            it.component?.className shouldBeEqualTo CreateProAccountTeamEmailActivity::class.java.canonicalName
             it.extras shouldBe null
         }
     }

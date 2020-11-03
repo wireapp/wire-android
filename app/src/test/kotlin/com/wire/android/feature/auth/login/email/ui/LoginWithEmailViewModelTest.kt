@@ -27,7 +27,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -151,8 +151,8 @@ class LoginWithEmailViewModelTest : UnitTest() {
     fun `given login is called, when use case returns LoginAuthenticationFailure, then sets proper error message to loginResultLiveData`() =
         verifyLoginResultErrorMessage(LoginAuthenticationFailure) {
             with(it) {
-                title shouldEqual R.string.login_authentication_failure_title
-                message shouldEqual R.string.login_authentication_failure_message
+                title shouldBeEqualTo R.string.login_authentication_failure_title
+                message shouldBeEqualTo R.string.login_authentication_failure_message
             }
         }
 
@@ -160,8 +160,8 @@ class LoginWithEmailViewModelTest : UnitTest() {
     fun `given login is called, when use case returns LoginTooFrequentFailure, then sets proper error message to loginResultLiveData`() =
         verifyLoginResultErrorMessage(LoginTooFrequentFailure) {
             with(it) {
-                title shouldEqual R.string.login_too_frequent_failure_title
-                message shouldEqual R.string.login_too_frequent_failure_message
+                title shouldBeEqualTo R.string.login_too_frequent_failure_title
+                message shouldBeEqualTo R.string.login_too_frequent_failure_message
             }
         }
 

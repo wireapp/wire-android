@@ -13,7 +13,7 @@ import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -71,7 +71,7 @@ class DatabaseServiceTest : UnitTest() {
 
         runBlockingTest {
             databaseService.request(call = databaseCall) shouldFail {
-                it shouldEqual SQLiteFailure(exception)
+                it shouldBeEqualTo SQLiteFailure(exception)
             }
         }
     }
@@ -83,7 +83,7 @@ class DatabaseServiceTest : UnitTest() {
 
         runBlockingTest {
             databaseService.request(call = databaseCall) shouldFail {
-                it shouldEqual DatabaseFailure(exception)
+                it shouldBeEqualTo DatabaseFailure(exception)
             }
         }
     }

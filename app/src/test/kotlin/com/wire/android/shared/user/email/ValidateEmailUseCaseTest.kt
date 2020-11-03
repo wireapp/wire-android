@@ -8,7 +8,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -31,7 +31,7 @@ class ValidateEmailUseCaseTest : UnitTest() {
 
         val result = runBlocking { validationEmailUseCase.run(validateEmailParams) }
 
-        result shouldFail { it shouldEqual EmailInvalid }
+        result shouldFail { it shouldBeEqualTo EmailInvalid }
     }
 
     @Test
@@ -41,7 +41,7 @@ class ValidateEmailUseCaseTest : UnitTest() {
 
         val result = runBlocking { validationEmailUseCase.run(validateEmailParams) }
 
-        result shouldFail { it shouldEqual EmailTooShort }
+        result shouldFail { it shouldBeEqualTo EmailTooShort }
     }
 
     @Test

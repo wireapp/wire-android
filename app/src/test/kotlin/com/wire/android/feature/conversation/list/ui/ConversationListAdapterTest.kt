@@ -10,7 +10,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
 import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -61,6 +61,6 @@ class ConversationListAdapterTest : UnitTest() {
         val itemCount = conversationListAdapter.itemCount
 
         verify(exactly = 1) { conversationList.size }
-        itemCount shouldEqual size
+        itemCount shouldBeEqualTo size
     }
 }

@@ -9,7 +9,7 @@ import com.wire.android.shared.session.usecase.CheckCurrentSessionExistsUseCase
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -37,7 +37,7 @@ class LauncherViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             launcherViewModel.checkIfCurrentSessionExists()
 
-            launcherViewModel.currentSessionExistsLiveData.awaitValue() shouldEqual true
+            launcherViewModel.currentSessionExistsLiveData.awaitValue() shouldBe true
         }
     }
 
@@ -48,7 +48,7 @@ class LauncherViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             launcherViewModel.checkIfCurrentSessionExists()
 
-            launcherViewModel.currentSessionExistsLiveData.awaitValue() shouldEqual false
+            launcherViewModel.currentSessionExistsLiveData.awaitValue() shouldBe false
         }
     }
 
@@ -59,7 +59,7 @@ class LauncherViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             launcherViewModel.checkIfCurrentSessionExists()
 
-            launcherViewModel.currentSessionExistsLiveData.awaitValue() shouldEqual false
+            launcherViewModel.currentSessionExistsLiveData.awaitValue() shouldBe false
         }
     }
 }

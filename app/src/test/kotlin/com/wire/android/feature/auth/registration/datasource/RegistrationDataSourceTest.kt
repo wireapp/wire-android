@@ -21,7 +21,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import okhttp3.Headers
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
@@ -83,7 +83,7 @@ class RegistrationDataSourceTest : UnitTest() {
             registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
-        result shouldSucceed { it shouldEqual PersonalAccountRegistrationResult(user, TEST_REFRESH_TOKEN) }
+        result shouldSucceed { it shouldBeEqualTo PersonalAccountRegistrationResult(user, TEST_REFRESH_TOKEN) }
         verify(exactly = 1) { userMapper.fromRegisteredUserResponse(registeredUserResponseBody) }
         verify(exactly = 1) { sessionMapper.extractRefreshToken(headers) }
     }
@@ -98,7 +98,7 @@ class RegistrationDataSourceTest : UnitTest() {
             registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
-        result shouldSucceed { it shouldEqual PersonalAccountRegistrationResult(null, TEST_REFRESH_TOKEN) }
+        result shouldSucceed { it shouldBeEqualTo PersonalAccountRegistrationResult(null, TEST_REFRESH_TOKEN) }
         verify { userMapper wasNot Called }
         verify(exactly = 1) { sessionMapper.extractRefreshToken(headers) }
     }
@@ -113,7 +113,7 @@ class RegistrationDataSourceTest : UnitTest() {
             registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
-        result shouldSucceed { it shouldEqual PersonalAccountRegistrationResult(user, null) }
+        result shouldSucceed { it shouldBeEqualTo PersonalAccountRegistrationResult(user, null) }
         verify(exactly = 1) { userMapper.fromRegisteredUserResponse(registeredUserResponseBody) }
         verify(exactly = 1) { sessionMapper.extractRefreshToken(headers) }
     }

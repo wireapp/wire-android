@@ -15,7 +15,7 @@ import com.wire.android.shared.user.User
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,7 +48,7 @@ class ConversationListViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             conversationListViewModel.fetchUserName()
 
-            conversationListViewModel.userNameLiveData.awaitValue() shouldEqual TEST_USER_NAME
+            conversationListViewModel.userNameLiveData.awaitValue() shouldBeEqualTo TEST_USER_NAME
         }
     }
 
@@ -70,7 +70,7 @@ class ConversationListViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             conversationListViewModel.fetchConversations()
 
-            conversationListViewModel.conversationsLiveData.awaitValue() shouldSucceed { it shouldEqual TEST_CONVERSATIONS }
+            conversationListViewModel.conversationsLiveData.awaitValue() shouldSucceed { it shouldBeEqualTo TEST_CONVERSATIONS }
         }
     }
 

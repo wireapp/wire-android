@@ -23,15 +23,15 @@ class UserAgentInterceptor(
                 .build()
         )
 
-    private fun newUserAgentHeader() = "${androidVersion()} / ${wireVersion()} / ${httpVersion()}"
+    private fun newUserAgentHeader() = "$androidVersion / $wireVersion / $httpVersion"
 
-    private fun androidVersion(): String =
+    private val androidVersion: String =
         "Android ${userAgentConfig.androidVersion}"
 
-    private fun wireVersion(): String =
+    private val wireVersion: String =
         "Wire ${userAgentConfig.appVersionNameNameConfig.versionName}"
 
-    private fun httpVersion(): String =
+    private val httpVersion: String =
         "HttpLibrary ${userAgentConfig.httpUserAgent}"
 
     companion object {

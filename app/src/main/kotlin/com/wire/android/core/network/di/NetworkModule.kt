@@ -4,7 +4,7 @@ package com.wire.android.core.network.di
 
 import com.wire.android.BuildConfig
 import com.wire.android.core.network.BackendConfig
-import com.wire.android.core.network.ConnectionSpecsFactory
+import com.wire.android.core.network.HttpRequestParams
 import com.wire.android.core.network.NetworkClient
 import com.wire.android.core.network.NetworkHandler
 import com.wire.android.core.network.RetrofitClient
@@ -29,9 +29,12 @@ object NetworkDependencyProvider {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    fun defaultHttpClient(userAgentInterceptor: UserAgentInterceptor): OkHttpClient =
+    fun defaultHttpClient(
+        userAgentInterceptor: UserAgentInterceptor,
+        requestParams: HttpRequestParams
+    ): OkHttpClient =
         OkHttpClient.Builder()
-            .connectionSpecs(ConnectionSpecsFactory.create())
+            .connectionSpecs(requestParams.getConnectionSpecs())
             .addInterceptor(userAgentInterceptor)
             .addLoggingInterceptor()
             .build()
@@ -46,8 +49,9 @@ object NetworkDependencyProvider {
 val networkModule: Module = module {
     single { NetworkHandler(androidContext()) }
     single<NetworkClient> { RetrofitClient(get()) }
-    single { defaultHttpClient(get()) }
+    single { defaultHttpClient(get(), get()) }
+    factory { HttpRequestParams() }
+    factory { UserAgentInterceptor(get()) }
     single { retrofit(get(), get<BackendConfig>().baseUrl) }
-    single { UserAgentInterceptor(get()) }
     single { BackendConfig() }
 }

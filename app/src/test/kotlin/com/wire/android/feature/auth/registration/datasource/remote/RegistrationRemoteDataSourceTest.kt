@@ -19,7 +19,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
-import java.util.*
+import java.util.Locale
 
 class RegistrationRemoteDataSourceTest : UnitTest() {
 

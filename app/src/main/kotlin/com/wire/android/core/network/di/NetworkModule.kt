@@ -22,10 +22,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object NetworkDependencyProvider {
 
-    fun retrofit(
-        okHttpClient: OkHttpClient,
-        baseUrl: String,
-    ): Retrofit =
+    fun retrofit(okHttpClient: OkHttpClient, baseUrl: String): Retrofit =
         Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient)

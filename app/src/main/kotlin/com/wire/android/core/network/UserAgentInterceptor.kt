@@ -23,8 +23,7 @@ class UserAgentInterceptor(
                 .build()
         )
 
-    private fun newUserAgentHeader() =
-        "${androidVersion()} / ${wireVersion()} / ${httpVersion()}"
+    private fun newUserAgentHeader() = "${androidVersion()} / ${wireVersion()} / ${httpVersion()}"
 
     private fun androidVersion(): String =
         "Android ${userAgentConfig.androidVersion}"

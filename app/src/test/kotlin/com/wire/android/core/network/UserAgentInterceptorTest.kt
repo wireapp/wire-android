@@ -21,6 +21,15 @@ class UserAgentInterceptorTest : UnitTest() {
     @MockK
     private lateinit var appVersionNameConfig: AppVersionNameConfig
 
+    @MockK
+    private lateinit var requestBuilder: Request.Builder
+
+    @MockK
+    private lateinit var chain: Interceptor.Chain
+
+    @MockK
+    private lateinit var mainRequest: Request
+
     @Before
     fun setup() {
         userAgentInterceptor = UserAgentInterceptor(userAgentConfig)
@@ -33,45 +42,36 @@ class UserAgentInterceptorTest : UnitTest() {
 
 
     @Test
-    fun `Given HttpRequest header User-Agent does not exist already, then add new header to request with user-agent details`() {
-        val chain = mockk<Interceptor.Chain>(relaxed = true)
-        val initialRequest = mockk<Request>(relaxed = true)
-        every { chain.request() } returns initialRequest
-
-        val requestBuilder = mockk<Request.Builder>()
-        every { initialRequest.newBuilder() } returns requestBuilder
-        every { requestBuilder.addHeader(any(), any()) } returns requestBuilder
-
-        val requestWithoutHeader = mockk<Request>()
-        every { requestBuilder.build() } returns requestWithoutHeader
-        every { chain.proceed(requestWithoutHeader) } returns mockk()
+    fun `Given HttpRequest when header User-Agent does not exist already, then add new header to request with user-agent details`() {
+        buildMockChainRequests()
 
         userAgentInterceptor.intercept(chain)
 
         verify(exactly = 1) { requestBuilder.addHeader(USER_AGENT_HEADER_KEY, USER_AGENT) }
-        verify(exactly = 1) { chain.proceed(requestWithoutHeader) }
-        verify(exactly = 0) { requestBuilder.removeHeader(USER_AGENT_HEADER_KEY) }
+        verify(exactly = 1) { chain.proceed(mainRequest) }
+        verify(inverse = true) { requestBuilder.removeHeader(USER_AGENT_HEADER_KEY) }
     }
 
     @Test
-    fun `Given current User-Agent header does exist already, then proceed with initial request`() {
-        val chain = mockk<Interceptor.Chain>(relaxed = true)
-        val initialRequest = mockk<Request>(relaxed = true)
-        every { chain.request() } returns initialRequest
+    fun `Given HttpRequest when current User-Agent header does exist already, then proceed with initial request`() {
+        buildMockChainRequests()
 
-        val requestBuilder = mockk<Request.Builder>()
-        every { initialRequest.newBuilder() } returns requestBuilder
-        every { requestBuilder.addHeader(any(), any()) } returns requestBuilder
-
-        val requestWithHeader = mockk<Request>()
         requestBuilder.addHeader(USER_AGENT_HEADER_KEY, USER_AGENT)
-        every { requestBuilder.build() } returns requestWithHeader
-        every { chain.proceed(requestWithHeader) } returns mockk()
 
         userAgentInterceptor.intercept(chain)
 
-        verify(exactly = 1) { chain.proceed(requestWithHeader) }
-        verify(exactly = 0) { requestBuilder.removeHeader(USER_AGENT_HEADER_KEY) }
+        verify(exactly = 1) { chain.proceed(mainRequest) }
+        verify(inverse = true) { requestBuilder.removeHeader(USER_AGENT_HEADER_KEY) }
+    }
+
+    private fun buildMockChainRequests() {
+        val initialRequest = mockk<Request>(relaxed = true)
+        every { chain.request() } returns initialRequest
+        every { initialRequest.newBuilder() } returns requestBuilder
+        every { requestBuilder.addHeader(any(), any()) } returns requestBuilder
+
+        every { requestBuilder.build() } returns mainRequest
+        every { chain.proceed(mainRequest) } returns mockk()
     }
 
     companion object {

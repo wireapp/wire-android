@@ -11,6 +11,7 @@ import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.compatibility.Compatibility
 import com.wire.android.core.config.AppVersionNameConfig
 import com.wire.android.core.config.LocaleConfig
+import com.wire.android.core.network.di.networkModule
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.navigation.FragmentStackHandler
 import com.wire.android.core.ui.navigation.Navigator
@@ -27,6 +28,7 @@ val coreModules: List<Module>
         localeModule,
         appConfigModule,
         asyncModule,
+        networkModule,
         uiModule
     )
 

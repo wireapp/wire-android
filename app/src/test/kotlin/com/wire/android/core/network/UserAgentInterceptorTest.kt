@@ -45,13 +45,13 @@ class UserAgentInterceptorTest : UnitTest() {
 
         every { chain.request() } returns originalRequest
         every { originalRequest.newBuilder() } returns requestBuilder
-        every { requestBuilder.build() } returns newRequest
     }
 
     @Test
     fun `Given HttpRequest is intercepted when chain request header is null then create new request with header`() {
         every { originalRequest.header(USER_AGENT_HEADER_KEY) } returns null
-        every { requestBuilder.addHeader(USER_AGENT_HEADER_KEY, USER_AGENT) } returns requestBuilder
+        every { requestBuilder.addHeader(eq(USER_AGENT_HEADER_KEY), any()) } returns requestBuilder
+        every { requestBuilder.build() } returns newRequest
 
         userAgentInterceptor.intercept(chain)
 
@@ -62,7 +62,8 @@ class UserAgentInterceptorTest : UnitTest() {
     @Test
     fun `Given HttpRequest is intercepted when chain request header is empty then create new request with header`() {
         every { originalRequest.header(USER_AGENT_HEADER_KEY) } returns String.EMPTY
-        every { requestBuilder.addHeader(USER_AGENT_HEADER_KEY, USER_AGENT) } returns requestBuilder
+        every { requestBuilder.addHeader(eq(USER_AGENT_HEADER_KEY), any()) } returns requestBuilder
+        every { requestBuilder.build() } returns newRequest
 
         userAgentInterceptor.intercept(chain)
 

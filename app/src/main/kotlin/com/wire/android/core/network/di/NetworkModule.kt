@@ -35,7 +35,7 @@ object NetworkDependencyProvider {
         requestParams: HttpRequestParams
     ): OkHttpClient =
         OkHttpClient.Builder()
-            .connectionSpecs(requestParams.getConnectionSpecs())
+            .connectionSpecs(requestParams.connectionSpecs())
             .addInterceptor(userAgentInterceptor)
             .addLoggingInterceptor()
             .build()

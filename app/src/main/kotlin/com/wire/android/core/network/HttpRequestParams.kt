@@ -6,7 +6,7 @@ import okhttp3.TlsVersion
 
 class HttpRequestParams {
 
-    fun getConnectionSpecs() = listOf(
+    fun connectionSpecs() = listOf(
         modernTlsConnectionSpec(),
         ConnectionSpec.CLEARTEXT
     )

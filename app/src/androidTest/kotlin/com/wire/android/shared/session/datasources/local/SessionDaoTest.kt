@@ -4,7 +4,11 @@ import com.wire.android.core.storage.db.DatabaseTest
 import com.wire.android.core.storage.db.global.GlobalDatabase
 import com.wire.android.shared.user.datasources.local.UserEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldContainSame
+import org.amshove.kluent.shouldNotContain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -37,7 +41,7 @@ class SessionDaoTest : DatabaseTest() {
 
         val sessions = sessionDao.sessions()
 
-        assertThat(sessions).containsExactlyInAnyOrder(session1, session2)
+        sessions shouldContainSame arrayOf(session1, session2)
     }
 
     @Test
@@ -46,7 +50,7 @@ class SessionDaoTest : DatabaseTest() {
 
         sessionDao.insert(session)
 
-        assertThat(sessionDao.currentSession()).isEqualTo(session)
+        sessionDao.currentSession() shouldBeEqualTo session
     }
 
     @Test
@@ -55,7 +59,7 @@ class SessionDaoTest : DatabaseTest() {
 
         sessionDao.insert(session)
 
-        assertThat(sessionDao.currentSession()).isNull()
+        sessionDao.currentSession() shouldBeEqualTo null
     }
 
     @Test
@@ -63,11 +67,11 @@ class SessionDaoTest : DatabaseTest() {
         val user = UserEntity(TEST_USER_ID, TEST_USER_NAME)
         val session = prepareSession(userId = user.id, current = true)
         sessionDao.insert(session)
-        assertThat(sessionDao.sessions()).contains(session)
+        sessionDao.sessions() shouldContain session
 
         globalDatabase.userDao().delete(user)
 
-        assertThat(sessionDao.sessions()).doesNotContain(session)
+        sessionDao.sessions() shouldNotContain session
     }
 
     @Test
@@ -78,7 +82,7 @@ class SessionDaoTest : DatabaseTest() {
         val session2 = prepareSession(id = 2, userId = TEST_USER_ID, current = false)
         sessionDao.insert(session2)
 
-        assertThat(sessionDao.sessions()).containsExactly(session2)
+        sessionDao.sessions() shouldContainSame arrayOf(session2)
     }
 
     @Test
@@ -86,7 +90,7 @@ class SessionDaoTest : DatabaseTest() {
         val session = prepareSession(id = 1, userId = TEST_USER_ID, current = true)
         sessionDao.insert(session)
 
-        assertThat(sessionDao.currentSession()).isEqualTo(session)
+        sessionDao.currentSession() shouldBeEqualTo session
     }
 
     @Test
@@ -94,7 +98,7 @@ class SessionDaoTest : DatabaseTest() {
         val session = prepareSession(id = 1, userId = TEST_USER_ID, current = false)
         sessionDao.insert(session)
 
-        assertThat(sessionDao.currentSession()).isNull()
+        sessionDao.currentSession() shouldBeEqualTo null
     }
 
     @Test
@@ -102,11 +106,11 @@ class SessionDaoTest : DatabaseTest() {
         val session = prepareSession(id = 1, userId = TEST_USER_ID, current = true)
         sessionDao.insert(session)
 
-        assertThat(sessionDao.currentSession()).isEqualTo(session)
+        sessionDao.currentSession() shouldBeEqualTo session
 
         sessionDao.insert(session.copy(isCurrent = false))
 
-        assertThat(sessionDao.currentSession()).isNull()
+        sessionDao.currentSession() shouldBeEqualTo null
     }
 
     @Test
@@ -119,7 +123,7 @@ class SessionDaoTest : DatabaseTest() {
         sessionDao.setCurrentSessionToDormant()
 
         val sessions = sessionDao.sessions()
-        assertThat(sessions).containsExactlyInAnyOrder(session1.copy(isCurrent = false), session2)
+        sessions shouldContainSame arrayOf(session1.copy(isCurrent = false), session2)
     }
 
     @Test
@@ -129,7 +133,7 @@ class SessionDaoTest : DatabaseTest() {
 
         val result = sessionDao.doesCurrentSessionExist()
 
-        assertThat(result).isTrue()
+        result shouldBe true
     }
 
     @Test
@@ -139,7 +143,7 @@ class SessionDaoTest : DatabaseTest() {
 
         val result = sessionDao.doesCurrentSessionExist()
 
-        assertThat(result).isFalse()
+        result shouldBe false
     }
 
     private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean): SessionEntity {

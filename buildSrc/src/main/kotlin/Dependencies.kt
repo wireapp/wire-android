@@ -86,11 +86,9 @@ object Libraries {
 object TestLibraries {
     private object Versions {
         const val junit4 = "4.13"
-        const val mockito = "3.3.0"
         const val mockk = "1.10.2"
         const val kluent = "1.60"
         const val robolectric = "4.4"
-        const val assertJ = "3.16.1"
         const val testRunner = "1.2.0"
         const val espresso = "3.2.0"
         const val testExtensions = "1.1.1"
@@ -103,23 +101,22 @@ object TestLibraries {
         const val core                = "androidx.test.espresso:espresso-core:${Versions.espresso}"
         const val intents             = "androidx.test.espresso:espresso-intents:${Versions.espresso}"
         //Androidx isn't support yet: https://github.com/android/android-test/issues/492
-        const val accessibility = "com.android.support.test.espresso:espresso-accessibility:${Versions.espresso}"
+        const val accessibility       = "com.android.support.test.espresso:espresso-accessibility:${Versions.espresso}"
     }
 
     const val junit4         = "junit:junit:${Versions.junit4}"
     const val robolectric    = "org.robolectric:robolectric:${Versions.robolectric}"
-    const val assertJ        = "org.assertj:assertj-core:${Versions.assertJ}"
     const val testRunner     = "androidx.test:runner:${Versions.testRunner}"
     const val testExtJunit   = "androidx.test.ext:junit:${Versions.testExtensions}"
     const val testRules      = "androidx.test:rules:${Versions.testRules}"
-    const val mockitoAndroid = "org.mockito:mockito-android:${Versions.mockito}"
     const val uiAutomator    = "androidx.test.uiautomator:uiautomator:${Versions.uiAutomator}"
     const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libraries.Versions.coroutines}"
     const val testCore       = "androidx.arch.core:core-testing:${Versions.testCore}"
     const val koinTest       = "org.koin:koin-test:${Libraries.Versions.koin}"
-
-    const val mockk           = "io.mockk:mockk:${Versions.mockk}"
-    const val kluent          = "org.amshove.kluent:kluent:${Versions.kluent}"
+    const val mockk          = "io.mockk:mockk:${Versions.mockk}"
+    const val mockkAndroid   = "io.mockk:mockk-android:${Versions.mockk}"
+    const val kluent         = "org.amshove.kluent:kluent:${Versions.kluent}"
+    const val kluentAndroid  = "org.amshove.kluent:kluent-android:${Versions.kluent}"
 }
 
 

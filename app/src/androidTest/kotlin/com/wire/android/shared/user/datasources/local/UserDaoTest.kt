@@ -3,7 +3,8 @@ package com.wire.android.shared.user.datasources.local
 import com.wire.android.core.storage.db.DatabaseTest
 import com.wire.android.core.storage.db.global.GlobalDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldContainSame
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -32,7 +33,7 @@ class UserDaoTest : DatabaseTest() {
         userDao.insert(TEST_USER_ENTITY)
         val activeUsers = userDao.users()
 
-        assertThat(activeUsers).containsExactly(TEST_USER_ENTITY)
+        activeUsers shouldContainSame listOf(TEST_USER_ENTITY)
     }
     //TODO: add insert replace strategy test
 
@@ -41,7 +42,8 @@ class UserDaoTest : DatabaseTest() {
         userDao.insert(TEST_USER_ENTITY)
 
         userDao.delete(TEST_USER_ENTITY)
-        assertThat(userDao.users()).isEmpty()
+
+        userDao.users().isEmpty() shouldBe true
     }
 
     companion object {

@@ -5,7 +5,8 @@ import androidx.fragment.app.testing.launchFragment
 import com.wire.android.InstrumentationTest
 import com.wire.android.R
 import com.wire.android.feature.auth.login.email.ui.LoginWithEmailFragment
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.Before
 import org.junit.Test
 
@@ -24,7 +25,8 @@ class LoginViewPagerAdapterTest : InstrumentationTest() {
     fun getItemCount_returns2() {
         fragmentScenario.onFragment {
             adapter = LoginViewPagerAdapter(it)
-            assertThat(adapter.itemCount).isEqualTo(2)
+
+            adapter.itemCount shouldBeEqualTo 2
         }
     }
 
@@ -33,7 +35,8 @@ class LoginViewPagerAdapterTest : InstrumentationTest() {
         fragmentScenario.onFragment {
             adapter = LoginViewPagerAdapter(it)
             val firstFrag = adapter.createFragment(0)
-            assertThat(firstFrag::class).isEqualTo(LoginWithEmailFragment::class)
+
+            firstFrag shouldBeInstanceOf LoginWithEmailFragment::class
             //TODO: add test for Phone fragment also
         }
     }

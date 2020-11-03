@@ -17,4 +17,5 @@ dependencies {
     implementation(Dependencies.androidBuildTools)
     implementation(Dependencies.kotlinGradlePlugin)
     implementation(Dependencies.detektGradlePlugin)
+    implementation(kotlin("script-runtime"))
 }

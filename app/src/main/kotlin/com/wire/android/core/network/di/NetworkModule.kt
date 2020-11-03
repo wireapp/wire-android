@@ -8,6 +8,7 @@ import com.wire.android.core.network.HttpRequestParams
 import com.wire.android.core.network.NetworkClient
 import com.wire.android.core.network.NetworkHandler
 import com.wire.android.core.network.RetrofitClient
+import com.wire.android.core.network.UserAgentConfig
 import com.wire.android.core.network.UserAgentInterceptor
 import com.wire.android.core.network.di.NetworkDependencyProvider.defaultHttpClient
 import com.wire.android.core.network.di.NetworkDependencyProvider.retrofit
@@ -52,6 +53,7 @@ val networkModule: Module = module {
     single { defaultHttpClient(get(), get()) }
     factory { HttpRequestParams() }
     factory { UserAgentInterceptor(get()) }
+    factory { UserAgentConfig(get()) }
     single { retrofit(get(), get<BackendConfig>().baseUrl) }
     single { BackendConfig() }
 }

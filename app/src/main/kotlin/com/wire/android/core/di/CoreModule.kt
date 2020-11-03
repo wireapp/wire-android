@@ -21,43 +21,31 @@ import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-val coreModules: List<Module>
-    get() = listOf(
-        accessibilityModule,
-        compatibilityModule,
-        localeModule,
-        appConfigModule,
-        asyncModule,
-        networkModule,
-        uiModule
-    )
-
-
-private val accessibilityModule: Module = module {
+val accessibilityModule: Module = module {
     factory { androidContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager }
     factory { Accessibility(get()) }
     factory { AccessibilityConfig(get()) }
     viewModel { InputFocusViewModel(get()) }
 }
 
-private val compatibilityModule: Module = module {
+val compatibilityModule: Module = module {
     factory { Compatibility() }
 }
 
-private val localeModule: Module = module {
+val localeModule: Module = module {
     factory { LocaleConfig(androidContext()) }
 }
 
-private val appConfigModule: Module = module {
+val appConfigModule: Module = module {
     factory { AppVersionNameConfig(BuildConfig.VERSION_NAME) }
 }
 
 
-private val asyncModule: Module = module {
+val asyncModule: Module = module {
     single<DispatcherProvider> { DefaultDispatcherProvider() }
 }
 
-private val uiModule: Module = module {
+val uiModule: Module = module {
     factory { DialogBuilder() }
 
     single { Navigator(get(), get(), get(), get()) }

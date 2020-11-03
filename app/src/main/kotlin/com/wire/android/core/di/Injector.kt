@@ -3,6 +3,8 @@
 package com.wire.android.core.di
 
 import android.content.Context
+import com.wire.android.core.network.di.networkModule
+import com.wire.android.core.storage.db.di.databaseModule
 import com.wire.android.feature.auth.di.authenticationModules
 import com.wire.android.feature.conversation.di.conversationsModule
 import com.wire.android.feature.launch.di.launcherModule
@@ -14,6 +16,21 @@ import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 
 object Injector {
+
+    /**
+     * Core modules should contain dependencies that are core
+     * to the application
+     */
+    private val coreModules: List<Module> = listOf(
+        accessibilityModule,
+        compatibilityModule,
+        localeModule,
+        appConfigModule,
+        asyncModule,
+        networkModule,
+        databaseModule,
+        uiModule
+    )
 
     /**
      * Shared modules should contain dependencies that can

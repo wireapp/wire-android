@@ -77,8 +77,8 @@ class FeatureFlagTest : UnitTest() {
     private class InactiveFeatureFlag : FeatureFlag(enabled = false)
 
     private class Navigator {
-        fun doSomething() {}
-        fun navigateToActiveFeature() {}
-        fun navigateToDefaultScreen() {}
+        fun doSomething() { this.hashCode() }
+        fun navigateToActiveFeature() { this.hashCode() }
+        fun navigateToDefaultScreen() { this.hashCode() }
     }
 }

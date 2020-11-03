@@ -1,7 +1,7 @@
 package com.wire.android.feature.auth.registration.datasource.remote
 
 import com.wire.android.UnitTest
-import com.wire.android.core.locale.LocaleConfig
+import com.wire.android.core.config.LocaleConfig
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
@@ -14,13 +14,12 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.slot
-import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
-import java.util.Locale
+import java.util.*
 
 class RegistrationRemoteDataSourceTest : UnitTest() {
 
@@ -57,12 +56,12 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
 
         coVerify(exactly = 1) { api.registerPersonalAccount(capture(registerPersonalAccountRequestCaptor)) }
         with(registerPersonalAccountRequestCaptor.captured) {
-            name shouldEqual TEST_NAME
-            email shouldEqual TEST_EMAIL
-            password shouldEqual TEST_PASSWORD
-            emailCode shouldEqual TEST_ACTIVATION_CODE
-            locale shouldEqual TEST_LOCALE
-            label shouldEqual TEST_LABEL
+            name shouldBeEqualTo TEST_NAME
+            email shouldBeEqualTo TEST_EMAIL
+            password shouldBeEqualTo TEST_PASSWORD
+            emailCode shouldBeEqualTo TEST_ACTIVATION_CODE
+            locale shouldBeEqualTo TEST_LOCALE
+            label shouldBeEqualTo TEST_LABEL
         }
     }
 
@@ -78,7 +77,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
             remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
-        result shouldSucceed { it.body() shouldEqual userResponse }
+        result shouldSucceed { it.body() shouldBeEqualTo userResponse }
     }
 
     @Test

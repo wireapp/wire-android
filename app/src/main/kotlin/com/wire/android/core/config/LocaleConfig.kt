@@ -1,4 +1,4 @@
-package com.wire.android.core.locale
+package com.wire.android.core.config
 
 import android.content.Context
 import java.util.Locale

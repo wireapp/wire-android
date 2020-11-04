@@ -31,7 +31,7 @@ class RetryTestRule(val retryCount: Int = RETRY_COUNT) : TestRule {
         }
 
     companion object {
-        private val TAG = RetryTestRule::class.java.canonicalName!!
+        private const val TAG = "RetryTestRule"
         private const val RETRY_COUNT = 3
     }
 }

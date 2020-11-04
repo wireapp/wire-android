@@ -8,8 +8,8 @@ import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCas
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import com.wire.android.framework.livedata.assertNotUpdated
-import com.wire.android.framework.livedata.awaitValue
+import com.wire.android.framework.livedata.shouldBeUpdated
+import com.wire.android.framework.livedata.shouldNotBeUpdated
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 import com.wire.android.shared.user.User
 import io.mockk.coEvery
@@ -45,32 +45,28 @@ class ConversationListViewModelTest : UnitTest() {
         val user = User(id = TEST_USER_ID, name = TEST_USER_NAME)
         coEvery { getActiveUserUseCase.run(Unit) } returns Either.Right(user)
 
-        coroutinesTestRule.runTest {
-            conversationListViewModel.fetchUserName()
+        conversationListViewModel.fetchUserName()
 
-            conversationListViewModel.userNameLiveData.awaitValue() shouldBeEqualTo TEST_USER_NAME
-        }
+        conversationListViewModel.userNameLiveData shouldBeUpdated { it shouldBeEqualTo TEST_USER_NAME }
     }
 
     @Test
     fun `given fetchUserName is called, when GetActiveUserUseCase is successful, then does not set anything to userNameLiveData`() {
         coEvery { getActiveUserUseCase.run(Unit) } returns Either.Left(ServerError)
 
-        coroutinesTestRule.runTest {
-            conversationListViewModel.fetchUserName()
+        conversationListViewModel.fetchUserName()
 
-            conversationListViewModel.userNameLiveData.assertNotUpdated()
-        }
+        conversationListViewModel.userNameLiveData.shouldNotBeUpdated()
     }
 
     @Test
     fun `given fetchConversations is called, when GetConversationsUseCase is successful, then sets value to conversationsLiveData`() {
         coEvery { getConversationsUseCase.run(Unit) } returns Either.Right(TEST_CONVERSATIONS)
 
-        coroutinesTestRule.runTest {
-            conversationListViewModel.fetchConversations()
+        conversationListViewModel.fetchConversations()
 
-            conversationListViewModel.conversationsLiveData.awaitValue() shouldSucceed { it shouldBeEqualTo TEST_CONVERSATIONS }
+        conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
+            result shouldSucceed { it shouldBeEqualTo TEST_CONVERSATIONS }
         }
     }
 
@@ -78,11 +74,9 @@ class ConversationListViewModelTest : UnitTest() {
     fun `given fetchConversations is called, when GetConversationsUseCase fails, then sets error to conversationsLiveData`() {
         coEvery { getConversationsUseCase.run(Unit) } returns Either.Left(ServerError)
 
-        coroutinesTestRule.runTest {
-            conversationListViewModel.fetchConversations()
+        conversationListViewModel.fetchConversations()
 
-            conversationListViewModel.conversationsLiveData.awaitValue() shouldFail {}
-        }
+        conversationListViewModel.conversationsLiveData shouldBeUpdated { it shouldFail {} }
     }
 
     companion object {

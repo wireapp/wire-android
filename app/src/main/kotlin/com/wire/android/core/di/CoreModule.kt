@@ -2,13 +2,16 @@ package com.wire.android.core.di
 
 import android.content.Context
 import android.view.accessibility.AccessibilityManager
+import com.wire.android.BuildConfig
 import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.accessibility.AccessibilityConfig
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.async.DefaultDispatcherProvider
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.compatibility.Compatibility
-import com.wire.android.core.locale.LocaleConfig
+import com.wire.android.core.config.AppVersionNameConfig
+import com.wire.android.core.config.LocaleConfig
+import com.wire.android.core.network.di.networkModule
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.navigation.FragmentStackHandler
 import com.wire.android.core.ui.navigation.Navigator
@@ -33,11 +36,16 @@ val localeModule: Module = module {
     factory { LocaleConfig(androidContext()) }
 }
 
+val appConfigModule: Module = module {
+    factory { AppVersionNameConfig(BuildConfig.VERSION_NAME) }
+}
+
+
 val asyncModule: Module = module {
     single<DispatcherProvider> { DefaultDispatcherProvider() }
 }
 
-val uiModule = module {
+val uiModule: Module = module {
     factory { DialogBuilder() }
 
     single { Navigator(get(), get(), get(), get()) }

@@ -17,14 +17,19 @@ import org.koin.core.module.Module
 
 object Injector {
 
+    /**
+     * Core modules should contain dependencies that are core
+     * to the application
+     */
     private val coreModules: List<Module> = listOf(
-        asyncModule,
         accessibilityModule,
-        networkModule,
         compatibilityModule,
         localeModule,
-        uiModule,
-        databaseModule
+        appConfigModule,
+        asyncModule,
+        networkModule,
+        databaseModule,
+        uiModule
     )
 
     /**

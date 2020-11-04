@@ -1,7 +1,7 @@
 package com.wire.android.feature.auth.registration.datasource.remote
 
 import com.wire.android.UnitTest
-import com.wire.android.core.locale.LocaleConfig
+import com.wire.android.core.config.LocaleConfig
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler

@@ -6,7 +6,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUseCase
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
-import com.wire.android.framework.livedata.awaitValue
+import com.wire.android.framework.livedata.shouldBeUpdated
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,32 +38,24 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
 
     @Test
     fun `given viewModel is initialised, when teamName is available, propagate teamName up to the view`() {
-        coroutinesTestRule.runTest {
-            viewModel.teamNameLiveData.awaitValue() shouldBeEqualTo TEST_TEAM_NAME
-        }
+        viewModel.teamNameLiveData shouldBeUpdated { it shouldBeEqualTo TEST_TEAM_NAME }
     }
 
     @Test
     fun `given empty team name, when on team name text is changed, confirmation button should be disabled`() {
-        coroutinesTestRule.runTest {
-            viewModel.onTeamNameTextChanged(String.EMPTY)
+        viewModel.onTeamNameTextChanged(String.EMPTY)
 
-            viewModel.confirmationButtonEnabled.awaitValue() shouldBe false
-        }
+        viewModel.confirmationButtonEnabled shouldBeUpdated { it shouldBe false }
     }
 
     @Test
     fun `given empty team name, when on team name text is changed, confirmation button should be enabled`() {
-        coroutinesTestRule.runTest {
-            viewModel.onTeamNameTextChanged(TEST_TEAM_NAME)
+        viewModel.onTeamNameTextChanged(TEST_TEAM_NAME)
 
-            viewModel.confirmationButtonEnabled.awaitValue() shouldBe true
-        }
+        viewModel.confirmationButtonEnabled shouldBeUpdated { it shouldBe true }
     }
 
     companion object {
-        private const val CONFIG_URL = "https://wire.com"
-        private const val TEAM_ABOUT_URL_SUFFIX = "/products/pro-secure-team-collaboration/"
         private const val TEST_TEAM_NAME = "teamName"
     }
 }

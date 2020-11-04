@@ -3,7 +3,7 @@ package com.wire.android.feature.auth.registration.personal.ui
 import com.wire.android.UnitTest
 import com.wire.android.core.functional.Either
 import com.wire.android.framework.coroutines.CoroutinesTestRule
-import com.wire.android.framework.livedata.awaitValue
+import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.shared.user.name.NameTooShort
 import com.wire.android.shared.user.name.ValidateNameParams
 import com.wire.android.shared.user.name.ValidateNameUseCase
@@ -36,24 +36,20 @@ class CreatePersonalAccountNameViewModelTest : UnitTest() {
     fun `given validateName() is called with a name, when use case returns success, then sets continueEnabled to true`() {
         coEvery { validateNameUseCase.run(ValidateNameParams(TEST_NAME)) } returns Either.Right(Unit)
 
-        coroutinesTestRule.runTest {
-            nameViewModel.validateName(TEST_NAME)
+        nameViewModel.validateName(TEST_NAME)
 
-            nameViewModel.continueEnabled.awaitValue() shouldBe true
-            coVerify(exactly = 1) { validateNameUseCase.run(ValidateNameParams(TEST_NAME)) }
-        }
+        nameViewModel.continueEnabled shouldBeUpdated { it shouldBe true }
+        coVerify(exactly = 1) { validateNameUseCase.run(ValidateNameParams(TEST_NAME)) }
     }
 
     @Test
     fun `given validateName() is called with a name, when use case fails, then sets continueEnabled to false`() {
         coEvery { validateNameUseCase.run(ValidateNameParams(TEST_NAME)) } returns Either.Left(NameTooShort)
 
-        coroutinesTestRule.runTest {
-            nameViewModel.validateName(TEST_NAME)
+        nameViewModel.validateName(TEST_NAME)
 
-            nameViewModel.continueEnabled.awaitValue() shouldBe false
-            coVerify(exactly = 1) { validateNameUseCase.run(ValidateNameParams(TEST_NAME)) }
-        }
+        nameViewModel.continueEnabled shouldBeUpdated { it shouldBe false }
+        coVerify(exactly = 1) { validateNameUseCase.run(ValidateNameParams(TEST_NAME)) }
     }
 
     companion object {

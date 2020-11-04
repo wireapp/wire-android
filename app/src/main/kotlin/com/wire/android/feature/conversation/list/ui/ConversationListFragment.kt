@@ -22,13 +22,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         displayUserName()
-
-        //TODO: Remove this
-        Flag.Conversations whenActivated {
-            displayConversationList()
-        } otherwise {
-            //do something else
-        }
+        Flag.Conversations whenActivated { displayConversationList() }
     }
 
     private fun displayUserName() {

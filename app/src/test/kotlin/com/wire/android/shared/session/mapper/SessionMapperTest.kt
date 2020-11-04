@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import okhttp3.Headers
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
@@ -68,7 +68,7 @@ class SessionMapperTest : UnitTest() {
 
         val result = sessionMapper.fromLoginResponse(loginWithEmailResponse)
 
-        result shouldEqual
+        result shouldBeEqualTo
             Session(userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN)
     }
 
@@ -96,7 +96,7 @@ class SessionMapperTest : UnitTest() {
 
         val result = sessionMapper.extractRefreshToken(headers)
 
-        result shouldEqual TEST_REFRESH_TOKEN
+        result shouldBeEqualTo TEST_REFRESH_TOKEN
     }
 
     @Test
@@ -107,10 +107,10 @@ class SessionMapperTest : UnitTest() {
         )
 
         val currentSession = sessionMapper.toSessionEntity(session, true)
-        currentSession shouldEqual testSessionEntity(true)
+        currentSession shouldBeEqualTo testSessionEntity(true)
 
         val dormantSession = sessionMapper.toSessionEntity(session, false)
-        dormantSession shouldEqual testSessionEntity(false)
+        dormantSession shouldBeEqualTo testSessionEntity(false)
     }
 
     @Test
@@ -122,7 +122,7 @@ class SessionMapperTest : UnitTest() {
             tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
         )
 
-        session shouldEqual expectedSession
+        session shouldBeEqualTo expectedSession
     }
 
     @Test
@@ -134,7 +134,7 @@ class SessionMapperTest : UnitTest() {
             tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
         )
 
-        session shouldEqual expectedSession
+        session shouldBeEqualTo expectedSession
     }
 
     @Test
@@ -155,7 +155,7 @@ class SessionMapperTest : UnitTest() {
             refreshToken = TEST_REFRESH_TOKEN
         )
 
-        session shouldEqual expectedSession
+        session shouldBeEqualTo expectedSession
     }
 
     companion object {

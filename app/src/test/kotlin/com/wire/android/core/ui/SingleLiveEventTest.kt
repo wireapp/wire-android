@@ -6,7 +6,7 @@ import com.wire.android.framework.livedata.TestLifecycleOwner
 import com.wire.android.framework.livedata.awaitValue
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.TimeoutException
@@ -26,7 +26,7 @@ class SingleLiveEventTest : UnitTest() {
 
         val value = runBlocking { singleLiveEvent.awaitValue()  }
 
-        value shouldEqual TEST_VALUE
+        value shouldBeEqualTo TEST_VALUE
     }
 
     @Test(expected = TimeoutException::class)

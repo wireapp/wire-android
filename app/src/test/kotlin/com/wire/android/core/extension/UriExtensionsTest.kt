@@ -2,8 +2,7 @@ package com.wire.android.core.extension
 
 import android.net.Uri
 import com.wire.android.AndroidTest
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 
 class UriExtensionsTest : AndroidTest() {
@@ -13,9 +12,9 @@ class UriExtensionsTest : AndroidTest() {
         val uriBuilder = Uri.Builder()
         val uri = uriBuilder.domainAddress(TEST_URI).build()
 
-        uri.scheme shouldEqual TEST_SCHEME
-        uri.authority shouldEqual TEST_DOMAIN
-        uri.toString() shouldEqual TEST_URI
+        uri.scheme shouldBeEqualTo TEST_SCHEME
+        uri.authority shouldBeEqualTo TEST_DOMAIN
+        uri.toString() shouldBeEqualTo TEST_URI
     }
 
     companion object {

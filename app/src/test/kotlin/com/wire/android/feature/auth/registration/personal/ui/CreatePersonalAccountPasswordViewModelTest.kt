@@ -30,7 +30,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -63,7 +63,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         val result = viewModel.minPasswordLength()
 
-        result shouldEqual minLength
+        result shouldBeEqualTo minLength
         verify(exactly = 1) { validatePasswordUseCase.minLength() }
     }
 
@@ -175,7 +175,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             viewModel.registerStatusLiveData.awaitValue() shouldFail {
-                it.message shouldEqual  R.string.create_personal_account_unauthorized_email_error
+                it.message shouldBeEqualTo  R.string.create_personal_account_unauthorized_email_error
             }
         }
     }
@@ -188,7 +188,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             viewModel.registerStatusLiveData.awaitValue() shouldFail {
-                it.message shouldEqual  R.string.create_personal_account_invalid_activation_code_error
+                it.message shouldBeEqualTo  R.string.create_personal_account_invalid_activation_code_error
             }
         }
     }
@@ -201,7 +201,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
             viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
             viewModel.registerStatusLiveData.awaitValue() shouldFail {
-                it.message shouldEqual  R.string.create_personal_account_email_in_use_error
+                it.message shouldBeEqualTo  R.string.create_personal_account_email_in_use_error
             }
         }
     }

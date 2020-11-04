@@ -11,7 +11,7 @@ import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,7 +39,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     @Test
     fun `given viewModel is initialised, when teamName is available, propagate teamName up to the view`() {
         coroutinesTestRule.runTest {
-            viewModel.teamNameLiveData.awaitValue() shouldEqual TEST_TEAM_NAME
+            viewModel.teamNameLiveData.awaitValue() shouldBeEqualTo TEST_TEAM_NAME
         }
     }
 

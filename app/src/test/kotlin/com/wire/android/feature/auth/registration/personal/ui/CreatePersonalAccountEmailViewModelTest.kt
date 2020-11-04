@@ -23,7 +23,7 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -102,7 +102,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             emailViewModel.sendActivationCode(TEST_EMAIL)
 
-            emailViewModel.sendActivationCodeLiveData.awaitValue() shouldSucceed { it shouldEqual TEST_EMAIL }
+            emailViewModel.sendActivationCodeLiveData.awaitValue() shouldSucceed { it shouldBeEqualTo TEST_EMAIL }
         }
     }
 
@@ -125,7 +125,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
             emailViewModel.sendActivationCode(TEST_EMAIL)
 
             emailViewModel.sendActivationCodeLiveData.awaitValue() shouldFail {
-                it.message shouldEqual R.string.create_personal_account_with_email_email_blacklisted_error
+                it.message shouldBeEqualTo R.string.create_personal_account_with_email_email_blacklisted_error
             }
         }
     }
@@ -138,7 +138,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
             emailViewModel.sendActivationCode(TEST_EMAIL)
 
             emailViewModel.sendActivationCodeLiveData.awaitValue() shouldFail {
-                it.message shouldEqual R.string.create_personal_account_with_email_email_in_use_error
+                it.message shouldBeEqualTo R.string.create_personal_account_with_email_email_in_use_error
             }
         }
     }

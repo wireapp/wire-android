@@ -17,7 +17,7 @@ import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,7 +48,7 @@ class CreatePersonalAccountCodeViewModelTest : UnitTest() {
         coroutinesTestRule.runTest {
             codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            codeViewModel.activateEmailLiveData.awaitValue() shouldSucceed { it shouldEqual TEST_CODE }
+            codeViewModel.activateEmailLiveData.awaitValue() shouldSucceed { it shouldBeEqualTo TEST_CODE }
         }
     }
 
@@ -61,7 +61,7 @@ class CreatePersonalAccountCodeViewModelTest : UnitTest() {
             codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
 
             codeViewModel.activateEmailLiveData.awaitValue() shouldFail {
-                it.message shouldEqual R.string.create_personal_account_code_invalid_code_error
+                it.message shouldBeEqualTo R.string.create_personal_account_code_invalid_code_error
             }
         }
     }

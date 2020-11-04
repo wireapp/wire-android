@@ -3,7 +3,7 @@ package com.wire.android.shared.user.mapper
 import com.wire.android.UnitTest
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.datasources.remote.SelfUserResponse
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -24,7 +24,7 @@ class UserMapperTest : UnitTest() {
         )
         val expectedUser = User(id = TEST_USER_ID, name = TEST_USER_NAME, email = TEST_EMAIL)
 
-        userMapper.fromSelfUserResponse(selfUserResponse) shouldEqual expectedUser
+        userMapper.fromSelfUserResponse(selfUserResponse) shouldBeEqualTo expectedUser
     }
 
     companion object {

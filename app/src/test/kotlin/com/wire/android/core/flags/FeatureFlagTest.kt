@@ -9,7 +9,7 @@ import org.junit.Test
 class FeatureFlagTest : UnitTest() {
 
     @Test
-    fun `given an enabled state for a feature flag, then logic should be executed`() {
+    fun `given a feature flag, when it is activated, then executes given logic block`() {
         val activeFlag = ActiveFeatureFlag()
         val fakeNavigator = mockk<Navigator>(relaxed = true)
 
@@ -24,7 +24,7 @@ class FeatureFlagTest : UnitTest() {
     }
 
     @Test
-    fun `given a disable state for a feature flag, then logic should not be executed`() {
+    fun `given a feature flag, when it is deactivated, then does not execute given logic block`() {
         val inactiveFlag = InactiveFeatureFlag()
         val fakeNavigator = mockk<Navigator>(relaxed = true)
 
@@ -38,7 +38,7 @@ class FeatureFlagTest : UnitTest() {
     }
 
     @Test
-    fun `given an enabled state for a feature flag, then logic should on the "otherwise" block should not be executed`() {
+    fun `given a feature flag, when it is activated, then does not execute given "otherwise" logic block`() {
         val activeFlag = ActiveFeatureFlag()
         val fakeNavigator = mockk<Navigator>(relaxed = true)
 
@@ -52,11 +52,11 @@ class FeatureFlagTest : UnitTest() {
 
         verify(exactly = 1) { fakeNavigator.navigateToActiveFeature() }
         verify(exactly = 2) { fakeNavigator.doSomething() }
-        verify(exactly = 0) { fakeNavigator.navigateToDefaultScreen() }
+        verify(inverse = true) { fakeNavigator.navigateToDefaultScreen() }
     }
 
     @Test
-    fun `given a disabled state for a feature flag, then logic should on the "otherwise" block should be executed`() {
+    fun `given a feature flag, when it is deactivated, then execute given "otherwise" logic block`() {
         val inactiveFlag = InactiveFeatureFlag()
         val fakeNavigator = mockk<Navigator>(relaxed = true)
 
@@ -68,8 +68,8 @@ class FeatureFlagTest : UnitTest() {
             fakeNavigator.navigateToDefaultScreen()
         }
 
-        verify(exactly = 0) { fakeNavigator.navigateToActiveFeature() }
-        verify(exactly = 0) { fakeNavigator.doSomething() }
+        verify(inverse = true) { fakeNavigator.navigateToActiveFeature() }
+        verify(inverse = true) { fakeNavigator.doSomething() }
         verify(exactly = 1) { fakeNavigator.navigateToDefaultScreen() }
     }
 

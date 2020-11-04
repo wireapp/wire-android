@@ -7,6 +7,8 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wire.android.R
 import com.wire.android.core.extension.toast
+import com.wire.android.core.flags.FeatureFlag
+import com.wire.android.core.flags.Flag
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import kotlinx.android.synthetic.main.fragment_conversation_list.*
@@ -20,7 +22,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         displayUserName()
-        displayConversationList()
+        Flag.Conversations whenActivated { displayConversationList() }
     }
 
     private fun displayUserName() {

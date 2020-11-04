@@ -7,7 +7,7 @@ private object BuildTypes {
     const val RELEASE = "release"
 }
 
-private object ProductFlavors {
+    object ProductFlavors {
     const val DEV = "dev"
     const val INTERNAL = "internal"
     const val PUBLIC = "public"
@@ -51,6 +51,19 @@ android {
         }
         create(ProductFlavors.PUBLIC) {
             dimension = FlavorDimensions.DEFAULT
+        }
+    }
+
+    /**
+     * Process feature flags and if the feature is not included in a product flavor,
+     * a default value of "false" or "deactivated" is used.
+     *
+     * @see "FeatureFlags.kt" file definition.
+     */
+    productFlavors.map { flavor ->
+        Features.values().forEach { feature ->
+            val activated = FeatureFlags.activated[flavor.name].orEmpty().contains(feature)
+            flavor.buildConfigField("Boolean", feature.name, activated.toString())
         }
     }
 }

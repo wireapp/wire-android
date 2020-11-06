@@ -4,7 +4,7 @@ import com.wire.android.UnitTest
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -24,7 +24,7 @@ class ValidateNameUseCaseTest : UnitTest() {
 
         val result = runBlocking { validateNameUseCase.run(ValidateNameParams(name)) }
 
-        result shouldFail { it shouldEqual NameTooShort }
+        result shouldFail { it shouldBeEqualTo NameTooShort }
     }
 
     @Test
@@ -33,6 +33,6 @@ class ValidateNameUseCaseTest : UnitTest() {
 
         val result = runBlocking { validateNameUseCase.run(ValidateNameParams(name)) }
 
-        result shouldSucceed { it shouldEqual Unit }
+        result shouldSucceed { it shouldBeEqualTo Unit }
     }
 }

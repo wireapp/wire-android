@@ -3,7 +3,7 @@ package com.wire.android.feature.conversation.list.datasources.local
 import com.wire.android.core.storage.db.DatabaseTest
 import com.wire.android.core.storage.db.user.UserDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.assertj.core.api.Assertions.assertThat
+import org.amshove.kluent.shouldContainSame
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -32,7 +32,7 @@ class ConversationDaoTest : DatabaseTest() {
         conversationDao.insert(TEST_CONVERSATION_ENTITY)
         val conversations = conversationDao.conversations()
 
-        assertThat(conversations).containsExactly(TEST_CONVERSATION_ENTITY)
+        conversations shouldContainSame listOf(TEST_CONVERSATION_ENTITY)
     }
 
     companion object {

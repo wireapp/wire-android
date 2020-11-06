@@ -8,7 +8,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.slot
 import io.mockk.verify
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -31,7 +31,7 @@ class WelcomeNavigatorTest : AndroidTest() {
         val intentSlot = slot<Intent>()
         verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
         intentSlot.captured.let {
-            it.component?.className shouldEqual WelcomeActivity::class.java.canonicalName
+            it.component?.className shouldBeEqualTo WelcomeActivity::class.java.canonicalName
             it.extras shouldBe null
         }
     }

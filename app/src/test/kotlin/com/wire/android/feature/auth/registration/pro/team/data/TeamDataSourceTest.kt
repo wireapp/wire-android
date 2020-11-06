@@ -4,7 +4,7 @@ import com.wire.android.UnitTest
 import com.wire.android.framework.functional.shouldSucceed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -23,7 +23,7 @@ class TeamDataSourceTest : UnitTest() {
         runBlocking {
             teamsRepository.updateTeamName(TEST_TEAM_NAME)
 
-            teamsRepository.teamName() shouldSucceed { it shouldEqual TEST_TEAM_NAME }
+            teamsRepository.teamName() shouldSucceed { it shouldBeEqualTo TEST_TEAM_NAME }
         }
     }
 

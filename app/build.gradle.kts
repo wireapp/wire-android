@@ -66,12 +66,10 @@ dependencies {
     androidTestImplementation(TestLibraries.Espresso.accessibility)
     androidTestImplementation(TestLibraries.testExtJunit)
     androidTestImplementation(TestLibraries.testRules)
-    androidTestImplementation(TestLibraries.mockitoAndroid) {
-        exclude(module = "mockito-core")
-    }
     androidTestImplementation(TestLibraries.uiAutomator)
-    androidTestImplementation(TestLibraries.assertJ)
     androidTestImplementation(TestLibraries.coroutinesTest)
+    androidTestImplementation(TestLibraries.mockkAndroid)
+    androidTestImplementation(TestLibraries.kluentAndroid)
 
     // Development dependencies
     debugImplementation(DevLibraries.fragmentTesting)

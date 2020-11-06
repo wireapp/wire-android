@@ -3,13 +3,11 @@ package com.wire.android.core.ui
 import androidx.lifecycle.Observer
 import com.wire.android.UnitTest
 import com.wire.android.framework.livedata.TestLifecycleOwner
-import com.wire.android.framework.livedata.awaitValue
-import kotlinx.coroutines.runBlocking
+import com.wire.android.framework.livedata.shouldBeUpdated
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.TimeoutException
 
 class SingleLiveEventTest : UnitTest() {
 
@@ -24,19 +22,15 @@ class SingleLiveEventTest : UnitTest() {
     fun `given that value is not consumed yet, when an observer is attached, notifies the observer`() {
         singleLiveEvent.value = TEST_VALUE
 
-        val value = runBlocking { singleLiveEvent.awaitValue()  }
-
-        value shouldEqual TEST_VALUE
+        singleLiveEvent shouldBeUpdated { it shouldBeEqualTo TEST_VALUE }
     }
 
-    @Test(expected = TimeoutException::class)
+    @Test(expected = AssertionError::class)
     fun `given that value is already consumed, when an observer is attached, does not notify observer`() {
         singleLiveEvent.value = TEST_VALUE
 
-        runBlocking {
-            singleLiveEvent.awaitValue() //consume
-            singleLiveEvent.awaitValue() //wait for 2nd time
-        }
+        singleLiveEvent shouldBeUpdated {} //consume
+        singleLiveEvent shouldBeUpdated {} //wait for 2nd time
     }
 
     @Test

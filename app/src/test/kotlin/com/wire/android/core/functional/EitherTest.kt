@@ -3,7 +3,7 @@ package com.wire.android.core.functional
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 
 class EitherTest : UnitTest() {
@@ -37,7 +37,7 @@ class EitherTest : UnitTest() {
             Either.Left(ServerError)
         }
 
-        result shouldEqual Either.Left(ServerError)
+        result shouldBeEqualTo Either.Left(ServerError)
         result.isLeft shouldBe true
     }
 
@@ -48,7 +48,7 @@ class EitherTest : UnitTest() {
         val result = either.flatMap { Either.Right(20) }
 
         result.isLeft shouldBe true
-        result shouldEqual either
+        result shouldBeEqualTo either
     }
 
     @Test
@@ -83,7 +83,7 @@ class EitherTest : UnitTest() {
 
         var methodCalled = false
         val result = either.onSuccess {
-            it shouldEqual success
+            it shouldBeEqualTo success
             methodCalled = true
         }
 
@@ -113,7 +113,7 @@ class EitherTest : UnitTest() {
             resultValue
         }
 
-        result shouldEqual Either.Right(resultValue)
+        result shouldBeEqualTo Either.Right(resultValue)
     }
 
     @Test
@@ -123,6 +123,6 @@ class EitherTest : UnitTest() {
         val result = either.map { Either.Right(20) }
 
         result.isLeft shouldBe true
-        result shouldEqual either
+        result shouldBeEqualTo either
     }
 }

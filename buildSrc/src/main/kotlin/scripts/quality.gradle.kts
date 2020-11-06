@@ -1,5 +1,6 @@
 package scripts
 
+import io.gitlab.arturbosch.detekt.Detekt
 import scripts.Variants_gradle.Default
 
 plugins {
@@ -22,7 +23,7 @@ android {
 }
 
 // Detekt Configuration
-val detektAll by tasks.registering(io.gitlab.arturbosch.detekt.Detekt::class) {
+val detektAll by tasks.registering(Detekt::class) {
     group = "Quality"
     description = "Runs a detekt code analysis ruleset on the Wire Android codebase "
     parallel = true

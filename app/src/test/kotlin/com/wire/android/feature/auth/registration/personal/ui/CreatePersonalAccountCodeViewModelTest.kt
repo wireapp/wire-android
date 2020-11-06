@@ -12,12 +12,12 @@ import com.wire.android.feature.auth.registration.personal.usecase.InvalidEmailC
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import com.wire.android.framework.livedata.awaitValue
+import com.wire.android.framework.livedata.shouldBeUpdated
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -35,21 +35,16 @@ class CreatePersonalAccountCodeViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        codeViewModel = CreatePersonalAccountCodeViewModel(
-            coroutinesTestRule.dispatcherProvider,
-            activateEmailUseCase
-        )
+        codeViewModel = CreatePersonalAccountCodeViewModel(coroutinesTestRule.dispatcherProvider, activateEmailUseCase)
     }
 
     @Test
     fun `given activateEmail is called, when activateEmailUseCase returns success, then notifies success to activateEmailLiveData`() {
         coEvery { activateEmailUseCase.run(any()) } returns Either.Right(Unit)
 
-        coroutinesTestRule.runTest {
-            codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
+        codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            codeViewModel.activateEmailLiveData.awaitValue() shouldSucceed { it shouldEqual TEST_CODE }
-        }
+        codeViewModel.activateEmailLiveData shouldBeUpdated { it shouldSucceed { it shouldBeEqualTo TEST_CODE } }
     }
 
     @Test
@@ -57,12 +52,10 @@ class CreatePersonalAccountCodeViewModelTest : UnitTest() {
         //TODO: separate feature failures
         coEvery { activateEmailUseCase.run(any()) } returns Either.Left(InvalidEmailCode)
 
-        coroutinesTestRule.runTest {
-            codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
+        codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            codeViewModel.activateEmailLiveData.awaitValue() shouldFail {
-                it.message shouldEqual R.string.create_personal_account_code_invalid_code_error
-            }
+        codeViewModel.activateEmailLiveData shouldBeUpdated { result ->
+            result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_code_invalid_code_error }
         }
     }
 
@@ -70,10 +63,10 @@ class CreatePersonalAccountCodeViewModelTest : UnitTest() {
     fun `given activateEmail is called, when activateEmailUseCase returns NetworkConnection, sets NetworkError to activateEmailLiveData`() {
         coEvery { activateEmailUseCase.run(any()) } returns Either.Left(NetworkConnection)
 
-        coroutinesTestRule.runTest {
-            codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
+        codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            codeViewModel.activateEmailLiveData.awaitValue() shouldFail { it shouldBe NetworkErrorMessage }
+        codeViewModel.activateEmailLiveData shouldBeUpdated { result ->
+            result shouldFail { it shouldBe NetworkErrorMessage }
         }
     }
 
@@ -81,10 +74,10 @@ class CreatePersonalAccountCodeViewModelTest : UnitTest() {
     fun `given activateEmail is called, when activateEmailUseCase returns other error, sets GeneralErrorMsg to activateEmailLiveData`() {
         coEvery { activateEmailUseCase.run(any()) } returns Either.Left(ServerError)
 
-        coroutinesTestRule.runTest {
-            codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
+        codeViewModel.activateEmail(TEST_EMAIL, TEST_CODE)
 
-            codeViewModel.activateEmailLiveData.awaitValue() shouldFail { it shouldBe GeneralErrorMessage }
+        codeViewModel.activateEmailLiveData shouldBeUpdated { result ->
+            result shouldFail { it shouldBe GeneralErrorMessage }
         }
     }
 

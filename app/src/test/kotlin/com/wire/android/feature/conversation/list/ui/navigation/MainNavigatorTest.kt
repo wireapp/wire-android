@@ -8,7 +8,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -30,9 +30,9 @@ class MainNavigatorTest : AndroidTest() {
         val intentSlot = slot<Intent>()
         verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
         intentSlot.captured.let {
-            it.component?.className shouldEqual MainActivity::class.java.canonicalName
+            it.component?.className shouldBeEqualTo MainActivity::class.java.canonicalName
             it.extras shouldBe null
-            it.flags or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK shouldEqual it.flags
+            it.flags or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK shouldBeEqualTo it.flags
         }
     }
 }

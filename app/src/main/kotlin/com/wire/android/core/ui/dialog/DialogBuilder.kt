@@ -5,10 +5,10 @@ import android.content.DialogInterface
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.wire.android.R
 
-class DialogBuilder {
+class DialogBuilder(private val dialogBuilderProvider: MaterialDialogBuilderProvider) {
 
     fun showDialog(context: Context, block: MaterialAlertDialogBuilder.() -> Unit) {
-        MaterialAlertDialogBuilder(context).apply(block).create().show()
+        dialogBuilderProvider.provide(context).apply(block).create().show()
     }
 
     fun showErrorDialog(context: Context, errorMessage: ErrorMessage) = showDialog(context) {

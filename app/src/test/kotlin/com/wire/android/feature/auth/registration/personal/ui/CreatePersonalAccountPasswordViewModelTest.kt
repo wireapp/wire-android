@@ -17,8 +17,8 @@ import com.wire.android.feature.auth.registration.personal.usecase.UnauthorizedE
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import com.wire.android.framework.livedata.assertNotUpdated
-import com.wire.android.framework.livedata.awaitValue
+import com.wire.android.framework.livedata.shouldBeUpdated
+import com.wire.android.framework.livedata.shouldNotBeUpdated
 import com.wire.android.shared.user.password.InvalidPasswordFailure
 import com.wire.android.shared.user.password.ValidatePasswordParams
 import com.wire.android.shared.user.password.ValidatePasswordUseCase
@@ -30,7 +30,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -63,7 +63,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         val result = viewModel.minPasswordLength()
 
-        result shouldEqual minLength
+        result shouldBeEqualTo minLength
         verify(exactly = 1) { validatePasswordUseCase.minLength() }
     }
 
@@ -71,11 +71,9 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given a password, when validatePassword is called, then calls validatePasswordUseCase with correct params`() {
         coEvery { validatePasswordUseCase.run(any()) } returns Either.Right(Unit)
 
-        coroutinesTestRule.runTest {
-            viewModel.validatePassword(TEST_PASSWORD)
+        viewModel.validatePassword(TEST_PASSWORD)
 
-            viewModel.continueEnabledLiveData.awaitValue()
-        }
+        viewModel.continueEnabledLiveData shouldBeUpdated { }
         coVerify(exactly = 1) { validatePasswordUseCase.run(ValidatePasswordParams(TEST_PASSWORD)) }
     }
 
@@ -83,22 +81,18 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given validatePassword is called, when useCase returns success, then sets continueEnabledLiveData to true`() {
         coEvery { validatePasswordUseCase.run(any()) } returns Either.Right(Unit)
 
-        coroutinesTestRule.runTest {
-            viewModel.validatePassword(TEST_PASSWORD)
+        viewModel.validatePassword(TEST_PASSWORD)
 
-            viewModel.continueEnabledLiveData.awaitValue() shouldBe true
-        }
+        viewModel.continueEnabledLiveData shouldBeUpdated { it shouldBe true }
     }
 
     @Test
     fun `given validatePassword is called, when useCase returns InvalidPasswordFailure, then sets continueEnabledLiveData to false`() {
         coEvery { validatePasswordUseCase.run(any()) } returns Either.Left(InvalidPasswordFailure)
 
-        coroutinesTestRule.runTest {
-            viewModel.validatePassword(TEST_PASSWORD)
+        viewModel.validatePassword(TEST_PASSWORD)
 
-            viewModel.continueEnabledLiveData.awaitValue() shouldBe false
-        }
+        viewModel.continueEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test
@@ -106,22 +100,18 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
         val failure = mockk<Failure>()
         coEvery { validatePasswordUseCase.run(any()) } returns Either.Left(failure)
 
-        coroutinesTestRule.runTest {
-            viewModel.validatePassword(TEST_PASSWORD)
+        viewModel.validatePassword(TEST_PASSWORD)
 
-            viewModel.continueEnabledLiveData.awaitValue() shouldBe false
-        }
+        viewModel.continueEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test
     fun `given params, when registerUser is called, then calls registerUseCase with correct params`() {
         coEvery { registerUseCase.run(any()) } returns Either.Right(Unit)
 
-        coroutinesTestRule.runTest {
-            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            viewModel.registerStatusLiveData.awaitValue()
-        }
+        viewModel.registerStatusLiveData shouldBeUpdated {}
 
         coVerify(exactly = 1) {
             registerUseCase.run(
@@ -137,10 +127,10 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns success, then sets success to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Right(Unit)
 
-        coroutinesTestRule.runTest {
-            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            viewModel.registerStatusLiveData.awaitValue() shouldSucceed { it shouldBe Unit }
+        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+            result shouldSucceed { it shouldBe Unit }
         }
     }
 
@@ -148,22 +138,20 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns SessionCannotBeCreated error, then logs the user out`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(SessionCannotBeCreated)
 
-        coroutinesTestRule.runTest {
-            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            //TODO: assertion about logout
-            viewModel.registerStatusLiveData.assertNotUpdated()
-        }
+        //TODO: assertion about logout
+        viewModel.registerStatusLiveData.shouldNotBeUpdated()
     }
 
     @Test
     fun `given registerUser is called, when use case returns NetworkConnection error, then sets NetworkError to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(NetworkConnection)
 
-        coroutinesTestRule.runTest {
-            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            viewModel.registerStatusLiveData.awaitValue() shouldFail { it shouldBe NetworkErrorMessage }
+        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+            result shouldFail { it shouldBe NetworkErrorMessage }
         }
     }
 
@@ -171,12 +159,10 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns UnauthorizedEmail error, then sets error message to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(UnauthorizedEmail)
 
-        coroutinesTestRule.runTest {
-            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            viewModel.registerStatusLiveData.awaitValue() shouldFail {
-                it.message shouldEqual  R.string.create_personal_account_unauthorized_email_error
-            }
+        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+            result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_unauthorized_email_error }
         }
     }
 
@@ -184,12 +170,10 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns InvalidEmailActivationCode, then sets error msg to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(InvalidEmailActivationCode)
 
-        coroutinesTestRule.runTest {
-            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            viewModel.registerStatusLiveData.awaitValue() shouldFail {
-                it.message shouldEqual  R.string.create_personal_account_invalid_activation_code_error
-            }
+        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+            result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_invalid_activation_code_error }
         }
     }
 
@@ -197,12 +181,10 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns EmailInUse error, then sets error message to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(EmailInUse)
 
-        coroutinesTestRule.runTest {
-            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            viewModel.registerStatusLiveData.awaitValue() shouldFail {
-                it.message shouldEqual  R.string.create_personal_account_email_in_use_error
-            }
+        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+            result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_email_in_use_error }
         }
     }
 
@@ -210,10 +192,10 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns other error, then sets GeneralErrorMessage to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(ServerError)
 
-        coroutinesTestRule.runTest {
-            viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-            viewModel.registerStatusLiveData.awaitValue() shouldFail { it shouldBe GeneralErrorMessage }
+        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+            result shouldFail { it shouldBe GeneralErrorMessage }
         }
     }
 

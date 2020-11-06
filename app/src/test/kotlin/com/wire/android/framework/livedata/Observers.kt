@@ -1,45 +1,37 @@
 package com.wire.android.framework.livedata
 
 import androidx.lifecycle.LiveData
-import org.junit.Assert.fail
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import io.mockk.Called
+import io.mockk.mockk
+import io.mockk.verify
 
-/**
- * A function that suspends the current coroutine until the LiveData's value changes. Then it
- * resumes the coroutine with the new value.
- *
- * @throws TimeoutException if the value of LiveData is not updated within [timeout] seconds.
- */
-//TODO: re-write w/ mockk
-suspend fun <T> LiveData<T>.awaitValue(timeout: Long = 2L): T = suspendCoroutine { cont ->
-    val latch = CountDownLatch(1)
+infix fun <T> LiveData<T>.shouldBeUpdated(assertion: (T) -> Unit) = this.shouldBeUpdated(2000L, assertion)
+
+fun <T> LiveData<T>.shouldBeUpdated(timeout: Long = 2000, assertion: (T) -> Unit) {
+    val updateHelper = mockk<LiveDataUpdateHelper>(relaxUnitFun = true)
 
     this.observeOnce {
-        latch.countDown()
-        cont.resume(it)
+        assertion(it)
+        updateHelper.onUpdated()
     }
 
-    if (!latch.await(timeout, TimeUnit.SECONDS)) {
-        cont.resumeWithException(TimeoutException("Didn't receive LiveData value after $timeout seconds"))
-    }
+    verify(exactly = 1, timeout = timeout) { updateHelper.onUpdated() }
 }
 
-//TODO: re-write w/ mockk
-suspend fun <T> LiveData<T>.assertNotUpdated(timeout: Long = 2L) {
-    val value: T?
+fun <T> LiveData<T>.shouldNotBeUpdated(timeout: Long = 2000) {
+    val updateHelper = mockk<LiveDataUpdateHelper>(relaxUnitFun = true)
 
-    try {
-        value = awaitValue(timeout)
-    } catch (ex: TimeoutException) {
-        return
+    this.observeOnce {
+        updateHelper.onUpdated()
     }
 
-    value?.let { fail("Didn't expect a value update but got $it") }
+    verify(timeout = timeout) { updateHelper wasNot Called }
+}
+
+private class LiveDataUpdateHelper {
+    fun onUpdated() {
+        this.hashCode()
+    }
 }
 
 private fun <T> LiveData<T>.observeOnce(onChanged: (T) -> Unit) {

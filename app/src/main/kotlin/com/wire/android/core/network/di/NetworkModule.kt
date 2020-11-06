@@ -10,7 +10,9 @@ import com.wire.android.core.network.NetworkHandler
 import com.wire.android.core.network.RetrofitClient
 import com.wire.android.core.network.UserAgentConfig
 import com.wire.android.core.network.UserAgentInterceptor
-import com.wire.android.core.network.di.NetworkDependencyProvider.defaultHttpClient
+import com.wire.android.core.network.auth.accesstoken.AccessTokenAuthenticator
+import com.wire.android.core.network.auth.accesstoken.AccessTokenInterceptor
+import com.wire.android.core.network.di.NetworkDependencyProvider.createHttpClient
 import com.wire.android.core.network.di.NetworkDependencyProvider.retrofit
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -30,12 +32,16 @@ object NetworkDependencyProvider {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    fun defaultHttpClient(
+    fun createHttpClient(
+        accessTokenInterceptor: AccessTokenInterceptor,
+        accessTokenAuthenticator: AccessTokenAuthenticator,
         userAgentInterceptor: UserAgentInterceptor,
         requestParams: HttpRequestParams
     ): OkHttpClient =
         OkHttpClient.Builder()
+            .authenticator(accessTokenAuthenticator)
             .connectionSpecs(requestParams.connectionSpecs())
+            .addInterceptor(accessTokenInterceptor)
             .addInterceptor(userAgentInterceptor)
             .addLoggingInterceptor()
             .build()
@@ -50,8 +56,10 @@ object NetworkDependencyProvider {
 val networkModule: Module = module {
     single { NetworkHandler(androidContext()) }
     single<NetworkClient> { RetrofitClient(get()) }
-    single { defaultHttpClient(get(), get()) }
+    single { createHttpClient(get(), get(), get(), get()) }
     factory { HttpRequestParams() }
+    factory { AccessTokenAuthenticator(get(), get()) }
+    factory { AccessTokenInterceptor(get()) }
     factory { UserAgentInterceptor(get()) }
     factory { UserAgentConfig(get()) }
     single { retrofit(get(), get<BackendConfig>().baseUrl) }

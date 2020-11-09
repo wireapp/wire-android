@@ -6,13 +6,12 @@ import com.wire.android.core.exception.FeatureFailure
 import com.wire.android.core.exception.Forbidden
 import com.wire.android.core.exception.NotFound
 import com.wire.android.core.functional.Either
-import com.wire.android.core.functional.flatMap
+import com.wire.android.core.functional.suspending
 import com.wire.android.core.usecase.UseCase
 import com.wire.android.feature.auth.registration.RegistrationRepository
 import com.wire.android.shared.session.SessionRepository
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.UserRepository
-import kotlinx.coroutines.runBlocking
 
 class RegisterPersonalAccountUseCase(
     private val registrationRepository: RegistrationRepository,
@@ -21,15 +20,17 @@ class RegisterPersonalAccountUseCase(
 ) : UseCase<Unit, RegisterPersonalAccountParams> {
 
     override suspend fun run(params: RegisterPersonalAccountParams): Either<Failure, Unit> = with(params) {
-        registrationRepository.registerPersonalAccount(name, email, password, activationCode).fold({
-            handleRegistrationFailure(it)
-        }) {
-            when {
-                it.user == null -> Either.Left(UserInfoMissing)
-                it.refreshToken == null -> Either.Left(RefreshTokenMissing)
-                else -> saveDataAndRetrieveSession(it.user, it.refreshToken)
-            }
-        }!!
+        suspending {
+            registrationRepository.registerPersonalAccount(name, email, password, activationCode).coFold({
+                handleRegistrationFailure(it)
+            }) {
+                when {
+                    it.user == null -> Either.Left(UserInfoMissing)
+                    it.refreshToken == null -> Either.Left(RefreshTokenMissing)
+                    else -> saveDataAndRetrieveSession(it.user, it.refreshToken)
+                }
+            }!!
+        }
     }
 
     private fun handleRegistrationFailure(failure: Failure): Either<Failure, Unit> = when (failure) {
@@ -39,14 +40,12 @@ class RegisterPersonalAccountUseCase(
         else -> Either.Left(failure)
     }
 
-    private fun saveDataAndRetrieveSession(user: User, refreshToken: String): Either<Failure, Unit> = runBlocking {
+    private suspend fun saveDataAndRetrieveSession(user: User, refreshToken: String): Either<Failure, Unit> = suspending {
         userRepository.save(user).flatMap {
-            runBlocking {
-                sessionRepository.accessToken(refreshToken).fold({
-                    Either.Left(SessionCannotBeCreated)
-                }) {
-                    runBlocking { sessionRepository.save(it) }
-                }
+            sessionRepository.accessToken(refreshToken).coFold({
+                Either.Left(SessionCannotBeCreated)
+            }) {
+                sessionRepository.save(it)
             }!!
         }
     }

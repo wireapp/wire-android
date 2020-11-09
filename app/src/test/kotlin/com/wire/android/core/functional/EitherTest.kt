@@ -45,7 +45,9 @@ class EitherTest : UnitTest() {
     fun `given flatMap is called, when either is Left, doesn't invoke function and returns original Either`() {
         either = Either.Left(12)
 
-        val result = either.flatMap { Either.Right(20) }
+        val result: Either<Int, Int> = either.flatMap {
+            fail("Shouldn't be executed")
+        }
 
         result.isLeft shouldBe true
         result shouldBeEqualTo either
@@ -120,7 +122,9 @@ class EitherTest : UnitTest() {
     fun `given map is called, when either is Left, doesn't invoke function and returns original Either`() {
         either = Either.Left(12)
 
-        val result = either.map { Either.Right(20) }
+        val result = either.map {
+            fail("Shouldn't be executed")
+        }
 
         result.isLeft shouldBe true
         result shouldBeEqualTo either

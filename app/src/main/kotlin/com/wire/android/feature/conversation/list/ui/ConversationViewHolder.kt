@@ -12,6 +12,6 @@ class ConversationViewHolder(parent: ViewGroup, inflater: ViewHolderInflater) : 
     inflater.inflate(R.layout.item_conversation_list, parent)
 ) {
     fun bind(conversation: Conversation) {
-        (itemView as TextView).text = conversation.name
+        (itemView as TextView).text = conversation.name ?: conversation.id
     }
 }

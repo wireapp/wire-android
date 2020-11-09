@@ -7,11 +7,11 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wire.android.R
 import com.wire.android.core.extension.toast
-import com.wire.android.core.flags.FeatureFlag
 import com.wire.android.core.flags.Flag
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
-import kotlinx.android.synthetic.main.fragment_conversation_list.*
+import kotlinx.android.synthetic.main.fragment_conversation_list.conversationListRecyclerView
+import kotlinx.android.synthetic.main.fragment_conversation_list.conversationListUserInfoTextView
 import org.koin.android.viewmodel.ext.android.viewModel
 
 //TODO: UI test
@@ -19,10 +19,16 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
     private val viewModel: ConversationListViewModel by viewModel()
 
+    private val conversationListAdapter by lazy {
+        ConversationListAdapter()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         displayUserName()
-        Flag.Conversations whenActivated { displayConversationList() }
+        Flag.Conversations whenActivated {
+            displayConversationList()
+        }
     }
 
     private fun displayUserName() {
@@ -35,11 +41,11 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
     private fun displayConversationList() = with(conversationListRecyclerView) {
         setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
-
+        adapter = conversationListAdapter
         //TODO: handle empty list
         viewModel.conversationsLiveData.observe(viewLifecycleOwner) {
             it.onSuccess {
-                adapter = ConversationListAdapter(it) //TODO: just update the data
+                conversationListAdapter.updateData(it)
             }.onFailure {
                 showConversationListDisplayError()
             }

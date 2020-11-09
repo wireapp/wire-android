@@ -36,7 +36,7 @@ class ApiServiceTest : UnitTest() {
 
     @Before
     fun setUp() {
-        every { networkHandler.isConnected } returns true
+        every { networkHandler.isConnected() } returns true
         apiService = object : ApiService() {
             override val networkHandler: NetworkHandler = this@ApiServiceTest.networkHandler
         }
@@ -45,7 +45,7 @@ class ApiServiceTest : UnitTest() {
     @Test
     fun `given rawRequest is called, when there's no network connection, then returns NetworkConnection failure immediately`() {
         val responseFunc: suspend () -> Response<String> = mockk(relaxed = true)
-        every { networkHandler.isConnected } returns false
+        every { networkHandler.isConnected() } returns false
 
         val result = runBlocking { apiService.rawRequest(responseFunc) }
 

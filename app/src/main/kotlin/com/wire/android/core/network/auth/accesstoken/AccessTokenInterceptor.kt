@@ -8,15 +8,18 @@ import okhttp3.Response
 
 class AccessTokenInterceptor(private val repository: SessionRepository) : Interceptor {
 
-    override fun intercept(chain: Interceptor.Chain): Response = runBlocking {
-        repository.currentSession().coFold({ null }) { currentSession ->
-            repository.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
-                when (accessTokenSession.accessToken != String.EMPTY) {
-                    true -> addAuthHeader(chain, accessTokenSession.accessToken)
-                    false -> chain.proceed(chain.request())
+    override fun intercept(chain: Interceptor.Chain): Response = synchronized(this) {
+        runBlocking {
+            repository.currentSession().coFold({ null }
+            ) { currentSession ->
+                repository.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
+                    when (accessTokenSession.accessToken != String.EMPTY) {
+                        true -> addAuthHeader(chain, accessTokenSession.accessToken)
+                        false -> chain.proceed(chain.request())
+                    }
                 }
-            }
-        } ?: chain.proceed(chain.request())
+            } ?: chain.proceed(chain.request())
+        }
     }
 
     private fun addAuthHeader(chain: Interceptor.Chain, token: String): Response {

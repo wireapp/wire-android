@@ -11,11 +11,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface ConversationApi {
-    @GET("/Conversations")
-    fun conversationsByBatch(
-        @Query("start") start: String,
-        @Query("size") size: Int,
-        @Query("ids") ids: List<String>
+    @GET("/conversations")
+    suspend fun conversationsByBatch(
+        @Query("size") size: Int
     ): Response<ConversationsResponse>
 }
 
@@ -33,7 +31,7 @@ class ConversationRemoteDataSource(
     private val conversationApi: ConversationApi
 ) : ApiService() {
     suspend fun conversationsByBatch(start: String, size: Int, ids: List<String>): Either<Failure, ConversationsResponse> =
-        request { conversationApi.conversationsByBatch(start, size, ids) }
+        request { conversationApi.conversationsByBatch(size) }
 }
 
 data class ConversationsResponse(
@@ -52,7 +50,7 @@ data class Conversation(
     val members: ConversationMembers,
 
     @SerializedName("name")
-    val name: String,
+    val name: String?,
 
     @SerializedName("id")
     val id: String,
@@ -67,39 +65,40 @@ data class Conversation(
 data class ConversationMembers(
     @SerializedName("self")
     val self: ConversationSelfMember,
+
     @SerializedName("others")
     val otherMembers: List<ConversationOtherMembers>
 )
 
 data class ConversationSelfMember(
     @SerializedName("hidden_ref")
-    val hiddenReference: String? = null,
+    val hiddenReference: String?,
 
     @SerializedName("service")
-    val service: ServiceReference? = null,
+    val service: ServiceReference?,
 
     @SerializedName("otr_muted_ref")
-    val otrMutedReference: String? = null,
+    val otrMutedReference: String?,
 
     @SerializedName("hidden")
-    val hidden: Boolean,
+    val hidden: Boolean?,
 
     @SerializedName("id")
     val userId: String,
 
     @SerializedName("otr_archived")
-    val otrArchived: Boolean,
+    val otrArchived: Boolean?,
 
     @SerializedName("otr_muted")
-    val otrMuted: Boolean,
+    val otrMuted: Boolean?,
 
     @SerializedName("otr_archived_ref")
-    val otrArchiveReference: String? = null
+    val otrArchiveReference: String?
 )
 
 data class ConversationOtherMembers(
     @SerializedName("service")
-    val service: ServiceReference? = null,
+    val service: ServiceReference?,
 
     @SerializedName("id")
     val userId: String,

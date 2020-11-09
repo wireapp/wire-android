@@ -19,7 +19,6 @@ class AccessTokenAuthenticator(
     private val repository: SessionRepository,
     private val refreshTokenMapper: RefreshTokenMapper
 ) : Authenticator {
-
     /**
      * This authenticate() method is called when server returns 401 Unauthorized.
      */
@@ -47,7 +46,6 @@ class AccessTokenAuthenticator(
         val refreshToken = response.headers[TOKEN_HEADER_KEY]?.let {
             refreshTokenMapper.fromTokenText(it).token
         } ?: currentSession.refreshToken
-
         return if (refreshToken != currentSession.refreshToken) {
             refreshToken
         } else {

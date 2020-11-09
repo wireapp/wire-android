@@ -4,13 +4,13 @@ import android.view.View
 import android.view.ViewGroup
 import com.wire.android.UnitTest
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
-import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.list.usecase.Conversation
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
-import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.Before
 import org.junit.Test
 
@@ -26,7 +26,8 @@ class ConversationListAdapterTest : UnitTest() {
 
     @Before
     fun setUp() {
-        conversationListAdapter = ConversationListAdapter(conversationList, viewHolderInflater)
+        conversationListAdapter = ConversationListAdapter(viewHolderInflater)
+        conversationListAdapter.updateData(conversationList)
     }
 
     @Test

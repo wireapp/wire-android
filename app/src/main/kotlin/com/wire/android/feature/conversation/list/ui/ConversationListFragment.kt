@@ -19,6 +19,10 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
     private val viewModel: ConversationListViewModel by viewModel()
 
+    private val conversationListAdapter by lazy {
+        ConversationListAdapter()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         displayUserName()
@@ -35,11 +39,12 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
     private fun displayConversationList() = with(conversationListRecyclerView) {
         setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
-
+        adapter = conversationListAdapter
         //TODO: handle empty list
         viewModel.conversationsLiveData.observe(viewLifecycleOwner) {
             it.onSuccess {
-                adapter = ConversationListAdapter(it) //TODO: just update the data
+                conversationListAdapter.updateData(it)
+                conversationListAdapter.notifyDataSetChanged()
             }.onFailure {
                 showConversationListDisplayError()
             }

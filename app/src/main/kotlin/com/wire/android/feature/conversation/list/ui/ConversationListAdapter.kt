@@ -19,7 +19,6 @@ class ConversationListAdapter(
 
     fun updateData(items: List<Conversation>) {
         this.items = items
-        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int = items.size

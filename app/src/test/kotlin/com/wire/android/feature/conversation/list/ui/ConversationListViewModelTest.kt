@@ -4,7 +4,7 @@ import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.list.usecase.Conversation
-import com.wire.android.feature.conversation.list.usecase.ConversationsResponse
+import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.shouldFail
@@ -14,7 +14,6 @@ import com.wire.android.framework.livedata.shouldNotBeUpdated
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 import com.wire.android.shared.user.User
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,12 +34,15 @@ class ConversationListViewModelTest : UnitTest() {
     @MockK
     private lateinit var getConversationsUseCase: GetConversationsUseCase
 
+    private lateinit var getConversationParams: GetConversationsParams
+
     private lateinit var conversationListViewModel: ConversationListViewModel
 
     @Before
     fun setUp() {
         conversationListViewModel =
             ConversationListViewModel(coroutinesTestRule.dispatcherProvider, getActiveUserUseCase, getConversationsUseCase)
+        getConversationParams = GetConversationsParams(size = 10)
     }
 
     @Test
@@ -64,27 +66,21 @@ class ConversationListViewModelTest : UnitTest() {
 
     @Test
     fun `given fetchConversations is called, when GetConversationsUseCase is successful, then sets value to conversationsLiveData`() {
-        val conversation = mockk<Conversation>(relaxed = true)
-        val conversationList = listOf(conversation, conversation)
-        val conversationResponse = mockk<ConversationsResponse>(relaxed = true)
-
-
-        every { conversationResponse.conversations } returns conversationList
-        coEvery { getConversationsUseCase.run(Unit) } returns Either.Right(conversationResponse)
+        val conversations = mockk<List<Conversation>>(relaxed = true)
+        coEvery { getConversationsUseCase.run(getConversationParams) } returns Either.Right(conversations)
 
         conversationListViewModel.fetchConversations()
 
         conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
             result shouldSucceed {
-                it shouldBeEqualTo conversationList
-                it.size shouldBeEqualTo 2
+                it shouldBeEqualTo conversations
             }
         }
     }
 
     @Test
     fun `given fetchConversations is called, when GetConversationsUseCase fails, then sets error to conversationsLiveData`() {
-        coEvery { getConversationsUseCase.run(Unit) } returns Either.Left(ServerError)
+        coEvery { getConversationsUseCase.run(getConversationParams) } returns Either.Left(ServerError)
 
         conversationListViewModel.fetchConversations()
 

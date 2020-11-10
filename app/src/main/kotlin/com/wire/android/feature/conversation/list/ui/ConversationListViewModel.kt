@@ -14,6 +14,7 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.conversation.list.usecase.Conversation
+import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 
@@ -36,9 +37,11 @@ class ConversationListViewModel(
     }
 
     fun fetchConversations() {
-        getConversationsUseCase(viewModelScope, Unit) {
-            it.onSuccess { response ->
-                _conversationsLiveData.success(response.conversations)
+        //TODO implement pagination properly
+        val params = GetConversationsParams(size = 10)
+        getConversationsUseCase(viewModelScope, params) {
+            it.onSuccess { conversations ->
+                _conversationsLiveData.success(conversations)
             }.onFailure { failure ->
                 _conversationsLiveData.failure(failure)
             }

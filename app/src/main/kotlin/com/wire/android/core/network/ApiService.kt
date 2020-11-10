@@ -24,9 +24,9 @@ abstract class ApiService {
 
     suspend fun <T> rawRequest(call: suspend () -> Response<T>): Either<Failure, Response<T>> =
         withContext(Dispatchers.IO) {
-            return@withContext when (networkHandler.isConnected) {
+            return@withContext when (networkHandler.isConnected()) {
                 true -> performRequest(call)
-                false, null -> Either.Left(NetworkConnection)
+                false -> Either.Left(NetworkConnection)
             }
         }
 

@@ -2,6 +2,8 @@
 
 package com.wire.android.core.network.di
 
+import android.content.Context
+import android.net.ConnectivityManager
 import com.wire.android.BuildConfig
 import com.wire.android.core.network.BackendConfig
 import com.wire.android.core.network.HttpRequestParams
@@ -48,7 +50,7 @@ object NetworkDependencyProvider {
 }
 
 val networkModule: Module = module {
-    single { NetworkHandler(androidContext()) }
+    single { NetworkHandler(androidContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager) }
     single<NetworkClient> { RetrofitClient(get()) }
     single { defaultHttpClient(get(), get()) }
     factory { HttpRequestParams() }

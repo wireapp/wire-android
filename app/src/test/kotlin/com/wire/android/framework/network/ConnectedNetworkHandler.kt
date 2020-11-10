@@ -10,5 +10,5 @@ import io.mockk.mockk
  */
 val connectedNetworkHandler: NetworkHandler
     get() = mockk<NetworkHandler>().also {
-        every { it.isConnected } returns true
+        every { it.isConnected() } returns true
     }

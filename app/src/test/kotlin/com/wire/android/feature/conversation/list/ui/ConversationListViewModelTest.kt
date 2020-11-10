@@ -3,7 +3,8 @@ package com.wire.android.feature.conversation.list.ui
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.list.usecase.Conversation
+import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.shouldFail
@@ -14,6 +15,7 @@ import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 import com.wire.android.shared.user.User
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
@@ -32,12 +34,15 @@ class ConversationListViewModelTest : UnitTest() {
     @MockK
     private lateinit var getConversationsUseCase: GetConversationsUseCase
 
+    private lateinit var getConversationParams: GetConversationsParams
+
     private lateinit var conversationListViewModel: ConversationListViewModel
 
     @Before
     fun setUp() {
         conversationListViewModel =
             ConversationListViewModel(coroutinesTestRule.dispatcherProvider, getActiveUserUseCase, getConversationsUseCase)
+        getConversationParams = GetConversationsParams(size = 10)
     }
 
     @Test
@@ -61,18 +66,21 @@ class ConversationListViewModelTest : UnitTest() {
 
     @Test
     fun `given fetchConversations is called, when GetConversationsUseCase is successful, then sets value to conversationsLiveData`() {
-        coEvery { getConversationsUseCase.run(Unit) } returns Either.Right(TEST_CONVERSATIONS)
+        val conversations = mockk<List<Conversation>>(relaxed = true)
+        coEvery { getConversationsUseCase.run(getConversationParams) } returns Either.Right(conversations)
 
         conversationListViewModel.fetchConversations()
 
         conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
-            result shouldSucceed { it shouldBeEqualTo TEST_CONVERSATIONS }
+            result shouldSucceed {
+                it shouldBeEqualTo conversations
+            }
         }
     }
 
     @Test
     fun `given fetchConversations is called, when GetConversationsUseCase fails, then sets error to conversationsLiveData`() {
-        coEvery { getConversationsUseCase.run(Unit) } returns Either.Left(ServerError)
+        coEvery { getConversationsUseCase.run(getConversationParams) } returns Either.Left(ServerError)
 
         conversationListViewModel.fetchConversations()
 
@@ -82,6 +90,5 @@ class ConversationListViewModelTest : UnitTest() {
     companion object {
         private const val TEST_USER_ID = "user-id-123"
         private const val TEST_USER_NAME = "User Name"
-        private val TEST_CONVERSATIONS = listOf(Conversation("Conv 1"), Conversation("Conv 2"))
     }
 }

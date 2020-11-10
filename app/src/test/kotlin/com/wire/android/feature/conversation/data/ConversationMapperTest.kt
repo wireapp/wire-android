@@ -32,7 +32,7 @@ class ConversationMapperTest : UnitTest() {
         )
 
         conversationMapper.fromConversationsResponse(conversationsResponse).also {
-            it.first().name shouldBeEqualTo TEST_CONVERSATION_NAME
+            it.first().id shouldBeEqualTo TEST_CONVERSATION_ID
             it.first().name shouldBeEqualTo TEST_CONVERSATION_NAME
         }
     }

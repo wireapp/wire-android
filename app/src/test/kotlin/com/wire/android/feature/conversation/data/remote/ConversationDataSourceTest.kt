@@ -36,17 +36,12 @@ class ConversationDataSourceTest : UnitTest() {
     @Test
     fun `given conversationsByBatch is requested, when remoteDataSource returns success then returns list of conversations`() {
         val conversationsResponse: ConversationsResponse = mockk(relaxed = true)
-        val conversation = mockk<Conversation>(relaxed = true)
-        val conversationList = listOf(conversation, conversation)
+        val conversations = mockk<List<Conversation>>(relaxed = true)
 
         coEvery {
-            conversationRemoteDataSource.conversationsByBatch(
-                start = TEST_START,
-                size = TEST_SIZE,
-                ids = TEST_IDS
-            )
+            conversationRemoteDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS)
         } returns Either.Right(conversationsResponse)
-        every { conversationMapper.fromConversationResponse(conversationsResponse) } returns conversationList
+        every { conversationMapper.fromConversationResponse(conversationsResponse) } returns conversations
 
         val result = runBlocking {
             conversationsDataSource.conversationsByBatch(
@@ -56,18 +51,14 @@ class ConversationDataSourceTest : UnitTest() {
             )
         }
 
-        result shouldSucceed { it shouldBe conversationList }
+        result shouldSucceed { it shouldBe conversations }
         verify(exactly = 1) { conversationMapper.fromConversationResponse(conversationsResponse) }
     }
 
     @Test
     fun `given conversationsByBatch is requested, when remoteDataSource returns a failed response, then propagates error upwards`() {
         coEvery {
-            conversationRemoteDataSource.conversationsByBatch(
-                start = TEST_START,
-                size = TEST_SIZE,
-                ids = TEST_IDS
-            )
+            conversationRemoteDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS)
         } returns Either.Left(ServerError)
 
         val result = runBlocking {

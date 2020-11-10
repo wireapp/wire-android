@@ -3,7 +3,7 @@ package com.wire.android.feature.conversation.di
 import com.wire.android.core.network.NetworkClient
 import com.wire.android.feature.conversation.data.ConversationMapper
 import com.wire.android.feature.conversation.data.ConversationsRepository
-import com.wire.android.feature.conversation.data.remote.ConversationApi
+import com.wire.android.feature.conversation.data.remote.ConversationsApi
 import com.wire.android.feature.conversation.data.remote.ConversationDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationRemoteDataSource
 import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
@@ -19,6 +19,6 @@ val conversationsModule = module {
     factory { ConversationMapper() }
     factory { ConversationRemoteDataSource(get()) }
     single<ConversationsRepository> { ConversationDataSource(get(), get()) }
-    single { get<NetworkClient>().create(ConversationApi::class.java) }
+    single { get<NetworkClient>().create(ConversationsApi::class.java) }
 }
 

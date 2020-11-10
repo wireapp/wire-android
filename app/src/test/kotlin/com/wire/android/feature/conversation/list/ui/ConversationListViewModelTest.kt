@@ -66,16 +66,14 @@ class ConversationListViewModelTest : UnitTest() {
 
     @Test
     fun `given fetchConversations is called, when GetConversationsUseCase is successful, then sets value to conversationsLiveData`() {
-        val conversation = mockk<Conversation>(relaxed = true)
-        val conversationList = listOf(conversation, conversation)
-        coEvery { getConversationsUseCase.run(getConversationParams) } returns Either.Right(conversationList)
+        val conversations = mockk<List<Conversation>>(relaxed = true)
+        coEvery { getConversationsUseCase.run(getConversationParams) } returns Either.Right(conversations)
 
         conversationListViewModel.fetchConversations()
 
         conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
             result shouldSucceed {
-                it shouldBeEqualTo conversationList
-                it.size shouldBeEqualTo 2
+                it shouldBeEqualTo conversations
             }
         }
     }

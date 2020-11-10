@@ -3,16 +3,13 @@ package com.wire.android.feature.conversation.data.remote
 import com.google.gson.annotations.SerializedName
 
 data class ConversationsResponse(
-    @SerializedName(HAS_MORE_KEY)
+    @SerializedName("has_more")
     val hasMore: Boolean,
 
-    @SerializedName(CONVERSATION_KEY)
+    @SerializedName("conversations")
     val conversationResponses: List<ConversationResponse>
 ) {
     companion object {
-        private const val CONVERSATION_KEY = "conversations"
-        private const val HAS_MORE_KEY = "has_more"
-
         val EMPTY = ConversationsResponse(false, emptyList())
     }
 }

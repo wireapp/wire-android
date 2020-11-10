@@ -37,6 +37,7 @@ class ConversationListViewModel(
     }
 
     fun fetchConversations() {
+        //TODO implement pagination properly
         val params = GetConversationsParams(size = 10)
         getConversationsUseCase(viewModelScope, params) {
             it.onSuccess { conversations ->

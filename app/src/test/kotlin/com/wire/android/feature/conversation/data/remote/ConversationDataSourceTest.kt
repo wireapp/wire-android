@@ -41,18 +41,12 @@ class ConversationDataSourceTest : UnitTest() {
         coEvery {
             conversationRemoteDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS)
         } returns Either.Right(conversationsResponse)
-        every { conversationMapper.fromConversationResponse(conversationsResponse) } returns conversations
+        every { conversationMapper.fromConversationsResponse(conversationsResponse) } returns conversations
 
-        val result = runBlocking {
-            conversationsDataSource.conversationsByBatch(
-                TEST_START,
-                TEST_SIZE,
-                TEST_IDS
-            )
-        }
+        val result = runBlocking { conversationsDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS) }
 
         result shouldSucceed { it shouldBe conversations }
-        verify(exactly = 1) { conversationMapper.fromConversationResponse(conversationsResponse) }
+        verify(exactly = 1) { conversationMapper.fromConversationsResponse(conversationsResponse) }
     }
 
     @Test
@@ -61,13 +55,7 @@ class ConversationDataSourceTest : UnitTest() {
             conversationRemoteDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS)
         } returns Either.Left(ServerError)
 
-        val result = runBlocking {
-            conversationsDataSource.conversationsByBatch(
-                TEST_START,
-                TEST_SIZE,
-                TEST_IDS
-            )
-        }
+        val result = runBlocking { conversationsDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS) }
 
         result shouldFail { it shouldBe ServerError }
     }

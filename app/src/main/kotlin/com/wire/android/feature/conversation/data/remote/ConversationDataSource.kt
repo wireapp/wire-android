@@ -14,6 +14,6 @@ class ConversationDataSource(
 
     override suspend fun conversationsByBatch(start: String, size: Int, ids: List<String>): Either<Failure, List<Conversation>> =
         conversationRemoteDataSource.conversationsByBatch(start, size, ids).map {
-            conversationMapper.fromConversationResponse(it)
+            conversationMapper.fromConversationsResponse(it)
         }
 }

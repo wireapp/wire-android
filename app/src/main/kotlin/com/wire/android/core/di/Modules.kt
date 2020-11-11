@@ -14,6 +14,7 @@ import com.wire.android.core.ui.dialog.MaterialDialogBuilderProvider
 import com.wire.android.core.ui.navigation.FragmentStackHandler
 import com.wire.android.core.ui.navigation.Navigator
 import com.wire.android.core.ui.navigation.UriNavigationHandler
+import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
@@ -46,4 +47,6 @@ val uiModule: Module = module {
     single { Navigator(get(), get(), get(), get()) }
     single { FragmentStackHandler() }
     single { UriNavigationHandler() }
+
+    factory { ViewHolderInflater() }
 }

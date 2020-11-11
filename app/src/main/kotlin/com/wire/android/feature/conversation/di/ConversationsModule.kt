@@ -9,6 +9,7 @@ import com.wire.android.feature.conversation.data.local.ConversationLocalDataSou
 import com.wire.android.feature.conversation.data.remote.ConversationsApi
 import com.wire.android.feature.conversation.data.remote.ConversationsRemoteDataSource
 import com.wire.android.feature.conversation.list.ui.ConversationListAdapter
+import com.wire.android.feature.conversation.list.ui.ConversationListDiffCallback
 import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
 import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
@@ -17,7 +18,9 @@ import org.koin.dsl.module
 
 val conversationsModule = module {
     single { MainNavigator() }
-    factory { ConversationListAdapter() }
+
+    factory { ConversationListAdapter(get(), get()) }
+    factory { ConversationListDiffCallback() }
     viewModel { ConversationListViewModel(get(), get(), get()) }
     factory { GetConversationsUseCase(get()) }
 

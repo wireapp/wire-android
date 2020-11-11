@@ -1,21 +1,14 @@
 package com.wire.android.feature.conversation.list.usecase
 
-import androidx.paging.DataSource
-import com.wire.android.core.exception.Failure
-import com.wire.android.core.extension.EMPTY
-import com.wire.android.core.functional.Either
-import com.wire.android.core.usecase.UseCase
-import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.data.ConversationsPagingDelegate
 import com.wire.android.feature.conversation.data.ConversationsRepository
+import kotlinx.coroutines.CoroutineScope
 
-class GetConversationsUseCase(private val conversationsRepository: ConversationsRepository) :
-    UseCase<List<Conversation>, GetConversationsParams> {
+class GetConversationsUseCase(private val conversationsRepository: ConversationsRepository) {
 
-    fun conversationsDataFactory() : DataSource.Factory<Int, Conversation> =
-        conversationsRepository.conversationsDataFactory()
-
-    override suspend fun run(params: GetConversationsParams): Either<Failure, List<Conversation>> =
-        conversationsRepository.conversationsByBatch(params.start, params.size, params.ids)
+    //TODO: create some sort of UseCase which can return LiveData
+    operator fun invoke(scope: CoroutineScope, params: GetConversationsParams) =
+        conversationsRepository.conversationsByBatch(ConversationsPagingDelegate(scope, params.size)) //TODO inject delegate/use provider
 }
 
-data class GetConversationsParams(val start: String = String.EMPTY, val size: Int, val ids: List<String> = emptyList())
+data class GetConversationsParams(val size: Int)

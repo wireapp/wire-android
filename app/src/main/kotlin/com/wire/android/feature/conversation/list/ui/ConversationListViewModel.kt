@@ -3,15 +3,16 @@ package com.wire.android.feature.conversation.list.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.wire.android.core.events.Event
 import com.wire.android.core.events.EventsHandler
+import androidx.paging.PagedList
 import com.wire.android.core.exception.Failure
-import com.wire.android.core.extension.failure
-import com.wire.android.core.extension.success
 import com.wire.android.core.functional.Either
-import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
+import com.wire.android.core.ui.dialog.ErrorMessage
+import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.conversation.Conversation
@@ -28,8 +29,9 @@ class ConversationListViewModel(
     private val _userNameLiveData = MutableLiveData<String>()
     val userNameLiveData: LiveData<String> = _userNameLiveData
 
-    private val _conversationsLiveData = MutableLiveData<Either<Failure, List<Conversation>>>()
-    val conversationsLiveData: LiveData<Either<Failure, List<Conversation>>> = _conversationsLiveData
+    val conversationsLiveData: LiveData<Either<ErrorMessage, PagedList<Conversation>>> by lazy {
+        createConversationsLiveData()
+    }
 
     fun fetchUserName() {
         getActiveUserUseCase(viewModelScope, Unit) {
@@ -37,16 +39,22 @@ class ConversationListViewModel(
         }
     }
 
-    fun fetchConversations() {
-        val params = GetConversationsParams(size = 10)
-        getConversationsUseCase(viewModelScope, params) {
-            it.onSuccess { conversations ->
-                _conversationsLiveData.success(conversations)
-            }.onFailure { failure ->
-                _conversationsLiveData.failure(failure)
-            }
+    private fun createConversationsLiveData() =
+        getConversationsUseCase(viewModelScope, GetConversationsParams(size = 30)).map {
+            mapConversationListFailure((it))
         }
-    }
+
+    private fun mapConversationListFailure(
+        result: Either<Failure, PagedList<Conversation>>
+    ): Either<ErrorMessage, PagedList<Conversation>> =
+        result.fold({
+            Either.Left(conversationListFailureErrorMessage(it))
+        }) {
+            Either.Right(it)
+        }!!
+
+    //TODO: proper error handling
+    private fun conversationListFailureErrorMessage(failure: Failure): ErrorMessage = GeneralErrorMessage
 
     fun subscribeToEvents() = with(eventsHandler) {
         subscribe<Event.UsernameChanged> { _userNameLiveData.value = it.username }

@@ -1,9 +1,15 @@
 package com.wire.android.feature.conversation.list.ui
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagedList
 import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
+import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
@@ -14,8 +20,11 @@ import com.wire.android.framework.livedata.shouldNotBeUpdated
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 import com.wire.android.shared.user.User
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
@@ -38,7 +47,6 @@ class ConversationListViewModelTest : UnitTest() {
     @Before
     fun setUp() {
         conversationListViewModel = ConversationListViewModel(getActiveUserUseCase, getConversationsUseCase, eventsHandler)
-        getConversationParams = GetConversationsParams(size = 10)
     }
 
     @Test
@@ -61,26 +69,31 @@ class ConversationListViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given fetchConversations is called, when GetConversationsUseCase is successful, then sets value to conversationsLiveData`() {
-        val conversations = mockk<List<Conversation>>(relaxed = true)
-        coEvery { getConversationsUseCase.run(getConversationParams) } returns Either.Right(conversations)
-
-        conversationListViewModel.fetchConversations()
+    fun `given conversationsLiveData observed, when getConversationsUseCase returns conversations, then sets value to liveData`() {
+        val conversations = mockk<PagedList<Conversation>>()
+        val useCaseResultLiveData: LiveData<Either<Failure, PagedList<Conversation>>> =
+            MutableLiveData(Either.Right(conversations))
+        every { getConversationsUseCase(any(), any()) } returns useCaseResultLiveData
 
         conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
             result shouldSucceed {
                 it shouldBeEqualTo conversations
             }
         }
+
+        val useCaseParamsSlot = slot<GetConversationsParams>()
+        verify { getConversationsUseCase(conversationListViewModel.viewModelScope, capture(useCaseParamsSlot)) }
+        useCaseParamsSlot.captured.size shouldBeEqualTo 30 //TODO update this assertion when inject config
     }
 
     @Test
-    fun `given fetchConversations is called, when GetConversationsUseCase fails, then sets error to conversationsLiveData`() {
-        coEvery { getConversationsUseCase.run(getConversationParams) } returns Either.Left(ServerError)
+    fun `given conversationsLiveData observed, when getConversationsUseCase fails, then sets GeneralErrorMessage to liveData`() {
+        val useCaseResultLiveData: LiveData<Either<Failure, PagedList<Conversation>>> = MutableLiveData(Either.Left(ServerError))
+        every { getConversationsUseCase(any(), any()) } returns useCaseResultLiveData
 
-        conversationListViewModel.fetchConversations()
-
-        conversationListViewModel.conversationsLiveData shouldBeUpdated { it shouldFail {} }
+        conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
+            result shouldFail { it shouldBeEqualTo GeneralErrorMessage }
+        }
     }
 
     companion object {

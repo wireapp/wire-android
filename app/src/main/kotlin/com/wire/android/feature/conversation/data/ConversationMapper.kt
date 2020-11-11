@@ -24,4 +24,10 @@ class ConversationMapper {
         conversations.map {
             ConversationEntity(name = it.name ?: String.EMPTY) //TODO consider null name on db
         }
+
+    fun fromEntity(entity: ConversationEntity) = Conversation(
+        id = entity.id.toString(), //TODO: probably we're gonna differentiate remote id and db primary key
+        name = entity.name
+    )
+
 }

@@ -1,5 +1,6 @@
 package com.wire.android.feature.conversation.list.usecase
 
+import androidx.paging.DataSource
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
@@ -8,8 +9,10 @@ import com.wire.android.feature.conversation.data.ConversationsRepository
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
@@ -54,6 +57,17 @@ class GetConversationsUseCaseTest : UnitTest() {
         }
 
         result shouldFail { it shouldBe ServerError }
+    }
+
+    @Test
+    fun `given conversationsDataFactory is called, then returns repository's data source factory`() {
+        val repoFactory = mockk<DataSource.Factory<Int, Conversation>>()
+        every { conversationsRepository.conversationsDataFactory() } returns repoFactory
+
+        val dataFactory = getConversationsUseCase.conversationsDataFactory()
+
+        dataFactory shouldBe repoFactory
+        verify { conversationsRepository.conversationsDataFactory() }
     }
 
     companion object {

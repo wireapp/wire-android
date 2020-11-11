@@ -39,7 +39,7 @@ class ConversationLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given saveConversations is called, when dao insertion fails, then returns failure`() {
+    fun `given saveConversations is called, when dao insertion fails, then propagates failure`() {
         val conversationEntities = mockk<List<ConversationEntity>>()
         coEvery { conversationDao.insertAll(conversationEntities) } throws SQLException()
 

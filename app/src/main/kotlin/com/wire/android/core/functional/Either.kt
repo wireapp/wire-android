@@ -54,18 +54,7 @@ sealed class Either<out L, out R> {
      * @see Right
      */
     fun <R> right(b: R) = Either.Right(b)
-
-    /**
-     * Applies fnL if this is a Left or fnR if this is a Right.
-     * @see Left
-     * @see Right
-     */
-    suspend fun <T> coFold(fnL: suspend (L) -> T?, fnR: suspend (R) -> T?): T? =
-        when (this) {
-            is Left -> fnL(a)
-            is Right -> fnR(b)
-        }
-
+    
     /**
      * Applies fnL if this is a Left or fnR if this is a Right.
      * @see Left

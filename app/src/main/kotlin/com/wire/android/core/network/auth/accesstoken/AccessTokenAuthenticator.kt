@@ -1,5 +1,6 @@
 package com.wire.android.core.network.auth.accesstoken
 
+import com.wire.android.core.functional.suspending
 import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.SessionRepository
 import kotlinx.coroutines.runBlocking
@@ -23,6 +24,10 @@ class AccessTokenAuthenticator(
      * This authenticate() method is called when server returns 401 Unauthorized.
      */
     override fun authenticate(route: Route?, response: Response): Request? = runBlocking {
+        verifyAuthentication(response)
+    }
+
+    private suspend fun verifyAuthentication(response: Response) = suspending {
         repository.currentSession().coFold({ null }) {
             val refreshToken = parseRefreshToken(response, it)
             val tokenResult = repository.accessToken(refreshToken)

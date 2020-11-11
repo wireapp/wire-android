@@ -11,10 +11,10 @@ class AccessTokenInterceptor(private val repository: SessionRepository) : Interc
 
     override fun intercept(chain: Interceptor.Chain): Response =
         runBlocking {
-            interceptRequest(chain)
+            interceptRequest(chain) ?: chain.proceed(chain.request())
         }
 
-    private suspend fun interceptRequest(chain: Interceptor.Chain) = suspending {
+    private suspend fun interceptRequest(chain: Interceptor.Chain): Response? = suspending {
         repository.currentSession().coFold({ null }) { currentSession ->
             repository.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
                 when (accessTokenSession.accessToken != String.EMPTY) {
@@ -22,7 +22,7 @@ class AccessTokenInterceptor(private val repository: SessionRepository) : Interc
                     false -> chain.proceed(chain.request())
                 }
             }
-        } ?: chain.proceed(chain.request())
+        }
     }
 
     private fun addAuthHeader(chain: Interceptor.Chain, token: String): Response {

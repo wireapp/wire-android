@@ -1,13 +1,13 @@
-package com.wire.android.feature.conversation.data.remote
+package com.wire.android.feature.conversation.data
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.DatabaseFailure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.Conversation
-import com.wire.android.feature.conversation.data.ConversationMapper
-import com.wire.android.feature.conversation.data.ConversationsRepository
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
+import com.wire.android.feature.conversation.data.remote.ConversationRemoteDataSource
+import com.wire.android.feature.conversation.data.remote.ConversationsResponse
 import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed

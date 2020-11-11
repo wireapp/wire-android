@@ -42,7 +42,7 @@ class ConversationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given conversationsByBatch is requested, when remoteDataSource returns conversations, then saves them locally & returns`() {
+    fun `given conversationsByBatch is requested, when remoteDataSource returns conversations, then locally saves and returns them`() {
         val conversationsResponse: ConversationsResponse = mockk(relaxed = true)
         val conversations = mockk<List<Conversation>>(relaxed = true)
         val conversationEntities = mockk<List<ConversationEntity>>()

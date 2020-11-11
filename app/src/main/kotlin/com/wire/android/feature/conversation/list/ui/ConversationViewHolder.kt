@@ -5,7 +5,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.wire.android.R
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
-import com.wire.android.feature.conversation.list.usecase.Conversation
+import com.wire.android.feature.conversation.Conversation
 
 //TODO: implement proper layout
 class ConversationViewHolder(parent: ViewGroup, inflater: ViewHolderInflater) : RecyclerView.ViewHolder(

@@ -3,7 +3,7 @@ package com.wire.android.feature.conversation.list.ui
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.conversation.list.usecase.Conversation
+import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule

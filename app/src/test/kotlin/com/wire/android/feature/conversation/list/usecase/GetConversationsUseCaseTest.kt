@@ -3,6 +3,7 @@ package com.wire.android.feature.conversation.list.usecase
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.ConversationsRepository
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed

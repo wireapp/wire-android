@@ -1,8 +1,10 @@
 package com.wire.android.feature.conversation.data
 
 import com.wire.android.UnitTest
+import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.remote.ConversationResponse
 import com.wire.android.feature.conversation.data.remote.ConversationsResponse
+import com.wire.android.framework.collections.second
 import io.mockk.every
 import io.mockk.mockk
 import org.amshove.kluent.shouldBeEqualTo
@@ -35,6 +37,25 @@ class ConversationMapperTest : UnitTest() {
             it.first().id shouldBeEqualTo TEST_CONVERSATION_ID
             it.first().name shouldBeEqualTo TEST_CONVERSATION_NAME
         }
+    }
+
+    @Test
+    fun `given a list of conversation domain items, when toEntityList is called, then returns list of conversation entities`() {
+        fun mockConversation(name: String): Conversation = mockk<Conversation>(relaxed = false).also {
+            every { it.name } returns name
+        }
+
+        val name1 = "Conv1"
+        val name2 = "Conv2"
+        val conversation1 = mockConversation(name1)
+        val conversation2 = mockConversation(name2)
+
+        val conversationList = listOf(conversation1, conversation2)
+
+        val entityList = conversationMapper.toEntityList(conversationList)
+
+        entityList.first().name shouldBeEqualTo name1
+        entityList.second().name shouldBeEqualTo name2
     }
 
     companion object {

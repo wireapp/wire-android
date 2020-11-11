@@ -9,7 +9,10 @@ import androidx.room.Query
 interface ConversationDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(user: ConversationEntity)
+    suspend fun insert(conversation: ConversationEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(conversationList: List<ConversationEntity>)
 
     @Query("SELECT * FROM conversation")
     suspend fun conversations(): List<ConversationEntity>

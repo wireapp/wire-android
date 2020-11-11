@@ -35,6 +35,19 @@ class ConversationDaoTest : DatabaseTest() {
         conversations shouldContainSame listOf(TEST_CONVERSATION_ENTITY)
     }
 
+    @Test
+    fun insertAll_readConversations_containsInsertedItems() = runTest {
+        val entity1 = ConversationEntity(id = 1, name = "Conversation #1")
+        val entity2 = ConversationEntity(id = 2, name = "Conversation #2")
+        val entity3 = ConversationEntity(id = 3, name = "Conversation #3")
+        val entities = listOf(entity1, entity2, entity3)
+
+        conversationDao.insertAll(entities)
+        val conversations = conversationDao.conversations()
+
+        conversations shouldContainSame listOf(entity1, entity2, entity3)
+    }
+
     companion object {
         private val TEST_CONVERSATION_ENTITY = ConversationEntity(5, "Android Team")
     }

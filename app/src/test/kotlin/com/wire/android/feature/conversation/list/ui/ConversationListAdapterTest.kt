@@ -4,7 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.wire.android.UnitTest
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
-import com.wire.android.feature.conversation.list.usecase.Conversation
+import com.wire.android.feature.conversation.Conversation
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk

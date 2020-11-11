@@ -11,6 +11,9 @@ interface ConversationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(user: ConversationEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(user: List<ConversationEntity>)
+
     @Query("SELECT * FROM conversation")
     suspend fun conversations(): List<ConversationEntity>
 }

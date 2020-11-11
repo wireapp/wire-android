@@ -3,7 +3,7 @@ package com.wire.android.feature.conversation.list.ui
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
-import com.wire.android.feature.conversation.list.usecase.Conversation
+import com.wire.android.feature.conversation.Conversation
 
 class ConversationListAdapter(
     private val viewHolderInflater: ViewHolderInflater = ViewHolderInflater()

@@ -2,7 +2,7 @@ package com.wire.android.feature.conversation.di
 
 import com.wire.android.core.network.NetworkClient
 import com.wire.android.core.storage.db.user.UserDatabase
-import com.wire.android.feature.conversation.data.remote.ConversationDataSource
+import com.wire.android.feature.conversation.data.ConversationDataSource
 import com.wire.android.feature.conversation.data.ConversationMapper
 import com.wire.android.feature.conversation.data.ConversationsRepository
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource

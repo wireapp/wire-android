@@ -1,12 +1,11 @@
-package com.wire.android.feature.conversation.data.remote
+package com.wire.android.feature.conversation.data
 
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.suspending
 import com.wire.android.feature.conversation.Conversation
-import com.wire.android.feature.conversation.data.ConversationMapper
-import com.wire.android.feature.conversation.data.ConversationsRepository
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
+import com.wire.android.feature.conversation.data.remote.ConversationRemoteDataSource
 
 class ConversationDataSource(
     private val conversationMapper: ConversationMapper,

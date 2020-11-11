@@ -2,14 +2,13 @@ package com.wire.android.shared.session.datasources
 
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
-import com.wire.android.core.functional.flatMap
 import com.wire.android.core.functional.map
+import com.wire.android.core.functional.suspending
 import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.SessionRepository
 import com.wire.android.shared.session.datasources.local.SessionLocalDataSource
 import com.wire.android.shared.session.datasources.remote.SessionRemoteDataSource
 import com.wire.android.shared.session.mapper.SessionMapper
-import kotlinx.coroutines.runBlocking
 
 class SessionDataSource(
     private val remoteDataSource: SessionRemoteDataSource,
@@ -17,12 +16,13 @@ class SessionDataSource(
     private val mapper: SessionMapper
 ) : SessionRepository {
 
-    override suspend fun save(session: Session, current: Boolean): Either<Failure, Unit> =
+    override suspend fun save(session: Session, current: Boolean): Either<Failure, Unit> = suspending {
         if (current) {
             localDataSource.setCurrentSessionToDormant().flatMap {
-                runBlocking { saveLocally(session, true) }
+                saveLocally(session, true)
             }
         } else saveLocally(session, current)
+    }
 
     override suspend fun currentSession(): Either<Failure, Session> = localDataSource.currentSession()
         .map { mapper.fromSessionEntity(it) }

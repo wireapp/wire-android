@@ -54,7 +54,7 @@ sealed class Either<out L, out R> {
      * @see Right
      */
     fun <R> right(b: R) = Either.Right(b)
-    
+
     /**
      * Applies fnL if this is a Left or fnR if this is a Right.
      * @see Left

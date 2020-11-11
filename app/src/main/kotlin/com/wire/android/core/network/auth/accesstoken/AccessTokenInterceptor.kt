@@ -1,6 +1,7 @@
 package com.wire.android.core.network.auth.accesstoken
 
 import com.wire.android.core.extension.EMPTY
+import com.wire.android.core.functional.suspending
 import com.wire.android.shared.session.SessionRepository
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -8,18 +9,20 @@ import okhttp3.Response
 
 class AccessTokenInterceptor(private val repository: SessionRepository) : Interceptor {
 
-    override fun intercept(chain: Interceptor.Chain): Response = synchronized(this) {
+    override fun intercept(chain: Interceptor.Chain): Response =
         runBlocking {
-            repository.currentSession().coFold({ null }
-            ) { currentSession ->
-                repository.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
-                    when (accessTokenSession.accessToken != String.EMPTY) {
-                        true -> addAuthHeader(chain, accessTokenSession.accessToken)
-                        false -> chain.proceed(chain.request())
-                    }
-                }
-            } ?: chain.proceed(chain.request())
+            interceptRequest(chain)
         }
+
+    private suspend fun interceptRequest(chain: Interceptor.Chain) = suspending {
+        repository.currentSession().coFold({ null }) { currentSession ->
+            repository.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
+                when (accessTokenSession.accessToken != String.EMPTY) {
+                    true -> addAuthHeader(chain, accessTokenSession.accessToken)
+                    false -> chain.proceed(chain.request())
+                }
+            }
+        } ?: chain.proceed(chain.request())
     }
 
     private fun addAuthHeader(chain: Interceptor.Chain, token: String): Response {

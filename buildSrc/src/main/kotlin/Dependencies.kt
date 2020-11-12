@@ -47,6 +47,7 @@ object Libraries {
         const val viewPager2 = "1.0.0"
         const val room = "2.2.5"
         const val desugaring = "1.0.10"
+        const val paging = "2.1.2"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -59,6 +60,7 @@ object Libraries {
     const val pinEditText      = "com.poovam:pin-edittext-field:${Versions.pinEditText}"
     const val viewPager2       = "androidx.viewpager2:viewpager2:${Versions.viewPager2}"
     const val desugaring       = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
+    const val paging           = "androidx.paging:paging-runtime-ktx:${Versions.paging}"
 
     object Koin {
         const val androidCore  = "org.koin:koin-android:${Versions.koin}"

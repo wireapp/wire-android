@@ -1,5 +1,6 @@
 package com.wire.android.feature.conversation.data
 
+import androidx.paging.DataSource
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.DatabaseFailure
 import com.wire.android.core.exception.ServerError
@@ -20,6 +21,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -39,6 +41,21 @@ class ConversationDataSourceTest : UnitTest() {
     @Before
     fun setup() {
         conversationsDataSource = ConversationDataSource(conversationMapper, conversationRemoteDataSource, conversationLocalDataSource)
+    }
+
+    @Test
+    fun `given conversationsDataFactory is called, then calls localDataSource for factory and returns mapping for Conversation`() {
+        val localDataFactory = mockk<DataSource.Factory<Int, ConversationEntity>>()
+        every { conversationLocalDataSource.conversationsDataFactory() } returns localDataFactory
+
+        val dataFactory = mockk<DataSource.Factory<Int, Conversation>>()
+        every { localDataFactory.map<Conversation>(any()) } returns dataFactory
+
+        val result = conversationsDataSource.conversationsDataFactory()
+
+        result shouldBeEqualTo dataFactory
+        verify(exactly = 1) { conversationLocalDataSource.conversationsDataFactory() }
+        verify(exactly = 1) { localDataFactory.map<Conversation>(any()) }
     }
 
     @Test
@@ -83,7 +100,8 @@ class ConversationDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS) }
         verify(exactly = 1) { conversationMapper.fromConversationsResponse(conversationsResponse) }
         verify(exactly = 1) { conversationMapper.toEntityList(conversations) }
-        coVerify(exactly = 1) { conversationLocalDataSource.saveConversations(conversationEntities) }    }
+        coVerify(exactly = 1) { conversationLocalDataSource.saveConversations(conversationEntities) }
+    }
 
     @Test
     fun `given conversationsByBatch is requested, when remoteDataSource returns a failed response, then propagates error upwards`() {

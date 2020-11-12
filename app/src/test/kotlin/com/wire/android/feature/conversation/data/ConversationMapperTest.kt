@@ -4,6 +4,7 @@ import com.wire.android.UnitTest
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.remote.ConversationResponse
 import com.wire.android.feature.conversation.data.remote.ConversationsResponse
+import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
 import com.wire.android.framework.collections.second
 import io.mockk.every
 import io.mockk.mockk
@@ -56,6 +57,16 @@ class ConversationMapperTest : UnitTest() {
 
         entityList.first().name shouldBeEqualTo name1
         entityList.second().name shouldBeEqualTo name2
+    }
+
+    @Test
+    fun `given a conversation entity, when fromEntity is called, then returns a conversation`() {
+        val id = 123
+        val conversationEntity = ConversationEntity(id = id, name = TEST_CONVERSATION_NAME)
+
+        val conversation = conversationMapper.fromEntity(conversationEntity)
+
+        conversation shouldBeEqualTo Conversation(id = id.toString(), name = TEST_CONVERSATION_NAME)
     }
 
     companion object {

@@ -21,7 +21,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldNotBe
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -45,10 +45,17 @@ class ConversationDataSourceTest : UnitTest() {
 
     @Test
     fun `given conversationsDataFactory is called, then calls localDataSource for factory and returns mapping for Conversation`() {
-        val factory = conversationsDataSource.conversationsDataFactory()
+        val localDataFactory = mockk<DataSource.Factory<Int, ConversationEntity>>()
+        every { conversationLocalDataSource.conversationsDataFactory() } returns localDataFactory
 
-        (factory as? DataSource.Factory<Int, String>) shouldNotBe null
-        verify { conversationLocalDataSource.conversationsDataFactory() }
+        val dataFactory = mockk<DataSource.Factory<Int, Conversation>>()
+        every { localDataFactory.map<Conversation>(any()) } returns dataFactory
+
+        val result = conversationsDataSource.conversationsDataFactory()
+
+        result shouldBeEqualTo dataFactory
+        verify(exactly = 1) { conversationLocalDataSource.conversationsDataFactory() }
+        verify(exactly = 1) { localDataFactory.map<Conversation>(any()) }
     }
 
     @Test
@@ -93,7 +100,8 @@ class ConversationDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS) }
         verify(exactly = 1) { conversationMapper.fromConversationsResponse(conversationsResponse) }
         verify(exactly = 1) { conversationMapper.toEntityList(conversations) }
-        coVerify(exactly = 1) { conversationLocalDataSource.saveConversations(conversationEntities) }    }
+        coVerify(exactly = 1) { conversationLocalDataSource.saveConversations(conversationEntities) }
+    }
 
     @Test
     fun `given conversationsByBatch is requested, when remoteDataSource returns a failed response, then propagates error upwards`() {

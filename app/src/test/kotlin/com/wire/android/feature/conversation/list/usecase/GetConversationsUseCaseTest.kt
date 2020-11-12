@@ -67,7 +67,7 @@ class GetConversationsUseCaseTest : UnitTest() {
         val dataFactory = getConversationsUseCase.conversationsDataFactory()
 
         dataFactory shouldBe repoFactory
-        verify { conversationsRepository.conversationsDataFactory() }
+        verify(exactly = 1) { conversationsRepository.conversationsDataFactory() }
     }
 
     companion object {

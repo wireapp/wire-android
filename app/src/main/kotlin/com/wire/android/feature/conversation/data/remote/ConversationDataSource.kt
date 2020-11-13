@@ -9,11 +9,11 @@ import com.wire.android.feature.conversation.list.usecase.Conversation
 
 class ConversationDataSource(
     private val conversationMapper: ConversationMapper,
-    private val conversationRemoteDataSource: ConversationRemoteDataSource
+    private val conversationsRemoteDataSource: ConversationsRemoteDataSource
 ) : ConversationsRepository {
 
     override suspend fun conversationsByBatch(start: String, size: Int, ids: List<String>): Either<Failure, List<Conversation>> =
-        conversationRemoteDataSource.conversationsByBatch(start, size, ids).map {
+        conversationsRemoteDataSource.conversationsByBatch(start, size, ids).map {
             conversationMapper.fromConversationsResponse(it)
         }
 }

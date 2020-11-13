@@ -16,10 +16,8 @@ import okhttp3.Route
  * refresh is being performed. In-flight requests that fail with a 401 (unauthorized)
  * are automatically retried.
  */
-class AccessTokenAuthenticator(
-    private val repository: SessionRepository,
-    private val refreshTokenMapper: RefreshTokenMapper
-) : Authenticator {
+class AccessTokenAuthenticator(private val repository: SessionRepository) : Authenticator {
+
     /**
      * This authenticate() method is called when server returns 401 Unauthorized.
      */
@@ -27,13 +25,13 @@ class AccessTokenAuthenticator(
         verifyAuthentication(response)
     }
 
-    private suspend fun verifyAuthentication(response: Response) = suspending {
+    private suspend fun verifyAuthentication(response: Response): Request? = suspending {
         repository.currentSession().coFold({ null }) {
             val refreshToken = parseRefreshToken(response, it)
-            val tokenResult = repository.accessToken(refreshToken)
-            tokenResult.coFold({ null }) { latestSession ->
-                repository.save(latestSession)
-                proceedWithNewAccessToken(response, latestSession.accessToken)
+            repository.accessToken(refreshToken).coFold({ null }) { latestSession ->
+                repository.save(latestSession).fold({ null }) {
+                    proceedWithNewAccessToken(response, latestSession.accessToken)
+                }
             }
         }
     }
@@ -48,9 +46,7 @@ class AccessTokenAuthenticator(
         }
 
     private fun parseRefreshToken(response: Response, currentSession: Session): String {
-        val refreshToken = response.headers[TOKEN_HEADER_KEY]?.let {
-            refreshTokenMapper.fromTokenText(it).token
-        } ?: currentSession.refreshToken
+        val refreshToken = response.headers[TOKEN_HEADER_KEY] ?: currentSession.refreshToken
         return if (refreshToken != currentSession.refreshToken) {
             refreshToken
         } else {

@@ -23,14 +23,14 @@ class ConversationDataSourceTest : UnitTest() {
     private lateinit var conversationsDataSource: ConversationsRepository
 
     @MockK
-    private lateinit var conversationRemoteDataSource: ConversationRemoteDataSource
+    private lateinit var conversationsRemoteDataSource: ConversationsRemoteDataSource
 
     @MockK
     private lateinit var conversationMapper: ConversationMapper
 
     @Before
     fun setup() {
-        conversationsDataSource = ConversationDataSource(conversationMapper, conversationRemoteDataSource)
+        conversationsDataSource = ConversationDataSource(conversationMapper, conversationsRemoteDataSource)
     }
 
     @Test
@@ -39,7 +39,7 @@ class ConversationDataSourceTest : UnitTest() {
         val conversations = mockk<List<Conversation>>(relaxed = true)
 
         coEvery {
-            conversationRemoteDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS)
+            conversationsRemoteDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS)
         } returns Either.Right(conversationsResponse)
         every { conversationMapper.fromConversationsResponse(conversationsResponse) } returns conversations
 
@@ -52,7 +52,7 @@ class ConversationDataSourceTest : UnitTest() {
     @Test
     fun `given conversationsByBatch is requested, when remoteDataSource returns a failed response, then propagates error upwards`() {
         coEvery {
-            conversationRemoteDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS)
+            conversationsRemoteDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS)
         } returns Either.Left(ServerError)
 
         val result = runBlocking { conversationsDataSource.conversationsByBatch(TEST_START, TEST_SIZE, TEST_IDS) }

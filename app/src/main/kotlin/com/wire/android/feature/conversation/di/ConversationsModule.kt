@@ -23,7 +23,6 @@ val conversationsModule = module {
     factory { ConversationMapper() }
 
     factory { ConversationsRemoteDataSource(get(), get()) }
-    single<ConversationsRepository> { ConversationDataSource(get(), get(), get()) }
     single { get<NetworkClient>().create(ConversationsApi::class.java) }
 
     factory { get<UserDatabase>().conversationDao() }

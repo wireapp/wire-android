@@ -41,6 +41,7 @@ dependencies {
     implementation(Libraries.Kotlin.coroutinesAndroid)
     implementation(Libraries.pinEditText)
     implementation(Libraries.viewPager2)
+    implementation(Libraries.paging)
 
     implementation(Libraries.Retrofit.core)
     implementation(Libraries.Retrofit.gsonConverter)

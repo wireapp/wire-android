@@ -7,6 +7,9 @@ import com.wire.android.shared.user.User
 
 class GetActiveUserUseCase : UseCase<User, Unit> {
 
+    @Suppress("FunctionOnlyReturningConstant")
+    fun hasActiveUser(): Boolean = false //TODO: real implementation
+
     //TODO real implementation & test
     override suspend fun run(params: Unit): Either<Failure, User> = Either.Right(User("123", "Gizem", "gizem@wire.com"))
 }

@@ -1,6 +1,5 @@
 package com.wire.android.core.network.auth.accesstoken
 
-import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.suspending
 import com.wire.android.shared.session.SessionRepository
 import kotlinx.coroutines.runBlocking
@@ -17,7 +16,7 @@ class AccessTokenInterceptor(private val repository: SessionRepository) : Interc
     private suspend fun interceptRequest(chain: Interceptor.Chain): Response? = suspending {
         repository.currentSession().coFold({ null }) { currentSession ->
             repository.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
-                when (accessTokenSession.accessToken != String.EMPTY) {
+                when (accessTokenSession.accessToken.isNotEmpty()) {
                     true -> addAuthHeader(chain, accessTokenSession.accessToken)
                     false -> chain.proceed(chain.request())
                 }

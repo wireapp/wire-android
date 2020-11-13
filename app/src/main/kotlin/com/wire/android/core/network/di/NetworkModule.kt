@@ -14,8 +14,8 @@ import com.wire.android.core.network.UserAgentConfig
 import com.wire.android.core.network.UserAgentInterceptor
 import com.wire.android.core.network.auth.accesstoken.AccessTokenAuthenticator
 import com.wire.android.core.network.auth.accesstoken.AccessTokenInterceptor
-import com.wire.android.core.network.di.NetworkDependencyProvider.createHttpClientForToken
-import com.wire.android.core.network.di.NetworkDependencyProvider.createHttpClientWithoutToken
+import com.wire.android.core.network.di.NetworkDependencyProvider.createHttpClientWithAuth
+import com.wire.android.core.network.di.NetworkDependencyProvider.createHttpClientWithoutAuth
 import com.wire.android.core.network.di.NetworkDependencyProvider.retrofit
 import com.wire.android.shared.session.datasources.remote.SessionApi
 import okhttp3.OkHttpClient
@@ -38,7 +38,7 @@ object NetworkDependencyProvider {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    fun createHttpClientForToken(
+    fun createHttpClientWithAuth(
         httpsRequestParams: HttpRequestParams,
         accessTokenInterceptor: AccessTokenInterceptor,
         accessTokenAuthenticator: AccessTokenAuthenticator,
@@ -49,7 +49,7 @@ object NetworkDependencyProvider {
             .authenticator(accessTokenAuthenticator)
             .build()
 
-    fun createHttpClientWithoutToken(
+    fun createHttpClientWithoutAuth(
         httpsRequestParams: HttpRequestParams,
         userAgentInterceptor: UserAgentInterceptor
     ): OkHttpClient =
@@ -76,17 +76,17 @@ val networkModule: Module = module {
     single { NetworkHandler(androidContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager) }
     single<NetworkClient> { RetrofitClient(get()) }
     single { retrofit(get(), get<BackendConfig>().baseUrl) }
-    single { createHttpClientForToken(get(), get(), get(), get()) }
+    single { createHttpClientWithAuth(get(), get(), get(), get()) }
     single { HttpRequestParams() }
     single { AccessTokenAuthenticator(get()) }
     single { AccessTokenInterceptor(get()) }
     single { UserAgentInterceptor(get()) }
     single { UserAgentConfig(get()) }
 
-    val networkClientForToken = "NETWORK_CLIENT_FOR_TOKEN"
-    single<NetworkClient>(named(networkClientForToken)) {
-        RetrofitClient(retrofit(createHttpClientWithoutToken(get(), get()), get<BackendConfig>().baseUrl))
+    val networkClientForNoAuth = "NETWORK_CLIENT_NO_AUTH_REQUEST"
+    single<NetworkClient>(named(networkClientForNoAuth)) {
+        RetrofitClient(retrofit(createHttpClientWithoutAuth(get(), get()), get<BackendConfig>().baseUrl))
     }
-    single { get<NetworkClient>(named(networkClientForToken)).create(SessionApi::class.java) }
+    single { get<NetworkClient>(named(networkClientForNoAuth)).create(SessionApi::class.java) }
     single { BackendConfig() }
 }

@@ -1,6 +1,7 @@
 package com.wire.android.feature.conversation.data.remote
 
 import com.wire.android.UnitTest
+import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
 import io.mockk.coEvery
@@ -41,5 +42,17 @@ class ConversationRemoteDataSourceTest : UnitTest() {
 
         coVerify(exactly = 1) { conversationsApi.conversationsByBatch(any()) }
         result shouldSucceed {}
+    }
+
+    @Test
+    fun `given any size, when conversationsByBatch is requested and response fails, propagate failure`() {
+        every { response.body() } returns null
+        every { response.isSuccessful } returns false
+        coEvery { conversationsApi.conversationsByBatch(any()) } returns response
+
+        val result = runBlocking { remoteDataSource.conversationsByBatch(any(), any(), any()) }
+
+        coVerify(exactly = 1) { conversationsApi.conversationsByBatch(any()) }
+        result shouldFail {}
     }
 }

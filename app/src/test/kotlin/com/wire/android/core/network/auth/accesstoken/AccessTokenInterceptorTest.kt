@@ -76,7 +76,7 @@ class AccessTokenInterceptorTest : UnitTest() {
     }
 
     @Test
-    fun `Given interceptor chain and access token request is valid, when access token is not empty, then build new request and add token to heasder`() {
+    fun `Given chain and access token request is valid, when access token is valid, then build request and add token to header`() {
         val requestBuilder = mockk<Request.Builder>(relaxed = true)
         val newRequest = mockk<Request>(relaxed = true)
 

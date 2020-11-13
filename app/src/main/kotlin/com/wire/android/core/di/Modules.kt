@@ -11,6 +11,7 @@ import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.compatibility.Compatibility
 import com.wire.android.core.config.AppVersionNameConfig
 import com.wire.android.core.config.LocaleConfig
+import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.MaterialDialogBuilderProvider
 import com.wire.android.core.ui.navigation.FragmentStackHandler
@@ -20,6 +21,10 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
+
+val coreModule: Module = module {
+    single { EventsHandler() }
+}
 
 val accessibilityModule: Module = module {
     factory { androidContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager }

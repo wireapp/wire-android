@@ -41,8 +41,8 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         layoutManager = LinearLayoutManager(context)
         adapter = conversationListAdapter
         //TODO: handle empty list
-        viewModel.conversationsLiveData.observe(viewLifecycleOwner) {
-            it.onSuccess {
+        viewModel.conversationsLiveData.observe(viewLifecycleOwner) { result ->
+            result.onSuccess {
                 conversationListAdapter.updateData(it)
                 conversationListAdapter.notifyDataSetChanged()
             }.onFailure {

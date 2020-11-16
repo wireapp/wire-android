@@ -1,8 +1,7 @@
 package com.wire.android.shared.session.datasources.local
 
-import com.wire.android.InstrumentationTest
+import com.wire.android.core.storage.db.DatabaseTest
 import com.wire.android.core.storage.db.global.GlobalDatabase
-import com.wire.android.framework.storage.db.DatabaseTestRule
 import com.wire.android.shared.user.datasources.local.UserEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
@@ -10,27 +9,31 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotContain
+import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
+import java.io.IOException
 
 @ExperimentalCoroutinesApi
-class SessionDaoTest : InstrumentationTest() {
-
-    @get:Rule
-    val databaseTestRule = DatabaseTestRule.create<GlobalDatabase>(appContext)
+class SessionDaoTest : DatabaseTest() {
 
     private lateinit var sessionDao: SessionDao
     private lateinit var globalDatabase: GlobalDatabase
 
     @Before
     fun setUp() {
-        globalDatabase = databaseTestRule.database
+        globalDatabase = buildDatabase()
         sessionDao = globalDatabase.sessionDao()
     }
 
+    @After
+    @Throws(IOException::class)
+    fun tearDown() {
+        globalDatabase.clearTestData()
+    }
+
     @Test
-    fun insertEntities_readSessions_containsInsertedItems() = databaseTestRule.runTest {
+    fun insertEntities_readSessions_containsInsertedItems() = runTest {
         val session1 = prepareSession(1, "userId-1", true)
         val session2 = prepareSession(2, "userId-2", false)
         sessionDao.insert(session1)
@@ -42,7 +45,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun insertCurrentSession_readCurrentSession_returnsInsertedItem() = databaseTestRule.runTest {
+    fun insertCurrentSession_readCurrentSession_returnsInsertedItem() = runTest {
         val session = prepareSession(current = true)
 
         sessionDao.insert(session)
@@ -51,7 +54,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun insertNotCurrentSession_readCurrentSession_returnsNull() = databaseTestRule.runTest {
+    fun insertNotCurrentSession_readCurrentSession_returnsNull() = runTest {
         val session = prepareSession(current = false)
 
         sessionDao.insert(session)
@@ -60,7 +63,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun sessionForUserExists_userDeleted_sessionIsDeletedAutomatically() = databaseTestRule.runTest {
+    fun sessionForUserExists_userDeleted_sessionIsDeletedAutomatically() = runTest {
         val user = UserEntity(TEST_USER_ID, TEST_USER_NAME)
         val session = prepareSession(userId = user.id, current = true)
         sessionDao.insert(session)
@@ -72,7 +75,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun insertSession_userIdNotUnique_updatesExistingSessionWithSameUserId() = databaseTestRule.runTest {
+    fun insertSession_userIdNotUnique_updatesExistingSessionWithSameUserId() = runTest {
         val session1 = prepareSession(id = 1, userId = TEST_USER_ID, current = true)
         sessionDao.insert(session1)
 
@@ -83,7 +86,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun currentSession_aSessionExistsAsCurrent_emitsThatSession() = databaseTestRule.runTest {
+    fun currentSession_aSessionExistsAsCurrent_emitsThatSession() = runTest {
         val session = prepareSession(id = 1, userId = TEST_USER_ID, current = true)
         sessionDao.insert(session)
 
@@ -91,7 +94,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun currentSession_noSessionExistsAsCurrent_emitsNull() = databaseTestRule.runTest {
+    fun currentSession_noSessionExistsAsCurrent_emitsNull() = runTest {
         val session = prepareSession(id = 1, userId = TEST_USER_ID, current = false)
         sessionDao.insert(session)
 
@@ -99,7 +102,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun currentSession_currentSessionIsSetToDormant_emitsNull() = databaseTestRule.runTest {
+    fun currentSession_currentSessionIsSetToDormant_emitsNull() = runTest {
         val session = prepareSession(id = 1, userId = TEST_USER_ID, current = true)
         sessionDao.insert(session)
 
@@ -111,7 +114,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun setCurrentSessionToDormant_aSessionExistsAsCurrent_setsIsCurrentToFalse() = databaseTestRule.runTest {
+    fun setCurrentSessionToDormant_aSessionExistsAsCurrent_setsIsCurrentToFalse() = runTest {
         val session1 = prepareSession(id = 1, userId = "userId-1", current = true)
         val session2 = prepareSession(id = 2, userId = "userId-2", current = false)
         sessionDao.insert(session1)
@@ -124,7 +127,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun doesCurrentSessionExist_aSessionExistsAsCurrent_returnsTrue() = databaseTestRule.runTest {
+    fun doesCurrentSessionExist_aSessionExistsAsCurrent_returnsTrue() = runTest {
         val session = prepareSession(id = 1, userId = "userId-1", current = true)
         sessionDao.insert(session)
 
@@ -134,7 +137,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun doesCurrentSessionExist_noSessionExistsAsCurrent_returnsFalse() = databaseTestRule.runTest {
+    fun doesCurrentSessionExist_noSessionExistsAsCurrent_returnsFalse() = runTest {
         val session = prepareSession(id = 1, userId = "userId-1", current = false)
         sessionDao.insert(session)
 

@@ -1,31 +1,35 @@
 package com.wire.android.shared.user.datasources.local
 
-import com.wire.android.InstrumentationTest
+import com.wire.android.core.storage.db.DatabaseTest
 import com.wire.android.core.storage.db.global.GlobalDatabase
-import com.wire.android.framework.storage.db.DatabaseTestRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldContainSame
+import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
+import java.io.IOException
 
 @ExperimentalCoroutinesApi
-class UserDaoTest : InstrumentationTest() {
-
-    @get:Rule
-    val databaseTestRule = DatabaseTestRule.create<GlobalDatabase>(appContext)
+class UserDaoTest : DatabaseTest() {
 
     private lateinit var userDao: UserDao
+    private lateinit var globalDatabase: GlobalDatabase
 
     @Before
     fun setUp() {
-        val globalDatabase = databaseTestRule.database
+        globalDatabase = buildDatabase()
         userDao = globalDatabase.userDao()
     }
 
+    @After
+    @Throws(IOException::class)
+    fun tearDown() {
+        globalDatabase.clearTestData()
+    }
+
     @Test
-    fun insertEntity_readUsers_containsInsertedItem() = databaseTestRule.runTest {
+    fun insertEntity_readUsers_containsInsertedItem() = runTest {
         userDao.insert(TEST_USER_ENTITY)
         val activeUsers = userDao.users()
 
@@ -34,7 +38,7 @@ class UserDaoTest : InstrumentationTest() {
     //TODO: add insert replace strategy test
 
     @Test
-    fun deleteEntity_readUsers_doesNotContainDeletedItem() = databaseTestRule.runTest {
+    fun deleteEntity_readUsers_doesNotContainDeletedItem() = runTest {
         userDao.insert(TEST_USER_ENTITY)
 
         userDao.delete(TEST_USER_ENTITY)

@@ -1,18 +1,15 @@
 package com.wire.android.core.usecase
 
 import com.wire.android.UnitTest
-import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.functional.Either
-import com.wire.android.framework.coroutines.TestDispatcherProvider
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
 class DefaultUseCaseExecutorTest : UnitTest() {
 
     private lateinit var executor: DefaultUseCaseExecutor
@@ -20,12 +17,9 @@ class DefaultUseCaseExecutorTest : UnitTest() {
     @MockK
     private lateinit var useCase: UseCase<String, Int>
 
-    private lateinit var dispatcherProvider: DispatcherProvider
-
     @Before
     fun setUp() {
-        dispatcherProvider = TestDispatcherProvider()
-        executor = DefaultUseCaseExecutor(dispatcherProvider)
+        executor = DefaultUseCaseExecutor()
     }
 
     @Test
@@ -36,7 +30,7 @@ class DefaultUseCaseExecutorTest : UnitTest() {
 
         runBlocking {
             with(executor) {
-                useCase.invoke(this@runBlocking, param, dispatcherProvider.io()) {
+                useCase.invoke(this@runBlocking, param, Dispatchers.IO) {
                     it shouldBe result
                 }
             }

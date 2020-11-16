@@ -2,7 +2,6 @@ package com.wire.android.feature.auth.registration.personal.ui
 
 import com.wire.android.UnitTest
 import com.wire.android.core.functional.Either
-import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.shared.user.name.NameTooShort
 import com.wire.android.shared.user.name.ValidateNameParams
@@ -10,17 +9,11 @@ import com.wire.android.shared.user.name.ValidateNameUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
 class CreatePersonalAccountNameViewModelTest : UnitTest() {
-
-    @get:Rule
-    val coroutinesTestRule = CoroutinesTestRule()
 
     @MockK
     private lateinit var validateNameUseCase: ValidateNameUseCase
@@ -29,7 +22,7 @@ class CreatePersonalAccountNameViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        nameViewModel = CreatePersonalAccountNameViewModel(coroutinesTestRule.dispatcherProvider, validateNameUseCase)
+        nameViewModel = CreatePersonalAccountNameViewModel(validateNameUseCase)
     }
 
     @Test

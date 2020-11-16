@@ -18,7 +18,7 @@ import org.koin.dsl.module
 val conversationsModule = module {
     single { MainNavigator() }
     factory { ConversationListAdapter() }
-    viewModel { ConversationListViewModel(get(), get(), get(), get()) }
+    viewModel { ConversationListViewModel(get(), get(), get()) }
     factory { GetConversationsUseCase(get()) }
 
     single<ConversationsRepository> { ConversationDataSource(get(), get(), get()) }

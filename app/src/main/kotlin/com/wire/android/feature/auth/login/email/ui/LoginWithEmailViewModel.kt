@@ -5,7 +5,6 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
-import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
@@ -25,12 +24,12 @@ import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCaseParams
 import com.wire.android.shared.user.email.ValidateEmailParams
 import com.wire.android.shared.user.email.ValidateEmailUseCase
+import kotlinx.coroutines.Dispatchers
 
 class LoginWithEmailViewModel(
-    override val dispatcherProvider: DispatcherProvider,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val loginWithEmailUseCase: LoginWithEmailUseCase
-) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val isValidEmailLiveData = SingleLiveEvent<Boolean>()
     private val isValidPasswordLiveData = SingleLiveEvent<Boolean>()
@@ -43,7 +42,7 @@ class LoginWithEmailViewModel(
     val loginResultLiveData: LiveData<Either<ErrorMessage, Unit>> = _loginResultLiveData
 
     fun validateEmail(email: String) =
-        validateEmailUseCase(viewModelScope, ValidateEmailParams(email), dispatcherProvider.default()) { result ->
+        validateEmailUseCase(viewModelScope, ValidateEmailParams(email), Dispatchers.Default) { result ->
             isValidEmailLiveData.value = result.isRight
         }
 

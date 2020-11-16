@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.events.Event
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.Failure
@@ -21,11 +20,10 @@ import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCas
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 
 class ConversationListViewModel(
-    override val dispatcherProvider: DispatcherProvider,
     private val getActiveUserUseCase: GetActiveUserUseCase,
     private val getConversationsUseCase: GetConversationsUseCase,
     private val eventsHandler: EventsHandler
-) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _userNameLiveData = MutableLiveData<String>()
     val userNameLiveData: LiveData<String> = _userNameLiveData

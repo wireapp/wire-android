@@ -16,6 +16,8 @@
 package com.wire.android
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.wire.android.framework.coroutines.CoroutinesTestRule
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Rule
 
 /**
@@ -28,9 +30,13 @@ abstract class UnitTest {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    val coroutinesTestRule = CoroutinesTestRule()
+
     @Suppress("LeakingThis")
-    @Rule
-    @JvmField val injectMocksRule = InjectMockKsRule.create(this@UnitTest)
+    @get:Rule
+    val injectMocksRule = InjectMockKsRule.create(this@UnitTest)
 
     fun fail(message: String): Nothing = throw AssertionError(message)
 }

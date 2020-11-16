@@ -3,7 +3,6 @@ package com.wire.android.feature.auth.registration.personal.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
@@ -11,9 +10,8 @@ import com.wire.android.shared.user.name.ValidateNameParams
 import com.wire.android.shared.user.name.ValidateNameUseCase
 
 class CreatePersonalAccountNameViewModel(
-    override val dispatcherProvider: DispatcherProvider,
     private val validateNameUseCase: ValidateNameUseCase
-) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _continueEnabled = SingleLiveEvent<Boolean>()
     val continueEnabled: LiveData<Boolean> = _continueEnabled

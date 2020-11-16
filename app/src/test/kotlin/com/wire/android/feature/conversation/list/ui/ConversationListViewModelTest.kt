@@ -1,6 +1,7 @@
 package com.wire.android.feature.conversation.list.ui
 
 import com.wire.android.UnitTest
+import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.Conversation
@@ -34,6 +35,9 @@ class ConversationListViewModelTest : UnitTest() {
     @MockK
     private lateinit var getConversationsUseCase: GetConversationsUseCase
 
+    @MockK
+    private lateinit var eventsHandler: EventsHandler
+
     private lateinit var getConversationParams: GetConversationsParams
 
     private lateinit var conversationListViewModel: ConversationListViewModel
@@ -41,7 +45,8 @@ class ConversationListViewModelTest : UnitTest() {
     @Before
     fun setUp() {
         conversationListViewModel =
-            ConversationListViewModel(coroutinesTestRule.dispatcherProvider, getActiveUserUseCase, getConversationsUseCase)
+            ConversationListViewModel(coroutinesTestRule.dispatcherProvider, getActiveUserUseCase,
+                getConversationsUseCase, eventsHandler)
         getConversationParams = GetConversationsParams(size = 10)
     }
 

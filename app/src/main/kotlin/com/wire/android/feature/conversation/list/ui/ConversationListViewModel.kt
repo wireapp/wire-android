@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.core.async.DispatcherProvider
+import com.wire.android.core.events.Event
+import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.extension.failure
 import com.wire.android.core.extension.success
@@ -21,7 +23,8 @@ import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 class ConversationListViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val getActiveUserUseCase: GetActiveUserUseCase,
-    private val getConversationsUseCase: GetConversationsUseCase
+    private val getConversationsUseCase: GetConversationsUseCase,
+    private val eventsHandler: EventsHandler
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _userNameLiveData = MutableLiveData<String>()
@@ -37,7 +40,6 @@ class ConversationListViewModel(
     }
 
     fun fetchConversations() {
-        //TODO implement pagination properly
         val params = GetConversationsParams(size = 10)
         getConversationsUseCase(viewModelScope, params) {
             it.onSuccess { conversations ->
@@ -46,5 +48,10 @@ class ConversationListViewModel(
                 _conversationsLiveData.failure(failure)
             }
         }
+    }
+
+    fun subscribeToEvents() = with(eventsHandler) {
+        subscribe<Event.UsernameChanged> { _userNameLiveData.value = it.username }
+        subscribe<Event.ConversationNameChanged> { TODO() }
     }
 }

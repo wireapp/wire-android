@@ -6,6 +6,9 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 
+inline fun <reified T : RoomDatabase> buildDatabase(appContext: Context, dispatcher: CoroutineDispatcher): T =
+    buildDatabase(T::class.java, appContext, dispatcher)
+
 fun <T : RoomDatabase> buildDatabase(clazz: Class<T>, appContext: Context, dispatcher: CoroutineDispatcher): T =
     Room.inMemoryDatabaseBuilder(appContext, clazz)
         .setQueryExecutor(dispatcher.asExecutor())

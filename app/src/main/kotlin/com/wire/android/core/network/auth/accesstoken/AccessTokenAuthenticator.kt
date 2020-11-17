@@ -37,12 +37,11 @@ class AccessTokenAuthenticator(private val repository: SessionRepository) : Auth
     }
 
     private fun proceedWithNewAccessToken(response: Response, newAccessToken: String): Request? =
-        response.request.header(AUTH_HEADER_KEY)?.let {
-            response.request
-                .newBuilder()
-                .removeHeader(AUTH_HEADER_KEY)
-                .addHeader(AUTH_HEADER_KEY, "$AUTH_HEADER_TOKEN_TYPE $newAccessToken")
-                .build()
+        response.request.header(AUTH_HEADER_KEY)?.let { response.request
+            .newBuilder()
+            .removeHeader(AUTH_HEADER_KEY)
+            .addHeader(AUTH_HEADER_KEY, "$AUTH_HEADER_TOKEN_TYPE $newAccessToken")
+            .build()
         }
 
     private fun parseRefreshToken(response: Response, currentSession: Session): String {

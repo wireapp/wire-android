@@ -30,11 +30,12 @@ abstract class ApiService {
             }
         }
 
-    suspend fun <T> request(default: T? = null, call: suspend () -> Response<T>): Either<Failure, T> = rawRequest(call).flatMap {
-        it.body()?.let { Either.Right(it) }
-            ?: default?.let { Either.Right(it) }
-            ?: Either.Left(EmptyResponseBody)
-    }
+    suspend fun <T> request(default: T? = null, call: suspend () -> Response<T>): Either<Failure, T> =
+        rawRequest(call).flatMap { response ->
+            response.body()?.let { Either.Right(it) }
+                ?: default?.let { Either.Right(it) }
+                ?: Either.Left(EmptyResponseBody)
+        }
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun <T> performRequest(call: suspend () -> Response<T>): Either<Failure, Response<T>> {

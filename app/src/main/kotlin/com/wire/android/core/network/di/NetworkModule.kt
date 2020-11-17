@@ -37,37 +37,28 @@ object NetworkDependencyProvider {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    fun createHttpClientWithAuth(
-        httpsRequestParams: HttpRequestParams,
-        accessTokenInterceptor: AccessTokenInterceptor,
-        accessTokenAuthenticator: AccessTokenAuthenticator,
-        userAgentInterceptor: UserAgentInterceptor,
-    ): OkHttpClient =
+    fun createHttpClientWithAuth(httpsRequestParams: HttpRequestParams,
+                                 accessTokenInterceptor: AccessTokenInterceptor,
+                                 accessTokenAuthenticator: AccessTokenAuthenticator,
+                                 userAgentInterceptor: UserAgentInterceptor): OkHttpClient =
         defaultHttpClient(httpsRequestParams, userAgentInterceptor)
             .addInterceptor(accessTokenInterceptor)
             .authenticator(accessTokenAuthenticator)
             .build()
 
-    fun createHttpClientWithoutAuth(
-        httpsRequestParams: HttpRequestParams,
-        userAgentInterceptor: UserAgentInterceptor
-    ): OkHttpClient =
-        defaultHttpClient(httpsRequestParams, userAgentInterceptor)
-            .build()
+    fun createHttpClientWithoutAuth(httpsRequestParams: HttpRequestParams,
+                                    userAgentInterceptor: UserAgentInterceptor): OkHttpClient =
+        defaultHttpClient(httpsRequestParams, userAgentInterceptor).build()
 
-    private fun defaultHttpClient(
-        httpParams: HttpRequestParams,
-        userAgentInterceptor: UserAgentInterceptor
-    ): OkHttpClient.Builder =
+    private fun defaultHttpClient(httpParams: HttpRequestParams,
+                                  userAgentInterceptor: UserAgentInterceptor): OkHttpClient.Builder =
         OkHttpClient.Builder()
             .connectionSpecs(httpParams.connectionSpecs)
             .addInterceptor(userAgentInterceptor)
             .addLoggingInterceptor()
 
     private fun OkHttpClient.Builder.addLoggingInterceptor() = this.apply {
-        if (BuildConfig.DEBUG) {
-            addInterceptor(HttpLoggingInterceptor().setLevel(Level.BODY))
-        }
+        if (BuildConfig.DEBUG) addInterceptor(HttpLoggingInterceptor().setLevel(Level.BODY))
     }
 }
 

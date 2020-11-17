@@ -1,6 +1,6 @@
 package com.wire.android.core.network
 
-import com.wire.android.BuildConfig
+import com.wire.android.core.config.GlobalConfig
 import com.wire.android.core.extension.EMPTY
 import okhttp3.Interceptor
 
@@ -28,8 +28,8 @@ class UserAgentInterceptor : Interceptor {
         private const val USER_AGENT_HEADER_KEY = "User-Agent"
 
         private val USER_AGENT_HEADER_CONTENT =
-            "Android ${android.os.Build.VERSION.RELEASE} / " +
-            "Wire ${BuildConfig.VERSION_NAME} / " +
-            "HttpLibrary ${okhttp3.internal.userAgent}"
+            GlobalConfig.OS_VERSION + " / " +
+            GlobalConfig.APP_VERSION + " / " +
+            GlobalConfig.USER_AGENT
     }
 }

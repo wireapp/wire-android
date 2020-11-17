@@ -1,6 +1,17 @@
 package com.wire.android.core.network
 
-import com.wire.android.core.exception.*
+import com.wire.android.core.exception.ServerError
+import com.wire.android.core.exception.Cancelled
+import com.wire.android.core.exception.EmptyResponseBody
+import com.wire.android.core.exception.Failure
+import com.wire.android.core.exception.NetworkConnection
+import com.wire.android.core.exception.BadRequest
+import com.wire.android.core.exception.Unauthorized
+import com.wire.android.core.exception.Forbidden
+import com.wire.android.core.exception.NotFound
+import com.wire.android.core.exception.Conflict
+import com.wire.android.core.exception.TooManyRequests
+import com.wire.android.core.exception.InternalServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.flatMap
 import kotlinx.coroutines.CancellationException

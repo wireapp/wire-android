@@ -60,7 +60,7 @@ object NetworkDependencyProvider {
         userAgentInterceptor: UserAgentInterceptor
     ): OkHttpClient.Builder =
         OkHttpClient.Builder()
-            .connectionSpecs(httpParams.connectionSpecs())
+            .connectionSpecs(httpParams.connectionSpecs)
             .addInterceptor(userAgentInterceptor)
             .addLoggingInterceptor()
 

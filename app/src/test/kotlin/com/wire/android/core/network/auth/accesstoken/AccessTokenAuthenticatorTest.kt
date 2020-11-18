@@ -70,7 +70,7 @@ class AccessTokenAuthenticatorTest : UnitTest() {
     }
 
     @Test
-    fun `Given cookie header is valid, when cookie refresh token is not current, then build request with new refresh token`() {
+    fun `Given cookie header is valid, when refresh token is not current, then build request with new refresh token`() {
         coEvery { sessionRepository.accessToken(any()) } returns Either.Left(NoEntityFound)
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
         every { response.headers[TOKEN_HEADER_KEY] } returns NEW_REFRESH_TOKEN
@@ -84,7 +84,7 @@ class AccessTokenAuthenticatorTest : UnitTest() {
     }
 
     @Test
-    fun `Given cookie header is valid, when cookie refresh token is same as now, then build request with current refresh token`() {
+    fun `Given cookie header is valid, when refresh token is same as now, then build request with current refresh token`() {
         coEvery { sessionRepository.accessToken(any()) } returns Either.Left(NoEntityFound)
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
         every { response.headers[TOKEN_HEADER_KEY] } returns CURRENT_REFRESH_TOKEN

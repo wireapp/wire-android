@@ -6,15 +6,15 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class AccessTokenInterceptor(private val session: SessionRepository) : Interceptor {
+class AccessTokenInterceptor(private val sessionRepository: SessionRepository) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response = runBlocking {
         interceptRequest(chain) ?: chain.proceed(chain.request())
     }
 
     private suspend fun interceptRequest(chain: Interceptor.Chain): Response? = suspending {
-        session.currentSession().coFold({ null }) { currentSession ->
-            session.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
+        sessionRepository.currentSession().coFold({ null }) { currentSession ->
+            sessionRepository.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
                 when (accessTokenSession.accessToken.isNotEmpty()) {
                     true -> addAuthHeader(chain, accessTokenSession.accessToken)
                     false -> chain.proceed(chain.request())

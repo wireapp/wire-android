@@ -21,6 +21,6 @@ object ClientConfig {
 
         //Config field values for RELEASE Build Type
         BuildTypes.RELEASE to mapOf(
-            Features.FEATURE_SEARCH to "\"https://nginz-https.zinfra.io\"",
-            Features.FEATURE_CONVERSATIONS to "\"https://wire-account.zinfra.io\""))
+            ConfigFields.API_BASE_URL to "\"https://nginz-https.zinfra.io\"",
+            ConfigFields.ACCOUNTS_URL to "\"https://wire-account.zinfra.io\""))
 }

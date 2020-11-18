@@ -6,6 +6,6 @@ interface NetworkClient {
     fun <T> create(clazz: Class<T>): T
 }
 
-class RetrofitClient(private val retrofit: Retrofit) : NetworkClient {
+internal class RetrofitClient(private val retrofit: Retrofit) : NetworkClient {
     override fun <T> create(clazz: Class<T>): T = retrofit.create(clazz)
 }

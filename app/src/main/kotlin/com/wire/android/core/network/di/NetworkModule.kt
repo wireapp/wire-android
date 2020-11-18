@@ -10,7 +10,6 @@ import com.wire.android.core.network.HttpRequestParams
 import com.wire.android.core.network.NetworkClient
 import com.wire.android.core.network.NetworkHandler
 import com.wire.android.core.network.RetrofitClient
-import com.wire.android.core.network.UserAgentConfig
 import com.wire.android.core.network.UserAgentInterceptor
 import com.wire.android.core.network.auth.accesstoken.AccessTokenAuthenticator
 import com.wire.android.core.network.auth.accesstoken.AccessTokenInterceptor
@@ -38,37 +37,28 @@ object NetworkDependencyProvider {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    fun createHttpClientWithAuth(
-        httpsRequestParams: HttpRequestParams,
-        accessTokenInterceptor: AccessTokenInterceptor,
-        accessTokenAuthenticator: AccessTokenAuthenticator,
-        userAgentInterceptor: UserAgentInterceptor,
-    ): OkHttpClient =
+    fun createHttpClientWithAuth(httpsRequestParams: HttpRequestParams,
+                                 accessTokenInterceptor: AccessTokenInterceptor,
+                                 accessTokenAuthenticator: AccessTokenAuthenticator,
+                                 userAgentInterceptor: UserAgentInterceptor): OkHttpClient =
         defaultHttpClient(httpsRequestParams, userAgentInterceptor)
             .addInterceptor(accessTokenInterceptor)
             .authenticator(accessTokenAuthenticator)
             .build()
 
-    fun createHttpClientWithoutAuth(
-        httpsRequestParams: HttpRequestParams,
-        userAgentInterceptor: UserAgentInterceptor
-    ): OkHttpClient =
-        defaultHttpClient(httpsRequestParams, userAgentInterceptor)
-            .build()
+    fun createHttpClientWithoutAuth(httpsRequestParams: HttpRequestParams,
+                                    userAgentInterceptor: UserAgentInterceptor): OkHttpClient =
+        defaultHttpClient(httpsRequestParams, userAgentInterceptor).build()
 
-    private fun defaultHttpClient(
-        httpParams: HttpRequestParams,
-        userAgentInterceptor: UserAgentInterceptor
-    ): OkHttpClient.Builder =
+    private fun defaultHttpClient(httpParams: HttpRequestParams,
+                                  userAgentInterceptor: UserAgentInterceptor): OkHttpClient.Builder =
         OkHttpClient.Builder()
-            .connectionSpecs(httpParams.connectionSpecs())
+            .connectionSpecs(httpParams.connectionSpecs)
             .addInterceptor(userAgentInterceptor)
             .addLoggingInterceptor()
 
     private fun OkHttpClient.Builder.addLoggingInterceptor() = this.apply {
-        if (BuildConfig.DEBUG) {
-            addInterceptor(HttpLoggingInterceptor().setLevel(Level.BODY))
-        }
+        if (BuildConfig.DEBUG) addInterceptor(HttpLoggingInterceptor().setLevel(Level.BODY))
     }
 }
 
@@ -80,8 +70,7 @@ val networkModule: Module = module {
     single { HttpRequestParams() }
     single { AccessTokenAuthenticator(get()) }
     single { AccessTokenInterceptor(get()) }
-    single { UserAgentInterceptor(get()) }
-    single { UserAgentConfig(get()) }
+    single { UserAgentInterceptor() }
 
     val networkClientForNoAuth = "NETWORK_CLIENT_NO_AUTH_REQUEST"
     single<NetworkClient>(named(networkClientForNoAuth)) {

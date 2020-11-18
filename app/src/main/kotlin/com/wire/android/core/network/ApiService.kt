@@ -1,17 +1,17 @@
 package com.wire.android.core.network
 
-import com.wire.android.core.exception.BadRequest
+import com.wire.android.core.exception.ServerError
 import com.wire.android.core.exception.Cancelled
-import com.wire.android.core.exception.Conflict
 import com.wire.android.core.exception.EmptyResponseBody
 import com.wire.android.core.exception.Failure
-import com.wire.android.core.exception.Forbidden
-import com.wire.android.core.exception.InternalServerError
 import com.wire.android.core.exception.NetworkConnection
-import com.wire.android.core.exception.NotFound
-import com.wire.android.core.exception.ServerError
-import com.wire.android.core.exception.TooManyRequests
+import com.wire.android.core.exception.BadRequest
 import com.wire.android.core.exception.Unauthorized
+import com.wire.android.core.exception.Forbidden
+import com.wire.android.core.exception.NotFound
+import com.wire.android.core.exception.Conflict
+import com.wire.android.core.exception.TooManyRequests
+import com.wire.android.core.exception.InternalServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.flatMap
 import kotlinx.coroutines.CancellationException
@@ -30,11 +30,12 @@ abstract class ApiService {
             }
         }
 
-    suspend fun <T> request(default: T? = null, call: suspend () -> Response<T>): Either<Failure, T> = rawRequest(call).flatMap {
-        it.body()?.let { Either.Right(it) }
-            ?: default?.let { Either.Right(it) }
-            ?: Either.Left(EmptyResponseBody)
-    }
+    suspend fun <T> request(default: T? = null, call: suspend () -> Response<T>): Either<Failure, T> =
+        rawRequest(call).flatMap { response ->
+            response.body()?.let { Either.Right(it) }
+                ?: default?.let { Either.Right(it) }
+                ?: Either.Left(EmptyResponseBody)
+        }
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun <T> performRequest(call: suspend () -> Response<T>): Either<Failure, Response<T>> {
@@ -54,15 +55,19 @@ abstract class ApiService {
     }
 
     private fun <T> handleRequestError(response: Response<T>): Either<Failure, Response<T>> {
-        return when (response.code()) {
-            CODE_BAD_REQUEST -> Either.Left(BadRequest)
-            CODE_UNAUTHORIZED -> Either.Left(Unauthorized)
-            CODE_FORBIDDEN -> Either.Left(Forbidden)
-            CODE_NOT_FOUND -> Either.Left(NotFound)
-            CODE_CONFLICT -> Either.Left(Conflict)
-            CODE_TOO_MANY_REQUESTS -> Either.Left(TooManyRequests)
-            CODE_INTERNAL_SERVER_ERROR -> Either.Left(InternalServerError)
-            else -> Either.Left(ServerError)
+        return Either.Left(buildFailure(response.code()))
+    }
+
+    fun buildFailure(errorCode: Int): Failure {
+        return when (errorCode) {
+            CODE_BAD_REQUEST -> BadRequest
+            CODE_UNAUTHORIZED -> Unauthorized
+            CODE_FORBIDDEN -> Forbidden
+            CODE_NOT_FOUND -> NotFound
+            CODE_CONFLICT -> Conflict
+            CODE_TOO_MANY_REQUESTS -> TooManyRequests
+            CODE_INTERNAL_SERVER_ERROR -> InternalServerError
+            else -> ServerError
         }
     }
 

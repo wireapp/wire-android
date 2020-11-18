@@ -24,7 +24,6 @@ object Injector {
     private val coreModules: List<Module> = listOf(
         accessibilityModule,
         compatibilityModule,
-        localeModule,
         appConfigModule,
         asyncModule,
         networkModule,

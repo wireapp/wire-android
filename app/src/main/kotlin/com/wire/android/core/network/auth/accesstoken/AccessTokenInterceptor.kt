@@ -6,16 +6,15 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class AccessTokenInterceptor(private val repository: SessionRepository) : Interceptor {
+class AccessTokenInterceptor(private val sessionRepository: SessionRepository) : Interceptor {
 
-    override fun intercept(chain: Interceptor.Chain): Response =
-        runBlocking {
-            interceptRequest(chain) ?: chain.proceed(chain.request())
-        }
+    override fun intercept(chain: Interceptor.Chain): Response = runBlocking {
+        interceptRequest(chain) ?: chain.proceed(chain.request())
+    }
 
     private suspend fun interceptRequest(chain: Interceptor.Chain): Response? = suspending {
-        repository.currentSession().coFold({ null }) { currentSession ->
-            repository.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
+        sessionRepository.currentSession().coFold({ null }) { currentSession ->
+            sessionRepository.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
                 when (accessTokenSession.accessToken.isNotEmpty()) {
                     true -> addAuthHeader(chain, accessTokenSession.accessToken)
                     false -> chain.proceed(chain.request())
@@ -24,17 +23,14 @@ class AccessTokenInterceptor(private val repository: SessionRepository) : Interc
         }
     }
 
-    private fun addAuthHeader(chain: Interceptor.Chain, token: String): Response {
-        val authenticatedRequest = chain.request()
+    private fun addAuthHeader(chain: Interceptor.Chain, token: String) =
+        chain.proceed(chain.request()
             .newBuilder()
             .addHeader(AUTH_HEADER_KEY, "$AUTH_HEADER_TOKEN_TYPE $token")
-            .build()
-        return chain.proceed(authenticatedRequest)
-    }
+            .build())
 
     companion object {
         private const val AUTH_HEADER_KEY = "Authorization"
         private const val AUTH_HEADER_TOKEN_TYPE = "Bearer"
     }
-
 }

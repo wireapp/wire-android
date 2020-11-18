@@ -8,7 +8,6 @@ import com.wire.android.R
 import com.wire.android.core.extension.toast
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
-import com.wire.android.core.ui.dialog.ErrorMessage
 import kotlinx.android.synthetic.main.fragment_conversation_list.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -39,7 +38,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
             result.onSuccess {
                 conversationListAdapter.submitList(it)
             }.onFailure {
-                showConversationListDisplayError(it)
+                showConversationListDisplayError()
             }
         }
     }
@@ -50,8 +49,8 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         adapter = conversationListAdapter
     }
 
-    //TODO: implement
-    private fun showConversationListDisplayError(errorMessage: ErrorMessage) = toast(errorMessage.message)
+    //TODO: check how we display errors
+    private fun showConversationListDisplayError() = toast("Error while loading conversations")
 
     private fun subscribeToEvents() = viewModel.subscribeToEvents()
 }

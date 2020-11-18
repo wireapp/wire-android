@@ -9,7 +9,6 @@ import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
-import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
@@ -83,20 +82,21 @@ class ConversationListViewModelTest : UnitTest() {
 
         val useCaseParamsSlot = slot<GetConversationsParams>()
         verify { getConversationsUseCase(conversationListViewModel.viewModelScope, capture(useCaseParamsSlot)) }
-        useCaseParamsSlot.captured.size shouldBeEqualTo 30 //TODO update this assertion when inject config
+        useCaseParamsSlot.captured.size shouldBeEqualTo CONVERSATIONS_PAGE_SIZE
     }
 
     @Test
-    fun `given conversationsLiveData observed, when getConversationsUseCase fails, then sets GeneralErrorMessage to liveData`() {
+    fun `given conversationsLiveData observed, when getConversationsUseCase fails, then sets failure to liveData`() {
         val useCaseResultLiveData: LiveData<Either<Failure, PagedList<Conversation>>> = MutableLiveData(Either.Left(ServerError))
         every { getConversationsUseCase(any(), any()) } returns useCaseResultLiveData
 
         conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
-            result shouldFail { it shouldBeEqualTo GeneralErrorMessage }
+            result shouldFail { }
         }
     }
 
     companion object {
+        private const val CONVERSATIONS_PAGE_SIZE = 30
         private const val TEST_USER_ID = "user-id-123"
         private const val TEST_USER_NAME = "User Name"
     }

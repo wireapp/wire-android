@@ -24,7 +24,7 @@ class UserAgentInterceptor(private val config: GlobalConfig) : Interceptor {
         }
 
     private fun buildUserAgentHeader(): String =
-        config.OS_VERSION + " / " + config.APP_VERSION + " / " + config.USER_AGENT
+        config.osVersion + " / " + config.appVersion + " / " + config.userAgent
 
 
     companion object {

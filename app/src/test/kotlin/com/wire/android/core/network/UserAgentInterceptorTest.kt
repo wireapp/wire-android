@@ -32,9 +32,9 @@ class UserAgentInterceptorTest : UnitTest() {
 
     @Before
     fun setup() {
-        every { globalConfig.APP_VERSION } returns WIRE_DETAILS
-        every { globalConfig.OS_VERSION } returns ANDROID_DETAILS
-        every { globalConfig.USER_AGENT } returns HTTP_DETAILS
+        every { globalConfig.appVersion } returns WIRE_DETAILS
+        every { globalConfig.osVersion } returns ANDROID_DETAILS
+        every { globalConfig.userAgent } returns HTTP_DETAILS
 
         userAgentInterceptor = UserAgentInterceptor(globalConfig)
 

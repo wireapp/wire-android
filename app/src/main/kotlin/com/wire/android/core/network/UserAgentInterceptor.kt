@@ -14,7 +14,7 @@ class UserAgentInterceptor(private val config: GlobalConfig) : Interceptor {
     private fun addUserAgentHeader(chain: Interceptor.Chain) =
         chain.proceed(chain.request()
             .newBuilder()
-            .addHeader(USER_AGENT_HEADER_KEY, USER_AGENT_HEADER_CONTENT)
+            .addHeader(USER_AGENT_HEADER_KEY, buildUserAgentHeader())
             .build())
 
     private fun requestHasUserHeader(chain: Interceptor.Chain): Boolean =

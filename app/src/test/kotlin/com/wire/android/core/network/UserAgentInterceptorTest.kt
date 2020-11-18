@@ -5,7 +5,6 @@ import com.wire.android.core.config.GlobalConfig
 import com.wire.android.core.extension.EMPTY
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.impl.annotations.SpyK
 import io.mockk.verify
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -28,9 +27,16 @@ class UserAgentInterceptorTest : UnitTest() {
     @MockK
     private lateinit var newRequest: Request
 
+    @MockK
+    private lateinit var globalConfig: GlobalConfig
+
     @Before
     fun setup() {
-        userAgentInterceptor = UserAgentInterceptor()
+        every { globalConfig.APP_VERSION } returns WIRE_DETAILS
+        every { globalConfig.OS_VERSION } returns ANDROID_DETAILS
+        every { globalConfig.USER_AGENT } returns HTTP_DETAILS
+
+        userAgentInterceptor = UserAgentInterceptor(globalConfig)
 
         every { chain.request() } returns originalRequest
         every { originalRequest.newBuilder() } returns requestBuilder
@@ -39,7 +45,7 @@ class UserAgentInterceptorTest : UnitTest() {
     @Test
     fun `Given HttpRequest is intercepted when chain request header is null then create new request with header`() {
         every { originalRequest.header(USER_AGENT_HEADER_KEY) } returns null
-        every { requestBuilder.addHeader(USER_AGENT_HEADER_KEY, any()) } returns requestBuilder
+        every { requestBuilder.addHeader(USER_AGENT_HEADER_KEY, USER_AGENT_HEADER_CONTENT) } returns requestBuilder
         every { requestBuilder.build() } returns newRequest
 
         userAgentInterceptor.intercept(chain)
@@ -50,7 +56,7 @@ class UserAgentInterceptorTest : UnitTest() {
     @Test
     fun `Given HttpRequest is intercepted when chain request header is empty then create new request with header`() {
         every { originalRequest.header(USER_AGENT_HEADER_KEY) } returns String.EMPTY
-        every { requestBuilder.addHeader(USER_AGENT_HEADER_KEY, any()) } returns requestBuilder
+        every { requestBuilder.addHeader(USER_AGENT_HEADER_KEY, USER_AGENT_HEADER_CONTENT) } returns requestBuilder
         every { requestBuilder.build() } returns newRequest
 
         userAgentInterceptor.intercept(chain)

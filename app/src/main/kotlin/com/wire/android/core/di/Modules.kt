@@ -6,6 +6,7 @@ import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.accessibility.AccessibilityConfig
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.compatibility.Compatibility
+import com.wire.android.core.config.GlobalConfig
 import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.ui.dialog.DialogBuilder
@@ -35,6 +36,7 @@ val compatibilityModule: Module = module {
 
 val appConfigModule: Module = module {
     factory { LocaleConfig(androidContext()) }
+    single { GlobalConfig() }
 }
 
 val uiModule: Module = module {

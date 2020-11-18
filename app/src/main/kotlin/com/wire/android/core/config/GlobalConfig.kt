@@ -2,15 +2,18 @@ package com.wire.android.core.config
 
 import com.wire.android.BuildConfig
 
-object GlobalConfig {
+class GlobalConfig() {
     //System
     val OS_VERSION = "Android ${android.os.Build.VERSION.RELEASE}"
-    const val USER_AGENT = "HttpLibrary ${okhttp3.internal.userAgent}"
+    val USER_AGENT = "HttpLibrary ${okhttp3.internal.userAgent}"
 
     //Client App
-    const val APP_VERSION = "Wire ${BuildConfig.VERSION_NAME}"
+    val APP_VERSION = "Wire ${BuildConfig.VERSION_NAME}"
 
     //Urls and Api
-    const val API_BASE_URL = BuildConfig.API_BASE_URL
-    const val ACCOUNTS_URL = BuildConfig.ACCOUNTS_URL
+
+    companion object {
+        const val API_BASE_URL = BuildConfig.API_BASE_URL
+        const val ACCOUNTS_URL = BuildConfig.ACCOUNTS_URL
+    }
 }

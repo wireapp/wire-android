@@ -4,7 +4,7 @@ import com.wire.android.core.config.GlobalConfig
 import com.wire.android.core.extension.EMPTY
 import okhttp3.Interceptor
 
-class UserAgentInterceptor : Interceptor {
+class UserAgentInterceptor(private val config: GlobalConfig) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain) =
         if (requestHasUserHeader(chain)) {
@@ -23,12 +23,11 @@ class UserAgentInterceptor : Interceptor {
             else -> true
         }
 
+    private fun buildUserAgentHeader(): String =
+        config.OS_VERSION + " / " + config.APP_VERSION + " / " + config.USER_AGENT
+
+
     companion object {
         private const val USER_AGENT_HEADER_KEY = "User-Agent"
-
-        private val USER_AGENT_HEADER_CONTENT =
-            GlobalConfig.OS_VERSION + " / " +
-            GlobalConfig.APP_VERSION + " / " +
-            GlobalConfig.USER_AGENT
     }
 }

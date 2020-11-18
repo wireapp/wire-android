@@ -22,17 +22,18 @@ class AccessTokenAuthenticator(private val repository: SessionRepository) : Auth
      * This authenticate() method is called when server returns 401 Unauthorized.
      */
     override fun authenticate(route: Route?, response: Response): Request? = runBlocking {
-        authenticatedRequestOrNull(response)
+        authenticatedRequest(response)
     }
 
-    private suspend fun authenticatedRequestOrNull(response: Response): Request? = suspending {
-        repository.currentSession().coFold({ null }) { currentSession ->
-            val refreshToken = differentRefreshTokenOrNull(response, currentSession) ?: currentSession.refreshToken
-            repository.accessToken(refreshToken).coFold({ null }) { updatedSession ->
-                repository.save(updatedSession).fold({ null }) {
-                    proceedWithNewAccessToken(response, updatedSession.accessToken)
-                }
-            }
+    private suspend fun authenticatedRequest(response: Response): Request? = suspending {
+        repository.currentSession().map {
+            differentRefreshToken(response, it) ?: it.refreshToken
+        }.flatMap { refreshToken ->
+            repository.accessToken(refreshToken)
+        }.flatMap { session ->
+            repository.save(session).map { session }
+        }.fold({ null }) {
+            proceedWithNewAccessToken(response, it.accessToken)
         }
     }
 
@@ -45,7 +46,7 @@ class AccessTokenAuthenticator(private val repository: SessionRepository) : Auth
                 .build()
         }
 
-    private fun differentRefreshTokenOrNull(response: Response, currentSession: Session): String? {
+    private fun differentRefreshToken(response: Response, currentSession: Session): String? {
         val refreshTokenHeader = response.headers[TOKEN_HEADER_KEY]
         return if (!refreshTokenHeader.equals(currentSession.refreshToken, false)) {
             refreshTokenHeader

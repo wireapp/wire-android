@@ -6,11 +6,11 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.suspending
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
-import com.wire.android.feature.conversation.data.remote.ConversationRemoteDataSource
+import com.wire.android.feature.conversation.data.remote.ConversationsRemoteDataSource
 
 class ConversationDataSource(
     private val conversationMapper: ConversationMapper,
-    private val conversationRemoteDataSource: ConversationRemoteDataSource,
+    private val conversationRemoteDataSource: ConversationsRemoteDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : ConversationsRepository {
 

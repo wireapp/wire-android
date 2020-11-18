@@ -1,10 +1,8 @@
 package com.wire.android.core.network
 
-private const val STAGING_BASE_URL = "https://staging-nginz-https.zinfra.io"
-private const val STAGING_ACCOUNTS_URL = "https://wire-account-staging.zinfra.io"
+import com.wire.android.core.config.GlobalConfig
 
-//TODO: currently only points to staging.
 data class BackendConfig(
-    val baseUrl: String = STAGING_BASE_URL,
-    val accountsUrl: String = STAGING_ACCOUNTS_URL
+    val baseUrl: String = GlobalConfig.API_BASE_URL,
+    val accountsUrl: String = GlobalConfig.ACCOUNTS_URL
 )

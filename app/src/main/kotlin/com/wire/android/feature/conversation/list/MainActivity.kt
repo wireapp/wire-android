@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.wire.android.R
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
-
     companion object {
         fun newIntent(context: Context) = Intent(context, MainActivity::class.java)
     }

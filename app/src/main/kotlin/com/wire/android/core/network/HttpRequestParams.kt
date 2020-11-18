@@ -6,18 +6,18 @@ import okhttp3.TlsVersion
 
 class HttpRequestParams {
 
-    fun connectionSpecs() = listOf(
-        modernTlsConnectionSpec(),
+    val connectionSpecs = listOf(
+        buildTLSConnectionSpec(),
         ConnectionSpec.CLEARTEXT
     )
 
-    private fun modernTlsConnectionSpec(): ConnectionSpec =
+    private fun buildTLSConnectionSpec(): ConnectionSpec =
         ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
             .tlsVersions(TlsVersion.TLS_1_2)
             .cipherSuites(
                 CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
                 CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
                 CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-            ).build()
+                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384)
+            .build()
 }

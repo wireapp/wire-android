@@ -2,12 +2,12 @@ package scripts
 
 plugins { id("com.android.application") apply false }
 
-private object BuildTypes {
+object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
 }
 
-    object ProductFlavors {
+object ProductFlavors {
     const val DEV = "dev"
     const val INTERNAL = "internal"
     const val PUBLIC = "public"
@@ -51,6 +51,21 @@ android {
         }
         create(ProductFlavors.PUBLIC) {
             dimension = FlavorDimensions.DEFAULT
+        }
+    }
+
+    /**
+     * Process client configuration properties.
+     *
+     * @see "ClientConfig.kt" file definition.
+     */
+    buildTypes.map { type ->
+        ConfigFields.values().forEach { configField ->
+            val configValuesMap = ClientConfig.properties[type.name].orEmpty()
+            if (configValuesMap.isNotEmpty()) {
+                type.buildConfigField("String", configField.name,
+                    configValuesMap[configField] ?: configField.defaultValue)
+            }
         }
     }
 

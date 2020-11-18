@@ -25,7 +25,6 @@ object Injector {
         coreModule,
         accessibilityModule,
         compatibilityModule,
-        localeModule,
         appConfigModule,
         networkModule,
         databaseModule,

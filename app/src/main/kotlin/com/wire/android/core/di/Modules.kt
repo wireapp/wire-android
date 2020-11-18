@@ -2,12 +2,11 @@ package com.wire.android.core.di
 
 import android.content.Context
 import android.view.accessibility.AccessibilityManager
-import com.wire.android.BuildConfig
 import com.wire.android.core.accessibility.Accessibility
 import com.wire.android.core.accessibility.AccessibilityConfig
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.compatibility.Compatibility
-import com.wire.android.core.config.AppVersionNameConfig
+import com.wire.android.core.config.GlobalConfig
 import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.ui.dialog.DialogBuilder
@@ -35,12 +34,9 @@ val compatibilityModule: Module = module {
     factory { Compatibility() }
 }
 
-val localeModule: Module = module {
-    factory { LocaleConfig(androidContext()) }
-}
-
 val appConfigModule: Module = module {
-    factory { AppVersionNameConfig(BuildConfig.VERSION_NAME) }
+    factory { LocaleConfig(androidContext()) }
+    single { GlobalConfig() }
 }
 
 val uiModule: Module = module {

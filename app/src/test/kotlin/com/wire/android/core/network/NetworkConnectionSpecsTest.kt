@@ -17,7 +17,7 @@ class NetworkConnectionSpecsTest : UnitTest() {
     @Before
     fun setup() {
         val requestParams = HttpRequestParams()
-        connectionSpecs = requestParams.connectionSpecs()
+        connectionSpecs = requestParams.connectionSpecs
     }
 
     @Test

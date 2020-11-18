@@ -7,7 +7,7 @@ import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
-import com.wire.android.feature.conversation.data.remote.ConversationRemoteDataSource
+import com.wire.android.feature.conversation.data.remote.ConversationsRemoteDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationsResponse
 import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
 import com.wire.android.framework.functional.shouldFail
@@ -30,7 +30,7 @@ class ConversationDataSourceTest : UnitTest() {
     private lateinit var conversationsDataSource: ConversationsRepository
 
     @MockK
-    private lateinit var conversationRemoteDataSource: ConversationRemoteDataSource
+    private lateinit var conversationRemoteDataSource: ConversationsRemoteDataSource
 
     @MockK
     private lateinit var conversationLocalDataSource: ConversationLocalDataSource

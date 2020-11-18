@@ -21,11 +21,11 @@ object Injector {
      * Core modules should contain dependencies that are core
      * to the application
      */
-    private val coreModules: List<Module> = listOf(
+    private val appModules: List<Module> = listOf(
+        coreModule,
         accessibilityModule,
         compatibilityModule,
         appConfigModule,
-        asyncModule,
         networkModule,
         databaseModule,
         uiModule
@@ -46,7 +46,7 @@ object Injector {
     fun start(context: Context) {
         startKoin {
             androidContext(context)
-            modules(listOf(coreModules, sharedModules, featureModules).flatten())
+            modules(listOf(appModules, sharedModules, featureModules).flatten())
         }
     }
 }

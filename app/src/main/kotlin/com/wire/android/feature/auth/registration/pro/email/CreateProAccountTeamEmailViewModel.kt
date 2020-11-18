@@ -3,14 +3,11 @@ package com.wire.android.feature.auth.registration.pro.email
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 
-class CreateProAccountTeamEmailViewModel(
-    override val dispatcherProvider: DispatcherProvider
-) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
+class CreateProAccountTeamEmailViewModel : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
 
     private val _teamEmailLiveData = SingleLiveEvent<String>()
     val teamEmailLiveData: SingleLiveEvent<String> = _teamEmailLiveData

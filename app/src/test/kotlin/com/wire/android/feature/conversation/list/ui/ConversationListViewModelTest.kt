@@ -1,12 +1,12 @@
 package com.wire.android.feature.conversation.list.ui
 
 import com.wire.android.UnitTest
+import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
-import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.shouldBeUpdated
@@ -16,17 +16,11 @@ import com.wire.android.shared.user.User
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
 class ConversationListViewModelTest : UnitTest() {
-
-    @get:Rule
-    val coroutinesTestRule = CoroutinesTestRule()
 
     @MockK
     private lateinit var getActiveUserUseCase: GetActiveUserUseCase
@@ -34,14 +28,16 @@ class ConversationListViewModelTest : UnitTest() {
     @MockK
     private lateinit var getConversationsUseCase: GetConversationsUseCase
 
+    @MockK
+    private lateinit var eventsHandler: EventsHandler
+
     private lateinit var getConversationParams: GetConversationsParams
 
     private lateinit var conversationListViewModel: ConversationListViewModel
 
     @Before
     fun setUp() {
-        conversationListViewModel =
-            ConversationListViewModel(coroutinesTestRule.dispatcherProvider, getActiveUserUseCase, getConversationsUseCase)
+        conversationListViewModel = ConversationListViewModel(getActiveUserUseCase, getConversationsUseCase, eventsHandler)
         getConversationParams = GetConversationsParams(size = 10)
     }
 

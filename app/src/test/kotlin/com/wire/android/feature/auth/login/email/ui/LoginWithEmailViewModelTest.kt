@@ -13,7 +13,6 @@ import com.wire.android.feature.auth.login.email.usecase.LoginAuthenticationFail
 import com.wire.android.feature.auth.login.email.usecase.LoginTooFrequentFailure
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCaseParams
-import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.shouldBeUpdated
@@ -25,18 +24,12 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
 class LoginWithEmailViewModelTest : UnitTest() {
-
-    @get:Rule
-    val coroutinesTestRule = CoroutinesTestRule()
 
     @MockK
     private lateinit var validateEmailUseCase: ValidateEmailUseCase
@@ -48,9 +41,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        loginWithEmailViewModel = LoginWithEmailViewModel(
-            coroutinesTestRule.dispatcherProvider, validateEmailUseCase, loginWithEmailUseCase
-        )
+        loginWithEmailViewModel = LoginWithEmailViewModel(validateEmailUseCase, loginWithEmailUseCase)
     }
 
     @Test

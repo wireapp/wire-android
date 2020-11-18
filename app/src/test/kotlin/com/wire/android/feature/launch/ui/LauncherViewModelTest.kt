@@ -3,22 +3,15 @@ package com.wire.android.feature.launch.ui
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.SQLiteFailure
 import com.wire.android.core.functional.Either
-import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.shared.session.usecase.CheckCurrentSessionExistsUseCase
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
 class LauncherViewModelTest : UnitTest() {
-
-    @get:Rule
-    val coroutinesTestRule = CoroutinesTestRule()
 
     @MockK
     private lateinit var checkCurrentSessionExistsUseCase: CheckCurrentSessionExistsUseCase
@@ -27,7 +20,7 @@ class LauncherViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        launcherViewModel = LauncherViewModel(coroutinesTestRule.dispatcherProvider, checkCurrentSessionExistsUseCase)
+        launcherViewModel = LauncherViewModel(checkCurrentSessionExistsUseCase)
     }
 
     @Test

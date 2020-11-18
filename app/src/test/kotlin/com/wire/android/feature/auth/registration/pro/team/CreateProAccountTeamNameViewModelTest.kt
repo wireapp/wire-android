@@ -5,22 +5,15 @@ import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUseCase
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
-import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
 class CreateProAccountTeamNameViewModelTest : UnitTest() {
-
-    @get:Rule
-    val coroutinesTestRule = CoroutinesTestRule()
 
     private lateinit var viewModel: CreateProAccountTeamNameViewModel
 
@@ -33,7 +26,7 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     @Before
     fun setup() {
         coEvery { getTeamNameUseCase.run(Unit) } returns Either.Right(TEST_TEAM_NAME)
-        viewModel = CreateProAccountTeamNameViewModel(coroutinesTestRule.dispatcherProvider, getTeamNameUseCase, updateTeamNameUseCase)
+        viewModel = CreateProAccountTeamNameViewModel(getTeamNameUseCase, updateTeamNameUseCase)
     }
 
     @Test

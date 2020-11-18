@@ -22,35 +22,34 @@ class AccessTokenAuthenticator(private val repository: SessionRepository) : Auth
      * This authenticate() method is called when server returns 401 Unauthorized.
      */
     override fun authenticate(route: Route?, response: Response): Request? = runBlocking {
-        verifyAuthentication(response)
+        authenticatedRequestOrNull(response)
     }
 
-    private suspend fun verifyAuthentication(response: Response): Request? = suspending {
-        repository.currentSession().coFold({ null }) {
-            val refreshToken = parseRefreshToken(response, it)
-            repository.accessToken(refreshToken).coFold({ null }) { latestSession ->
-                repository.save(latestSession).fold({ null }) {
-                    proceedWithNewAccessToken(response, latestSession.accessToken)
+    private suspend fun authenticatedRequestOrNull(response: Response): Request? = suspending {
+        repository.currentSession().coFold({ null }) { currentSession ->
+            val refreshToken = differentRefreshTokenOrNull(response, currentSession) ?: currentSession.refreshToken
+            repository.accessToken(refreshToken).coFold({ null }) { updatedSession ->
+                repository.save(updatedSession).fold({ null }) {
+                    proceedWithNewAccessToken(response, updatedSession.accessToken)
                 }
             }
         }
     }
 
     private fun proceedWithNewAccessToken(response: Response, newAccessToken: String): Request? =
-        response.request.header(AUTH_HEADER_KEY)?.let { response.request
-            .newBuilder()
-            .removeHeader(AUTH_HEADER_KEY)
-            .addHeader(AUTH_HEADER_KEY, "$AUTH_HEADER_TOKEN_TYPE $newAccessToken")
-            .build()
+        response.request.header(AUTH_HEADER_KEY)?.let {
+            response.request
+                .newBuilder()
+                .removeHeader(AUTH_HEADER_KEY)
+                .addHeader(AUTH_HEADER_KEY, "$AUTH_HEADER_TOKEN_TYPE $newAccessToken")
+                .build()
         }
 
-    private fun parseRefreshToken(response: Response, currentSession: Session): String {
-        val refreshToken = response.headers[TOKEN_HEADER_KEY] ?: currentSession.refreshToken
-        return if (refreshToken != currentSession.refreshToken) {
-            refreshToken
-        } else {
-            currentSession.refreshToken
-        }
+    private fun differentRefreshTokenOrNull(response: Response, currentSession: Session): String? {
+        val refreshTokenHeader = response.headers[TOKEN_HEADER_KEY]
+        return if (!refreshTokenHeader.equals(currentSession.refreshToken, false)) {
+            refreshTokenHeader
+        } else null
     }
 
     companion object {

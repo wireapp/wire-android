@@ -10,9 +10,11 @@ import com.wire.android.shared.session.datasources.local.SessionLocalDataSource
 import com.wire.android.shared.session.datasources.remote.SessionRemoteDataSource
 import com.wire.android.shared.session.mapper.SessionMapper
 
-class SessionDataSource(private val remoteDataSource: SessionRemoteDataSource,
-                        private val localDataSource: SessionLocalDataSource,
-                        private val mapper: SessionMapper) : SessionRepository {
+class SessionDataSource(
+    private val remoteDataSource: SessionRemoteDataSource,
+    private val localDataSource: SessionLocalDataSource,
+    private val mapper: SessionMapper
+) : SessionRepository {
 
     override suspend fun save(session: Session, current: Boolean): Either<Failure, Unit> = suspending {
         if (current) {

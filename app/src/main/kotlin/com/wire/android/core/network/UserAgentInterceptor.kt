@@ -7,10 +7,9 @@ import okhttp3.Interceptor
 class UserAgentInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain) =
-        when (requestHasUserHeader(chain)) {
-            true -> chain.proceed(chain.request())
-            else -> addUserAgentHeader(chain)
-        }
+        if (requestHasUserHeader(chain)) {
+            chain.proceed(chain.request())
+        } else addUserAgentHeader(chain)
 
     private fun addUserAgentHeader(chain: Interceptor.Chain) =
         chain.proceed(chain.request()

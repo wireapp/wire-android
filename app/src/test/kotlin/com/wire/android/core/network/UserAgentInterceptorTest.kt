@@ -1,9 +1,11 @@
 package com.wire.android.core.network
 
 import com.wire.android.UnitTest
+import com.wire.android.core.config.GlobalConfig
 import com.wire.android.core.extension.EMPTY
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.SpyK
 import io.mockk.verify
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -37,7 +39,7 @@ class UserAgentInterceptorTest : UnitTest() {
     @Test
     fun `Given HttpRequest is intercepted when chain request header is null then create new request with header`() {
         every { originalRequest.header(USER_AGENT_HEADER_KEY) } returns null
-        every { requestBuilder.addHeader(eq(USER_AGENT_HEADER_KEY), any()) } returns requestBuilder
+        every { requestBuilder.addHeader(USER_AGENT_HEADER_KEY, any()) } returns requestBuilder
         every { requestBuilder.build() } returns newRequest
 
         userAgentInterceptor.intercept(chain)
@@ -48,7 +50,7 @@ class UserAgentInterceptorTest : UnitTest() {
     @Test
     fun `Given HttpRequest is intercepted when chain request header is empty then create new request with header`() {
         every { originalRequest.header(USER_AGENT_HEADER_KEY) } returns String.EMPTY
-        every { requestBuilder.addHeader(eq(USER_AGENT_HEADER_KEY), any()) } returns requestBuilder
+        every { requestBuilder.addHeader(USER_AGENT_HEADER_KEY, any()) } returns requestBuilder
         every { requestBuilder.build() } returns newRequest
 
         userAgentInterceptor.intercept(chain)
@@ -58,7 +60,7 @@ class UserAgentInterceptorTest : UnitTest() {
 
     @Test
     fun `Given HttpRequest is intercepted when chain request header exists then proceed with normal request`() {
-        every { originalRequest.header(USER_AGENT_HEADER_KEY) } returns USER_AGENT
+        every { originalRequest.header(USER_AGENT_HEADER_KEY) } returns USER_AGENT_HEADER_CONTENT
 
         userAgentInterceptor.intercept(chain)
 
@@ -70,6 +72,6 @@ class UserAgentInterceptorTest : UnitTest() {
         private const val ANDROID_DETAILS = "Android 10.0"
         private const val WIRE_DETAILS = "Wire 3.12.300"
         private const val HTTP_DETAILS = "HttpLibrary 4.1.0"
-        private const val USER_AGENT = "$ANDROID_DETAILS / $WIRE_DETAILS / $HTTP_DETAILS"
+        private const val USER_AGENT_HEADER_CONTENT = "$ANDROID_DETAILS / $WIRE_DETAILS / $HTTP_DETAILS"
     }
 }

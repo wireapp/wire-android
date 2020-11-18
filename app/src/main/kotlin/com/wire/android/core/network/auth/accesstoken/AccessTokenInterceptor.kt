@@ -4,30 +4,30 @@ import com.wire.android.core.functional.suspending
 import com.wire.android.shared.session.SessionRepository
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
+import okhttp3.Request
 import okhttp3.Response
 
 class AccessTokenInterceptor(private val sessionRepository: SessionRepository) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response = runBlocking {
-        interceptRequest(chain) ?: chain.proceed(chain.request())
+        chain.proceed(interceptedRequestOrNull(chain) ?: chain.request())
     }
 
-    private suspend fun interceptRequest(chain: Interceptor.Chain): Response? = suspending {
+    private suspend fun interceptedRequestOrNull(chain: Interceptor.Chain): Request? = suspending {
         sessionRepository.currentSession().coFold({ null }) { currentSession ->
             sessionRepository.accessToken(currentSession.refreshToken).fold({ null }) { accessTokenSession ->
-                when (accessTokenSession.accessToken.isNotEmpty()) {
-                    true -> addAuthHeader(chain, accessTokenSession.accessToken)
-                    false -> chain.proceed(chain.request())
-                }
+                if (accessTokenSession.accessToken.isNotEmpty()) {
+                    addAuthHeader(chain, accessTokenSession.accessToken)
+                } else null
             }
         }
     }
 
     private fun addAuthHeader(chain: Interceptor.Chain, token: String) =
-        chain.proceed(chain.request()
+        chain.request()
             .newBuilder()
             .addHeader(AUTH_HEADER_KEY, "$AUTH_HEADER_TOKEN_TYPE $token")
-            .build())
+            .build()
 
     companion object {
         private const val AUTH_HEADER_KEY = "Authorization"

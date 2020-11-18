@@ -1,17 +1,17 @@
 package com.wire.android.core.network
 
-import com.wire.android.core.exception.ServerError
+import com.wire.android.core.exception.BadRequest
 import com.wire.android.core.exception.Cancelled
+import com.wire.android.core.exception.Conflict
 import com.wire.android.core.exception.EmptyResponseBody
 import com.wire.android.core.exception.Failure
-import com.wire.android.core.exception.NetworkConnection
-import com.wire.android.core.exception.BadRequest
-import com.wire.android.core.exception.Unauthorized
 import com.wire.android.core.exception.Forbidden
-import com.wire.android.core.exception.NotFound
-import com.wire.android.core.exception.Conflict
-import com.wire.android.core.exception.TooManyRequests
 import com.wire.android.core.exception.InternalServerError
+import com.wire.android.core.exception.NetworkConnection
+import com.wire.android.core.exception.NotFound
+import com.wire.android.core.exception.ServerError
+import com.wire.android.core.exception.TooManyRequests
+import com.wire.android.core.exception.Unauthorized
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.flatMap
 import kotlinx.coroutines.CancellationException
@@ -54,12 +54,11 @@ abstract class ApiService {
         }
     }
 
-    private fun <T> handleRequestError(response: Response<T>): Either<Failure, Response<T>> {
-        return Either.Left(buildFailure(response.code()))
-    }
+    private fun <T> handleRequestError(response: Response<T>): Either<Failure, Response<T>> =
+        Either.Left(buildFailure(response.code()))
 
-    fun buildFailure(errorCode: Int): Failure {
-        return when (errorCode) {
+    private fun buildFailure(errorCode: Int): Failure =
+        when (errorCode) {
             CODE_BAD_REQUEST -> BadRequest
             CODE_UNAUTHORIZED -> Unauthorized
             CODE_FORBIDDEN -> Forbidden
@@ -69,7 +68,6 @@ abstract class ApiService {
             CODE_INTERNAL_SERVER_ERROR -> InternalServerError
             else -> ServerError
         }
-    }
 
     companion object {
         private const val CODE_BAD_REQUEST = 400

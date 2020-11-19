@@ -26,9 +26,8 @@ class ConversationListViewModel(
     private val _userNameLiveData = MutableLiveData<String>()
     val userNameLiveData: LiveData<String> = _userNameLiveData
 
-    val conversationsLiveData: LiveData<Either<Failure, PagedList<Conversation>>> by lazy {
-        createConversationsLiveData()
-    }
+    private val _conversationsLiveData = MutableLiveData<Either<Failure, PagedList<Conversation>>>()
+    val conversationsLiveData: LiveData<Either<Failure, PagedList<Conversation>>> = _conversationsLiveData
 
     fun fetchUserName() {
         getActiveUserUseCase(viewModelScope, Unit) {
@@ -36,9 +35,11 @@ class ConversationListViewModel(
         }
     }
 
-    //TODO: do not expose Failure directly, map it to some sort of error message
-    private fun createConversationsLiveData() =
-        getConversationsUseCase(viewModelScope, GetConversationsParams(size = CONVERSATIONS_PAGE_SIZE))
+    fun fetchConversations() {
+        getConversationsUseCase(viewModelScope, GetConversationsParams(size = CONVERSATIONS_PAGE_SIZE)) {
+            _conversationsLiveData.value = it
+        }
+    }
 
     fun subscribeToEvents() = with(eventsHandler) {
         subscribe<Event.UsernameChanged> { _userNameLiveData.value = it.username }

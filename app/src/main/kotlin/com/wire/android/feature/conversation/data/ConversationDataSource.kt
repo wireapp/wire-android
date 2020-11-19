@@ -1,17 +1,20 @@
 package com.wire.android.feature.conversation.data
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.paging.DataSource
 import androidx.paging.PagedList
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
-import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.suspending
-import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationsRemoteDataSource
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 
 class ConversationDataSource(
     private val conversationMapper: ConversationMapper,
@@ -19,21 +22,22 @@ class ConversationDataSource(
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : ConversationsRepository {
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     override fun conversationsByBatch(
         pagingDelegate: ConversationsPagingDelegate
-    ): LiveData<Either<Failure, PagedList<Conversation>>> {
-        val failureLiveData = SingleLiveEvent<Failure>()
+    ): Flow<Either<Failure, PagedList<Conversation>>> {
+        val failureFlow = ConflatedBroadcastChannel<Failure>()
 
-        val pagingLiveData = pagingDelegate.conversationList(conversationsDataFactory()) { lastConvId, size ->
-            fetchConversations(lastConvId, size).onFailure {
-                failureLiveData.value = it
+        val pagingFlow = pagingDelegate.conversationList(conversationsDataFactory()) { lastConvId, size ->
+            suspending {
+                fetchConversations(lastConvId, size).onFailure {
+                    failureFlow.send(it)
+                }
             }
         }
 
-        return MediatorLiveData<Either<Failure, PagedList<Conversation>>>().apply {
-            addSource(failureLiveData) { value = Either.Left(it) }
-            addSource(pagingLiveData) { value = Either.Right(it) }
-        }
+        return merge(pagingFlow.map { Either.Right(it) }, failureFlow.asFlow().map { Either.Left(it) })
     }
 
     private fun conversationsDataFactory(): DataSource.Factory<Int, Conversation> =

@@ -1,11 +1,12 @@
 package com.wire.android.feature.conversation.data
 
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.asFlow
 import androidx.paging.DataSource
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
 import com.wire.android.feature.conversation.Conversation
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class ConversationsPagingDelegate(private val scope: CoroutineScope, private val pageSize: Int) {
@@ -13,7 +14,7 @@ class ConversationsPagingDelegate(private val scope: CoroutineScope, private val
     fun conversationList(
         dataFactory: DataSource.Factory<Int, Conversation>,
         loadNextPage: suspend (String?, Int) -> Unit
-    ): LiveData<PagedList<Conversation>> {
+    ): Flow<PagedList<Conversation>> {
 
         val boundaryCallback = object : PagedList.BoundaryCallback<Conversation>() {
             override fun onZeroItemsLoaded() {
@@ -25,6 +26,6 @@ class ConversationsPagingDelegate(private val scope: CoroutineScope, private val
             }
         }
 
-        return dataFactory.toLiveData(pageSize = pageSize, boundaryCallback = boundaryCallback)
+        return dataFactory.toLiveData(pageSize = pageSize, boundaryCallback = boundaryCallback).asFlow()
     }
 }

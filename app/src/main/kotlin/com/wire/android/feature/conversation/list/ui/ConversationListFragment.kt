@@ -41,6 +41,8 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
                 showConversationListDisplayError()
             }
         }
+
+        viewModel.fetchConversations()
     }
 
     private fun setUpRecyclerView() = with(conversationListRecyclerView) {

@@ -13,6 +13,7 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.data.ConversationsPagingDelegate
 import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
@@ -36,7 +37,8 @@ class ConversationListViewModel(
     }
 
     fun fetchConversations() {
-        getConversationsUseCase(viewModelScope, GetConversationsParams(size = CONVERSATIONS_PAGE_SIZE)) {
+        val params = GetConversationsParams(ConversationsPagingDelegate(viewModelScope, CONVERSATIONS_PAGE_SIZE))
+        getConversationsUseCase(viewModelScope, params) {
             _conversationsLiveData.value = it
         }
     }

@@ -1,7 +1,5 @@
 package com.wire.android.feature.conversation.list.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
@@ -9,7 +7,6 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.Conversation
-import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
@@ -20,10 +17,9 @@ import com.wire.android.shared.user.User
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.slot
+import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 class ConversationListViewModelTest : UnitTest() {
@@ -36,8 +32,6 @@ class ConversationListViewModelTest : UnitTest() {
 
     @MockK
     private lateinit var eventsHandler: EventsHandler
-
-    private lateinit var getConversationParams: GetConversationsParams
 
     private lateinit var conversationListViewModel: ConversationListViewModel
 
@@ -65,38 +59,31 @@ class ConversationListViewModelTest : UnitTest() {
         conversationListViewModel.userNameLiveData.shouldNotBeUpdated()
     }
 
-    @Ignore("Cannot test without a proper UseCaseExecutor")
     @Test
-    fun `given conversationsLiveData observed, when getConversationsUseCase returns conversations, then sets value to liveData`() {
+    fun `given fetchConversations is called, when GetConversationsUseCase emits success, then sets success to conversationsLiveData`() {
         val conversations = mockk<PagedList<Conversation>>()
-        val useCaseResultLiveData: LiveData<Either<Failure, PagedList<Conversation>>> =
-            MutableLiveData(Either.Right(conversations))
-//        every { getConversationsUseCase(any(), any()) } returns useCaseResultLiveData
+        coEvery { getConversationsUseCase.run(any()) } returns flowOf(Either.Right(conversations))
+
+        conversationListViewModel.fetchConversations()
 
         conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
-            result shouldSucceed {
-                it shouldBeEqualTo conversations
-            }
+            result shouldSucceed { it shouldBeEqualTo conversations }
         }
-
-        val useCaseParamsSlot = slot<GetConversationsParams>()
-//        verify { getConversationsUseCase(conversationListViewModel.viewModelScope, capture(useCaseParamsSlot)) }
-        useCaseParamsSlot.captured.size shouldBeEqualTo CONVERSATIONS_PAGE_SIZE
     }
 
-    @Ignore("Cannot test without a proper UseCaseExecutor")
     @Test
-    fun `given conversationsLiveData observed, when getConversationsUseCase fails, then sets failure to liveData`() {
-        val useCaseResultLiveData: LiveData<Either<Failure, PagedList<Conversation>>> = MutableLiveData(Either.Left(ServerError))
-//        every { getConversationsUseCase(any(), any()) } returns useCaseResultLiveData
+    fun `given fetchConversations is called, when GetConversationsUseCase emits failure, then sets failure to conversationsLiveData`() {
+        val failure = mockk<Failure>()
+        coEvery { getConversationsUseCase.run(any()) } returns flowOf(Either.Left(failure))
+
+        conversationListViewModel.fetchConversations()
 
         conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
-            result shouldFail { }
+            result shouldFail  { it shouldBeEqualTo failure }
         }
     }
 
     companion object {
-        private const val CONVERSATIONS_PAGE_SIZE = 30
         private const val TEST_USER_ID = "user-id-123"
         private const val TEST_USER_NAME = "User Name"
     }

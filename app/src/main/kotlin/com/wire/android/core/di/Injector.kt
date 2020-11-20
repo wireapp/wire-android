@@ -26,6 +26,7 @@ object Injector {
         accessibilityModule,
         compatibilityModule,
         appConfigModule,
+        asyncModule,
         networkModule,
         databaseModule,
         uiModule

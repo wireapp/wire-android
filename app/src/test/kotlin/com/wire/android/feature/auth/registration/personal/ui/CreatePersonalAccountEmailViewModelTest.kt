@@ -11,6 +11,7 @@ import com.wire.android.feature.auth.activation.usecase.EmailBlacklisted
 import com.wire.android.feature.auth.activation.usecase.EmailInUse
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeParams
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
+import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.shouldBeUpdated
@@ -20,12 +21,18 @@ import com.wire.android.shared.user.email.ValidateEmailUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class CreatePersonalAccountEmailViewModelTest : UnitTest() {
+
+    @get:Rule
+    val coroutinesTestRule = CoroutinesTestRule()
 
     private lateinit var emailViewModel: CreatePersonalAccountEmailViewModel
 
@@ -37,7 +44,9 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        emailViewModel = CreatePersonalAccountEmailViewModel(validateEmailUseCase, sendActivationCodeUseCase)
+        emailViewModel = CreatePersonalAccountEmailViewModel(
+            coroutinesTestRule.dispatcherProvider, validateEmailUseCase, sendActivationCodeUseCase
+        )
     }
 
     @Test

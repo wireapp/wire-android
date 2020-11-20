@@ -21,7 +21,7 @@ val conversationsModule = module {
 
     factory { ConversationListAdapter(get(), get()) }
     factory { ConversationListDiffCallback() }
-    viewModel { ConversationListViewModel(get(), get(), get()) }
+    viewModel { ConversationListViewModel(get(), get(), get(), get()) }
     factory { GetConversationsUseCase(get()) }
 
     single<ConversationsRepository> { ConversationDataSource(get(), get(), get()) }

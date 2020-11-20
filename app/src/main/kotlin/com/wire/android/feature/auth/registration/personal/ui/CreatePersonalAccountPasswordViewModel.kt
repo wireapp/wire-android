@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
@@ -27,9 +28,10 @@ import com.wire.android.shared.user.password.ValidatePasswordParams
 import com.wire.android.shared.user.password.ValidatePasswordUseCase
 
 class CreatePersonalAccountPasswordViewModel(
+    override val dispatcherProvider: DispatcherProvider,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val registerUseCase: RegisterPersonalAccountUseCase
-) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _continueEnabledLiveData = SingleLiveEvent<Boolean>()
     val continueEnabledLiveData: LiveData<Boolean> = _continueEnabledLiveData

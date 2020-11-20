@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
@@ -20,8 +21,9 @@ import com.wire.android.feature.auth.registration.personal.usecase.ActivateEmail
 import com.wire.android.feature.auth.registration.personal.usecase.InvalidEmailCode
 
 class CreatePersonalAccountCodeViewModel(
+    override val dispatcherProvider: DispatcherProvider,
     private val activateEmailUseCase: ActivateEmailUseCase
-) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _activateEmailLiveData = SingleLiveEvent<Either<ErrorMessage, String>>()
     val activateEmailLiveData: LiveData<Either<ErrorMessage, String>> = _activateEmailLiveData

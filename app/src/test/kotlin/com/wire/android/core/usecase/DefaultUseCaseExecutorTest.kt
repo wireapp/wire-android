@@ -1,23 +1,30 @@
 package com.wire.android.core.usecase
 
 import com.wire.android.UnitTest
+import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.functional.Either
+import com.wire.android.framework.coroutines.TestDispatcherProvider
 import io.mockk.coEvery
-import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
+import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class DefaultUseCaseExecutorTest : UnitTest() {
 
     private lateinit var executor: DefaultUseCaseExecutor
 
+    private lateinit var dispatcherProvider: DispatcherProvider
+
     @Before
     fun setUp() {
-        executor = DefaultUseCaseExecutor()
+        dispatcherProvider = TestDispatcherProvider()
+        executor = DefaultUseCaseExecutor(dispatcherProvider)
     }
 
     @Test
@@ -29,7 +36,7 @@ class DefaultUseCaseExecutorTest : UnitTest() {
 
         runBlocking {
             with(executor) {
-                useCase.invoke(this@runBlocking, param, Dispatchers.IO) {
+                useCase.invoke(this@runBlocking, param, dispatcherProvider.io()) {
                     it shouldBe result
                 }
             }
@@ -45,7 +52,7 @@ class DefaultUseCaseExecutorTest : UnitTest() {
 
         runBlocking {
             with(executor) {
-                observableUseCase.invoke(this@runBlocking, param, Dispatchers.IO) {
+                observableUseCase.invoke(this@runBlocking, param, dispatcherProvider.io()) {
                     it shouldBe result
                 }
             }

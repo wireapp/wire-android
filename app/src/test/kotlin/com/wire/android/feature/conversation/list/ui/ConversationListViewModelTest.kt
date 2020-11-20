@@ -1,11 +1,12 @@
 package com.wire.android.feature.conversation.list.ui
 
+import androidx.paging.PagedList
 import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
+import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.Conversation
-import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
@@ -16,6 +17,7 @@ import com.wire.android.shared.user.User
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
@@ -31,14 +33,11 @@ class ConversationListViewModelTest : UnitTest() {
     @MockK
     private lateinit var eventsHandler: EventsHandler
 
-    private lateinit var getConversationParams: GetConversationsParams
-
     private lateinit var conversationListViewModel: ConversationListViewModel
 
     @Before
     fun setUp() {
         conversationListViewModel = ConversationListViewModel(getActiveUserUseCase, getConversationsUseCase, eventsHandler)
-        getConversationParams = GetConversationsParams(size = 10)
     }
 
     @Test
@@ -61,26 +60,27 @@ class ConversationListViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given fetchConversations is called, when GetConversationsUseCase is successful, then sets value to conversationsLiveData`() {
-        val conversations = mockk<List<Conversation>>(relaxed = true)
-        coEvery { getConversationsUseCase.run(getConversationParams) } returns Either.Right(conversations)
+    fun `given fetchConversations is called, when GetConversationsUseCase emits success, then sets success to conversationsLiveData`() {
+        val conversations = mockk<PagedList<Conversation>>()
+        coEvery { getConversationsUseCase.run(any()) } returns flowOf(Either.Right(conversations))
 
         conversationListViewModel.fetchConversations()
 
         conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
-            result shouldSucceed {
-                it shouldBeEqualTo conversations
-            }
+            result shouldSucceed { it shouldBeEqualTo conversations }
         }
     }
 
     @Test
-    fun `given fetchConversations is called, when GetConversationsUseCase fails, then sets error to conversationsLiveData`() {
-        coEvery { getConversationsUseCase.run(getConversationParams) } returns Either.Left(ServerError)
+    fun `given fetchConversations is called, when GetConversationsUseCase emits failure, then sets failure to conversationsLiveData`() {
+        val failure = mockk<Failure>()
+        coEvery { getConversationsUseCase.run(any()) } returns flowOf(Either.Left(failure))
 
         conversationListViewModel.fetchConversations()
 
-        conversationListViewModel.conversationsLiveData shouldBeUpdated { it shouldFail {} }
+        conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
+            result shouldFail  { it shouldBeEqualTo failure }
+        }
     }
 
     companion object {

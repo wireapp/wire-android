@@ -44,14 +44,14 @@ pipeline {
 
         stage('Spawn EmuOne') {
           steps {
-            sh '''docker rm ${BRANCH_NAME}_9
+            sh '''docker rm ${BRANCH_NAME}_9 || true
 docker run --privileged -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
         stage('Spawn EmuTwo') {
           steps {
-            sh '''docker rm ${BRANCH_NAME}_9
+            sh '''docker rm ${BRANCH_NAME}_9 || true
 docker run --privileged -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10.0 budtmo/docker-android-x86-10.0'''
           }
         }
@@ -213,7 +213,7 @@ done
     }
 
     always {
-      sh 'docker stop ${BRANCH_NAME}_9 ${BRANCH_NAME}_10'
+      sh 'docker stop ${BRANCH_NAME}_9 ${BRANCH_NAME}_10 || true'
     }
 
   }

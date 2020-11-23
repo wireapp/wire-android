@@ -1,6 +1,7 @@
 package com.wire.android
 
 import android.app.Activity
+import androidx.test.espresso.accessibility.AccessibilityChecks
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
@@ -15,6 +16,7 @@ abstract class FunctionalActivityTest(clazz: Class<out Activity>) : FunctionalTe
 
     @get:Rule
     val activityRule = ActivityTestRule(clazz)
+
     @get:Rule
     val retryTestRule = RetryTestRule()
 }
@@ -24,11 +26,19 @@ abstract class FunctionalActivityTest(clazz: Class<out Activity>) : FunctionalTe
 @LargeTest
 abstract class FunctionalTest {
 
-    val uiDevice = UiDevice.getInstance(getInstrumentation())
+    private val uiDevice: UiDevice = UiDevice.getInstance(getInstrumentation())
 
     fun rotateScreen(block: () -> Unit) = with(uiDevice) {
         setOrientationLeft()
         block()
         setOrientationNatural()
+    }
+
+    companion object {
+        init {
+            AccessibilityChecks.enable()
+                .setRunChecksFromRootView(true)
+                .setThrowExceptionForErrors(false)
+        }
     }
 }

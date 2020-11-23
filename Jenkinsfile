@@ -44,13 +44,13 @@ pipeline {
 
         stage('Spawn EmuOne') {
           steps {
-            sh 'docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'
+            sh 'docker run --privileged -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'
           }
         }
 
         stage('Spawn EmuTwo') {
           steps {
-            sh 'docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10.0 budtmo/docker-android-x86-10.0'
+            sh 'docker run --privileged -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10.0 budtmo/docker-android-x86-10.0'
           }
         }
 

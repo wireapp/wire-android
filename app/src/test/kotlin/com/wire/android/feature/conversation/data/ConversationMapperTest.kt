@@ -1,14 +1,15 @@
 package com.wire.android.feature.conversation.data
 
 import com.wire.android.UnitTest
+import com.wire.android.core.extension.EMPTY
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.remote.ConversationResponse
 import com.wire.android.feature.conversation.data.remote.ConversationsResponse
 import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
-import com.wire.android.framework.collections.second
 import io.mockk.every
 import io.mockk.mockk
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Test
 
@@ -22,51 +23,39 @@ class ConversationMapperTest : UnitTest() {
     }
 
     @Test
-    //TODO update this when we have a full mapper
-    fun `given fromConversationsResponse is called with a response model, then returns list of conversations`() {
-        val conversationResponse = mockk<ConversationResponse>()
-        every { conversationResponse.id } returns TEST_CONVERSATION_ID
-        every { conversationResponse.name } returns TEST_CONVERSATION_NAME
+    fun `given a ConversationsResponse, when fromConversationResponseToEntityList is called, then returns a list of entities`() {
+        val conversationsResponse = mockk<ConversationsResponse>()
 
-        val conversationResponses = listOf(conversationResponse)
-        val conversationsResponse = ConversationsResponse(
-            hasMore = true,
-            conversationResponses = conversationResponses
+        val id1 = "$TEST_CONVERSATION_ID-1"
+        val name1 = "$TEST_CONVERSATION_NAME-1"
+        val conversationResponse1 = mockk<ConversationResponse>().also {
+            every { it.id } returns id1
+            every { it.name } returns name1
+        }
+
+        val id2 = "$TEST_CONVERSATION_ID-2"
+        val conversationResponse2 = mockk<ConversationResponse>().also {
+            every { it.id } returns id2
+            every { it.name } returns null
+        }
+
+        every { conversationsResponse.conversations } returns listOf(conversationResponse1, conversationResponse2)
+
+        val entityList = conversationMapper.fromConversationResponseToEntityList(conversationsResponse)
+
+        entityList shouldContainSame listOf(
+            ConversationEntity(id = id1, name = name1),
+            ConversationEntity(id = id2, name = String.EMPTY)
         )
-
-        conversationMapper.fromConversationsResponse(conversationsResponse).also {
-            it.first().id shouldBeEqualTo TEST_CONVERSATION_ID
-            it.first().name shouldBeEqualTo TEST_CONVERSATION_NAME
-        }
-    }
-
-    @Test
-    fun `given a list of conversation domain items, when toEntityList is called, then returns list of conversation entities`() {
-        fun mockConversation(name: String): Conversation = mockk<Conversation>(relaxed = false).also {
-            every { it.name } returns name
-        }
-
-        val name1 = "Conv1"
-        val name2 = "Conv2"
-        val conversation1 = mockConversation(name1)
-        val conversation2 = mockConversation(name2)
-
-        val conversationList = listOf(conversation1, conversation2)
-
-        val entityList = conversationMapper.toEntityList(conversationList)
-
-        entityList.first().name shouldBeEqualTo name1
-        entityList.second().name shouldBeEqualTo name2
     }
 
     @Test
     fun `given a conversation entity, when fromEntity is called, then returns a conversation`() {
-        val id = 123
-        val conversationEntity = ConversationEntity(id = id, name = TEST_CONVERSATION_NAME)
+        val conversationEntity = ConversationEntity(id = TEST_CONVERSATION_ID, name = TEST_CONVERSATION_NAME)
 
         val conversation = conversationMapper.fromEntity(conversationEntity)
 
-        conversation shouldBeEqualTo Conversation(id = id.toString(), name = TEST_CONVERSATION_NAME)
+        conversation shouldBeEqualTo Conversation(id = TEST_CONVERSATION_ID, name = TEST_CONVERSATION_NAME)
     }
 
     companion object {

@@ -36,11 +36,11 @@ class ConversationRemoteDataSourceTest : UnitTest() {
     fun `given any size, when conversationsByBatch is requested and response is success, propagate successful ConversationsResponse`() {
         every { response.body() } returns conversationsResponse
         every { response.isSuccessful } returns true
-        coEvery { conversationsApi.conversationsByBatch(any()) } returns response
+        coEvery { conversationsApi.conversationsByBatch(any(), any()) } returns response
 
-        val result = runBlocking { remoteDataSource.conversationsByBatch(any(), any(), any()) }
+        val result = runBlocking { remoteDataSource.conversationsByBatch(any(), any()) }
 
-        coVerify(exactly = 1) { conversationsApi.conversationsByBatch(any()) }
+        coVerify(exactly = 1) { conversationsApi.conversationsByBatch(any(), any()) }
         result shouldSucceed {}
     }
 
@@ -48,11 +48,11 @@ class ConversationRemoteDataSourceTest : UnitTest() {
     fun `given any size, when conversationsByBatch is requested and response fails, propagate failure`() {
         every { response.body() } returns null
         every { response.isSuccessful } returns false
-        coEvery { conversationsApi.conversationsByBatch(any()) } returns response
+        coEvery { conversationsApi.conversationsByBatch(any(), any()) } returns response
 
-        val result = runBlocking { remoteDataSource.conversationsByBatch(any(), any(), any()) }
+        val result = runBlocking { remoteDataSource.conversationsByBatch(any(), any()) }
 
-        coVerify(exactly = 1) { conversationsApi.conversationsByBatch(any()) }
+        coVerify(exactly = 1) { conversationsApi.conversationsByBatch(any(), any()) }
         result shouldFail {}
     }
 }

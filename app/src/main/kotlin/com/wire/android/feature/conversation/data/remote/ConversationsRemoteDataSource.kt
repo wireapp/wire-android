@@ -10,6 +10,6 @@ class ConversationsRemoteDataSource(
     private val conversationsApi: ConversationsApi
 ) : ApiService() {
 
-    suspend fun conversationsByBatch(start: String, size: Int, ids: List<String>): Either<Failure, ConversationsResponse> =
-        request { conversationsApi.conversationsByBatch(size) }
+    suspend fun conversationsByBatch(start: String?, size: Int): Either<Failure, ConversationsResponse> =
+        request { conversationsApi.conversationsByBatch(start, size) }
 }

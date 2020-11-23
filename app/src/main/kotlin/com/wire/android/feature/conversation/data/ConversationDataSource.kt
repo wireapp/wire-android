@@ -45,26 +45,11 @@ class ConversationDataSource(
             conversationMapper.fromEntity(it)
         }
 
-    /*
-    TODO: get real list from conversationRemoteDataSource, update tests
-        conversationRemoteDataSource.conversationsByBatch(start, size, ids).map {
-            conversationMapper.fromConversationsResponse(it)
+    private suspend fun fetchConversations(start: String?, size: Int): Either<Failure, Unit> = suspending {
+        conversationRemoteDataSource.conversationsByBatch(start, size).map {
+            conversationMapper.fromConversationResponseToEntityList(it)
+        }.flatMap {
+            conversationLocalDataSource.saveConversations(it)
         }
-     */
-    private suspend fun fetchConversations(start: String?, size: Int): Either<Failure, Unit> =
-        suspending {
-            getDummyConversations(start, size).map {
-                conversationMapper.toEntityList(it)
-            }.flatMap {
-                conversationLocalDataSource.saveConversations(it)
-            }
-        }
-
-    private fun getDummyConversations(start: String?, size: Int): Either<Failure, List<Conversation>> {
-        val startId = start?.toInt() ?: 1
-        return Either.Right((0..size).map {
-            val convId = "${startId + it}"
-            Conversation(id = convId, name = "Conversation #$convId")
-        })
     }
 }

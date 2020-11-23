@@ -7,12 +7,8 @@ data class ConversationsResponse(
     val hasMore: Boolean,
 
     @SerializedName("conversations")
-    val conversationResponses: List<ConversationResponse>
-) {
-    companion object {
-        val EMPTY = ConversationsResponse(false, emptyList())
-    }
-}
+    val conversations: List<ConversationResponse>
+)
 
 data class ConversationResponse(
     @SerializedName("creator")

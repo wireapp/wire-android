@@ -39,7 +39,6 @@ val compatibilityModule: Module = module {
 
 val appConfigModule: Module = module {
     factory { LocaleConfig(androidContext()) }
-    single { GlobalConfig() }
 }
 
 

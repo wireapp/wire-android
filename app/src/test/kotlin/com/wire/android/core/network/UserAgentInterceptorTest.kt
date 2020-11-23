@@ -1,7 +1,6 @@
 package com.wire.android.core.network
 
 import com.wire.android.UnitTest
-import com.wire.android.core.config.GlobalConfig
 import com.wire.android.core.extension.EMPTY
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -28,15 +27,15 @@ class UserAgentInterceptorTest : UnitTest() {
     private lateinit var newRequest: Request
 
     @MockK
-    private lateinit var globalConfig: GlobalConfig
+    private lateinit var networkConfig: NetworkConfig
 
     @Before
     fun setup() {
-        every { globalConfig.appVersion } returns WIRE_DETAILS
-        every { globalConfig.osVersion } returns ANDROID_DETAILS
-        every { globalConfig.userAgent } returns HTTP_DETAILS
+        every { networkConfig.appVersion } returns WIRE_DETAILS
+        every { networkConfig.osVersion } returns ANDROID_DETAILS
+        every { networkConfig.userAgent } returns HTTP_DETAILS
 
-        userAgentInterceptor = UserAgentInterceptor(globalConfig)
+        userAgentInterceptor = UserAgentInterceptor(networkConfig)
 
         every { chain.request() } returns originalRequest
         every { originalRequest.newBuilder() } returns requestBuilder

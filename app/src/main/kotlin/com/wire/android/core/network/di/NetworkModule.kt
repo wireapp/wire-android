@@ -5,7 +5,7 @@ package com.wire.android.core.network.di
 import android.content.Context
 import android.net.ConnectivityManager
 import com.wire.android.BuildConfig
-import com.wire.android.core.network.BackendConfig
+import com.wire.android.core.network.NetworkConfig
 import com.wire.android.core.network.HttpRequestParams
 import com.wire.android.core.network.NetworkClient
 import com.wire.android.core.network.NetworkHandler
@@ -65,7 +65,7 @@ object NetworkDependencyProvider {
 val networkModule: Module = module {
     single { NetworkHandler(androidContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager) }
     single<NetworkClient> { RetrofitClient(get()) }
-    single { retrofit(get(), get<BackendConfig>().baseUrl) }
+    single { retrofit(get(), get<NetworkConfig>().baseUrl) }
     single { createHttpClientWithAuth(get(), get(), get(), get()) }
     single { HttpRequestParams() }
     single { AccessTokenAuthenticator(get()) }
@@ -74,8 +74,8 @@ val networkModule: Module = module {
 
     val networkClientForNoAuth = "NETWORK_CLIENT_NO_AUTH_REQUEST"
     single<NetworkClient>(named(networkClientForNoAuth)) {
-        RetrofitClient(retrofit(createHttpClientWithoutAuth(get(), get()), get<BackendConfig>().baseUrl))
+        RetrofitClient(retrofit(createHttpClientWithoutAuth(get(), get()), get<NetworkConfig>().baseUrl))
     }
     single { get<NetworkClient>(named(networkClientForNoAuth)).create(SessionApi::class.java) }
-    single { BackendConfig() }
+    single { NetworkConfig() }
 }

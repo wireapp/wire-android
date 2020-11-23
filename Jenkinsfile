@@ -45,14 +45,14 @@ pipeline {
         stage('Spawn EmuOne') {
           steps {
             sh '''docker rm ${BRANCH_NAME}_9 || true
-docker run --privileged -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'''
+docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
         stage('Spawn EmuTwo') {
           steps {
             sh '''docker rm ${BRANCH_NAME}_9 || true
-docker run --privileged -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10 budtmo/docker-android-x86-10.0'''
+docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10 budtmo/docker-android-x86-10.0'''
           }
         }
 
@@ -100,7 +100,9 @@ docker run --privileged -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10 budtmo/d
 
     stage('Connect Android Emulators') {
       steps {
-        sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'${BRANCH_NAME}\' |grep -Eo \'1[0-9]{2}.*\')
+        sh '''foundEmulators=$(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'${BRANCH_NAME}\' |grep -Eo \'1[0-9]{2}.*\')
+echo "Amount of Emulators found: ${#foundEmulators[@]}"
+for i in foundEmulators
 do
         echo  "found emulator with ip $i:${adbPort}"
         adb connect $i:${adbPort}

@@ -1,21 +1,20 @@
 package com.wire.android.feature.conversation.list.usecase
 
-import androidx.paging.DataSource
+import androidx.paging.PagedList
 import com.wire.android.core.exception.Failure
-import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.Either
-import com.wire.android.core.usecase.UseCase
+import com.wire.android.core.usecase.ObservableUseCase
 import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.data.ConversationsPagingDelegate
 import com.wire.android.feature.conversation.data.ConversationsRepository
+import kotlinx.coroutines.flow.Flow
 
-class GetConversationsUseCase(private val conversationsRepository: ConversationsRepository) :
-    UseCase<List<Conversation>, GetConversationsParams> {
+class GetConversationsUseCase(
+    private val conversationsRepository: ConversationsRepository
+) : ObservableUseCase<PagedList<Conversation>, GetConversationsParams> {
 
-    fun conversationsDataFactory() : DataSource.Factory<Int, Conversation> =
-        conversationsRepository.conversationsDataFactory()
-
-    override suspend fun run(params: GetConversationsParams): Either<Failure, List<Conversation>> =
-        conversationsRepository.conversationsByBatch(params.start, params.size, params.ids)
+    override suspend fun run(params: GetConversationsParams): Flow<Either<Failure, PagedList<Conversation>>> =
+        conversationsRepository.conversationsByBatch(params.pagingDelegate)
 }
 
-data class GetConversationsParams(val start: String = String.EMPTY, val size: Int, val ids: List<String> = emptyList())
+data class GetConversationsParams(val pagingDelegate: ConversationsPagingDelegate)

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
@@ -23,12 +24,12 @@ import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeU
 import com.wire.android.shared.user.email.ValidateEmailError
 import com.wire.android.shared.user.email.ValidateEmailParams
 import com.wire.android.shared.user.email.ValidateEmailUseCase
-import kotlinx.coroutines.Dispatchers
 
 class CreatePersonalAccountEmailViewModel(
+    override val dispatcherProvider: DispatcherProvider,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val sendActivationUseCase: SendEmailActivationCodeUseCase
-) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _isValidEmailLiveData = MutableLiveData<Boolean>()
     val isValidEmailLiveData: LiveData<Boolean> = _isValidEmailLiveData
@@ -40,7 +41,7 @@ class CreatePersonalAccountEmailViewModel(
     val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
 
     fun validateEmail(email: String) =
-        validateEmailUseCase(viewModelScope, ValidateEmailParams(email), Dispatchers.Default) {
+        validateEmailUseCase(viewModelScope, ValidateEmailParams(email), dispatcherProvider.default()) {
             it.fold(::validateEmailFailure) { updateEmailValidationStatus(true) }
         }
 

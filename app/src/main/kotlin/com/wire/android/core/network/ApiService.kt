@@ -30,11 +30,12 @@ abstract class ApiService {
             }
         }
 
-    suspend fun <T> request(default: T? = null, call: suspend () -> Response<T>): Either<Failure, T> = rawRequest(call).flatMap {
-        it.body()?.let { Either.Right(it) }
-            ?: default?.let { Either.Right(it) }
-            ?: Either.Left(EmptyResponseBody)
-    }
+    suspend fun <T> request(default: T? = null, call: suspend () -> Response<T>): Either<Failure, T> =
+        rawRequest(call).flatMap { response ->
+            response.body()?.let { Either.Right(it) }
+                ?: default?.let { Either.Right(it) }
+                ?: Either.Left(EmptyResponseBody)
+        }
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun <T> performRequest(call: suspend () -> Response<T>): Either<Failure, Response<T>> {
@@ -53,18 +54,20 @@ abstract class ApiService {
         }
     }
 
-    private fun <T> handleRequestError(response: Response<T>): Either<Failure, Response<T>> {
-        return when (response.code()) {
-            CODE_BAD_REQUEST -> Either.Left(BadRequest)
-            CODE_UNAUTHORIZED -> Either.Left(Unauthorized)
-            CODE_FORBIDDEN -> Either.Left(Forbidden)
-            CODE_NOT_FOUND -> Either.Left(NotFound)
-            CODE_CONFLICT -> Either.Left(Conflict)
-            CODE_TOO_MANY_REQUESTS -> Either.Left(TooManyRequests)
-            CODE_INTERNAL_SERVER_ERROR -> Either.Left(InternalServerError)
-            else -> Either.Left(ServerError)
+    private fun <T> handleRequestError(response: Response<T>): Either<Failure, Response<T>> =
+        Either.Left(buildFailure(response.code()))
+
+    private fun buildFailure(errorCode: Int): Failure =
+        when (errorCode) {
+            CODE_BAD_REQUEST -> BadRequest
+            CODE_UNAUTHORIZED -> Unauthorized
+            CODE_FORBIDDEN -> Forbidden
+            CODE_NOT_FOUND -> NotFound
+            CODE_CONFLICT -> Conflict
+            CODE_TOO_MANY_REQUESTS -> TooManyRequests
+            CODE_INTERNAL_SERVER_ERROR -> InternalServerError
+            else -> ServerError
         }
-    }
 
     companion object {
         private const val CODE_BAD_REQUEST = 400

@@ -11,4 +11,5 @@ interface SessionRepository {
     suspend fun accessToken(refreshToken: String): Either<Failure, Session>
 
     suspend fun doesCurrentSessionExist(): Either<Failure, Boolean>
+
 }

@@ -1,46 +1,33 @@
 package com.wire.android.core.network
 
-import com.wire.android.core.config.AppVersionNameConfig
+import com.wire.android.core.config.GlobalConfig
 import com.wire.android.core.extension.EMPTY
 import okhttp3.Interceptor
-import okhttp3.Response
 
-class UserAgentInterceptor(
-    userAgentConfig: UserAgentConfig
-) : Interceptor {
+class UserAgentInterceptor(private val config: GlobalConfig) : Interceptor {
 
-    override fun intercept(chain: Interceptor.Chain): Response =
+    override fun intercept(chain: Interceptor.Chain) =
+        if (requestHasUserHeader(chain)) {
+            chain.proceed(chain.request())
+        } else addUserAgentHeader(chain)
+
+    private fun addUserAgentHeader(chain: Interceptor.Chain) =
+        chain.proceed(chain.request()
+            .newBuilder()
+            .addHeader(USER_AGENT_HEADER_KEY, buildUserAgentHeader())
+            .build())
+
+    private fun requestHasUserHeader(chain: Interceptor.Chain): Boolean =
         when (chain.request().header(USER_AGENT_HEADER_KEY)) {
-            null, String.EMPTY -> determineUserAgentRequest(chain)
-            else -> chain.proceed(chain.request())
+            null, String.EMPTY -> false
+            else -> true
         }
 
-    private fun determineUserAgentRequest(chain: Interceptor.Chain) =
-        chain.proceed(
-            chain.request()
-                .newBuilder()
-                .addHeader(USER_AGENT_HEADER_KEY, newUserAgentHeader())
-                .build()
-        )
+    private fun buildUserAgentHeader(): String =
+        config.osVersion + " / " + config.appVersion + " / " + config.userAgent
 
-    private fun newUserAgentHeader() = "$androidVersion / $wireVersion / $httpVersion"
-
-    private val androidVersion: String =
-        "Android ${userAgentConfig.androidVersion}"
-
-    private val wireVersion: String =
-        "Wire ${userAgentConfig.appVersionNameNameConfig.versionName}"
-
-    private val httpVersion: String =
-        "HttpLibrary ${userAgentConfig.httpUserAgent}"
 
     companion object {
         private const val USER_AGENT_HEADER_KEY = "User-Agent"
     }
 }
-
-data class UserAgentConfig(
-    val appVersionNameNameConfig: AppVersionNameConfig,
-    val androidVersion: String = android.os.Build.VERSION.RELEASE,
-    val httpUserAgent: String = okhttp3.internal.userAgent
-)

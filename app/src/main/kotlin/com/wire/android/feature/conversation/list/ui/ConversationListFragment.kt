@@ -3,7 +3,6 @@ package com.wire.android.feature.conversation.list.ui
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wire.android.R
 import com.wire.android.core.extension.toast
@@ -32,24 +31,28 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         viewModel.fetchUserName()
     }
 
-    private fun displayConversationList() = with(conversationListRecyclerView) {
-        setHasFixedSize(true)
-        layoutManager = LinearLayoutManager(context)
-        adapter = conversationListAdapter
+    private fun displayConversationList() {
+        setUpRecyclerView()
         //TODO: handle empty list
         viewModel.conversationsLiveData.observe(viewLifecycleOwner) { result ->
             result.onSuccess {
-                conversationListAdapter.updateData(it)
-                conversationListAdapter.notifyDataSetChanged()
+                conversationListAdapter.submitList(it)
             }.onFailure {
                 showConversationListDisplayError()
             }
         }
+
         viewModel.fetchConversations()
     }
 
-    private fun showConversationListDisplayError() =
-        toast("Error while loading conversations")
+    private fun setUpRecyclerView() = with(conversationListRecyclerView) {
+        setHasFixedSize(true)
+        layoutManager = LinearLayoutManager(context)
+        adapter = conversationListAdapter
+    }
+
+    //TODO: check how we display errors
+    private fun showConversationListDisplayError() = toast("Error while loading conversations")
 
     private fun subscribeToEvents() = viewModel.subscribeToEvents()
 }

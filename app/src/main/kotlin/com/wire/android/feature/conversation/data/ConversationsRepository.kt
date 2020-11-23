@@ -1,12 +1,13 @@
 package com.wire.android.feature.conversation.data
 
-import androidx.paging.DataSource
+import androidx.paging.PagedList
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.Conversation
+import kotlinx.coroutines.flow.Flow
 
 interface ConversationsRepository {
-    fun conversationsDataFactory(): DataSource.Factory<Int, Conversation>
-
-    suspend fun conversationsByBatch(start: String, size: Int, ids: List<String>): Either<Failure, List<Conversation>>
+    fun conversationsByBatch(
+        pagingDelegate: ConversationsPagingDelegate
+    ): Flow<Either<Failure, PagedList<Conversation>>>
 }

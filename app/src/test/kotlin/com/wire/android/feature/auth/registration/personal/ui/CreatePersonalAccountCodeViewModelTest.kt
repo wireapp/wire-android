@@ -9,17 +9,24 @@ import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.feature.auth.registration.personal.usecase.ActivateEmailUseCase
 import com.wire.android.feature.auth.registration.personal.usecase.InvalidEmailCode
+import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.shouldBeUpdated
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class CreatePersonalAccountCodeViewModelTest : UnitTest() {
+
+    @get:Rule
+    val coroutinesTestRule = CoroutinesTestRule()
 
     @MockK
     private lateinit var activateEmailUseCase: ActivateEmailUseCase
@@ -28,7 +35,7 @@ class CreatePersonalAccountCodeViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        codeViewModel = CreatePersonalAccountCodeViewModel(activateEmailUseCase)
+        codeViewModel = CreatePersonalAccountCodeViewModel(coroutinesTestRule.dispatcherProvider, activateEmailUseCase)
     }
 
     @Test

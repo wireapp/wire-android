@@ -33,23 +33,24 @@ pipeline {
           }
         }
 
-        stage('Connect Android Emulators') {
-          steps {
-            sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'docker-compose-files_nexus\' |grep -Eo \'1[0-9]{2}.*\')
-do
-        echo  "found emulator with ip $i:${adbPort}"
-        adb connect $i:${adbPort}
-done
-'''
-          }
-        }
-
-        stage('') {
+        stage('configure vmargs') {
           steps {
             withGradle() {
               sh './gradlew -Porg.gradle.jvmargs=-Xmx16g wrapper'
             }
 
+          }
+        }
+
+        stage('Spawn EmuOne') {
+          steps {
+            sh 'docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'
+          }
+        }
+
+        stage('Spawn EmuTwo') {
+          steps {
+            sh 'docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10.0 budtmo/docker-android-x86-10.0'
           }
         }
 
@@ -92,6 +93,17 @@ done
           sh './gradlew runUnitTests'
         }
 
+      }
+    }
+
+    stage('Connect Android Emulators') {
+      steps {
+        sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'${BRANCH_NAME}\' |grep -Eo \'1[0-9]{2}.*\')
+do
+        echo  "found emulator with ip $i:${adbPort}"
+        adb connect $i:${adbPort}
+done
+'''
       }
     }
 
@@ -196,6 +208,10 @@ done
 
     aborted {
       wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ ABORTED ($last_started) ")
+    }
+
+    always {
+      sh 'docker stop ${BRANCH_NAME}_9 ${BRANCH_NAME}_10'
     }
 
   }

@@ -98,14 +98,20 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
       }
     }
 
-    stage('Connect Android Emulators') {
-      steps {
-        sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'${BRANCH_NAME}\' |grep -Eo \'1[0-9]{2}.*\')
-do
-  echo  "found emulator with ip $i:${adbPort}"
-  adb connect $i:${adbPort}
-done
-'''
+    stage('Connect Adb') {
+      parallel {
+        stage('EmuOne') {
+          steps {
+            sh 'adb connect ${BRANCH_NAME}_10:${adbPort}'
+          }
+        }
+
+        stage('EmuTwo') {
+          steps {
+            sh 'adb connect ${BRANCH_NAME}_9:${adbPort}'
+          }
+        }
+
       }
     }
 

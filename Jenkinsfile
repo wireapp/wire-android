@@ -42,14 +42,14 @@ pipeline {
           }
         }
 
-        stage('Spawn EmuOne') {
+        stage('Spawn Emulator 9') {
           steps {
             sh '''docker rm ${BRANCH_NAME}_9 || true
 docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
-        stage('Spawn EmuTwo') {
+        stage('Spawn Emulator 10') {
           steps {
             sh '''docker rm ${BRANCH_NAME}_10 || true
 docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10 budtmo/docker-android-x86-10.0'''
@@ -98,15 +98,15 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
       }
     }
 
-    stage('Connect Adb') {
+    stage('Connect Emulators') {
       parallel {
-        stage('EmuOne') {
+        stage('Emulator 10') {
           steps {
             sh 'adb connect ${BRANCH_NAME}_10:${adbPort}'
           }
         }
 
-        stage('EmuTwo') {
+        stage('Emulator 9') {
           steps {
             sh 'adb connect ${BRANCH_NAME}_9:${adbPort}'
           }

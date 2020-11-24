@@ -3,7 +3,6 @@ package com.wire.android.feature.auth.registration.personal.ui
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.observe
 import com.poovam.pinedittextfield.PinField.OnTextCompleteListener
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel

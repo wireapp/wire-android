@@ -42,14 +42,14 @@ pipeline {
           }
         }
 
-        stage('Spawn Emulator 9') {
+        stage('Spawn Emulator 9.0') {
           steps {
             sh '''docker rm ${BRANCH_NAME}_9 || true
 docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
-        stage('Spawn Emulator 10') {
+        stage('Spawn Emulator 10.0') {
           steps {
             sh '''docker rm ${BRANCH_NAME}_10 || true
 docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10 budtmo/docker-android-x86-10.0'''
@@ -100,13 +100,13 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
 
     stage('Connect Emulators') {
       parallel {
-        stage('Emulator 10') {
+        stage('Emulator 10.0') {
           steps {
             sh 'adb connect ${BRANCH_NAME}_10:${adbPort}'
           }
         }
 
-        stage('Emulator 9') {
+        stage('Emulator 9.0') {
           steps {
             sh 'adb connect ${BRANCH_NAME}_9:${adbPort}'
           }

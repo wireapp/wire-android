@@ -1,10 +1,10 @@
 package com.wire.android.core.network
 
-import com.wire.android.core.config.GlobalConfig
 import com.wire.android.core.extension.EMPTY
+import com.wire.android.core.network.NetworkConfig.Companion.USER_AGENT_HEADER_KEY
 import okhttp3.Interceptor
 
-class UserAgentInterceptor(private val config: GlobalConfig) : Interceptor {
+class UserAgentInterceptor(private val config: NetworkConfig) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain) =
         if (requestHasUserHeader(chain)) {
@@ -25,9 +25,4 @@ class UserAgentInterceptor(private val config: GlobalConfig) : Interceptor {
 
     private fun buildUserAgentHeader(): String =
         config.osVersion + " / " + config.appVersion + " / " + config.userAgent
-
-
-    companion object {
-        private const val USER_AGENT_HEADER_KEY = "User-Agent"
-    }
 }

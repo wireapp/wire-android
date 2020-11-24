@@ -3,17 +3,17 @@ package com.wire.android.feature.auth.login.ui.navigation
 import android.content.Context
 import android.net.Uri
 import com.wire.android.core.extension.domainAddress
-import com.wire.android.core.network.BackendConfig
+import com.wire.android.core.network.NetworkConfig
 import com.wire.android.core.ui.navigation.UriNavigationHandler
 import com.wire.android.feature.auth.login.LoginActivity
 
 class LoginNavigator(
     private val uriNavigationHandler: UriNavigationHandler,
-    private val backendConfig: BackendConfig
+    private val networkConfig: NetworkConfig
 ) {
 
     private val forgotPasswordUri by lazy {
-        Uri.Builder().domainAddress(backendConfig.accountsUrl).appendPath(FORGOT_PASSWORD_PATH).build()
+        Uri.Builder().domainAddress(networkConfig.accountsUrl).appendPath(FORGOT_PASSWORD_PATH).build()
     }
 
     fun openLogin(context: Context) = context.startActivity(LoginActivity.newIntent(context))

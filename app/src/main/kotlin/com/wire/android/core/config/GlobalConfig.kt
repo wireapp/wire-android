@@ -2,18 +2,21 @@ package com.wire.android.core.config
 
 import com.wire.android.BuildConfig
 
-//TODO this needs to be well adjusted and more dynamic. Futher solution incoming.
-class GlobalConfig {
-
-    //System
-    val osVersion = "Android ${android.os.Build.VERSION.RELEASE}"
-    val userAgent = "HttpLibrary ${okhttp3.internal.userAgent}"
-
-    //Client App
-    val appVersion = "Wire ${BuildConfig.VERSION_NAME}"
-
+/**
+ * Global Wire Android Client Configuration.
+ * Non-instantiability is enforced to encourage the creation of
+ * injectable mini-config components.
+ */
+class GlobalConfig private constructor() {
     companion object {
-        //Urls and Api
+        //OS Config
+        val OS_VERSION = "Android ${android.os.Build.VERSION.RELEASE}"
+
+        //Application Config
+        const val APP_VERSION = "Wire ${BuildConfig.VERSION_NAME}"
+
+        //Network Config
+        const val USER_AGENT = "HttpLibrary ${okhttp3.internal.userAgent}"
         const val API_BASE_URL = BuildConfig.API_BASE_URL
         const val ACCOUNTS_URL = BuildConfig.ACCOUNTS_URL
     }

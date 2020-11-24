@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.wire.android.AndroidTest
-import com.wire.android.core.network.BackendConfig
+import com.wire.android.core.network.NetworkConfig
 import com.wire.android.core.ui.navigation.UriNavigationHandler
 import com.wire.android.feature.auth.login.LoginActivity
 import io.mockk.every
@@ -22,7 +22,7 @@ class LoginNavigatorTest : AndroidTest() {
     private lateinit var uriNavigationHandler: UriNavigationHandler
 
     @MockK
-    private lateinit var backendConfig: BackendConfig
+    private lateinit var networkConfig: NetworkConfig
 
     @MockK
     private lateinit var context: Context
@@ -31,7 +31,7 @@ class LoginNavigatorTest : AndroidTest() {
 
     @Before
     fun setUp() {
-        loginNavigator = LoginNavigator(uriNavigationHandler, backendConfig)
+        loginNavigator = LoginNavigator(uriNavigationHandler, networkConfig)
     }
 
     @Test
@@ -49,7 +49,7 @@ class LoginNavigatorTest : AndroidTest() {
     @Test
     fun `given openForgotPassword is called, then calls uriNavigationHandler to open correct uri`() {
         val uriSlot = slot<Uri>()
-        every { backendConfig.accountsUrl } returns TEST_ACCOUNTS_URL
+        every { networkConfig.accountsUrl } returns TEST_ACCOUNTS_URL
 
         loginNavigator.openForgotPassword(context)
 

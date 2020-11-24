@@ -2,7 +2,6 @@ package com.wire.android.feature.launch.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.observe
 import com.wire.android.R
 import com.wire.android.core.ui.navigation.Navigator
 import org.koin.android.ext.android.inject

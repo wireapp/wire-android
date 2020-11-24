@@ -33,23 +33,26 @@ pipeline {
           }
         }
 
-        stage('Connect Android Emulators') {
-          steps {
-            sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'docker-compose-files_nexus\' |grep -Eo \'1[0-9]{2}.*\')
-do
-        echo  "found emulator with ip $i:${adbPort}"
-        adb connect $i:${adbPort}
-done
-'''
-          }
-        }
-
-        stage('') {
+        stage('Spawn Gradle Wrapper') {
           steps {
             withGradle() {
               sh './gradlew -Porg.gradle.jvmargs=-Xmx16g wrapper'
             }
 
+          }
+        }
+
+        stage('Spawn Emulator 9.0') {
+          steps {
+            sh '''docker rm ${BRANCH_NAME}_9 || true
+docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'''
+          }
+        }
+
+        stage('Spawn Emulator 10.0') {
+          steps {
+            sh '''docker rm ${BRANCH_NAME}_10 || true
+docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10 budtmo/docker-android-x86-10.0'''
           }
         }
 
@@ -90,6 +93,23 @@ done
 
         withGradle() {
           sh './gradlew runUnitTests'
+        }
+
+      }
+    }
+
+    stage('Connect Emulators') {
+      parallel {
+        stage('Emulator 10.0') {
+          steps {
+            sh 'adb connect ${BRANCH_NAME}_10:${adbPort}'
+          }
+        }
+
+        stage('Emulator 9.0') {
+          steps {
+            sh 'adb connect ${BRANCH_NAME}_9:${adbPort}'
+          }
         }
 
       }
@@ -196,6 +216,11 @@ done
 
     aborted {
       wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ ABORTED ($last_started) ")
+    }
+
+    always {
+      sh 'docker stop ${BRANCH_NAME}_9 ${BRANCH_NAME}_10 || true'
+      sh 'docker rm ${BRANCH_NAME}_9 ${BRANCH_NAME}_10 || true'
     }
 
   }

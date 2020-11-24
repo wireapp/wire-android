@@ -102,8 +102,8 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
       steps {
         sh '''for i in $(docker inspect -f \'{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' $(docker ps -aq) |grep \'${BRANCH_NAME}\' |grep -Eo \'1[0-9]{2}.*\')
 do
-        echo  "found emulator with ip $i:${adbPort}"
-        adb connect $i:${adbPort}
+  echo  "found emulator with ip $i:${adbPort}"
+  adb connect $i:${adbPort}
 done
 '''
       }

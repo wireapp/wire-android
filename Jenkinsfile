@@ -44,7 +44,7 @@ pipeline {
 
         stage('Spawn EmuOne') {
           steps {
-            sh '''docker rm ${BRANCH_NAME}_9 || true
+            sh '''docker rm ${BRANCH_NAME}_10 || true
 docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'''
           }
         }

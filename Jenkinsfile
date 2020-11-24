@@ -216,6 +216,7 @@ done
 
     always {
       sh 'docker stop ${BRANCH_NAME}_9 ${BRANCH_NAME}_10 || true'
+      sh 'docker rm ${BRANCH_NAME}_9 ${BRANCH_NAME}_10 || true'
     }
 
   }

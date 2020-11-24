@@ -33,7 +33,7 @@ pipeline {
           }
         }
 
-        stage('configure vmargs') {
+        stage('Spawn Gradle Wrapper') {
           steps {
             withGradle() {
               sh './gradlew -Porg.gradle.jvmargs=-Xmx16g wrapper'

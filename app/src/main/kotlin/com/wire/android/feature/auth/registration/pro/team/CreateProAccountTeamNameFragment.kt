@@ -41,7 +41,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
         with(createProAccountTeamNameInputConfirmationButton) {
             isEnabled = false
             setOnClickListener {
-                navigator.createAccount.openProAccountTeamEmailScreen(requireContext())
+                navigator.createAccount.openProAccountTeamEmailScreen(requireActivity())
             }
             createProAccountTeamNameViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
                 isEnabled = it

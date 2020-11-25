@@ -12,7 +12,7 @@ import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAcco
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountEmailFragment
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountNameFragment
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountPasswordFragment
-import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailActivity
+import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailFragment
 import com.wire.android.feature.auth.registration.pro.team.CreateProAccountTeamNameFragment
 import com.wire.android.framework.android.argumentEquals
 import io.mockk.CapturingSlot
@@ -136,11 +136,11 @@ class CreateAccountNavigatorTest : AndroidTest() {
 
     @Test
     fun `given openProAccountTeamEmailScreen is called, then opens CreateProAccountTeamEmailActivity`() {
-        createAccountNavigator.openProAccountTeamEmailScreen(context)
+        createAccountNavigator.openProAccountTeamEmailScreen(activity)
 
         verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
         intentSlot.captured.let {
-            it.component?.className shouldBeEqualTo CreateProAccountTeamEmailActivity::class.java.canonicalName
+            it shouldBeInstanceOf CreateProAccountTeamEmailFragment::class.java
             it.extras shouldBe null
         }
     }

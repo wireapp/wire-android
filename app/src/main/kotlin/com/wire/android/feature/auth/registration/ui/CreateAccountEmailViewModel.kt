@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.ui
+package com.wire.android.feature.auth.registration.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,7 +25,7 @@ import com.wire.android.shared.user.email.ValidateEmailError
 import com.wire.android.shared.user.email.ValidateEmailParams
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 
-class CreatePersonalAccountEmailViewModel(
+class CreateAccountEmailViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val sendActivationUseCase: SendEmailActivationCodeUseCase
@@ -65,8 +65,8 @@ class CreatePersonalAccountEmailViewModel(
     private fun sendActivationCodeFailure(failure: Failure) {
         val errorMessage = when (failure) {
             is NetworkConnection -> NetworkErrorMessage
-            is EmailBlacklisted -> ErrorMessage(R.string.create_personal_account_with_email_email_blacklisted_error)
-            is EmailInUse -> ErrorMessage(R.string.create_personal_account_with_email_email_in_use_error)
+            is EmailBlacklisted -> ErrorMessage(R.string.create_account_with_email_email_blacklisted_error)
+            is EmailInUse -> ErrorMessage(R.string.create_account_with_email_email_in_use_error)
             else -> GeneralErrorMessage
         }
         _sendActivationCodeLiveData.failure(errorMessage)

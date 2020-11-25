@@ -33,6 +33,18 @@ pipeline {
           }
         }
 
+        stage('Define Emulator Prefix') {
+          steps {
+            sh 'EMULATOR_PREFIX=${BRANCH_NAME//\\//-}'
+            sh 'echo Emulator Prefix set to: [$EMULATOR_PREFIX]'
+          }
+        }
+
+      }
+    }
+
+    stage('Spawn Wrapper and Emulators') {
+      parallel {
         stage('Spawn Gradle Wrapper') {
           steps {
             withGradle() {

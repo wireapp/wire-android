@@ -33,7 +33,7 @@
     <item name="create_account_editable_field_guideline_percent" format="float" type="dimen">0.4
     </item>
 
-    <item name="create_personal_account_retry_button_vertical_bias" format="float" type="dimen">
+    <item name="create_account_retry_button_vertical_bias" format="float" type="dimen">
         0.15
     </item>
 

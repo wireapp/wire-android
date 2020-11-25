@@ -135,7 +135,7 @@ class CreateAccountNavigatorTest : AndroidTest() {
     }
 
     @Test
-    fun `given openProAccountTeamEmailScreen is called, then opens CreateProAccountTeamEmailActivity`() {
+    fun `given openProAccountTeamEmailScreen is called, then opens CreateProAccountTeamEmailFragment`() {
         createAccountNavigator.openProAccountTeamEmailScreen(activity)
 
         verify(exactly = 1) { context.startActivity(capture(intentSlot)) }

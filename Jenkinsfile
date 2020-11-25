@@ -199,7 +199,7 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
     propertiesFile = 'local.properties'
     flavor = 'Dev'
     adbPort = '5555'
-    emulatorPrefix = '${BRANCH_NAME.split("/").size() > 1 ? BRANCH_NAME.split("/")[1] : BRANCH_NAME}'
+    emulatorPrefix = "${BRANCH_NAME.split("/").size() > 1 ? BRANCH_NAME.split("/")[1] : BRANCH_NAME}"
   }
   post {
     failure {

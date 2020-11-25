@@ -138,10 +138,10 @@ class CreateAccountNavigatorTest : AndroidTest() {
     fun `given openProAccountTeamEmailScreen is called, then opens CreateProAccountTeamEmailFragment`() {
         createAccountNavigator.openProAccountTeamEmailScreen(activity)
 
-        verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
-        intentSlot.captured.let {
+        verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
+        fragmentSlot.captured.let {
             it shouldBeInstanceOf CreateProAccountTeamEmailFragment::class.java
-            it.extras shouldBe null
+            it.arguments shouldBe null
         }
     }
 

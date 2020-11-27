@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
       image 'android-agent:latest'
-      args '-u 1000:133 --network docker-compose-files_build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
+      args '-u 1000:133 --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
     }
 
   }
@@ -50,14 +50,14 @@ pipeline {
         stage('Spawn Emulator 9.0') {
           steps {
             sh '''docker rm ${emulatorPrefix}_9 || true
-docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}_9 budtmo/docker-android-x86-9.0'''
+docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
         stage('Spawn Emulator 10.0') {
           steps {
             sh '''docker rm ${emulatorPrefix}_10 || true
-docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}_10 budtmo/docker-android-x86-10.0'''
+docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}_10 budtmo/docker-android-x86-10.0'''
           }
         }
 

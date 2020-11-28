@@ -4,6 +4,7 @@ import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.framework.storage.db.DatabaseTestRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Rule
@@ -42,6 +43,34 @@ class ContactDaoTest : InstrumentationTest() {
         val contacts = contactDao.contacts()
 
         contacts shouldContainSame listOf(entity1, entity2, entity3)
+    }
+
+    @Test
+    fun contactsById_contactsWithIdsPresent_returnsEntitiesWithIds() = databaseTestRule.runTest {
+        val id1 = "id-1"
+        val id2 = "id-2"
+        val entity1 = ContactEntity(id = id1, name = "Contact #1")
+        val entity2 = ContactEntity(id = id2, name = "Contact #2")
+        val entity3 = ContactEntity(id = "id-3", name = "Contact #3")
+
+        contactDao.insertAll(listOf(entity1, entity2, entity3))
+
+        val contactsById = contactDao.contactsById(setOf(id1, id2, "someOtherId"))
+
+        contactsById shouldContainSame listOf(entity1, entity2)
+    }
+
+    @Test
+    fun contactsById_noContactsWithIdsPresent_returnsEmptyList() = databaseTestRule.runTest {
+        val entity1 = ContactEntity(id = "id-1", name = "Contact #1")
+        val entity2 = ContactEntity(id = "id-2", name = "Contact #2")
+        val entity3 = ContactEntity(id = "id-3", name = "Contact #3")
+
+        contactDao.insertAll(listOf(entity1, entity2, entity3))
+
+        val contactsById = contactDao.contactsById(setOf("someId", "someOtherId"))
+
+        contactsById.isEmpty() shouldBeEqualTo true
     }
 
     companion object {

@@ -13,7 +13,7 @@ class TextDrawable(
     private val text: String,
     private val width: Float,
     private val height: Float,
-    @ColorInt private val textColor: Int = Color.WHITE,
+    @ColorInt private val textColor: Int = Color.WHITE, //TODO: get colors from xml or theme
     @ColorInt private val backgroundColor: Int = Color.RED
 ) : Drawable() {
 

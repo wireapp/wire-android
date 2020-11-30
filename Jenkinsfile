@@ -230,4 +230,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
     }
 
   }
+  options {
+    disableConcurrentBuilds()
+  }
 }

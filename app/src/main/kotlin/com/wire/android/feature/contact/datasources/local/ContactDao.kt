@@ -14,6 +14,9 @@ interface ContactDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(contacts: List<ContactEntity>)
 
+    @Query("SELECT * FROM contact WHERE id IN(:ids)")
+    suspend fun contactsById(ids: Set<String>): List<ContactEntity>
+
     @Query("SELECT * FROM contact")
     suspend fun contacts(): List<ContactEntity>
 }

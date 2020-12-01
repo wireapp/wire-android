@@ -50,14 +50,14 @@ pipeline {
         stage('Spawn Emulator 9.0') {
           steps {
             sh '''docker rm ${emulatorPrefix}_9 || true
-docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}_9 budtmo/docker-android-x86-9.0'''
+docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
         stage('Spawn Emulator 10.0') {
           steps {
             sh '''docker rm ${emulatorPrefix}_10 || true
-docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}_10 budtmo/docker-android-x86-10.0'''
+docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
           }
         }
 
@@ -107,13 +107,13 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       parallel {
         stage('Emulator 10.0') {
           steps {
-            sh 'adb connect ${emulatorPrefix}_10:${adbPort}'
+            sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'
           }
         }
 
         stage('Emulator 9.0') {
           steps {
-            sh 'adb connect ${emulatorPrefix}_9:${adbPort}'
+            sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_9:${adbPort}'
           }
         }
 
@@ -225,12 +225,9 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
     }
 
     always {
-      sh 'docker stop ${emulatorPrefix}_9 ${emulatorPrefix}_10 || true'
-      sh 'docker rm ${emulatorPrefix}_9 ${emulatorPrefix}_10 || true'
+      sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
+      sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
     }
 
-  }
-  options {
-    disableConcurrentBuilds()
   }
 }

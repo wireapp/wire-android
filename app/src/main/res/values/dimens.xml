@@ -57,4 +57,7 @@
     <item name="login_header_guideline_percent" format="float" type="dimen">0.228</item>
     <dimen name="login_password_text_input_margin_top">1dp</dimen>
 
+    <!-- Conversation List -->
+    <dimen name="conversation_list_item_icon_size">28dp</dimen>
+
 </resources>

@@ -38,7 +38,7 @@ object Libraries {
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
         const val ktx = "1.3.0"
-        const val material = "1.1.0"
+        const val material = "1.2.1"
         const val koin = "2.1.6"
         const val lifecycleKtx = "2.2.0"
         const val retrofit = "2.9.0"
@@ -48,6 +48,7 @@ object Libraries {
         const val room = "2.2.5"
         const val desugaring = "1.0.10"
         const val paging = "2.1.2"
+        const val coil = "1.0.0"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -61,6 +62,7 @@ object Libraries {
     const val viewPager2       = "androidx.viewpager2:viewpager2:${Versions.viewPager2}"
     const val desugaring       = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
     const val paging           = "androidx.paging:paging-runtime-ktx:${Versions.paging}"
+    const val coil             = "io.coil-kt:coil:${Versions.coil}"
 
     object Koin {
         const val androidCore  = "org.koin:koin-android:${Versions.koin}"

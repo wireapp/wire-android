@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
       image 'android-agent:latest'
-      args '-u 1000:133 --network docker-compose-files_build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
+      args '-u 1000:133 --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
     }
 
   }
@@ -33,6 +33,11 @@ pipeline {
           }
         }
 
+      }
+    }
+
+    stage('Spawn Wrapper and Emulators') {
+      parallel {
         stage('Spawn Gradle Wrapper') {
           steps {
             withGradle() {
@@ -44,15 +49,15 @@ pipeline {
 
         stage('Spawn Emulator 9.0') {
           steps {
-            sh '''docker rm ${BRANCH_NAME}_9 || true
-docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_9 budtmo/docker-android-x86-9.0'''
+            sh '''docker rm ${emulatorPrefix}_9 || true
+docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
         stage('Spawn Emulator 10.0') {
           steps {
-            sh '''docker rm ${BRANCH_NAME}_10 || true
-docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${BRANCH_NAME}_10 budtmo/docker-android-x86-10.0'''
+            sh '''docker rm ${emulatorPrefix}_10 || true
+docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
           }
         }
 
@@ -102,13 +107,13 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
       parallel {
         stage('Emulator 10.0') {
           steps {
-            sh 'adb connect ${BRANCH_NAME}_10:${adbPort}'
+            sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'
           }
         }
 
         stage('Emulator 9.0') {
           steps {
-            sh 'adb connect ${BRANCH_NAME}_9:${adbPort}'
+            sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_9:${adbPort}'
           }
         }
 
@@ -194,6 +199,7 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
     propertiesFile = 'local.properties'
     flavor = 'Dev'
     adbPort = '5555'
+    emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
   }
   post {
     failure {
@@ -219,8 +225,8 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
     }
 
     always {
-      sh 'docker stop ${BRANCH_NAME}_9 ${BRANCH_NAME}_10 || true'
-      sh 'docker rm ${BRANCH_NAME}_9 ${BRANCH_NAME}_10 || true'
+      sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
+      sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
     }
 
   }

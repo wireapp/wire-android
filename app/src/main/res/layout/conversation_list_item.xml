@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:paddingStart="@dimen/screen_padding"
+    android:paddingEnd="@dimen/screen_padding">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/conversationItemIconImageView"
+        android:layout_width="@dimen/conversation_list_item_icon_size"
+        android:layout_height="@dimen/conversation_list_item_icon_size"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.Circle"
+        tools:src="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/conversationItemNameTextView"
+        style="@style/TextView.Body1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/conversationItemIconImageView"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Conversation #1" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

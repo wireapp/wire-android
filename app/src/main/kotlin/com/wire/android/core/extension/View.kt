@@ -25,3 +25,12 @@ fun View.headingForAccessibility(
             }
         })
     }
+
+fun <T : View> T.afterMeasured(action: (T) -> Unit) =
+    if (width == 0 || height == 0) {
+        addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            if (width > 0 && height > 0) action(this)
+        }
+    } else {
+        action(this)
+    }

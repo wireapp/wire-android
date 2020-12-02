@@ -7,7 +7,7 @@ import org.junit.Test
 
 @Ignore("WIP")
 @Suppress("EmptyFunctionBlock")
-class ConversationDataSourceTest : InstrumentationTest() {
+class ConversationDataSourceInstrumentationTest : InstrumentationTest() {
 
     @Before
     fun setUp() {

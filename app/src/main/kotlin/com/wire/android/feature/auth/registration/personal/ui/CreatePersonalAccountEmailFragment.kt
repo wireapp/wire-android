@@ -16,8 +16,8 @@ import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.createPersonalAccountEmailConfirmationButton
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.createPersonalAccountEmailEditText
+import kotlinx.android.synthetic.main.fragment_create_personal_account_email.createPersonalAccountEmailTextInputLayout
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.createPersonalAccountEmailTitleTextView
-import kotlinx.android.synthetic.main.fragment_create_pro_account_team_email.createProAccountTeamEmailTextInputLayout
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -55,7 +55,7 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
             updateConfirmationButtonStatus(it)
         }
         emailViewModel.emailValidationErrorLiveData.observe(viewLifecycleOwner) {
-            createProAccountTeamEmailTextInputLayout.error = getString(it.message)
+            createPersonalAccountEmailTextInputLayout.error = getString(it.message)
         }
     }
 

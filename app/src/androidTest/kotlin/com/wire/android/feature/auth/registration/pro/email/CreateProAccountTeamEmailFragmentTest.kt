@@ -82,6 +82,6 @@ class CreateProAccountTeamEmailFragmentTest : FunctionalTest() {
     }
 
     companion object {
-        private const val TEST_TEAM_EMAIL = "team@wire.com"
+        private const val TEST_TEAM_EMAIL = "test-team-account@wire.com"
     }
 }

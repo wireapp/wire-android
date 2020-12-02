@@ -115,8 +115,8 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
         emailViewModel.sendActivationCode(TEST_EMAIL)
 
-        emailViewModel.sendActivationCodeLiveData shouldBeUpdated { result ->
-            result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_with_email_email_blacklisted_error }
+        emailViewModel.emailValidationErrorLiveData shouldBeUpdated {
+            it.message shouldBeEqualTo R.string.create_personal_account_with_email_email_blacklisted_error
         }
     }
 
@@ -126,8 +126,8 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
         emailViewModel.sendActivationCode(TEST_EMAIL)
 
-        emailViewModel.sendActivationCodeLiveData shouldBeUpdated { result ->
-            result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_with_email_email_in_use_error }
+        emailViewModel.emailValidationErrorLiveData shouldBeUpdated {
+            it.message shouldBeEqualTo R.string.create_personal_account_with_email_email_in_use_error
         }
     }
 

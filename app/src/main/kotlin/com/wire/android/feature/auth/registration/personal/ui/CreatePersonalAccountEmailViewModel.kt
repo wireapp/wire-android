@@ -19,6 +19,7 @@ import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.auth.activation.usecase.EmailBlacklisted
 import com.wire.android.feature.auth.activation.usecase.EmailInUse
+import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeFailure
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeParams
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
 import com.wire.android.shared.user.email.ValidateEmailError
@@ -34,11 +35,11 @@ class CreatePersonalAccountEmailViewModel(
     private val _isValidEmailLiveData = MutableLiveData<Boolean>()
     val isValidEmailLiveData: LiveData<Boolean> = _isValidEmailLiveData
 
+    private val _emailValidationLiveData = MutableLiveData<ErrorMessage>()
+    val emailValidationErrorLiveData: LiveData<ErrorMessage> = _emailValidationLiveData
+
     private val _sendActivationCodeLiveData = SingleLiveEvent<Either<ErrorMessage, String>>()
     val sendActivationCodeLiveData: LiveData<Either<ErrorMessage, String>> = _sendActivationCodeLiveData
-
-    private val _networkConnectionErrorLiveData = MutableLiveData<Unit>()
-    val networkConnectionErrorLiveData: LiveData<Unit> = _networkConnectionErrorLiveData
 
     fun validateEmail(email: String) =
         validateEmailUseCase(viewModelScope, ValidateEmailParams(email), dispatcherProvider.default()) {
@@ -63,12 +64,27 @@ class CreatePersonalAccountEmailViewModel(
     private fun sendActivationCodeSuccess(email: String) = _sendActivationCodeLiveData.success(email)
 
     private fun sendActivationCodeFailure(failure: Failure) {
+        when (failure) {
+            is SendEmailActivationCodeFailure -> handleEmailErrors(failure)
+            else -> generalErrors(failure)
+        }
+    }
+
+    private fun generalErrors(failure: Failure) {
         val errorMessage = when (failure) {
             is NetworkConnection -> NetworkErrorMessage
-            is EmailBlacklisted -> ErrorMessage(R.string.create_personal_account_with_email_email_blacklisted_error)
-            is EmailInUse -> ErrorMessage(R.string.create_personal_account_with_email_email_in_use_error)
             else -> GeneralErrorMessage
         }
         _sendActivationCodeLiveData.failure(errorMessage)
+    }
+
+    private fun handleEmailErrors(failure: SendEmailActivationCodeFailure) {
+        val errorMessage = when (failure) {
+            is EmailBlacklisted ->
+                ErrorMessage(R.string.create_personal_account_with_email_email_blacklisted_error)
+            is EmailInUse ->
+                ErrorMessage(R.string.create_personal_account_with_email_email_in_use_error)
+        }
+        _emailValidationLiveData.value = errorMessage
     }
 }

@@ -65,12 +65,12 @@ class CreatePersonalAccountEmailViewModel(
 
     private fun sendActivationCodeFailure(failure: Failure) {
         when (failure) {
-            is SendEmailActivationCodeFailure -> handleEmailErrors(failure)
-            else -> generalErrors(failure)
+            is SendEmailActivationCodeFailure -> handleActivationErrors(failure)
+            else -> handleGeneralErrors(failure)
         }
     }
 
-    private fun generalErrors(failure: Failure) {
+    private fun handleGeneralErrors(failure: Failure) {
         val errorMessage = when (failure) {
             is NetworkConnection -> NetworkErrorMessage
             else -> GeneralErrorMessage
@@ -78,7 +78,7 @@ class CreatePersonalAccountEmailViewModel(
         _sendActivationCodeLiveData.failure(errorMessage)
     }
 
-    private fun handleEmailErrors(failure: SendEmailActivationCodeFailure) {
+    private fun handleActivationErrors(failure: SendEmailActivationCodeFailure) {
         val errorMessage = when (failure) {
             is EmailBlacklisted ->
                 ErrorMessage(R.string.create_personal_account_with_email_email_blacklisted_error)

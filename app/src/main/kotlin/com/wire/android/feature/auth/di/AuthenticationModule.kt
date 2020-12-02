@@ -74,6 +74,16 @@ private val createAccountModule = module {
 }
 
 private val createPersonalAccountModule = module {
+    viewModel { CreateAccountEmailViewModel(get(), get(), get()) }
+    factory { ValidateEmailUseCase() }
+    factory { SendEmailActivationCodeUseCase(get()) }
+    single<ActivationRepository> { ActivationDataSource(get()) }
+    single { ActivationRemoteDataSource(get(), get()) }
+    factory { get<NetworkClient>().create(ActivationApi::class.java) }
+
+    viewModel { CreateAccountEmailVerificationCodeViewModel(get(), get()) }
+    factory { ActivateEmailUseCase(get()) }
+
     viewModel { CreatePersonalAccountNameViewModel(get(), get()) }
     viewModel { CreatePersonalAccountPasswordViewModel(get(), get(), get()) }
     factory { RegisterPersonalAccountUseCase(get(), get(), get()) }

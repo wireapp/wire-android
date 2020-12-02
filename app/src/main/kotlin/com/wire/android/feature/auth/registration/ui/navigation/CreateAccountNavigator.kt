@@ -29,8 +29,10 @@ class CreateAccountNavigator(
     }
 
     fun openPersonalAccountNameScreen(activity: FragmentActivity, email: String, activationCode: String) {
-        fragmentStackHandler.replaceFragment(activity,
-            CreatePersonalAccountNameFragment.newInstance(email = email, activationCode = activationCode))
+        fragmentStackHandler.replaceFragment(
+            activity,
+            CreatePersonalAccountNameFragment.newInstance(email = email, activationCode = activationCode)
+        )
     }
 
     fun openPersonalAccountPasswordScreen(activity: FragmentActivity, name: String, email: String, activationCode: String) {

@@ -36,7 +36,7 @@ class CreateAccountActivityUITest : FunctionalActivityTest(CreateAccountActivity
         onView(withId(R.id.createPersonalAccountTitleTextView)).perform(click())
 
         onView(withText(R.string.create_personal_account_title)).check(matches(isDisplayed()))
-        onView(withHint(R.string.text_input_layout_email_hint)).check(matches(isDisplayed()))
+        onView(withHint(R.string.create_personal_account_email_input_hint)).check(matches(isDisplayed()))
     }
 
     @Test

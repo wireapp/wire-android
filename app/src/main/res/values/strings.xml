@@ -27,10 +27,12 @@
     <string name="authentication_create_team_title">Pro</string>
     <string name="authentication_create_team_subtitle">Secure collaboration for businesses, institutions and professional organizations</string>
 
+    <!-- Registration - Shared -->
+    <string name="create_account_with_email_email_blacklisted_error">This email address is not allowed.</string>
+    <string name="create_account_with_email_email_in_use_error">This email address you used is already linked to an account.\nUse another email address or try to log in if you own this account.</string>
+
     <!-- Registration - Personal -->
     <string name="create_personal_account_title">Create an account</string>
-    <string name="create_personal_account_with_email_email_blacklisted_error">This email address is not allowed.</string>
-    <string name="create_personal_account_with_email_email_in_use_error">This email address you used is already linked to an account.\nUse another email address or try to log in if you own this account.</string>
     <string name="personal_account_creation_content_description">Create account selection. Personal account. Item 1 of 2.</string>
     <string name="authentication_tab_layout_title_email">EMAIL</string>
     <string name="authentication_tab_layout_title_phone">PHONE</string>

@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.ui
+package com.wire.android.feature.auth.registration.ui
 
 import com.wire.android.R
 import com.wire.android.UnitTest
@@ -29,12 +29,12 @@ import org.junit.Rule
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-class CreatePersonalAccountEmailViewModelTest : UnitTest() {
+class CreateAccountEmailViewModelTest : UnitTest() {
 
     @get:Rule
     val coroutinesTestRule = CoroutinesTestRule()
 
-    private lateinit var emailViewModel: CreatePersonalAccountEmailViewModel
+    private lateinit var emailViewModel: CreateAccountEmailViewModel
 
     @MockK
     private lateinit var sendActivationCodeUseCase: SendEmailActivationCodeUseCase
@@ -44,7 +44,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        emailViewModel = CreatePersonalAccountEmailViewModel(
+        emailViewModel = CreateAccountEmailViewModel(
             coroutinesTestRule.dispatcherProvider, validateEmailUseCase, sendActivationCodeUseCase
         )
     }
@@ -116,7 +116,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
         emailViewModel.sendActivationCode(TEST_EMAIL)
 
         emailViewModel.sendActivationCodeLiveData shouldBeUpdated { result ->
-            result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_with_email_email_blacklisted_error }
+            result shouldFail { it.message shouldBeEqualTo R.string.create_account_with_email_email_blacklisted_error }
         }
     }
 
@@ -127,7 +127,7 @@ class CreatePersonalAccountEmailViewModelTest : UnitTest() {
         emailViewModel.sendActivationCode(TEST_EMAIL)
 
         emailViewModel.sendActivationCodeLiveData shouldBeUpdated { result ->
-            result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_with_email_email_in_use_error }
+            result shouldFail { it.message shouldBeEqualTo R.string.create_account_with_email_email_in_use_error }
         }
     }
 

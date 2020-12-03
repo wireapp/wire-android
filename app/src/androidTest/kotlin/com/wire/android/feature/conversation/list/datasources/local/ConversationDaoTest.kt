@@ -4,6 +4,7 @@ import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.framework.storage.db.DatabaseTestRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Rule
@@ -42,6 +43,26 @@ class ConversationDaoTest : InstrumentationTest() {
         val conversations = conversationDao.conversations()
 
         conversations shouldContainSame listOf(entity1, entity2, entity3)
+    }
+
+    @Test
+    fun deleteConversationById_conversationWithIdExists_deletesConversation() = databaseTestRule.runTest {
+        conversationDao.insert(TEST_CONVERSATION_ENTITY)
+
+        conversationDao.deleteConversationById(TEST_CONVERSATION_ENTITY.id)
+        val remainingConversations = conversationDao.conversations()
+
+        remainingConversations.isEmpty() shouldBeEqualTo true
+    }
+
+    @Test
+    fun deleteConversationById_conversationWithIdDoesNotExist_doesNothing() = databaseTestRule.runTest {
+        conversationDao.insert(TEST_CONVERSATION_ENTITY)
+
+        conversationDao.deleteConversationById("some-other-id")
+        val remainingConversations = conversationDao.conversations()
+
+        remainingConversations shouldContainSame listOf(TEST_CONVERSATION_ENTITY)
     }
 
     companion object {

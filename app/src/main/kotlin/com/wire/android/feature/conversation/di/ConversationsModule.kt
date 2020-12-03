@@ -31,6 +31,7 @@ val conversationsModule = module {
     single { get<NetworkClient>().create(ConversationsApi::class.java) }
 
     factory { get<UserDatabase>().conversationDao() }
+    factory { get<UserDatabase>().conversationMembersDao() }
     factory { ConversationLocalDataSource(get()) }
 }
 

@@ -65,6 +65,13 @@
     <string name="create_pro_account_set_team_email_subtitle">Enter your work email address.</string>
     <string name="create_pro_account_set_team_email_hint">YOU@YOURCOMPANY.COM</string>
 
+    <string name="create_pro_account_email_verification_code_title">You\'ve got mail</string>
+    <string name="create_pro_account_email_verification_code_description">Enter the verification code we sent to %s</string>
+    <string name="create_pro_account_email_verification_code_change_email">CHANGE EMAIL</string>
+    <string name="create_pro_account_email_verification_code_resend_code">RESEND CODE</string>
+    <string name="create_pro_account_email_verification_code_invalid_code_error">Please enter a valid code</string>
+    <string name="create_pro_account_email_verification_code_entry_field_content_description">Code entry field</string>
+
     <!-- Login -->
     <string name="login_header_title">Log in</string>
     <string name="login_tab_content_description">Log in with %1$s. Item %2$d of %3$d</string>

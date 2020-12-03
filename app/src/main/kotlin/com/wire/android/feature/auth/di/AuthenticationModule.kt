@@ -20,7 +20,6 @@ import com.wire.android.feature.auth.registration.RegistrationRepository
 import com.wire.android.feature.auth.registration.datasource.RegistrationDataSource
 import com.wire.android.feature.auth.registration.datasource.remote.RegistrationApi
 import com.wire.android.feature.auth.registration.datasource.remote.RegistrationRemoteDataSource
-import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountCodeViewModel
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountNameViewModel
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountPasswordViewModel
 import com.wire.android.feature.auth.registration.personal.usecase.ActivateEmailUseCase
@@ -30,6 +29,7 @@ import com.wire.android.feature.auth.registration.pro.team.data.TeamDataSource
 import com.wire.android.feature.auth.registration.pro.team.data.TeamsRepository
 import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUseCase
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
+import com.wire.android.feature.auth.registration.ui.CreateAccountEmailVerificationCodeViewModel
 import com.wire.android.feature.auth.registration.ui.CreateAccountEmailViewModel
 import com.wire.android.feature.auth.registration.ui.navigation.CreateAccountNavigator
 import com.wire.android.shared.auth.remote.LabelGenerator
@@ -56,6 +56,17 @@ private val createAccountModule = module {
     factory { get<NetworkClient>().create(RegistrationApi::class.java) }
     factory { RegistrationRemoteDataSource(get(), get(), get(), get()) }
 
+    viewModel { CreateAccountEmailViewModel(get(), get(), get()) }
+    viewModel { CreateAccountEmailVerificationCodeViewModel(get(), get()) }
+
+    factory { ActivateEmailUseCase(get()) }
+    single<ActivationRepository> { ActivationDataSource(get()) }
+    single { ActivationRemoteDataSource(get(), get()) }
+    factory { get<NetworkClient>().create(ActivationApi::class.java) }
+
+    factory { ValidateEmailUseCase() }
+    factory { SendEmailActivationCodeUseCase(get()) }
+
     single { CreateAccountNavigator(get(), get()) }
     factory(qualifier<CreateAccountActivity>()) {
         FragmentContainerProvider.fixedProvider(R.id.createAccountLayoutContainer)
@@ -63,18 +74,7 @@ private val createAccountModule = module {
 }
 
 private val createPersonalAccountModule = module {
-    viewModel { CreateAccountEmailViewModel(get(), get(), get()) }
-    factory { ValidateEmailUseCase() }
-    factory { SendEmailActivationCodeUseCase(get()) }
-    single<ActivationRepository> { ActivationDataSource(get()) }
-    single { ActivationRemoteDataSource(get(), get()) }
-    factory { get<NetworkClient>().create(ActivationApi::class.java) }
-
-    viewModel { CreatePersonalAccountCodeViewModel(get(), get()) }
-    factory { ActivateEmailUseCase(get()) }
-
     viewModel { CreatePersonalAccountNameViewModel(get(), get()) }
-
     viewModel { CreatePersonalAccountPasswordViewModel(get(), get(), get()) }
     factory { RegisterPersonalAccountUseCase(get(), get(), get()) }
 }

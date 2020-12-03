@@ -10,6 +10,7 @@ import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAcco
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountNameFragment
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountPasswordFragment
 import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailFragment
+import com.wire.android.feature.auth.registration.pro.email.verification.CreateProAccountTeamEmailVerificationFragment
 import com.wire.android.feature.auth.registration.pro.team.CreateProAccountTeamNameFragment
 
 class CreateAccountNavigator(
@@ -28,8 +29,10 @@ class CreateAccountNavigator(
     }
 
     fun openPersonalAccountNameScreen(activity: FragmentActivity, email: String, activationCode: String) {
-        fragmentStackHandler.replaceFragment(activity,
-            CreatePersonalAccountNameFragment.newInstance(email = email, activationCode = activationCode))
+        fragmentStackHandler.replaceFragment(
+            activity,
+            CreatePersonalAccountNameFragment.newInstance(email = email, activationCode = activationCode)
+        )
     }
 
     fun openPersonalAccountPasswordScreen(activity: FragmentActivity, name: String, email: String, activationCode: String) {
@@ -43,8 +46,8 @@ class CreateAccountNavigator(
     fun openProAccountTeamEmailScreen(activity: FragmentActivity) =
         fragmentStackHandler.replaceFragment(activity, CreateProAccountTeamEmailFragment.newInstance())
 
-    //TODO add navigation when email verification screen is done
-    fun openProAccountTeamEmailVerificationScreen(activity: FragmentActivity, email: String) = Unit
+    fun openProAccountTeamEmailVerificationScreen(activity: FragmentActivity, email: String) =
+        fragmentStackHandler.replaceFragment(activity, CreateProAccountTeamEmailVerificationFragment.newInstance(email))
 
     fun openProAccountAboutTeamScreen(context: Context) =
         uriNavigationHandler.openUri(context, "$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX")

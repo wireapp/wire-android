@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.ui
+package com.wire.android.feature.auth.registration.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -20,7 +20,7 @@ import com.wire.android.feature.auth.registration.personal.usecase.ActivateEmail
 import com.wire.android.feature.auth.registration.personal.usecase.ActivateEmailUseCase
 import com.wire.android.feature.auth.registration.personal.usecase.InvalidEmailCode
 
-class CreatePersonalAccountCodeViewModel(
+class CreateAccountEmailVerificationCodeViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val activateEmailUseCase: ActivateEmailUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {

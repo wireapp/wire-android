@@ -13,6 +13,7 @@ import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAcco
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountNameFragment
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountPasswordFragment
 import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailFragment
+import com.wire.android.feature.auth.registration.pro.email.verification.CreateProAccountTeamEmailVerificationFragment
 import com.wire.android.feature.auth.registration.pro.team.CreateProAccountTeamNameFragment
 import com.wire.android.framework.android.argumentEquals
 import io.mockk.CapturingSlot
@@ -142,6 +143,16 @@ class CreateAccountNavigatorTest : AndroidTest() {
         fragmentSlot.captured.let {
             it shouldBeInstanceOf CreateProAccountTeamEmailFragment::class.java
             it.arguments shouldBe null
+        }
+    }
+
+    @Test
+    fun `given openProAccountTeamEmailVerificationScreen is called, then opens CreateProAccountTeamEmailVerificationFragment`() {
+        createAccountNavigator.openProAccountTeamEmailVerificationScreen(activity, TEST_EMAIL)
+        verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
+        fragmentSlot.captured.let {
+            it shouldBeInstanceOf CreateProAccountTeamEmailVerificationFragment::class.java
+            it.argumentEquals(CreateProAccountTeamEmailVerificationFragment.newInstance(TEST_EMAIL)) shouldBe true
         }
     }
 

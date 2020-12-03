@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.registration.personal.ui
+package com.wire.android.feature.auth.registration.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -26,7 +26,7 @@ import com.wire.android.shared.user.email.ValidateEmailError
 import com.wire.android.shared.user.email.ValidateEmailParams
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 
-class CreatePersonalAccountEmailViewModel(
+class CreateAccountEmailViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val sendActivationUseCase: SendEmailActivationCodeUseCase

@@ -14,6 +14,7 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.navigation.Navigator
+import com.wire.android.feature.auth.registration.ui.CreateAccountEmailViewModel
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.createPersonalAccountEmailConfirmationButton
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.createPersonalAccountEmailEditText
 import kotlinx.android.synthetic.main.fragment_create_personal_account_email.createPersonalAccountEmailTextInputLayout
@@ -26,7 +27,7 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
     private val navigator: Navigator by inject()
 
     //TODO Add loading status
-    private val emailViewModel: CreatePersonalAccountEmailViewModel by viewModel()
+    private val emailViewModel: CreateAccountEmailViewModel by viewModel()
 
     private val inputFocusViewModel: InputFocusViewModel by viewModel()
 

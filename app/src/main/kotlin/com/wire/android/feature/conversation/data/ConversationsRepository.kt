@@ -10,4 +10,6 @@ interface ConversationsRepository {
     fun conversationsByBatch(
         pagingDelegate: ConversationsPagingDelegate
     ): Flow<Either<Failure, PagedList<Conversation>>>
+
+    suspend fun conversationMemberIds(conversation: Conversation): Either<Failure, List<String>>
 }

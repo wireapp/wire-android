@@ -46,10 +46,15 @@ class ConversationDataSource(
         }
 
     private suspend fun fetchConversations(start: String?, size: Int): Either<Failure, Unit> = suspending {
-        conversationRemoteDataSource.conversationsByBatch(start, size).map {
-            conversationMapper.fromConversationResponseToEntityList(it)
-        }.flatMap {
-            conversationLocalDataSource.saveConversations(it)
+        conversationRemoteDataSource.conversationsByBatch(start, size).flatMap { response ->
+            val conversationEntities = conversationMapper.fromConversationResponseToEntityList(response)
+            conversationLocalDataSource.saveConversations(conversationEntities).flatMap {
+                val conversationMemberEntities = conversationMapper.fromConversationResponseToConversationMembers(response)
+                conversationLocalDataSource.saveMemberIdsForConversations(conversationMemberEntities)
+            }
         }
     }
+
+    override suspend fun conversationMemberIds(conversation: Conversation): Either<Failure, List<String>> =
+        conversationLocalDataSource.conversationMemberIds(conversation.id)
 }

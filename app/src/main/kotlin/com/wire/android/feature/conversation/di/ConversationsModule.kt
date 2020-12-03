@@ -32,6 +32,6 @@ val conversationsModule = module {
 
     factory { get<UserDatabase>().conversationDao() }
     factory { get<UserDatabase>().conversationMembersDao() }
-    factory { ConversationLocalDataSource(get()) }
+    factory { ConversationLocalDataSource(get(), get()) }
 }
 

@@ -4,6 +4,8 @@ import androidx.paging.DataSource
 import com.wire.android.UnitTest
 import com.wire.android.feature.conversation.list.datasources.local.ConversationDao
 import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
+import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
+import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery
@@ -24,11 +26,14 @@ class ConversationLocalDataSourceTest : UnitTest() {
     @MockK
     private lateinit var conversationDao: ConversationDao
 
+    @MockK
+    private lateinit var conversationMembersDao: ConversationMembersDao
+
     private lateinit var conversationLocalDataSource: ConversationLocalDataSource
 
     @Before
     fun setUp() {
-        conversationLocalDataSource = ConversationLocalDataSource(conversationDao)
+        conversationLocalDataSource = ConversationLocalDataSource(conversationDao, conversationMembersDao)
     }
 
     @Test
@@ -62,5 +67,50 @@ class ConversationLocalDataSourceTest : UnitTest() {
 
         result shouldFail { }
         coVerify { conversationDao.insertAll(conversationEntities) }
+    }
+
+    @Test
+    fun `given saveMemberIdsForConversations is called, when dao operation is successful, then returns success`() {
+        val conversationMemberEntities = mockk<List<ConversationMemberEntity>>()
+        coEvery { conversationMembersDao.insertAll(conversationMemberEntities) } returns Unit
+
+        val result = runBlocking { conversationLocalDataSource.saveMemberIdsForConversations(conversationMemberEntities) }
+
+        result shouldSucceed { it shouldBe Unit }
+        coVerify { conversationMembersDao.insertAll(conversationMemberEntities) }
+    }
+
+    @Test
+    fun `given saveMemberIdsForConversations is called, when dao operation fails, then propagates failure`() {
+        val conversationMemberEntities = mockk<List<ConversationMemberEntity>>()
+        coEvery { conversationMembersDao.insertAll(conversationMemberEntities) } throws SQLException()
+
+        val result = runBlocking { conversationLocalDataSource.saveMemberIdsForConversations(conversationMemberEntities) }
+
+        result shouldFail { }
+        coVerify { conversationMembersDao.insertAll(conversationMemberEntities) }
+    }
+
+    @Test
+    fun `given conversationMemberIds is called, when dao operation returns member ids, then propagates member ids`() {
+        val conversationId = "conv-id-1"
+        val memberIds = listOf("member-id-1", "member-id-2")
+        coEvery { conversationMembersDao.conversationMembers(conversationId) } returns memberIds
+
+        val result = runBlocking { conversationLocalDataSource.conversationMemberIds(conversationId) }
+
+        result shouldSucceed { it shouldBe memberIds }
+        coVerify { conversationMembersDao.conversationMembers(conversationId) }
+    }
+
+    @Test
+    fun `given conversationMemberIds is called, when dao operation fails, then propagates failure`() {
+        val conversationId = "conv-id-1"
+        coEvery { conversationMembersDao.conversationMembers(conversationId) } throws SQLException()
+
+        val result = runBlocking { conversationLocalDataSource.conversationMemberIds(conversationId) }
+
+        result shouldFail { }
+        coVerify { conversationMembersDao.conversationMembers(conversationId) }
     }
 }

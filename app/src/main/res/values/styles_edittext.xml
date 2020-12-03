@@ -21,7 +21,6 @@
 
     <style name="TextInputEditText.OutlinedBox.Email">
         <item name="android:inputType">textEmailAddress</item>
-        <item name="android:hint">@string/text_input_layout_email_hint</item>
     </style>
 
     <style name="TextInputEditText.OutlinedBox.Password">

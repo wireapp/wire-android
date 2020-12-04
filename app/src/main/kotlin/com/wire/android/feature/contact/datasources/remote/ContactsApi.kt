@@ -7,7 +7,7 @@ import retrofit2.http.Query
 interface ContactsApi {
 
     @GET(USERS)
-    suspend fun contactsById(@Query(IDS_QUERY_KEY) ids: Set<String>): Response<List<ContactResponse>>
+    suspend fun contactsById(@Query(IDS_QUERY_KEY) ids: String): Response<List<ContactResponse>>
 
     companion object {
         private const val USERS = "/users"

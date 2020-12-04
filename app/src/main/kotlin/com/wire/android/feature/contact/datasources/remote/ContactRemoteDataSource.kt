@@ -10,7 +10,7 @@ import com.wire.android.core.network.NetworkHandler
 class ContactRemoteDataSource(
     private val contactsApi: ContactsApi,
     override val networkHandler: NetworkHandler,
-    private val contactCountThreshold: Int = CONTACT_COUNT_THRESHOLD
+    private val contactCountThreshold: Int = CONTACTS_ID_PER_CHUNK_THRESHOLD
 ) : ApiService() {
 
     suspend fun contactsById(ids: Set<String>): Either<Failure, List<ContactResponse>> {
@@ -28,6 +28,6 @@ class ContactRemoteDataSource(
     }
 
     companion object {
-        private const val CONTACT_COUNT_THRESHOLD = 64
+        private const val CONTACTS_ID_PER_CHUNK_THRESHOLD = 64
     }
 }

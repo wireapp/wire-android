@@ -118,7 +118,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
                 RegisterPersonalAccountParams(
                     name = TEST_NAME,
                     email = TEST_EMAIL,
-                    handle = TEST_USERNAME,
+                    username = TEST_USERNAME,
                     password = TEST_PASSWORD,
                     activationCode = TEST_ACTIVATION_CODE
                 )

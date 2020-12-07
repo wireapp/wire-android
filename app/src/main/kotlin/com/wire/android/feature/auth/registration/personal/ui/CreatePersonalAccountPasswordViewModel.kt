@@ -49,7 +49,7 @@ class CreatePersonalAccountPasswordViewModel(
     fun registerUser(name: String, username: String, email: String, password: String, code: String) =
         registerUseCase(
             viewModelScope,
-            RegisterPersonalAccountParams(name = name, handle = username, email = email, password = password, activationCode = code)
+            RegisterPersonalAccountParams(name = name, username = username, email = email, password = password, activationCode = code)
         ) {
             it.onSuccess {
                 _registrationStatusLiveData.success()

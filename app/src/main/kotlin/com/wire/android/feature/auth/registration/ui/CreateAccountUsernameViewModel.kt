@@ -8,7 +8,8 @@ class CreateAccountUsernameViewModel : ViewModel() {
 
     private val _isValidUsernameLiveData = MutableLiveData<Boolean>()
     val isValidUsernameLiveData: LiveData<Boolean> = _isValidUsernameLiveData
-
+    
+    //TODO add proper validation
     fun validateUsername(username: String) {
         _isValidUsernameLiveData.value = true
     }

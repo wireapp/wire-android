@@ -36,10 +36,6 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".feature.auth.registration.pro.email.CreateProAccountTeamEmailActivity"
-            android:theme="@style/AppTheme.Authentication" />
-
-        <activity
             android:name=".feature.auth.login.LoginActivity"
             android:theme="@style/AppTheme.Authentication" />
 

@@ -55,7 +55,7 @@ class CreateAccountEmailViewModelTest : UnitTest() {
 
         emailViewModel.validateEmail(TEST_EMAIL)
 
-        emailViewModel.confirmationButtonEnabled shouldBeUpdated { it shouldBe true }
+        emailViewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe true }
     }
 
     @Test
@@ -64,7 +64,7 @@ class CreateAccountEmailViewModelTest : UnitTest() {
 
         emailViewModel.validateEmail(TEST_EMAIL)
 
-        emailViewModel.confirmationButtonEnabled shouldBeUpdated { it shouldBe false }
+        emailViewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test
@@ -73,7 +73,7 @@ class CreateAccountEmailViewModelTest : UnitTest() {
 
         emailViewModel.validateEmail(TEST_EMAIL)
 
-        emailViewModel.confirmationButtonEnabled shouldBeUpdated { it shouldBe false }
+        emailViewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test

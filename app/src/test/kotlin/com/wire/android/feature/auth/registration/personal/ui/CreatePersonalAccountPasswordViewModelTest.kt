@@ -73,7 +73,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.confirmationButtonEnabled shouldBeUpdated { }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { }
         coVerify(exactly = 1) { validatePasswordUseCase.run(ValidatePasswordParams(TEST_PASSWORD)) }
     }
 
@@ -83,7 +83,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.confirmationButtonEnabled shouldBeUpdated { it shouldBe true }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe true }
     }
 
     @Test
@@ -92,7 +92,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.confirmationButtonEnabled shouldBeUpdated { it shouldBe false }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test
@@ -102,7 +102,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.confirmationButtonEnabled shouldBeUpdated { it shouldBe false }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test

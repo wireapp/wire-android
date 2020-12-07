@@ -33,7 +33,7 @@ class CreateAccountEmailViewModel(
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _confirmationButtonEnabledLiveData = MutableLiveData<Boolean>()
-    val confirmationButtonEnabled: LiveData<Boolean> = _confirmationButtonEnabledLiveData
+    val confirmationButtonEnabledLiveData: LiveData<Boolean> = _confirmationButtonEnabledLiveData
 
     private val _emailValidationLiveData = MutableLiveData<ErrorMessage>()
     val emailValidationErrorLiveData: LiveData<ErrorMessage> = _emailValidationLiveData

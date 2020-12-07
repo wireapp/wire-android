@@ -33,8 +33,8 @@ class CreatePersonalAccountPasswordViewModel(
     private val registerUseCase: RegisterPersonalAccountUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    private val _isValidPasswordLiveData = SingleLiveEvent<Boolean>()
-    val isValidPasswordLiveData: LiveData<Boolean> = _isValidPasswordLiveData
+    private val _confirmationButtonEnabled = SingleLiveEvent<Boolean>()
+    val confirmationButtonEnabled: LiveData<Boolean> = _confirmationButtonEnabled
 
     private val _registrationStatusLiveData = SingleLiveEvent<Either<ErrorMessage, Unit>>()
     val registrationStatusLiveData: LiveData<Either<ErrorMessage, Unit>> = _registrationStatusLiveData
@@ -43,7 +43,7 @@ class CreatePersonalAccountPasswordViewModel(
 
     fun validatePassword(password: String) =
         validatePasswordUseCase(viewModelScope, ValidatePasswordParams(password)) {
-            _isValidPasswordLiveData.value = it.isRight
+            _confirmationButtonEnabled.value = it.isRight
         }
 
     fun registerUser(name: String, username: String, email: String, password: String, code: String) =

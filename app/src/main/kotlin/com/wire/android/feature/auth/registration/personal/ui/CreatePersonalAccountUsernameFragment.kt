@@ -48,7 +48,7 @@ class CreatePersonalAccountUsernameFragment : Fragment(R.layout.fragment_create_
     }
 
     private fun observeButtonStatus() {
-        usernameViewModel.isValidUsernameLiveData.observe(viewLifecycleOwner) {
+        usernameViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
             createPersonalAccountUsernameConfirmationButton.isEnabled = it
         }
     }

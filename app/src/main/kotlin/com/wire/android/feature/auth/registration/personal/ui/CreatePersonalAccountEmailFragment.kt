@@ -52,7 +52,7 @@ class CreatePersonalAccountEmailFragment : Fragment(R.layout.fragment_create_per
     }
 
     private fun observeEmailValidationData() {
-        emailViewModel.isValidEmailLiveData.observe(viewLifecycleOwner) {
+        emailViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
             updateConfirmationButtonStatus(it)
         }
         emailViewModel.emailValidationErrorLiveData.observe(viewLifecycleOwner) {

@@ -53,7 +53,7 @@ class CreateProAccountTeamEmailFragment : Fragment(R.layout.fragment_create_pro_
     }
 
     private fun observeEmailValidationData() {
-        emailViewModel.isValidEmailLiveData.observe(viewLifecycleOwner) {
+        emailViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
             updateConfirmationButtonStatus(it)
         }
     }

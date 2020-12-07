@@ -32,8 +32,8 @@ class CreateAccountEmailViewModel(
     private val sendActivationUseCase: SendEmailActivationCodeUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    private val _isValidEmailLiveData = MutableLiveData<Boolean>()
-    val isValidEmailLiveData: LiveData<Boolean> = _isValidEmailLiveData
+    private val _confirmationButtonEnabledLiveData = MutableLiveData<Boolean>()
+    val confirmationButtonEnabled: LiveData<Boolean> = _confirmationButtonEnabledLiveData
 
     private val _emailValidationLiveData = MutableLiveData<ErrorMessage>()
     val emailValidationErrorLiveData: LiveData<ErrorMessage> = _emailValidationLiveData
@@ -53,7 +53,7 @@ class CreateAccountEmailViewModel(
     }
 
     private fun updateEmailValidationStatus(status: Boolean) {
-        _isValidEmailLiveData.value = status
+        _confirmationButtonEnabledLiveData.value = status
     }
 
     fun sendActivationCode(email: String) =

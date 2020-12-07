@@ -15,10 +15,10 @@ class CreatePersonalAccountNameViewModel(
     private val validateNameUseCase: ValidateNameUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    private val _isValidNameLiveData = SingleLiveEvent<Boolean>()
-    val isValidNameLiveData: LiveData<Boolean> = _isValidNameLiveData
+    private val _confirmationButtonEnabled = SingleLiveEvent<Boolean>()
+    val confirmationButtonEnabled: LiveData<Boolean> = _confirmationButtonEnabled
 
     fun validateName(name: String) = validateNameUseCase(viewModelScope, ValidateNameParams(name)) {
-        _isValidNameLiveData.value = it.isRight
+        _confirmationButtonEnabled.value = it.isRight
     }
 }

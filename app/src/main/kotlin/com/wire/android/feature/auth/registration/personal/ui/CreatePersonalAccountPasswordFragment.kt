@@ -56,7 +56,7 @@ class CreatePersonalAccountPasswordFragment : Fragment(R.layout.fragment_create_
         createPersonalAccountPasswordTitleTextView.headingForAccessibility()
 
     private fun observePasswordValidationData() {
-        passwordViewModel.isValidPasswordLiveData.observe(viewLifecycleOwner) {
+        passwordViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
             createPersonalAccountPasswordConfirmationButton.isEnabled = it
         }
     }

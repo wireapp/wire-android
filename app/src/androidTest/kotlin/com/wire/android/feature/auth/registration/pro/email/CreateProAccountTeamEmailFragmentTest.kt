@@ -67,21 +67,11 @@ class CreateProAccountTeamEmailFragmentTest : FunctionalTest() {
     }
 
     @Test
-    fun confirmationButtonClicked_navigateToVerificationScreen() {
-        onView(withId(R.id.createProAccountTeamEmailEditText))
-            .perform(typeTextIntoFocusedView(TEST_TEAM_EMAIL))
-        onView(withId(R.id.createProAccountTeamEmailInputConfirmationButton))
-            .perform(click())
-
-        //Add navigated fragment logic in part 2
-    }
-
-    @Test
     fun uiElementsVisibleInLandscape() = rotateScreen {
         uiElementsVisible()
     }
 
     companion object {
-        private const val TEST_TEAM_EMAIL = "test-team-account@wire.com"
+        private const val TEST_TEAM_EMAIL = "testteamaccount@wire.com"
     }
 }

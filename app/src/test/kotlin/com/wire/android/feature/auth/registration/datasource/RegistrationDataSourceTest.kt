@@ -68,7 +68,11 @@ class RegistrationDataSourceTest : UnitTest() {
 
         coVerify(exactly = 1) {
             remoteDataSource.registerPersonalAccount(
-                name = TEST_NAME, email = TEST_EMAIL, username = TEST_USERNAME, password = TEST_PASSWORD, activationCode = TEST_ACTIVATION_CODE
+                name = TEST_NAME,
+                email = TEST_EMAIL,
+                username = TEST_USERNAME,
+                password = TEST_PASSWORD,
+                activationCode = TEST_ACTIVATION_CODE
             )
         }
     }

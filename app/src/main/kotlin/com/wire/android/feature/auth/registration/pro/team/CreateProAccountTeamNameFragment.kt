@@ -43,7 +43,7 @@ class CreateProAccountTeamNameFragment : Fragment(R.layout.fragment_create_pro_a
             setOnClickListener {
                 navigator.createAccount.openProAccountTeamEmailScreen(requireActivity())
             }
-            createProAccountTeamNameViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
+            createProAccountTeamNameViewModel.confirmationButtonEnabledLiveData.observe(viewLifecycleOwner) {
                 isEnabled = it
             }
         }

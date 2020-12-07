@@ -38,7 +38,7 @@ class CreatePersonalAccountNameViewModelTest : UnitTest() {
 
         nameViewModel.validateName(TEST_NAME)
 
-        nameViewModel.continueEnabled shouldBeUpdated { it shouldBe true }
+        nameViewModel.isValidNameLiveData shouldBeUpdated { it shouldBe true }
         coVerify(exactly = 1) { validateNameUseCase.run(ValidateNameParams(TEST_NAME)) }
     }
 
@@ -48,7 +48,7 @@ class CreatePersonalAccountNameViewModelTest : UnitTest() {
 
         nameViewModel.validateName(TEST_NAME)
 
-        nameViewModel.continueEnabled shouldBeUpdated { it shouldBe false }
+        nameViewModel.isValidNameLiveData shouldBeUpdated { it shouldBe false }
         coVerify(exactly = 1) { validateNameUseCase.run(ValidateNameParams(TEST_NAME)) }
     }
 

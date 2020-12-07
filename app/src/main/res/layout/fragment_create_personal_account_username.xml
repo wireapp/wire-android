@@ -7,58 +7,69 @@
     android:paddingEnd="@dimen/screen_padding">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/createPersonalAccountNameHeaderGuideline"
+        android:id="@+id/createPersonalAccountUsernameHeaderGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="@dimen/authentication_header_guideline_percent" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/createPersonalAccountNameGuideline"
+        android:id="@+id/createPersonalAccountUsernameGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="@dimen/create_account_editable_field_guideline_percent" />
 
     <TextView
-        android:id="@+id/createPersonalAccountNameTitleTextView"
+        android:id="@+id/createPersonalAccountUsernameTitleTextView"
         style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="@string/create_personal_account_name_title"
+        android:text="@string/create_personal_account_username_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountNameHeaderGuideline" />
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountUsernameHeaderGuideline" />
+
+    <TextView
+        android:id="@+id/createPersonalAccountUsernameSubtitleTextView"
+        style="@style/TextView.Authentication.Description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/create_personal_account_username_description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountUsernameTitleTextView" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/createPersonalAccountNameTextInputLayout"
+        android:id="@+id/createPersonalAccountUsernameTextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:hintEnabled="false"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/createPersonalAccountNameGuideline"
+        app:layout_constraintTop_toBottomOf="@id/createPersonalAccountUsernameGuideline"
         app:layout_constraintWidth_percent="@dimen/authentication_editable_field_width_percent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/createPersonalAccountNameEditText"
+            android:id="@+id/createPersonalAccountUsernameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/create_personal_account_name_hint"
+            android:hint="@string/create_personal_account_username_hint"
             android:inputType="textEmailAddress"
             android:paddingEnd="@dimen/text_input_layout_with_confirmation_padding_end" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/createPersonalAccountNameConfirmationButton"
+        android:id="@+id/createPersonalAccountUsernameConfirmationButton"
         style="@style/Button.Primary.Circle.Confirmation"
         android:layout_marginEnd="@dimen/authentication_confirmation_button_margin_end"
         android:enabled="false"
         app:icon="@drawable/ic_arrow_right"
-        app:layout_constraintBottom_toBottomOf="@id/createPersonalAccountNameTextInputLayout"
-        app:layout_constraintEnd_toEndOf="@+id/createPersonalAccountNameTextInputLayout"
-        app:layout_constraintTop_toTopOf="@+id/createPersonalAccountNameTextInputLayout" />
+        app:layout_constraintBottom_toBottomOf="@id/createPersonalAccountUsernameTextInputLayout"
+        app:layout_constraintEnd_toEndOf="@+id/createPersonalAccountUsernameTextInputLayout"
+        app:layout_constraintTop_toTopOf="@+id/createPersonalAccountUsernameTextInputLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

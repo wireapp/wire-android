@@ -16,7 +16,10 @@ import com.wire.android.core.ui.arg
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.navigation.Navigator
-import kotlinx.android.synthetic.main.fragment_create_personal_account_password.*
+import kotlinx.android.synthetic.main.fragment_create_personal_account_password.createPersonalAccountEmailPasswordPolicyTextView
+import kotlinx.android.synthetic.main.fragment_create_personal_account_password.createPersonalAccountPasswordConfirmationButton
+import kotlinx.android.synthetic.main.fragment_create_personal_account_password.createPersonalAccountPasswordEditText
+import kotlinx.android.synthetic.main.fragment_create_personal_account_password.createPersonalAccountPasswordTitleTextView
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -33,6 +36,7 @@ class CreatePersonalAccountPasswordFragment : Fragment(R.layout.fragment_create_
     private val name by arg<String>(KEY_NAME)
     private val email by arg<String>(KEY_EMAIL)
     private val activationCode by arg<String>(KEY_ACTIVATION_CODE)
+    private val username by arg<String>(KEY_USERNAME)
     private val password: String get() = createPersonalAccountPasswordEditText.text.toStringOrEmpty()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,13 +56,13 @@ class CreatePersonalAccountPasswordFragment : Fragment(R.layout.fragment_create_
         createPersonalAccountPasswordTitleTextView.headingForAccessibility()
 
     private fun observePasswordValidationData() {
-        passwordViewModel.continueEnabledLiveData.observe(viewLifecycleOwner) {
+        passwordViewModel.isValidPasswordLiveData.observe(viewLifecycleOwner) {
             createPersonalAccountPasswordConfirmationButton.isEnabled = it
         }
     }
 
     private fun observeRegistrationData() {
-        passwordViewModel.registerStatusLiveData.observe(viewLifecycleOwner) {
+        passwordViewModel.registrationStatusLiveData.observe(viewLifecycleOwner) {
             it.onSuccess {
                 showMainScreen()
             }.onFailure(::showErrorDialog)
@@ -84,7 +88,7 @@ class CreatePersonalAccountPasswordFragment : Fragment(R.layout.fragment_create_
     }
 
     private fun registerNewUser() =
-        passwordViewModel.registerUser(name = name, email = email, code = activationCode, password = password)
+        passwordViewModel.registerUser(name = name, username = username, email = email, code = activationCode, password = password)
 
     private fun showMainScreen() = navigator.main.openMainScreen(requireContext())
 
@@ -94,10 +98,12 @@ class CreatePersonalAccountPasswordFragment : Fragment(R.layout.fragment_create_
         private const val KEY_NAME = "name"
         private const val KEY_EMAIL = "email"
         private const val KEY_ACTIVATION_CODE = "activationCode"
+        private const val KEY_USERNAME = "username"
 
-        fun newInstance(name: String, email: String, activationCode: String) =
+        fun newInstance(name: String, username: String, email: String, activationCode: String) =
             CreatePersonalAccountPasswordFragment().withArgs(
                 KEY_NAME to name,
+                KEY_USERNAME to username,
                 KEY_EMAIL to email,
                 KEY_ACTIVATION_CODE to activationCode
             )

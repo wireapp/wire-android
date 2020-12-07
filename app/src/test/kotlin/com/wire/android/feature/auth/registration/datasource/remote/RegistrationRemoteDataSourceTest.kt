@@ -52,7 +52,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
             coEvery { api.registerPersonalAccount(any()) } returns it
         }
 
-        runBlocking { remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE) }
+        runBlocking { remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_USERNAME, TEST_PASSWORD, TEST_ACTIVATION_CODE) }
 
         coVerify(exactly = 1) { api.registerPersonalAccount(capture(registerPersonalAccountRequestCaptor)) }
         with(registerPersonalAccountRequestCaptor.captured) {
@@ -60,6 +60,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
             email shouldBeEqualTo TEST_EMAIL
             password shouldBeEqualTo TEST_PASSWORD
             emailCode shouldBeEqualTo TEST_ACTIVATION_CODE
+            handle shouldBeEqualTo TEST_USERNAME
             locale shouldBeEqualTo TEST_LOCALE
             label shouldBeEqualTo TEST_LABEL
         }
@@ -74,7 +75,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
         }
 
         val result = runBlocking {
-            remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_USERNAME, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
         result shouldSucceed { it.body() shouldBeEqualTo userResponse }
@@ -87,7 +88,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
         coEvery { api.registerPersonalAccount(any()) } returns response
 
         val result = runBlocking {
-            remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            remoteDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_USERNAME, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
         result shouldFail {}
@@ -97,6 +98,7 @@ class RegistrationRemoteDataSourceTest : UnitTest() {
         private const val TEST_NAME = "name"
         private const val TEST_EMAIL = "test@wire.com"
         private const val TEST_PASSWORD = "abc123!"
+        private const val TEST_USERNAME = "username"
         private const val TEST_ACTIVATION_CODE = "123456"
         private const val TEST_LOCALE = "en-US"
         private const val TEST_LABEL = "label"

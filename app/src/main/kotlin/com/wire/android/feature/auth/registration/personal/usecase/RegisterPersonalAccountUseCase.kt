@@ -21,7 +21,7 @@ class RegisterPersonalAccountUseCase(
 
     override suspend fun run(params: RegisterPersonalAccountParams): Either<Failure, Unit> = with(params) {
         suspending {
-            registrationRepository.registerPersonalAccount(name, email, password, activationCode).coFold({
+            registrationRepository.registerPersonalAccount(name, email, handle, password, activationCode).coFold({
                 handleRegistrationFailure(it)
             }) {
                 when {
@@ -51,7 +51,13 @@ class RegisterPersonalAccountUseCase(
     }
 }
 
-data class RegisterPersonalAccountParams(val name: String, val email: String, val password: String, val activationCode: String)
+data class RegisterPersonalAccountParams(
+    val name: String,
+    val email: String,
+    val handle: String,
+    val password: String,
+    val activationCode: String
+)
 
 sealed class RegisterPersonalAccountFailure : FeatureFailure()
 

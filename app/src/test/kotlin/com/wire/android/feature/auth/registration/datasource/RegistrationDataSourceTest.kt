@@ -60,27 +60,31 @@ class RegistrationDataSourceTest : UnitTest() {
 
     @Test
     fun `given credentials, when registerPersonalAccount() is called, then calls remote data source with credentials`() {
-        coEvery { remoteDataSource.registerPersonalAccount(any(), any(), any(), any()) } returns Either.Right(registeredUserResponse)
+        coEvery { remoteDataSource.registerPersonalAccount(any(), any(), any(), any(), any()) } returns Either.Right(registeredUserResponse)
 
         runBlocking {
-            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_USERNAME, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
         coVerify(exactly = 1) {
             remoteDataSource.registerPersonalAccount(
-                name = TEST_NAME, email = TEST_EMAIL, password = TEST_PASSWORD, activationCode = TEST_ACTIVATION_CODE
+                name = TEST_NAME,
+                email = TEST_EMAIL,
+                username = TEST_USERNAME,
+                password = TEST_PASSWORD,
+                activationCode = TEST_ACTIVATION_CODE
             )
         }
     }
 
     @Test
     fun `given registerPersonalAccount() is called, when remoteDS returns a response and mappers map successfully, then returns mapping`() {
-        coEvery { remoteDataSource.registerPersonalAccount(any(), any(), any(), any()) } returns Either.Right(registeredUserResponse)
+        coEvery { remoteDataSource.registerPersonalAccount(any(), any(), any(), any(), any()) } returns Either.Right(registeredUserResponse)
         every { userMapper.fromRegisteredUserResponse(registeredUserResponseBody) } returns user
         every { sessionMapper.extractRefreshToken(headers) } returns TEST_REFRESH_TOKEN
 
         val result = runBlocking {
-            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_USERNAME, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
         result shouldSucceed { it shouldBeEqualTo PersonalAccountRegistrationResult(user, TEST_REFRESH_TOKEN) }
@@ -91,11 +95,11 @@ class RegistrationDataSourceTest : UnitTest() {
     @Test
     fun `given registerPersonalAccount() is called, when remoteDS response has a null body, then returns mapping with null User`() {
         every { registeredUserResponse.body() } returns null
-        coEvery { remoteDataSource.registerPersonalAccount(any(), any(), any(), any()) } returns Either.Right(registeredUserResponse)
+        coEvery { remoteDataSource.registerPersonalAccount(any(), any(), any(), any(), any()) } returns Either.Right(registeredUserResponse)
         every { sessionMapper.extractRefreshToken(headers) } returns TEST_REFRESH_TOKEN
 
         val result = runBlocking {
-            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_USERNAME, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
         result shouldSucceed { it shouldBeEqualTo PersonalAccountRegistrationResult(null, TEST_REFRESH_TOKEN) }
@@ -105,12 +109,12 @@ class RegistrationDataSourceTest : UnitTest() {
 
     @Test
     fun `given registerPersonalAccount() is called, when remoteDS response has invalid header, then returns mapping with null token`() {
-        coEvery { remoteDataSource.registerPersonalAccount(any(), any(), any(), any()) } returns Either.Right(registeredUserResponse)
+        coEvery { remoteDataSource.registerPersonalAccount(any(), any(), any(), any(), any()) } returns Either.Right(registeredUserResponse)
         every { userMapper.fromRegisteredUserResponse(registeredUserResponseBody) } returns user
         every { sessionMapper.extractRefreshToken(headers) } returns null
 
         val result = runBlocking {
-            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_USERNAME, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
         result shouldSucceed { it shouldBeEqualTo PersonalAccountRegistrationResult(user, null) }
@@ -121,10 +125,10 @@ class RegistrationDataSourceTest : UnitTest() {
     @Test
     fun `given registerPersonalAccount() is called, when remote data source returns failure, then returns that failure`() {
         val failure = mockk<Failure>()
-        coEvery { remoteDataSource.registerPersonalAccount(any(), any(), any(), any()) } returns Either.Left(failure)
+        coEvery { remoteDataSource.registerPersonalAccount(any(), any(), any(), any(), any()) } returns Either.Left(failure)
 
         val result = runBlocking {
-            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+            registrationDataSource.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_USERNAME, TEST_PASSWORD, TEST_ACTIVATION_CODE)
         }
 
         result shouldFail { it shouldBe failure }
@@ -135,6 +139,7 @@ class RegistrationDataSourceTest : UnitTest() {
     companion object {
         private const val TEST_NAME = "name"
         private const val TEST_EMAIL = "test@wire.com"
+        private const val TEST_USERNAME = "username"
         private const val TEST_PASSWORD = "abc123!"
         private const val TEST_ACTIVATION_CODE = "123456"
         private const val TEST_REFRESH_TOKEN = "refresh-token-789"

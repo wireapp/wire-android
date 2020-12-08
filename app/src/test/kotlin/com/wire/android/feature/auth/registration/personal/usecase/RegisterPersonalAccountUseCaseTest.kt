@@ -65,7 +65,15 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
 
         val result = runBlocking { useCase.run(params) }
 
-        coVerify(exactly = 1) { registrationRepository.registerPersonalAccount(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE) }
+        coVerify(exactly = 1) {
+            registrationRepository.registerPersonalAccount(
+                name = TEST_NAME,
+                email = TEST_EMAIL,
+                username = TEST_USERNAME,
+                password = TEST_PASSWORD,
+                activationCode = TEST_ACTIVATION_CODE
+            )
+        }
         coVerify(exactly = 1) { userRepository.save(user) }
         coVerify(exactly = 1) { sessionRepository.accessToken(TEST_REFRESH_TOKEN) }
         coVerify(exactly = 1) { sessionRepository.save(session, true) }
@@ -192,16 +200,17 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
     }
 
     private fun mockRegistrationResponse(response: Either<Failure, PersonalAccountRegistrationResult>) {
-        coEvery { registrationRepository.registerPersonalAccount(any(), any(), any(), any()) } returns response
+        coEvery { registrationRepository.registerPersonalAccount(any(), any(), any(), any(), any()) } returns response
     }
 
     companion object {
         private const val TEST_NAME = "name"
         private const val TEST_EMAIL = "email"
+        private const val TEST_USERNAME = "username"
         private const val TEST_PASSWORD = "password"
         private const val TEST_ACTIVATION_CODE = "123456"
         private const val TEST_REFRESH_TOKEN = "refresh-token"
 
-        private val params = RegisterPersonalAccountParams(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        private val params = RegisterPersonalAccountParams(TEST_NAME, TEST_EMAIL, TEST_USERNAME, TEST_PASSWORD, TEST_ACTIVATION_CODE)
     }
 }

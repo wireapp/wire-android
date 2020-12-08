@@ -9,6 +9,7 @@ import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAcco
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountEmailFragment
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountNameFragment
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountPasswordFragment
+import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountUsernameFragment
 import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailFragment
 import com.wire.android.feature.auth.registration.pro.email.verification.CreateProAccountTeamEmailVerificationFragment
 import com.wire.android.feature.auth.registration.pro.team.CreateProAccountTeamNameFragment
@@ -35,9 +36,22 @@ class CreateAccountNavigator(
         )
     }
 
-    fun openPersonalAccountPasswordScreen(activity: FragmentActivity, name: String, email: String, activationCode: String) {
-        fragmentStackHandler.replaceFragment(activity, CreatePersonalAccountPasswordFragment.newInstance(name, email, activationCode))
-    }
+    fun openPersonalAccountUsernameScreen(activity: FragmentActivity, name: String, email: String, activationCode: String) =
+        fragmentStackHandler.replaceFragment(
+            activity,
+            CreatePersonalAccountUsernameFragment.newInstance(name, email, activationCode)
+        )
+
+    fun openPersonalAccountPasswordScreen(
+        activity: FragmentActivity,
+        name: String,
+        username: String,
+        email: String,
+        activationCode: String
+    ) = fragmentStackHandler.replaceFragment(
+        activity,
+        CreatePersonalAccountPasswordFragment.newInstance(name, username, email, activationCode)
+    )
 
     fun openProAccountTeamNameScreen(activity: FragmentActivity) {
         fragmentStackHandler.replaceFragment(activity, CreateProAccountTeamNameFragment.newInstance())

@@ -73,7 +73,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.continueEnabledLiveData shouldBeUpdated { }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { }
         coVerify(exactly = 1) { validatePasswordUseCase.run(ValidatePasswordParams(TEST_PASSWORD)) }
     }
 
@@ -83,7 +83,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.continueEnabledLiveData shouldBeUpdated { it shouldBe true }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe true }
     }
 
     @Test
@@ -92,7 +92,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.continueEnabledLiveData shouldBeUpdated { it shouldBe false }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test
@@ -102,22 +102,25 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.continueEnabledLiveData shouldBeUpdated { it shouldBe false }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test
     fun `given params, when registerUser is called, then calls registerUseCase with correct params`() {
         coEvery { registerUseCase.run(any()) } returns Either.Right(Unit)
 
-        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated {}
+        viewModel.registrationStatusLiveData shouldBeUpdated {}
 
         coVerify(exactly = 1) {
             registerUseCase.run(
                 RegisterPersonalAccountParams(
-                    name = TEST_NAME, email = TEST_EMAIL,
-                    password = TEST_PASSWORD, activationCode = TEST_ACTIVATION_CODE
+                    name = TEST_NAME,
+                    email = TEST_EMAIL,
+                    username = TEST_USERNAME,
+                    password = TEST_PASSWORD,
+                    activationCode = TEST_ACTIVATION_CODE
                 )
             )
         }
@@ -127,9 +130,9 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns success, then sets success to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Right(Unit)
 
-        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldSucceed { it shouldBe Unit }
         }
     }
@@ -138,19 +141,19 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns SessionCannotBeCreated error, then logs the user out`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(SessionCannotBeCreated)
 
-        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
         //TODO: assertion about logout
-        viewModel.registerStatusLiveData.shouldNotBeUpdated()
+        viewModel.registrationStatusLiveData.shouldNotBeUpdated()
     }
 
     @Test
     fun `given registerUser is called, when use case returns NetworkConnection error, then sets NetworkError to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(NetworkConnection)
 
-        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldFail { it shouldBe NetworkErrorMessage }
         }
     }
@@ -159,9 +162,9 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns UnauthorizedEmail error, then sets error message to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(UnauthorizedEmail)
 
-        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_unauthorized_email_error }
         }
     }
@@ -170,9 +173,9 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns InvalidEmailActivationCode, then sets error msg to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(InvalidEmailActivationCode)
 
-        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_invalid_activation_code_error }
         }
     }
@@ -181,9 +184,9 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns EmailInUse error, then sets error message to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(EmailInUse)
 
-        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_email_in_use_error }
         }
     }
@@ -192,15 +195,16 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
     fun `given registerUser is called, when use case returns other error, then sets GeneralErrorMessage to registerStatusLiveData`() {
         coEvery { registerUseCase.run(any()) } returns Either.Left(ServerError)
 
-        viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
+        viewModel.registerUser(TEST_NAME, TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldFail { it shouldBe GeneralErrorMessage }
         }
     }
 
     companion object {
         private const val TEST_PASSWORD = "123ABCdef!*"
+        private const val TEST_USERNAME = "username"
         private const val TEST_EMAIL = "test@wire.com"
         private const val TEST_NAME = "Name Surname"
         private const val TEST_ACTIVATION_CODE = "123456"

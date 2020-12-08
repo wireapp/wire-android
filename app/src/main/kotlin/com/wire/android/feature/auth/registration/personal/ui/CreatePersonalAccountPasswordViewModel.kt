@@ -33,26 +33,26 @@ class CreatePersonalAccountPasswordViewModel(
     private val registerUseCase: RegisterPersonalAccountUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    private val _continueEnabledLiveData = SingleLiveEvent<Boolean>()
-    val continueEnabledLiveData: LiveData<Boolean> = _continueEnabledLiveData
+    private val _confirmationButtonEnabledLiveData = SingleLiveEvent<Boolean>()
+    val confirmationButtonEnabledLiveData: LiveData<Boolean> = _confirmationButtonEnabledLiveData
 
-    private val _registerStatusLiveData = SingleLiveEvent<Either<ErrorMessage, Unit>>()
-    val registerStatusLiveData: LiveData<Either<ErrorMessage, Unit>> = _registerStatusLiveData
+    private val _registrationStatusLiveData = SingleLiveEvent<Either<ErrorMessage, Unit>>()
+    val registrationStatusLiveData: LiveData<Either<ErrorMessage, Unit>> = _registrationStatusLiveData
 
     fun minPasswordLength() = validatePasswordUseCase.minLength()
 
     fun validatePassword(password: String) =
         validatePasswordUseCase(viewModelScope, ValidatePasswordParams(password)) {
-            _continueEnabledLiveData.value = it.isRight
+            _confirmationButtonEnabledLiveData.value = it.isRight
         }
 
-    fun registerUser(name: String, email: String, password: String, code: String) =
+    fun registerUser(name: String, username: String, email: String, password: String, code: String) =
         registerUseCase(
             viewModelScope,
-            RegisterPersonalAccountParams(name = name, email = email, password = password, activationCode = code)
+            RegisterPersonalAccountParams(name = name, username = username, email = email, password = password, activationCode = code)
         ) {
             it.onSuccess {
-                _registerStatusLiveData.success()
+                _registrationStatusLiveData.success()
             }.onFailure {
                 if (it == SessionCannotBeCreated) {
                     //TODO: logout
@@ -70,6 +70,6 @@ class CreatePersonalAccountPasswordViewModel(
             is EmailInUse -> ErrorMessage(R.string.create_personal_account_email_in_use_error)
             else -> GeneralErrorMessage
         }
-        _registerStatusLiveData.failure(errorMessage)
+        _registrationStatusLiveData.failure(errorMessage)
     }
 }

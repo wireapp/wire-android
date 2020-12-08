@@ -12,7 +12,9 @@ import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.extension.withArgs
 import com.wire.android.core.ui.arg
 import com.wire.android.core.ui.navigation.Navigator
-import kotlinx.android.synthetic.main.fragment_create_personal_account_name.*
+import kotlinx.android.synthetic.main.fragment_create_personal_account_name.createPersonalAccountNameConfirmationButton
+import kotlinx.android.synthetic.main.fragment_create_personal_account_name.createPersonalAccountNameEditText
+import kotlinx.android.synthetic.main.fragment_create_personal_account_name.createPersonalAccountNameTitleTextView
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -40,11 +42,11 @@ class CreatePersonalAccountNameFragment : Fragment(R.layout.fragment_create_pers
         createPersonalAccountNameTitleTextView.headingForAccessibility()
 
     private fun initConfirmationButton() = createPersonalAccountNameConfirmationButton.setOnClickListener {
-        showPasswordScreen(createPersonalAccountNameEditText.text.toStringOrEmpty())
+        showUsernameScreen(createPersonalAccountNameEditText.text.toStringOrEmpty())
     }
 
     private fun observeButtonStatus() {
-        nameViewModel.continueEnabled.observe(viewLifecycleOwner) {
+        nameViewModel.confirmationButtonEnabled.observe(viewLifecycleOwner) {
             createPersonalAccountNameConfirmationButton.isEnabled = it
         }
     }
@@ -59,8 +61,8 @@ class CreatePersonalAccountNameFragment : Fragment(R.layout.fragment_create_pers
         if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountNameEditText)
     }
 
-    private fun showPasswordScreen(name: String) =
-        navigator.createAccount.openPersonalAccountPasswordScreen(requireActivity(), name, email, activationCode)
+    private fun showUsernameScreen(name: String) =
+        navigator.createAccount.openPersonalAccountUsernameScreen(requireActivity(), name, email, activationCode)
 
     companion object {
         private const val KEY_EMAIL = "email"
@@ -68,7 +70,8 @@ class CreatePersonalAccountNameFragment : Fragment(R.layout.fragment_create_pers
 
         fun newInstance(email: String, activationCode: String) =
             CreatePersonalAccountNameFragment().withArgs(
-                KEY_EMAIL to email, KEY_ACTIVATION_CODE to activationCode
+                KEY_EMAIL to email,
+                KEY_ACTIVATION_CODE to activationCode
             )
     }
 }

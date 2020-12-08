@@ -45,14 +45,14 @@ class CreateProAccountTeamNameViewModelTest : UnitTest() {
     fun `given empty team name, when on team name text is changed, confirmation button should be disabled`() {
         viewModel.onTeamNameTextChanged(String.EMPTY)
 
-        viewModel.confirmationButtonEnabled shouldBeUpdated { it shouldBe false }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test
     fun `given empty team name, when on team name text is changed, confirmation button should be enabled`() {
         viewModel.onTeamNameTextChanged(TEST_TEAM_NAME)
 
-        viewModel.confirmationButtonEnabled shouldBeUpdated { it shouldBe true }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe true }
     }
 
     companion object {

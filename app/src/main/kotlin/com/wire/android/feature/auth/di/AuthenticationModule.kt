@@ -31,6 +31,7 @@ import com.wire.android.feature.auth.registration.pro.team.usecase.GetTeamNameUs
 import com.wire.android.feature.auth.registration.pro.team.usecase.UpdateTeamNameUseCase
 import com.wire.android.feature.auth.registration.ui.CreateAccountEmailVerificationCodeViewModel
 import com.wire.android.feature.auth.registration.ui.CreateAccountEmailViewModel
+import com.wire.android.feature.auth.registration.ui.CreateAccountUsernameViewModel
 import com.wire.android.feature.auth.registration.ui.navigation.CreateAccountNavigator
 import com.wire.android.shared.auth.remote.LabelGenerator
 import com.wire.android.shared.user.email.ValidateEmailUseCase
@@ -58,6 +59,7 @@ private val createAccountModule = module {
 
     viewModel { CreateAccountEmailViewModel(get(), get(), get()) }
     viewModel { CreateAccountEmailVerificationCodeViewModel(get(), get()) }
+    viewModel { CreateAccountUsernameViewModel() }
 
     factory { ActivateEmailUseCase(get()) }
     single<ActivationRepository> { ActivationDataSource(get()) }

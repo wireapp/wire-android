@@ -13,7 +13,6 @@ import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
 import com.wire.android.shared.user.username.UsernameAlreadyExists
 import com.wire.android.shared.user.username.UsernameGeneralError
 import com.wire.android.shared.user.username.UsernameInvalid
-import com.wire.android.shared.user.username.UsernameIsAvailable
 import com.wire.android.shared.user.username.UsernameTooLong
 import com.wire.android.shared.user.username.UsernameTooShort
 import com.wire.android.shared.user.username.ValidateUsernameUseCase
@@ -160,7 +159,7 @@ class CreateAccountUsernameViewModelTest : UnitTest() {
     @Test
     fun `given onConfirmationButtonClicked, when check username use case returns UsernameIsAvailable, then propagate username`() =
         runBlocking {
-            coEvery { checkUsernameExistsUseCase.run(any()) } returns Either.Right(UsernameIsAvailable)
+            coEvery { checkUsernameExistsUseCase.run(any()) } returns Either.Right(TEST_USERNAME)
 
             usernameViewModel.onConfirmationButtonClicked(TEST_USERNAME)
 

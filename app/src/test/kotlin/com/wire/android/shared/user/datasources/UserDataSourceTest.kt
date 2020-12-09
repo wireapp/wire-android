@@ -120,8 +120,16 @@ class UserDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
     }
 
+    @Test
+    fun `given doesUsernameExist, then request remote data source doesUsernameExist`() = runBlocking {
+        userDataSource.doesUsernameExist(TEST_USERNAME)
+
+        coVerify { remoteDataSource.doesUsernameExist(eq(TEST_USERNAME)) }
+    }
+
     companion object {
         private const val TEST_ACCESS_TOKEN = "access-token-567"
         private const val TEST_TOKEN_TYPE = "token-type-bearer"
+        private const val TEST_USERNAME = "username"
     }
 }

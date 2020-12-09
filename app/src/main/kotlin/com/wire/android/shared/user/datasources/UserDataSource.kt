@@ -8,6 +8,7 @@ import com.wire.android.shared.user.UserRepository
 import com.wire.android.shared.user.datasources.local.UserLocalDataSource
 import com.wire.android.shared.user.datasources.remote.UserRemoteDataSource
 import com.wire.android.shared.user.mapper.UserMapper
+import com.wire.android.shared.user.username.ValidateUsernameSuccess
 
 class UserDataSource(
     private val localDataSource: UserLocalDataSource,
@@ -25,4 +26,7 @@ class UserDataSource(
 
     override suspend fun save(user: User): Either<Failure, Unit> =
         localDataSource.save(mapper.toUserEntity(user))
+
+    override suspend fun doesUsernameExist(username: String): Either<Failure, ValidateUsernameSuccess> =
+        remoteDataSource.doesUsernameExist(username)
 }

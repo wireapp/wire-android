@@ -28,6 +28,10 @@
     <!-- Registration - Shared -->
     <string name="create_account_with_email_email_blacklisted_error">This email address is not allowed.</string>
     <string name="create_account_with_email_email_in_use_error">This email address you used is already linked to an account.\nUse another email address or try to log in if you own this account.</string>
+    <string name="create_account_with_username_error_already_taken">Username is already taken</string>
+    <string name="create_account_with_username_error_too_short">Username should be at least 2 characters</string>
+    <string name="create_account_with_username_error_too_long">Username is too long</string>
+    <string name="create_account_with_username_error_invalid_characters">Please only use: a–z, 0–9, and _ </string>
 
     <!-- Registration - Personal -->
     <string name="create_personal_account_email_subtitle">Enter your email address.</string>

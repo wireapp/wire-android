@@ -16,15 +16,9 @@ class RegistrationDataSource(
 ) : RegistrationRepository {
 
     override suspend fun registerPersonalAccount(
-        name: String, email: String, username: String, password: String, activationCode: String
+        name: String, email: String, password: String, activationCode: String
     ): Either<Failure, PersonalAccountRegistrationResult> =
-        remoteDataSource.registerPersonalAccount(
-            name = name,
-            email = email,
-            username = username,
-            password = password,
-            activationCode = activationCode
-        ).map {
+        remoteDataSource.registerPersonalAccount(name = name, email = email, password = password, activationCode = activationCode).map {
             PersonalAccountRegistrationResult(
                 user = it.body()?.let { userMapper.fromRegisteredUserResponse(it) },
                 refreshToken = sessionMapper.extractRefreshToken(it.headers())

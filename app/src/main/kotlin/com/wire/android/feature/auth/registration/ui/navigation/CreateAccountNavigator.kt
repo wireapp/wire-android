@@ -36,21 +36,20 @@ class CreateAccountNavigator(
         )
     }
 
-    fun openPersonalAccountUsernameScreen(activity: FragmentActivity, name: String, email: String, activationCode: String) =
+    fun openPersonalAccountUsernameScreen(activity: FragmentActivity) =
         fragmentStackHandler.replaceFragment(
             activity,
-            CreatePersonalAccountUsernameFragment.newInstance(name, email, activationCode)
+            CreatePersonalAccountUsernameFragment.newInstance()
         )
 
     fun openPersonalAccountPasswordScreen(
         activity: FragmentActivity,
         name: String,
-        username: String,
         email: String,
         activationCode: String
     ) = fragmentStackHandler.replaceFragment(
         activity,
-        CreatePersonalAccountPasswordFragment.newInstance(name, username, email, activationCode)
+        CreatePersonalAccountPasswordFragment.newInstance(name, email, activationCode)
     )
 
     fun openProAccountTeamNameScreen(activity: FragmentActivity) {

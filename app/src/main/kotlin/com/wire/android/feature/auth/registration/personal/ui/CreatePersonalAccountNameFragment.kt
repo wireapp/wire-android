@@ -42,7 +42,7 @@ class CreatePersonalAccountNameFragment : Fragment(R.layout.fragment_create_pers
         createPersonalAccountNameTitleTextView.headingForAccessibility()
 
     private fun initConfirmationButton() = createPersonalAccountNameConfirmationButton.setOnClickListener {
-        showUsernameScreen(createPersonalAccountNameEditText.text.toStringOrEmpty())
+        showPasswordScreen(createPersonalAccountNameEditText.text.toStringOrEmpty())
     }
 
     private fun observeButtonStatus() {
@@ -61,8 +61,8 @@ class CreatePersonalAccountNameFragment : Fragment(R.layout.fragment_create_pers
         if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountNameEditText)
     }
 
-    private fun showUsernameScreen(name: String) =
-        navigator.createAccount.openPersonalAccountUsernameScreen(requireActivity(), name, email, activationCode)
+    private fun showPasswordScreen(name: String) =
+        navigator.createAccount.openPersonalAccountPasswordScreen(requireActivity(), name, email, activationCode)
 
     companion object {
         private const val KEY_EMAIL = "email"

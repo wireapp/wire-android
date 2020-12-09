@@ -4,7 +4,6 @@ import com.wire.android.UnitTest
 import com.wire.android.core.exception.NoEntityFound
 import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.functional.Either
-import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.SessionRepository
 import io.mockk.coEvery
 import io.mockk.every
@@ -34,9 +33,6 @@ class AccessTokenInterceptorTest : UnitTest() {
     @MockK
     private lateinit var chain: Interceptor.Chain
 
-    @MockK
-    private lateinit var currentSession: Session
-
     @Before
     fun setup() {
         accessTokenInterceptor = AccessTokenInterceptor(sessionRepository)
@@ -46,18 +42,8 @@ class AccessTokenInterceptorTest : UnitTest() {
     }
 
     @Test
-    fun `Given interceptor chain, when current session fails, then do not intercept request`() {
-        coEvery { sessionRepository.currentSession() } returns Either.Left(NoEntityFound)
-
-        val interceptedResponse: Response? = accessTokenInterceptor.intercept(chain)
-
-        interceptedResponse shouldBe originalResponse
-    }
-
-    @Test
-    fun `Given interceptor chain and current session is valid, when access token request fails, then do not intercept request`() {
-        coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
-        coEvery { sessionRepository.accessToken(any()) } returns Either.Left(NoEntityFound)
+    fun `Given interceptor chain, when access token request fails, then do not intercept request`() {
+        coEvery { sessionRepository.accessToken() } returns Either.Left(NoEntityFound)
 
         val interceptedResponse: Response? = accessTokenInterceptor.intercept(chain)
 
@@ -66,9 +52,7 @@ class AccessTokenInterceptorTest : UnitTest() {
 
     @Test
     fun `Given interceptor chain and access token request is valid, when access token is empty, then do not intercept request`() {
-        every { currentSession.accessToken } returns String.EMPTY
-        coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
-        coEvery { sessionRepository.accessToken(any()) } returns Either.Right(currentSession)
+        coEvery { sessionRepository.accessToken() } returns Either.Right(String.EMPTY)
 
         val interceptedResponse: Response? = accessTokenInterceptor.intercept(chain)
 
@@ -84,19 +68,15 @@ class AccessTokenInterceptorTest : UnitTest() {
         every { requestBuilder.addHeader(eq(AUTH_HEADER_KEY), eq("$AUTH_HEADER_TOKEN_TYPE $ACCESS_TOKEN")) } returns requestBuilder
         every { requestBuilder.build() } returns newRequest
 
-        every { currentSession.accessToken } returns ACCESS_TOKEN
-        coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
-        coEvery { sessionRepository.accessToken(any()) } returns Either.Right(currentSession)
+        coEvery { sessionRepository.accessToken() } returns Either.Right(ACCESS_TOKEN)
 
         accessTokenInterceptor.intercept(chain)
 
         verify(exactly = 1) { chain.proceed(newRequest) }
-
     }
 
     companion object {
-        private const val ACCESS_TOKEN =
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        private const val ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         private const val AUTH_HEADER_KEY = "Authorization"
         private const val AUTH_HEADER_TOKEN_TYPE = "Bearer"
     }

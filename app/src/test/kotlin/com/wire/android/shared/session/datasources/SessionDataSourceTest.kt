@@ -153,13 +153,38 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given accessToken is called, when remoteDataSource is successful, then maps the response and returns session`() {
+    fun `given accessToken is called, when localDataSource returns current session, then maps its access token and propagates it`() {
+        coEvery { localDataSource.currentSession() } returns Either.Right(sessionEntity)
+        every { sessionMapper.fromSessionEntity(sessionEntity) } returns session
+        val testAccessToken = "access-token-123"
+        every { session.accessToken } returns testAccessToken
+
+        val result = runBlocking { sessionDataSource.accessToken() }
+
+        result shouldSucceed { it shouldBe testAccessToken }
+        coVerify(exactly = 1) { localDataSource.currentSession() }
+    }
+
+    @Test
+    fun `given accessToken is called, when localDataSource fails to return current session, then directly propagates the failure`() {
+        val failure = mockk<Failure>()
+        coEvery { localDataSource.currentSession() } returns Either.Left(failure)
+
+        val result = runBlocking { sessionDataSource.accessToken() }
+
+        result shouldFail { it shouldBe failure }
+        coVerify { localDataSource.currentSession() }
+        verify { sessionMapper wasNot Called }
+    }
+
+    @Test
+    fun `given newAccessToken is called, when remoteDataSource is successful, then maps the response and returns session`() {
         val accessTokenResponse = mockk<AccessTokenResponse>()
         val refreshToken = "refresh-token-123"
         coEvery { remoteDataSource.accessToken(refreshToken) } returns Either.Right(accessTokenResponse)
         every { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken) } returns session
 
-        val result = runBlocking { sessionDataSource.accessToken(refreshToken) }
+        val result = runBlocking { sessionDataSource.newAccessToken(refreshToken) }
 
         result shouldSucceed { it shouldBe session }
         coVerify(exactly = 1) { remoteDataSource.accessToken(refreshToken) }
@@ -167,11 +192,11 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given accessToken is called, when remoteDataSource fails, then directly propagates that failure`() {
+    fun `given newAccessToken is called, when remoteDataSource fails, then directly propagates that failure`() {
         val refreshToken = "refresh-token-123"
         coEvery { remoteDataSource.accessToken(refreshToken) } returns Either.Left(ServerError)
 
-        val result = runBlocking { sessionDataSource.accessToken(refreshToken) }
+        val result = runBlocking { sessionDataSource.newAccessToken(refreshToken) }
 
         result shouldFail { it shouldBe ServerError }
         coVerify(exactly = 1) { remoteDataSource.accessToken(refreshToken) }

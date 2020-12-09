@@ -1,6 +1,7 @@
 package com.wire.android.shared.user.username
 
 import com.wire.android.core.exception.Failure
+import com.wire.android.core.exception.FeatureFailure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.usecase.UseCase
 
@@ -33,5 +34,10 @@ class ValidateUsernameUseCase : UseCase<String, ValidateUsernameParams> {
         private const val USERNAME_MIN_LENGTH = 2
     }
 }
+
+sealed class ValidateUsernameError : FeatureFailure()
+object UsernameTooLong : ValidateUsernameError()
+object UsernameTooShort : ValidateUsernameError()
+object UsernameInvalid : ValidateUsernameError()
 
 data class ValidateUsernameParams(val username: String)

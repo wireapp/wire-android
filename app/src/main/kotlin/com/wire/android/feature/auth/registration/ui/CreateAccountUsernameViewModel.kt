@@ -13,13 +13,13 @@ import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
+import com.wire.android.shared.user.username.CheckUsernameError
 import com.wire.android.shared.user.username.CheckUsernameExistsParams
 import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
 import com.wire.android.shared.user.username.UsernameAlreadyExists
 import com.wire.android.shared.user.username.UsernameInvalid
 import com.wire.android.shared.user.username.UsernameTooLong
 import com.wire.android.shared.user.username.UsernameTooShort
-import com.wire.android.shared.user.username.UsernameGeneralError
 import com.wire.android.shared.user.username.ValidateUsernameError
 import com.wire.android.shared.user.username.ValidateUsernameParams
 import com.wire.android.shared.user.username.ValidateUsernameUseCase
@@ -59,9 +59,19 @@ class CreateAccountUsernameViewModel(
     private fun handleFailure(failure: Failure) {
         updateConfirmationButtonStatus(false)
         when (failure) {
-            is ValidateUsernameError -> handleUsernameErrors(failure)
+            is ValidateUsernameError -> handleUsernameValidationErrors(failure)
+            is CheckUsernameError -> handleCheckUsernameExistsErrors(failure)
             else -> handleGeneralErrors(failure)
         }
+    }
+
+    private fun handleCheckUsernameExistsErrors(failure: CheckUsernameError) {
+        updateConfirmationButtonStatus(false)
+        val errorMessage = when (failure) {
+            UsernameAlreadyExists -> ErrorMessage(R.string.create_account_with_username_error_already_taken)
+            else -> GeneralErrorMessage
+        }
+        _usernameLiveData.failure(errorMessage)
     }
 
     private fun handleGeneralErrors(failure: Failure) {
@@ -72,13 +82,11 @@ class CreateAccountUsernameViewModel(
         _dialogErrorLiveData.value = errorMessage
     }
 
-    private fun handleUsernameErrors(failure: ValidateUsernameError) {
+    private fun handleUsernameValidationErrors(failure: ValidateUsernameError) {
         val errorMessage = when (failure) {
-            UsernameAlreadyExists -> ErrorMessage(R.string.create_account_with_username_error_already_taken)
             UsernameTooShort -> ErrorMessage(R.string.create_account_with_username_error_too_short)
             UsernameInvalid -> ErrorMessage(R.string.create_account_with_username_error_invalid_characters)
             UsernameTooLong -> ErrorMessage(R.string.create_account_with_username_error_too_long)
-            UsernameGeneralError -> GeneralErrorMessage
         }
         _usernameLiveData.failure(errorMessage)
     }

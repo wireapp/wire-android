@@ -8,7 +8,7 @@ import com.wire.android.shared.user.username.UsernameGeneralError
 import com.wire.android.shared.user.username.UsernameAlreadyExists
 import com.wire.android.shared.user.username.UsernameInvalid
 import com.wire.android.shared.user.username.UsernameIsAvailable
-import com.wire.android.shared.user.username.ValidateUsernameSuccess
+import com.wire.android.shared.user.username.CheckUsernameSuccess
 
 class UserRemoteDataSource(override val networkHandler: NetworkHandler, private val userApi: UserApi) : ApiService() {
 
@@ -16,7 +16,7 @@ class UserRemoteDataSource(override val networkHandler: NetworkHandler, private 
         userApi.selfUser("$tokenType $accessToken")
     }
 
-    suspend fun doesUsernameExist(username: String): Either<Failure, ValidateUsernameSuccess> =
+    suspend fun doesUsernameExist(username: String): Either<Failure, CheckUsernameSuccess> =
         when (userApi.doesHandleExist(username).code()) {
             HANDLE_TAKEN -> Either.Left(UsernameAlreadyExists)
             HANDLE_INVALID -> Either.Left(UsernameInvalid)

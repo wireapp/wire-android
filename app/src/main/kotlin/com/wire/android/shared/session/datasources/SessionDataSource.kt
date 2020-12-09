@@ -30,7 +30,9 @@ class SessionDataSource(
     private suspend fun saveLocally(session: Session, current: Boolean) =
         localDataSource.save(mapper.toSessionEntity(session, current))
 
-    override suspend fun accessToken(refreshToken: String): Either<Failure, Session> =
+    override suspend fun accessToken(): Either<Failure, String> = currentSession().map { it.accessToken }
+
+    override suspend fun newAccessToken(refreshToken: String): Either<Failure, Session> =
         remoteDataSource.accessToken(refreshToken).map {
             mapper.fromAccessTokenResponse(it, refreshToken)
         }

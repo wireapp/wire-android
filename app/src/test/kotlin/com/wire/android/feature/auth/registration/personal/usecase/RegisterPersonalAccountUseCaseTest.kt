@@ -60,7 +60,7 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
         every { registrationResult.user } returns user
         every { registrationResult.refreshToken } returns TEST_REFRESH_TOKEN
         coEvery { userRepository.save(user) } returns Either.Right(Unit)
-        coEvery { sessionRepository.accessToken(TEST_REFRESH_TOKEN) } returns Either.Right(session)
+        coEvery { sessionRepository.newAccessToken(TEST_REFRESH_TOKEN) } returns Either.Right(session)
         coEvery { sessionRepository.save(session) } returns Either.Right(Unit)
 
         val result = runBlocking { useCase.run(params) }
@@ -75,7 +75,7 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
             )
         }
         coVerify(exactly = 1) { userRepository.save(user) }
-        coVerify(exactly = 1) { sessionRepository.accessToken(TEST_REFRESH_TOKEN) }
+        coVerify(exactly = 1) { sessionRepository.newAccessToken(TEST_REFRESH_TOKEN) }
         coVerify(exactly = 1) { sessionRepository.save(session, true) }
         result shouldSucceed { it shouldBe Unit }
     }
@@ -171,13 +171,13 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
         mockRegistrationResponse(Either.Right(registrationResult))
         coEvery { userRepository.save(user) } returns Either.Right(Unit)
         val failure = mockk<Failure>()
-        coEvery { sessionRepository.accessToken(TEST_REFRESH_TOKEN) } returns Either.Left(failure)
+        coEvery { sessionRepository.newAccessToken(TEST_REFRESH_TOKEN) } returns Either.Left(failure)
 
         val result = runBlocking { useCase.run(params) }
 
         result shouldFail { it shouldBe SessionCannotBeCreated }
         coVerify(exactly = 1) { userRepository.save(user) }
-        coVerify(exactly = 1) { sessionRepository.accessToken(TEST_REFRESH_TOKEN) }
+        coVerify(exactly = 1) { sessionRepository.newAccessToken(TEST_REFRESH_TOKEN) }
         coVerify(inverse = true) { sessionRepository.save(any(), any()) }
     }
 
@@ -187,7 +187,7 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
         every { registrationResult.refreshToken } returns TEST_REFRESH_TOKEN
         mockRegistrationResponse(Either.Right(registrationResult))
         coEvery { userRepository.save(user) } returns Either.Right(Unit)
-        coEvery { sessionRepository.accessToken(TEST_REFRESH_TOKEN) } returns Either.Right(session)
+        coEvery { sessionRepository.newAccessToken(TEST_REFRESH_TOKEN) } returns Either.Right(session)
         val failure = mockk<Failure>()
         coEvery { sessionRepository.save(session) } returns Either.Left(failure)
 
@@ -195,7 +195,7 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
 
         result shouldFail { it shouldBe failure }
         coVerify(exactly = 1) { userRepository.save(user) }
-        coVerify(exactly = 1) { sessionRepository.accessToken(TEST_REFRESH_TOKEN) }
+        coVerify(exactly = 1) { sessionRepository.newAccessToken(TEST_REFRESH_TOKEN) }
         coVerify(exactly = 1) { sessionRepository.save(session, true) }
     }
 

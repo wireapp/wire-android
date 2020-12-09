@@ -8,8 +8,9 @@ interface SessionRepository {
 
     suspend fun currentSession(): Either<Failure, Session>
 
-    suspend fun accessToken(refreshToken: String): Either<Failure, Session>
+    suspend fun accessToken(): Either<Failure, String>
+
+    suspend fun newAccessToken(refreshToken: String): Either<Failure, Session>
 
     suspend fun doesCurrentSessionExist(): Either<Failure, Boolean>
-
 }

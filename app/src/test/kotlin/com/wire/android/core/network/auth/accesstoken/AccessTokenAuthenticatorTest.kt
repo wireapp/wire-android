@@ -57,7 +57,7 @@ class AccessTokenAuthenticatorTest : UnitTest() {
 
     @Test
     fun `Given http response, when response cookie header is null, then request access token with the same refresh token as before`() {
-        coEvery { sessionRepository.accessToken(any()) } returns Either.Left(NoEntityFound)
+        coEvery { sessionRepository.newAccessToken(any()) } returns Either.Left(NoEntityFound)
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
         every { response.headers[TOKEN_HEADER_KEY] } returns null
         every { currentSession.refreshToken } returns CURRENT_REFRESH_TOKEN
@@ -65,13 +65,13 @@ class AccessTokenAuthenticatorTest : UnitTest() {
         accessTokenAuthenticator.authenticate(route, response)
 
         coVerify(exactly = 1) {
-            sessionRepository.accessToken(eq(CURRENT_REFRESH_TOKEN))
+            sessionRepository.newAccessToken(eq(CURRENT_REFRESH_TOKEN))
         }
     }
 
     @Test
     fun `Given cookie header is valid, when refresh token is not current, then build request with new refresh token`() {
-        coEvery { sessionRepository.accessToken(any()) } returns Either.Left(NoEntityFound)
+        coEvery { sessionRepository.newAccessToken(any()) } returns Either.Left(NoEntityFound)
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
         every { response.headers[TOKEN_HEADER_KEY] } returns NEW_REFRESH_TOKEN
         every { currentSession.refreshToken } returns CURRENT_REFRESH_TOKEN
@@ -79,13 +79,13 @@ class AccessTokenAuthenticatorTest : UnitTest() {
         accessTokenAuthenticator.authenticate(route, response)
 
         coVerify(exactly = 1) {
-            sessionRepository.accessToken(NEW_REFRESH_TOKEN)
+            sessionRepository.newAccessToken(NEW_REFRESH_TOKEN)
         }
     }
 
     @Test
     fun `Given cookie header is valid, when refresh token is same as now, then build request with current refresh token`() {
-        coEvery { sessionRepository.accessToken(any()) } returns Either.Left(NoEntityFound)
+        coEvery { sessionRepository.newAccessToken(any()) } returns Either.Left(NoEntityFound)
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
         every { response.headers[TOKEN_HEADER_KEY] } returns CURRENT_REFRESH_TOKEN
         every { currentSession.refreshToken } returns CURRENT_REFRESH_TOKEN
@@ -93,13 +93,13 @@ class AccessTokenAuthenticatorTest : UnitTest() {
         accessTokenAuthenticator.authenticate(route, response)
 
         coVerify(exactly = 1) {
-            sessionRepository.accessToken(CURRENT_REFRESH_TOKEN)
+            sessionRepository.newAccessToken(CURRENT_REFRESH_TOKEN)
         }
     }
 
     @Test
     fun `Given http response, when access token request is successful, then save session`() {
-        coEvery { sessionRepository.accessToken(any()) } returns Either.Right(currentSession)
+        coEvery { sessionRepository.newAccessToken(any()) } returns Either.Right(currentSession)
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
         coEvery { sessionRepository.save(any()) } returns Either.Right(Unit)
         every { response.headers[TOKEN_HEADER_KEY] } returns CURRENT_REFRESH_TOKEN
@@ -108,7 +108,7 @@ class AccessTokenAuthenticatorTest : UnitTest() {
         accessTokenAuthenticator.authenticate(route, response)
 
         coVerify(exactly = 1) {
-            sessionRepository.accessToken(any())
+            sessionRepository.newAccessToken(any())
             sessionRepository.save(currentSession)
         }
     }
@@ -116,7 +116,7 @@ class AccessTokenAuthenticatorTest : UnitTest() {
     @Test
     fun `Given http response, when access token request is successful, then build new authentication request`() {
         every { currentSession.accessToken } returns NEW_ACCESS_TOKEN
-        coEvery { sessionRepository.accessToken(any()) } returns Either.Right(currentSession)
+        coEvery { sessionRepository.newAccessToken(any()) } returns Either.Right(currentSession)
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
         coEvery { sessionRepository.save(currentSession) } returns Either.Right(Unit)
 
@@ -126,7 +126,7 @@ class AccessTokenAuthenticatorTest : UnitTest() {
 
         accessTokenAuthenticator.authenticate(route, response)
 
-        coVerify(exactly = 1) { sessionRepository.accessToken(any()) }
+        coVerify(exactly = 1) { sessionRepository.newAccessToken(any()) }
         verify(exactly = 1) { requestBuilder.removeHeader(AUTH_HEADER_KEY) }
         verify(exactly = 1) { requestBuilder.addHeader(AUTH_HEADER_KEY, "$AUTH_HEADER_TOKEN_TYPE $NEW_ACCESS_TOKEN") }
     }

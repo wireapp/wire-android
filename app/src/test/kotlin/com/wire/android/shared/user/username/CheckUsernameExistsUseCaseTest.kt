@@ -33,7 +33,7 @@ class CheckUsernameExistsUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `Given doesUsernameExist() is called, when response code is NotFound, then propagate UsernameIsAvailable success`() = runBlocking {
+    fun `Given run is called, when response code is NotFound, then propagate UsernameIsAvailable success`() = runBlocking {
         every { params.username } returns TEST_USERNAME
         coEvery { userRepository.doesUsernameExist(any()) } returns Either.Left(NotFound)
 

@@ -6,6 +6,7 @@ import com.wire.android.R
 open class ErrorMessage {
     @StringRes
     val message: Int
+
     @StringRes
     val title: Int?
 
@@ -17,6 +18,10 @@ open class ErrorMessage {
     constructor(@StringRes title: Int, @StringRes message: Int) {
         this.title = title
         this.message = message
+    }
+
+    companion object {
+        val EMPTY = ErrorMessage(0)
     }
 }
 

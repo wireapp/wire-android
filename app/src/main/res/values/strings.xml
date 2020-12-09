@@ -5,6 +5,7 @@
     <string name="back">Back</string>
     <string name="confirmation">Confirmation</string>
 
+    <string name="login_with_email_email_input_hint">EMAIL</string>
     <string name="text_input_layout_password_hint">PASSWORD</string>
     <!-- Dialogs -->
     <string name="network_error_dialog_title">No Internet Connection</string>

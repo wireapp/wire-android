@@ -6,6 +6,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
+import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.extension.headingForAccessibility
 import com.wire.android.core.extension.showKeyboardWithFocusOn
 import com.wire.android.core.extension.toStringOrEmpty
@@ -67,7 +68,10 @@ class CreatePersonalAccountUsernameFragment : Fragment(R.layout.fragment_create_
     }
 
     private fun showUsernameErrorMessage(errorMessage: ErrorMessage) {
-        createPersonalAccountUsernameTextInputLayout.error = getString(errorMessage.message)
+        createPersonalAccountUsernameTextInputLayout.error = when (errorMessage) {
+            ErrorMessage.EMPTY -> String.EMPTY
+            else -> getString(errorMessage.message)
+        }
     }
 
     private fun observeDialogErrors() {

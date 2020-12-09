@@ -44,6 +44,7 @@ class CreateAccountUsernameViewModel(
         val params = ValidateUsernameParams(username)
         validateUsernameUseCase.run(params).fold(::handleFailure) {
             updateConfirmationButtonStatus(true)
+            _usernameLiveData.failure(ErrorMessage.EMPTY)
         }
     }
 

@@ -2,7 +2,8 @@ package com.wire.android.shared.user.username
 
 import com.wire.android.UnitTest
 import com.wire.android.core.extension.EMPTY
-import com.wire.android.core.functional.map
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.runBlocking
@@ -23,48 +24,55 @@ class ValidateUsernameUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `Given run is executed, when username doesn't match regex, then propagate failure`() {
+    fun `Given run is executed, when username doesn't match regex, then propagate failure`() = runBlocking {
         val username = "----7_.username"
-        verifyValidateUseCase(username)
-    }
-
-    @Test
-    fun `Given run is executed, when username matches regex and length is over max, then propagate failure`() {
-        val username = """"thisisalongusernamethatshouldnotbethislongthisisalongusernamethatshouldnotbethislongthisisalongusernamethatsho
-                         | islongthisisalongusernamethatshouldnotbethislongthisisalongusernamethatshouldnotbethislongthisisalongusernamethat
-                     """".trimMargin()
-        verifyValidateUseCase(username)
-    }
-
-    @Test
-    fun `Given run is executed, when username matches regex and length is 1, then propagate failure`() {
-        val username = "h"
-        verifyValidateUseCase(username)
-    }
-
-    @Test
-    fun `Given run is executed, when username is empty then propagate failure`() {
-        val username = String.EMPTY
-        verifyValidateUseCase(username)
-    }
-
-    @Test
-    fun `Given run is executed, when username matches regex and username fits requirements then propagate success`() {
-        val username = "wire"
-        verifyValidateUseCase(username, isError = false)
-    }
-
-    private fun verifyValidateUseCase(username: String, isError: Boolean = true) = runBlocking {
         every { validateHandleParams.username } returns username
 
-        validateHandleUseCase.run(validateHandleParams)
+        val response = validateHandleUseCase.run(validateHandleParams)
 
-        if (!isError) {
-            validateHandleUseCase.run(validateHandleParams).map {
-                it shouldBe username
-            }
-        }
+        response shouldFail { it shouldBe UsernameInvalid }
+    }
 
-        validateHandleUseCase.run(validateHandleParams).isLeft shouldBe isError
+    @Test
+    fun `Given run is executed, when username matches regex and length is over max, then propagate failure`() = runBlocking {
+        val username = "thisisalongusernamethatshouldnotbethislongthisisalongusernamethatshouldnotbethislongthisisalongusernamethat" +
+                "thisisalongusernamethatshouldnotbethislongthisisalongusernamethatshouldnotbethislongthisisalongusernamethat" +
+                "thisisalongusernamethatshouldnotbethislongthisisalongusernamethatshouldnotbethislongthisisalongusernamethat"
+
+        every { validateHandleParams.username } returns username
+
+        val response = validateHandleUseCase.run(validateHandleParams)
+
+        response shouldFail { it shouldBe UsernameTooLong }
+    }
+
+    @Test
+    fun `Given run is executed, when username matches regex and length is 1, then propagate failure`() = runBlocking {
+        val username = "h"
+        every { validateHandleParams.username } returns username
+
+        val response = validateHandleUseCase.run(validateHandleParams)
+
+        response shouldFail { it shouldBe UsernameTooShort }
+    }
+
+    @Test
+    fun `Given run is executed, when username is empty then propagate failure`() = runBlocking {
+        val username = String.EMPTY
+        every { validateHandleParams.username } returns username
+
+        val response = validateHandleUseCase.run(validateHandleParams)
+
+        response shouldFail { it shouldBe UsernameTooShort }
+    }
+
+    @Test
+    fun `Given run is executed, when username matches regex and username fits requirements then propagate success`() = runBlocking {
+        val username = "wire"
+        every { validateHandleParams.username } returns username
+
+        val response = validateHandleUseCase.run(validateHandleParams)
+
+        response.shouldSucceed { it shouldBe username }
     }
 }

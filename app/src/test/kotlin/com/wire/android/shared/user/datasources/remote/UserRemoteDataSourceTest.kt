@@ -119,11 +119,11 @@ class UserRemoteDataSourceTest : UnitTest() {
         every { selfUserResponse.isSuccessful } returns false
         coEvery { userApi.doesHandleExist(any()) } returns usernameResponse
 
-        userRemoteDataSource.doesUsernameExist(TEST_USERNAME)
+        val response = userRemoteDataSource.doesUsernameExist(TEST_USERNAME)
 
         coVerify { userApi.doesHandleExist(eq(TEST_USERNAME)) }
 
-        userRemoteDataSource.doesUsernameExist(TEST_USERNAME) shouldFail { it shouldBe failure }
+        response shouldFail { it shouldBe failure }
     }
 
     companion object {

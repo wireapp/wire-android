@@ -112,29 +112,27 @@ class CreateAccountNavigatorTest : AndroidTest() {
 
     @Test
     fun `given openPersonalAccountUsernameScreen is called, then replaces CreatePersonalAccountUsernameFragment on given activity`() {
-        createAccountNavigator.openPersonalAccountUsernameScreen(activity, TEST_NAME, TEST_EMAIL, TEST_ACTIVATION_CODE)
+        createAccountNavigator.openPersonalAccountUsernameScreen(activity)
 
         verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
         fragmentSlot.captured.let {
             it shouldBeInstanceOf CreatePersonalAccountUsernameFragment::class.java
             it.argumentEquals(
-                CreatePersonalAccountUsernameFragment.newInstance(
-                    name = TEST_NAME, email = TEST_EMAIL, activationCode = TEST_ACTIVATION_CODE
-                )
+                CreatePersonalAccountUsernameFragment.newInstance()
             ) shouldBe true
         }
     }
 
     @Test
     fun `given openPersonalAccountPasswordScreen is called, then replaces CreatePersonalAccountPasswordFragment on given activity`() {
-        createAccountNavigator.openPersonalAccountPasswordScreen(activity, TEST_NAME, TEST_USERNAME, TEST_EMAIL, TEST_ACTIVATION_CODE)
+        createAccountNavigator.openPersonalAccountPasswordScreen(activity, TEST_NAME, TEST_EMAIL, TEST_ACTIVATION_CODE)
 
         verify(exactly = 1) { fragmentStackHandler.replaceFragment(activity, capture(fragmentSlot), true) }
         fragmentSlot.captured.let {
             it shouldBeInstanceOf CreatePersonalAccountPasswordFragment::class.java
             it.argumentEquals(
                 CreatePersonalAccountPasswordFragment.newInstance(
-                    name = TEST_NAME, username = TEST_USERNAME, email = TEST_EMAIL, activationCode = TEST_ACTIVATION_CODE
+                    name = TEST_NAME, email = TEST_EMAIL, activationCode = TEST_ACTIVATION_CODE
                 )
             ) shouldBe true
         }
@@ -183,7 +181,6 @@ class CreateAccountNavigatorTest : AndroidTest() {
         private const val TEST_EMAIL = "test@wire.com"
         private const val TEST_ACTIVATION_CODE = "234902"
         private const val TEST_NAME = "name"
-        private const val TEST_USERNAME = "username"
         private const val CONFIG_URL = "https://wire.com"
         private const val TEAM_ABOUT_URL_SUFFIX = "/products/pro-secure-team-collaboration/"
     }

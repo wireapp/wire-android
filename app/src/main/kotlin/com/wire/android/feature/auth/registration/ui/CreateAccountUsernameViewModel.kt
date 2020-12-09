@@ -66,7 +66,6 @@ class CreateAccountUsernameViewModel(
     }
 
     private fun handleCheckUsernameExistsErrors(failure: CheckUsernameError) {
-        updateConfirmationButtonStatus(false)
         val errorMessage = when (failure) {
             UsernameAlreadyExists -> ErrorMessage(R.string.create_account_with_username_error_already_taken)
             else -> GeneralErrorMessage

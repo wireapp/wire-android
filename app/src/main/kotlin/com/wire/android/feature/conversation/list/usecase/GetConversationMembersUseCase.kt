@@ -16,17 +16,9 @@ class GetConversationMembersUseCase(
 
     override suspend fun run(params: GetConversationMembersParams): Either<Failure, List<Contact>> = suspending {
         conversationsRepository.conversationMemberIds(params.conversation).flatMap { memberIds ->
-            val memberIdsToRequest =
-                if (params.memberCount == GetConversationMembersParams.ALL_MEMBERS) memberIds
-                else memberIds.take(params.memberCount)
-
-            contactRepository.contactsById(memberIdsToRequest.toSet())
+            contactRepository.contactsById(memberIds.toSet())
         }
     }
 }
 
-data class GetConversationMembersParams(val conversation: Conversation, val memberCount: Int = ALL_MEMBERS) {
-    companion object {
-        const val ALL_MEMBERS = -1
-    }
-}
+data class GetConversationMembersParams(val conversation: Conversation)

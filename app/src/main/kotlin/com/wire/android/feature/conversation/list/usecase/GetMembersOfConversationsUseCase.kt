@@ -32,7 +32,8 @@ class GetMembersOfConversationsUseCase(
     }
 
     private suspend fun getConversationMemberIds(conversation: Conversation): List<String> =
-        conversationsRepository.conversationMemberIds(conversation).fold({ emptyList() }) { it }!!
+        conversationsRepository.conversationMemberIds(conversation).fold({ emptyList() }) { it }
+            ?: emptyList()
 }
 
 data class GetMembersOfConversationsParams(

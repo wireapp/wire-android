@@ -46,7 +46,7 @@ class CreateProAccountTeamNameFragmentUiTest : FunctionalActivityTest(CreateAcco
 
     @Test
     fun inputTextIsNotEmpty_confirmationButtonShouldBeEnabled() {
-        onView(withId(R.id.createProAccountTeamNameEditText)).perform(typeTextIntoFocusedView(TEST_TEAM_NAME))
+        onView(withId(R.id.createProAccountTeamNameEditText)).perform(replaceText(TEST_TEAM_NAME))
         onView(withId(R.id.createProAccountTeamNameInputConfirmationButton)).check(matches(isEnabled()))
     }
 

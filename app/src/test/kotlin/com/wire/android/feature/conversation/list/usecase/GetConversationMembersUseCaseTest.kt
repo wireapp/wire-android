@@ -7,7 +7,6 @@ import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.contact.ContactRepository
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.ConversationsRepository
-import com.wire.android.feature.conversation.list.usecase.GetConversationMembersParams.Companion.ALL_MEMBERS
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery
@@ -54,9 +53,9 @@ class GetConversationMembersUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called for a conversation & all members, when member ids are provided, then calls contactRepository with all ids`() {
+    fun `given run is called for a conversation, when conversationsRepository provides member ids, then calls contactRepository`() {
         val conversation = mockk<Conversation>()
-        val params = GetConversationMembersParams(conversation, ALL_MEMBERS)
+        val params = GetConversationMembersParams(conversation)
 
         coEvery { conversationsRepository.conversationMemberIds(conversation) } returns Either.Right(TEST_MEMBER_IDS)
         coEvery { contactRepository.contactsById(any()) } returns Either.Right(mockk())
@@ -67,23 +66,6 @@ class GetConversationMembersUseCaseTest : UnitTest() {
         val contactIdsSlot = slot<Set<String>>()
         coVerify(exactly = 1) { contactRepository.contactsById(capture(contactIdsSlot)) }
         contactIdsSlot.captured shouldContainSame TEST_MEMBER_IDS
-    }
-
-    @Test
-    fun `given run is called for a conv & some members, when member ids are provided, then calls contactRepo with given number of ids`() {
-        val conversation = mockk<Conversation>()
-        val memberCount = 2
-        val params = GetConversationMembersParams(conversation, memberCount)
-
-        coEvery { conversationsRepository.conversationMemberIds(conversation) } returns Either.Right(TEST_MEMBER_IDS)
-        coEvery { contactRepository.contactsById(any()) } returns Either.Right(mockk())
-
-        val result = runBlocking { getConversationMembersUseCase.run(params) }
-
-        coVerify(exactly = 1) { conversationsRepository.conversationMemberIds(conversation) }
-        val contactIdsSlot = slot<Set<String>>()
-        coVerify(exactly = 1) { contactRepository.contactsById(capture(contactIdsSlot)) }
-        contactIdsSlot.captured shouldContainSame TEST_MEMBER_IDS.take(memberCount)
     }
 
     @Test

@@ -9,7 +9,6 @@ import com.wire.android.feature.contact.ContactRepository
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.ConversationsRepository
 
-//TODO: test
 class GetMembersOfConversationsUseCase(
     private val conversationsRepository: ConversationsRepository,
     private val contactRepository: ContactRepository

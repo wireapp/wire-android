@@ -11,7 +11,6 @@ import com.wire.android.core.extension.lazyFind
 import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.ui.drawable.TextDrawable
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
-import com.wire.android.feature.conversation.Conversation
 
 class ConversationViewHolder(
     parent: ViewGroup, inflater: ViewHolderInflater
@@ -21,14 +20,14 @@ class ConversationViewHolder(
 
     private val iconImageView by lazyFind<ShapeableImageView>(R.id.conversationItemIconImageView)
 
-    fun bind(conversation: Conversation) {
-        val name = conversation.name ?: conversation.id
+    fun bind(item: ConversationListItem) {
+        val name = item.name ?: item.id
         nameTextView.text = name
 
-        //TODO: show member name initial
-        //TODO: how can it be null??
+        val nameOfFirstMember = item.members.getOrNull(0)?.name
+        val nameInitial = nameOfFirstMember?.getOrNull(0).toStringOrEmpty()
         iconImageView.afterMeasured {
-            it.load(TextDrawable(text = name.firstOrNull().toStringOrEmpty(), width = it.width.toFloat(), height = it.height.toFloat()))
+            it.load(TextDrawable(text = nameInitial, width = it.width.toFloat(), height = it.height.toFloat()))
         }
     }
 }

@@ -8,6 +8,7 @@ import com.wire.android.feature.conversation.data.ConversationsRepository
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationsApi
 import com.wire.android.feature.conversation.data.remote.ConversationsRemoteDataSource
+import com.wire.android.feature.conversation.list.datasources.ConversationListMapper
 import com.wire.android.feature.conversation.list.ui.ConversationListAdapter
 import com.wire.android.feature.conversation.list.ui.ConversationListDiffCallback
 import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
@@ -34,6 +35,9 @@ val conversationsModule = module {
     factory { get<UserDatabase>().conversationDao() }
     factory { get<UserDatabase>().conversationMembersDao() }
     factory { ConversationLocalDataSource(get(), get()) }
+
+    factory { get<UserDatabase>().conversationListDao() }
+    factory { ConversationListMapper(get(), get()) }
 
     factory { GetConversationMembersUseCase(get(), get()) }
 }

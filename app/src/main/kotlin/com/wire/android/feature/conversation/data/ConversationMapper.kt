@@ -3,7 +3,7 @@ package com.wire.android.feature.conversation.data
 import com.wire.android.core.extension.EMPTY
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.remote.ConversationsResponse
-import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
+import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 
 class ConversationMapper {

@@ -2,8 +2,8 @@ package com.wire.android.feature.conversation.members.datasources.local
 
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
-import com.wire.android.feature.conversation.list.datasources.local.ConversationDao
-import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
+import com.wire.android.feature.conversation.data.local.ConversationDao
+import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.framework.storage.db.DatabaseTestRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo

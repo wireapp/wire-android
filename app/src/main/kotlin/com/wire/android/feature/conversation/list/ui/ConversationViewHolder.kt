@@ -24,8 +24,8 @@ class ConversationViewHolder(
         val name = item.name ?: item.id
         nameTextView.text = name
 
-        val nameOfFirstMember = item.members.getOrNull(0)?.name
-        val nameInitial = nameOfFirstMember?.getOrNull(0).toStringOrEmpty()
+        val nameOfFirstMember = item.members.firstOrNull()?.name
+        val nameInitial = nameOfFirstMember?.firstOrNull().toStringOrEmpty()
         iconImageView.afterMeasured {
             it.load(TextDrawable(text = nameInitial, width = it.width.toFloat(), height = it.height.toFloat()))
         }

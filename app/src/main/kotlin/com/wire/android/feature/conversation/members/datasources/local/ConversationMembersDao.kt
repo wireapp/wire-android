@@ -14,9 +14,9 @@ interface ConversationMembersDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(conversationMemberList: List<ConversationMemberEntity>)
 
-    @Query("SELECT * FROM conversation_members")
+    @Query("SELECT * FROM conversation_member")
     suspend fun allConversationMembers(): List<ConversationMemberEntity>
 
-    @Query("SELECT contact_id FROM conversation_members WHERE conversation_id = :conversationId")
+    @Query("SELECT contact_id FROM conversation_member WHERE conversation_id = :conversationId")
     suspend fun conversationMembers(conversationId: String): List<String>
 }

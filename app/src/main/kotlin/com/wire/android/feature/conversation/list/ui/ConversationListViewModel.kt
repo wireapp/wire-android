@@ -9,11 +9,11 @@ import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.events.Event
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.Failure
-import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
+import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
-import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.ConversationsPagingDelegate
 import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
@@ -29,8 +29,11 @@ class ConversationListViewModel(
     private val _userNameLiveData = MutableLiveData<String>()
     val userNameLiveData: LiveData<String> = _userNameLiveData
 
-    private val _conversationsLiveData = MutableLiveData<Either<Failure, PagedList<Conversation>>>()
-    val conversationsLiveData: LiveData<Either<Failure, PagedList<Conversation>>> = _conversationsLiveData
+    private val _conversationListErrorLiveData = SingleLiveEvent<Failure>()
+    val conversationListErrorLiveData : LiveData<Failure> = _conversationListErrorLiveData
+
+    private val _conversationListItemsLiveData = MutableLiveData<PagedList<ConversationListItem>>()
+    val conversationListItemsLiveData: LiveData<PagedList<ConversationListItem>> = _conversationListItemsLiveData
 
     fun fetchUserName() {
         getActiveUserUseCase(viewModelScope, Unit) {
@@ -40,8 +43,12 @@ class ConversationListViewModel(
 
     fun fetchConversations() {
         val params = GetConversationsParams(ConversationsPagingDelegate(viewModelScope, CONVERSATIONS_PAGE_SIZE))
-        getConversationsUseCase(viewModelScope, params) {
-            _conversationsLiveData.value = it
+        getConversationsUseCase(viewModelScope, params) { result ->
+            result.onSuccess {
+                //TODO: map Conversation to ConversationListItem
+            }.onFailure {
+                _conversationListErrorLiveData.value = it
+            }
         }
     }
 

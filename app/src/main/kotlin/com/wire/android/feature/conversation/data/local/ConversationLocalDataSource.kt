@@ -4,8 +4,6 @@ import androidx.paging.DataSource
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.storage.db.DatabaseService
-import com.wire.android.feature.conversation.list.datasources.local.ConversationDao
-import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 

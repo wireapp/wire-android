@@ -4,8 +4,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.wire.android.feature.contact.datasources.local.ContactDao
 import com.wire.android.feature.contact.datasources.local.ContactEntity
-import com.wire.android.feature.conversation.list.datasources.local.ConversationDao
-import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
+import com.wire.android.feature.conversation.data.local.ConversationDao
+import com.wire.android.feature.conversation.data.local.ConversationEntity
+import com.wire.android.feature.conversation.list.datasources.local.ConversationListDao
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 
@@ -19,4 +20,6 @@ abstract class UserDatabase : RoomDatabase() {
     abstract fun contactDao(): ContactDao
 
     abstract fun conversationMembersDao(): ConversationMembersDao
+
+    abstract fun conversationListDao(): ConversationListDao
 }

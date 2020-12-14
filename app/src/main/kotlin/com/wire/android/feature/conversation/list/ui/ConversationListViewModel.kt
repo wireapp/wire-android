@@ -15,7 +15,6 @@ import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.conversation.Conversation
-import com.wire.android.feature.conversation.data.ConversationListPagingDelegate
 import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase

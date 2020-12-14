@@ -25,6 +25,9 @@ class UserRemoteDataSourceTest : UnitTest() {
     @MockK
     private lateinit var selfUserResponseBody: SelfUserResponse
 
+    @MockK
+    private lateinit var usernameResponse: Response<Unit>
+
     private lateinit var userRemoteDataSource: UserRemoteDataSource
 
     @Before
@@ -71,8 +74,18 @@ class UserRemoteDataSourceTest : UnitTest() {
         result shouldFail {}
     }
 
+    @Test
+    fun `Given doesUsernameExist() is called, then verify request is made`() = runBlocking {
+        coEvery { userApi.doesHandleExist(any()) } returns usernameResponse
+
+        userRemoteDataSource.doesUsernameExist(TEST_USERNAME)
+
+        coVerify { userApi.doesHandleExist(eq(TEST_USERNAME)) }
+    }
+
     companion object {
         private const val TEST_ACCESS_TOKEN = "access-token-567"
         private const val TEST_TOKEN_TYPE = "token-type-bearer"
+        private const val TEST_USERNAME = "username"
     }
 }

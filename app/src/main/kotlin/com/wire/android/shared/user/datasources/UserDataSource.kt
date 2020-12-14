@@ -25,4 +25,7 @@ class UserDataSource(
 
     override suspend fun save(user: User): Either<Failure, Unit> =
         localDataSource.save(mapper.toUserEntity(user))
+
+    override suspend fun doesUsernameExist(username: String): Either<Failure, Unit> =
+        remoteDataSource.doesUsernameExist(username)
 }

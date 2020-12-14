@@ -18,6 +18,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/loginWithEmailEditText"
             style="@style/TextInputEditText.OutlinedBox.Email"
+            android:hint="@string/login_with_email_email_input_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

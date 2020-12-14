@@ -10,4 +10,8 @@ class UserRemoteDataSource(override val networkHandler: NetworkHandler, private 
     suspend fun selfUser(accessToken: String, tokenType: String): Either<Failure, SelfUserResponse> = request {
         userApi.selfUser("$tokenType $accessToken")
     }
+
+    suspend fun doesUsernameExist(username: String): Either<Failure, Unit> = request {
+        userApi.doesHandleExist(username)
+    }
 }

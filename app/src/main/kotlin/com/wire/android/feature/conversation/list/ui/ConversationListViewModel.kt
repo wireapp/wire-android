@@ -17,12 +17,15 @@ import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
+import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsParams
+import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsUseCase
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 
 class ConversationListViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val getActiveUserUseCase: GetActiveUserUseCase,
     private val getConversationsUseCase: GetConversationsUseCase,
+    private val getMembersOfConversationsUseCase: GetMembersOfConversationsUseCase,
     conversationListPagingDelegate: ConversationListPagingDelegate,
     private val eventsHandler: EventsHandler
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
@@ -49,14 +52,19 @@ class ConversationListViewModel(
         val params = GetConversationsParams(start, CONVERSATIONS_PAGE_SIZE)
         getConversationsUseCase(viewModelScope, params) { result ->
             result.onSuccess(::getConversationMembers)
-                .onFailure {
-                    _conversationListErrorLiveData.value = it
-                }
+                .onFailure(::handleConversationListError)
         }
     }
 
     private fun getConversationMembers(conversations: List<Conversation>) {
-        //TODO: call use case
+        val params = GetMembersOfConversationsParams(conversations, NUMBER_OF_MEMBERS_DISPLAYED_PER_CONVERSATION)
+        getMembersOfConversationsUseCase(viewModelScope, params) {
+            it.onFailure(::handleConversationListError)
+        }
+    }
+
+    private fun handleConversationListError(failure: Failure) {
+        _conversationListErrorLiveData.value = failure
     }
 
     fun subscribeToEvents() = with(eventsHandler) {
@@ -66,5 +74,6 @@ class ConversationListViewModel(
 
     companion object {
         private const val CONVERSATIONS_PAGE_SIZE = 30
+        private const val NUMBER_OF_MEMBERS_DISPLAYED_PER_CONVERSATION = 4
     }
 }

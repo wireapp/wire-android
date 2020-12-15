@@ -7,6 +7,7 @@ import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
+import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.framework.livedata.shouldNotBeUpdated
@@ -36,6 +37,9 @@ class ConversationListViewModelTest : UnitTest() {
     private lateinit var getConversationsUseCase: GetConversationsUseCase
 
     @MockK
+    private lateinit var getMembersOfConversationsUseCase: GetMembersOfConversationsUseCase
+
+    @MockK
     private lateinit var conversationListPagingDelegate: ConversationListPagingDelegate
 
     @MockK
@@ -47,7 +51,7 @@ class ConversationListViewModelTest : UnitTest() {
     fun setUp() {
         conversationListViewModel = ConversationListViewModel(
             coroutinesTestRule.dispatcherProvider,
-            getActiveUserUseCase, getConversationsUseCase,
+            getActiveUserUseCase, getConversationsUseCase, getMembersOfConversationsUseCase,
             conversationListPagingDelegate, eventsHandler
         )
     }

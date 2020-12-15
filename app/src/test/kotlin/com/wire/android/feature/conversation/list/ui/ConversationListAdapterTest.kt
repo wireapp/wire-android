@@ -3,6 +3,7 @@ package com.wire.android.feature.conversation.list.ui
 import android.view.View
 import android.view.ViewGroup
 import com.wire.android.UnitTest
+import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -26,11 +27,14 @@ class ConversationListAdapterTest : UnitTest() {
     @MockK
     private lateinit var diffCallback: ConversationListDiffCallback
 
+    @MockK
+    private lateinit var localeConfig: LocaleConfig
+
     private lateinit var conversationListAdapter: ConversationListAdapter
 
     @Before
     fun setUp() {
-        conversationListAdapter = ConversationListAdapter(viewHolderInflater, diffCallback)
+        conversationListAdapter = ConversationListAdapter(viewHolderInflater, diffCallback, localeConfig)
 //        conversationListAdapter.updateData(conversationList)
     }
 

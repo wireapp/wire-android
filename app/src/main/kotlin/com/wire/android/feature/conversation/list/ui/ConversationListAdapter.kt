@@ -3,15 +3,17 @@ package com.wire.android.feature.conversation.list.ui
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
+import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 
 class ConversationListAdapter(
     private val viewHolderInflater: ViewHolderInflater,
-    diffCallback: ConversationListDiffCallback
+    diffCallback: ConversationListDiffCallback,
+    private val localeConfig: LocaleConfig
 ) : PagedListAdapter<ConversationListItem, ConversationViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationViewHolder =
-        ConversationViewHolder(parent, viewHolderInflater)
+        ConversationViewHolder(parent, viewHolderInflater, localeConfig)
 
     override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
         getItem(position)?.let { holder.bind(it) } //TODO what does null mean?

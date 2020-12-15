@@ -19,15 +19,16 @@ import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
 import com.wire.android.feature.conversation.list.ui.ConversationListPagingDelegate
 import com.wire.android.feature.conversation.list.usecase.GetConversationMembersUseCase
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
+import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsUseCase
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val conversationsModule = module {
     single { MainNavigator() }
 
-    factory { ConversationListAdapter(get(), get()) }
+    factory { ConversationListAdapter(get(), get(), get()) }
     factory { ConversationListDiffCallback() }
-    viewModel { ConversationListViewModel(get(), get(), get(), get(), get()) }
+    viewModel { ConversationListViewModel(get(), get(), get(), get(), get(), get()) }
     factory { GetConversationsUseCase(get()) }
 
     single<ConversationsRepository> { ConversationDataSource(get(), get(), get()) }
@@ -47,4 +48,5 @@ val conversationsModule = module {
     factory { ConversationListPagingDelegate(get()) }
 
     factory { GetConversationMembersUseCase(get(), get()) }
+    factory { GetMembersOfConversationsUseCase(get(), get()) }
 }

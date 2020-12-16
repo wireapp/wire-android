@@ -7,7 +7,7 @@ import com.wire.android.feature.conversation.data.remote.ConversationMembersResp
 import com.wire.android.feature.conversation.data.remote.ConversationOtherMembersResponse
 import com.wire.android.feature.conversation.data.remote.ConversationResponse
 import com.wire.android.feature.conversation.data.remote.ConversationsResponse
-import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
+import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import io.mockk.every
 import io.mockk.mockk

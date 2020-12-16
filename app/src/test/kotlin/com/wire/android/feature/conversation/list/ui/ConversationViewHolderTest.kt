@@ -4,8 +4,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.wire.android.AndroidTest
 import com.wire.android.R
+import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
-import com.wire.android.feature.conversation.Conversation
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
@@ -23,10 +23,13 @@ class ConversationViewHolderTest : AndroidTest() {
     private lateinit var inflater: ViewHolderInflater
 
     @MockK
+    private lateinit var localeConfig: LocaleConfig
+
+    @MockK
     private lateinit var itemView: TextView
 
     @MockK
-    private lateinit var conversation: Conversation
+    private lateinit var conversationListItem: ConversationListItem
 
     private lateinit var conversationViewHolder: ConversationViewHolder
 
@@ -37,7 +40,7 @@ class ConversationViewHolderTest : AndroidTest() {
 
     @Test
     fun `given a ConversationViewHolder is created, then calls inflater to create an itemView from correct layout`() {
-        conversationViewHolder = ConversationViewHolder(parent, inflater)
+        conversationViewHolder = ConversationViewHolder(parent, inflater, localeConfig)
 
         verify(exactly = 1) { inflater.inflate(R.layout.conversation_list_item, parent) }
     }
@@ -45,21 +48,21 @@ class ConversationViewHolderTest : AndroidTest() {
     //TODO: not very scalable. Move to a UI test when we figure out how to mock data
     @Test
     fun `given bind is created, given conversation has name, then sets conversation name to itemView`() {
-        every { conversation.name } returns TEST_NAME
+        every { conversationListItem.name } returns TEST_NAME
 
-        conversationViewHolder = ConversationViewHolder(parent, inflater)
-        conversationViewHolder.bind(conversation)
+        conversationViewHolder = ConversationViewHolder(parent, inflater, localeConfig)
+        conversationViewHolder.bind(conversationListItem)
 
         verify(exactly = 1) { itemView.text = TEST_NAME }
     }
 
     @Test
     fun `given bind is created, when conversation has no name, then sets conversation id to itemView`() {
-        every { conversation.name } returns null
-        every { conversation.id } returns TEST_ID
+        every { conversationListItem.name } returns null
+        every { conversationListItem.id } returns TEST_ID
 
-        conversationViewHolder = ConversationViewHolder(parent, inflater)
-        conversationViewHolder.bind(conversation)
+        conversationViewHolder = ConversationViewHolder(parent, inflater, localeConfig)
+        conversationViewHolder.bind(conversationListItem)
 
         verify(exactly = 1) { itemView.text = TEST_ID }
     }

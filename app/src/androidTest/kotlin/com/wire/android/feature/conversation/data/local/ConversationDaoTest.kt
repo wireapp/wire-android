@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.list.datasources.local
+package com.wire.android.feature.conversation.data.local
 
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase

@@ -3,8 +3,8 @@ package com.wire.android.feature.conversation.list.ui
 import android.view.View
 import android.view.ViewGroup
 import com.wire.android.UnitTest
+import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
-import com.wire.android.feature.conversation.Conversation
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -19,7 +19,7 @@ import org.junit.Test
 class ConversationListAdapterTest : UnitTest() {
 
     @MockK
-    private lateinit var conversationList: List<Conversation>
+    private lateinit var conversationListItems: List<ConversationListItem>
 
     @MockK
     private lateinit var viewHolderInflater: ViewHolderInflater
@@ -27,11 +27,14 @@ class ConversationListAdapterTest : UnitTest() {
     @MockK
     private lateinit var diffCallback: ConversationListDiffCallback
 
+    @MockK
+    private lateinit var localeConfig: LocaleConfig
+
     private lateinit var conversationListAdapter: ConversationListAdapter
 
     @Before
     fun setUp() {
-        conversationListAdapter = ConversationListAdapter(viewHolderInflater, diffCallback)
+        conversationListAdapter = ConversationListAdapter(viewHolderInflater, diffCallback, localeConfig)
 //        conversationListAdapter.updateData(conversationList)
     }
 
@@ -49,24 +52,24 @@ class ConversationListAdapterTest : UnitTest() {
     @Test
     fun `given onBindViewHolder is called, then calls holder to bind the item at the position`() {
         val holder = mockk<ConversationViewHolder>(relaxUnitFun = true)
-        val conversation = mockk<Conversation>()
+        val item = mockk<ConversationListItem>()
         val position = 3
-        every { conversationList[position] } returns conversation
+        every { conversationListItems[position] } returns item
 
         conversationListAdapter.onBindViewHolder(holder, position)
 
-        verify(exactly = 1) { conversationList[position] }
-        verify(exactly = 1) { holder.bind(conversation) }
+        verify(exactly = 1) { conversationListItems[position] }
+        verify(exactly = 1) { holder.bind(item) }
     }
 
     @Test
     fun `given getItemCount is called, then returns the size of conversation list`() {
         val size = 5
-        every { conversationList.size } returns size
+        every { conversationListItems.size } returns size
 
         val itemCount = conversationListAdapter.itemCount
 
-        verify(exactly = 1) { conversationList.size }
+        verify(exactly = 1) { conversationListItems.size }
         itemCount shouldBeEqualTo size
     }
 }

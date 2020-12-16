@@ -6,8 +6,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wire.android.R
 import com.wire.android.core.extension.toast
-import com.wire.android.core.functional.onFailure
-import com.wire.android.core.functional.onSuccess
 import kotlinx.android.synthetic.main.fragment_conversation_list.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -21,6 +19,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         super.onViewCreated(view, savedInstanceState)
         displayUserName()
         displayConversationList()
+        observeConversationListError()
         subscribeToEvents()
     }
 
@@ -34,21 +33,21 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
     private fun displayConversationList() {
         setUpRecyclerView()
         //TODO: handle empty list
-        viewModel.conversationsLiveData.observe(viewLifecycleOwner) { result ->
-            result.onSuccess {
-                conversationListAdapter.submitList(it)
-            }.onFailure {
-                showConversationListDisplayError()
-            }
+        viewModel.conversationListItemsLiveData.observe(viewLifecycleOwner) {
+            conversationListAdapter.submitList(it)
         }
-
-        viewModel.fetchConversations()
     }
 
     private fun setUpRecyclerView() = with(conversationListRecyclerView) {
         setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
         adapter = conversationListAdapter
+    }
+
+    private fun observeConversationListError() {
+        viewModel.conversationListErrorLiveData.observe(viewLifecycleOwner) {
+            showConversationListDisplayError()
+        }
     }
 
     //TODO: check how we display errors

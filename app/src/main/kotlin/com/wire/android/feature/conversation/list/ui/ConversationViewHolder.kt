@@ -6,29 +6,30 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
+import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.extension.afterMeasured
 import com.wire.android.core.extension.lazyFind
 import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.ui.drawable.TextDrawable
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
-import com.wire.android.feature.conversation.Conversation
 
 class ConversationViewHolder(
-    parent: ViewGroup, inflater: ViewHolderInflater
+    parent: ViewGroup, inflater: ViewHolderInflater,
+    private val localeConfig: LocaleConfig
 ) : RecyclerView.ViewHolder(inflater.inflate(R.layout.conversation_list_item, parent)) {
 
     private val nameTextView by lazyFind<TextView>(R.id.conversationItemNameTextView)
 
     private val iconImageView by lazyFind<ShapeableImageView>(R.id.conversationItemIconImageView)
 
-    fun bind(conversation: Conversation) {
-        val name = conversation.name ?: conversation.id
+    fun bind(item: ConversationListItem) {
+        val name = item.name ?: item.id
         nameTextView.text = name
 
-        //TODO: show member name initial
-        //TODO: how can it be null??
+        val nameOfFirstMember = item.members.firstOrNull()?.name
+        val nameInitial = nameOfFirstMember?.firstOrNull().toStringOrEmpty().toUpperCase(localeConfig.currentLocale())
         iconImageView.afterMeasured {
-            it.load(TextDrawable(text = name.firstOrNull().toStringOrEmpty(), width = it.width.toFloat(), height = it.height.toFloat()))
+            it.load(TextDrawable(text = nameInitial, width = it.width.toFloat(), height = it.height.toFloat()))
         }
     }
 }

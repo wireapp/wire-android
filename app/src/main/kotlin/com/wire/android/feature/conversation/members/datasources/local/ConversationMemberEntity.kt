@@ -4,10 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import com.wire.android.feature.conversation.list.datasources.local.ConversationEntity
+import com.wire.android.feature.conversation.data.local.ConversationEntity
 
 @Entity(
-    tableName = "conversation_members",
+    tableName = "conversation_member",
     primaryKeys = ["contact_id", "conversation_id"],
     foreignKeys = [
         ForeignKey(

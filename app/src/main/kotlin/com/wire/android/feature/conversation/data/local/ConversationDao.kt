@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.list.datasources.local
+package com.wire.android.feature.conversation.data.local
 
 import androidx.paging.DataSource
 import androidx.room.Dao

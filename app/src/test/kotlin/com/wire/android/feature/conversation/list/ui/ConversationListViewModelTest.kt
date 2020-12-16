@@ -1,25 +1,24 @@
 package com.wire.android.feature.conversation.list.ui
 
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
-import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
+import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
-import com.wire.android.framework.functional.shouldFail
-import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.framework.livedata.shouldNotBeUpdated
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 import com.wire.android.shared.user.User
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
@@ -38,15 +37,23 @@ class ConversationListViewModelTest : UnitTest() {
     private lateinit var getConversationsUseCase: GetConversationsUseCase
 
     @MockK
+    private lateinit var getMembersOfConversationsUseCase: GetMembersOfConversationsUseCase
+
+    @MockK
+    private lateinit var conversationListPagingDelegate: ConversationListPagingDelegate
+
+    @MockK
     private lateinit var eventsHandler: EventsHandler
 
     private lateinit var conversationListViewModel: ConversationListViewModel
 
     @Before
     fun setUp() {
-        conversationListViewModel =
-            ConversationListViewModel(coroutinesTestRule.dispatcherProvider, getActiveUserUseCase,
-                getConversationsUseCase, eventsHandler)
+        conversationListViewModel = ConversationListViewModel(
+            coroutinesTestRule.dispatcherProvider,
+            getActiveUserUseCase, getConversationsUseCase, getMembersOfConversationsUseCase,
+            conversationListPagingDelegate, eventsHandler
+        )
     }
 
     @Test
@@ -69,31 +76,22 @@ class ConversationListViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given fetchConversations is called, when GetConversationsUseCase emits success, then sets success to conversationsLiveData`() {
-        val conversations = mockk<PagedList<Conversation>>()
-        coEvery { getConversationsUseCase.run(any()) } returns flowOf(Either.Right(conversations))
+    fun `given conversationListItemsLiveData is called, then calls paging delegate for conversationItems with proper page size`() {
+        val listItems = mockk<PagedList<ConversationListItem>>(relaxed = true, relaxUnitFun = true)
+        val pagingLiveData = MutableLiveData(listItems)
 
-        conversationListViewModel.fetchConversations()
+        every { conversationListPagingDelegate.conversationList(any(), any()) } returns pagingLiveData
 
-        conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
-            result shouldSucceed { it shouldBeEqualTo conversations }
-        }
-    }
-
-    @Test
-    fun `given fetchConversations is called, when GetConversationsUseCase emits failure, then sets failure to conversationsLiveData`() {
-        val failure = mockk<Failure>()
-        coEvery { getConversationsUseCase.run(any()) } returns flowOf(Either.Left(failure))
-
-        conversationListViewModel.fetchConversations()
-
-        conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
-            result shouldFail  { it shouldBeEqualTo failure }
-        }
+        //TODO assert pagedList contents:
+//        conversationListViewModel.conversationListItemsLiveData.shouldBeUpdated {
+//            it shouldBeEqualTo listItems
+//        }
+        verify(exactly = 1) { conversationListPagingDelegate.conversationList(CONVERSATIONS_PAGE_SIZE, any()) }
     }
 
     companion object {
         private const val TEST_USER_ID = "user-id-123"
         private const val TEST_USER_NAME = "User Name"
+        private const val CONVERSATIONS_PAGE_SIZE = 30
     }
 }

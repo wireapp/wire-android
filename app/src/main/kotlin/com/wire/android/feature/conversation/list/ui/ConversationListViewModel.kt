@@ -9,28 +9,35 @@ import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.events.Event
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.Failure
-import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
+import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.conversation.Conversation
-import com.wire.android.feature.conversation.data.ConversationsPagingDelegate
 import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
+import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsParams
+import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsUseCase
 import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 
 class ConversationListViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val getActiveUserUseCase: GetActiveUserUseCase,
     private val getConversationsUseCase: GetConversationsUseCase,
+    private val getMembersOfConversationsUseCase: GetMembersOfConversationsUseCase,
+    conversationListPagingDelegate: ConversationListPagingDelegate,
     private val eventsHandler: EventsHandler
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _userNameLiveData = MutableLiveData<String>()
     val userNameLiveData: LiveData<String> = _userNameLiveData
 
-    private val _conversationsLiveData = MutableLiveData<Either<Failure, PagedList<Conversation>>>()
-    val conversationsLiveData: LiveData<Either<Failure, PagedList<Conversation>>> = _conversationsLiveData
+    private val _conversationListErrorLiveData = SingleLiveEvent<Failure>()
+    val conversationListErrorLiveData: LiveData<Failure> = _conversationListErrorLiveData
+
+    val conversationListItemsLiveData: LiveData<PagedList<ConversationListItem>> =
+        conversationListPagingDelegate.conversationList(CONVERSATIONS_PAGE_SIZE, ::getConversationListNextPage)
 
     fun fetchUserName() {
         getActiveUserUseCase(viewModelScope, Unit) {
@@ -38,11 +45,26 @@ class ConversationListViewModel(
         }
     }
 
-    fun fetchConversations() {
-        val params = GetConversationsParams(ConversationsPagingDelegate(viewModelScope, CONVERSATIONS_PAGE_SIZE))
-        getConversationsUseCase(viewModelScope, params) {
-            _conversationsLiveData.value = it
+    private fun getConversationListNextPage(lastItemLoaded: ConversationListItem?) =
+        getConversations(lastItemLoaded?.id)
+
+    private fun getConversations(start: String?) {
+        val params = GetConversationsParams(start, CONVERSATIONS_PAGE_SIZE)
+        getConversationsUseCase(viewModelScope, params) { result ->
+            result.onSuccess(::getConversationMembers)
+                .onFailure(::handleConversationListError)
         }
+    }
+
+    private fun getConversationMembers(conversations: List<Conversation>) {
+        val params = GetMembersOfConversationsParams(conversations, NUMBER_OF_MEMBERS_DISPLAYED_PER_CONVERSATION)
+        getMembersOfConversationsUseCase(viewModelScope, params) {
+            it.onFailure(::handleConversationListError)
+        }
+    }
+
+    private fun handleConversationListError(failure: Failure) {
+        _conversationListErrorLiveData.value = failure
     }
 
     fun subscribeToEvents() = with(eventsHandler) {
@@ -52,5 +74,6 @@ class ConversationListViewModel(
 
     companion object {
         private const val CONVERSATIONS_PAGE_SIZE = 30
+        private const val NUMBER_OF_MEMBERS_DISPLAYED_PER_CONVERSATION = 4
     }
 }

@@ -18,9 +18,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -124,12 +126,48 @@ class UserDataSourceTest : UnitTest() {
     fun `given doesUsernameExist, then request remote data source doesUsernameExist`() = runBlocking {
         userDataSource.doesUsernameExist(TEST_USERNAME)
 
-        coVerify { remoteDataSource.doesUsernameExist(eq(TEST_USERNAME)) }
+        coVerify(exactly = 1) { remoteDataSource.doesUsernameExist(eq(TEST_USERNAME)) }
+    }
+
+    @Test
+    fun `given updateUsername, then request remote data source updateUser`() = runBlocking {
+        coEvery { remoteDataSource.updateUsername(any()) } returns Either.Left(ServerError)
+
+        userDataSource.updateUsername(TEST_USER_ID, TEST_USERNAME)
+
+        coVerify(exactly = 1) { remoteDataSource.updateUsername(eq(TEST_USERNAME)) }
+    }
+
+    @Test
+    fun `given updateUsername, when remote data source succeeds then update database`(): Unit {
+        runBlocking {
+            coEvery { remoteDataSource.updateUsername(TEST_USERNAME) } returns Either.Right(Unit)
+            coEvery { localDataSource.userById(TEST_USER_ID) } returns Either.Right(userEntity)
+            coEvery { localDataSource.update(any()) } returns Either.Right(Unit)
+
+            userDataSource.updateUsername(TEST_USER_ID, TEST_USERNAME)
+
+            coVerify(exactly = 1) { localDataSource.update(any()) }
+        }
+    }
+
+    @Test
+    fun `given updateUsername, when remote data source fails then do not update database`(): Unit {
+        runBlocking {
+            coEvery { remoteDataSource.updateUsername(TEST_USERNAME) } returns Either.Left(ServerError)
+            coEvery { localDataSource.userById(TEST_USER_ID) } returns Either.Right(userEntity)
+            coEvery { localDataSource.update(any()) } returns Either.Right(Unit)
+
+            userDataSource.updateUsername(TEST_USER_ID, TEST_USERNAME)
+
+            coVerify(inverse = true) { localDataSource.update(any()) }
+        }
     }
 
     companion object {
         private const val TEST_ACCESS_TOKEN = "access-token-567"
         private const val TEST_TOKEN_TYPE = "token-type-bearer"
         private const val TEST_USERNAME = "username"
+        private const val TEST_USER_ID = "user-id"
     }
 }

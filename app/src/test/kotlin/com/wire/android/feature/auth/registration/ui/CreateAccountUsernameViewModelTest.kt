@@ -10,6 +10,7 @@ import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
+import com.wire.android.shared.user.username.UpdateUsernameUseCase
 import com.wire.android.shared.user.username.UsernameAlreadyExists
 import com.wire.android.shared.user.username.UsernameGeneralError
 import com.wire.android.shared.user.username.UsernameInvalid
@@ -34,9 +35,12 @@ class CreateAccountUsernameViewModelTest : UnitTest() {
     @MockK
     private lateinit var checkUsernameExistsUseCase: CheckUsernameExistsUseCase
 
+    @MockK
+    private lateinit var updateUsernameUseCase: UpdateUsernameUseCase
+
     @Before
     fun setup() {
-        usernameViewModel = CreateAccountUsernameViewModel(validateUsernameUseCase, checkUsernameExistsUseCase)
+        usernameViewModel = CreateAccountUsernameViewModel(validateUsernameUseCase, checkUsernameExistsUseCase, updateUsernameUseCase)
     }
 
     @Test

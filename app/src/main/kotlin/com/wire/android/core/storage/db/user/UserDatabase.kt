@@ -9,9 +9,7 @@ import com.wire.android.feature.conversation.list.datasources.local.Conversation
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 
-private const val VERSION = 1
-
-@Database(entities = [ConversationEntity::class, ContactEntity::class, ConversationMemberEntity::class], version = VERSION)
+@Database(entities = [ConversationEntity::class, ContactEntity::class, ConversationMemberEntity::class], version = UserDatabase.VERSION)
 abstract class UserDatabase : RoomDatabase() {
 
     abstract fun conversationDao(): ConversationDao
@@ -19,4 +17,8 @@ abstract class UserDatabase : RoomDatabase() {
     abstract fun contactDao(): ContactDao
 
     abstract fun conversationMembersDao(): ConversationMembersDao
+
+    companion object {
+        const val VERSION = 1
+    }
 }

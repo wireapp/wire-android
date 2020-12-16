@@ -8,10 +8,10 @@ import com.wire.android.shared.user.datasources.remote.SelfUserResponse
 class UserMapper {
 
     fun fromSelfUserResponse(response: SelfUserResponse) =
-        User(id = response.id, name = response.name, email = response.email)
+        User(id = response.id, name = response.name, email = response.email, username = response.handle)
 
     fun fromRegisteredUserResponse(response: RegisteredUserResponse) =
-        User(id = response.id, name = response.name, email = response.email)
+        User(id = response.id, name = response.name, email = response.email, username = response.handle)
 
-    fun toUserEntity(user: User) = UserEntity(id = user.id, name = user.name, email = user.email)
+    fun toUserEntity(user: User) = UserEntity(id = user.id, name = user.name, email = user.email, username = user.username)
 }

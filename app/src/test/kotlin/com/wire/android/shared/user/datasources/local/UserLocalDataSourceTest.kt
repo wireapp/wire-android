@@ -5,13 +5,11 @@ import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
 class UserLocalDataSourceTest : UnitTest() {
 
     @MockK
@@ -28,20 +26,60 @@ class UserLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given save is called, when dao insertion is successful, then returns success`() {
+    fun `given save is called, when dao insertion is successful, then propagates success`() {
         coEvery { userDao.insert(userEntity) } returns Unit
 
-        runBlockingTest {
+        runBlocking {
             userLocalDataSource.save(userEntity) shouldSucceed { it shouldBe Unit }
         }
     }
 
     @Test
-    fun `given save is called, when dao insertion fails, then returns failure`() {
+    fun `given save is called, when dao insertion fails, then propagates failure`() {
         coEvery { userDao.insert(userEntity) } throws RuntimeException()
 
-        runBlockingTest {
+        runBlocking {
             userLocalDataSource.save(userEntity) shouldFail {}
         }
+    }
+
+    @Test
+    fun `given userById is called, when dao insertion is successful, then propagates success`() {
+        coEvery { userDao.userById(TEST_ID) } returns userEntity
+
+        runBlocking {
+            userLocalDataSource.userById(TEST_ID) shouldSucceed { it shouldBe userEntity }
+        }
+    }
+
+    @Test
+    fun `given userById is called, when dao insertion fails, then propagates failure`() {
+        coEvery { userDao.userById(TEST_ID) } throws RuntimeException()
+
+        runBlocking {
+            userLocalDataSource.userById(TEST_ID) shouldFail {}
+        }
+    }
+
+    @Test
+    fun `given update is called, when dao insertion is successful, then propagates success`() {
+        coEvery { userDao.update(userEntity) } returns Unit
+
+        runBlocking {
+            userLocalDataSource.update(userEntity) shouldSucceed { it shouldBe Unit }
+        }
+    }
+
+    @Test
+    fun `given update is called, when dao insertion fails, then propagates failure`() {
+        coEvery { userDao.update(userEntity) } throws RuntimeException()
+
+        runBlocking {
+            userLocalDataSource.update(userEntity) shouldFail {}
+        }
+    }
+
+    companion object {
+        private const val TEST_ID = "user-id"
     }
 }

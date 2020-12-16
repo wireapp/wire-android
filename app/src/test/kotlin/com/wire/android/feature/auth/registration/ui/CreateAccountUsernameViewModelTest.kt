@@ -171,7 +171,7 @@ class CreateAccountUsernameViewModelTest : UnitTest() {
                 it shouldBe true
             }
             usernameViewModel.usernameLiveData shouldBeUpdated { result ->
-                result shouldSucceed { it shouldBeEqualTo TEST_USERNAME }
+                result shouldSucceed { it shouldBeEqualTo Unit }
             }
         }
 

@@ -52,10 +52,10 @@ class CreateAccountUsernameViewModel(
 
     fun onConfirmationButtonClicked(username: String) = runBlocking {
         val params = CheckUsernameExistsParams(username)
-        checkUsernameExistsUseCase.run(params).fold(::handleFailure, ::checkUsernameSuccess)
+        checkUsernameExistsUseCase.run(params).fold(::handleFailure) { checkUsernameSuccess() }
     }
 
-    private fun checkUsernameSuccess(username: String) {
+    private fun checkUsernameSuccess() {
         updateConfirmationButtonStatus(true)
         _usernameLiveData.success()
     }

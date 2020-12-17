@@ -29,54 +29,54 @@ class UserLocalDataSourceTest : UnitTest() {
     fun `given save is called, when dao insertion is successful, then propagates success`() {
         coEvery { userDao.insert(userEntity) } returns Unit
 
-        runBlocking {
-            userLocalDataSource.save(userEntity) shouldSucceed { it shouldBe Unit }
-        }
+        val result = runBlocking { userLocalDataSource.save(userEntity) }
+
+        result shouldSucceed { it shouldBe Unit }
     }
 
     @Test
     fun `given save is called, when dao insertion fails, then propagates failure`() {
         coEvery { userDao.insert(userEntity) } throws RuntimeException()
 
-        runBlocking {
-            userLocalDataSource.save(userEntity) shouldFail {}
-        }
+        val result = runBlocking { userLocalDataSource.save(userEntity) }
+
+        result shouldFail {}
     }
 
     @Test
     fun `given userById is called, when dao insertion is successful, then propagates success`() {
         coEvery { userDao.userById(TEST_ID) } returns userEntity
 
-        runBlocking {
-            userLocalDataSource.userById(TEST_ID) shouldSucceed { it shouldBe userEntity }
-        }
+        val result = runBlocking { userLocalDataSource.userById(TEST_ID) }
+
+        result shouldSucceed { it shouldBe userEntity }
     }
 
     @Test
     fun `given userById is called, when dao insertion fails, then propagates failure`() {
         coEvery { userDao.userById(TEST_ID) } throws RuntimeException()
 
-        runBlocking {
-            userLocalDataSource.userById(TEST_ID) shouldFail {}
-        }
+        val result = runBlocking { userLocalDataSource.userById(TEST_ID) }
+
+        result shouldFail {}
     }
 
     @Test
     fun `given update is called, when dao insertion is successful, then propagates success`() {
         coEvery { userDao.update(userEntity) } returns Unit
 
-        runBlocking {
-            userLocalDataSource.update(userEntity) shouldSucceed { it shouldBe Unit }
-        }
+        val result = runBlocking { userLocalDataSource.update(userEntity) }
+
+        result shouldSucceed { it shouldBe Unit }
     }
 
     @Test
     fun `given update is called, when dao insertion fails, then propagates failure`() {
         coEvery { userDao.update(userEntity) } throws RuntimeException()
 
-        runBlocking {
-            userLocalDataSource.update(userEntity) shouldFail {}
-        }
+        val result = runBlocking { userLocalDataSource.update(userEntity) }
+
+        result shouldFail {}
     }
 
     companion object {

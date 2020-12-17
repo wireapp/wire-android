@@ -1,6 +1,6 @@
 package com.wire.android.shared.user.datasources.remote
 
-import com.wire.android.shared.user.datasources.remote.username.ChangeUsernameRequest
+import com.wire.android.shared.user.datasources.remote.username.ChangeHandleRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -17,7 +17,7 @@ interface UserApi {
     suspend fun doesHandleExist(@Path(HANDLE_PATH) handle: String): Response<Unit>
 
     @PUT("$SELF$HANDLE")
-    suspend fun updateUsername(@Body username: ChangeUsernameRequest): Response<Unit>
+    suspend fun updateHandle(@Body username: ChangeHandleRequest): Response<Unit>
 
     companion object {
         private const val HEADER_KEY_AUTHORIZATION = "Authorization"

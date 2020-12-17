@@ -2,6 +2,6 @@ package com.wire.android.shared.user.datasources.remote.username
 
 import com.google.gson.annotations.SerializedName
 
-data class ChangeUsernameRequest(
+data class ChangeHandleRequest(
     @SerializedName("handle") val handle: String
 )

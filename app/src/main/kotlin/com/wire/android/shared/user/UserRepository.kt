@@ -11,5 +11,5 @@ interface UserRepository {
 
     suspend fun doesUsernameExist(username: String): Either<Failure, Unit>
 
-    suspend fun updateUsername(userId: String, username: String): Either<Failure, Any>
+    suspend fun updateUsername(userId: String, username: String): Either<Failure, Unit>
 }

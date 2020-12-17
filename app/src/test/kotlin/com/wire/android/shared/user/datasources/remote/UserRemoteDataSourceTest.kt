@@ -4,7 +4,7 @@ import com.wire.android.UnitTest
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
-import com.wire.android.shared.user.datasources.remote.username.ChangeUsernameRequest
+import com.wire.android.shared.user.datasources.remote.username.ChangeHandleRequest
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -87,17 +87,17 @@ class UserRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `Given updateUsername is called, then verify request is made`() : Unit {
+    fun `Given updateUsername is called, then verify request is made`() {
         runBlocking {
-            val changeUsernameRequestSlot = slot<ChangeUsernameRequest>()
+            val changeHandleRequestSlot = slot<ChangeHandleRequest>()
 
-            coEvery { userApi.updateUsername(any()) } returns usernameResponse
+            coEvery { userApi.updateHandle(any()) } returns usernameResponse
 
             userRemoteDataSource.updateUsername(TEST_USERNAME)
 
-            coVerify { userApi.updateUsername(capture(changeUsernameRequestSlot)) }
+            coVerify { userApi.updateHandle(capture(changeHandleRequestSlot)) }
 
-            changeUsernameRequestSlot.captured.handle shouldBeEqualTo TEST_USERNAME
+            changeHandleRequestSlot.captured.handle shouldBeEqualTo TEST_USERNAME
         }
     }
 

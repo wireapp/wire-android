@@ -5,7 +5,6 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.suspending
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.UserRepository
-import com.wire.android.shared.user.datasources.local.UserEntity
 import com.wire.android.shared.user.datasources.local.UserLocalDataSource
 import com.wire.android.shared.user.datasources.remote.UserRemoteDataSource
 import com.wire.android.shared.user.mapper.UserMapper
@@ -31,7 +30,7 @@ class UserDataSource(
         remoteDataSource.doesUsernameExist(username)
 
     override suspend fun updateUsername(userId: String, username: String): Either<Failure, Unit> = suspending {
-        updateUsernameRemotely(username).onSuccess {
+        updateUsernameRemotely(username).flatMap {
             updateUsernameLocally(userId, username)
         }
     }

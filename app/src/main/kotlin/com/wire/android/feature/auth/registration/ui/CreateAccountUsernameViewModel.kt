@@ -16,6 +16,7 @@ import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.shared.user.username.CheckUsernameError
 import com.wire.android.shared.user.username.CheckUsernameExistsParams
 import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
+import com.wire.android.shared.user.username.UpdateUsernameUseCase
 import com.wire.android.shared.user.username.UsernameAlreadyExists
 import com.wire.android.shared.user.username.UsernameGeneralError
 import com.wire.android.shared.user.username.UsernameInvalid
@@ -28,14 +29,15 @@ import kotlinx.coroutines.runBlocking
 
 class CreateAccountUsernameViewModel(
     private val validateUsernameUseCase: ValidateUsernameUseCase,
-    private val checkUsernameExistsUseCase: CheckUsernameExistsUseCase
+    private val checkUsernameExistsUseCase: CheckUsernameExistsUseCase,
+    private val updateUsernameUseCase: UpdateUsernameUseCase
 ) : ViewModel() {
 
     private val _confirmationButtonEnabled = MutableLiveData<Boolean>()
     val confirmationButtonEnabled: LiveData<Boolean> = _confirmationButtonEnabled
 
-    private val _usernameLiveData = MutableLiveData<Either<ErrorMessage, String>>()
-    val usernameLiveData: LiveData<Either<ErrorMessage, String>> = _usernameLiveData
+    private val _usernameLiveData = MutableLiveData<Either<ErrorMessage, Unit>>()
+    val usernameLiveData: LiveData<Either<ErrorMessage, Unit>> = _usernameLiveData
 
     private val _dialogErrorLiveData = SingleLiveEvent<ErrorMessage>()
     val dialogErrorLiveData: LiveData<ErrorMessage> = _dialogErrorLiveData
@@ -50,12 +52,12 @@ class CreateAccountUsernameViewModel(
 
     fun onConfirmationButtonClicked(username: String) = runBlocking {
         val params = CheckUsernameExistsParams(username)
-        checkUsernameExistsUseCase.run(params).fold(::handleFailure, ::checkUsernameSuccess)
+        checkUsernameExistsUseCase.run(params).fold(::handleFailure) { checkUsernameSuccess() }
     }
 
-    private fun checkUsernameSuccess(username: String) {
+    private fun checkUsernameSuccess() {
         updateConfirmationButtonStatus(true)
-        _usernameLiveData.success(username)
+        _usernameLiveData.success()
     }
 
     private fun handleFailure(failure: Failure) {

@@ -21,6 +21,12 @@ android {
         versionCode = AndroidClient.versionCode
         versionName = AndroidClient.versionName
         testInstrumentationRunner = AndroidClient.testRunner
+
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
     }
 
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }

@@ -63,7 +63,7 @@ class CreatePersonalAccountUsernameFragment : Fragment(R.layout.fragment_create_
 
     private fun observeUsernameChanges() {
         usernameViewModel.usernameLiveData.observe(viewLifecycleOwner) {
-            it.fold(::showUsernameErrorMessage, ::showMainScreen)
+            it.fold(::showUsernameErrorMessage) { showMainScreen() }
         }
     }
 
@@ -84,7 +84,7 @@ class CreatePersonalAccountUsernameFragment : Fragment(R.layout.fragment_create_
         if (inputFocusViewModel.canFocusWithKeyboard()) showKeyboardWithFocusOn(createPersonalAccountUsernameEditText)
     }
 
-    private fun showMainScreen(username: String) =
+    private fun showMainScreen() =
         navigator.main.openMainScreen(requireActivity())
 
     companion object {

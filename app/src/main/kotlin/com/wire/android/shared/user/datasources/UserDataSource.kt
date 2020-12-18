@@ -28,4 +28,20 @@ class UserDataSource(
 
     override suspend fun doesUsernameExist(username: String): Either<Failure, Unit> =
         remoteDataSource.doesUsernameExist(username)
+
+    override suspend fun updateUsername(userId: String, username: String): Either<Failure, Unit> = suspending {
+        updateUsernameRemotely(username).flatMap {
+            updateUsernameLocally(userId, username)
+        }
+    }
+
+    private suspend fun updateUsernameRemotely(username: String): Either<Failure, Unit> =
+        remoteDataSource.updateUsername(username)
+
+    private suspend fun updateUsernameLocally(userId: String, username: String): Either<Failure, Unit> = suspending {
+        localDataSource.userById(userId).flatMap {
+            val updatedEntity = it.copy(username = username)
+            localDataSource.update(updatedEntity)
+        }
+    }
 }

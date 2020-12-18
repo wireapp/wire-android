@@ -172,7 +172,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
             }
 
             withGradle() {
-              sh './gradlew :app:bundle${Default.BUILD_VARIANT}'
+              sh './gradlew :app:bundle${variant}'
             }
 
           }
@@ -188,15 +188,15 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       }
     }
 
-    stage('Archive APK') {
+    stage('Archive AAB') {
       steps {
-        archiveArtifacts(artifacts: "app/build/outputs/apk/${flavor.toLowerCase()}/debug/app*.apk", allowEmptyArchive: true, onlyIfSuccessful: true)
+        archiveArtifacts(artifacts: "app/build/outputs/bundle/${flavor.toLowerCase()}${variant}/debug/app*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
       }
     }
 
     stage('Playstore Upload') {
       steps {
-        androidApkUpload(apkFilesPattern: '"app/build/outputs/apk/${flavor.toLowerCase()}/debug/app*.aab"', trackName: 'Internal')
+        androidApkUpload(apkFilesPattern: '"app/build/outputs/bundle/${flavor.toLowerCase()}${variant}/debug/app*.aab"', trackName: 'Internal')
       }
     }
 
@@ -204,6 +204,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
   environment {
     propertiesFile = 'local.properties'
     flavor = 'Dev'
+    variant = 'Release'
     adbPort = '5555'
     emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
   }

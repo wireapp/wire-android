@@ -172,7 +172,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
             }
 
             withGradle() {
-              sh './gradlew assembleApp'
+              sh './gradlew :app:bundle${Default.BUILD_VARIANT}'
             }
 
           }
@@ -191,6 +191,12 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
     stage('Archive APK') {
       steps {
         archiveArtifacts(artifacts: "app/build/outputs/apk/${flavor.toLowerCase()}/debug/app*.apk", allowEmptyArchive: true, onlyIfSuccessful: true)
+      }
+    }
+
+    stage('Playstore Upload') {
+      steps {
+        androidApkUpload(apkFilesPattern: '"app/build/outputs/apk/${flavor.toLowerCase()}/debug/app*.aab"', trackName: 'Internal')
       }
     }
 

@@ -44,8 +44,10 @@ class CreateProAccountTeamEmailFragmentTest : FunctionalTest() {
 
     @Test
     fun inputTextIsNotEmpty_confirmationButtonShouldBeEnabled() {
-        onView(withId(R.id.createProAccountTeamEmailEditText))
-            .perform(replaceText(TEST_TEAM_EMAIL))
+        onView(withId(R.id.createProAccountTeamEmailEditText)).perform(
+            replaceText(TEST_TEAM_EMAIL),
+            closeSoftKeyboard()
+        )
         onView(withId(R.id.createProAccountTeamEmailInputConfirmationButton))
             .check(matches(isEnabled()))
     }

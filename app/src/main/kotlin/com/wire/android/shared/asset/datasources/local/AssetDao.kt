@@ -16,4 +16,7 @@ interface AssetDao {
 
     @Query("SELECT * FROM asset WHERE id = :id")
     suspend fun assetById(id: Int): AssetEntity?
+
+    @Query("UPDATE asset SET storage_type = :storageType WHERE id = :id")
+    suspend fun updateStorageType(id: Int, storageType: String)
 }

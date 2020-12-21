@@ -16,12 +16,12 @@
 package com.wire.android
 
 import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import org.junit.After
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 /**
@@ -44,6 +44,6 @@ abstract class AndroidTest {
         stopKoin()
     }
 
-    fun context(): Context = RuntimeEnvironment.systemContext.applicationContext
+    fun context(): Context = ApplicationProvider.getApplicationContext()
 
 }

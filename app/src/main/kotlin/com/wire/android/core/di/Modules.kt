@@ -8,9 +8,9 @@ import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.async.DefaultDispatcherProvider
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.compatibility.Compatibility
-import com.wire.android.core.config.GlobalConfig
 import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.events.EventsHandler
+import com.wire.android.core.io.FileSystem
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.MaterialDialogBuilderProvider
 import com.wire.android.core.ui.navigation.FragmentStackHandler
@@ -55,4 +55,8 @@ val uiModule: Module = module {
     single { UriNavigationHandler() }
 
     factory { ViewHolderInflater() }
+}
+
+val ioModule: Module = module {
+    single { FileSystem(androidContext()) }
 }

@@ -9,7 +9,7 @@ import org.koin.dsl.module
 
 val assetModule = module {
     factory { get<UserDatabase>().assetDao() }
-    factory { AssetLocalDataSource(get()) }
+    factory { AssetLocalDataSource(get(), get()) }
 
     single { get<NetworkClient>().create(AssetApi::class.java) }
     single { AssetRemoteDataSource(get(), get()) }

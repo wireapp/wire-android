@@ -26,10 +26,10 @@ class GenerateRandomUsernameUseCase(
     private suspend fun generateAndValidateUsernameAttempts(name: String): Either<Failure, String> =
         userRepository.checkUsernamesExist(usernameGenerator.generateUsernameAttempts(name))
             .flatMap {
-                if (it.isNullOrEmpty()) {
+                if (it.isEmpty()) {
                     Either.Left(NoAvailableUsernames)
                 } else {
-                    Either.Right(it.random())
+                    Either.Right(it.first())
                 }
             }
 }

@@ -3,7 +3,9 @@ package com.wire.android.feature.auth.registration.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.extension.failure
@@ -13,6 +15,8 @@ import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
+import com.wire.android.core.usecase.DefaultUseCaseExecutor
+import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.shared.user.username.CheckUsernameError
 import com.wire.android.shared.user.username.CheckUsernameExistsParams
 import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
@@ -30,11 +34,12 @@ import com.wire.android.shared.user.username.ValidateUsernameUseCase
 import kotlinx.coroutines.runBlocking
 
 class CreateAccountUsernameViewModel(
+    override val dispatcherProvider: DispatcherProvider,
     private val validateUsernameUseCase: ValidateUsernameUseCase,
     private val checkUsernameExistsUseCase: CheckUsernameExistsUseCase,
     private val updateUsernameUseCase: UpdateUsernameUseCase,
-    private val generateRandomUsernameUseCase: GenerateRandomUsernameUseCase
-) : ViewModel() {
+    private val generateRandomUsernameUseCase: GenerateRandomUsernameUseCase,
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _confirmationButtonEnabled = MutableLiveData<Boolean>()
     val confirmationButtonEnabled: LiveData<Boolean> = _confirmationButtonEnabled
@@ -50,19 +55,25 @@ class CreateAccountUsernameViewModel(
 
     fun validateUsername(username: String) = runBlocking {
         val params = ValidateUsernameParams(username)
-        validateUsernameUseCase.run(params).fold(::handleFailure) {
-            updateConfirmationButtonStatus(true)
-            _usernameValidationLiveData.failure(ErrorMessage.EMPTY)
+        validateUsernameUseCase(viewModelScope, params) {
+            it.fold(::handleFailure) {
+                updateConfirmationButtonStatus(true)
+                _usernameValidationLiveData.failure(ErrorMessage.EMPTY)
+            }
         }
     }
 
     fun onConfirmationButtonClicked(username: String) = runBlocking {
         val params = CheckUsernameExistsParams(username)
-        checkUsernameExistsUseCase.run(params).fold(::handleFailure, ::checkUsernameSuccess)
+        checkUsernameExistsUseCase(viewModelScope, params) {
+            it.fold(::handleFailure, ::checkUsernameSuccess)
+        }
     }
 
     fun generateUsername() = runBlocking {
-        generateRandomUsernameUseCase.run(Unit).fold(::handleFailure, ::generateUsernameSuccess)
+        generateRandomUsernameUseCase(viewModelScope, Unit) {
+            it.fold(::handleFailure, ::generateUsernameSuccess)
+        }
     }
 
     private fun generateUsernameSuccess(username: String) {
@@ -72,10 +83,12 @@ class CreateAccountUsernameViewModel(
 
     private fun checkUsernameSuccess(username: String) = runBlocking {
         updateConfirmationButtonStatus(true)
-        updateUsernameUseCase.run(UpdateUsernameParams(username)).fold(::handleFailure, ::updateUsernameSuccess)
+        updateUsernameUseCase(viewModelScope, UpdateUsernameParams(username)) {
+            it.fold(::handleFailure) { updateUsernameSuccess() }
+        }
     }
 
-    private fun updateUsernameSuccess(unit: Any) {
+    private fun updateUsernameSuccess() {
         _usernameValidationLiveData.success()
     }
 

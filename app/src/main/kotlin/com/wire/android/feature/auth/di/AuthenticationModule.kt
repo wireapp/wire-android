@@ -65,7 +65,7 @@ private val createAccountModule = module {
 
     viewModel { CreateAccountEmailViewModel(get(), get(), get()) }
     viewModel { CreateAccountEmailVerificationCodeViewModel(get(), get()) }
-    viewModel { CreateAccountUsernameViewModel(get(), get(), get(), get()) }
+    viewModel { CreateAccountUsernameViewModel(get(), get(), get(), get(), get()) }
 
     factory { ActivateEmailUseCase(get()) }
     single<ActivationRepository> { ActivationDataSource(get()) }

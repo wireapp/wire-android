@@ -10,9 +10,9 @@ import com.wire.android.shared.user.UserRepository
 class UpdateUsernameUseCase(
     private val sessionRepository: SessionRepository,
     private val userRepository: UserRepository
-) : UseCase<Any, UpdateUsernameParams> {
+) : UseCase<Unit, UpdateUsernameParams> {
 
-    override suspend fun run(params: UpdateUsernameParams): Either<Failure, Any> = suspending {
+    override suspend fun run(params: UpdateUsernameParams): Either<Failure, Unit> = suspending {
         sessionRepository.currentSession().flatMap {
             userRepository.updateUsername(it.userId, params.username)
         }

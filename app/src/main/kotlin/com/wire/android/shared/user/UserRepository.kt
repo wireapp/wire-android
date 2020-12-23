@@ -15,5 +15,5 @@ interface UserRepository {
 
     suspend fun checkUsernamesExist(usernames: List<String>) : Either<Failure, List<String>>
 
-    suspend fun updateUsername(userId: String, username: String): Either<Failure, Any>
+    suspend fun updateUsername(userId: String, username: String): Either<Failure, Unit>
 }

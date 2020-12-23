@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.wire.android.R
 import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.extension.EMPTY
@@ -35,12 +34,17 @@ class CreatePersonalAccountUsernameFragment : Fragment(R.layout.fragment_create_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpAccessibilityHeading()
+        generateUsername()
         initConfirmationButton()
         observeButtonStatus()
         observeUsernameChanges()
         observeDialogErrors()
         initUsernameChangedListener()
         requestInitialFocus()
+    }
+
+    private fun generateUsername() {
+        usernameViewModel.generateUsername()
     }
 
     private fun setUpAccessibilityHeading() =
@@ -63,10 +67,6 @@ class CreatePersonalAccountUsernameFragment : Fragment(R.layout.fragment_create_
     }
 
     private fun observeUsernameChanges() {
-        lifecycleScope.launchWhenCreated {
-            usernameViewModel.generateUsername()
-        }
-
         usernameViewModel.generatedUsernameLiveData.observe(viewLifecycleOwner) {
             createPersonalAccountUsernameEditText.setText(it)
         }

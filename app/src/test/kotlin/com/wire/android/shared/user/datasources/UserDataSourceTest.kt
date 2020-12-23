@@ -18,11 +18,9 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
@@ -130,6 +128,15 @@ class UserDataSourceTest : UnitTest() {
     }
 
     @Test
+    fun `given checkUsernamesExist, then request remote data source checkUsernamesExist`() = runBlocking {
+        val listOfUsernames = listOf(TEST_USERNAME)
+
+        userDataSource.checkUsernamesExist(listOfUsernames)
+
+        coVerify(exactly = 1) { remoteDataSource.checkUsernamesExist(eq(listOfUsernames)) }
+    }
+
+    @Test
     fun `given updateUsername, then request remote data source updateUser`() = runBlocking {
         coEvery { remoteDataSource.updateUsername(any()) } returns Either.Left(ServerError)
 
@@ -162,6 +169,16 @@ class UserDataSourceTest : UnitTest() {
 
             coVerify(inverse = true) { localDataSource.update(any()) }
         }
+    }
+
+    @Test
+    fun `given userById is called, when localDataSource returns success, then returns success`() {
+        every { userMapper.fromUserEntity(userEntity) } returns user
+        coEvery { localDataSource.userById(TEST_USER_ID) } returns Either.Right(userEntity)
+
+        val result = runBlocking { userDataSource.userById(TEST_USER_ID) }
+
+        result shouldSucceed { it shouldBe user }
     }
 
     companion object {

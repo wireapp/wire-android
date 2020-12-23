@@ -36,8 +36,11 @@ import com.wire.android.feature.auth.registration.ui.navigation.CreateAccountNav
 import com.wire.android.shared.auth.remote.LabelGenerator
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
+import com.wire.android.shared.user.username.GenerateRandomUsernameUseCase
 import com.wire.android.shared.user.username.UpdateUsernameUseCase
+import com.wire.android.shared.user.username.UsernameAttemptsGenerator
 import com.wire.android.shared.user.username.ValidateUsernameUseCase
+import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.qualifier
 import org.koin.dsl.module
@@ -62,7 +65,7 @@ private val createAccountModule = module {
 
     viewModel { CreateAccountEmailViewModel(get(), get(), get()) }
     viewModel { CreateAccountEmailVerificationCodeViewModel(get(), get()) }
-    viewModel { CreateAccountUsernameViewModel(get(), get(), get()) }
+    viewModel { CreateAccountUsernameViewModel(get(), get(), get(), get(), get()) }
 
     factory { ActivateEmailUseCase(get()) }
     single<ActivationRepository> { ActivationDataSource(get()) }
@@ -74,6 +77,13 @@ private val createAccountModule = module {
     factory { UpdateUsernameUseCase(get(), get()) }
     factory { CheckUsernameExistsUseCase(get()) }
     factory { SendEmailActivationCodeUseCase(get()) }
+    factory { GenerateRandomUsernameUseCase(get(), get(), get()) }
+    factory {
+        UsernameAttemptsGenerator(
+            androidContext().resources.getStringArray(R.array.username_generation_adjectives),
+            androidContext().resources.getStringArray(R.array.username_generation_random_words)
+        )
+    }
 
     single { CreateAccountNavigator(get(), get()) }
     factory(qualifier<CreateAccountActivity>()) {

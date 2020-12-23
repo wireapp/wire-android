@@ -3,6 +3,8 @@ package com.wire.android.shared.user.username
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.SessionRepository
 import com.wire.android.shared.user.UserRepository
@@ -11,6 +13,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.runBlocking
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
 
@@ -56,6 +59,30 @@ class UpdateUsernameUseCaseTest : UnitTest() {
 
         coVerify(exactly = 1) { sessionRepository.currentSession() }
         coVerify(inverse = true) { userRepository.updateUsername(any(), any()) }
+    }
+
+    @Test
+    fun `given run is called and currentSession succeeds, when updateUsername succeeds, then propagate success`() = runBlocking {
+        every { updateUsernameParams.username } returns TEST_USERNAME
+        every { session.userId } returns TEST_USER_ID
+        coEvery { sessionRepository.currentSession() } returns Either.Right(session)
+        coEvery { userRepository.updateUsername(any(), any()) } returns Either.Right(Unit)
+
+        val result = updateUsernameUseCase.run(updateUsernameParams)
+
+        result shouldSucceed { it shouldBe Unit }
+    }
+
+    @Test
+    fun `given run is called and currentSession succeeds, when updateUsername fails, then propagate failure`() = runBlocking {
+        every { updateUsernameParams.username } returns TEST_USERNAME
+        every { session.userId } returns TEST_USER_ID
+        coEvery { sessionRepository.currentSession() } returns Either.Right(session)
+        coEvery { userRepository.updateUsername(any(), any()) } returns Either.Left(ServerError)
+
+        val result = updateUsernameUseCase.run(updateUsernameParams)
+        result shouldFail { it shouldBe ServerError }
+
     }
 
     companion object {

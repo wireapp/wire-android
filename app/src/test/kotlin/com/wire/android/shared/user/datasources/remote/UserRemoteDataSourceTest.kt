@@ -88,7 +88,7 @@ class UserRemoteDataSourceTest : UnitTest() {
 
         userRemoteDataSource.doesUsernameExist(TEST_USERNAME)
 
-        coVerify { userApi.doesHandleExist(eq(TEST_USERNAME)) }
+        coVerify(exactly = 1) { userApi.doesHandleExist(eq(TEST_USERNAME)) }
     }
 
     @Test
@@ -101,13 +101,13 @@ class UserRemoteDataSourceTest : UnitTest() {
 
             userRemoteDataSource.checkUsernamesExist(listOfUsernames)
 
-            coVerify { userApi.checkHandlesExist(capture(usernamesRequestSlot)) }
+            coVerify(exactly = 1) { userApi.checkHandlesExist(capture(usernamesRequestSlot)) }
             usernamesRequestSlot.captured.handles shouldContainSame listOfUsernames
         }
     }
 
     @Test
-    fun `Given updateUsername is called, then verify request is made`(): Unit {
+    fun `Given updateUsername is called, then verify request is made`() {
         runBlocking {
             val changeUsernameRequestSlot = slot<ChangeUsernameRequest>()
 
@@ -115,7 +115,7 @@ class UserRemoteDataSourceTest : UnitTest() {
 
             userRemoteDataSource.updateUsername(TEST_USERNAME)
 
-            coVerify { userApi.updateUsername(capture(changeUsernameRequestSlot)) }
+            coVerify(exactly = 1) { userApi.updateUsername(capture(changeUsernameRequestSlot)) }
 
             changeUsernameRequestSlot.captured.handle shouldBeEqualTo TEST_USERNAME
         }

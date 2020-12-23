@@ -39,7 +39,7 @@ class UserDataSource(
         remoteDataSource.checkUsernamesExist(usernames)
 
     override suspend fun updateUsername(userId: String, username: String): Either<Failure, Unit> = suspending {
-        updateUsernameRemotely(username).onSuccess {
+        updateUsernameRemotely(username).flatMap {
             updateUsernameLocally(userId, username)
         }
     }

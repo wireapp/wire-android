@@ -30,7 +30,8 @@ object Injector {
         asyncModule,
         networkModule,
         databaseModule,
-        uiModule
+        uiModule,
+        ioModule
     )
 
     /**

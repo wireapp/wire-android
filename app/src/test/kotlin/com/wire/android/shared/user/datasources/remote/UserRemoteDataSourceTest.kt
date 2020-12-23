@@ -95,29 +95,29 @@ class UserRemoteDataSourceTest : UnitTest() {
     fun `Given checkUsernamesExist() is called, then verify request is made`() {
         runBlocking {
             val listOfUsernames = listOf(TEST_USERNAME)
-            val usernamesRequestSlot = slot<CheckHandlesExistRequest>()
+            val checkHandlesRequestSlot = slot<CheckHandlesExistRequest>()
 
             coEvery { userApi.checkHandlesExist(any()) } returns usernamesResponse
 
             userRemoteDataSource.checkUsernamesExist(listOfUsernames)
 
-            coVerify(exactly = 1) { userApi.checkHandlesExist(capture(usernamesRequestSlot)) }
-            usernamesRequestSlot.captured.handles shouldContainSame listOfUsernames
+            coVerify(exactly = 1) { userApi.checkHandlesExist(capture(checkHandlesRequestSlot)) }
+            checkHandlesRequestSlot.captured.handles shouldContainSame listOfUsernames
         }
     }
 
     @Test
     fun `Given updateUsername is called, then verify request is made`() {
         runBlocking {
-            val changeUsernameRequestSlot = slot<ChangeHandleRequest>()
+            val changeHandleRequestSlot = slot<ChangeHandleRequest>()
 
             coEvery { userApi.updateHandle(any()) } returns usernameResponse
 
             userRemoteDataSource.updateUsername(TEST_USERNAME)
 
-            coVerify(exactly = 1) { userApi.updateHandle(capture(changeUsernameRequestSlot)) }
+            coVerify(exactly = 1) { userApi.updateHandle(capture(changeHandleRequestSlot)) }
 
-            changeUsernameRequestSlot.captured.handle shouldBeEqualTo TEST_USERNAME
+            changeHandleRequestSlot.captured.handle shouldBeEqualTo TEST_USERNAME
         }
     }
 

@@ -16,6 +16,8 @@ import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.shared.user.username.CheckUsernameError
 import com.wire.android.shared.user.username.CheckUsernameExistsParams
 import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
+import com.wire.android.shared.user.username.GenerateRandomUsernameUseCase
+import com.wire.android.shared.user.username.UpdateUsernameParams
 import com.wire.android.shared.user.username.UpdateUsernameUseCase
 import com.wire.android.shared.user.username.UsernameAlreadyExists
 import com.wire.android.shared.user.username.UsernameGeneralError
@@ -30,14 +32,18 @@ import kotlinx.coroutines.runBlocking
 class CreateAccountUsernameViewModel(
     private val validateUsernameUseCase: ValidateUsernameUseCase,
     private val checkUsernameExistsUseCase: CheckUsernameExistsUseCase,
-    private val updateUsernameUseCase: UpdateUsernameUseCase
+    private val updateUsernameUseCase: UpdateUsernameUseCase,
+    private val generateRandomUsernameUseCase: GenerateRandomUsernameUseCase
 ) : ViewModel() {
 
     private val _confirmationButtonEnabled = MutableLiveData<Boolean>()
     val confirmationButtonEnabled: LiveData<Boolean> = _confirmationButtonEnabled
 
-    private val _usernameLiveData = MutableLiveData<Either<ErrorMessage, Unit>>()
-    val usernameLiveData: LiveData<Either<ErrorMessage, Unit>> = _usernameLiveData
+    private val _usernameValidationLiveData = MutableLiveData<Either<ErrorMessage, Unit>>()
+    val usernameValidationLiveData: LiveData<Either<ErrorMessage, Unit>> = _usernameValidationLiveData
+
+    private val _generatedUsernameLiveData = MutableLiveData<String>()
+    val generatedUsernameLiveData: LiveData<String> = _generatedUsernameLiveData
 
     private val _dialogErrorLiveData = SingleLiveEvent<ErrorMessage>()
     val dialogErrorLiveData: LiveData<ErrorMessage> = _dialogErrorLiveData
@@ -46,18 +52,31 @@ class CreateAccountUsernameViewModel(
         val params = ValidateUsernameParams(username)
         validateUsernameUseCase.run(params).fold(::handleFailure) {
             updateConfirmationButtonStatus(true)
-            _usernameLiveData.failure(ErrorMessage.EMPTY)
+            _usernameValidationLiveData.failure(ErrorMessage.EMPTY)
         }
     }
 
     fun onConfirmationButtonClicked(username: String) = runBlocking {
         val params = CheckUsernameExistsParams(username)
-        checkUsernameExistsUseCase.run(params).fold(::handleFailure) { checkUsernameSuccess() }
+        checkUsernameExistsUseCase.run(params).fold(::handleFailure, ::checkUsernameSuccess)
     }
 
-    private fun checkUsernameSuccess() {
+    fun generateUsername() = runBlocking {
+        generateRandomUsernameUseCase.run(Unit).fold(::handleFailure, ::generateUsernameSuccess)
+    }
+
+    private fun generateUsernameSuccess(username: String) {
         updateConfirmationButtonStatus(true)
-        _usernameLiveData.success()
+        _generatedUsernameLiveData.value = username
+    }
+
+    private fun checkUsernameSuccess(username: String) = runBlocking {
+        updateConfirmationButtonStatus(true)
+        updateUsernameUseCase.run(UpdateUsernameParams(username)).fold(::handleFailure, ::updateUsernameSuccess)
+    }
+
+    private fun updateUsernameSuccess(unit: Any) {
+        _usernameValidationLiveData.success()
     }
 
     private fun handleFailure(failure: Failure) {
@@ -74,7 +93,7 @@ class CreateAccountUsernameViewModel(
             UsernameAlreadyExists -> ErrorMessage(R.string.create_account_with_username_error_already_taken)
             UsernameGeneralError -> GeneralErrorMessage
         }
-        _usernameLiveData.failure(errorMessage)
+        _usernameValidationLiveData.failure(errorMessage)
     }
 
     private fun handleGeneralErrors(failure: Failure) {
@@ -91,7 +110,7 @@ class CreateAccountUsernameViewModel(
             UsernameInvalid -> ErrorMessage(R.string.create_account_with_username_error_invalid_characters)
             UsernameTooLong -> ErrorMessage(R.string.create_account_with_username_error_too_long)
         }
-        _usernameLiveData.failure(errorMessage)
+        _usernameValidationLiveData.failure(errorMessage)
     }
 
     private fun updateConfirmationButtonStatus(enabled: Boolean) {

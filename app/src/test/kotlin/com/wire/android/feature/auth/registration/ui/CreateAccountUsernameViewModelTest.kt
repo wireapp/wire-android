@@ -10,6 +10,8 @@ import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
+import com.wire.android.shared.user.username.GenerateRandomUsernameUseCase
+import com.wire.android.shared.user.username.NoAvailableUsernames
 import com.wire.android.shared.user.username.UpdateUsernameUseCase
 import com.wire.android.shared.user.username.UsernameAlreadyExists
 import com.wire.android.shared.user.username.UsernameGeneralError
@@ -18,6 +20,7 @@ import com.wire.android.shared.user.username.UsernameTooLong
 import com.wire.android.shared.user.username.UsernameTooShort
 import com.wire.android.shared.user.username.ValidateUsernameUseCase
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
@@ -38,9 +41,17 @@ class CreateAccountUsernameViewModelTest : UnitTest() {
     @MockK
     private lateinit var updateUsernameUseCase: UpdateUsernameUseCase
 
+    @MockK
+    private lateinit var generateUsernameUseCase: GenerateRandomUsernameUseCase
+
     @Before
     fun setup() {
-        usernameViewModel = CreateAccountUsernameViewModel(validateUsernameUseCase, checkUsernameExistsUseCase, updateUsernameUseCase)
+        usernameViewModel = CreateAccountUsernameViewModel(
+            validateUsernameUseCase,
+            checkUsernameExistsUseCase,
+            updateUsernameUseCase,
+            generateUsernameUseCase
+        )
     }
 
     @Test
@@ -161,17 +172,56 @@ class CreateAccountUsernameViewModelTest : UnitTest() {
         }
 
     @Test
-    fun `given onConfirmationButtonClicked, when check username use case returns UsernameIsAvailable, then propagate username`() =
+    fun `given onConfirmationButtonClicked, when check username use case returns UsernameIsAvailable, then update username`() =
         runBlocking {
             coEvery { checkUsernameExistsUseCase.run(any()) } returns Either.Right(TEST_USERNAME)
+            coEvery { updateUsernameUseCase.run(any()) } returns Either.Right(Unit)
 
             usernameViewModel.onConfirmationButtonClicked(TEST_USERNAME)
 
             usernameViewModel.confirmationButtonEnabled shouldBeUpdated {
                 it shouldBe true
             }
-            usernameViewModel.usernameLiveData shouldBeUpdated { result ->
-                result shouldSucceed { it shouldBeEqualTo Unit }
+
+            coVerify { updateUsernameUseCase.run(any()) }
+        }
+
+    @Test
+    fun `given onConfirmationButtonClicked, when check username and update username succeeds, then propagate success`() =
+        runBlocking {
+            coEvery { checkUsernameExistsUseCase.run(any()) } returns Either.Right(TEST_USERNAME)
+            coEvery { updateUsernameUseCase.run(any()) } returns Either.Right(Unit)
+
+            usernameViewModel.onConfirmationButtonClicked(TEST_USERNAME)
+
+            usernameViewModel.confirmationButtonEnabled shouldBeUpdated {
+                it shouldBe true
+            }
+
+            usernameViewModel.usernameValidationLiveData.shouldBeUpdated {
+                it shouldSucceed { it shouldBe Unit }
+            }
+        }
+
+    @Test
+    fun `given generateUsername is called, when use case returns NoAvailableUsernames error, then propagate generate error`() =
+        runBlocking {
+            coEvery { generateUsernameUseCase.run(any()) } returns Either.Left(NoAvailableUsernames)
+
+            usernameViewModel.generateUsername()
+
+            assertGeneralErrors(R.string.general_error_dialog_message)
+        }
+
+    @Test
+    fun `given generateUserename is called, when use case returns success, then propagate generated name`() =
+        runBlocking {
+            coEvery { generateUsernameUseCase.run(any()) } returns Either.Right(TEST_USERNAME)
+
+            usernameViewModel.generateUsername()
+
+            usernameViewModel.generatedUsernameLiveData.shouldBeUpdated {
+                it shouldBeEqualTo TEST_USERNAME
             }
         }
 
@@ -188,7 +238,7 @@ class CreateAccountUsernameViewModelTest : UnitTest() {
         usernameViewModel.confirmationButtonEnabled shouldBeUpdated {
             it shouldBe false
         }
-        usernameViewModel.usernameLiveData shouldBeUpdated { result ->
+        usernameViewModel.usernameValidationLiveData shouldBeUpdated { result ->
             result shouldFail { it.message shouldBeEqualTo message }
         }
     }

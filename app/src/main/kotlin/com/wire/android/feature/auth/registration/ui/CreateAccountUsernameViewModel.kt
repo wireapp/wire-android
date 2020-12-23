@@ -31,7 +31,6 @@ import com.wire.android.shared.user.username.UsernameTooShort
 import com.wire.android.shared.user.username.ValidateUsernameError
 import com.wire.android.shared.user.username.ValidateUsernameParams
 import com.wire.android.shared.user.username.ValidateUsernameUseCase
-import kotlinx.coroutines.runBlocking
 
 class CreateAccountUsernameViewModel(
     override val dispatcherProvider: DispatcherProvider,
@@ -53,7 +52,7 @@ class CreateAccountUsernameViewModel(
     private val _dialogErrorLiveData = SingleLiveEvent<ErrorMessage>()
     val dialogErrorLiveData: LiveData<ErrorMessage> = _dialogErrorLiveData
 
-    fun validateUsername(username: String) = runBlocking {
+    fun validateUsername(username: String) {
         val params = ValidateUsernameParams(username)
         validateUsernameUseCase(viewModelScope, params) {
             it.fold(::handleFailure) {
@@ -63,14 +62,14 @@ class CreateAccountUsernameViewModel(
         }
     }
 
-    fun onConfirmationButtonClicked(username: String) = runBlocking {
+    fun onConfirmationButtonClicked(username: String) {
         val params = CheckUsernameExistsParams(username)
         checkUsernameExistsUseCase(viewModelScope, params) {
             it.fold(::handleFailure, ::checkUsernameSuccess)
         }
     }
 
-    fun generateUsername() = runBlocking {
+    fun generateUsername() {
         generateRandomUsernameUseCase(viewModelScope, Unit) {
             it.fold(::handleFailure, ::generateUsernameSuccess)
         }
@@ -81,7 +80,7 @@ class CreateAccountUsernameViewModel(
         _generatedUsernameLiveData.value = username
     }
 
-    private fun checkUsernameSuccess(username: String) = runBlocking {
+    private fun checkUsernameSuccess(username: String) {
         updateConfirmationButtonStatus(true)
         updateUsernameUseCase(viewModelScope, UpdateUsernameParams(username)) {
             it.fold(::handleFailure) { updateUsernameSuccess() }

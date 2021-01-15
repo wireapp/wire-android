@@ -26,5 +26,10 @@ data class SQLiteFailure(val reason: SQLiteException? = null) : DatabaseRequestF
 data class DatabaseFailure(val reason: Exception? = null) : DatabaseRequestFailure()
 object NoEntityFound : DatabaseRequestFailure()
 
+sealed class IOFailure : Failure()
+data class GeneralIOFailure(val reason: Exception? = null) : IOFailure()
+object FileDoesNotExist : IOFailure()
+object IOAccessDenied : IOFailure()
+
 /** Extend this class for UseCase specific failures.*/
 abstract class FeatureFailure : Failure()

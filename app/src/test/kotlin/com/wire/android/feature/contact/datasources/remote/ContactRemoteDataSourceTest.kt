@@ -4,6 +4,7 @@ import com.wire.android.UnitTest
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
+import com.wire.android.shared.asset.datasources.remote.AssetApi
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -22,11 +23,15 @@ class ContactRemoteDataSourceTest : UnitTest() {
     @MockK
     private lateinit var contactsApi: ContactsApi
 
+    @MockK
+    private lateinit var assetApi: AssetApi
+
     private lateinit var contactRemoteDataSource: ContactRemoteDataSource
 
     @Before
     fun setUp() {
-        contactRemoteDataSource = ContactRemoteDataSource(contactsApi, connectedNetworkHandler, TEST_CONTACT_COUNT_THRESHOLD)
+        contactRemoteDataSource = ContactRemoteDataSource(
+            contactsApi, assetApi, connectedNetworkHandler, TEST_CONTACT_COUNT_THRESHOLD)
     }
 
     @Test

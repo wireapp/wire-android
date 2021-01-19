@@ -2,6 +2,7 @@ package com.wire.android.feature.contact.datasources.local
 
 import android.database.sqlite.SQLiteException
 import com.wire.android.UnitTest
+import com.wire.android.core.io.FileSystem
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery
@@ -17,11 +18,14 @@ class ContactLocalDataSourceTest : UnitTest() {
     @MockK
     private lateinit var contactDao: ContactDao
 
+    @MockK
+    private lateinit var fileSystem: FileSystem
+
     private lateinit var contactLocalDataSource: ContactLocalDataSource
 
     @Before
     fun setUp() {
-        contactLocalDataSource = ContactLocalDataSource(contactDao)
+        contactLocalDataSource = ContactLocalDataSource(contactDao, fileSystem)
     }
 
     @Test

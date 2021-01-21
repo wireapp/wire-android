@@ -3,23 +3,26 @@ package com.wire.android.feature.contact.datasources.mapper
 import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.contact.datasources.remote.ContactResponse
+import java.io.File
 
 class ContactMapper {
 
-    fun fromContactResponseList(contactResponseList: List<ContactResponse>): List<Contact> =
-        contactResponseList.map { fromContactResponse(it) }
+    fun profilePictureAssetKey(contactResponse: ContactResponse): String? =
+        contactResponse.assets.find { it.size == ASSET_SIZE_PROFILE_PICTURE }?.key
 
-    //TODO: map other fields as well
-    private fun fromContactResponse(contactResponse: ContactResponse): Contact =
-        Contact(id = contactResponse.id, name = contactResponse.name)
+    fun fromContactResponse(contactResponse: ContactResponse, profilePicture: File?): Contact =
+        Contact(id = contactResponse.id, name = contactResponse.name, profilePicturePath = profilePicture?.absolutePath)
 
-    fun toContactEntityList(contacts: List<Contact>) : List<ContactEntity> = contacts.map { toContactEntity(it) }
+    fun fromContactResponseListToEntityList(contactResponseList: List<ContactResponse>): List<ContactEntity> =
+        contactResponseList.map { fromContactResponseToEntity(it) }
 
-    private fun toContactEntity(contact: Contact): ContactEntity =
-        ContactEntity(id = contact.id, name = contact.name)
+    fun fromContactResponseToEntity(contactResponse: ContactResponse): ContactEntity =
+        ContactEntity(id = contactResponse.id, name = contactResponse.name)
 
-    fun fromContactEntityList(entityList: List<ContactEntity>): List<Contact> = entityList.map { fromContactEntity(it) }
+    fun fromContactEntity(entity: ContactEntity, profilePicture: File?): Contact =
+        Contact(id = entity.id, name = entity.name, profilePicturePath = profilePicture?.absolutePath)
 
-    private fun fromContactEntity(entity: ContactEntity): Contact =
-        Contact(id = entity.id, name = entity.name)
+    companion object {
+        private const val ASSET_SIZE_PROFILE_PICTURE = "complete"
+    }
 }

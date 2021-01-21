@@ -12,9 +12,9 @@ import org.koin.dsl.module
 
 val contactModule = module {
     factory<ContactRepository> { ContactDataSource(get(), get(), get()) }
-    single { ContactRemoteDataSource(get(), get()) }
+    single { ContactRemoteDataSource(get(), get(), get()) }
     single { get<NetworkClient>().create(ContactsApi::class.java) }
-    factory { ContactLocalDataSource(get()) }
+    factory { ContactLocalDataSource(get(), get()) }
     factory { get<UserDatabase>().contactDao() }
     factory { ContactMapper() }
 }

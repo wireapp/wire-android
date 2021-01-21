@@ -34,6 +34,7 @@ class ConversationViewHolder(
     private fun displayConversationIcon(item: ConversationListItem) {
         iconImageView.clear()
 
+        //TODO: display up to 4 images
         item.members.firstOrNull()?.let { member ->
             if (member.profilePicturePath != null) {
                 iconImageView.load(File(member.profilePicturePath))

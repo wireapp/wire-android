@@ -71,20 +71,20 @@ class ConversationDataSourceTest : UnitTest() {
         val response = mockk<ConversationsResponse>()
         coEvery { conversationRemoteDataSource.conversationsByBatch(TEST_CONVERSATION_ID, TEST_BATCH_SIZE) } returns Either.Right(response)
         val entities = mockk<List<ConversationEntity>>()
-        every { conversationMapper.fromConversationResponseToEntityList(response) } returns entities
+        every { conversationMapper.fromConversationResponseListToEntityList(response) } returns entities
         coEvery { conversationLocalDataSource.saveConversations(entities) } returns Either.Left(DatabaseFailure())
 
         runBlocking { conversationDataSource.fetchConversations(TEST_CONVERSATION_ID, TEST_BATCH_SIZE) }
 
         coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(TEST_CONVERSATION_ID, TEST_BATCH_SIZE) }
-        verify(exactly = 1) { conversationMapper.fromConversationResponseToEntityList(response) }
+        verify(exactly = 1) { conversationMapper.fromConversationResponseListToEntityList(response) }
         coVerify(exactly = 1) { conversationLocalDataSource.saveConversations(entities) }
     }
 
     @Test
     fun `given fetchConversations is called, when local data source fails to save conversations, then propagates failure`() {
         coEvery { conversationRemoteDataSource.conversationsByBatch(TEST_CONVERSATION_ID, TEST_BATCH_SIZE) } returns Either.Right(mockk())
-        every { conversationMapper.fromConversationResponseToEntityList(any()) } returns mockk()
+        every { conversationMapper.fromConversationResponseListToEntityList(any()) } returns mockk()
         val failure = mockk<Failure>()
         coEvery { conversationLocalDataSource.saveConversations(any()) } returns Either.Left(failure)
 
@@ -97,26 +97,26 @@ class ConversationDataSourceTest : UnitTest() {
     fun `given fetchConversations is called, when local data source saves conversations, then proceeds to save conversation members`() {
         val response = mockk<ConversationsResponse>()
         coEvery { conversationRemoteDataSource.conversationsByBatch(TEST_CONVERSATION_ID, TEST_BATCH_SIZE) } returns Either.Right(response)
-        every { conversationMapper.fromConversationResponseToEntityList(any()) } returns mockk()
+        every { conversationMapper.fromConversationResponseListToEntityList(any()) } returns mockk()
         coEvery { conversationLocalDataSource.saveConversations(any()) } returns Either.Right(Unit)
 
         val conversationMemberEntities = mockk<List<ConversationMemberEntity>>()
-        every { conversationMapper.fromConversationResponseToConversationMembers(response) } returns conversationMemberEntities
+        every { conversationMapper.fromConversationResponseListToConversationMembers(response) } returns conversationMemberEntities
         coEvery { conversationLocalDataSource.saveMemberIdsForConversations(conversationMemberEntities) } returns
             Either.Left(DatabaseFailure())
 
         runBlocking { conversationDataSource.fetchConversations(TEST_CONVERSATION_ID, TEST_BATCH_SIZE) }
 
-        verify(exactly = 1) { conversationMapper.fromConversationResponseToConversationMembers(response) }
+        verify(exactly = 1) { conversationMapper.fromConversationResponseListToConversationMembers(response) }
         coVerify(exactly = 1) { conversationLocalDataSource.saveMemberIdsForConversations(conversationMemberEntities) }
     }
 
     @Test
     fun `given fetchConversations is called, when local data source fails to save members, then propagates the failure`() {
         coEvery { conversationRemoteDataSource.conversationsByBatch(TEST_CONVERSATION_ID, TEST_BATCH_SIZE) } returns Either.Right(mockk())
-        every { conversationMapper.fromConversationResponseToEntityList(any()) } returns mockk()
+        every { conversationMapper.fromConversationResponseListToEntityList(any()) } returns mockk()
         coEvery { conversationLocalDataSource.saveConversations(any()) } returns Either.Right(Unit)
-        every { conversationMapper.fromConversationResponseToConversationMembers(any()) } returns mockk()
+        every { conversationMapper.fromConversationResponseListToConversationMembers(any()) } returns mockk()
 
         val failure = mockk<Failure>()
         coEvery { conversationLocalDataSource.saveMemberIdsForConversations(any()) } returns Either.Left(failure)
@@ -132,10 +132,10 @@ class ConversationDataSourceTest : UnitTest() {
 
         val entity1 = mockk<ConversationEntity>()
         val entity2 = mockk<ConversationEntity>()
-        every { conversationMapper.fromConversationResponseToEntityList(any()) } returns listOf(entity1, entity2)
+        every { conversationMapper.fromConversationResponseListToEntityList(any()) } returns listOf(entity1, entity2)
 
         coEvery { conversationLocalDataSource.saveConversations(any()) } returns Either.Right(Unit)
-        every { conversationMapper.fromConversationResponseToConversationMembers(any()) } returns mockk()
+        every { conversationMapper.fromConversationResponseListToConversationMembers(any()) } returns mockk()
         coEvery { conversationLocalDataSource.saveMemberIdsForConversations(any()) } returns Either.Right(Unit)
 
         val conversation1 = mockk<Conversation>()

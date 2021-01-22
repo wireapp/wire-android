@@ -44,7 +44,7 @@ class ConversationMapperTest : UnitTest() {
 
         every { conversationsResponse.conversations } returns listOf(conversationResponse1, conversationResponse2)
 
-        val entityList = conversationMapper.fromConversationResponseToEntityList(conversationsResponse)
+        val entityList = conversationMapper.fromConversationResponseListToEntityList(conversationsResponse)
 
         entityList shouldContainSame listOf(
             ConversationEntity(id = id1, name = name1),
@@ -65,7 +65,7 @@ class ConversationMapperTest : UnitTest() {
         }
 
         val conversationMemberEntities =
-            conversationMapper.fromConversationResponseToConversationMembers(conversationsResponse)
+            conversationMapper.fromConversationResponseListToConversationMembers(conversationsResponse)
 
         conversationMemberEntities shouldContainSame listOf(
             ConversationMemberEntity("conv-1", "member-1-1"),

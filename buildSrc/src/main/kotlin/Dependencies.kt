@@ -49,6 +49,7 @@ object Libraries {
         const val desugaring = "1.0.10"
         const val paging = "2.1.2"
         const val coil = "1.0.0"
+        const val workManager = "2.4.0"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -63,6 +64,8 @@ object Libraries {
     const val desugaring       = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
     const val paging           = "androidx.paging:paging-runtime-ktx:${Versions.paging}"
     const val coil             = "io.coil-kt:coil:${Versions.coil}"
+    const val workManager      = "androidx.work:work-runtime-ktx:${Versions.workManager}"
+
 
     object Koin {
         const val androidCore  = "org.koin:koin-android:${Versions.koin}"

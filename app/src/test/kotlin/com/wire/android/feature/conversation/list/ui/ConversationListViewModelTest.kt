@@ -11,8 +11,8 @@ import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversati
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.framework.livedata.shouldNotBeUpdated
-import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
 import com.wire.android.shared.user.User
+import com.wire.android.shared.user.usecase.GetCurrentUserUseCase
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -31,7 +31,7 @@ class ConversationListViewModelTest : UnitTest() {
     val coroutinesTestRule = CoroutinesTestRule()
 
     @MockK
-    private lateinit var getActiveUserUseCase: GetActiveUserUseCase
+    private lateinit var getCurrentUserUseCase: GetCurrentUserUseCase
 
     @MockK
     private lateinit var getConversationsUseCase: GetConversationsUseCase
@@ -51,15 +51,15 @@ class ConversationListViewModelTest : UnitTest() {
     fun setUp() {
         conversationListViewModel = ConversationListViewModel(
             coroutinesTestRule.dispatcherProvider,
-            getActiveUserUseCase, getConversationsUseCase, getMembersOfConversationsUseCase,
+            getCurrentUserUseCase, getConversationsUseCase, getMembersOfConversationsUseCase,
             conversationListPagingDelegate, eventsHandler
         )
     }
 
     @Test
-    fun `given fetchUserName is called, when GetActiveUserUseCase is successful, then sets user name to userNameLiveData`() {
+    fun `given fetchUserName is called, when GetCurrentUserUseCase is successful, then sets user name to userNameLiveData`() {
         val user = User(id = TEST_USER_ID, name = TEST_USER_NAME)
-        coEvery { getActiveUserUseCase.run(Unit) } returns Either.Right(user)
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
 
         conversationListViewModel.fetchUserName()
 
@@ -67,8 +67,8 @@ class ConversationListViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given fetchUserName is called, when GetActiveUserUseCase is successful, then does not set anything to userNameLiveData`() {
-        coEvery { getActiveUserUseCase.run(Unit) } returns Either.Left(ServerError)
+    fun `given fetchUserName is called, when GetCurrentUserUseCase fails, then does not set anything to userNameLiveData`() {
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Left(ServerError)
 
         conversationListViewModel.fetchUserName()
 

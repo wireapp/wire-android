@@ -19,11 +19,11 @@ import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
 import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsParams
 import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsUseCase
-import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
+import com.wire.android.shared.user.usecase.GetCurrentUserUseCase
 
 class ConversationListViewModel(
     override val dispatcherProvider: DispatcherProvider,
-    private val getActiveUserUseCase: GetActiveUserUseCase,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val getConversationsUseCase: GetConversationsUseCase,
     private val getMembersOfConversationsUseCase: GetMembersOfConversationsUseCase,
     conversationListPagingDelegate: ConversationListPagingDelegate,
@@ -40,7 +40,7 @@ class ConversationListViewModel(
         conversationListPagingDelegate.conversationList(CONVERSATIONS_PAGE_SIZE, ::getConversationListNextPage)
 
     fun fetchUserName() {
-        getActiveUserUseCase(viewModelScope, Unit) {
+        getCurrentUserUseCase(viewModelScope, Unit) {
             it.onSuccess { user -> _userNameLiveData.value = user.name }
         }
     }

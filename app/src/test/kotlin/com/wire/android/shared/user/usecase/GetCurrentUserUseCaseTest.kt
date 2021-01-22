@@ -49,7 +49,7 @@ class GetCurrentUserUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when userRepository fails to get user, then propagates failure`() {
+    fun `given run is called and current session is found, when userRepository fails to get user, then propagates failure`() {
         val session = mockk<Session>()
         every { session.userId } returns TEST_USER_ID
         coEvery { sessionRepository.currentSession() } returns Either.Right(session)
@@ -65,7 +65,7 @@ class GetCurrentUserUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when userRepository returns user, then propagates user`() {
+    fun `given run is called and current session is found, when userRepository returns user, then propagates user`() {
         val session = mockk<Session>()
         every { session.userId } returns TEST_USER_ID
         coEvery { sessionRepository.currentSession() } returns Either.Right(session)

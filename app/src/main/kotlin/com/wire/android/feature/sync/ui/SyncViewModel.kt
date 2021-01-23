@@ -4,17 +4,30 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
+import com.wire.android.core.async.DispatcherProvider
+import com.wire.android.core.functional.onSuccess
+import com.wire.android.core.usecase.DefaultUseCaseExecutor
+import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.sync.slow.SlowSyncWorkHandler
+import com.wire.android.feature.sync.slow.usecase.CheckSlowSyncRequiredUseCase
 
-class SyncViewModel(private val slowSyncWorkHandler: SlowSyncWorkHandler) : ViewModel() {
+class SyncViewModel(
+    private val checkSlowSyncRequiredUseCase: CheckSlowSyncRequiredUseCase,
+    private val slowSyncWorkHandler: SlowSyncWorkHandler,
+    override val dispatcherProvider: DispatcherProvider
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _syncStatusLiveData = MutableLiveData<WorkInfo.State>()
     val syncStatusLiveData: LiveData<WorkInfo.State> = _syncStatusLiveData
 
     fun startSync() {
-        //TODO start required sync type : slow/quick
-        slowSync()
+        checkSlowSyncRequiredUseCase(viewModelScope, Unit) {
+            it.onSuccess { required ->
+                if (required) slowSync()
+            }
+        }
     }
 
     private fun slowSync() {

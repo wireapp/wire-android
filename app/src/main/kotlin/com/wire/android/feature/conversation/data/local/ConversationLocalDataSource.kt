@@ -25,4 +25,8 @@ class ConversationLocalDataSource(
     suspend fun conversationMemberIds(conversationId: String): Either<Failure, List<String>> = request {
         conversationMembersDao.conversationMembers(conversationId)
     }
+
+    suspend fun allConversationMemberIds(): Either<Failure, List<String>> = request {
+        conversationMembersDao.allConversationMemberIds()
+    }
 }

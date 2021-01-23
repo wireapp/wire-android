@@ -49,6 +49,9 @@ class ConversationDataSource(
     override suspend fun conversationMemberIds(conversation: Conversation): Either<Failure, List<String>> =
         conversationLocalDataSource.conversationMemberIds(conversation.id)
 
+    override suspend fun allConversationMemberIds(): Either<Failure, List<String>> =
+        conversationLocalDataSource.allConversationMemberIds()
+
     companion object {
         private const val CONVERSATION_REQUEST_PAGE_SIZE = 100
     }

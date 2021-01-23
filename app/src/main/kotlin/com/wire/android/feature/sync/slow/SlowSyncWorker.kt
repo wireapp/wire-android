@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.functional.suspending
+import com.wire.android.feature.sync.conversation.usecase.SyncAllConversationMembersUseCase
 import com.wire.android.feature.sync.conversation.usecase.SyncConversationsUseCase
 import com.wire.android.feature.sync.slow.usecase.SetSlowSyncCompletedUseCase
 import kotlinx.coroutines.withContext
@@ -20,13 +21,15 @@ class SlowSyncWorker(appContext: Context, params: WorkerParameters) : CoroutineW
 
     private val syncConversationsUseCase by inject<SyncConversationsUseCase>()
     private val setSlowSyncCompletedUseCase by inject<SetSlowSyncCompletedUseCase>()
+    private val syncAllConversationMembersUseCase by inject<SyncAllConversationMembersUseCase>()
 
     private val dispatcherProvider by inject<DispatcherProvider>()
 
-    //TODO: sync other data (contacts etc..)
+    //TODO: sync other data
     override suspend fun doWork(): Result = suspending {
         withContext(dispatcherProvider.io()) {
             syncConversationsUseCase.run(Unit)
+                .flatMap { syncAllConversationMembersUseCase.run(Unit) }
                 .flatMap { setSlowSyncCompletedUseCase.run(Unit) }
                 .fold({ Result.failure() }) { Result.success() }!!
         }

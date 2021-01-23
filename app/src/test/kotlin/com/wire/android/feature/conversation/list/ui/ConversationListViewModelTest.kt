@@ -6,8 +6,6 @@ import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
-import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.framework.livedata.shouldNotBeUpdated
@@ -34,12 +32,6 @@ class ConversationListViewModelTest : UnitTest() {
     private lateinit var getCurrentUserUseCase: GetCurrentUserUseCase
 
     @MockK
-    private lateinit var getConversationsUseCase: GetConversationsUseCase
-
-    @MockK
-    private lateinit var getMembersOfConversationsUseCase: GetMembersOfConversationsUseCase
-
-    @MockK
     private lateinit var conversationListPagingDelegate: ConversationListPagingDelegate
 
     @MockK
@@ -51,7 +43,7 @@ class ConversationListViewModelTest : UnitTest() {
     fun setUp() {
         conversationListViewModel = ConversationListViewModel(
             coroutinesTestRule.dispatcherProvider,
-            getCurrentUserUseCase, getConversationsUseCase, getMembersOfConversationsUseCase,
+            getCurrentUserUseCase,
             conversationListPagingDelegate, eventsHandler
         )
     }
@@ -80,13 +72,13 @@ class ConversationListViewModelTest : UnitTest() {
         val listItems = mockk<PagedList<ConversationListItem>>(relaxed = true, relaxUnitFun = true)
         val pagingLiveData = MutableLiveData(listItems)
 
-        every { conversationListPagingDelegate.conversationList(any(), any()) } returns pagingLiveData
+        every { conversationListPagingDelegate.conversationList(any()) } returns pagingLiveData
 
         //TODO assert pagedList contents:
 //        conversationListViewModel.conversationListItemsLiveData.shouldBeUpdated {
 //            it shouldBeEqualTo listItems
 //        }
-        verify(exactly = 1) { conversationListPagingDelegate.conversationList(CONVERSATIONS_PAGE_SIZE, any()) }
+        verify(exactly = 1) { conversationListPagingDelegate.conversationList(CONVERSATIONS_PAGE_SIZE) }
     }
 
     companion object {

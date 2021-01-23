@@ -23,6 +23,7 @@ class SlowSyncWorker(appContext: Context, params: WorkerParameters) : CoroutineW
 
     private val dispatcherProvider by inject<DispatcherProvider>()
 
+    //TODO: sync other data (contacts etc..)
     override suspend fun doWork(): Result = suspending {
         withContext(dispatcherProvider.io()) {
             syncConversationsUseCase.run(Unit)

@@ -9,6 +9,7 @@ import com.wire.android.feature.contact.ContactRepository
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.ConversationsRepository
 
+@Deprecated(message = "Fetching members of conversations on demand is deprecated. All members are already fetched during slow sync")
 class GetMembersOfConversationsUseCase(
     private val conversationsRepository: ConversationsRepository,
     private val contactRepository: ContactRepository

@@ -111,4 +111,25 @@ class ConversationLocalDataSourceTest : UnitTest() {
         result shouldFail { }
         coVerify { conversationMembersDao.conversationMembers(conversationId) }
     }
+
+    @Test
+    fun `given allConversationMemberIds is called, when dao operation returns member ids, then propagates member ids`() {
+        val memberIds = mockk<List<String>>()
+        coEvery { conversationMembersDao.allConversationMemberIds() } returns memberIds
+
+        val result = runBlocking { conversationLocalDataSource.allConversationMemberIds() }
+
+        result shouldSucceed { it shouldBe memberIds }
+        coVerify { conversationMembersDao.allConversationMemberIds() }
+    }
+
+    @Test
+    fun `given allConversationMemberIds is called, when dao operation fails, then propagates failure`() {
+        coEvery { conversationMembersDao.allConversationMemberIds() } throws SQLException()
+
+        val result = runBlocking { conversationLocalDataSource.allConversationMemberIds() }
+
+        result shouldFail { }
+        coVerify { conversationMembersDao.allConversationMemberIds() }
+    }
 }

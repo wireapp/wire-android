@@ -200,6 +200,26 @@ class ConversationDataSourceTest : UnitTest() {
         result shouldFail { it shouldBeEqualTo failure }
     }
 
+    @Test
+    fun `given allConversationMemberIds is called, when localDataSource returns member ids, then propagates result`() {
+        val memberIds = mockk<List<String>>()
+        coEvery { conversationLocalDataSource.allConversationMemberIds() } returns Either.Right(memberIds)
+
+        val result = runBlocking { conversationDataSource.allConversationMemberIds() }
+
+        result shouldSucceed { it shouldBeEqualTo memberIds }
+    }
+
+    @Test
+    fun `given allConversationMemberIds is called, when localDataSource fails to return member ids, then propagates failure`() {
+        val failure = mockk<Failure>()
+        coEvery { conversationLocalDataSource.allConversationMemberIds() } returns Either.Left(failure)
+
+        val result = runBlocking { conversationDataSource.allConversationMemberIds() }
+
+        result shouldFail { it shouldBeEqualTo failure }
+    }
+
     companion object {
         private const val TEST_CONVERSATION_ID = "conv-id"
     }

@@ -3,11 +3,10 @@ package com.wire.android.feature.conversation.data
 import com.wire.android.UnitTest
 import com.wire.android.core.extension.EMPTY
 import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.data.remote.ConversationMembersResponse
 import com.wire.android.feature.conversation.data.remote.ConversationOtherMembersResponse
 import com.wire.android.feature.conversation.data.remote.ConversationResponse
-import com.wire.android.feature.conversation.data.remote.ConversationsResponse
-import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import io.mockk.every
 import io.mockk.mockk
@@ -26,9 +25,7 @@ class ConversationMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given a ConversationsResponse, when fromConversationResponseToEntityList is called, then returns a list of entities`() {
-        val conversationsResponse = mockk<ConversationsResponse>()
-
+    fun `given a list of ConversationResponse, when fromConversationResponseListToEntityList is called, then returns a list of entities`() {
         val id1 = "$TEST_CONVERSATION_ID-1"
         val name1 = "$TEST_CONVERSATION_NAME-1"
         val conversationResponse1 = mockk<ConversationResponse>().also {
@@ -42,9 +39,9 @@ class ConversationMapperTest : UnitTest() {
             every { it.name } returns null
         }
 
-        every { conversationsResponse.conversations } returns listOf(conversationResponse1, conversationResponse2)
+        val conversationResponseList  = listOf(conversationResponse1, conversationResponse2)
 
-        val entityList = conversationMapper.fromConversationResponseListToEntityList(conversationsResponse)
+        val entityList = conversationMapper.fromConversationResponseListToEntityList(conversationResponseList)
 
         entityList shouldContainSame listOf(
             ConversationEntity(id = id1, name = name1),
@@ -53,19 +50,17 @@ class ConversationMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given a ConvResponse, when fromConversationResponseToConversationMembers is called, then returns list of entities & member ids`() {
+    fun `given a list of ConvResponse, when fromConversationResponseListToConversationMembers is called, then returns list of members`() {
 
         val conversation1 = mockConversationResponseWithMembers("conv-1", "member-1-1", "member-1-2", "member-1-3")
         val conversation2 = mockConversationResponseWithMembers("conv-2", "member-2-1", "")
         val conversation3 = mockConversationResponseWithMembers("conv-3")
         val conversation4 = mockConversationResponseWithMembers("conv-4", "member-4-1")
 
-        val conversationsResponse = mockk<ConversationsResponse>().also {
-            every { it.conversations } returns listOf(conversation1, conversation2, conversation3, conversation4)
-        }
+        val conversationResponseList = listOf(conversation1, conversation2, conversation3, conversation4)
 
         val conversationMemberEntities =
-            conversationMapper.fromConversationResponseListToConversationMembers(conversationsResponse)
+            conversationMapper.fromConversationResponseListToConversationMembers(conversationResponseList)
 
         conversationMemberEntities shouldContainSame listOf(
             ConversationMemberEntity("conv-1", "member-1-1"),

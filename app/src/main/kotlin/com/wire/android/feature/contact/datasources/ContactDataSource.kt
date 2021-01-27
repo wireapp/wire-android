@@ -21,6 +21,9 @@ class ContactDataSource(
     private val contactMapper: ContactMapper
 ) : ContactRepository {
 
+    override suspend fun fetchContactsById(ids: Set<String>): Either<Failure, Unit> =
+        remoteContacts(ids).map { Unit }
+
     override suspend fun contactsById(ids: Set<String>): Either<Failure, List<Contact>> = suspending {
         localContacts(ids).flatMap { localContacts ->
             if (localContacts.size == ids.size) Either.Right(localContacts)

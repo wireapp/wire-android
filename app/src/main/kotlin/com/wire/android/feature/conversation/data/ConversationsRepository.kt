@@ -8,4 +8,6 @@ interface ConversationsRepository {
     suspend fun fetchConversations(): Either<Failure, Unit>
 
     suspend fun conversationMemberIds(conversation: Conversation): Either<Failure, List<String>>
+
+    suspend fun allConversationMemberIds(): Either<Failure, List<String>>
 }

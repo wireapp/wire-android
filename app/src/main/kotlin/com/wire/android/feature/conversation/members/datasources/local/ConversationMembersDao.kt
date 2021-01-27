@@ -19,4 +19,7 @@ interface ConversationMembersDao {
 
     @Query("SELECT contact_id FROM conversation_member WHERE conversation_id = :conversationId")
     suspend fun conversationMembers(conversationId: String): List<String>
+
+    @Query("SELECT DISTINCT contact_id FROM conversation_member")
+    suspend fun allConversationMemberIds(): List<String>
 }

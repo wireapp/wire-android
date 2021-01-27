@@ -1,6 +1,7 @@
 package com.wire.android.feature.sync.di
 
 import com.wire.android.feature.sync.SyncRepository
+import com.wire.android.feature.sync.conversation.usecase.SyncAllConversationMembersUseCase
 import com.wire.android.feature.sync.conversation.usecase.SyncConversationsUseCase
 import com.wire.android.feature.sync.datasources.SyncDataSource
 import com.wire.android.feature.sync.datasources.local.SyncLocalDataSource
@@ -21,5 +22,7 @@ val syncModule = module {
 
     factory { CheckSlowSyncRequiredUseCase(get()) }
     factory { SetSlowSyncCompletedUseCase(get()) }
+
     factory { SyncConversationsUseCase(get()) }
+    factory { SyncAllConversationMembersUseCase(get(), get()) }
 }

@@ -20,13 +20,14 @@
 
     <TextView
         android:id="@+id/conversationItemNameTextView"
-        style="@style/TextView.Body1"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:gravity="center_vertical"
+        android:textAppearance="?textAppearanceBody1"
+        android:maxLines="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/conversationItemIconImageView"

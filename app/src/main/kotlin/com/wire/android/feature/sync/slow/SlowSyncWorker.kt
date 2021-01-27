@@ -8,7 +8,9 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.wire.android.core.async.DispatcherProvider
+import com.wire.android.core.functional.suspending
 import com.wire.android.feature.sync.conversation.usecase.SyncConversationsUseCase
+import com.wire.android.feature.sync.slow.usecase.SetSlowSyncCompletedUseCase
 import kotlinx.coroutines.withContext
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -17,11 +19,16 @@ import org.koin.core.inject
 class SlowSyncWorker(appContext: Context, params: WorkerParameters) : CoroutineWorker(appContext, params), KoinComponent {
 
     private val syncConversationsUseCase by inject<SyncConversationsUseCase>()
+    private val setSlowSyncCompletedUseCase by inject<SetSlowSyncCompletedUseCase>()
 
     private val dispatcherProvider by inject<DispatcherProvider>()
 
-    override suspend fun doWork(): Result = withContext(dispatcherProvider.io()) {
-        syncConversationsUseCase.run(Unit).fold({ Result.failure() }) { Result.success() }!!
+    override suspend fun doWork(): Result = suspending {
+        withContext(dispatcherProvider.io()) {
+            syncConversationsUseCase.run(Unit)
+                .flatMap { setSlowSyncCompletedUseCase.run(Unit) }
+                .fold({ Result.failure() }) { Result.success() }!!
+        }
     }
 
     companion object {

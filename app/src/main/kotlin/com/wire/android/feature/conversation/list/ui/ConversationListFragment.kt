@@ -19,7 +19,6 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         super.onViewCreated(view, savedInstanceState)
         displayUserName()
         displayConversationList()
-        observeConversationListError()
         subscribeToEvents()
     }
 
@@ -42,12 +41,6 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
         adapter = conversationListAdapter
-    }
-
-    private fun observeConversationListError() {
-        viewModel.conversationListErrorLiveData.observe(viewLifecycleOwner) {
-            showConversationListDisplayError()
-        }
     }
 
     //TODO: check how we display errors

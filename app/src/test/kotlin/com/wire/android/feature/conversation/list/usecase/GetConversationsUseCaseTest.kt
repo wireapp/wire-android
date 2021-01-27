@@ -14,8 +14,10 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
+@Ignore("deprecated")
 class GetConversationsUseCaseTest : UnitTest() {
 
     private lateinit var getConversationsUseCase: GetConversationsUseCase
@@ -31,23 +33,23 @@ class GetConversationsUseCaseTest : UnitTest() {
     @Test
     fun `given run is called with params, when conversationsRepository successfully returns conversations, then propagates result`() {
         val conversations = mockk<List<Conversation>>()
-        coEvery { conversationsRepository.fetchConversations(any(), any()) } returns Either.Right(conversations)
+        coEvery { conversationsRepository.fetchConversations() } returns Either.Right(Unit)
 
         val result = runBlocking { getConversationsUseCase.run(TEST_PARAMS) }
 
         result shouldSucceed { it shouldBeEqualTo conversations }
-        coVerify(exactly = 1) { conversationsRepository.fetchConversations(TEST_START_ID, TEST_PAGE_SIZE) }
+        coVerify(exactly = 1) { conversationsRepository.fetchConversations() }
     }
 
     @Test
     fun `given run is called with params, when conversationsRepository fails to return conversations, then propagates failure`() {
         val failure = mockk<Failure>()
-        coEvery { conversationsRepository.fetchConversations(any(), any()) } returns Either.Left(failure)
+        coEvery { conversationsRepository.fetchConversations() } returns Either.Left(failure)
 
         val result = runBlocking { getConversationsUseCase.run(TEST_PARAMS) }
 
         result shouldFail { it shouldBeEqualTo failure }
-        coVerify(exactly = 1) { conversationsRepository.fetchConversations(TEST_START_ID, TEST_PAGE_SIZE) }
+        coVerify(exactly = 1) { conversationsRepository.fetchConversations() }
     }
 
     companion object {

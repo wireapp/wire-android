@@ -5,7 +5,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.Conversation
 
 interface ConversationsRepository {
-    suspend fun fetchConversations(start: String?, size: Int): Either<Failure, List<Conversation>>
+    suspend fun fetchConversations(): Either<Failure, Unit>
 
     suspend fun conversationMemberIds(conversation: Conversation): Either<Failure, List<String>>
 }

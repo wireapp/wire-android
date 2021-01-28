@@ -58,6 +58,8 @@
     <dimen name="login_password_text_input_margin_top">1dp</dimen>
 
     <!-- Conversation List -->
+    <dimen name="conversation_list_user_info_text_size">16sp</dimen>
     <dimen name="conversation_list_item_icon_size">28dp</dimen>
+    <dimen name="conversation_list_divider_inset">60dp</dimen>
 
 </resources>

@@ -39,7 +39,9 @@
             android:name=".feature.auth.login.LoginActivity"
             android:theme="@style/AppTheme.Authentication" />
 
-        <activity android:name=".feature.conversation.list.MainActivity" />
+        <activity
+            android:name=".feature.conversation.list.MainActivity"
+            android:theme="@style/AppTheme.Main" />
 
     </application>
 

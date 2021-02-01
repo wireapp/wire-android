@@ -1,7 +1,7 @@
 package com.wire.android.shared.user.datasources.remote
 
 import com.google.gson.annotations.SerializedName
-import com.wire.android.feature.auth.registration.datasource.remote.UserAsset
+import com.wire.android.shared.asset.datasources.remote.AssetResponse
 
 data class SelfUserResponse(
     @SerializedName("id") val id: String,
@@ -13,5 +13,5 @@ data class SelfUserResponse(
     @SerializedName("managed_by") val managedBy: String? = null,
     @SerializedName("accent_id") val accentColorId: Int? = null,
     @SerializedName("deleted") val deleted: Boolean? = null,
-    @SerializedName("assets") val assets: List<UserAsset>
+    @SerializedName("assets") val assets: List<AssetResponse>
 )

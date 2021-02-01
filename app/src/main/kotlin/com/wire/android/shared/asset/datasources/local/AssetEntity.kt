@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "asset")
 data class AssetEntity(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Int = 0,
-    @ColumnInfo(name = "download_key") val downloadKey: String? = null,
-    @ColumnInfo(name = "storage_path") val storagePath: String? = null
+    @ColumnInfo(name = "key") val key: String,
+    @ColumnInfo(name = "size") val size: String,
+    @ColumnInfo(name = "type") val type: String
 )

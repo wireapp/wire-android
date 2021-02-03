@@ -1,3 +1,4 @@
+@file:Suppress("EmptyFunctionBlock")
 package com.wire.android.shared.team.usecase
 
 import com.wire.android.UnitTest

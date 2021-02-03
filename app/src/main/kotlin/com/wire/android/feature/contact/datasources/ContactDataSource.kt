@@ -24,21 +24,7 @@ class ContactDataSource(
     override suspend fun fetchContactsById(ids: Set<String>): Either<Failure, Unit> =
         remoteContacts(ids).map { Unit }
 
-    override suspend fun contactsById(ids: Set<String>): Either<Failure, List<Contact>> = suspending {
-        localContacts(ids).flatMap { localContacts ->
-            if (localContacts.size == ids.size) Either.Right(localContacts)
-            else {
-                val locallyAvailableIds = localContacts.map { it.id }
-                val idsForRemoteFetch = ids - locallyAvailableIds
-
-                remoteContacts(idsForRemoteFetch).map { remoteContacts ->
-                    localContacts + remoteContacts
-                }
-            }
-        }
-    }
-
-    private suspend fun localContacts(ids: Set<String>): Either<Failure, List<Contact>> =
+    override suspend fun contactsById(ids: Set<String>): Either<Failure, List<Contact>> =
         readContacts(ids).map { entities ->
             entities.map { contactInfo(it) }
         }

@@ -58,10 +58,12 @@
     <dimen name="login_password_text_input_margin_top">1dp</dimen>
 
     <!-- Conversation List -->
-    <dimen name="contact_icon_size">28dp</dimen>
+    <dimen name="conversation_list_toolbar_profile_icon_size">24dp</dimen>
+    <dimen name="conversation_list_toolbar_team_icon_corner_radius">2dp</dimen>
+    <dimen name="conversation_list_toolbar_user_info_margin_end">40dp</dimen>
+    <dimen name="conversation_list_toolbar_user_info_text_size">16sp</dimen>
 
-    <dimen name="conversation_list_toolbar_user_info_margin_end">44dp</dimen>
-    <dimen name="conversation_list_user_info_text_size">16sp</dimen>
+    <dimen name="conversation_list_contact_icon_size">28dp</dimen>
     <dimen name="conversation_list_divider_inset">60dp</dimen>
 
 </resources>

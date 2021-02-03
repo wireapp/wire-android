@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.wire.android.R
 import com.wire.android.core.extension.toast
 import com.wire.android.feature.conversation.list.toolbar.ToolbarData
+import com.wire.android.feature.conversation.list.toolbar.ui.icon.ToolbarProfileIcon
 import com.wire.android.shared.user.User
 import kotlinx.android.synthetic.main.fragment_conversation_list.*
 import org.koin.android.ext.android.inject
@@ -38,8 +39,12 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         conversationListUserInfoTextView.text = user.name
     }
 
-    private fun displayProfileIcon(toolbarData: ToolbarData)  {
-        //TODO: implement
+    private fun displayProfileIcon(toolbarData: ToolbarData) = toolbarData.run {
+        val toolbarProfileIcon =
+            if (team != null) ToolbarProfileIcon.forTeam(team)
+            else ToolbarProfileIcon.forUser(user)
+
+        toolbarProfileIcon.displayOn(conversationListProfileIconImageView)
     }
 
     private fun displayConversationList() {

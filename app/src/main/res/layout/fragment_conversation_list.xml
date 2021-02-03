@@ -7,16 +7,30 @@
     tools:background="@color/black"
     tools:theme="@style/AppTheme.Main">
 
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/conversationListProfileIconImageView"
+        android:layout_width="@dimen/contact_icon_size"
+        android:layout_height="@dimen/contact_icon_size"
+        android:layout_marginStart="@dimen/screen_padding"
+        android:contentDescription="@string/conversation_list_toolbar_profile_image_content_description"
+        app:layout_constraintBottom_toBottomOf="@id/conversationListUserInfoTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@tools:sample/avatars" />
+
     <TextView
         android:id="@+id/conversationListUserInfoTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/conversation_list_toolbar_user_info_margin_end"
+        android:ellipsize="end"
         android:gravity="center"
-        android:padding="@dimen/screen_padding"
+        android:paddingTop="@dimen/screen_padding"
+        android:paddingBottom="@dimen/screen_padding"
         android:textAppearance="?textAppearanceHeadline6"
         android:textSize="@dimen/conversation_list_user_info_text_size"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/conversationListProfileIconImageView"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Username" />
 

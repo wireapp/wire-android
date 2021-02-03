@@ -9,6 +9,9 @@ import com.wire.android.core.functional.Either
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.framework.livedata.shouldNotBeUpdated
+import com.wire.android.shared.team.Team
+import com.wire.android.shared.team.usecase.GetUserTeamUseCase
+import com.wire.android.shared.team.usecase.NotATeamUser
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.usecase.GetCurrentUserUseCase
 import io.mockk.coEvery
@@ -32,6 +35,9 @@ class ConversationListViewModelTest : UnitTest() {
     private lateinit var getCurrentUserUseCase: GetCurrentUserUseCase
 
     @MockK
+    private lateinit var getUserTeamUseCase: GetUserTeamUseCase
+
+    @MockK
     private lateinit var conversationListPagingDelegate: ConversationListPagingDelegate
 
     @MockK
@@ -43,28 +49,59 @@ class ConversationListViewModelTest : UnitTest() {
     fun setUp() {
         conversationListViewModel = ConversationListViewModel(
             coroutinesTestRule.dispatcherProvider,
-            getCurrentUserUseCase,
+            getCurrentUserUseCase, getUserTeamUseCase,
             conversationListPagingDelegate, eventsHandler
         )
     }
 
     @Test
-    fun `given fetchUserName is called, when GetCurrentUserUseCase is successful, then sets user name to userNameLiveData`() {
-        val user = User(id = TEST_USER_ID, name = TEST_USER_NAME)
-        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
+    fun `given fetchToolbarData is called, when GetCurrentUserUseCase fails, then does not set anything to toolbarDataLiveData`() {
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Left(ServerError)
 
-        conversationListViewModel.fetchUserName()
+        conversationListViewModel.fetchToolbarData()
 
-        conversationListViewModel.userNameLiveData shouldBeUpdated { it shouldBeEqualTo TEST_USER_NAME }
+        conversationListViewModel.toolbarDataLiveData.shouldNotBeUpdated()
     }
 
     @Test
-    fun `given fetchUserName is called, when GetCurrentUserUseCase fails, then does not set anything to userNameLiveData`() {
-        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Left(ServerError)
+    fun `given fetchToolbarData is called and current user is fetched, when GetUserTeamUseCase is successful, then updates toolbarData`() {
+        val user = mockk<User>()
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
+        val team = mockk<Team>()
+        coEvery { getUserTeamUseCase.run(any()) } returns Either.Right(team)
 
-        conversationListViewModel.fetchUserName()
+        conversationListViewModel.fetchToolbarData()
 
-        conversationListViewModel.userNameLiveData.shouldNotBeUpdated()
+        conversationListViewModel.toolbarDataLiveData shouldBeUpdated {
+            it.user shouldBeEqualTo user
+            it.team shouldBeEqualTo team
+        }
+    }
+
+
+    @Test
+    fun `given fetchToolbarData called & user fetched, when GetUserTeamUseCase fails with NotATeamUser, then updates toolbarData`() {
+        val user = mockk<User>()
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
+        coEvery { getUserTeamUseCase.run(any()) } returns Either.Left(NotATeamUser)
+
+        conversationListViewModel.fetchToolbarData()
+
+        conversationListViewModel.toolbarDataLiveData shouldBeUpdated {
+            it.user shouldBeEqualTo user
+            it.team shouldBeEqualTo null
+        }
+    }
+
+    @Test
+    fun `given fetchToolbarData called & user fetched, when GetUserTeamUseCase fails with other error, then does not update toolbarData`() {
+        val user = mockk<User>()
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
+        coEvery { getUserTeamUseCase.run(any()) } returns Either.Left(mockk())
+
+        conversationListViewModel.fetchToolbarData()
+
+        conversationListViewModel.toolbarDataLiveData.shouldNotBeUpdated()
     }
 
     @Test
@@ -82,8 +119,6 @@ class ConversationListViewModelTest : UnitTest() {
     }
 
     companion object {
-        private const val TEST_USER_ID = "user-id-123"
-        private const val TEST_USER_NAME = "User Name"
         private const val CONVERSATIONS_PAGE_SIZE = 30
     }
 }

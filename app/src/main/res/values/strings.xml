@@ -94,4 +94,8 @@
     <string name="login_too_frequent_failure_message">Please try to log in later.</string>
 
     <string name="login_forgot_password">Forgot Password</string>
+
+    <!-- Conversation List -->
+    <string name="conversation_list_toolbar_profile_image_content_description">My Profile</string>
+
 </resources>

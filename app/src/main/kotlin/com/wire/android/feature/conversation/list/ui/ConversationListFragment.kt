@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wire.android.R
 import com.wire.android.core.extension.toast
+import com.wire.android.feature.conversation.list.toolbar.ToolbarData
+import com.wire.android.shared.user.User
 import kotlinx.android.synthetic.main.fragment_conversation_list.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -19,16 +21,25 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        displayUserName()
+        displayToolbar()
         displayConversationList()
         subscribeToEvents()
     }
 
-    private fun displayUserName() {
-        viewModel.userNameLiveData.observe(viewLifecycleOwner) {
-            conversationListUserInfoTextView.text = it
+    private fun displayToolbar() {
+        viewModel.toolbarDataLiveData.observe(viewLifecycleOwner) {
+            displayUserName(it.user)
+            displayProfileIcon(it)
         }
-        viewModel.fetchUserName()
+        viewModel.fetchToolbarData()
+    }
+
+    private fun displayUserName(user: User) {
+        conversationListUserInfoTextView.text = user.name
+    }
+
+    private fun displayProfileIcon(toolbarData: ToolbarData)  {
+        //TODO: implement
     }
 
     private fun displayConversationList() {

@@ -98,4 +98,7 @@
     <!-- Conversation List -->
     <string name="conversation_list_toolbar_profile_image_content_description">My Profile</string>
 
+    <!-- Profile -->
+    <string name="profile_screen_title">Profile</string>
+
 </resources>

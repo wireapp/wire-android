@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- region Components -->
     <dimen name="back_button_padding">16dp</dimen>
+    <dimen name="back_button_elevation">1dp</dimen>
+
     <dimen name="screen_padding">16dp</dimen>
 
     <dimen name="button_rounded_corner_radius">48dp</dimen>
@@ -13,13 +16,15 @@
     <dimen name="alert_dialog_title_line_height">28sp</dimen>
     <dimen name="alert_dialog_body_text_size">16sp</dimen>
     <dimen name="alert_dialog_body_line_height">24sp</dimen>
+    <!-- endregion -->
+
+    <!-- region Features -->
 
     <!-- Welcome -->
     <dimen name="welcome_button_enterprise_login_margin_bottom">16dp</dimen>
     <item name="welcome_button_width_percent" format="float" type="dimen">0.9</item>
 
     <!-- Authentication -->
-    <dimen name="authentication_back_button_elevation">1dp</dimen>
     <dimen name="authentication_text_input_layout_margin_top">14dp</dimen>
 
     <!-- Authentication - Register-->
@@ -66,4 +71,8 @@
     <dimen name="conversation_list_contact_icon_size">28dp</dimen>
     <dimen name="conversation_list_divider_inset">60dp</dimen>
 
+    <!-- Profile -->
+    <dimen name="profile_user_detail_margin_top">4dp</dimen>
+
+    <!-- endregion -->
 </resources>

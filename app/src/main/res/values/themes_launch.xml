@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme.Launch">
+    <style name="AppTheme.Launch" parent="Theme.MaterialComponents.NoActionBar">
         <item name="android:colorBackground">@color/black</item>
-        <item name="android:windowBackground">@drawable/launcher_window_backgroud</item>
+        <item name="android:windowBackground">@drawable/launcher_window_background</item>
     </style>
 
 </resources>

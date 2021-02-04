@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.Light">
 
         <activity
             android:name=".feature.launch.ui.LauncherActivity"
@@ -39,9 +39,8 @@
             android:name=".feature.auth.login.LoginActivity"
             android:theme="@style/AppTheme.Authentication" />
 
-        <activity
-            android:name=".feature.conversation.list.MainActivity"
-            android:theme="@style/AppTheme.Main" />
+        <activity android:name=".feature.conversation.list.MainActivity"
+            android:theme="@style/AppTheme.Dark"/>
 
     </application>
 

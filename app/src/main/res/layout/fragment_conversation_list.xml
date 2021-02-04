@@ -7,12 +7,14 @@
     tools:background="@color/black"
     tools:theme="@style/AppTheme.Main">
 
+    <!-- TODO: get rid of background-->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/conversationListProfileIconImageView"
-        android:layout_width="@dimen/contact_icon_size"
-        android:layout_height="@dimen/contact_icon_size"
+        android:layout_width="@dimen/conversation_list_toolbar_profile_icon_size"
+        android:layout_height="@dimen/conversation_list_toolbar_profile_icon_size"
         android:layout_marginStart="@dimen/screen_padding"
         android:contentDescription="@string/conversation_list_toolbar_profile_image_content_description"
+        android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="@id/conversationListUserInfoTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -28,7 +30,7 @@
         android:paddingTop="@dimen/screen_padding"
         android:paddingBottom="@dimen/screen_padding"
         android:textAppearance="?textAppearanceHeadline6"
-        android:textSize="@dimen/conversation_list_user_info_text_size"
+        android:textSize="@dimen/conversation_list_toolbar_user_info_text_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/conversationListProfileIconImageView"
         app:layout_constraintTop_toTopOf="parent"

@@ -21,9 +21,7 @@ class CreateProAccountTeamEmailFragmentTest : FunctionalTest() {
 
     @Before
     fun setup() {
-        scenario = launchFragmentInContainer(
-            themeResId = R.style.AppTheme
-        )
+        scenario = launchFragmentInContainer(themeResId = R.style.AppTheme_Authentication)
     }
 
     @Test

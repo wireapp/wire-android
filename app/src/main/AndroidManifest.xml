@@ -42,6 +42,10 @@
         <activity android:name=".feature.conversation.list.MainActivity"
             android:theme="@style/AppTheme.Dark"/>
 
+        <activity
+            android:name=".feature.profile.ui.ProfileActivity"
+            android:theme="@style/AppTheme.Dark" />
+
     </application>
 
 </manifest>

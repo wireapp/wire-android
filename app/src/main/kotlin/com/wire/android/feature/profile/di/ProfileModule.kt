@@ -4,6 +4,8 @@ import com.wire.android.R
 import com.wire.android.core.ui.navigation.FragmentContainerProvider
 import com.wire.android.feature.profile.ui.ProfileActivity
 import com.wire.android.feature.profile.ui.ProfileNavigator
+import com.wire.android.feature.profile.ui.ProfileViewModel
+import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.qualifier
 import org.koin.dsl.module
 
@@ -12,4 +14,6 @@ val profileModule = module {
     factory(qualifier<ProfileActivity>()) {
         FragmentContainerProvider.fixedProvider(R.id.profileSettingsFragmentContainer)
     }
+
+    viewModel { ProfileViewModel(get(), get(), get()) }
 }

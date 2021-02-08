@@ -100,5 +100,7 @@
 
     <!-- Profile -->
     <string name="profile_screen_title">Profile</string>
+    <string name="profile_user_handle_text">\@%s</string>
+    <string name="profile_user_team_info_text">in %s</string>
 
 </resources>

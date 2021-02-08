@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Toolbar" parent="@style/Widget.MaterialComponents.Toolbar.PrimarySurface">
-        <item name="android:background">?attr/colorOnPrimary</item>
-        <item name="titleTextColor">?attr/colorPrimary</item>
-        <item name="subtitleTextColor">?attr/colorPrimary</item>
-        <!-- Note: this theme overlay will only work if the style is applied directly to a Toolbar. -->
-        <item name="android:theme">@style/ThemeOverlay.Toolbar</item>
-    </style>
+    <style name="Toolbar" parent="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"/>
 
-    <style name="ThemeOverlay.Toolbar" parent="">
-        <item name="colorControlNormal">?attr/colorPrimary</item>
-        <item name="actionMenuTextColor">?attr/colorPrimary</item>
+    <style name="Toolbar.Transparent">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="titleTextColor">?attr/colorOnBackground</item>
+        <item name="subtitleTextColor">?attr/colorOnBackground</item>
     </style>
 </resources>

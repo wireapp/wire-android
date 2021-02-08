@@ -67,7 +67,7 @@
         style="@style/Button.Primary.Circle.Confirmation"
         android:layout_marginTop="@dimen/authentication_confirmation_button_margin_top"
         android:layout_marginEnd="@dimen/authentication_confirmation_button_margin_end"
-        app:icon="@drawable/ic_arrow_right"
+        app:icon="@drawable/ic_arrow_forward"
         app:layout_constraintEnd_toEndOf="@+id/createProAccountTeamNameTextInputLayout"
         app:layout_constraintTop_toTopOf="@+id/createProAccountTeamNameTextInputLayout" />
 

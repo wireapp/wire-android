@@ -1,48 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="TextView" parent="Widget.AppCompat.TextView" />
-
     <!-- Material TextAppearance Guidelines: https://material.io/develop/android/theming/typography -->
-    <style name="TextView.H1" parent="TextAppearance.MaterialComponents.Headline1" />
-
-    <style name="TextView.H2" parent="TextAppearance.MaterialComponents.Headline2" />
-
-    <style name="TextView.H3" parent="TextAppearance.MaterialComponents.Headline3" />
-
-    <style name="TextView.H4" parent="TextAppearance.MaterialComponents.Headline4" />
-
-    <style name="TextView.H5" parent="TextAppearance.MaterialComponents.Headline5" />
-
-    <style name="TextView.H6" parent="TextAppearance.MaterialComponents.Headline6" />
-
-    <style name="TextView.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1" />
-
-    <style name="TextView.Subtitle2" parent="TextAppearance.MaterialComponents.Subtitle2" />
-
-    <style name="TextView.Body1" parent="TextAppearance.MaterialComponents.Body1" />
-
-    <style name="TextView.Body2" parent="TextAppearance.MaterialComponents.Body2" />
-
-    <style name="TextView.Caption" parent="TextAppearance.MaterialComponents.Caption" />
-
-    <style name="TextView.Overline" parent="TextAppearance.MaterialComponents.Overline" />
+    <style name="TextView" parent="Widget.AppCompat.TextView" />
 
     <style name="TextView.Authentication" />
 
-    <style name="TextView.Authentication.Title" parent="TextView.H5">
+    <style name="TextView.Authentication.Title">
+        <item name="android:textAppearance">?textAppearanceHeadline5</item>
         <item name="android:drawablePadding">@dimen/create_account_title_drawable_padding</item>
         <item name="android:gravity">center</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TextView.Authentication.Description" parent="TextView.Body1">
+    <style name="TextView.Authentication.Description">
+        <item name="android:textAppearance">?textAppearanceBody1</item>
         <item name="android:gravity">center</item>
         <item name="android:paddingStart">@dimen/create_account_description_padding</item>
         <item name="android:paddingEnd">@dimen/create_account_description_padding</item>
     </style>
 
-    <style name="TextView.Authentication.Header" parent="TextView.H2">
+    <style name="TextView.Authentication.Header">
+        <item name="android:textAppearance">?textAppearanceHeadline2</item>
         <item name="android:textColor">?android:textColorPrimary</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:textSize">32sp</item>

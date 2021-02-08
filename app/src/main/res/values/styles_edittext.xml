@@ -2,12 +2,12 @@
 <resources>
 
     <style name="TextInputLayout.Filled" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
-        <item name="android:background">?attr/editableFieldBackgroundColor</item>
+        <item name="android:background">?attr/colorSurface</item>
     </style>
 
     <style name="TextInputLayout.Outlined" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="backgroundColor">?attr/editableFieldBackgroundColor</item>
-        <item name="boxBackgroundColor">?attr/editableFieldBackgroundColor</item>
+        <item name="backgroundColor">?attr/colorSurface</item>
+        <item name="boxBackgroundColor">?attr/colorSurface</item>
     </style>
 
     <style name="TextInputLayout.NoBorder" parent="TextInputLayout.Outlined">
@@ -34,8 +34,8 @@
         <item name="android:inputType">number</item>
         <item name="lineThickness">0dp</item>
         <item name="cornerRadius">2dp</item>
-        <item name="fieldColor">@color/white</item>
-        <item name="fieldBgColor">@color/white</item>
+        <item name="fieldColor">?attr/colorSurface</item>
+        <item name="fieldBgColor">?attr/colorSurface</item>
         <item name="highlightSingleFieldMode">true</item>
         <item name="noOfFields">6</item>
         <item name="highlightColor">?colorSecondary</item>

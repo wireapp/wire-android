@@ -14,6 +14,8 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.conversation.list.toolbar.ToolbarData
+import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
+import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCaseParams
 import com.wire.android.shared.team.Team
 import com.wire.android.shared.team.usecase.GetUserTeamUseCase
 import com.wire.android.shared.team.usecase.GetUserTeamUseCaseParams
@@ -23,17 +25,24 @@ import com.wire.android.shared.user.usecase.GetCurrentUserUseCase
 
 class ConversationListViewModel(
     override val dispatcherProvider: DispatcherProvider,
+    private val getConversationListUseCase: GetConversationListUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val getUserTeamUseCase: GetUserTeamUseCase,
-    conversationListPagingDelegate: ConversationListPagingDelegate,
     private val eventsHandler: EventsHandler
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _toolbarDataLiveData = MutableLiveData<ToolbarData>()
     val toolbarDataLiveData: LiveData<ToolbarData> = _toolbarDataLiveData
 
-    val conversationListItemsLiveData: LiveData<PagedList<ConversationListItem>> =
-        conversationListPagingDelegate.conversationList(CONVERSATIONS_PAGE_SIZE)
+    private val _conversationListItemsLiveData = MutableLiveData<PagedList<ConversationListItem>>()
+    val conversationListItemsLiveData: LiveData<PagedList<ConversationListItem>> = _conversationListItemsLiveData
+
+    fun fetchConversationList() {
+        val params = GetConversationListUseCaseParams(pageSize = CONVERSATIONS_PAGE_SIZE)
+        getConversationListUseCase(viewModelScope, params) {
+            _conversationListItemsLiveData.value = it
+        }
+    }
 
     fun fetchToolbarData() {
         fetchUserData()

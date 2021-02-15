@@ -14,7 +14,7 @@ import com.wire.android.feature.conversation.list.datasources.ConversationListMa
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListLocalDataSource
 import com.wire.android.feature.conversation.list.ui.ConversationListAdapter
 import com.wire.android.feature.conversation.list.ui.ConversationListDiffCallback
-import com.wire.android.feature.conversation.list.ui.ConversationListPagingDelegate
+import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
 import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
 import com.wire.android.feature.conversation.list.usecase.GetConversationMembersUseCase
@@ -42,7 +42,7 @@ val conversationsModule = module {
     factory { ConversationListLocalDataSource(get()) }
     factory { ConversationListMapper(get(), get()) }
     factory<ConversationListRepository> { ConversationListDataSource(get(), get(), get()) }
-    factory { ConversationListPagingDelegate(get()) }
+    factory { GetConversationListUseCase(get()) }
 
     factory { GetConversationMembersUseCase(get(), get()) }
 }

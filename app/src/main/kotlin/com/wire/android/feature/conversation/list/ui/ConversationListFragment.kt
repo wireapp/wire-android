@@ -57,6 +57,8 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
     private fun displayConversationList() {
         setUpRecyclerView()
+
+        viewModel.fetchConversationList()
         //TODO: handle empty list
         viewModel.conversationListItemsLiveData.observe(viewLifecycleOwner) {
             conversationListAdapter.submitList(it)

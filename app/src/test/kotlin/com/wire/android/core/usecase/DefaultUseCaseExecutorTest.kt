@@ -5,10 +5,9 @@ import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.functional.Either
 import com.wire.android.framework.coroutines.TestDispatcherProvider
 import io.mockk.coEvery
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOf
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
@@ -47,7 +46,7 @@ class DefaultUseCaseExecutorTest : UnitTest() {
     fun `given a scope and an observable use case, when invoke is called on use case, then applies onResult to returned value`() {
         val observableUseCase = mockk<ObservableUseCase<String, Int>>()
         val param = 3
-        val result = Either.Right("3")
+        val result = "abc"
         coEvery { observableUseCase.run(param) } returns flowOf(result)
 
         runBlocking {

@@ -9,11 +9,16 @@ import androidx.fragment.app.FragmentTransaction
 inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) =
     beginTransaction().func().commit()
 
-fun FragmentManager.replaceFragment(frameId: Int, fragment: Fragment, addToBackStack: Boolean = true) =
+fun FragmentManager.replaceFragment(
+    frameId: Int,
+    fragment: Fragment,
+    addToBackStack: Boolean = true,
+    tag: String? = fragment::class.java.canonicalName
+) =
     inTransaction {
-        replace(frameId, fragment).also {
+        replace(frameId, fragment, tag).also {
             if (addToBackStack) {
-                it.addToBackStack(fragment.tag)
+                it.addToBackStack(null)
             }
         }
     }

@@ -1,11 +1,11 @@
 package com.wire.android.feature.conversation.list.ui
 
-import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.framework.livedata.shouldNotBeUpdated
@@ -15,11 +15,11 @@ import com.wire.android.shared.team.usecase.NotATeamUser
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.usecase.GetCurrentUserUseCase
 import io.mockk.coEvery
-import io.mockk.every
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
@@ -32,13 +32,13 @@ class ConversationListViewModelTest : UnitTest() {
     val coroutinesTestRule = CoroutinesTestRule()
 
     @MockK
+    private lateinit var getConversationListUseCase: GetConversationListUseCase
+
+    @MockK
     private lateinit var getCurrentUserUseCase: GetCurrentUserUseCase
 
     @MockK
     private lateinit var getUserTeamUseCase: GetUserTeamUseCase
-
-    @MockK
-    private lateinit var conversationListPagingDelegate: ConversationListPagingDelegate
 
     @MockK
     private lateinit var eventsHandler: EventsHandler
@@ -49,9 +49,22 @@ class ConversationListViewModelTest : UnitTest() {
     fun setUp() {
         conversationListViewModel = ConversationListViewModel(
             coroutinesTestRule.dispatcherProvider,
-            getCurrentUserUseCase, getUserTeamUseCase,
-            conversationListPagingDelegate, eventsHandler
+            getConversationListUseCase, getCurrentUserUseCase, getUserTeamUseCase,
+            eventsHandler
         )
+    }
+
+    @Test
+    fun `given fetchConversationList is called, when getConversationListUseCase emits items, then updates conversationListItemsLiveData`() {
+        val items = mockk<PagedList<ConversationListItem>>()
+        coEvery { getConversationListUseCase.run(any()) } returns flowOf(items)
+
+        conversationListViewModel.fetchConversationList()
+
+        conversationListViewModel.conversationListItemsLiveData.shouldBeUpdated {
+            it shouldBeEqualTo items
+        }
+        coVerify(exactly = 1) { getConversationListUseCase.run(any()) }
     }
 
     @Test
@@ -102,23 +115,5 @@ class ConversationListViewModelTest : UnitTest() {
         conversationListViewModel.fetchToolbarData()
 
         conversationListViewModel.toolbarDataLiveData.shouldNotBeUpdated()
-    }
-
-    @Test
-    fun `given conversationListItemsLiveData is called, then calls paging delegate for conversationItems with proper page size`() {
-        val listItems = mockk<PagedList<ConversationListItem>>(relaxed = true, relaxUnitFun = true)
-        val pagingLiveData = MutableLiveData(listItems)
-
-        every { conversationListPagingDelegate.conversationList(any()) } returns pagingLiveData
-
-        //TODO assert pagedList contents:
-//        conversationListViewModel.conversationListItemsLiveData.shouldBeUpdated {
-//            it shouldBeEqualTo listItems
-//        }
-        verify(exactly = 1) { conversationListPagingDelegate.conversationList(CONVERSATIONS_PAGE_SIZE) }
-    }
-
-    companion object {
-        private const val CONVERSATIONS_PAGE_SIZE = 30
     }
 }

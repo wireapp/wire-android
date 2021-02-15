@@ -19,8 +19,8 @@ class ConversationListLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given conversationListDataSourceFactory is called, then calls dao for paged factory`() {
-        conversationListLocalDataSource.conversationListDataSourceFactory()
+    fun `given conversationListInBatch is called, then calls dao for paged factory`() {
+        conversationListLocalDataSource.conversationListInBatch()
 
         verify(exactly = 1) { conversationListDao.conversationListItemsInBatch() }
     }

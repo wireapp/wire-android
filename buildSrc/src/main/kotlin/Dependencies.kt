@@ -93,7 +93,7 @@ object Libraries {
 object TestLibraries {
     private object Versions {
         const val junit4 = "4.13"
-        const val mockk = "1.10.2"
+        const val mockk = "1.10.5"
         const val kluent = "1.60"
         const val robolectric = "4.4"
         const val testRunner = "1.2.0"

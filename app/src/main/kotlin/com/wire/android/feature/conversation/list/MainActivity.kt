@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         selectedItemId = R.id.main_conversations
     }
 
+    @Suppress("FunctionOnlyReturningConstant")
     private fun handleSearchUsersMenuClick(): Boolean {
         //TODO: open user search screen (and return true here)
         return false

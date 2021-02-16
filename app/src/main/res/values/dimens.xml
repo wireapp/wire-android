@@ -68,6 +68,11 @@
     <dimen name="main_bottom_navigation_icon_size">20dp</dimen>
 
     <!-- Conversation List -->
+    <item name="no_conversations_layout_vertical_guideline_percent" format="float" type="dimen">0.5</item>
+    <item name="no_conversations_info_text_width_percent" format="float" type="dimen">0.8</item>
+    <dimen name="no_conversations_info_text_padding_end">60dp</dimen>
+    <dimen name="no_conversations_info_text_margin_bottom">42dp</dimen>
+
     <dimen name="conversation_list_toolbar_profile_icon_size">24dp</dimen>
     <dimen name="conversation_list_toolbar_team_icon_corner_radius">2dp</dimen>
     <dimen name="conversation_list_toolbar_user_info_margin_end">40dp</dimen>

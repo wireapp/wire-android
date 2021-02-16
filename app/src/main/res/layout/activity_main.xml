@@ -21,16 +21,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- TODO: check dimensions for bottom navigation
-            wire-android didn't follow the design due to tech. limitations
-            & Zeplin project is no longer available - ask iOS devs
-     -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/mainBottomNavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         app:elevation="0dp"
+        app:itemIconSize="@dimen/main_bottom_navigation_icon_size"
         app:itemIconTint="@color/bottom_navigation_menu_tint"
         app:labelVisibilityMode="unlabeled"
         app:layout_constraintBottom_toBottomOf="parent"

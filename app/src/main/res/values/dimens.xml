@@ -16,6 +16,8 @@
     <dimen name="alert_dialog_title_line_height">28sp</dimen>
     <dimen name="alert_dialog_body_text_size">16sp</dimen>
     <dimen name="alert_dialog_body_line_height">24sp</dimen>
+
+    <dimen name="divider_height">1dp</dimen>
     <!-- endregion -->
 
     <!-- region Features -->

@@ -80,4 +80,8 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
     private fun showConversationListDisplayError() = toast("Error while loading conversations")
 
     private fun subscribeToEvents() = viewModel.subscribeToEvents()
+
+    companion object {
+        fun newInstance() = ConversationListFragment()
+    }
 }

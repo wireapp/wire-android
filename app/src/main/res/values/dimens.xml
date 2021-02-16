@@ -16,6 +16,8 @@
     <dimen name="alert_dialog_title_line_height">28sp</dimen>
     <dimen name="alert_dialog_body_text_size">16sp</dimen>
     <dimen name="alert_dialog_body_line_height">24sp</dimen>
+
+    <dimen name="divider_height">1dp</dimen>
     <!-- endregion -->
 
     <!-- region Features -->
@@ -61,6 +63,9 @@
     <!-- Authentication - Login -->
     <item name="login_header_guideline_percent" format="float" type="dimen">0.228</item>
     <dimen name="login_password_text_input_margin_top">1dp</dimen>
+
+    <!-- Main -->
+    <dimen name="main_bottom_navigation_icon_size">20dp</dimen>
 
     <!-- Conversation List -->
     <dimen name="conversation_list_toolbar_profile_icon_size">24dp</dimen>

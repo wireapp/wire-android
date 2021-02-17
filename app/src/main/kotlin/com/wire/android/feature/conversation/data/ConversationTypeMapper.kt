@@ -1,3 +1,4 @@
+@file:Suppress("MagicNumber")
 package com.wire.android.feature.conversation.data
 
 import com.wire.android.feature.conversation.ConversationType

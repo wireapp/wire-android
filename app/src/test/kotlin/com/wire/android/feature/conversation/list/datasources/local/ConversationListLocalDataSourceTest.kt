@@ -20,8 +20,9 @@ class ConversationListLocalDataSourceTest : UnitTest() {
 
     @Test
     fun `given conversationListInBatch is called, then calls dao for paged factory`() {
-        conversationListLocalDataSource.conversationListInBatch()
+        val excludeType = 1
+        conversationListLocalDataSource.conversationListInBatch(excludeType = excludeType)
 
-        verify(exactly = 1) { conversationListDao.conversationListItemsInBatch() }
+        verify(exactly = 1) { conversationListDao.conversationListItemsInBatch(excludeType) }
     }
 }

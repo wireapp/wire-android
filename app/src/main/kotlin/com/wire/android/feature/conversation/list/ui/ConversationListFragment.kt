@@ -67,10 +67,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
     }
 
     private fun handleConversationListChange(conversationList: PagedList<ConversationListItem>) = conversationList.let {
-        //TODO we should be checking isEmpty().
-        // size <= 1 is a hack because we always get a dummy "self" conversation
-        // ideally self conversation should be filtered down in domain layer
-        if (it.size <= 1) showNoConversationsMessage()
+        if (it.isEmpty()) showNoConversationsMessage()
         else {
             showConversationList()
             conversationListAdapter.submitList(it)

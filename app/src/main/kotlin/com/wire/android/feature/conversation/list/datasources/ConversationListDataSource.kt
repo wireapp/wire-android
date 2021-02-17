@@ -4,6 +4,8 @@ import androidx.lifecycle.asFlow
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
 import com.wire.android.feature.contact.datasources.local.ContactLocalDataSource
+import com.wire.android.feature.conversation.ConversationType
+import com.wire.android.feature.conversation.data.ConversationTypeMapper
 import com.wire.android.feature.conversation.list.ConversationListRepository
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListItemEntity
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListLocalDataSource
@@ -13,12 +15,14 @@ import kotlinx.coroutines.flow.Flow
 class ConversationListDataSource(
     private val conversationListLocalDataSource: ConversationListLocalDataSource,
     private val contactLocalDataSource: ContactLocalDataSource,
-    private val conversationListMapper: ConversationListMapper
+    private val conversationListMapper: ConversationListMapper,
+    private val conversationTypeMapper: ConversationTypeMapper
 ) : ConversationListRepository {
 
-    override fun conversationListInBatch(pageSize: Int): Flow<PagedList<ConversationListItem>> =
-        conversationListLocalDataSource.conversationListInBatch()
-            .map { fromListItemEntity(it) }
+    override fun conversationListInBatch(pageSize: Int, excludeType: ConversationType): Flow<PagedList<ConversationListItem>> =
+        conversationListLocalDataSource.conversationListInBatch(
+            excludeType = conversationTypeMapper.toIntValue(excludeType)
+        ).map { fromListItemEntity(it) }
             .toLiveData(pageSize = pageSize)
             .asFlow()
 

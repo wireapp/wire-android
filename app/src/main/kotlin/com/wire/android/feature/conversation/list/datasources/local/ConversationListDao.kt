@@ -13,6 +13,6 @@ interface ConversationListDao {
     suspend fun allConversationListItems(): List<ConversationListItemEntity>
 
     @Transaction
-    @Query("SELECT * FROM conversation")
-    fun conversationListItemsInBatch(): DataSource.Factory<Int, ConversationListItemEntity>
+    @Query("SELECT * FROM conversation WHERE type != :excludeType")
+    fun conversationListItemsInBatch(excludeType: Int): DataSource.Factory<Int, ConversationListItemEntity>
 }

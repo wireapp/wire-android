@@ -5,7 +5,7 @@ import com.wire.android.feature.contact.Contact
 
 class ContactIconProvider(private val localeConfig: LocaleConfig) {
 
-    fun provide(contact: Contact): ContactIcon<*> =
+    fun provide(contact: Contact): ContactIcon =
         if (contact.profilePicturePath != null) ContactProfilePictureIcon(contact.profilePicturePath)
         else ContactNameInitialIcon(contact.name, localeConfig)
 }

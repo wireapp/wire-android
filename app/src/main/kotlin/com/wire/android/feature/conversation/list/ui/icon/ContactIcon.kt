@@ -1,28 +1,24 @@
 package com.wire.android.feature.conversation.list.ui.icon
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.ui.drawable.TextDrawable
 import java.io.File
 
-/**
- * Type [T] should be one of the types supported by image loading library
- */
-interface ContactIcon<T> {
-    fun create(context: Context, width: Int, height: Int): T
+interface ContactIcon {
+    fun create(context: Context, width: Int, height: Int): Any?
 }
 
-class ContactProfilePictureIcon(private val filePath: String) : ContactIcon<File> {
+class ContactProfilePictureIcon(private val filePath: String) : ContactIcon {
 
-    override fun create(context: Context, width: Int, height: Int): File = File(filePath)
+    override fun create(context: Context, width: Int, height: Int) = File(filePath)
 }
 
-class ContactNameInitialIcon(contactName: String, localeConfig: LocaleConfig) : ContactIcon<Drawable> {
+class ContactNameInitialIcon(contactName: String, localeConfig: LocaleConfig) : ContactIcon {
 
     private val nameInitial = contactName.firstOrNull().toStringOrEmpty().toUpperCase(localeConfig.currentLocale())
 
-    override fun create(context: Context, width: Int, height: Int): Drawable =
+    override fun create(context: Context, width: Int, height: Int) =
         TextDrawable(text = nameInitial, width = width.toFloat(), height = height.toFloat())
 }

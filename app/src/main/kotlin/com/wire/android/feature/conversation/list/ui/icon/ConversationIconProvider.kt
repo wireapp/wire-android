@@ -14,9 +14,11 @@ class ConversationIconProvider(private val contactIconProvider: ContactIconProvi
             }
 
             else -> {
-                val contactIcons = conversationListItem.members.sortedBy { it.id }.take(4).map {
-                    contactIconProvider.provide(it)
-                }
+                val contactIcons = conversationListItem.members
+                    .sortedBy { it.id }
+                    .take(GroupConversationIcon.MAX_ICON_COUNT)
+                    .map { contactIconProvider.provide(it) }
+
                 GroupConversationIcon(contactIcons)
             }
         }

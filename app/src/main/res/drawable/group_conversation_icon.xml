@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/group_conversation_icon_member_1"
+        android:width="11dp"
+        android:height="11dp"
+        android:drawable="@drawable/empty_contact_icon"
+        tools:drawable="@tools:sample/avatars" />
+
+    <item
+        android:id="@+id/group_conversation_icon_member_2"
+        android:width="11dp"
+        android:height="11dp"
+        android:drawable="@drawable/empty_contact_icon"
+        android:left="13dp"
+        tools:drawable="@tools:sample/avatars" />
+
+    <item
+        android:id="@+id/group_conversation_icon_member_3"
+        android:width="11dp"
+        android:height="11dp"
+        android:drawable="@drawable/empty_contact_icon"
+        android:top="13dp"
+        tools:drawable="@tools:sample/avatars" />
+
+    <item
+        android:id="@+id/group_conversation_icon_member_4"
+        android:width="11dp"
+        android:height="11dp"
+        android:drawable="@drawable/empty_contact_icon"
+        android:left="13dp"
+        android:top="13dp"
+        tools:drawable="@tools:sample/avatars" />
+</layer-list>

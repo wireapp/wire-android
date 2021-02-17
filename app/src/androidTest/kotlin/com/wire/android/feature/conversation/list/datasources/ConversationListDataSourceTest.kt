@@ -5,7 +5,10 @@ import androidx.test.filters.SdkSuppress
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
+import com.wire.android.feature.conversation.Group
+import com.wire.android.feature.conversation.Unknown
 import com.wire.android.feature.conversation.data.ConversationMapper
+import com.wire.android.feature.conversation.data.ConversationTypeMapper
 import com.wire.android.feature.conversation.data.local.ConversationDao
 import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListDao
@@ -41,19 +44,20 @@ class ConversationListDataSourceTest : InstrumentationTest() {
         conversationDao = userDatabase.conversationDao()
         conversationListDao = userDatabase.conversationListDao()
 
+        val conversationTypeMapper = ConversationTypeMapper()
         val conversationListLocalDataSource = ConversationListLocalDataSource(conversationListDao)
-        val conversationListMapper = ConversationListMapper(ConversationMapper(), ContactMapper())
+        val conversationListMapper = ConversationListMapper(ConversationMapper(conversationTypeMapper), ContactMapper())
 
         MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
         conversationListDataSource = ConversationListDataSource(
-            conversationListLocalDataSource, mockk(), conversationListMapper
+            conversationListLocalDataSource, mockk(), conversationListMapper, conversationTypeMapper
         )
     }
 
     @Test
     fun conversationListInBatch_noItemsInDatabase_emitsEmptyList() {
         runBlocking {
-            val result = conversationListDataSource.conversationListInBatch(pageSize = 10)
+            val result = conversationListDataSource.conversationListInBatch(pageSize = 10, Unknown)
 
             result.first().isEmpty() shouldBe true
         }
@@ -66,7 +70,7 @@ class ConversationListDataSourceTest : InstrumentationTest() {
             val pageCount = 10
             addConversations(itemCount)
 
-            val result = conversationListDataSource.conversationListInBatch(pageSize = pageCount)
+            val result = conversationListDataSource.conversationListInBatch(pageSize = pageCount, Unknown)
 
             result.first().size shouldBeEqualTo itemCount
         }
@@ -79,15 +83,37 @@ class ConversationListDataSourceTest : InstrumentationTest() {
             val pageCount = 10
             addConversations(itemCount)
 
-            val result = conversationListDataSource.conversationListInBatch(pageSize = pageCount)
+            val result = conversationListDataSource.conversationListInBatch(pageSize = pageCount, Unknown)
 
             result.first().size shouldBeEqualTo itemCount
             result.first().filterNotNull().size shouldBeLessThan itemCount
         }
     }
 
-    private suspend fun addConversations(count: Int) {
-        val conversationEntities = (1..count).map { ConversationEntity(id = "id_$it", name = "Conversation # $it") }
+    @Test
+    fun conversationListInBatch_itemsWithExcludedTypeExists_doesNotEmitItemsWithExcludedType() {
+        runBlocking {
+            val groupConvCount = 3
+            val oneToOneConvCount = 5
+            val pageCount = 10
+            addConversations(count = groupConvCount, type = TYPE_VALUE_GROUP)
+            addConversations(count = oneToOneConvCount, type = TYPE_VALUE_ONE_TO_ONE)
+
+            val result = conversationListDataSource.conversationListInBatch(pageSize = pageCount, Group)
+
+            result.first().size shouldBeEqualTo oneToOneConvCount
+        }
+    }
+
+    private suspend fun addConversations(count: Int, type: Int = TYPE_VALUE_GROUP) {
+        val conversationEntities = (1..count).map {
+            ConversationEntity(id = "id_$it", name = "Conversation # $it", type = type)
+        }
         conversationDao.insertAll(conversationEntities)
+    }
+
+    companion object {
+        private const val TYPE_VALUE_GROUP = 0
+        private const val TYPE_VALUE_ONE_TO_ONE = 2
     }
 }

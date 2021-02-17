@@ -34,9 +34,9 @@ class ConversationDaoTest : InstrumentationTest() {
 
     @Test
     fun insertAll_readConversations_containsInsertedItems() = databaseTestRule.runTest {
-        val entity1 = ConversationEntity(id = "id-1", name = "Conversation #1")
-        val entity2 = ConversationEntity(id = "id-2", name = "Conversation #2")
-        val entity3 = ConversationEntity(id = "id-3", name = "Conversation #3")
+        val entity1 = ConversationEntity(id = "id-1", name = "Conversation #1", type = 1)
+        val entity2 = ConversationEntity(id = "id-2", name = "Conversation #2", type = 2)
+        val entity3 = ConversationEntity(id = "id-3", name = "Conversation #3", type = 3)
         val entities = listOf(entity1, entity2, entity3)
 
         conversationDao.insertAll(entities)
@@ -66,6 +66,6 @@ class ConversationDaoTest : InstrumentationTest() {
     }
 
     companion object {
-        private val TEST_CONVERSATION_ENTITY = ConversationEntity("id-5", "Android Team")
+        private val TEST_CONVERSATION_ENTITY = ConversationEntity("id-5", "Android Team", 0)
     }
 }

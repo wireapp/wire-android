@@ -100,6 +100,7 @@
     <string name="main_bottom_navigation_conversations_menu_title">Conversations</string>
 
     <!-- Conversation List -->
+    <string name="no_conversations_info_message">Start a conversation or create a group.</string>
     <string name="conversation_list_toolbar_profile_image_content_description">My Profile</string>
 
     <!-- Profile -->

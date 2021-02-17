@@ -3,7 +3,9 @@ package com.wire.android.feature.conversation.list.ui
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wire.android.R
@@ -59,10 +61,30 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         setUpRecyclerView()
 
         viewModel.fetchConversationList()
-        //TODO: handle empty list
         viewModel.conversationListItemsLiveData.observe(viewLifecycleOwner) {
+            handleConversationListChange(it)
+        }
+    }
+
+    private fun handleConversationListChange(conversationList: PagedList<ConversationListItem>) = conversationList.let {
+        //TODO we should be checking isEmpty().
+        // size <= 1 is a hack because we always get a dummy "self" conversation
+        // ideally self conversation should be filtered down in domain layer
+        if (it.size <= 1) showNoConversationsMessage()
+        else {
+            showConversationList()
             conversationListAdapter.submitList(it)
         }
+    }
+
+    private fun showConversationList() {
+        conversationListNoConversationsLayout.isVisible = false
+        conversationListRecyclerView.isVisible = true
+    }
+
+    private fun showNoConversationsMessage() {
+        conversationListRecyclerView.isVisible = false
+        conversationListNoConversationsLayout.isVisible = true
     }
 
     private fun setUpRecyclerView() = with(conversationListRecyclerView) {

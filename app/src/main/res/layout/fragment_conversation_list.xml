@@ -47,4 +47,8 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/conversationListUserInfoTextView" />
 
+    <include
+        android:id="@+id/conversationListNoConversationsLayout"
+        layout="@layout/layout_no_conversations_message"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

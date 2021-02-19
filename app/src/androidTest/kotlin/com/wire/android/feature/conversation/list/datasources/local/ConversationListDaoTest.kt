@@ -51,8 +51,8 @@ class ConversationListDaoTest : InstrumentationTest() {
     @Test
     fun givenConversationsExist_whenAllItemsAreCalled_thenReturnsListItemsWithConversation() =
         databaseTestRule.runTest {
-            val conversationEntity1 = ConversationEntity("1", "Conversation 1")
-            val conversationEntity2 = ConversationEntity("2", "Conversation 2")
+            val conversationEntity1 = ConversationEntity("1", "Conversation 1", type = TEST_CONVERSATION_TYPE)
+            val conversationEntity2 = ConversationEntity("2", "Conversation 2", type = TEST_CONVERSATION_TYPE)
             conversationDao.insert(conversationEntity1)
             conversationDao.insert(conversationEntity2)
 
@@ -111,7 +111,13 @@ class ConversationListDaoTest : InstrumentationTest() {
     companion object {
         private const val TEST_CONVERSATION_ID = "conv-id-1"
         private const val TEST_CONVERSATION_NAME = "Android Chapter"
-        private val TEST_CONVERSATION_ENTITY = ConversationEntity(id = TEST_CONVERSATION_ID, name = TEST_CONVERSATION_NAME)
+        private const val TEST_CONVERSATION_TYPE = 2
+
+        private val TEST_CONVERSATION_ENTITY = ConversationEntity(
+            id = TEST_CONVERSATION_ID,
+            name = TEST_CONVERSATION_NAME,
+            type = TEST_CONVERSATION_TYPE
+        )
 
         private const val TEST_CONTACT_ID = "contact-id-1"
 

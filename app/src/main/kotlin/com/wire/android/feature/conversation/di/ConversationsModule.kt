@@ -6,6 +6,7 @@ import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.core.ui.navigation.FragmentContainerProvider
 import com.wire.android.feature.conversation.data.ConversationDataSource
 import com.wire.android.feature.conversation.data.ConversationMapper
+import com.wire.android.feature.conversation.data.ConversationTypeMapper
 import com.wire.android.feature.conversation.data.ConversationsRepository
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationsApi
@@ -17,9 +18,9 @@ import com.wire.android.feature.conversation.list.datasources.ConversationListMa
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListLocalDataSource
 import com.wire.android.feature.conversation.list.ui.ConversationListAdapter
 import com.wire.android.feature.conversation.list.ui.ConversationListDiffCallback
-import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
 import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
+import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.feature.conversation.list.usecase.GetConversationMembersUseCase
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.qualifier
@@ -36,7 +37,8 @@ val conversationsModule = module {
     viewModel { ConversationListViewModel(get(), get(), get(), get(), get()) }
 
     single<ConversationsRepository> { ConversationDataSource(get(), get(), get()) }
-    factory { ConversationMapper() }
+    factory { ConversationMapper(get()) }
+    factory { ConversationTypeMapper() }
 
     factory { ConversationsRemoteDataSource(get(), get()) }
     single { get<NetworkClient>().create(ConversationsApi::class.java) }
@@ -48,7 +50,7 @@ val conversationsModule = module {
     factory { get<UserDatabase>().conversationListDao() }
     factory { ConversationListLocalDataSource(get()) }
     factory { ConversationListMapper(get(), get()) }
-    factory<ConversationListRepository> { ConversationListDataSource(get(), get(), get()) }
+    factory<ConversationListRepository> { ConversationListDataSource(get(), get(), get(), get()) }
     factory { GetConversationListUseCase(get()) }
 
     factory { GetConversationMembersUseCase(get(), get()) }

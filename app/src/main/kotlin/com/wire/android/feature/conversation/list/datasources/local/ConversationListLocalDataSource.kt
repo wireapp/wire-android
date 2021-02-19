@@ -4,6 +4,6 @@ import androidx.paging.DataSource
 
 class ConversationListLocalDataSource(private val conversationListDao: ConversationListDao) {
 
-    fun conversationListInBatch(): DataSource.Factory<Int, ConversationListItemEntity> =
-        conversationListDao.conversationListItemsInBatch()
+    fun conversationListInBatch(excludeType: Int): DataSource.Factory<Int, ConversationListItemEntity> =
+        conversationListDao.conversationListItemsInBatch(excludeType)
 }

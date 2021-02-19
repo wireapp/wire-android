@@ -72,7 +72,7 @@ class ConversationMembersDaoTest : InstrumentationTest() {
 
     @Test
     fun conversationMembers_entitiesForConversationIdExists_returnsMemberIds() = databaseTestRule.runTest {
-        conversationDao.insert(ConversationEntity(id = TEST_CONVERSATION_ID, name = "Android Chapter"))
+        conversationDao.insert(ConversationEntity(id = TEST_CONVERSATION_ID, name = "Android Chapter", type = TEST_CONVERSATION_TYPE))
 
         val entity1 = ConversationMemberEntity(TEST_CONVERSATION_ID, "contact-1")
         val entity2 = ConversationMemberEntity(TEST_CONVERSATION_ID, "contact-2")
@@ -96,8 +96,8 @@ class ConversationMembersDaoTest : InstrumentationTest() {
     fun allConversationMembers_entitiesExists_returnsMemberIdsWithoutRepetition() = databaseTestRule.runTest {
         val conversationId1 = "conv-id-1"
         val conversationId2 = "conv-id-2"
-        conversationDao.insert(ConversationEntity(id = conversationId1, name = "Android Chapter"))
-        conversationDao.insert(ConversationEntity(id = conversationId2, name = "IOS Chapter"))
+        conversationDao.insert(ConversationEntity(id = conversationId1, name = "Android Chapter", type = TEST_CONVERSATION_TYPE))
+        conversationDao.insert(ConversationEntity(id = conversationId2, name = "IOS Chapter", type = TEST_CONVERSATION_TYPE))
 
         val contactId1 = "contact-id-1"
         val contactId2 = "contact-id-2"
@@ -123,12 +123,15 @@ class ConversationMembersDaoTest : InstrumentationTest() {
     }
 
     private suspend fun prepareConversationMemberEntity(conversationId: String, contactId: String): ConversationMemberEntity {
-        conversationDao.insert(ConversationEntity(id = conversationId, name = "Conversation $conversationId"))
+        conversationDao.insert(
+            ConversationEntity(id = conversationId, name = "Conversation $conversationId", type = TEST_CONVERSATION_TYPE)
+        )
         return ConversationMemberEntity(conversationId = conversationId, contactId = contactId)
     }
 
     companion object {
         private const val TEST_CONVERSATION_ID = "conv-id"
         private const val TEST_CONTACT_ID = "contact-id"
+        private const val TEST_CONVERSATION_TYPE = 0
     }
 }

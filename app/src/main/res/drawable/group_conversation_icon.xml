@@ -13,7 +13,7 @@
         android:width="@dimen/group_conversation_member_icon_size"
         android:height="@dimen/group_conversation_member_icon_size"
         android:drawable="@drawable/empty_contact_icon"
-        android:left="@dimen/group_conversation_member_icon_size_with_padding"
+        android:start="@dimen/group_conversation_member_icon_size_with_padding"
         tools:drawable="@tools:sample/avatars" />
 
     <item
@@ -29,7 +29,7 @@
         android:width="@dimen/group_conversation_member_icon_size"
         android:height="@dimen/group_conversation_member_icon_size"
         android:drawable="@drawable/empty_contact_icon"
-        android:left="@dimen/group_conversation_member_icon_size_with_padding"
+        android:start="@dimen/group_conversation_member_icon_size_with_padding"
         android:top="@dimen/group_conversation_member_icon_size_with_padding"
         tools:drawable="@tools:sample/avatars" />
 </layer-list>

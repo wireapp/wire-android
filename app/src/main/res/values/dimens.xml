@@ -81,6 +81,12 @@
     <dimen name="conversation_list_contact_icon_size">32dp</dimen>
     <dimen name="conversation_list_divider_inset">60dp</dimen>
 
+    <dimen name="conversation_icon_corner_radius">4dp</dimen>
+    <dimen name="conversation_icon_layout_padding">2dp</dimen>
+    <dimen name="conversation_icon_border_width">1dp</dimen>
+    <dimen name="group_conversation_member_icon_size">11dp</dimen>
+    <dimen name="group_conversation_member_icon_size_with_padding">13dp</dimen>
+
     <!-- Profile -->
     <dimen name="profile_user_detail_margin_top">4dp</dimen>
 

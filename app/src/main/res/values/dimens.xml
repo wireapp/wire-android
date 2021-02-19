@@ -78,7 +78,7 @@
     <dimen name="conversation_list_toolbar_user_info_margin_end">40dp</dimen>
     <dimen name="conversation_list_toolbar_user_info_text_size">16sp</dimen>
 
-    <dimen name="conversation_list_contact_icon_size">28dp</dimen>
+    <dimen name="conversation_list_contact_icon_size">32dp</dimen>
     <dimen name="conversation_list_divider_inset">60dp</dimen>
 
     <!-- Profile -->

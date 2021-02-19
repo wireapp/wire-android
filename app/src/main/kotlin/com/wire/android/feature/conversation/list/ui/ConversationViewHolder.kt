@@ -1,6 +1,7 @@
 package com.wire.android.feature.conversation.list.ui
 
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.clear
@@ -17,6 +18,8 @@ class ConversationViewHolder(
 
     private val nameTextView by lazyFind<TextView>(R.id.conversationItemNameTextView)
 
+    private val iconLayout by lazyFind<FrameLayout>(R.id.conversationItemIconLayout)
+
     private val iconImageView by lazyFind<ShapeableImageView>(R.id.conversationItemIconImageView)
 
     fun bind(item: ConversationListItem) {
@@ -28,6 +31,10 @@ class ConversationViewHolder(
 
     private fun displayConversationIcon(item: ConversationListItem) {
         iconImageView.clear()
-        iconProvider.provide(item).displayOn(iconImageView)
+
+        iconProvider.provide(item).let {
+            iconLayout.background = it.background(iconLayout.context)
+            it.displayOn(iconImageView)
+        }
     }
 }

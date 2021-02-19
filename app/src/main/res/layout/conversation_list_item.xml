@@ -7,16 +7,27 @@
     android:paddingStart="@dimen/screen_padding"
     android:paddingEnd="@dimen/screen_padding">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/conversationItemIconImageView"
+    <FrameLayout
+        android:id="@+id/conversationItemIconLayout"
         android:layout_width="@dimen/conversation_list_contact_icon_size"
         android:layout_height="@dimen/conversation_list_contact_icon_size"
-        android:scaleType="centerCrop"
+        android:padding="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.Circle"
-        tools:src="@tools:sample/avatars" />
+        tools:background="@drawable/conversation_icon_border">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/conversationItemIconImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="?shapeAppearanceSmallComponent"
+            tools:src="@tools:sample/avatars" />
+
+    </FrameLayout>
 
     <TextView
         android:id="@+id/conversationItemNameTextView"
@@ -26,11 +37,11 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:gravity="center_vertical"
-        android:textAppearance="?textAppearanceBody1"
         android:maxLines="1"
+        android:textAppearance="?textAppearanceBody1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/conversationItemIconImageView"
+        app:layout_constraintStart_toEndOf="@id/conversationItemIconLayout"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Conversation #1" />
 

@@ -19,7 +19,6 @@ import com.wire.android.feature.conversation.list.datasources.local.Conversation
 import com.wire.android.feature.conversation.list.ui.ConversationListAdapter
 import com.wire.android.feature.conversation.list.ui.ConversationListDiffCallback
 import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
-import com.wire.android.feature.contact.ui.icon.ContactIconProvider
 import com.wire.android.feature.conversation.list.ui.icon.ConversationIconProvider
 import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
 import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
@@ -38,7 +37,6 @@ val conversationsModule = module {
     factory { ConversationListDiffCallback() }
     viewModel { ConversationListViewModel(get(), get(), get(), get(), get()) }
 
-    factory { ContactIconProvider(get()) }
     factory { ConversationIconProvider(get()) }
 
     single<ConversationsRepository> { ConversationDataSource(get(), get(), get()) }

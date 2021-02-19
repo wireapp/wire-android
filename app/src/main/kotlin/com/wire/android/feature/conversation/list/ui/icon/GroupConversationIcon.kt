@@ -5,32 +5,29 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import androidx.core.content.ContextCompat
 import coil.load
-import coil.loadAny
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
-import com.wire.android.feature.contact.ui.icon.ContactIcon
+import com.wire.android.feature.contact.Contact
+import com.wire.android.feature.contact.ui.icon.ContactIconLoader
 
-class GroupConversationIcon(private val contactIcons: List<ContactIcon>) : ConversationIcon {
+class GroupConversationIcon(private val contacts: List<Contact>, private val contactIconLoader: ContactIconLoader) : ConversationIcon {
 
     override fun background(context: Context): Drawable? =
         ContextCompat.getDrawable(context, R.drawable.conversation_icon_border)
 
-    override fun displayOn(imageView: ShapeableImageView) {
-        with(imageView) {
-            val layerDrawable = ContextCompat.getDrawable(context, R.drawable.group_conversation_icon) as LayerDrawable
-            clearLayerDrawable(context, layerDrawable)
-            load(layerDrawable)
+    override fun displayOn(imageView: ShapeableImageView) = with(imageView) {
 
-            contactIcons.forEachIndexed { index, icon ->
-                val data = icon.create(context, width / GRID_SIZE, height / GRID_SIZE)
-                loadAny(data) {
-                    target {
-                        layerDrawable.setDrawable(index, it)
-                        layerDrawable.invalidateSelf()
-                    }
+        val layerDrawable = ContextCompat.getDrawable(context, R.drawable.group_conversation_icon) as LayerDrawable
+        clearLayerDrawable(context, layerDrawable)
+        load(layerDrawable)
+
+        contacts.forEachIndexed { index, contact ->
+            contactIconLoader.load(contact, imageView = this, width = width / GRID_SIZE, height = height / GRID_SIZE) {
+                target {
+                    layerDrawable.setDrawable(index, it)
+                    layerDrawable.invalidateSelf()
                 }
             }
-
         }
     }
 

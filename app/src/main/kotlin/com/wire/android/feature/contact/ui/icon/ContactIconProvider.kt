@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.list.ui.icon
+package com.wire.android.feature.contact.ui.icon
 
 import com.wire.android.core.config.LocaleConfig
 import com.wire.android.feature.contact.Contact

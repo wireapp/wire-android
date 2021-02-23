@@ -8,6 +8,7 @@ import com.wire.android.feature.contact.datasources.local.ContactLocalDataSource
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
 import com.wire.android.feature.contact.datasources.remote.ContactRemoteDataSource
 import com.wire.android.feature.contact.datasources.remote.ContactsApi
+import com.wire.android.feature.contact.ui.icon.ContactIconLoader
 import org.koin.dsl.module
 
 val contactModule = module {
@@ -17,4 +18,6 @@ val contactModule = module {
     factory { ContactLocalDataSource(get(), get()) }
     factory { get<UserDatabase>().contactDao() }
     factory { ContactMapper() }
+
+    factory { ContactIconLoader(get()) }
 }

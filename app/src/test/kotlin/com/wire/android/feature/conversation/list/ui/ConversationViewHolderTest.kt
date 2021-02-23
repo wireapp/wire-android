@@ -4,10 +4,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.wire.android.AndroidTest
 import com.wire.android.R
-import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Before
 import org.junit.Ignore
@@ -21,9 +21,6 @@ class ConversationViewHolderTest : AndroidTest() {
 
     @MockK
     private lateinit var inflater: ViewHolderInflater
-
-    @MockK
-    private lateinit var localeConfig: LocaleConfig
 
     @MockK
     private lateinit var itemView: TextView
@@ -40,7 +37,7 @@ class ConversationViewHolderTest : AndroidTest() {
 
     @Test
     fun `given a ConversationViewHolder is created, then calls inflater to create an itemView from correct layout`() {
-        conversationViewHolder = ConversationViewHolder(parent, inflater, localeConfig)
+        conversationViewHolder = ConversationViewHolder(parent, inflater, mockk())
 
         verify(exactly = 1) { inflater.inflate(R.layout.conversation_list_item, parent) }
     }
@@ -50,7 +47,7 @@ class ConversationViewHolderTest : AndroidTest() {
     fun `given bind is created, given conversation has name, then sets conversation name to itemView`() {
         every { conversationListItem.name } returns TEST_NAME
 
-        conversationViewHolder = ConversationViewHolder(parent, inflater, localeConfig)
+        conversationViewHolder = ConversationViewHolder(parent, inflater, mockk())
         conversationViewHolder.bind(conversationListItem)
 
         verify(exactly = 1) { itemView.text = TEST_NAME }
@@ -61,7 +58,7 @@ class ConversationViewHolderTest : AndroidTest() {
         every { conversationListItem.name } returns null
         every { conversationListItem.id } returns TEST_ID
 
-        conversationViewHolder = ConversationViewHolder(parent, inflater, localeConfig)
+        conversationViewHolder = ConversationViewHolder(parent, inflater, mockk())
         conversationViewHolder.bind(conversationListItem)
 
         verify(exactly = 1) { itemView.text = TEST_ID }

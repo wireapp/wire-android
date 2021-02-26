@@ -95,6 +95,26 @@ class ConversationDaoTest : InstrumentationTest() {
         remainingConversations shouldContainSame listOf(TEST_CONVERSATION_ENTITY)
     }
 
+    @Test
+    fun count_conversationsExistInDatabase_returnsNumberOfConversations() = databaseTestRule.runTest {
+        val count = 125
+        val conversations = (1..count).map {
+            ConversationEntity(id = "id_$it", name = "Conversation #$it", type = it % 5)
+        }
+        conversationDao.insertAll(conversations)
+
+        val result = conversationDao.count()
+
+        result shouldBeEqualTo count
+    }
+
+    @Test
+    fun count_noConversationsExistInDatabase_returnsZero() = databaseTestRule.runTest {
+        val result = conversationDao.count()
+
+        result shouldBeEqualTo 0
+    }
+
     companion object {
         private val TEST_CONVERSATION_ENTITY = ConversationEntity("id-5", "Android Team", 0)
     }

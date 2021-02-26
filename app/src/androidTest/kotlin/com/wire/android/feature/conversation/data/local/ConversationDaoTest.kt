@@ -46,6 +46,36 @@ class ConversationDaoTest : InstrumentationTest() {
     }
 
     @Test
+    fun updateConversations_conversationExists_updatesItems() = databaseTestRule.runTest {
+        val entity1 = ConversationEntity(id = "id-1", name = "Conversation #1", type = 1)
+        val entity2 = ConversationEntity(id = "id-2", name = "Conversation #2", type = 2)
+        conversationDao.insertAll(listOf(entity1, entity2))
+
+        val newName = "New Conversation Name"
+        val updatedEntity1 = entity1.copy(name = newName)
+        val newType = 3
+        val updatedEntity2 = entity2.copy(type = newType)
+        conversationDao.updateConversations(listOf(updatedEntity1, updatedEntity2))
+
+        val conversations = conversationDao.conversations()
+
+        conversations shouldContainSame listOf(updatedEntity1, updatedEntity2)
+    }
+
+    @Test
+    fun updateConversations_conversationDoesNotExist_doesNothing() = databaseTestRule.runTest {
+        val entity = ConversationEntity(id = "id-1", name = "Conversation #1", type = 1)
+        conversationDao.insert(entity)
+
+        val updatedEntity = ConversationEntity(id = "id-2", name = "Conversation #2", type = 2)
+        conversationDao.updateConversations(listOf(updatedEntity))
+
+        val conversations = conversationDao.conversations()
+
+        conversations shouldContainSame listOf(entity)
+    }
+
+    @Test
     fun deleteConversationById_conversationWithIdExists_deletesConversation() = databaseTestRule.runTest {
         conversationDao.insert(TEST_CONVERSATION_ENTITY)
 

@@ -13,7 +13,7 @@ class ConversationDataSource(
     private val conversationMapper: ConversationMapper,
     private val conversationRemoteDataSource: ConversationsRemoteDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
-) : ConversationsRepository {
+) : ConversationRepository {
 
     override suspend fun fetchConversations(): Either<Failure, Unit> = fetchRemoteConversations()
 
@@ -51,6 +51,11 @@ class ConversationDataSource(
 
     override suspend fun allConversationMemberIds(): Either<Failure, List<String>> =
         conversationLocalDataSource.allConversationMemberIds()
+
+    override suspend fun updateConversations(conversations: List<Conversation>): Either<Failure, Unit> {
+        val entities = conversationMapper.toEntityList(conversations)
+        return conversationLocalDataSource.updateConversations(entities)
+    }
 
     companion object {
         private const val CONVERSATION_REQUEST_PAGE_SIZE = 100

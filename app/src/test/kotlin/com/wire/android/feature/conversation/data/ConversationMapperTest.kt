@@ -3,6 +3,8 @@ package com.wire.android.feature.conversation.data
 import com.wire.android.UnitTest
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.ConversationType
+import com.wire.android.feature.conversation.Group
+import com.wire.android.feature.conversation.OneToOne
 import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.data.remote.ConversationMembersResponse
 import com.wire.android.feature.conversation.data.remote.ConversationOtherMembersResponse
@@ -88,6 +90,37 @@ class ConversationMapperTest : UnitTest() {
         val conversation = conversationMapper.fromEntity(conversationEntity)
 
         conversation shouldBeEqualTo Conversation(id = TEST_CONVERSATION_ID, name = TEST_CONVERSATION_NAME, type = type)
+    }
+
+    @Test
+    fun `given a list of conversations, when ToEntityList is called, then returns a list of entities`() {
+        val id1 = "$TEST_CONVERSATION_ID-1"
+        val name1 = "$TEST_CONVERSATION_NAME-1"
+        val groupTypeInt = 0
+        val conversation1 = mockk<Conversation>().also {
+            every { it.id } returns id1
+            every { it.name } returns name1
+            every { it.type } returns Group
+        }
+        every { conversationTypeMapper.toIntValue(Group) } returns groupTypeInt
+
+        val id2 = "$TEST_CONVERSATION_ID-2"
+        val oneToOneTypeInt = 2
+        val conversation2 = mockk<Conversation>().also {
+            every { it.id } returns id2
+            every { it.name } returns null
+            every { it.type } returns OneToOne
+        }
+        every { conversationTypeMapper.toIntValue(OneToOne) } returns oneToOneTypeInt
+
+        val conversationList = listOf(conversation1, conversation2)
+
+        val entityList = conversationMapper.toEntityList(conversationList)
+
+        entityList shouldContainSame listOf(
+            ConversationEntity(id = id1, name = name1, type = groupTypeInt),
+            ConversationEntity(id = id2, name = null, type = oneToOneTypeInt)
+        )
     }
 
     companion object {

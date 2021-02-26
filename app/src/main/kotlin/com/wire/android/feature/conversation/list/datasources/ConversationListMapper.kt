@@ -14,7 +14,7 @@ class ConversationListMapper(
     fun fromEntity(listItemEntity: ConversationListItemEntity, profilePictures: List<File?>): ConversationListItem {
         val conversation = conversationMapper.fromEntity(listItemEntity.conversation)
         val contacts = listItemEntity.members.mapIndexed { index, contactEntity ->
-            contactMapper.fromContactEntity(contactEntity, profilePictures[index])
+            contactMapper.fromContactEntity(contactEntity, profilePictures.getOrNull(index))
         }
 
         return ConversationListItem(conversation = conversation, members = contacts)

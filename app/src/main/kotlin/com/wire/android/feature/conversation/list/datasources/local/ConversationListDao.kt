@@ -15,4 +15,8 @@ interface ConversationListDao {
     @Transaction
     @Query("SELECT * FROM conversation WHERE type != :excludeType")
     fun conversationListItemsInBatch(excludeType: Int): DataSource.Factory<Int, ConversationListItemEntity>
+
+    @Transaction
+    @Query("SELECT * FROM conversation ORDER BY id LIMIT :count OFFSET :start ")
+    suspend fun conversationListItemsInBatch(start: Int, count: Int): List<ConversationListItemEntity>
 }

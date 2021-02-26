@@ -99,6 +99,38 @@ class ConversationListDaoTest : InstrumentationTest() {
             }
         }
 
+    @Test
+    fun conversationListItemsInBatch_conversationsExistForGivenBatch_returnsConversationListItems() =
+        databaseTestRule.runTest {
+            val start = 5
+            val count = 3
+
+            val conversationAndMemberPairs = (1..10).map {
+                val conversation = ConversationEntity(id = "id_$it", name = "Conversation #$it", type = it%5)
+                val member = ContactEntity(id = "contact-$it", name = "Contact $it")
+                conversationDao.insert(conversation)
+                insertMemberForConversation(conversation, member)
+                conversation to member
+            }
+
+            val items = conversationListDao.conversationListItemsInBatch(start, count)
+
+            items.size shouldBeEqualTo count
+            val pairsInBatch = conversationAndMemberPairs.drop(start - 1).take(count)
+            items.forEachIndexed { index, item ->
+                item.conversation shouldBeEqualTo pairsInBatch[index].first
+                item.members.first() shouldBeEqualTo pairsInBatch[index].second
+            }
+        }
+
+    @Test
+    fun conversationListItemsInBatch_noConversationsExistForGivenBatch_returnsZeroItems() =
+        databaseTestRule.runTest {
+            val items = conversationListDao.conversationListItemsInBatch(start = 30, count = 10)
+
+            items.isEmpty() shouldBeEqualTo true
+        }
+
     private suspend fun insertMemberForConversation(conversationEntity: ConversationEntity, contactEntity: ContactEntity) {
         val conversationMemberEntity = ConversationMemberEntity(
             conversationId = conversationEntity.id,

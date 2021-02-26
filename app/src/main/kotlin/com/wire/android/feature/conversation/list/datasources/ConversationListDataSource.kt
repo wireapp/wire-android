@@ -3,6 +3,9 @@ package com.wire.android.feature.conversation.list.datasources
 import androidx.lifecycle.asFlow
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
+import com.wire.android.core.exception.Failure
+import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.map
 import com.wire.android.feature.contact.datasources.local.ContactLocalDataSource
 import com.wire.android.feature.conversation.ConversationType
 import com.wire.android.feature.conversation.data.ConversationTypeMapper
@@ -33,4 +36,8 @@ class ConversationListDataSource(
         return conversationListMapper.fromEntity(entity, profilePictures)
     }
 
+    override suspend fun conversationListInBatch(start: Int, count: Int): Either<Failure, List<ConversationListItem>> =
+        conversationListLocalDataSource.conversationListInBatch(start = start, count = count).map {
+            it.map { conversationListMapper.fromEntity(it, emptyList()) }
+        }
 }

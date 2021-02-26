@@ -23,7 +23,7 @@ class ConversationViewHolder(
     private val iconImageView by lazyFind<ShapeableImageView>(R.id.conversationItemIconImageView)
 
     fun bind(item: ConversationListItem) {
-        val name = item.name.orEmpty() //TODO: handle empty name case properly
+        val name = item.conversation.name.orEmpty() //TODO: handle empty name case properly
         nameTextView.text = name
 
         displayConversationIcon(item)

@@ -2,6 +2,7 @@ package com.wire.android.feature.conversation.list.usecase
 
 import androidx.paging.PagedList
 import com.wire.android.UnitTest
+import com.wire.android.feature.conversation.ConversationType
 import com.wire.android.feature.conversation.Self
 import com.wire.android.feature.conversation.list.ConversationListRepository
 import com.wire.android.feature.conversation.list.ui.ConversationListItem
@@ -31,7 +32,7 @@ class GetConversationListUseCaseTest : UnitTest() {
 
     @Test
     fun `given run is called, then calls conversationListRepo to get items except Self conversation`() {
-        coEvery { conversationListRepository.conversationListInBatch(any(), any()) } returns flowOf(mockk())
+        coEvery { conversationListRepository.conversationListInBatch(any(), any<ConversationType>()) } returns flowOf(mockk())
 
         val params = GetConversationListUseCaseParams(pageSize = TEST_PAGE_SIZE)
 
@@ -43,7 +44,7 @@ class GetConversationListUseCaseTest : UnitTest() {
     @Test
     fun `given run is called, when conversationListRepo emits items, then propagates items`() {
         val items = mockk<PagedList<ConversationListItem>>()
-        coEvery { conversationListRepository.conversationListInBatch(any(), any()) } returns flowOf(items)
+        coEvery { conversationListRepository.conversationListInBatch(any(), any<ConversationType>()) } returns flowOf(items)
 
         val params = GetConversationListUseCaseParams(pageSize = TEST_PAGE_SIZE)
 

@@ -28,7 +28,7 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O_MR1)
-class ConversationListDataSourceTest : InstrumentationTest() {
+class ConversationListDataSourceIntegrationTest : InstrumentationTest() {
 
     @get:Rule
     val databaseTestRule = DatabaseTestRule.create<UserDatabase>(appContext)

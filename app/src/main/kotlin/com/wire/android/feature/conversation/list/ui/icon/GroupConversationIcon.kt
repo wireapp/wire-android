@@ -5,6 +5,8 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import androidx.core.content.ContextCompat
 import coil.load
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
 import com.wire.android.feature.contact.Contact
@@ -22,12 +24,18 @@ class GroupConversationIcon(private val contacts: List<Contact>, private val con
         load(layerDrawable)
 
         contacts.forEachIndexed { index, contact ->
-            contactIconLoader.load(contact, imageView = this) {
-                target {
-                    layerDrawable.setDrawable(index, it)
-                    layerDrawable.invalidateSelf()
-                }
-            }
+            contactIconLoader.load(contact)
+                .into(object : CustomTarget<Drawable>() {
+                    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                        layerDrawable.setDrawable(index, resource)
+                        layerDrawable.invalidateSelf()
+                    }
+
+                    override fun onLoadCleared(placeholder: Drawable?) {
+                        layerDrawable.setDrawable(index, placeholder)
+                        layerDrawable.invalidateSelf()
+                    }
+                })
         }
     }
 

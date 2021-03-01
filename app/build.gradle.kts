@@ -49,6 +49,8 @@ dependencies {
     implementation(Libraries.viewPager2)
     implementation(Libraries.paging)
     implementation(Libraries.coil)
+    implementation(Libraries.glide)
+    kapt(Libraries.glideCompiler)
     implementation(Libraries.workManager)
 
     implementation(Libraries.Retrofit.core)

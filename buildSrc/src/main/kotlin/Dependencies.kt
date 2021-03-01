@@ -64,6 +64,8 @@ object Libraries {
     const val desugaring       = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
     const val paging           = "androidx.paging:paging-runtime-ktx:${Versions.paging}"
     const val coil             = "io.coil-kt:coil:${Versions.coil}"
+    const val glide            = "com.github.bumptech.glide:glide:4.12.0"
+    const val glideCompiler    = "com.github.bumptech.glide:compiler:4.12.0"
     const val workManager      = "androidx.work:work-runtime-ktx:${Versions.workManager}"
 
 

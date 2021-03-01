@@ -15,10 +15,9 @@ class ContactIconLoader(private val localeConfig: LocaleConfig) {
     fun load(
         contact: Contact,
         imageView: ImageView,
-        width: Int = imageView.width, height: Int = imageView.height,
         requestBuilder: ImageRequest.Builder.() -> Unit
     ) {
-        val fallback = createFallbackDrawable(contact, width, height)
+        val fallback = createFallbackDrawable(contact)
         val data = contact.profilePicturePath?.let { File(it) } ?: fallback
 
         imageView.loadAny(data) {
@@ -28,8 +27,8 @@ class ContactIconLoader(private val localeConfig: LocaleConfig) {
         }
     }
 
-    private fun createFallbackDrawable(contact: Contact, width: Int, height: Int): Drawable {
+    private fun createFallbackDrawable(contact: Contact): Drawable {
         val nameInitial = contact.name.firstOrNull().toStringOrEmpty().toUpperCase(localeConfig.currentLocale())
-        return TextDrawable(text = nameInitial, width = width.toFloat(), height = height.toFloat())
+        return TextDrawable(text = nameInitial)
     }
 }

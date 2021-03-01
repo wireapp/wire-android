@@ -22,7 +22,7 @@ class GroupConversationIcon(private val contacts: List<Contact>, private val con
         load(layerDrawable)
 
         contacts.forEachIndexed { index, contact ->
-            contactIconLoader.load(contact, imageView = this, width = width / GRID_SIZE, height = height / GRID_SIZE) {
+            contactIconLoader.load(contact, imageView = this) {
                 target {
                     layerDrawable.setDrawable(index, it)
                     layerDrawable.invalidateSelf()
@@ -38,6 +38,5 @@ class GroupConversationIcon(private val contacts: List<Contact>, private val con
 
     companion object {
         const val MAX_ICON_COUNT = 4
-        private const val GRID_SIZE = 2
     }
 }

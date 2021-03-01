@@ -17,11 +17,8 @@ internal class TeamUserToolbarProfileIcon(private val teamName: String, private 
     }
 
     private fun displayTeamNameAsIcon(imageView: ShapeableImageView) = with(imageView) {
-        val teamNameDrawable = TextDrawable(
-            text = teamName.firstOrNull().toString(),
-            width = width.toFloat(), height = height.toFloat()
-        )
-        load(teamNameDrawable)
+        val teamNameInitial = teamName.firstOrNull().toString()
+        load(TextDrawable(teamNameInitial))
     }
 
     private fun displayTeamIcon(imageView: ShapeableImageView) {

@@ -5,42 +5,44 @@ import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import androidx.annotation.ColorInt
-import kotlin.math.min
 
 class TextDrawable(
     private val text: String,
-    private val width: Float,
-    private val height: Float,
     @ColorInt private val textColor: Int = Color.WHITE, //TODO: get colors from xml or theme
     @ColorInt private val backgroundColor: Int = Color.RED
 ) : Drawable() {
 
-    private val paint by lazy {
-        Paint().apply {
-            color = textColor
-            textAlign = Paint.Align.CENTER
-            val radius = min(width, height) / 2
-            textSize = radius * TEXT_SIZE_MULTIPLIER
-        }
+    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = textColor
+        textAlign = Paint.Align.CENTER
     }
 
-    private val textStartY by lazy {
-        height / 2 - ((paint.descent() + paint.ascent()) / 2f)
+    private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = backgroundColor
     }
 
     override fun draw(canvas: Canvas) {
-        canvas.drawColor(backgroundColor)
-        canvas.drawText(text, width / 2, textStartY, paint)
+        canvas.drawRect(Rect(bounds), backgroundPaint)
+
+        val radius = minOf(bounds.width(), bounds.height()) / 2
+        textPaint.textSize = radius * TEXT_SIZE_MULTIPLIER
+
+        val y = bounds.centerY() - ((textPaint.descent() + textPaint.ascent()) / 2f)
+        val x = bounds.centerX().toFloat()
+        canvas.drawText(text, x, y, textPaint)
     }
 
     override fun setAlpha(alpha: Int) {
-        paint.alpha = alpha
+        textPaint.alpha = alpha
+        invalidateSelf()
     }
 
     override fun setColorFilter(colorFilter: ColorFilter?) {
-        paint.colorFilter = colorFilter
+        textPaint.colorFilter = colorFilter
+        invalidateSelf()
     }
 
     override fun getOpacity(): Int = PixelFormat.TRANSLUCENT

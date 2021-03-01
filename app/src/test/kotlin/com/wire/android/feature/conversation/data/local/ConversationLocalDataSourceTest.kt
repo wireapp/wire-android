@@ -11,6 +11,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 import java.sql.SQLException
@@ -138,5 +139,26 @@ class ConversationLocalDataSourceTest : UnitTest() {
 
         result shouldFail { }
         coVerify { conversationMembersDao.allConversationMemberIds() }
+    }
+
+    @Test
+    fun `given numberOfConversations is called, when dao operation returns the count, then propagates the count`() {
+        val count = 218
+        coEvery { conversationDao.count() } returns count
+
+        val result = runBlocking { conversationLocalDataSource.numberOfConversations() }
+
+        result shouldSucceed { it shouldBeEqualTo  count }
+        coVerify { conversationDao.count() }
+    }
+
+    @Test
+    fun `given numberOfConversations is called, when dao operation fails, then propagates failure`() {
+        coEvery { conversationDao.count() } throws SQLException()
+
+        val result = runBlocking { conversationLocalDataSource.numberOfConversations() }
+
+        result shouldFail { }
+        coVerify { conversationDao.count() }
     }
 }

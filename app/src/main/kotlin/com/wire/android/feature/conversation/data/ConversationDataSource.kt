@@ -57,6 +57,9 @@ class ConversationDataSource(
         return conversationLocalDataSource.updateConversations(entities)
     }
 
+    override suspend fun numberOfConversations(): Either<Failure, Int> =
+        conversationLocalDataSource.numberOfConversations()
+
     companion object {
         private const val CONVERSATION_REQUEST_PAGE_SIZE = 100
     }

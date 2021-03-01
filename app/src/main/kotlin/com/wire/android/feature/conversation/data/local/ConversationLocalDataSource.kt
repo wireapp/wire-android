@@ -1,6 +1,5 @@
 package com.wire.android.feature.conversation.data.local
 
-import androidx.paging.DataSource
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.storage.db.DatabaseService
@@ -31,4 +30,6 @@ class ConversationLocalDataSource(
     suspend fun allConversationMemberIds(): Either<Failure, List<String>> = request {
         conversationMembersDao.allConversationMemberIds()
     }
+
+    suspend fun numberOfConversations(): Either<Failure, Int> = request { conversationDao.count() }
 }

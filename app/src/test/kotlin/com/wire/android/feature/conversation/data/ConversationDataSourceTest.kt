@@ -244,6 +244,26 @@ class ConversationDataSourceTest : UnitTest() {
         result shouldFail { it shouldBeEqualTo failure }
     }
 
+    @Test
+    fun `given numberOfConversations is called, when localDataSource returns the count, then propagates the count`() {
+        val count = 250
+        coEvery { conversationLocalDataSource.numberOfConversations() } returns Either.Right(count)
+
+        val result = runBlocking { conversationDataSource.numberOfConversations() }
+
+        result shouldSucceed { it shouldBeEqualTo count }
+    }
+
+    @Test
+    fun `given numberOfConversations is called, when localDataSource fails to return the count, then propagates failure`() {
+        val failure = mockk<Failure>()
+        coEvery { conversationLocalDataSource.numberOfConversations() } returns Either.Left(failure)
+
+        val result = runBlocking { conversationDataSource.numberOfConversations() }
+
+        result shouldFail { it shouldBeEqualTo failure }
+    }
+
     companion object {
         private const val TEST_CONVERSATION_ID = "conv-id"
     }

@@ -15,12 +15,12 @@ class TextDrawable(
     @ColorInt private val backgroundColor: Int = Color.RED
 ) : Drawable() {
 
-    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val textPaint = Paint().apply {
         color = textColor
         textAlign = Paint.Align.CENTER
     }
 
-    private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val backgroundPaint = Paint().apply {
         color = backgroundColor
     }
 

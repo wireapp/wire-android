@@ -7,7 +7,7 @@ import com.wire.android.core.ui.navigation.FragmentContainerProvider
 import com.wire.android.feature.conversation.data.ConversationDataSource
 import com.wire.android.feature.conversation.data.ConversationMapper
 import com.wire.android.feature.conversation.data.ConversationTypeMapper
-import com.wire.android.feature.conversation.data.ConversationsRepository
+import com.wire.android.feature.conversation.data.ConversationRepository
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationsApi
 import com.wire.android.feature.conversation.data.remote.ConversationsRemoteDataSource
@@ -39,7 +39,7 @@ val conversationsModule = module {
 
     factory { ConversationIconProvider(get()) }
 
-    single<ConversationsRepository> { ConversationDataSource(get(), get(), get()) }
+    single<ConversationRepository> { ConversationDataSource(get(), get(), get()) }
     factory { ConversationMapper(get()) }
     factory { ConversationTypeMapper() }
 

@@ -171,8 +171,8 @@ class ConversationDataSourceTest : UnitTest() {
 
         runBlocking { conversationDataSource.fetchConversations() }
 
-        coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(null, any())  }
-        coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(TEST_CONVERSATION_ID, any())  }
+        coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(null, any()) }
+        coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(TEST_CONVERSATION_ID, any()) }
     }
 
 
@@ -216,6 +216,30 @@ class ConversationDataSourceTest : UnitTest() {
         coEvery { conversationLocalDataSource.allConversationMemberIds() } returns Either.Left(failure)
 
         val result = runBlocking { conversationDataSource.allConversationMemberIds() }
+
+        result shouldFail { it shouldBeEqualTo failure }
+    }
+
+    @Test
+    fun `given updateConversations is called, when localDataSource updates successfully, then propagates success`() {
+        val conversations = mockk<List<Conversation>>()
+        every { conversationMapper.toEntityList(conversations) } returns mockk()
+        coEvery { conversationLocalDataSource.updateConversations(any()) } returns Either.Right(Unit)
+
+        val result = runBlocking { conversationDataSource.updateConversations(conversations) }
+
+        result shouldSucceed { }
+    }
+
+    @Test
+    fun `given updateConversations is called, when localDataSource fails to update, then propagates failure`() {
+        val conversations = mockk<List<Conversation>>()
+        every { conversationMapper.toEntityList(conversations) } returns mockk()
+
+        val failure = mockk<Failure>()
+        coEvery { conversationLocalDataSource.updateConversations(any()) } returns Either.Left(failure)
+
+        val result = runBlocking { conversationDataSource.updateConversations(conversations) }
 
         result shouldFail { it shouldBeEqualTo failure }
     }

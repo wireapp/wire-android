@@ -12,10 +12,12 @@ class ConversationLocalDataSource(
     private val conversationMembersDao: ConversationMembersDao
 ) : DatabaseService {
 
-    fun conversationsDataFactory(): DataSource.Factory<Int, ConversationEntity> = conversationDao.conversationsInBatch()
-
     suspend fun saveConversations(conversations: List<ConversationEntity>): Either<Failure, Unit> = request {
         conversationDao.insertAll(conversations)
+    }
+
+    suspend fun updateConversations(conversations: List<ConversationEntity>): Either<Failure, Unit> = request {
+        conversationDao.updateConversations(conversations)
     }
 
     suspend fun saveMemberIdsForConversations(conversationMemberEntityList: List<ConversationMemberEntity>) = request {

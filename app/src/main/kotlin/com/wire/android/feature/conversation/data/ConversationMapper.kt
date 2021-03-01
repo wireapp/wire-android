@@ -25,4 +25,13 @@ class ConversationMapper(private val conversationTypeMapper: ConversationTypeMap
         name = entity.name,
         type = conversationTypeMapper.fromIntValue(entity.type)
     )
+
+    fun toEntityList(conversationList: List<Conversation>) : List<ConversationEntity> =
+        conversationList.map { toEntity(it) }
+
+    private fun toEntity(conversation: Conversation) = ConversationEntity(
+        id = conversation.id,
+        name = conversation.name,
+        type = conversationTypeMapper.toIntValue(conversation.type)
+    )
 }

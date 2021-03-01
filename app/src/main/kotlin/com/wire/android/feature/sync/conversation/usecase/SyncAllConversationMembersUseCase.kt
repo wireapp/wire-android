@@ -5,15 +5,15 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.suspending
 import com.wire.android.core.usecase.UseCase
 import com.wire.android.feature.contact.ContactRepository
-import com.wire.android.feature.conversation.data.ConversationsRepository
+import com.wire.android.feature.conversation.data.ConversationRepository
 
 class SyncAllConversationMembersUseCase(
-    private val conversationsRepository: ConversationsRepository,
+    private val conversationRepository: ConversationRepository,
     private val  contactRepository: ContactRepository
 ) : UseCase<Unit, Unit> {
 
     override suspend fun run(params: Unit): Either<Failure, Unit> = suspending {
-        conversationsRepository.allConversationMemberIds().flatMap {
+        conversationRepository.allConversationMemberIds().flatMap {
             contactRepository.fetchContactsById(it.toSet())
         }
     }

@@ -6,6 +6,7 @@ import androidx.work.WorkerParameters
 import com.wire.android.UnitTest
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.functional.Either
+import com.wire.android.feature.sync.conversation.usecase.RefineConversationNamesUseCase
 import com.wire.android.feature.sync.conversation.usecase.SyncAllConversationMembersUseCase
 import com.wire.android.feature.sync.conversation.usecase.SyncConversationsUseCase
 import com.wire.android.feature.sync.di.syncModule
@@ -50,6 +51,7 @@ class SlowSyncWorkerTest : UnitTest(), KoinTest {
 
     private lateinit var syncConversationsUseCase: SyncConversationsUseCase
     private lateinit var syncAllConversationMembersUseCase : SyncAllConversationMembersUseCase
+    private lateinit var refineConversationNamesUseCase: RefineConversationNamesUseCase
     private lateinit var setSlowSyncCompletedUseCase: SetSlowSyncCompletedUseCase
 
     private lateinit var slowSyncWorker: SlowSyncWorker
@@ -59,6 +61,7 @@ class SlowSyncWorkerTest : UnitTest(), KoinTest {
         dispatcherProvider = declareMock { every { io() } returns TestCoroutineDispatcher() }
         syncConversationsUseCase = declareMock()
         syncAllConversationMembersUseCase = declareMock()
+        refineConversationNamesUseCase = declareMock()
         setSlowSyncCompletedUseCase = declareMock()
 
         slowSyncWorker = SlowSyncWorker(context, workerParams)
@@ -84,9 +87,22 @@ class SlowSyncWorkerTest : UnitTest(), KoinTest {
     }
 
     @Test
-    fun `given doWork is called & syncAllConvMembersUseCase succeeds, when setSlowSyncComplUseCase fails, then returns Result failure`() {
+    fun `given doWork is called & syncAllConvMembersUseCase succeeds, when refineConvNamesUseCase fails, then returns Result failure`() {
         coEvery { syncConversationsUseCase.run(Unit) } returns Either.Right(Unit)
         coEvery { syncAllConversationMembersUseCase.run(Unit) } returns Either.Right(Unit)
+        coEvery { refineConversationNamesUseCase.run(Unit) } returns Either.Left(mockk())
+
+        val result = runBlocking { slowSyncWorker.doWork() }
+
+        result shouldBeEqualTo ListenableWorker.Result.failure()
+    }
+
+
+    @Test
+    fun `given doWork is called & refineConvNamesUseCase succeeds, when setSlowSyncCompletedUseCase fails, then returns Result failure`() {
+        coEvery { syncConversationsUseCase.run(Unit) } returns Either.Right(Unit)
+        coEvery { syncAllConversationMembersUseCase.run(Unit) } returns Either.Right(Unit)
+        coEvery { refineConversationNamesUseCase.run(Unit) } returns Either.Right(Unit)
         coEvery { setSlowSyncCompletedUseCase.run(Unit) } returns Either.Left(mockk())
 
         val result = runBlocking { slowSyncWorker.doWork() }
@@ -95,9 +111,10 @@ class SlowSyncWorkerTest : UnitTest(), KoinTest {
     }
 
     @Test
-    fun `given doWork is called & syncAllConvMembersUseCase succeeds, when setSlowSyncCompUseCase succeeds, then returns Result success`() {
+    fun `given doWork is called & refineConvNamesUseCase succeeds, when setSlowSyncCompltdUseCase succeeds, then returns Result success`() {
         coEvery { syncConversationsUseCase.run(Unit) } returns Either.Right(Unit)
         coEvery { syncAllConversationMembersUseCase.run(Unit) } returns Either.Right(Unit)
+        coEvery { refineConversationNamesUseCase.run(Unit) } returns Either.Right(Unit)
         coEvery { setSlowSyncCompletedUseCase.run(Unit) } returns Either.Right(Unit)
 
         val result = runBlocking { slowSyncWorker.doWork() }

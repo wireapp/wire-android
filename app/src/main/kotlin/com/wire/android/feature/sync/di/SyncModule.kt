@@ -1,6 +1,7 @@
 package com.wire.android.feature.sync.di
 
 import com.wire.android.feature.sync.SyncRepository
+import com.wire.android.feature.sync.conversation.usecase.RefineConversationNamesUseCase
 import com.wire.android.feature.sync.conversation.usecase.SyncAllConversationMembersUseCase
 import com.wire.android.feature.sync.conversation.usecase.SyncConversationsUseCase
 import com.wire.android.feature.sync.datasources.SyncDataSource
@@ -25,4 +26,5 @@ val syncModule = module {
 
     factory { SyncConversationsUseCase(get()) }
     factory { SyncAllConversationMembersUseCase(get(), get()) }
+    factory { RefineConversationNamesUseCase(get(), get()) }
 }

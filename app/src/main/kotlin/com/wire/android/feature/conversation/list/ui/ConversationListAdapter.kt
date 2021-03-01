@@ -23,10 +23,10 @@ class ConversationListAdapter(
 class ConversationListDiffCallback : DiffUtil.ItemCallback<ConversationListItem>() {
 
     override fun areItemsTheSame(oldItem: ConversationListItem, newItem: ConversationListItem): Boolean =
-        oldItem.id == newItem.id
+        oldItem.conversation.id == newItem.conversation.id
 
     override fun areContentsTheSame(oldItem: ConversationListItem, newItem: ConversationListItem): Boolean =
-        oldItem.name == newItem.name && areMembersTheSame(oldItem, newItem)
+        oldItem.conversation == newItem.conversation && areMembersTheSame(oldItem, newItem)
 
     private fun areMembersTheSame(oldItem: ConversationListItem, newItem: ConversationListItem): Boolean =
         oldItem.members.size == newItem.members.size && oldItem.members.containsAll(newItem.members)

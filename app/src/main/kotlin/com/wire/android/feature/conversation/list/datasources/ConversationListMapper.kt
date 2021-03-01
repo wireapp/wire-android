@@ -17,10 +17,6 @@ class ConversationListMapper(
             contactMapper.fromContactEntity(contactEntity, profilePictures[index])
         }
 
-        return ConversationListItem(
-            id = conversation.id,
-            name = conversation.name,
-            members = contacts
-        )
+        return ConversationListItem(conversation = conversation, members = contacts)
     }
 }

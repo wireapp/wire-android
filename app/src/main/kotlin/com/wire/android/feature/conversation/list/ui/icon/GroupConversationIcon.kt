@@ -31,7 +31,7 @@ class GroupConversationIcon(private val contacts: List<Contact>, private val con
                     }
 
                     override fun onLoadCleared(placeholder: Drawable?) {
-                        layerDrawable.setDrawable(index, placeholder)
+                        layerDrawable.setDrawable(index, placeholder ?: emptyIcon(context))
                         layerDrawable.invalidateSelf()
                     }
                 })
@@ -40,8 +40,10 @@ class GroupConversationIcon(private val contacts: List<Contact>, private val con
 
     private fun clearLayerDrawable(context: Context, layerDrawable: LayerDrawable) =
         (0 until MAX_ICON_COUNT).forEach {
-            layerDrawable.setDrawable(it, ContextCompat.getDrawable(context, R.drawable.empty_contact_icon))
+            layerDrawable.setDrawable(it, emptyIcon(context))
         }
+
+    private fun emptyIcon(context: Context) = ContextCompat.getDrawable(context, R.drawable.empty_contact_icon)
 
     companion object {
         const val MAX_ICON_COUNT = 4

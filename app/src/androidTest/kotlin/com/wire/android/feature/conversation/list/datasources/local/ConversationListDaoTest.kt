@@ -85,8 +85,8 @@ class ConversationListDaoTest : InstrumentationTest() {
         databaseTestRule.runTest {
             conversationDao.insert(TEST_CONVERSATION_ENTITY)
 
-            val contact1 = ContactEntity(id = "contact-1", name = "Contact A")
-            val contact2 = ContactEntity(id = "contact-2", name = "Contact B")
+            val contact1 = ContactEntity(id = "contact-1", name = "Contact A", assetKey = "asset-key-A")
+            val contact2 = ContactEntity(id = "contact-2", name = "Contact B", assetKey = null)
             insertMemberForConversation(TEST_CONVERSATION_ENTITY, contact1)
             insertMemberForConversation(TEST_CONVERSATION_ENTITY, contact2)
 
@@ -107,7 +107,7 @@ class ConversationListDaoTest : InstrumentationTest() {
 
             val conversationAndMemberPairs = (1..10).map {
                 val conversation = ConversationEntity(id = "id_$it", name = "Conversation #$it", type = it%5)
-                val member = ContactEntity(id = "contact-$it", name = "Contact $it")
+                val member = ContactEntity(id = "contact-$it", name = "Contact $it", assetKey = "asset-key-$it")
                 conversationDao.insert(conversation)
                 insertMemberForConversation(conversation, member)
                 conversation to member

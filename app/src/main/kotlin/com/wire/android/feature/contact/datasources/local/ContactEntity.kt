@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "contact")
 data class ContactEntity(
     @PrimaryKey @ColumnInfo(name = "id") val id: String,
-    @ColumnInfo(name = "name") val name: String
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "asset_key") val assetKey: String?
 )

@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import androidx.core.content.ContextCompat
-import coil.load
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.imageview.ShapeableImageView
@@ -21,7 +20,7 @@ class GroupConversationIcon(private val contacts: List<Contact>, private val con
 
         val layerDrawable = ContextCompat.getDrawable(context, R.drawable.group_conversation_icon) as LayerDrawable
         clearLayerDrawable(context, layerDrawable)
-        load(layerDrawable)
+        imageView.setImageDrawable(layerDrawable)
 
         contacts.forEachIndexed { index, contact ->
             contactIconLoader.load(contact)

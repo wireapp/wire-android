@@ -1,6 +1,6 @@
 package com.wire.android.feature.conversation.list.toolbar.ui.icon
 
-import coil.load
+import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
 import com.wire.android.core.extension.setCorneredShape
@@ -18,7 +18,7 @@ internal class TeamUserToolbarProfileIcon(private val teamName: String, private 
 
     private fun displayTeamNameAsIcon(imageView: ShapeableImageView) = with(imageView) {
         val teamNameInitial = teamName.firstOrNull().toString()
-        load(TextDrawable(teamNameInitial))
+        Glide.with(imageView).load(TextDrawable(teamNameInitial)).into(imageView)
     }
 
     private fun displayTeamIcon(imageView: ShapeableImageView) {

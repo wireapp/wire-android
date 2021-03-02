@@ -16,7 +16,7 @@ class ContactIconLoader(private val localeConfig: LocaleConfig) {
     fun load(
         contact: Contact,
         imageView: ImageView,
-        requestOptions: RequestOptions.() -> Unit ={}
+        requestOptions: RequestOptions.() -> Unit = {}
     ): RequestBuilder<Drawable> {
         val fallback = createFallbackDrawable(contact)
         val data = contact.profilePicturePath?.let { File(it) } ?: fallback

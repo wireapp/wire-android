@@ -16,7 +16,7 @@ class ContactMapper {
     fun fromContactResponseListToEntityList(contactResponseList: List<ContactResponse>): List<ContactEntity> =
         contactResponseList.map { fromContactResponseToEntity(it) }
 
-    fun fromContactResponseToEntity(contactResponse: ContactResponse): ContactEntity =
+    private fun fromContactResponseToEntity(contactResponse: ContactResponse): ContactEntity =
         ContactEntity(id = contactResponse.id, name = contactResponse.name)
 
     fun fromContactEntity(entity: ContactEntity, profilePicture: File?): Contact =

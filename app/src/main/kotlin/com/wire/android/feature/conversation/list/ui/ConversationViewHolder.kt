@@ -4,9 +4,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
+import com.wire.android.core.extension.clear
 import com.wire.android.core.extension.lazyFind
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.feature.conversation.list.ui.icon.ConversationIconProvider
@@ -30,7 +30,7 @@ class ConversationViewHolder(
     }
 
     private fun displayConversationIcon(item: ConversationListItem) {
-        Glide.with(iconImageView).clear(iconImageView)
+        iconImageView.clear()
 
         iconProvider.provide(item).let {
             iconLayout.background = it.background(iconLayout.context)

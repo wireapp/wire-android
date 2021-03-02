@@ -9,7 +9,6 @@ import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.ui.drawable.TextDrawable
 import com.wire.android.feature.contact.Contact
-import java.io.File
 
 class ContactIconLoader(private val localeConfig: LocaleConfig) {
 
@@ -19,7 +18,8 @@ class ContactIconLoader(private val localeConfig: LocaleConfig) {
         requestOptions: RequestOptions.() -> Unit = {}
     ): RequestBuilder<Drawable> {
         val fallback = createFallbackDrawable(contact)
-        val data = contact.profilePicturePath?.let { File(it) } ?: fallback
+        //TODO load Asset type with Glide
+        val data = /* contact.profilePicturePath?.let { File(it) } ?: */ fallback
 
         return Glide.with(imageView)
             .load(data)

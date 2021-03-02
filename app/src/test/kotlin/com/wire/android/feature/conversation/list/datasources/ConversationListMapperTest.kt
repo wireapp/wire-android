@@ -15,7 +15,6 @@ import io.mockk.verify
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
-import java.io.File
 
 class ConversationListMapperTest : UnitTest() {
 
@@ -38,26 +37,17 @@ class ConversationListMapperTest : UnitTest() {
         val conversation = mockk<Conversation>()
         every { conversationMapper.fromEntity(conversationEntity) } returns conversation
 
-        val contactEntity1 = mockk<ContactEntity>()
-        val contactEntity2 = mockk<ContactEntity>()
-        val profilePicture1 = mockk<File>()
-        val profilePicture2 = mockk<File>()
-        val contactEntities = listOf(contactEntity1, contactEntity2)
-        val profilePictures = listOf(profilePicture1, profilePicture2)
-
-        val contact1 = mockk<Contact>()
-        val contact2 = mockk<Contact>()
-        every { contactMapper.fromContactEntity(contactEntity1, any()) } returns contact1
-        every { contactMapper.fromContactEntity(contactEntity2, any()) } returns contact2
+        val contactEntities = mockk<List<ContactEntity>>()
+        val contacts = mockk<List<Contact>>()
+        every { contactMapper.fromContactEntityList(contactEntities) } returns contacts
 
         val listItemEntity = ConversationListItemEntity(conversationEntity, contactEntities)
 
-        val result = conversationListMapper.fromEntity(listItemEntity, profilePictures)
+        val result = conversationListMapper.fromEntity(listItemEntity)
 
         result.conversation shouldBeEqualTo conversation
-        result.members shouldBeEqualTo listOf(contact1, contact2)
+        result.members shouldBeEqualTo contacts
         verify(exactly = 1) { conversationMapper.fromEntity(conversationEntity) }
-        verify(exactly = 1) { contactMapper.fromContactEntity(contactEntity1, profilePicture1) }
-        verify(exactly = 1) { contactMapper.fromContactEntity(contactEntity2, profilePicture2) }
+        verify(exactly = 1) { contactMapper.fromContactEntityList(contactEntities) }
     }
 }

@@ -1,3 +1,5 @@
 package com.wire.android.feature.contact
 
-class Contact(val id: String, val name: String, val profilePicturePath: String?)
+import com.wire.android.shared.asset.Asset
+
+class Contact(val id: String, val name: String, val profilePicture: Asset?)

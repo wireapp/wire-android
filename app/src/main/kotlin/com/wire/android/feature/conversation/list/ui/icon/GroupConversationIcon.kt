@@ -23,7 +23,7 @@ class GroupConversationIcon(private val contacts: List<Contact>, private val con
         imageView.setImageDrawable(layerDrawable)
 
         contacts.forEachIndexed { index, contact ->
-            contactIconLoader.load(contact)
+            contactIconLoader.load(contact, imageView)
                 .into(object : CustomTarget<Drawable>() {
                     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                         layerDrawable.setDrawable(index, resource)

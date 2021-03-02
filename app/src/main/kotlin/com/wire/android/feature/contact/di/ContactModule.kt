@@ -20,5 +20,5 @@ val contactModule = module {
     factory { get<UserDatabase>().contactDao() }
     factory { ContactMapper() }
 
-    factory { ContactIconLoader(get(), androidContext()) }
+    factory { ContactIconLoader(get()) }
 }

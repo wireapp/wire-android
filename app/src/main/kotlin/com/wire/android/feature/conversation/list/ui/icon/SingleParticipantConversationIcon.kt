@@ -8,7 +8,7 @@ class SingleParticipantConversationIcon(private val contact: Contact, private va
 
     override fun displayOn(imageView: ShapeableImageView) {
         contactIconLoader
-            .load(contact) { circleCrop() }
+            .load(contact, imageView) { circleCrop() }
             .into(imageView)
     }
 }

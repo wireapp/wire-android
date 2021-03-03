@@ -18,8 +18,7 @@ class ContactIconLoader(private val localeConfig: LocaleConfig) {
         requestOptions: RequestOptions.() -> Unit = {}
     ): RequestBuilder<Drawable> {
         val fallback = createFallbackDrawable(contact)
-        //TODO load Asset type with Glide
-        val data = /* contact.profilePicturePath?.let { File(it) } ?: */ fallback
+        val data = contact.profilePicture ?: fallback
 
         return Glide.with(imageView)
             .load(data)

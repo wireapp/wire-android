@@ -25,5 +25,6 @@ class PublicAssetLoaderFactory(private val assetRepository: AssetRepository) : M
     override fun build(multiFactory: MultiModelLoaderFactory): ModelLoader<PublicAsset, InputStream> =
         PublicAssetLoader(assetRepository)
 
+    @Suppress("EmptyFunctionBlock")
     override fun teardown() {}
 }

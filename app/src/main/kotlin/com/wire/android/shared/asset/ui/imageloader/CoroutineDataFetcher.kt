@@ -33,6 +33,7 @@ abstract class CoroutineDataFetcher<T> : DataFetcher<T> {
         job?.let { if (it.isActive) it.cancel() }
     }
 
+    @Suppress("EmptyFunctionBlock")
     override fun cleanup() {}
 
     override fun getDataSource(): DataSource = DataSource.REMOTE

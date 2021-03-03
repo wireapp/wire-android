@@ -48,7 +48,7 @@ object Libraries {
         const val room = "2.2.5"
         const val desugaring = "1.0.10"
         const val paging = "2.1.2"
-        const val coil = "1.0.0"
+        const val glide = "4.12.0"
         const val workManager = "2.4.0"
     }
 
@@ -63,7 +63,8 @@ object Libraries {
     const val viewPager2       = "androidx.viewpager2:viewpager2:${Versions.viewPager2}"
     const val desugaring       = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
     const val paging           = "androidx.paging:paging-runtime-ktx:${Versions.paging}"
-    const val coil             = "io.coil-kt:coil:${Versions.coil}"
+    const val glide            = "com.github.bumptech.glide:glide:${Versions.glide}"
+    const val glideCompiler    = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val workManager      = "androidx.work:work-runtime-ktx:${Versions.workManager}"
 
 

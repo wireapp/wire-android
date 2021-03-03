@@ -4,9 +4,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import coil.clear
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
+import com.wire.android.core.extension.clear
 import com.wire.android.core.extension.lazyFind
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.feature.conversation.list.ui.icon.ConversationIconProvider

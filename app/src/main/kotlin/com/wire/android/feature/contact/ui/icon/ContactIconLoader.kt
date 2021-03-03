@@ -2,8 +2,9 @@ package com.wire.android.feature.contact.ui.icon
 
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
-import coil.loadAny
-import coil.request.ImageRequest
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.request.RequestOptions
 import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.ui.drawable.TextDrawable
@@ -15,16 +16,18 @@ class ContactIconLoader(private val localeConfig: LocaleConfig) {
     fun load(
         contact: Contact,
         imageView: ImageView,
-        requestBuilder: ImageRequest.Builder.() -> Unit
-    ) {
+        requestOptions: RequestOptions.() -> Unit = {}
+    ): RequestBuilder<Drawable> {
         val fallback = createFallbackDrawable(contact)
         val data = contact.profilePicturePath?.let { File(it) } ?: fallback
 
-        imageView.loadAny(data) {
-            placeholder(fallback)
-            error(fallback)
-            requestBuilder(this)
-        }
+        return Glide.with(imageView)
+            .load(data)
+            .apply(RequestOptions()
+                .placeholder(fallback)
+                .error(fallback)
+                .apply { requestOptions(this) }
+            )
     }
 
     private fun createFallbackDrawable(contact: Contact): Drawable {

@@ -9,6 +9,7 @@ import com.wire.android.feature.contact.datasources.mapper.ContactMapper
 import com.wire.android.feature.contact.datasources.remote.ContactRemoteDataSource
 import com.wire.android.feature.contact.datasources.remote.ContactsApi
 import com.wire.android.feature.contact.ui.icon.ContactIconLoader
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val contactModule = module {

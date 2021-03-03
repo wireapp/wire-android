@@ -3,9 +3,9 @@ package com.wire.android.feature.conversation.list.ui.icon
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import coil.load
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
+import com.wire.android.core.extension.load
 
 class NoParticipantsConversationIcon : ConversationIcon {
 

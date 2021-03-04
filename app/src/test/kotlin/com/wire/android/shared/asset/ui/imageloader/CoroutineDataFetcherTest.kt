@@ -32,7 +32,7 @@ class CoroutineDataFetcherTest : UnitTest() {
 
         runBlocking {  coroutineDataFetcher.loadData(Priority.NORMAL, callback) }
 
-        verify(exactly = 1) { callback.onLoadFailed(any()) }
+        verify(exactly = 1, timeout = 200) { callback.onLoadFailed(any()) }
     }
 
     @Test
@@ -48,7 +48,7 @@ class CoroutineDataFetcherTest : UnitTest() {
 
         runBlocking {  coroutineDataFetcher.loadData(Priority.NORMAL, callback) }
 
-        verify(exactly = 1) { callback.onDataReady(result) }
+        verify(exactly = 1, timeout = 200) { callback.onDataReady(result) }
     }
 
     @Test

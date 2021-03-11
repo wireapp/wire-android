@@ -6,14 +6,12 @@ import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
 import com.wire.android.framework.network.mockNetworkError
 import com.wire.android.framework.network.mockNetworkResponse
-import com.wire.android.shared.asset.datasources.remote.AssetApi
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.runBlocking
-import okhttp3.ResponseBody
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
@@ -24,15 +22,12 @@ class ContactRemoteDataSourceTest : UnitTest() {
     @MockK
     private lateinit var contactsApi: ContactsApi
 
-    @MockK
-    private lateinit var assetApi: AssetApi
-
     private lateinit var contactRemoteDataSource: ContactRemoteDataSource
 
     @Before
     fun setUp() {
         contactRemoteDataSource = ContactRemoteDataSource(
-            contactsApi, assetApi, connectedNetworkHandler, TEST_CONTACT_COUNT_THRESHOLD
+            contactsApi, connectedNetworkHandler, TEST_CONTACT_COUNT_THRESHOLD
         )
     }
 
@@ -126,30 +121,8 @@ class ContactRemoteDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { contactsApi.contactsById("g") }
     }
 
-    @Test
-    fun `given downloadProfilePicture is called, when assetApi fails to fetch asset, then propagates failure`() {
-        coEvery { assetApi.publicAsset(any()) } returns mockNetworkError()
-
-        val result = runBlocking { contactRemoteDataSource.downloadProfilePicture(TEST_ASSET_KEY) }
-
-        result shouldFail {}
-        coVerify { assetApi.publicAsset(TEST_ASSET_KEY) }
-    }
-
-    @Test
-    fun `given downloadProfilePicture is called, when assetApi fetches asset, then propagates response`() {
-        val responseBody = mockk<ResponseBody>()
-        coEvery { assetApi.publicAsset(any()) } returns mockNetworkResponse(responseBody)
-
-        val result = runBlocking { contactRemoteDataSource.downloadProfilePicture(TEST_ASSET_KEY) }
-
-        result shouldSucceed { it shouldBeEqualTo responseBody }
-        coVerify { assetApi.publicAsset(TEST_ASSET_KEY) }
-    }
-
     companion object {
         private const val TEST_CONTACT_COUNT_THRESHOLD = 3
-        private const val TEST_ASSET_KEY = "asset-key-2309"
 
         private fun mockContacts(size: Int): List<ContactResponse> = (0 until size).map { mockk() }
     }

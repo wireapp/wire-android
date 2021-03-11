@@ -34,9 +34,9 @@ class ContactDaoTest : InstrumentationTest() {
 
     @Test
     fun insertAll_readContacts_containsInsertedItems() = databaseTestRule.runTest {
-        val entity1 = ContactEntity(id = "id-1", name = "Contact #1")
-        val entity2 = ContactEntity(id = "id-2", name = "Contact #2")
-        val entity3 = ContactEntity(id = "id-3", name = "Contact #3")
+        val entity1 = ContactEntity(id = "id-1", name = "Contact #1", assetKey = "asset-key-1")
+        val entity2 = ContactEntity(id = "id-2", name = "Contact #2", assetKey = "asset-key-2")
+        val entity3 = ContactEntity(id = "id-3", name = "Contact #3", assetKey = null)
         val entities = listOf(entity1, entity2, entity3)
 
         contactDao.insertAll(entities)
@@ -49,9 +49,9 @@ class ContactDaoTest : InstrumentationTest() {
     fun contactsById_contactsWithIdsPresent_returnsEntitiesWithIds() = databaseTestRule.runTest {
         val id1 = "id-1"
         val id2 = "id-2"
-        val entity1 = ContactEntity(id = id1, name = "Contact #1")
-        val entity2 = ContactEntity(id = id2, name = "Contact #2")
-        val entity3 = ContactEntity(id = "id-3", name = "Contact #3")
+        val entity1 = ContactEntity(id = id1, name = "Contact #1", assetKey = "asset-key-1")
+        val entity2 = ContactEntity(id = id2, name = "Contact #2", assetKey = null)
+        val entity3 = ContactEntity(id = "id-3", name = "Contact #3", assetKey = "asset-key-3")
 
         contactDao.insertAll(listOf(entity1, entity2, entity3))
 
@@ -62,9 +62,9 @@ class ContactDaoTest : InstrumentationTest() {
 
     @Test
     fun contactsById_noContactsWithIdsPresent_returnsEmptyList() = databaseTestRule.runTest {
-        val entity1 = ContactEntity(id = "id-1", name = "Contact #1")
-        val entity2 = ContactEntity(id = "id-2", name = "Contact #2")
-        val entity3 = ContactEntity(id = "id-3", name = "Contact #3")
+        val entity1 = ContactEntity(id = "id-1", name = "Contact #1", assetKey = "asset-key-1")
+        val entity2 = ContactEntity(id = "id-2", name = "Contact #2", assetKey = "asset-key-2")
+        val entity3 = ContactEntity(id = "id-3", name = "Contact #3", assetKey = null)
 
         contactDao.insertAll(listOf(entity1, entity2, entity3))
 
@@ -74,6 +74,6 @@ class ContactDaoTest : InstrumentationTest() {
     }
 
     companion object {
-        private val TEST_CONTACT_ENTITY = ContactEntity("id-123", "Edgar Allan Poe")
+        private val TEST_CONTACT_ENTITY = ContactEntity("id-123", "Edgar Allan Poe", "asset-key-5093")
     }
 }

@@ -27,23 +27,21 @@ class ContactMapperTest : UnitTest() {
     fun `given profilePictureAssetKey is called, when contactResponse has an asset with size "complete", then returns asset key`() {
         val contactResponse = mockk<ContactResponse>()
         val contactAssetResponse = mockk<AssetResponse>()
-        val assetKey = "asset_key_356"
-        every { contactAssetResponse.size } returns SIZE_COMPLETE
-        every { contactAssetResponse.key } returns assetKey
+        every { contactAssetResponse.size } returns ASSET_SIZE_COMPLETE
+        every { contactAssetResponse.key } returns TEST_ASSET_KEY
         every { contactResponse.assets } returns listOf(contactAssetResponse)
 
         val result = contactMapper.profilePictureAssetKey(contactResponse)
 
-        result shouldBeEqualTo assetKey
+        result shouldBeEqualTo TEST_ASSET_KEY
     }
 
     @Test
     fun `given profilePictureAssetKey is called, when contactResponse does not have an asset with size "complete", then returns null`() {
         val contactResponse = mockk<ContactResponse>()
         val contactAssetResponse = mockk<AssetResponse>()
-        val assetKey = "asset_key_356"
         every { contactAssetResponse.size } returns "preview"
-        every { contactAssetResponse.key } returns assetKey
+        every { contactAssetResponse.key } returns TEST_ASSET_KEY
         every { contactResponse.assets } returns listOf(contactAssetResponse)
 
         val result = contactMapper.profilePictureAssetKey(contactResponse)
@@ -88,12 +86,17 @@ class ContactMapperTest : UnitTest() {
         val name1 = "${TEST_CONTACT_NAME}_1"
         every { contactResponse1.id } returns id1
         every { contactResponse1.name } returns name1
+        val contactAssetResponse = mockk<AssetResponse>()
+        every { contactAssetResponse.size } returns ASSET_SIZE_COMPLETE
+        every { contactAssetResponse.key } returns TEST_ASSET_KEY
+        every { contactResponse1.assets } returns listOf(contactAssetResponse)
 
         val contactResponse2 = mockk<ContactResponse>()
         val id2 = "${TEST_CONTACT_ID}_2"
         val name2 = "${TEST_CONTACT_NAME}_2"
         every { contactResponse2.id } returns id2
         every { contactResponse2.name } returns name2
+        every { contactResponse2.assets } returns emptyList()
 
         val result = contactMapper.fromContactResponseListToEntityList(listOf(contactResponse1, contactResponse2))
 
@@ -101,11 +104,13 @@ class ContactMapperTest : UnitTest() {
             it shouldBeInstanceOf ContactEntity::class
             it.id shouldBeEqualTo id1
             it.name shouldBeEqualTo name1
+            it.assetKey shouldBeEqualTo TEST_ASSET_KEY
         }
         result.second().let {
             it shouldBeInstanceOf ContactEntity::class
             it.id shouldBeEqualTo id2
             it.name shouldBeEqualTo name2
+            it.assetKey shouldBeEqualTo null
         }
     }
 
@@ -140,7 +145,8 @@ class ContactMapperTest : UnitTest() {
     }
 
     companion object {
-        private const val SIZE_COMPLETE = "complete"
+        private const val ASSET_SIZE_COMPLETE = "complete"
+        private const val TEST_ASSET_KEY = "asset_key_356"
         private const val TEST_CONTACT_ID = "contact_id_8900"
         private const val TEST_CONTACT_NAME = "Alice Abc"
         private const val TEST_FILE_PATH = "file://contacts/assets/0-23409-2456.jpg"

@@ -17,7 +17,11 @@ class ContactMapper {
         contactResponseList.map { fromContactResponseToEntity(it) }
 
     private fun fromContactResponseToEntity(contactResponse: ContactResponse): ContactEntity =
-        ContactEntity(id = contactResponse.id, name = contactResponse.name)
+        ContactEntity(
+            id = contactResponse.id,
+            name = contactResponse.name,
+            assetKey = profilePictureAssetKey(contactResponse)
+        )
 
     fun fromContactEntity(entity: ContactEntity, profilePicture: File?): Contact =
         Contact(id = entity.id, name = entity.name, profilePicturePath = profilePicture?.absolutePath)

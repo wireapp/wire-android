@@ -14,8 +14,6 @@ import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListDao
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListLocalDataSource
 import com.wire.android.framework.storage.db.DatabaseTestRule
-import io.mockk.MockKAnnotations
-import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -48,9 +46,8 @@ class ConversationListDataSourceIntegrationTest : InstrumentationTest() {
         val conversationListLocalDataSource = ConversationListLocalDataSource(conversationListDao)
         val conversationListMapper = ConversationListMapper(ConversationMapper(conversationTypeMapper), ContactMapper())
 
-        MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
         conversationListDataSource = ConversationListDataSource(
-            conversationListLocalDataSource, mockk(), conversationListMapper, conversationTypeMapper
+            conversationListLocalDataSource, conversationListMapper, conversationTypeMapper
         )
     }
 

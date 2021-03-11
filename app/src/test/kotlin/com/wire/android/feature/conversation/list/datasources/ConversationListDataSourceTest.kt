@@ -3,7 +3,6 @@ package com.wire.android.feature.conversation.list.datasources
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.contact.datasources.local.ContactLocalDataSource
 import com.wire.android.feature.conversation.data.ConversationTypeMapper
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListItemEntity
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListLocalDataSource
@@ -28,9 +27,6 @@ class ConversationListDataSourceTest : UnitTest() {
     private lateinit var conversationListLocalDataSource: ConversationListLocalDataSource
 
     @MockK
-    private lateinit var contactLocalDataSource: ContactLocalDataSource
-
-    @MockK
     private lateinit var conversationListMapper: ConversationListMapper
 
     @MockK
@@ -42,7 +38,7 @@ class ConversationListDataSourceTest : UnitTest() {
     @Before
     fun setUp() {
         conversationListDataSource = ConversationListDataSource(
-            conversationListLocalDataSource, contactLocalDataSource,
+            conversationListLocalDataSource,
             conversationListMapper, conversationTypeMapper
         )
     }
@@ -61,12 +57,12 @@ class ConversationListDataSourceTest : UnitTest() {
         val entities = listOf<ConversationListItemEntity>(mockk(), mockk())
         coEvery { conversationListLocalDataSource.conversationListInBatch(any(), any()) } returns Either.Right(entities)
         val conversations = listOf<ConversationListItem>(mockk(), mockk())
-        every { conversationListMapper.fromEntity(any(), any()) } returnsMany conversations
+        every { conversationListMapper.fromEntity(any()) } returnsMany conversations
 
         val result = runBlocking { conversationListDataSource.conversationListInBatch(60, 20) }
 
         result shouldSucceed { it shouldContainSame conversations }
-        verify(exactly = 2) { conversationListMapper.fromEntity(any(), any()) }
+        verify(exactly = 2) { conversationListMapper.fromEntity(any()) }
     }
 
     @Test
@@ -77,7 +73,7 @@ class ConversationListDataSourceTest : UnitTest() {
         val result = runBlocking { conversationListDataSource.conversationListInBatch(60, 20) }
 
         result shouldFail { it shouldBeEqualTo failure }
-        verify(inverse = true) { conversationListMapper.fromEntity(any(), any()) }
+        verify(inverse = true) { conversationListMapper.fromEntity(any()) }
     }
 
     companion object {

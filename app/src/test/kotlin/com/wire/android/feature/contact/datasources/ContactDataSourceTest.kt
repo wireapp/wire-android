@@ -11,7 +11,6 @@ import com.wire.android.feature.contact.datasources.remote.ContactRemoteDataSour
 import com.wire.android.feature.contact.datasources.remote.ContactResponse
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -19,14 +18,10 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import okhttp3.ResponseBody
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Test
-import java.io.File
-import java.io.InputStream
 
 class ContactDataSourceTest : UnitTest() {
 
@@ -55,41 +50,21 @@ class ContactDataSourceTest : UnitTest() {
 
         result shouldFail { it shouldBeEqualTo failure }
         coVerify(exactly = 1) { contactLocalDataSource.contactsById(TEST_CONTACT_IDS) }
-        verify { contactMapper wasNot Called }
-        coVerify(inverse = true) { contactLocalDataSource.saveContacts(any()) }
     }
 
     @Test
-    fun `given contactsById is called and a local contact found, when contact has profile picture, then returns mapping with picture`() {
-        val entity = mockk<ContactEntity>()
-        coEvery { contactLocalDataSource.contactsById(any()) } returns Either.Right(listOf(entity))
+    fun `given contactsById is called, when local data source returns contacts, then maps local contacts and propagates result`() {
+        val entities = mockk<List<ContactEntity>>()
+        coEvery { contactLocalDataSource.contactsById(TEST_CONTACT_IDS) } returns Either.Right(entities)
 
-        val profilePicture = mockk<File>()
-        coEvery { contactLocalDataSource.profilePicture(entity) } returns Either.Right(profilePicture)
+        val contacts = mockk<List<Contact>>()
+        every { contactMapper.fromContactEntityList(any()) } returns contacts
 
-        val contact = mockk<Contact>()
-        every { contactMapper.fromContactEntity(entity, any()) } returns contact
+        val result = runBlocking { contactDataSource.contactsById(TEST_CONTACT_IDS) }
 
-        val result = runBlocking { contactDataSource.contactsById(setOf(TEST_CONTACT_ID_1)) }
-
-        result shouldSucceed { it shouldContainSame listOf(contact) }
-        verify(exactly = 1) { contactMapper.fromContactEntity(entity, profilePicture) }
-    }
-
-    @Test
-    fun `given contactsById is called & a local contact found, when contact doesn't have a picture, then returns mapping w null picture`() {
-        val entity = mockk<ContactEntity>()
-        coEvery { contactLocalDataSource.contactsById(any()) } returns Either.Right(listOf(entity))
-
-        coEvery { contactLocalDataSource.profilePicture(entity) } returns Either.Left(mockk())
-
-        val contact = mockk<Contact>()
-        every { contactMapper.fromContactEntity(entity, null) } returns contact
-
-        val result = runBlocking { contactDataSource.contactsById(setOf(TEST_CONTACT_ID_1)) }
-
-        result shouldSucceed { it shouldContainSame listOf(contact) }
-        verify(exactly = 1) { contactMapper.fromContactEntity(entity, null) }
+        result shouldSucceed { it shouldBeEqualTo contacts }
+        coVerify(exactly = 1) { contactLocalDataSource.contactsById(TEST_CONTACT_IDS) }
+        verify(exactly = 1) { contactMapper.fromContactEntityList(entities) }
     }
 
     @Test
@@ -103,24 +78,7 @@ class ContactDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given fetchContactsById is called, when remote fetch of contacts are successful, then saves them into local storage`() {
-        val response = mockk<List<ContactResponse>>()
-        coEvery { contactRemoteDataSource.contactsById(any()) } returns Either.Right(response)
-
-        val entities = mockk<List<ContactEntity>>()
-        every { contactMapper.fromContactResponseListToEntityList(response) } returns entities
-
-        coEvery { contactLocalDataSource.saveContacts(any()) } returns Either.Left(mockk())
-
-        runBlocking { contactDataSource.fetchContactsById(TEST_CONTACT_IDS) }
-
-        coVerify(exactly = 1) { contactRemoteDataSource.contactsById(any()) }
-        coVerify(exactly = 1) { contactMapper.fromContactResponseListToEntityList(response) }
-        coVerify(exactly = 1) { contactLocalDataSource.saveContacts(entities) }
-    }
-
-    @Test
-    fun `given fetchContactsById is called, when remotely fetched items fail to be saved, then propagates the failure`() {
+    fun `given fetchContactsById is called and remote items are fetched, when items fail to be saved, then propagates the failure`() {
         coEvery { contactRemoteDataSource.contactsById(any()) } returns Either.Right(mockk())
         every { contactMapper.fromContactResponseListToEntityList(any()) } returns mockk()
 
@@ -133,136 +91,23 @@ class ContactDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given fetchContactsById called & remote items saved, when item doesn't have asset key, then propagate contact without picture`() {
+    fun `given fetchContactsById is called and remote items are fetched, when items are saved successfully, then propagates success`() {
         val contactResponse = mockk<ContactResponse>()
         coEvery { contactRemoteDataSource.contactsById(any()) } returns Either.Right(listOf(contactResponse))
 
-        every { contactMapper.fromContactResponseListToEntityList(any()) } returns mockk()
-        coEvery { contactLocalDataSource.saveContacts(any()) } returns Either.Right(mockk())
-
-        every { contactMapper.profilePictureAssetKey(contactResponse) } returns null
-
-        every { contactMapper.fromContactResponse(contactResponse, any()) } returns mockk()
+        val savedItems = mockk<List<ContactEntity>>()
+        every { contactMapper.fromContactResponseListToEntityList(any()) } returns savedItems
+        coEvery { contactLocalDataSource.saveContacts(any()) } returns Either.Right(Unit)
 
         val result = runBlocking { contactDataSource.fetchContactsById(TEST_CONTACT_IDS) }
 
         result shouldSucceed { it shouldBe Unit }
-        verify(exactly = 1) { contactMapper.fromContactResponse(contactResponse, null) }
-    }
-
-    @Test
-    fun `given fetchContactsById is called & remote items are saved, when item has an asset key, then downloads profile picture`() {
-        val contactResponse = mockk<ContactResponse>()
-        coEvery { contactRemoteDataSource.contactsById(any()) } returns Either.Right(listOf(contactResponse))
-        every { contactMapper.fromContactResponseListToEntityList(any()) } returns mockk()
-        coEvery { contactLocalDataSource.saveContacts(any()) } returns Either.Right(mockk())
-
-        every { contactMapper.profilePictureAssetKey(contactResponse) } returns TEST_ASSET_KEY
-
-        coEvery { contactRemoteDataSource.downloadProfilePicture(any()) } returns Either.Left(mockk())
-
-        every { contactMapper.fromContactResponse(any(), any()) } returns mockk()
-
-        runBlocking { contactDataSource.fetchContactsById(TEST_CONTACT_IDS) }
-
-        verify(exactly = 1) { contactMapper.profilePictureAssetKey(contactResponse) }
-        coVerify(exactly = 1) { contactRemoteDataSource.downloadProfilePicture(TEST_ASSET_KEY) }
-    }
-
-    @Test
-    fun `given fetchContactsById called & remote item has asset key, when prof pic download fails, then propagates contact with no pic`() {
-        val contactResponse = mockk<ContactResponse>()
-        coEvery { contactRemoteDataSource.contactsById(any()) } returns Either.Right(listOf(contactResponse))
-        every { contactMapper.fromContactResponseListToEntityList(any()) } returns mockk()
-        coEvery { contactLocalDataSource.saveContacts(any()) } returns Either.Right(mockk())
-        every { contactMapper.profilePictureAssetKey(contactResponse) } returns TEST_ASSET_KEY
-
-        coEvery { contactRemoteDataSource.downloadProfilePicture(any()) } returns Either.Left(mockk())
-
-        every { contactMapper.fromContactResponse(contactResponse, any()) } returns mockk()
-
-        val result = runBlocking { contactDataSource.fetchContactsById(TEST_CONTACT_IDS) }
-
-        result shouldSucceed { it shouldBe Unit }
-        verify(exactly = 1) { contactMapper.fromContactResponse(contactResponse, null) }
-    }
-
-    @Test
-    fun `given fetchContactsById is called, when profile pic download is successful, then saves picture into local storage`() {
-        val contactResponse = mockk<ContactResponse>()
-        every { contactResponse.id } returns TEST_CONTACT_ID_1
-
-        coEvery { contactRemoteDataSource.contactsById(any()) } returns Either.Right(listOf(contactResponse))
-        every { contactMapper.fromContactResponseListToEntityList(any()) } returns mockk()
-        coEvery { contactLocalDataSource.saveContacts(any()) } returns Either.Right(mockk())
-        every { contactMapper.profilePictureAssetKey(contactResponse) } returns TEST_ASSET_KEY
-
-        val downloadResponse = mockk<ResponseBody>()
-        val downloadStream = mockk<InputStream>()
-        every { downloadResponse.byteStream() } returns downloadStream
-        coEvery { contactRemoteDataSource.downloadProfilePicture(any()) } returns Either.Right(downloadResponse)
-
-        every { contactLocalDataSource.saveProfilePicture(any(), any()) } returns Either.Left(mockk())
-        every { contactMapper.fromContactResponse(contactResponse, any()) } returns mockk()
-
-        runBlocking { contactDataSource.fetchContactsById(TEST_CONTACT_IDS) }
-
-        coVerify(exactly = 1) { contactLocalDataSource.saveProfilePicture(TEST_CONTACT_ID_1, downloadStream) }
-    }
-
-    @Test
-    fun `given fetchContactsById is called, when profile pic cannot be saved into local storage, then propagates contact with no pic`() {
-        val contactResponse = mockk<ContactResponse>()
-        every { contactResponse.id } returns TEST_CONTACT_ID_1
-
-        coEvery { contactRemoteDataSource.contactsById(any()) } returns Either.Right(listOf(contactResponse))
-        every { contactMapper.fromContactResponseListToEntityList(any()) } returns mockk()
-        coEvery { contactLocalDataSource.saveContacts(any()) } returns Either.Right(mockk())
-        every { contactMapper.profilePictureAssetKey(contactResponse) } returns TEST_ASSET_KEY
-        val downloadResponse = mockk<ResponseBody>()
-        every { downloadResponse.byteStream() } returns mockk()
-        coEvery { contactRemoteDataSource.downloadProfilePicture(any()) } returns Either.Right(downloadResponse)
-
-        every { contactLocalDataSource.saveProfilePicture(any(), any()) } returns Either.Left(mockk())
-
-        every { contactMapper.fromContactResponse(contactResponse, null) } returns mockk()
-
-        val result = runBlocking { contactDataSource.fetchContactsById(TEST_CONTACT_IDS) }
-
-        result shouldSucceed { it shouldBe Unit }
-        verify { contactMapper.fromContactResponse(contactResponse, null) }
-    }
-
-    @Test
-    fun `given fetchContactsById is called, when profile pic is saved into local storage, then propagates contact with saved picture`() {
-        val contactResponse = mockk<ContactResponse>()
-        every { contactResponse.id } returns TEST_CONTACT_ID_1
-
-        coEvery { contactRemoteDataSource.contactsById(any()) } returns Either.Right(listOf(contactResponse))
-        every { contactMapper.fromContactResponseListToEntityList(any()) } returns mockk()
-        coEvery { contactLocalDataSource.saveContacts(any()) } returns Either.Right(mockk())
-        every { contactMapper.profilePictureAssetKey(contactResponse) } returns TEST_ASSET_KEY
-        val downloadResponse = mockk<ResponseBody>()
-        every { downloadResponse.byteStream() } returns mockk()
-        coEvery { contactRemoteDataSource.downloadProfilePicture(any()) } returns Either.Right(downloadResponse)
-
-        val savedPicture = mockk<File>()
-        every { contactLocalDataSource.saveProfilePicture(any(), any()) } returns Either.Right(savedPicture)
-
-        val contact = mockk<Contact>()
-        every { contactMapper.fromContactResponse(contactResponse, savedPicture) } returns contact
-
-        val result = runBlocking { contactDataSource.fetchContactsById(TEST_CONTACT_IDS) }
-
-        result shouldSucceed { it shouldBe Unit }
-        verify { contactMapper.fromContactResponse(contactResponse, savedPicture) }
+        coVerify(exactly = 1) { contactRemoteDataSource.contactsById(TEST_CONTACT_IDS) }
+        verify(exactly = 1) { contactMapper.fromContactResponseListToEntityList(any()) }
+        coVerify(exactly = 1) { contactLocalDataSource.saveContacts(savedItems) }
     }
 
     companion object {
-        private const val TEST_CONTACT_ID_1 = "contact-id-1"
-        private const val TEST_CONTACT_ID_2 = "contact-id-2"
-        private val TEST_CONTACT_IDS = setOf(TEST_CONTACT_ID_1, TEST_CONTACT_ID_2)
-
-        private const val TEST_ASSET_KEY = "asset-key-3459"
+        private val TEST_CONTACT_IDS = setOf("contact-id-1", "contact-id-2")
     }
 }

@@ -23,7 +23,7 @@ class SyncLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given isSlowSyncRequired is called, when sharedPreferences returns "true" for sync completed value, then returns false`() {
+    fun `given isSlowSyncRequired is called, when sharedPreferences returns true for sync completed value, then returns false`() {
         every { sharedPreferences.getBoolean(SLOW_SYNC_COMPLETED_KEY, any()) } returns true
 
         val result = syncLocalDataSource.isSlowSyncRequired()
@@ -33,7 +33,7 @@ class SyncLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given isSlowSyncRequired is called, when sharedPreferences returns "false" for sync completed value, then returns true`() {
+    fun `given isSlowSyncRequired is called, when sharedPreferences returns false for sync completed value, then returns true`() {
         every { sharedPreferences.getBoolean(SLOW_SYNC_COMPLETED_KEY, any()) } returns false
 
         val result = syncLocalDataSource.isSlowSyncRequired()
@@ -43,7 +43,7 @@ class SyncLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given setSlowSyncCompleted is called, then writes "true" to shared preferences for sync completed value`() {
+    fun `given setSlowSyncCompleted is called, then writes true to shared preferences for sync completed value`() {
         val editor = mockk<SharedPreferences.Editor>(relaxUnitFun = true)
         every { editor.putBoolean(any(), any()) } returns editor
         every { sharedPreferences.edit() } returns editor

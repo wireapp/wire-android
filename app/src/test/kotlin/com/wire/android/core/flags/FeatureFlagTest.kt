@@ -38,7 +38,7 @@ class FeatureFlagTest : UnitTest() {
     }
 
     @Test
-    fun `given a feature flag, when it is activated, then does not execute given "otherwise" logic block`() {
+    fun `given a feature flag, when it is activated, then does not execute given otherwise logic block`() {
         val activeFlag = ActiveFeatureFlag()
         val fakeNavigator = mockk<Navigator>(relaxed = true)
 
@@ -56,7 +56,7 @@ class FeatureFlagTest : UnitTest() {
     }
 
     @Test
-    fun `given a feature flag, when it is deactivated, then execute given "otherwise" logic block`() {
+    fun `given a feature flag, when it is deactivated, then execute given otherwise logic block`() {
         val inactiveFlag = InactiveFeatureFlag()
         val fakeNavigator = mockk<Navigator>(relaxed = true)
 

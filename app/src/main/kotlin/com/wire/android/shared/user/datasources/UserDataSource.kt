@@ -4,6 +4,8 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
 import com.wire.android.core.functional.suspending
+import com.wire.android.shared.asset.datasources.remote.AssetResponse
+import com.wire.android.shared.asset.mapper.profilePictureAssetKey
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.UserRepository
 import com.wire.android.shared.user.datasources.local.UserLocalDataSource
@@ -13,16 +15,20 @@ import com.wire.android.shared.user.mapper.UserMapper
 class UserDataSource(
     private val localDataSource: UserLocalDataSource,
     private val remoteDataSource: UserRemoteDataSource,
-    private val mapper: UserMapper
+    private val mapper: UserMapper,
+    private val getProfilePictureAssetKey: (List<AssetResponse>) -> String? = { profilePictureAssetKey(it) }
 ) : UserRepository {
 
-    override suspend fun selfUser(accessToken: String, tokenType: String): Either<Failure, User> = suspending {
-        remoteDataSource.selfUser(accessToken, tokenType).map {
-            mapper.fromSelfUserResponse(it)
-        }.flatMap { user ->
-            save(user).map { user }
+    override suspend fun selfUser(accessToken: String, tokenType: String): Either<Failure, User> =
+        suspending {
+            remoteDataSource.selfUser(accessToken, tokenType).map {
+                mapper.fromSelfUserResponse(it).also { user ->
+                    user.assetKey = getProfilePictureAssetKey(it.assets)
+                }
+            }.flatMap { user ->
+                save(user).map { user }
+            }
         }
-    }
 
     override suspend fun userById(userId: String): Either<Failure, User> =
         localDataSource.userById(userId).map {

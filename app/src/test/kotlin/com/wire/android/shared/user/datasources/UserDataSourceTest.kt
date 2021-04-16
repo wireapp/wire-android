@@ -7,6 +7,7 @@ import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
+import com.wire.android.shared.asset.datasources.remote.AssetResponse
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.datasources.local.UserEntity
 import com.wire.android.shared.user.datasources.local.UserLocalDataSource
@@ -21,6 +22,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -46,9 +48,16 @@ class UserDataSourceTest : UnitTest() {
 
     private lateinit var userDataSource: UserDataSource
 
+    private var invokedTimesProfilePictureAssetKeyMock : Int = 0
+
     @Before
     fun setUp() {
-        userDataSource = UserDataSource(localDataSource, remoteDataSource, userMapper)
+        userDataSource = UserDataSource(localDataSource, remoteDataSource, userMapper) { profilePictureAssetKeyMock(listOf()) }
+    }
+
+    private fun profilePictureAssetKeyMock (assets : List<AssetResponse>) : String{
+        invokedTimesProfilePictureAssetKeyMock++
+        return ""
     }
 
     @Test
@@ -64,6 +73,7 @@ class UserDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { remoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
         verify(exactly = 1) { userMapper.fromSelfUserResponse(selfUserResponse) }
         verify(exactly = 1) { userMapper.toUserEntity(user) }
+        Assert.assertEquals(1, invokedTimesProfilePictureAssetKeyMock)
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
     }
 
@@ -82,6 +92,7 @@ class UserDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { remoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
         verify(exactly = 1) { userMapper.fromSelfUserResponse(selfUserResponse) }
         verify(exactly = 1) { userMapper.toUserEntity(user) }
+        Assert.assertEquals(1, invokedTimesProfilePictureAssetKeyMock)
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
     }
 

@@ -14,7 +14,7 @@ class UserMapper {
         User(id = response.id, name = response.name, email = response.email, username = response.handle)
 
     fun fromUserEntity(entity: UserEntity) =
-        User(id = entity.id, name = entity.name, email = entity.email, username = entity.username)
+        User(id = entity.id, name = entity.name, email = entity.email, username = entity.username, assetKey = entity.asset_key)
 
-    fun toUserEntity(user: User) = UserEntity(id = user.id, name = user.name, email = user.email, username = user.username)
+    fun toUserEntity(user: User) = UserEntity(id = user.id, name = user.name, email = user.email, username = user.username, asset_key = user.assetKey)
 }

@@ -5,6 +5,7 @@ import com.wire.android.shared.asset.datasources.local.AssetEntity
 import com.wire.android.shared.asset.datasources.remote.AssetResponse
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldBeNull
 import org.junit.Before
 import org.junit.Test
 
@@ -31,9 +32,50 @@ class AssetMapperTest : UnitTest() {
         }
     }
 
+    @Test
+    fun `given profilePictureAssetKey is called with empty assets list then return null`() {
+        val assets = listOf<AssetResponse>()
+
+        val result = profilePictureAssetKey(assets)
+
+        result.shouldBeNull()
+    }
+
+    @Test
+    fun `given profilePictureAssetKey is called when assets list does not contain completed size picture then return null`() {
+        val assets = listOf(
+            AssetResponse(TEST_SIZE_UNKNOWN, TEST_KEY_UNKNOWN, TEST_TYPE_UNKNOWN),
+            AssetResponse(
+                TEST_SIZE + TEST_SIZE_UNKNOWN,
+                TEST_KEY + TEST_KEY_UNKNOWN,
+                TEST_TYPE + TEST_TYPE_UNKNOWN
+            )
+        )
+
+        val result = profilePictureAssetKey(assets)
+
+        result.shouldBeNull()
+    }
+
+    @Test
+    fun `given profilePictureAssetKey is called with valid assets list then return asset key`() {
+        val assets = listOf(
+            AssetResponse(TEST_SIZE, TEST_KEY, TEST_TYPE),
+            AssetResponse(TEST_SIZE_UNKNOWN, TEST_KEY_UNKNOWN, TEST_TYPE_UNKNOWN)
+        )
+
+        val result = profilePictureAssetKey(assets)
+
+        result shouldBeEqualTo TEST_KEY
+    }
+
     companion object {
         private const val TEST_SIZE = "complete"
         private const val TEST_KEY = "35dc-1239ac-jxq"
         private const val TEST_TYPE = "image"
+
+        private const val TEST_SIZE_UNKNOWN = "unknown"
+        private const val TEST_KEY_UNKNOWN = "unknown"
+        private const val TEST_TYPE_UNKNOWN = "unknown"
     }
 }

@@ -10,7 +10,8 @@ class UserProfileIcon(private val user: User, private val iconLoader: IconLoader
             .load(
                 user.profilePicture,
                 user.name,
-                imageView
+                imageView,
+                withCirclePlaceholder = true
             ) { circleCrop() }
             .into(imageView)
     }

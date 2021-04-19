@@ -2,8 +2,8 @@ package com.wire.android.feature.conversation.list.ui.icon
 
 import com.wire.android.UnitTest
 import com.wire.android.feature.contact.Contact
-import com.wire.android.feature.contact.ui.icon.ContactIconLoader
 import com.wire.android.feature.conversation.list.ui.ConversationListItem
+import com.wire.android.shared.asset.ui.imageloader.IconLoader
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -14,13 +14,13 @@ import org.junit.Test
 class ConversationIconProviderTest : UnitTest() {
 
     @MockK
-    private lateinit var contactIconLoader: ContactIconLoader
+    private lateinit var iconLoader: IconLoader
 
     private lateinit var conversationIconProvider: ConversationIconProvider
 
     @Before
     fun setUp() {
-        conversationIconProvider = ConversationIconProvider(contactIconLoader)
+        conversationIconProvider = ConversationIconProvider(iconLoader)
     }
 
     @Test

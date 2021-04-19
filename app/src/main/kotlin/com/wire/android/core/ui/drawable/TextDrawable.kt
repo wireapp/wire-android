@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
-import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import androidx.annotation.ColorInt
 
@@ -25,13 +24,13 @@ class TextDrawable(
     }
 
     override fun draw(canvas: Canvas) {
-        canvas.drawRect(Rect(bounds), backgroundPaint)
-
         val radius = minOf(bounds.width(), bounds.height()) / 2
         textPaint.textSize = radius * TEXT_SIZE_MULTIPLIER
 
         val y = bounds.centerY() - ((textPaint.descent() + textPaint.ascent()) / 2f)
         val x = bounds.centerX().toFloat()
+
+        canvas.drawCircle(x,bounds.centerY().toFloat(), radius.toFloat(), backgroundPaint);
         canvas.drawText(text, x, y, textPaint)
     }
 

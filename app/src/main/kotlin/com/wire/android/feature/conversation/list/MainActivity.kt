@@ -3,9 +3,10 @@ package com.wire.android.feature.conversation.list
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.work.WorkInfo
 import com.wire.android.R
-import com.wire.android.core.extension.toast
 import com.wire.android.core.ui.navigation.Navigator
 import com.wire.android.feature.sync.ui.SyncViewModel
 import kotlinx.android.synthetic.main.activity_main.*
@@ -27,9 +28,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun syncData() {
         syncViewModel.startSync() //TODO: this should normally be triggered by PushService
         syncViewModel.syncStatusLiveData.observe(this) {
-            //TODO: show loading bar
-            toast("Syncing data: $it")
+            handleLoadingBarVisibility(it)
         }
+    }
+
+    private fun handleLoadingBarVisibility(state : WorkInfo.State){
+        if(state == WorkInfo.State.RUNNING)
+            infiniteLoadingBarView.visibility = View.VISIBLE
+        else
+            infiniteLoadingBarView.visibility = View.GONE
     }
 
     private fun setUpBottomNavigation() = with(mainBottomNavigation) {

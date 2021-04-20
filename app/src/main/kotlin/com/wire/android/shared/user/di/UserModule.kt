@@ -15,7 +15,7 @@ import com.wire.android.shared.user.usecase.GetCurrentUserUseCase
 import org.koin.dsl.module
 
 val userModule = module {
-    single<UserRepository> { UserDataSource(get(), get(), get()) }
+    single<UserRepository> { UserDataSource(get(), get(), get(), get()) }
     single { UserLocalDataSource(get()) }
     factory { get<GlobalDatabase>().userDao() }
 

@@ -4,21 +4,20 @@ import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.contact.datasources.remote.ContactResponse
 import com.wire.android.shared.asset.PublicAsset
-import com.wire.android.shared.asset.datasources.remote.AssetResponse
-import com.wire.android.shared.asset.mapper.profilePictureAssetKey
+import com.wire.android.shared.asset.mapper.AssetMapper
 
 class ContactMapper {
 
-    fun fromContactResponseListToEntityList(contactResponseList: List<ContactResponse>): List<ContactEntity> =
-        contactResponseList.map { fromContactResponseToEntity(it) }
+    fun fromContactResponseListToEntityList(contactResponseList: List<ContactResponse>, assetMapper: AssetMapper): List<ContactEntity> =
+        contactResponseList.map { fromContactResponseToEntity(it, assetMapper) }
 
     private fun fromContactResponseToEntity(
         contactResponse: ContactResponse,
-        getProfilePictureAssetKey: (List<AssetResponse>) -> String? = { profilePictureAssetKey(it) }
+        assetMapper: AssetMapper
     ) = ContactEntity(
         id = contactResponse.id,
         name = contactResponse.name,
-        assetKey = getProfilePictureAssetKey(contactResponse.assets)
+        assetKey = assetMapper.profilePictureAssetKey(contactResponse.assets)
     )
 
     fun fromContactEntityList(entityList: List<ContactEntity>): List<Contact> =

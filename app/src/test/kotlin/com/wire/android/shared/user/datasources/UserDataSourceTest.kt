@@ -8,6 +8,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.shared.asset.datasources.remote.AssetResponse
+import com.wire.android.shared.asset.mapper.AssetMapper
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.datasources.local.UserEntity
 import com.wire.android.shared.user.datasources.local.UserLocalDataSource
@@ -22,7 +23,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -38,6 +38,9 @@ class UserDataSourceTest : UnitTest() {
     private lateinit var userMapper: UserMapper
 
     @MockK
+    private lateinit var assetMapper: AssetMapper
+
+    @MockK
     private lateinit var selfUserResponse: SelfUserResponse
 
     @MockK
@@ -46,18 +49,13 @@ class UserDataSourceTest : UnitTest() {
     @MockK
     private lateinit var userEntity: UserEntity
 
-    private lateinit var userDataSource: UserDataSource
+    private var assets: List<AssetResponse> = listOf()
 
-    private var invokedTimesProfilePictureAssetKeyMock : Int = 0
+    private lateinit var userDataSource: UserDataSource
 
     @Before
     fun setUp() {
-        userDataSource = UserDataSource(localDataSource, remoteDataSource, userMapper) { profilePictureAssetKeyMock(listOf()) }
-    }
-
-    private fun profilePictureAssetKeyMock (assets : List<AssetResponse>) : String{
-        invokedTimesProfilePictureAssetKeyMock++
-        return ""
+        userDataSource = UserDataSource(localDataSource, remoteDataSource, userMapper, assetMapper)
     }
 
     @Test
@@ -66,6 +64,7 @@ class UserDataSourceTest : UnitTest() {
         every { userMapper.fromSelfUserResponse(selfUserResponse) } returns user
         every { userMapper.toUserEntity(user) } returns userEntity
         coEvery { localDataSource.save(userEntity) } returns Either.Right(Unit)
+        coEvery { assetMapper.profilePictureAssetKey(assets) } returns ASSET_KEY
 
         val result = runBlocking { userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) }
 
@@ -73,8 +72,8 @@ class UserDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { remoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
         verify(exactly = 1) { userMapper.fromSelfUserResponse(selfUserResponse) }
         verify(exactly = 1) { userMapper.toUserEntity(user) }
-        Assert.assertEquals(1, invokedTimesProfilePictureAssetKeyMock)
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
+        coVerify(exactly = 1) { assetMapper.profilePictureAssetKey(assets) }
     }
 
     @Test
@@ -84,6 +83,7 @@ class UserDataSourceTest : UnitTest() {
         every { userMapper.fromSelfUserResponse(selfUserResponse) } returns user
         every { userMapper.toUserEntity(user) } returns userEntity
         coEvery { localDataSource.save(userEntity) } returns Either.Left(failure)
+        coEvery { assetMapper.profilePictureAssetKey(assets) } returns ASSET_KEY
 
         val result = runBlocking { userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) }
 
@@ -92,8 +92,8 @@ class UserDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { remoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
         verify(exactly = 1) { userMapper.fromSelfUserResponse(selfUserResponse) }
         verify(exactly = 1) { userMapper.toUserEntity(user) }
-        Assert.assertEquals(1, invokedTimesProfilePictureAssetKeyMock)
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
+        coVerify(exactly = 1) { assetMapper.profilePictureAssetKey(assets) }
     }
 
     @Test
@@ -197,5 +197,6 @@ class UserDataSourceTest : UnitTest() {
         private const val TEST_TOKEN_TYPE = "token-type-bearer"
         private const val TEST_USERNAME = "username"
         private const val TEST_USER_ID = "user-id"
+        private const val ASSET_KEY = "asset-key"
     }
 }

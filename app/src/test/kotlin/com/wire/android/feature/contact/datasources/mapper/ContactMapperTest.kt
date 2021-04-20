@@ -6,6 +6,7 @@ import com.wire.android.feature.contact.datasources.remote.ContactResponse
 import com.wire.android.framework.collections.second
 import com.wire.android.shared.asset.PublicAsset
 import com.wire.android.shared.asset.datasources.remote.AssetResponse
+import com.wire.android.shared.asset.mapper.AssetMapper
 import io.mockk.every
 import io.mockk.mockk
 import org.amshove.kluent.shouldBeEqualTo
@@ -16,10 +17,12 @@ import org.junit.Test
 class ContactMapperTest : UnitTest() {
 
     private lateinit var contactMapper: ContactMapper
+    private lateinit var assetMapper: AssetMapper
 
     @Before
     fun setUp() {
         contactMapper = ContactMapper()
+        assetMapper = AssetMapper()
     }
 
     @Test
@@ -38,7 +41,8 @@ class ContactMapperTest : UnitTest() {
         every { contactResponse.assets } returns emptyList()
 
         val result = contactMapper.fromContactResponseListToEntityList(
-            listOf(contactResponseWithAsset, contactResponse)
+            listOf(contactResponseWithAsset, contactResponse),
+            assetMapper
         )
 
         result.first().let {

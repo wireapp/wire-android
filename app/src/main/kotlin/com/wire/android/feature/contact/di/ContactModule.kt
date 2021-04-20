@@ -11,7 +11,7 @@ import com.wire.android.feature.contact.datasources.remote.ContactsApi
 import org.koin.dsl.module
 
 val contactModule = module {
-    factory<ContactRepository> { ContactDataSource(get(), get(), get()) }
+    factory<ContactRepository> { ContactDataSource(get(), get(), get(), get()) }
     single { ContactRemoteDataSource(get(), get()) }
     single { get<NetworkClient>().create(ContactsApi::class.java) }
     factory { ContactLocalDataSource(get()) }

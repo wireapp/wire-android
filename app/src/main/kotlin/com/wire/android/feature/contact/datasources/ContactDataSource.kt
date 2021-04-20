@@ -11,11 +11,13 @@ import com.wire.android.feature.contact.datasources.local.ContactLocalDataSource
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
 import com.wire.android.feature.contact.datasources.remote.ContactRemoteDataSource
 import com.wire.android.feature.contact.datasources.remote.ContactResponse
+import com.wire.android.shared.asset.mapper.AssetMapper
 
 class ContactDataSource(
     private val contactRemoteDataSource: ContactRemoteDataSource,
     private val contactLocalDataSource: ContactLocalDataSource,
-    private val contactMapper: ContactMapper
+    private val contactMapper: ContactMapper,
+    private val assetMapper: AssetMapper
 ) : ContactRepository {
 
     override suspend fun fetchContactsById(ids: Set<String>): Either<Failure, Unit> = suspending {
@@ -34,7 +36,7 @@ class ContactDataSource(
         contactLocalDataSource.contactsById(ids)
 
     private suspend fun saveRemoteContacts(remoteContacts: List<ContactResponse>): Either<Failure, List<ContactEntity>> {
-        val entities = contactMapper.fromContactResponseListToEntityList(remoteContacts)
+        val entities = contactMapper.fromContactResponseListToEntityList(remoteContacts, assetMapper)
         return contactLocalDataSource.saveContacts(entities).map { entities }
     }
 }

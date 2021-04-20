@@ -52,8 +52,12 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profilePictureImageView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginStart="@dimen/profile_user_picture_margin_start"
+        android:layout_marginTop="@dimen/profile_user_picture_margin_top"
+        android:layout_marginEnd="@dimen/profile_user_picture_margin_end"
+        android:layout_marginBottom="@dimen/profile_user_picture_margin_bottom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

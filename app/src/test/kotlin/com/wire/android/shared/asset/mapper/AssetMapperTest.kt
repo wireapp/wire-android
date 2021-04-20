@@ -36,7 +36,7 @@ class AssetMapperTest : UnitTest() {
     fun `given profilePictureAssetKey is called with empty assets list then return null`() {
         val assets = listOf<AssetResponse>()
 
-        val result = profilePictureAssetKey(assets)
+        val result = assetMapper.profilePictureAssetKey(assets)
 
         result.shouldBeNull()
     }
@@ -52,7 +52,7 @@ class AssetMapperTest : UnitTest() {
             )
         )
 
-        val result = profilePictureAssetKey(assets)
+        val result = assetMapper.profilePictureAssetKey(assets)
 
         result.shouldBeNull()
     }
@@ -64,7 +64,7 @@ class AssetMapperTest : UnitTest() {
             AssetResponse(TEST_SIZE_UNKNOWN, TEST_KEY_UNKNOWN, TEST_TYPE_UNKNOWN)
         )
 
-        val result = profilePictureAssetKey(assets)
+        val result = assetMapper.profilePictureAssetKey(assets)
 
         result shouldBeEqualTo TEST_KEY
     }

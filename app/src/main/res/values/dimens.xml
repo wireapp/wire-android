@@ -89,6 +89,10 @@
 
     <!-- Profile -->
     <dimen name="profile_user_detail_margin_top">4dp</dimen>
+    <dimen name="profile_user_picture_margin_top">16dp</dimen>
+    <dimen name="profile_user_picture_margin_bottom">8dp</dimen>
+    <dimen name="profile_user_picture_margin_start">8dp</dimen>
+    <dimen name="profile_user_picture_margin_end">8dp</dimen>
 
     <!-- endregion -->
 </resources>

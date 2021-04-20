@@ -26,18 +26,17 @@ class TextDrawable(
     }
 
     override fun draw(canvas: Canvas) {
-        takeUnless { isCirclePlaceholder }?.apply {
-            canvas.drawRect(Rect(bounds), backgroundPaint)
-        }
         val radius = minOf(bounds.width(), bounds.height()) / 2
         textPaint.textSize = radius * TEXT_SIZE_MULTIPLIER
 
         val y = bounds.centerY() - ((textPaint.descent() + textPaint.ascent()) / 2f)
         val x = bounds.centerX().toFloat()
 
-        takeIf { isCirclePlaceholder }?.apply {
+        if(isCirclePlaceholder)
             canvas.drawCircle(x, bounds.centerY().toFloat(), radius.toFloat(), backgroundPaint)
-        }
+        else
+            canvas.drawRect(Rect(bounds), backgroundPaint)
+
         canvas.drawText(text, x, y, textPaint)
     }
 

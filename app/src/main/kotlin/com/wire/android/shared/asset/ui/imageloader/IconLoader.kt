@@ -16,10 +16,10 @@ class IconLoader(private val localeConfig: LocaleConfig) {
         profilePicture: Asset?,
         name: String,
         imageView: ImageView,
-        withCirclePlaceholder : Boolean = false,
+        isCirclePlaceholder : Boolean = false,
         requestOptions: RequestOptions.() -> Unit = {}
     ): RequestBuilder<Drawable> {
-        val fallback = createFallbackDrawable(name, withCirclePlaceholder)
+        val fallback = createFallbackDrawable(name, isCirclePlaceholder)
         val data = profilePicture ?: fallback
 
         return Glide.with(imageView)
@@ -32,10 +32,10 @@ class IconLoader(private val localeConfig: LocaleConfig) {
             )
     }
 
-    private fun createFallbackDrawable(name: String, withCirclePlaceholder : Boolean): Drawable {
+    private fun createFallbackDrawable(name: String, isCirclePlaceholder : Boolean): Drawable {
         val nameInitial =
             name.firstOrNull().toStringOrEmpty().toUpperCase(localeConfig.currentLocale())
-        return TextDrawable(text = nameInitial, isCirclePlaceholder = withCirclePlaceholder)
+        return TextDrawable(text = nameInitial, isCirclePlaceholder = isCirclePlaceholder)
     }
 
 }

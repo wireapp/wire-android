@@ -215,8 +215,6 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       }
 
       sh './gradlew jacocoReport'
-      sh 'curl -s https://codecov.io/bash > codecov.sh'
-      sh "bash codecov.sh -t ${env.CODECOV_TOKEN}"
       wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
     }
 

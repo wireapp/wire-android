@@ -41,7 +41,7 @@ class SyncViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given startSync is called, when checkSlowSyncRequiredUseCase succeeds with "true", then starts slow sync`() {
+    fun `given startSync is called, when checkSlowSyncRequiredUseCase succeeds with true, then starts slow sync`() {
         coEvery { checkSlowSyncRequiredUseCase.run(Unit) } returns Either.Right(true)
 
         syncViewModel.startSync()
@@ -51,7 +51,7 @@ class SyncViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given startSync is called, when checkSlowSyncRequiredUseCase succeeds with "false", then does not start slow sync`() {
+    fun `given startSync is called, when checkSlowSyncRequiredUseCase succeeds with false, then does not start slow sync`() {
         coEvery { checkSlowSyncRequiredUseCase.run(Unit) } returns Either.Right(false)
 
         syncViewModel.startSync()

@@ -49,7 +49,8 @@ class UserDataSourceTest : UnitTest() {
     @MockK
     private lateinit var userEntity: UserEntity
 
-    private var assets: List<AssetResponse> = listOf()
+    @MockK
+    private lateinit var assets: List<AssetResponse>
 
     private lateinit var userDataSource: UserDataSource
 
@@ -64,7 +65,8 @@ class UserDataSourceTest : UnitTest() {
         every { userMapper.fromSelfUserResponse(selfUserResponse) } returns user
         every { userMapper.toUserEntity(user) } returns userEntity
         coEvery { localDataSource.save(userEntity) } returns Either.Right(Unit)
-        coEvery { assetMapper.profilePictureAssetKey(assets) } returns ASSET_KEY
+        every { selfUserResponse.assets } returns assets
+        every { assetMapper.profilePictureAssetKey(assets) } returns ASSET_KEY
 
         val result = runBlocking { userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) }
 
@@ -73,7 +75,7 @@ class UserDataSourceTest : UnitTest() {
         verify(exactly = 1) { userMapper.fromSelfUserResponse(selfUserResponse) }
         verify(exactly = 1) { userMapper.toUserEntity(user) }
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
-        coVerify(exactly = 1) { assetMapper.profilePictureAssetKey(assets) }
+        verify(exactly = 1) { assetMapper.profilePictureAssetKey(assets) }
     }
 
     @Test
@@ -82,8 +84,9 @@ class UserDataSourceTest : UnitTest() {
         coEvery { remoteDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) } returns Either.Right(selfUserResponse)
         every { userMapper.fromSelfUserResponse(selfUserResponse) } returns user
         every { userMapper.toUserEntity(user) } returns userEntity
+        every { selfUserResponse.assets } returns assets
+        every { assetMapper.profilePictureAssetKey(assets) } returns ASSET_KEY
         coEvery { localDataSource.save(userEntity) } returns Either.Left(failure)
-        coEvery { assetMapper.profilePictureAssetKey(assets) } returns ASSET_KEY
 
         val result = runBlocking { userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) }
 
@@ -92,8 +95,8 @@ class UserDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { remoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
         verify(exactly = 1) { userMapper.fromSelfUserResponse(selfUserResponse) }
         verify(exactly = 1) { userMapper.toUserEntity(user) }
+        verify(exactly = 1) { assetMapper.profilePictureAssetKey(assets) }
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
-        coVerify(exactly = 1) { assetMapper.profilePictureAssetKey(assets) }
     }
 
     @Test

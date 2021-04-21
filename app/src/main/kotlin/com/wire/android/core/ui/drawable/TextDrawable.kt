@@ -12,8 +12,7 @@ import androidx.annotation.ColorInt
 class TextDrawable(
     private val text: String,
     @ColorInt private val textColor: Int = Color.WHITE, //TODO: get colors from xml or theme
-    @ColorInt private val backgroundColor: Int = Color.RED,
-    private val isCirclePlaceholder : Boolean = false
+    @ColorInt private val backgroundColor: Int = Color.RED
 ) : Drawable() {
 
     private val textPaint = Paint().apply {
@@ -26,16 +25,13 @@ class TextDrawable(
     }
 
     override fun draw(canvas: Canvas) {
+        canvas.drawRect(Rect(bounds), backgroundPaint)
+
         val radius = minOf(bounds.width(), bounds.height()) / 2
         textPaint.textSize = radius * TEXT_SIZE_MULTIPLIER
 
         val y = bounds.centerY() - ((textPaint.descent() + textPaint.ascent()) / 2f)
         val x = bounds.centerX().toFloat()
-
-        if(isCirclePlaceholder)
-            canvas.drawCircle(x, bounds.centerY().toFloat(), radius.toFloat(), backgroundPaint)
-        else
-            canvas.drawRect(Rect(bounds), backgroundPaint)
 
         canvas.drawText(text, x, y, textPaint)
     }

@@ -52,16 +52,15 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profilePictureImageView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="@dimen/profile_user_picture_width"
+        android:layout_height="@dimen/profile_user_picture_height"
         android:layout_marginStart="@dimen/profile_user_picture_margin_start"
         android:layout_marginTop="@dimen/profile_user_picture_margin_top"
         android:layout_marginEnd="@dimen/profile_user_picture_margin_end"
         android:layout_marginBottom="@dimen/profile_user_picture_margin_bottom"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profileHandleTextView" />
-
-
+        app:layout_constraintTop_toBottomOf="@id/profileTeamInfoTextView"
+        app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.Circle"
+        tools:src="@tools:sample/avatars" />
 </androidx.constraintlayout.widget.ConstraintLayout>

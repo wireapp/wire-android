@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/infiniteLoadingBarView"
+        android:id="@+id/mainLoadingProgressIndicator"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:indeterminate="true"

@@ -34,9 +34,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun handleLoadingBarVisibility(state: WorkInfo.State) {
         if (state == WorkInfo.State.RUNNING)
-            infiniteLoadingBarView.visibility = View.VISIBLE
+            mainLoadingProgressIndicator.visibility = View.VISIBLE
         else
-            infiniteLoadingBarView.visibility = View.GONE
+            mainLoadingProgressIndicator.visibility = View.GONE
     }
 
     private fun setUpBottomNavigation() = with(mainBottomNavigation) {

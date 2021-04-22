@@ -2,14 +2,23 @@ package com.wire.android.shared.user.mapper
 
 import com.wire.android.feature.auth.registration.datasource.remote.RegisteredUserResponse
 import com.wire.android.shared.asset.PublicAsset
+import com.wire.android.shared.asset.mapper.AssetMapper
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.datasources.local.UserEntity
 import com.wire.android.shared.user.datasources.remote.SelfUserResponse
 
-class UserMapper {
+class UserMapper(private val assetMapper: AssetMapper) {
 
-    fun fromSelfUserResponse(response: SelfUserResponse) =
-        User(id = response.id, name = response.name, email = response.email, username = response.handle)
+    fun fromSelfUserResponse(response: SelfUserResponse) : User {
+        return User(
+            id = response.id,
+            name = response.name,
+            email = response.email,
+            username = response.handle,
+            profilePicture = assetMapper.profilePictureAssetKey(response.assets)?.let { PublicAsset(it) }
+        )
+
+    }
 
     fun fromRegisteredUserResponse(response: RegisteredUserResponse) =
         User(id = response.id, name = response.name, email = response.email, username = response.handle)
@@ -20,7 +29,6 @@ class UserMapper {
             name = entity.name,
             email = entity.email,
             username = entity.username,
-            assetKey = entity.assetKey,
             profilePicture = entity.assetKey?.let { PublicAsset(it) })
 
     fun toUserEntity(user: User) = UserEntity(
@@ -28,6 +36,6 @@ class UserMapper {
         name = user.name,
         email = user.email,
         username = user.username,
-        assetKey = user.assetKey
+        assetKey = (user.profilePicture as PublicAsset).key
     )
 }

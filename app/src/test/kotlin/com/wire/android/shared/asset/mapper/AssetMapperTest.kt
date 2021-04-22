@@ -33,7 +33,7 @@ class AssetMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given profilePictureAssetKey is called with empty assets list then return null`() {
+    fun `given profilePictureAssetKey is called, when asset list is empty, then return null`() {
         val assets = listOf<AssetResponse>()
 
         val result = assetMapper.profilePictureAssetKey(assets)
@@ -42,7 +42,7 @@ class AssetMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given profilePictureAssetKey is called when assets list does not contain completed size picture then return null`() {
+    fun `given profilePictureAssetKey is called, when assets list does not contain completed size picture, then return null`() {
         val assets = listOf(
             AssetResponse(TEST_SIZE_UNKNOWN, TEST_KEY_UNKNOWN, TEST_TYPE_UNKNOWN),
             AssetResponse(
@@ -58,7 +58,7 @@ class AssetMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given profilePictureAssetKey is called with valid assets list then return asset key`() {
+    fun `given profilePictureAssetKey is called, when asset list contains an asset with complete type, then return asset key`() {
         val assets = listOf(
             AssetResponse(TEST_SIZE, TEST_KEY, TEST_TYPE),
             AssetResponse(TEST_SIZE_UNKNOWN, TEST_KEY_UNKNOWN, TEST_TYPE_UNKNOWN)

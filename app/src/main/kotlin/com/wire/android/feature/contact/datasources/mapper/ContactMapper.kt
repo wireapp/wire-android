@@ -6,14 +6,13 @@ import com.wire.android.feature.contact.datasources.remote.ContactResponse
 import com.wire.android.shared.asset.PublicAsset
 import com.wire.android.shared.asset.mapper.AssetMapper
 
-class ContactMapper {
+class ContactMapper(private val assetMapper: AssetMapper) {
 
-    fun fromContactResponseListToEntityList(contactResponseList: List<ContactResponse>, assetMapper: AssetMapper): List<ContactEntity> =
-        contactResponseList.map { fromContactResponseToEntity(it, assetMapper) }
+    fun fromContactResponseListToEntityList(contactResponseList: List<ContactResponse>): List<ContactEntity> =
+        contactResponseList.map { fromContactResponseToEntity(it) }
 
     private fun fromContactResponseToEntity(
         contactResponse: ContactResponse,
-        assetMapper: AssetMapper
     ) = ContactEntity(
         id = contactResponse.id,
         name = contactResponse.name,

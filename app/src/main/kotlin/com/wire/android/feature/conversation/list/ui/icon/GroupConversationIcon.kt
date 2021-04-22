@@ -9,9 +9,9 @@ import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
 import com.wire.android.feature.contact.Contact
-import com.wire.android.shared.asset.ui.imageloader.IconLoader
+import com.wire.android.shared.asset.ui.imageloader.AvatarLoader
 
-class GroupConversationIcon(private val contacts: List<Contact>, private val iconLoader: IconLoader) : ConversationIcon {
+class GroupConversationIcon(private val contacts: List<Contact>, private val avatarLoader: AvatarLoader) : ConversationIcon {
 
     override fun background(context: Context): Drawable? =
         ContextCompat.getDrawable(context, R.drawable.conversation_icon_border)
@@ -23,7 +23,7 @@ class GroupConversationIcon(private val contacts: List<Contact>, private val ico
         imageView.setImageDrawable(layerDrawable)
 
         contacts.forEachIndexed { index, contact ->
-            iconLoader.load(contact.profilePicture, contact.name, imageView)
+            avatarLoader.load(contact.profilePicture, contact.name, imageView)
                 .into(object : CustomTarget<Drawable>() {
                     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                         layerDrawable.setDrawable(index, resource)

@@ -11,7 +11,6 @@ import com.wire.android.feature.contact.datasources.remote.ContactRemoteDataSour
 import com.wire.android.feature.contact.datasources.remote.ContactResponse
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import com.wire.android.shared.asset.mapper.AssetMapper
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -35,14 +34,11 @@ class ContactDataSourceTest : UnitTest() {
     @MockK
     private lateinit var contactMapper: ContactMapper
 
-    @MockK
-    private lateinit var assetMapper: AssetMapper
-
     private lateinit var contactDataSource: ContactDataSource
 
     @Before
     fun setUp() {
-        contactDataSource = ContactDataSource(contactRemoteDataSource, contactLocalDataSource, contactMapper, assetMapper)
+        contactDataSource = ContactDataSource(contactRemoteDataSource, contactLocalDataSource, contactMapper)
     }
 
     @Test
@@ -84,7 +80,7 @@ class ContactDataSourceTest : UnitTest() {
     @Test
     fun `given fetchContactsById is called and remote items are fetched, when items fail to be saved, then propagates the failure`() {
         coEvery { contactRemoteDataSource.contactsById(any()) } returns Either.Right(mockk())
-        every { contactMapper.fromContactResponseListToEntityList(any(), assetMapper) } returns mockk()
+        every { contactMapper.fromContactResponseListToEntityList(any()) } returns mockk()
 
         val failure = mockk<Failure>()
         coEvery { contactLocalDataSource.saveContacts(any()) } returns Either.Left(failure)
@@ -100,14 +96,14 @@ class ContactDataSourceTest : UnitTest() {
         coEvery { contactRemoteDataSource.contactsById(any()) } returns Either.Right(listOf(contactResponse))
 
         val savedItems = mockk<List<ContactEntity>>()
-        every { contactMapper.fromContactResponseListToEntityList(any(), assetMapper) } returns savedItems
+        every { contactMapper.fromContactResponseListToEntityList(any()) } returns savedItems
         coEvery { contactLocalDataSource.saveContacts(any()) } returns Either.Right(Unit)
 
         val result = runBlocking { contactDataSource.fetchContactsById(TEST_CONTACT_IDS) }
 
         result shouldSucceed { it shouldBe Unit }
         coVerify(exactly = 1) { contactRemoteDataSource.contactsById(TEST_CONTACT_IDS) }
-        verify(exactly = 1) { contactMapper.fromContactResponseListToEntityList(any(), assetMapper) }
+        verify(exactly = 1) { contactMapper.fromContactResponseListToEntityList(any()) }
         coVerify(exactly = 1) { contactLocalDataSource.saveContacts(savedItems) }
     }
 

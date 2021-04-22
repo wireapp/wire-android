@@ -7,6 +7,5 @@ data class User(
     val name: String,
     val email: String? = null,
     val username: String? = null,
-    var assetKey: String? = null,
     val profilePicture: Asset? = null
 )

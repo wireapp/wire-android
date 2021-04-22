@@ -10,7 +10,7 @@ import com.wire.android.core.extension.toStringOrEmpty
 import com.wire.android.core.ui.drawable.TextDrawable
 import com.wire.android.shared.asset.Asset
 
-class IconLoader(private val localeConfig: LocaleConfig) {
+class AvatarLoader(private val localeConfig: LocaleConfig) {
 
     fun load(
         profilePicture: Asset?,

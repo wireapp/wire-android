@@ -27,11 +27,12 @@ android {
     }
 
 }
-
+/** TODO Add Sonatype repos once CryptoBox is published
 repositories {
-//    maven(Repositories.sonatypeReleases)
-//    maven(Repositories.sonatypeSnapshots)
+    maven(Repositories.sonatypeReleases)
+    maven(Repositories.sonatypeSnapshots)
 }
+**/
 
 dependencies {
 

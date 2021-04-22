@@ -42,8 +42,9 @@ data class ClientID(val value: String) {
     override fun toString() = value
 
     object Generator : IDGenerator<ClientID> {
+        private const val CLIENT_ID_RADIX = 16
         override fun random(): ClientID {
-            return ClientID(Random.long().toString(16))
+            return ClientID(Random.long().toString(CLIENT_ID_RADIX))
         }
 
         override fun decode(value: String): ClientID {

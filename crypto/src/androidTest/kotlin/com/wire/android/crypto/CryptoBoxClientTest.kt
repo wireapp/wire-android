@@ -21,10 +21,10 @@ class CryptoBoxClientTest : InstrumentationTest() {
     val temporaryFolder = TemporaryFolder()
 
     @MockK
-    private lateinit var repositoryMock: PreKeyRepository
+    private lateinit var repository: PreKeyRepository
 
     @MockK
-    private lateinit var mapperMock: PreKeyMapper
+    private lateinit var mapper: PreKeyMapper
 
     private val rootFolder: File
         get() = temporaryFolder.root
@@ -33,35 +33,35 @@ class CryptoBoxClientTest : InstrumentationTest() {
 
     @Before
     fun setup() {
-        subject = CryptoBoxClient(rootFolder, repositoryMock, mapperMock)
+        subject = CryptoBoxClient(rootFolder, repository, mapper)
     }
 
     @Test
     fun givenPreKeysAreNeeded_whenTheyAreCreated_thenTheRepositoryIsUpdated() {
         val preKey = PreKey(42, "data")
-        every { mapperMock.fromCryptoBoxModel(any()) } returns preKey
+        every { mapper.fromCryptoBoxModel(any()) } returns preKey
 
         subject.createInitialPreKeys()
         verify(exactly = 1) {
-            repositoryMock.updateLastPreKeyID(any())
+            repository.updateLastPreKeyID(any())
         }
     }
 
     @Test
     fun givenPreKeysAreGenerated_whenConverting_theMapperShouldBeUsed() {
         val preKey = PreKey(42, "data")
-        every { mapperMock.fromCryptoBoxModel(any()) } returns preKey
+        every { mapper.fromCryptoBoxModel(any()) } returns preKey
 
         val generated = subject.createInitialPreKeys()
 
         val allKeys = generated.createdKeys + generated.lastKey
-        verify(exactly = allKeys.size) { mapperMock.fromCryptoBoxModel(any()) }
+        verify(exactly = allKeys.size) { mapper.fromCryptoBoxModel(any()) }
     }
 
     @Test
     fun givenPreKeysAreGenerated_whenReturning_theMapperResultShouldBeUsed() {
         val preKey = PreKey(42, "data")
-        every { mapperMock.fromCryptoBoxModel(any()) } returns preKey
+        every { mapper.fromCryptoBoxModel(any()) } returns preKey
 
         val generated = subject.createInitialPreKeys()
 
@@ -74,12 +74,12 @@ class CryptoBoxClientTest : InstrumentationTest() {
     @Test
     fun givenPreKeysAreGenerated_whenStoring_theLastPreKeyIdShouldBeUsed() {
         val preKey = PreKey(42, "data")
-        every { mapperMock.fromCryptoBoxModel(any()) } returns preKey
+        every { mapper.fromCryptoBoxModel(any()) } returns preKey
 
         val result = subject.createInitialPreKeys()
         val lastKeyId = result.createdKeys.last().id
         verify {
-            repositoryMock.updateLastPreKeyID(lastKeyId)
+            repository.updateLastPreKeyID(lastKeyId)
         }
     }
 

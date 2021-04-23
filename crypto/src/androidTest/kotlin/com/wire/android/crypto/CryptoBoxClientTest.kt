@@ -1,7 +1,6 @@
 package com.wire.android.crypto
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.wire.android.base.BaseTest
+import com.wire.android.base.InstrumentationTest
 import com.wire.android.crypto.mapper.CryptoBoxMapper
 import com.wire.android.crypto.model.PreKey
 import com.wire.android.crypto.storage.PreKeyRepository
@@ -14,11 +13,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import org.junit.runner.RunWith
 import java.io.File
 
-@RunWith(AndroidJUnit4::class)
-class CryptoBoxClientTest : BaseTest() {
+class CryptoBoxClientTest : InstrumentationTest() {
 
     @get:Rule
     val temporaryFolder = TemporaryFolder()

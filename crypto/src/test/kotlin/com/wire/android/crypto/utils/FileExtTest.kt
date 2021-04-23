@@ -1,7 +1,7 @@
 package com.wire.android.crypto.utils
 
 import com.wire.android.crypto.UnitTest
-import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 import java.io.File
 
@@ -14,6 +14,6 @@ class FileExtTest : UnitTest() {
 
         val childFile = rootFile + childSubPath
 
-        childFile `should be equal to` File(rootFile, childSubPath)
+        childFile shouldBeEqualTo File(rootFile, childSubPath)
     }
 }

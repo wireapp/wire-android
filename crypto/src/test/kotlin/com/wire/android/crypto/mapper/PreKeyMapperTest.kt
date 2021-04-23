@@ -2,7 +2,7 @@ package com.wire.android.crypto.mapper
 
 import com.wire.android.crypto.AndroidTest
 import com.wire.android.crypto.model.PreKey
-import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 
 class PreKeyMapperTest : AndroidTest() {
@@ -14,7 +14,7 @@ class PreKeyMapperTest : AndroidTest() {
         val model = com.wire.cryptobox.PreKey(42, byteArrayOf(0x00, 0x16, 0x32, 0x42))
         val result = subject.fromCryptoBoxModel(model)
 
-        result `should be equal to` PreKey(42, "ABYyQg==")
+        result shouldBeEqualTo PreKey(42, "ABYyQg==")
     }
 
     @Test
@@ -27,8 +27,8 @@ class PreKeyMapperTest : AndroidTest() {
             byteArrayOf(35, 8, -84, -121, 42, 46, 106, -9, -85, -54, 120, -100, 121, -42, -78)
         )
 
-        result.data `should be equal to` expectedResult.data
-        result.id `should be equal to` expectedResult.id
+        result.data shouldBeEqualTo expectedResult.data
+        result.id shouldBeEqualTo expectedResult.id
     }
 
     @Test
@@ -37,7 +37,7 @@ class PreKeyMapperTest : AndroidTest() {
 
         val converted = subject.toCryptoBoxModel(original)
 
-        subject.fromCryptoBoxModel(converted) `should be equal to` original
+        subject.fromCryptoBoxModel(converted) shouldBeEqualTo original
     }
 
     @Test
@@ -48,8 +48,8 @@ class PreKeyMapperTest : AndroidTest() {
 
         val result = subject.toCryptoBoxModel(converted)
 
-        result.id `should be equal to` original.id
-        result.data `should be equal to` result.data
+        result.id shouldBeEqualTo original.id
+        result.data shouldBeEqualTo result.data
     }
 
 }

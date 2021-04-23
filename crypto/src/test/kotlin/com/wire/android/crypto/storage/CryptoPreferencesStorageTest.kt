@@ -2,7 +2,7 @@ package com.wire.android.crypto.storage
 
 import com.wire.android.crypto.AndroidTest
 import com.wire.android.crypto.model.UserID
-import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 
@@ -25,7 +25,7 @@ class CryptoPreferencesStorageTest : AndroidTest() {
         subjectA.updateLastPreKeyID(42)
         subjectB.updateLastPreKeyID(84)
 
-        subjectA.lastPreKeyId() `should be equal to` 42
+        subjectA.lastPreKeyId() shouldBeEqualTo 42
     }
 
     @Test
@@ -37,7 +37,7 @@ class CryptoPreferencesStorageTest : AndroidTest() {
 
         subjectOne.updateLastPreKeyID(42)
 
-        subjectOne.lastPreKeyId() `should be equal to` 42
-        subjectTwo.lastPreKeyId() `should be equal to` 42
+        subjectOne.lastPreKeyId() shouldBeEqualTo 42
+        subjectTwo.lastPreKeyId() shouldBeEqualTo 42
     }
 }

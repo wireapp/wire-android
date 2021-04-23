@@ -1,7 +1,6 @@
 package com.wire.android.crypto
 
-import com.wire.android.crypto.mapper.CryptoBoxMapper
-import com.wire.android.crypto.model.PreKey
+import com.wire.android.crypto.mapper.PreKeyMapper
 import com.wire.android.crypto.model.PreKeyInitialization
 import com.wire.android.crypto.storage.PreKeyRepository
 import com.wire.cryptobox.CryptoBox
@@ -10,7 +9,7 @@ import java.io.File
 class CryptoBoxClient(
     private val cryptoBoxRootDirectory: File,
     private val preKeyRepository: PreKeyRepository,
-    private val preKeyMapper: CryptoBoxMapper<PreKey, com.wire.cryptobox.PreKey>
+    private val preKeyMapper: PreKeyMapper
 ) {
 
     private var _cryptoBox: CryptoBox? = null

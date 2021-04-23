@@ -1,7 +1,7 @@
 package com.wire.android.crypto
 
 import com.wire.android.base.InstrumentationTest
-import com.wire.android.crypto.mapper.CryptoBoxMapper
+import com.wire.android.crypto.mapper.PreKeyMapper
 import com.wire.android.crypto.model.PreKey
 import com.wire.android.crypto.storage.PreKeyRepository
 import io.mockk.every
@@ -24,7 +24,7 @@ class CryptoBoxClientTest : InstrumentationTest() {
     private lateinit var repositoryMock: PreKeyRepository
 
     @MockK
-    private lateinit var mapperMock: CryptoBoxMapper<PreKey, com.wire.cryptobox.PreKey>
+    private lateinit var mapperMock: PreKeyMapper
 
     private val rootFolder: File
         get() = temporaryFolder.root

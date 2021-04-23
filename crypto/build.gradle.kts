@@ -39,7 +39,6 @@ dependencies {
     implementation(Libraries.Kotlin.stdLib)
     implementation(Libraries.appCompat)
     implementation(Libraries.ktxCore)
-    implementation(Libraries.kotPref)
 
     implementation(Libraries.Crypto.cryptobox)
 

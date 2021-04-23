@@ -34,7 +34,7 @@ android {
 
 dependencies {
 
-    implementation(Module.CRYPTO.asDependencyTo(this))
+    implementation(project(Modules.crypto))
 
     // Application dependencies
     implementation(Libraries.Kotlin.stdLib)

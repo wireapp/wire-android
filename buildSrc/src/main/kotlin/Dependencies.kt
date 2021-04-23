@@ -53,7 +53,6 @@ object Libraries {
         const val material = "1.3.0"
         const val koin = "2.1.6"
         const val kotPref = "2.13.1"
-        const val libSodium = "2.0.2"
         const val lifecycleKtx = "2.2.0"
         const val retrofit = "2.9.0"
         const val okHttpLogging = "4.7.2"
@@ -84,7 +83,6 @@ object Libraries {
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"
-        const val libSodium    = "com.github.joshjdevl.libsodiumjni:libsodium-jni-aar:${Versions.libSodium}"
     }
 
     object Koin {

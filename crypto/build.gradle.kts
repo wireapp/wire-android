@@ -42,7 +42,6 @@ dependencies {
     implementation(Libraries.kotPref)
 
     implementation(Libraries.Crypto.cryptobox)
-    implementation(Libraries.Crypto.libSodium)
 
     testImplementation(TestLibraries.androidCore)
     testImplementation(TestLibraries.junit4)

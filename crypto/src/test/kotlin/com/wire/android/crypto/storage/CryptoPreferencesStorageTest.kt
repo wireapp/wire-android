@@ -10,7 +10,7 @@ class CryptoPreferencesStorageTest : AndroidTest() {
 
     @Test
     fun `given a value is stored, when attempting to read it, then the same value should be returned`() {
-        val subject = CryptoPreferencesStorage(context(), UserID.Generator.random())
+        val subject = CryptoPreferencesStorage(context(), UserID("123"))
 
         subject.updateLastPreKeyID(42)
 
@@ -19,8 +19,8 @@ class CryptoPreferencesStorageTest : AndroidTest() {
 
     @Test
     fun `given a value is updated on B, when reading from A, then it should return from A`() {
-        val subjectA = CryptoPreferencesStorage(context(), UserID.Generator.random())
-        val subjectB = CryptoPreferencesStorage(context(), UserID.Generator.random())
+        val subjectA = CryptoPreferencesStorage(context(), UserID("123"))
+        val subjectB = CryptoPreferencesStorage(context(), UserID("ABC"))
 
         subjectA.updateLastPreKeyID(42)
         subjectB.updateLastPreKeyID(84)
@@ -30,7 +30,7 @@ class CryptoPreferencesStorageTest : AndroidTest() {
 
     @Test
     fun `given two storages for the same User, when one is updated, then both should have the updated value`() {
-        val userID = UserID.Generator.random()
+        val userID = UserID("123")
 
         val subjectOne = CryptoPreferencesStorage(context(), userID)
         val subjectTwo = CryptoPreferencesStorage(context(), userID)

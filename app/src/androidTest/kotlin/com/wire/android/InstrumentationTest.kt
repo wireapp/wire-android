@@ -3,6 +3,7 @@ package com.wire.android
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.wire.android.framework.mock.InjectMockKsRule
 import com.wire.android.framework.retry.RetryTestRule
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -15,4 +16,9 @@ abstract class InstrumentationTest {
 
     @get:Rule
     val retryTestRule = RetryTestRule()
+
+    @Suppress("LeakingThis")
+    @Rule
+    @JvmField
+    val injectMocksRule = InjectMockKsRule.create(this)
 }

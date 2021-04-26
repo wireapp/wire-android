@@ -1,19 +1,21 @@
 package com.wire.android.core.crypto
 
 import com.wire.android.InstrumentationTest
+import com.wire.android.core.crypto.data.PreKeyRepository
 import com.wire.android.core.crypto.mapper.PreKeyMapper
 import com.wire.android.core.crypto.model.PreKey
-import com.wire.android.core.crypto.storage.PreKeyRepository
+import com.wire.android.core.crypto.model.UserID
+import com.wire.android.core.functional.map
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
 
 class CryptoBoxClientTest : InstrumentationTest() {
 
@@ -26,14 +28,13 @@ class CryptoBoxClientTest : InstrumentationTest() {
     @MockK
     private lateinit var mapper: PreKeyMapper
 
-    private val rootFolder: File
-        get() = temporaryFolder.root
-
     lateinit var subject: CryptoBoxClient
+
+    private val userID = UserID("abc")
 
     @Before
     fun setup() {
-        subject = CryptoBoxClient(rootFolder, repository, mapper)
+        subject = CryptoBoxClient(appContext, repository, userID, mapper)
     }
 
     @Test
@@ -43,7 +44,7 @@ class CryptoBoxClientTest : InstrumentationTest() {
 
         subject.createInitialPreKeys()
         verify(exactly = 1) {
-            repository.updateLastPreKeyID(any())
+            repository.updateLastPreKeyIDForUser(userID, any())
         }
     }
 
@@ -53,9 +54,12 @@ class CryptoBoxClientTest : InstrumentationTest() {
         every { mapper.fromCryptoBoxModel(any()) } returns preKey
 
         val generated = subject.createInitialPreKeys()
+        generated.isRight shouldBe true
 
-        val allKeys = generated.createdKeys + generated.lastKey
-        verify(exactly = allKeys.size) { mapper.fromCryptoBoxModel(any()) }
+        generated.map {
+            val allKeys = it.createdKeys + it.lastKey
+            verify(exactly = allKeys.size) { mapper.fromCryptoBoxModel(any()) }
+        }
     }
 
     @Test
@@ -64,11 +68,14 @@ class CryptoBoxClientTest : InstrumentationTest() {
         every { mapper.fromCryptoBoxModel(any()) } returns preKey
 
         val generated = subject.createInitialPreKeys()
+        generated.isRight shouldBe true
 
-        generated.lastKey shouldBeEqualTo preKey
-        generated.createdKeys shouldContainSame generateSequence { preKey }
-            .take(generated.createdKeys.size)
-            .toList()
+        generated.map{
+            it.lastKey shouldBeEqualTo preKey
+            it.createdKeys shouldContainSame generateSequence { preKey }
+                .take(it.createdKeys.size)
+                .toList()
+        }
     }
 
     @Test
@@ -77,21 +84,13 @@ class CryptoBoxClientTest : InstrumentationTest() {
         every { mapper.fromCryptoBoxModel(any()) } returns preKey
 
         val result = subject.createInitialPreKeys()
-        val lastKeyId = result.createdKeys.last().id
-        verify {
-            repository.updateLastPreKeyID(lastKeyId)
+        result.isRight shouldBe true
+
+        result.map {
+            val lastKeyID = it.createdKeys.last().id
+            verify {
+                repository.updateLastPreKeyIDForUser(userID, lastKeyID)
+            }
         }
-    }
-
-    @Test
-    fun givenDeleteIsNeeded_whenItIsCalled_ThenTheFolderShouldBeCleared() {
-        val subFile = File(rootFolder, "anotherFile")
-        subFile.mkdirs()
-
-        rootFolder.listFiles()!!.size shouldBeEqualTo 1
-
-        subject.delete()
-
-        rootFolder.exists() shouldBeEqualTo false
     }
 }

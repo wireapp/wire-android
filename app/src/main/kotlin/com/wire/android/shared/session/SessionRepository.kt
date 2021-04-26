@@ -13,4 +13,6 @@ interface SessionRepository {
     suspend fun newAccessToken(refreshToken: String): Either<Failure, Session>
 
     suspend fun doesCurrentSessionExist(): Either<Failure, Boolean>
+
+    suspend fun setCurrentSessionToDormant(): Either<Failure, Unit>
 }

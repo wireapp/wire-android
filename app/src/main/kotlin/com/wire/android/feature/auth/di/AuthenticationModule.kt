@@ -8,6 +8,10 @@ import com.wire.android.feature.auth.activation.datasource.ActivationDataSource
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationApi
 import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemoteDataSource
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
+import com.wire.android.feature.auth.client.ClientRepository
+import com.wire.android.feature.auth.client.datasource.ClientDataSource
+import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
+import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
 import com.wire.android.feature.auth.login.email.LoginRepository
 import com.wire.android.feature.auth.login.email.datasource.LoginDataSource
 import com.wire.android.feature.auth.login.email.datasource.remote.LoginApi
@@ -34,6 +38,7 @@ import com.wire.android.feature.auth.registration.ui.CreateAccountEmailViewModel
 import com.wire.android.feature.auth.registration.ui.CreateAccountUsernameViewModel
 import com.wire.android.feature.auth.registration.ui.navigation.CreateAccountNavigator
 import com.wire.android.shared.auth.remote.LabelGenerator
+import com.wire.android.shared.session.usecase.SetCurrentSessionToDormantUseCase
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
 import com.wire.android.shared.user.username.GenerateRandomUsernameUseCase
@@ -51,7 +56,8 @@ val authenticationModules
         createAccountModule,
         createPersonalAccountModule,
         createProAccountModule,
-        loginModule
+        loginModule,
+        clientModule
     )
 
 private val authenticationCommonModule = module {
@@ -113,4 +119,11 @@ private val loginModule = module {
     single<LoginRepository> { LoginDataSource(get(), get()) }
     single { LoginRemoteDataSource(get(), get(), get()) }
     factory { get<NetworkClient>().create(LoginApi::class.java) }
+}
+
+private val clientModule = module {
+    single { ClientRemoteDataSource(get(), get()) }
+    single<ClientRepository> { ClientDataSource() }
+    factory { RegisterClientUseCase(get()) }
+    factory { SetCurrentSessionToDormantUseCase(get()) }
 }

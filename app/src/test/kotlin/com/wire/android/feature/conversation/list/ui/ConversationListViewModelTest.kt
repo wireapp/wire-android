@@ -3,12 +3,17 @@ package com.wire.android.feature.conversation.list.ui
 import androidx.paging.PagedList
 import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
+import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
+import com.wire.android.feature.auth.client.usecase.MaximumNumberOfDevicesReached
+import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
 import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.framework.livedata.shouldNotBeUpdated
+import com.wire.android.shared.session.usecase.SetCurrentSessionToDormantUseCase
 import com.wire.android.shared.team.Team
 import com.wire.android.shared.team.usecase.GetUserTeamUseCase
 import com.wire.android.shared.team.usecase.NotATeamUser
@@ -41,6 +46,12 @@ class ConversationListViewModelTest : UnitTest() {
     private lateinit var getUserTeamUseCase: GetUserTeamUseCase
 
     @MockK
+    private lateinit var registerClientUseCase: RegisterClientUseCase
+
+    @MockK
+    private lateinit var setCurrentSessionToDormantUseCase: SetCurrentSessionToDormantUseCase
+
+    @MockK
     private lateinit var eventsHandler: EventsHandler
 
     private lateinit var conversationListViewModel: ConversationListViewModel
@@ -49,7 +60,11 @@ class ConversationListViewModelTest : UnitTest() {
     fun setUp() {
         conversationListViewModel = ConversationListViewModel(
             coroutinesTestRule.dispatcherProvider,
-            getConversationListUseCase, getCurrentUserUseCase, getUserTeamUseCase,
+            getConversationListUseCase,
+            getCurrentUserUseCase,
+            getUserTeamUseCase,
+            registerClientUseCase,
+            setCurrentSessionToDormantUseCase,
             eventsHandler
         )
     }
@@ -115,5 +130,56 @@ class ConversationListViewModelTest : UnitTest() {
         conversationListViewModel.fetchToolbarData()
 
         conversationListViewModel.toolbarDataLiveData.shouldNotBeUpdated()
+    }
+
+    @Test
+    fun `given clearSession is called, when the use case run with success, then update isCurrentSessionClearedLiveData`() {
+        coEvery { setCurrentSessionToDormantUseCase.run(any()) } returns Either.Right(Unit)
+
+        conversationListViewModel.clearSession()
+
+        conversationListViewModel.isCurrentSessionDormantLiveData.shouldBeUpdated {
+            it shouldBeEqualTo true
+        }
+        coVerify(exactly = 1) { setCurrentSessionToDormantUseCase.run(any()) }
+    }
+
+    @Test
+    fun `given clearSession is called, when setCurrentSessionToDormantUseCase fail, then update isCurrentSessionClearedLiveData`() {
+        val failure = mockk<Failure>()
+        coEvery { setCurrentSessionToDormantUseCase.run(any()) } returns Either.Left(failure)
+
+        conversationListViewModel.clearSession()
+
+        conversationListViewModel.isCurrentSessionDormantLiveData.shouldBeUpdated {
+            it shouldBeEqualTo false
+        }
+        coVerify(exactly = 1) { setCurrentSessionToDormantUseCase.run(any()) }
+    }
+
+    @Test
+    fun `given registerClient is called, when registerClientUseCase run with success, then update isDeviceNumberLimitReachedLiveData`() {
+        val clientResponse = mockk<ClientResponse>()
+        coEvery { registerClientUseCase.run(any()) } returns Either.Right(clientResponse)
+
+        conversationListViewModel.registerClient()
+
+        conversationListViewModel.isDeviceNumberLimitReachedLiveData.shouldBeUpdated {
+            it shouldBeEqualTo false
+        }
+        coVerify(exactly = 1) { registerClientUseCase.run(any()) }
+    }
+
+    @Test
+    fun `given registerClient is called, when registerClientUseCase fail with maximumNumberOfDevicesReached, then update the LiveData`() {
+        val failure = mockk<MaximumNumberOfDevicesReached>()
+        coEvery { registerClientUseCase.run(any()) } returns Either.Left(failure)
+
+        conversationListViewModel.registerClient()
+
+        conversationListViewModel.isDeviceNumberLimitReachedLiveData.shouldBeUpdated {
+            it shouldBeEqualTo true
+        }
+        coVerify(exactly = 1) { registerClientUseCase.run(any()) }
     }
 }

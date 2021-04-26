@@ -10,6 +10,7 @@
     <!-- Dialogs -->
     <string name="network_error_dialog_title">No Internet Connection</string>
     <string name="network_error_dialog_message">Please check your Internet connection and try again.</string>
+    <string name="limit_number_device_reached_dialog_message">Remove one of your other devices to start using Wire on this one.</string>
 
     <string name="general_error_dialog_title">Something went wrong</string>
     <string name="general_error_dialog_message">Please try again.</string>

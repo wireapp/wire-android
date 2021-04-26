@@ -7,16 +7,18 @@ import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import com.wire.android.shared.asset.datasources.remote.AssetResponse
-import com.wire.android.shared.asset.mapper.AssetMapper
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.datasources.local.UserEntity
 import com.wire.android.shared.user.datasources.local.UserLocalDataSource
 import com.wire.android.shared.user.datasources.remote.SelfUserResponse
 import com.wire.android.shared.user.datasources.remote.UserRemoteDataSource
 import com.wire.android.shared.user.mapper.UserMapper
-import io.mockk.*
+import io.mockk.Called
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
@@ -51,45 +53,26 @@ class UserDataSourceTest : UnitTest() {
 
     @Test
     fun `given selfUser is called, when remote and local data sources return success, then returns user`() {
-        val assetMapper = mockk<AssetMapper>()
-        val assets = mockk<List<AssetResponse>>()
-
-        every { assetMapper.profilePictureAssetKey(assets) } returns TEST_ASSET_KEY
-        val userWithProfilePicture = mockk<User>().also {
-            every { it.profilePicture } returns mockk {
-                assetMapper.profilePictureAssetKey(assets)
-            }
-        }
         coEvery { remoteDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) } returns Either.Right(selfUserResponse)
-        every { userMapper.fromSelfUserResponse(selfUserResponse) } returns userWithProfilePicture
-        every { userMapper.toUserEntity(userWithProfilePicture) } returns userEntity
+        every { userMapper.fromSelfUserResponse(selfUserResponse) } returns user
+        every { userMapper.toUserEntity(user) } returns userEntity
         coEvery { localDataSource.save(userEntity) } returns Either.Right(Unit)
 
         val result = runBlocking { userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) }
 
-        result shouldSucceed { it shouldBe userWithProfilePicture }
+        result shouldSucceed { it shouldBe user }
         coVerify(exactly = 1) { remoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
         verify(exactly = 1) { userMapper.fromSelfUserResponse(selfUserResponse) }
-        verify(exactly = 1) { userMapper.toUserEntity(userWithProfilePicture) }
+        verify(exactly = 1) { userMapper.toUserEntity(user) }
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
-        verify(exactly = 1) { assetMapper.profilePictureAssetKey(assets)}
     }
 
     @Test
     fun `given selfUser is called, when remoteDataSource returns success but localDataSource fails, then returns the failure`() {
         val failure = SQLiteFailure()
-        val assets = mockk<List<AssetResponse>>()
-        val assetMapper = mockk<AssetMapper>()
-
-        every { assetMapper.profilePictureAssetKey(assets) } returns TEST_ASSET_KEY
-        val userWithProfilePicture = mockk<User>().also {
-            every { it.profilePicture } returns mockk {
-                assetMapper.profilePictureAssetKey(assets)
-            }
-        }
         coEvery { remoteDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) } returns Either.Right(selfUserResponse)
-        every { userMapper.fromSelfUserResponse(selfUserResponse) } returns userWithProfilePicture
-        every { userMapper.toUserEntity(userWithProfilePicture) } returns userEntity
+        every { userMapper.fromSelfUserResponse(selfUserResponse) } returns user
+        every { userMapper.toUserEntity(user) } returns userEntity
         coEvery { localDataSource.save(userEntity) } returns Either.Left(failure)
 
         val result = runBlocking { userDataSource.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) }
@@ -98,9 +81,8 @@ class UserDataSourceTest : UnitTest() {
 
         coVerify(exactly = 1) { remoteDataSource.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
         verify(exactly = 1) { userMapper.fromSelfUserResponse(selfUserResponse) }
-        verify(exactly = 1) { userMapper.toUserEntity(userWithProfilePicture) }
+        verify(exactly = 1) { userMapper.toUserEntity(user) }
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
-        verify(exactly = 1) { assetMapper.profilePictureAssetKey(assets)}
     }
 
     @Test

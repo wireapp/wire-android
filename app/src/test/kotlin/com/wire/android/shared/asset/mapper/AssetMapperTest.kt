@@ -3,6 +3,8 @@ package com.wire.android.shared.asset.mapper
 import com.wire.android.UnitTest
 import com.wire.android.shared.asset.datasources.local.AssetEntity
 import com.wire.android.shared.asset.datasources.remote.AssetResponse
+import io.mockk.every
+import io.mockk.mockk
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
@@ -43,28 +45,27 @@ class AssetMapperTest : UnitTest() {
 
     @Test
     fun `given profilePictureAssetKey is called, when assets list does not contain completed size picture, then return null`() {
-        val assets = listOf(
-            AssetResponse(TEST_SIZE_UNKNOWN, TEST_KEY_UNKNOWN, TEST_TYPE_UNKNOWN),
-            AssetResponse(
-                TEST_SIZE + TEST_SIZE_UNKNOWN,
-                TEST_KEY + TEST_KEY_UNKNOWN,
-                TEST_TYPE + TEST_TYPE_UNKNOWN
-            )
-        )
+        val assetResponse = mockk<AssetResponse>().also {
+            every { it.size } returns TEST_SIZE_INVALID
+        }
 
-        val result = assetMapper.profilePictureAssetKey(assets)
+        val result = assetMapper.profilePictureAssetKey(listOf(assetResponse))
 
         result.shouldBeNull()
     }
 
     @Test
     fun `given profilePictureAssetKey is called, when asset list contains an asset with complete type, then return asset key`() {
-        val assets = listOf(
-            AssetResponse(TEST_SIZE, TEST_KEY, TEST_TYPE),
-            AssetResponse(TEST_SIZE_UNKNOWN, TEST_KEY_UNKNOWN, TEST_TYPE_UNKNOWN)
-        )
+        val assetResponse1 = mockk<AssetResponse>().also {
+            every { it.size } returns TEST_SIZE
+            every { it.key } returns TEST_KEY
+        }
 
-        val result = assetMapper.profilePictureAssetKey(assets)
+        val assetResponse2 = mockk<AssetResponse>().also {
+            every { it.size } returns TEST_SIZE_INVALID
+        }
+
+        val result = assetMapper.profilePictureAssetKey(listOf(assetResponse1, assetResponse2))
 
         result shouldBeEqualTo TEST_KEY
     }
@@ -74,8 +75,6 @@ class AssetMapperTest : UnitTest() {
         private const val TEST_KEY = "35dc-1239ac-jxq"
         private const val TEST_TYPE = "image"
 
-        private const val TEST_SIZE_UNKNOWN = "unknown"
-        private const val TEST_KEY_UNKNOWN = "unknown"
-        private const val TEST_TYPE_UNKNOWN = "unknown"
+        private const val TEST_SIZE_INVALID = "invalid_size"
     }
 }

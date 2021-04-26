@@ -2,6 +2,7 @@ package com.wire.android.shared.user.mapper
 
 import com.wire.android.feature.auth.registration.datasource.remote.RegisteredUserResponse
 import com.wire.android.shared.asset.PublicAsset
+import com.wire.android.shared.asset.datasources.remote.AssetResponse
 import com.wire.android.shared.asset.mapper.AssetMapper
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.datasources.local.UserEntity
@@ -9,16 +10,18 @@ import com.wire.android.shared.user.datasources.remote.SelfUserResponse
 
 class UserMapper(private val assetMapper: AssetMapper) {
 
-    fun fromSelfUserResponse(response: SelfUserResponse) : User {
+    fun fromSelfUserResponse(response: SelfUserResponse): User {
         return User(
             id = response.id,
             name = response.name,
             email = response.email,
             username = response.handle,
-            profilePicture = assetMapper.profilePictureAssetKey(response.assets)?.let { PublicAsset(it) }
+            profilePicture = generateProfilePicture(assetMapper, response.assets)
         )
-
     }
+
+    fun generateProfilePicture(assetMapper: AssetMapper, assets: List<AssetResponse>) =
+        assetMapper.profilePictureAssetKey(assets)?.let { PublicAsset(it) }
 
     fun fromRegisteredUserResponse(response: RegisteredUserResponse) =
         User(id = response.id, name = response.name, email = response.email, username = response.handle)

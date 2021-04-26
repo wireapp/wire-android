@@ -29,12 +29,20 @@ android {
         }
     }
 
+    externalNativeBuild {
+        cmake {
+            version = AndroidNdk.cMakeVersion
+        }
+        ndkBuild {
+            ndkVersion = AndroidNdk.version
+            path(File("src/main/jni/Android.mk"))
+        }
+    }
+
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
 }
 
 dependencies {
-
-    implementation(project(Modules.crypto))
 
     // Application dependencies
     implementation(Libraries.Kotlin.stdLib)
@@ -54,6 +62,8 @@ dependencies {
     implementation(Libraries.glide)
     kapt(Libraries.glideCompiler)
     implementation(Libraries.workManager)
+
+    implementation(Libraries.Crypto.cryptobox)
 
     implementation(Libraries.Retrofit.core)
     implementation(Libraries.Retrofit.gsonConverter)

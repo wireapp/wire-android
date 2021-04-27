@@ -6,7 +6,9 @@ import com.wire.android.feature.contact.datasources.remote.ContactResponse
 import com.wire.android.framework.collections.second
 import com.wire.android.shared.asset.PublicAsset
 import com.wire.android.shared.asset.datasources.remote.AssetResponse
+import com.wire.android.shared.asset.mapper.AssetMapper
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -17,25 +19,31 @@ class ContactMapperTest : UnitTest() {
 
     private lateinit var contactMapper: ContactMapper
 
+    @MockK
+    private lateinit var assetMapper: AssetMapper
+
     @Before
     fun setUp() {
-        contactMapper = ContactMapper()
+        contactMapper = ContactMapper(assetMapper)
     }
 
     @Test
     fun `given fromContactResponseListToEntityList is called, then returns list of entities with a proper mapping`() {
         val contactResponseWithAsset = mockk<ContactResponse>()
+        val contactAssetResponse = mockk<AssetResponse>()
+        val assetList = mockk<List<AssetResponse>>()
         every { contactResponseWithAsset.id } returns TEST_CONTACT_ID_1
         every { contactResponseWithAsset.name } returns TEST_CONTACT_NAME_1
-        val contactAssetResponse = mockk<AssetResponse>()
         every { contactAssetResponse.size } returns ASSET_SIZE_COMPLETE
         every { contactAssetResponse.key } returns TEST_ASSET_KEY
-        every { contactResponseWithAsset.assets } returns listOf(contactAssetResponse)
+        every { contactResponseWithAsset.assets } returns assetList
+        every { assetMapper.profilePictureAssetKey(assetList) } returns TEST_ASSET_KEY
 
         val contactResponse = mockk<ContactResponse>()
         every { contactResponse.id } returns TEST_CONTACT_ID_2
         every { contactResponse.name } returns TEST_CONTACT_NAME_2
         every { contactResponse.assets } returns emptyList()
+        every { assetMapper.profilePictureAssetKey(contactResponse.assets) } returns null
 
         val result = contactMapper.fromContactResponseListToEntityList(
             listOf(contactResponseWithAsset, contactResponse)

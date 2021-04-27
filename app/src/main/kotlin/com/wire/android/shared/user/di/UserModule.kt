@@ -22,7 +22,7 @@ val userModule = module {
     single { UserRemoteDataSource(get(), get()) }
     factory { get<NetworkClient>().create(UserApi::class.java) }
 
-    single { UserMapper() }
+    single { UserMapper(get()) }
 
     factory { ValidateNameUseCase() }
     factory { ValidatePasswordUseCase(get()) }

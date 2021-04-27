@@ -12,4 +12,9 @@
     <item name="login_header_guideline_percent" format="float" type="dimen">0.12</item>
 
     <!-- endregion -->
+
+    <!--    profile-->
+    <dimen name="profile_user_picture_margin_top">8dp</dimen>
+    <dimen name="profile_user_picture_width">70dp</dimen>
+    <dimen name="profile_user_picture_height">70dp</dimen>
 </resources>

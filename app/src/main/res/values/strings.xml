@@ -10,7 +10,6 @@
     <!-- Dialogs -->
     <string name="network_error_dialog_title">No Internet Connection</string>
     <string name="network_error_dialog_message">Please check your Internet connection and try again.</string>
-    <string name="limit_number_device_reached_dialog_message">Remove one of your other devices to start using Wire on this one.</string>
 
     <string name="general_error_dialog_title">Something went wrong</string>
     <string name="general_error_dialog_message">Please try again.</string>
@@ -108,5 +107,9 @@
     <string name="profile_screen_title">Profile</string>
     <string name="profile_user_handle_text">\@%s</string>
     <string name="profile_user_team_info_text">in %s</string>
+
+    <!--    devices limit   -->
+    <string name="devices_limit_logout_text">logout</string>
+    <string name="devices_limit_notice_text">Remove one of your other devices to start using Wire on this one.</string>
 
 </resources>

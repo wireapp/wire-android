@@ -35,7 +35,7 @@ val conversationsModule = module {
 
     factory { ConversationListAdapter(get(), get(), get()) }
     factory { ConversationListDiffCallback() }
-    viewModel { ConversationListViewModel(get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { ConversationListViewModel(get(), get(), get(), get(), get()) }
 
     factory { ConversationIconProvider(get()) }
 

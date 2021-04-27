@@ -2,6 +2,7 @@ package com.wire.android.feature.auth.login.email.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
@@ -19,6 +20,9 @@ import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
+import com.wire.android.feature.auth.client.usecase.MaximumNumberOfDevicesReached
+import com.wire.android.feature.auth.client.usecase.RegisterClientParams
+import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
 import com.wire.android.feature.auth.login.email.usecase.LoginAuthenticationFailure
 import com.wire.android.feature.auth.login.email.usecase.LoginTooFrequentFailure
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
@@ -29,8 +33,9 @@ import com.wire.android.shared.user.email.ValidateEmailUseCase
 class LoginWithEmailViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val validateEmailUseCase: ValidateEmailUseCase,
-    private val loginWithEmailUseCase: LoginWithEmailUseCase
-) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
+    private val loginWithEmailUseCase: LoginWithEmailUseCase,
+    private val registerClientUseCase: RegisterClientUseCase
+    ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val isValidEmailLiveData = SingleLiveEvent<Boolean>()
     private val isValidPasswordLiveData = SingleLiveEvent<Boolean>()
@@ -42,6 +47,9 @@ class LoginWithEmailViewModel(
     private val _loginResultLiveData = SingleLiveEvent<Either<ErrorMessage, Unit>>()
     val loginResultLiveData: LiveData<Either<ErrorMessage, Unit>> = _loginResultLiveData
 
+    private val _isDeviceNumberLimitReachedLiveData = MutableLiveData<Boolean>()
+    val isDeviceNumberLimitReachedLiveData = _isDeviceNumberLimitReachedLiveData
+
     fun validateEmail(email: String) =
         validateEmailUseCase(viewModelScope, ValidateEmailParams(email), dispatcherProvider.default()) { result ->
             isValidEmailLiveData.value = result.isRight
@@ -51,10 +59,11 @@ class LoginWithEmailViewModel(
         isValidPasswordLiveData.value = password.isNotEmpty()
     }
 
-    fun login(email: String, password: String) {
+    fun  login(email: String, password: String) {
         loginWithEmailUseCase(viewModelScope, LoginWithEmailUseCaseParams(email = email, password = password)) { result ->
             result.onSuccess {
                 _loginResultLiveData.success()
+                registerClient()
             }.onFailure(::handleLoginFailure)
         }
     }
@@ -73,4 +82,15 @@ class LoginWithEmailViewModel(
     private fun allInputsAreValid() =
         isValidEmailLiveData.value ?: false &&
             isValidPasswordLiveData.value ?: false
+
+    private fun registerClient() {
+        registerClientUseCase(viewModelScope, RegisterClientParams("")) {
+            it.onSuccess {
+                _isDeviceNumberLimitReachedLiveData.value = false
+            }
+            it.onFailure { failure ->
+                _isDeviceNumberLimitReachedLiveData.value = failure is MaximumNumberOfDevicesReached
+            }
+        }
+    }
 }

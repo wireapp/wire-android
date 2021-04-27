@@ -3,11 +3,8 @@ package com.wire.android.feature.conversation.list.ui
 import androidx.paging.PagedList
 import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
-import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
-import com.wire.android.feature.auth.client.usecase.MaximumNumberOfDevicesReached
 import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
 import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
@@ -63,8 +60,6 @@ class ConversationListViewModelTest : UnitTest() {
             getConversationListUseCase,
             getCurrentUserUseCase,
             getUserTeamUseCase,
-            registerClientUseCase,
-            setCurrentSessionToDormantUseCase,
             eventsHandler
         )
     }
@@ -130,56 +125,5 @@ class ConversationListViewModelTest : UnitTest() {
         conversationListViewModel.fetchToolbarData()
 
         conversationListViewModel.toolbarDataLiveData.shouldNotBeUpdated()
-    }
-
-    @Test
-    fun `given clearSession is called, when the use case run with success, then update isCurrentSessionClearedLiveData`() {
-        coEvery { setCurrentSessionToDormantUseCase.run(any()) } returns Either.Right(Unit)
-
-        conversationListViewModel.clearSession()
-
-        conversationListViewModel.isCurrentSessionDormantLiveData.shouldBeUpdated {
-            it shouldBeEqualTo true
-        }
-        coVerify(exactly = 1) { setCurrentSessionToDormantUseCase.run(any()) }
-    }
-
-    @Test
-    fun `given clearSession is called, when setCurrentSessionToDormantUseCase fail, then update isCurrentSessionClearedLiveData`() {
-        val failure = mockk<Failure>()
-        coEvery { setCurrentSessionToDormantUseCase.run(any()) } returns Either.Left(failure)
-
-        conversationListViewModel.clearSession()
-
-        conversationListViewModel.isCurrentSessionDormantLiveData.shouldBeUpdated {
-            it shouldBeEqualTo false
-        }
-        coVerify(exactly = 1) { setCurrentSessionToDormantUseCase.run(any()) }
-    }
-
-    @Test
-    fun `given registerClient is called, when registerClientUseCase run with success, then update isDeviceNumberLimitReachedLiveData`() {
-        val clientResponse = mockk<ClientResponse>()
-        coEvery { registerClientUseCase.run(any()) } returns Either.Right(clientResponse)
-
-        conversationListViewModel.registerClient()
-
-        conversationListViewModel.isDeviceNumberLimitReachedLiveData.shouldBeUpdated {
-            it shouldBeEqualTo false
-        }
-        coVerify(exactly = 1) { registerClientUseCase.run(any()) }
-    }
-
-    @Test
-    fun `given registerClient is called, when registerClientUseCase fail with maximumNumberOfDevicesReached, then update the LiveData`() {
-        val failure = mockk<MaximumNumberOfDevicesReached>()
-        coEvery { registerClientUseCase.run(any()) } returns Either.Left(failure)
-
-        conversationListViewModel.registerClient()
-
-        conversationListViewModel.isDeviceNumberLimitReachedLiveData.shouldBeUpdated {
-            it shouldBeEqualTo true
-        }
-        coVerify(exactly = 1) { registerClientUseCase.run(any()) }
     }
 }

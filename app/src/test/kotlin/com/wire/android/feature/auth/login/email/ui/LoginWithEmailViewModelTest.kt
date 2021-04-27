@@ -9,6 +9,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
+import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
 import com.wire.android.feature.auth.login.email.usecase.LoginAuthenticationFailure
 import com.wire.android.feature.auth.login.email.usecase.LoginTooFrequentFailure
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
@@ -44,12 +45,15 @@ class LoginWithEmailViewModelTest : UnitTest() {
     @MockK
     private lateinit var loginWithEmailUseCase: LoginWithEmailUseCase
 
+    @MockK
+    private lateinit var registerClientUseCase: RegisterClientUseCase
+
     private lateinit var loginWithEmailViewModel: LoginWithEmailViewModel
 
     @Before
     fun setUp() {
         loginWithEmailViewModel = LoginWithEmailViewModel(
-            coroutinesTestRule.dispatcherProvider, validateEmailUseCase, loginWithEmailUseCase
+            coroutinesTestRule.dispatcherProvider, validateEmailUseCase, loginWithEmailUseCase, registerClientUseCase
         )
     }
 

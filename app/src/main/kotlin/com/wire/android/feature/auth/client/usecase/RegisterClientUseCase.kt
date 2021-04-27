@@ -18,7 +18,6 @@ class RegisterClientUseCase(private val clientRepository: ClientRepository) :
                 is BadRequest -> Either.Left(MalformedPreKeys)
                 else -> Either.Left(it)
             }
-            Either.Left(it)
         }) { Either.Right(it) }!!
 
 }

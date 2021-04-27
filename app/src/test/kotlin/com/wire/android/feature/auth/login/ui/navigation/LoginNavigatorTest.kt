@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.wire.android.AndroidTest
 import com.wire.android.core.network.NetworkConfig
+import com.wire.android.core.ui.navigation.FragmentStackHandler
 import com.wire.android.core.ui.navigation.UriNavigationHandler
 import com.wire.android.feature.auth.login.LoginActivity
 import io.mockk.every
@@ -27,11 +28,14 @@ class LoginNavigatorTest : AndroidTest() {
     @MockK
     private lateinit var context: Context
 
+    @MockK
+    private lateinit var fragmentStackHandler: FragmentStackHandler
+
     private lateinit var loginNavigator: LoginNavigator
 
     @Before
     fun setUp() {
-        loginNavigator = LoginNavigator(uriNavigationHandler, networkConfig)
+        loginNavigator = LoginNavigator(uriNavigationHandler, networkConfig, fragmentStackHandler)
     }
 
     @Test

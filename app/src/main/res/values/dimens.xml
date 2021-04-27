@@ -91,4 +91,9 @@
     <dimen name="profile_user_detail_margin_top">4dp</dimen>
 
     <!-- endregion -->
+
+    <!--    device limit-->
+    <dimen name="device_limit_notice_message_text">32sp</dimen>
+    <dimen name="device_limit_notice_message_margin_bottom">24dp</dimen>
+
 </resources>

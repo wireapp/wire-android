@@ -1,6 +1,5 @@
 package com.wire.android.feature.conversation.list.ui
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -11,8 +10,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wire.android.R
 import com.wire.android.core.extension.toast
-import com.wire.android.core.ui.dialog.DialogBuilder
-import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.navigation.Navigator
 import com.wire.android.feature.conversation.list.toolbar.ToolbarData
 import com.wire.android.feature.conversation.list.toolbar.ui.icon.ToolbarProfileIcon
@@ -29,44 +26,11 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
     private val navigator by inject<Navigator>()
 
-    private val dialogBuilder: DialogBuilder by inject()
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        checkDeviceEligibility()
         displayToolbar()
         displayConversationList()
         subscribeToEvents()
-    }
-
-    private fun checkDeviceEligibility() {
-        viewModel.isDeviceNumberLimitReachedLiveData.observe(viewLifecycleOwner) { isLimitReached ->
-            if (isLimitReached) {
-                dialogBuilder.showErrorDialog(
-                    requireContext(),
-                    ErrorMessage(
-                        R.string.app_name,
-                        R.string.limit_number_device_reached_dialog_message
-                    ),
-                    false,
-                    dialogClickListener()
-                )
-            }
-        }
-        viewModel.registerClient()
-    }
-
-    private fun dialogClickListener() = DialogInterface.OnClickListener { _, _ ->
-        observeCurrentSession()
-        viewModel.clearSession()
-    }
-
-    private fun observeCurrentSession() {
-        viewModel.isCurrentSessionDormantLiveData.observe(viewLifecycleOwner) { isSessionDormant ->
-            if (isSessionDormant)
-                navigator.welcome.openWelcomeScreen(requireContext())
-            else toast("unable to logout, please try again") //TODO handle error
-        }
     }
 
     private fun displayToolbar() {
@@ -127,8 +91,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         adapter = conversationListAdapter
 
         val divider = DividerItemDecoration(context, DividerItemDecoration.VERTICAL).apply {
-            ContextCompat.getDrawable(context, R.drawable.conversation_list_divider)
-                ?.let { setDrawable(it) }
+            ContextCompat.getDrawable(context, R.drawable.conversation_list_divider)?.let { setDrawable(it) }
         }
         addItemDecoration(divider)
     }

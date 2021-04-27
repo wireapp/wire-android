@@ -1,16 +1,14 @@
 package com.wire.android.shared.user.mapper
 
 import com.wire.android.UnitTest
-import com.wire.android.shared.asset.Asset
+import com.wire.android.shared.asset.PublicAsset
 import com.wire.android.shared.asset.datasources.remote.AssetResponse
 import com.wire.android.shared.asset.mapper.AssetMapper
-import com.wire.android.shared.user.User
 import com.wire.android.shared.user.datasources.remote.SelfUserResponse
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.junit.Before
 import org.junit.Test
@@ -28,44 +26,40 @@ class UserMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given fromSelfUserResponse is called with a response model, then returns correct user`() {
+    fun `given fromSelfUserResponse is called when userResponse has a profile picture, then return a user with profile picture`() {
+        val assetKey = "asset_key"
         val assetResponse = mockk<AssetResponse>()
         val assets = listOf(assetResponse)
         val selfUserResponse = SelfUserResponse(
             id = TEST_USER_ID, name = TEST_USER_NAME,
             email = TEST_EMAIL, locale = TEST_LOCALE, assets = assets
         )
-
-        val expectedUser = User(
-            id = TEST_USER_ID,
-            name = TEST_USER_NAME,
-            email = TEST_EMAIL,
-            profilePicture = userMapper.generateProfilePicture(assetMapper, assets)
-        )
-
-        userMapper.fromSelfUserResponse(selfUserResponse) shouldBeEqualTo expectedUser
-        expectedUser.profilePicture.shouldBeInstanceOf<Asset>()
-    }
-
-    @Test
-    fun `given generateProfilePicture is called, when asset key is valid, then returns a profile picture`() {
-        val assetKey = "asset-key"
-        val assetResponse = mockk<AssetResponse>()
-        val assets = listOf(assetResponse)
         every { assetMapper.profilePictureAssetKey(assets) } returns assetKey
 
-        val expectedProfilePicture = userMapper.generateProfilePicture(assetMapper, assets)
+        val user = userMapper.fromSelfUserResponse(selfUserResponse)
 
-        expectedProfilePicture.shouldBeInstanceOf<Asset>()
+        user.id.shouldBeEqualTo(TEST_USER_ID)
+        user.name.shouldBeEqualTo(TEST_USER_NAME)
+        user.email.shouldBeEqualTo(TEST_EMAIL)
+        user.profilePicture.shouldBeEqualTo(PublicAsset(assetKey))
     }
 
+
     @Test
-    fun `given generateProfilePicture is called, when asset key is null, then returns profile picture should be null`() {
-        every { assetMapper.profilePictureAssetKey(listOf()) } returns null
+    fun `given fromSelfUserResponse is called when user does not have a profile picture, then return a user with null picture`() {
+        val assets = listOf<AssetResponse>()
+        val selfUserResponse = SelfUserResponse(
+            id = TEST_USER_ID, name = TEST_USER_NAME,
+            email = TEST_EMAIL, locale = TEST_LOCALE, assets = assets
+        )
+        every { assetMapper.profilePictureAssetKey(assets) } returns null
 
-        val expectedProfilePicture = userMapper.generateProfilePicture(assetMapper, listOf())
+        val user = userMapper.fromSelfUserResponse(selfUserResponse)
 
-        expectedProfilePicture.shouldBeNull()
+        user.id.shouldBeEqualTo(TEST_USER_ID)
+        user.name.shouldBeEqualTo(TEST_USER_NAME)
+        user.email.shouldBeEqualTo(TEST_EMAIL)
+        user.profilePicture.shouldBeNull()
     }
 
     companion object {

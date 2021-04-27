@@ -16,11 +16,11 @@ class UserMapper(private val assetMapper: AssetMapper) {
             name = response.name,
             email = response.email,
             username = response.handle,
-            profilePicture = generateProfilePicture(assetMapper, response.assets)
+            profilePicture = generateProfilePicture(response.assets)
         )
     }
 
-    fun generateProfilePicture(assetMapper: AssetMapper, assets: List<AssetResponse>) =
+    private fun generateProfilePicture(assets: List<AssetResponse>) =
         assetMapper.profilePictureAssetKey(assets)?.let { PublicAsset(it) }
 
     fun fromRegisteredUserResponse(response: RegisteredUserResponse) =
@@ -39,6 +39,6 @@ class UserMapper(private val assetMapper: AssetMapper) {
         name = user.name,
         email = user.email,
         username = user.username,
-        assetKey = (user.profilePicture as PublicAsset).key
+        assetKey = (user.profilePicture as? PublicAsset)?.key
     )
 }

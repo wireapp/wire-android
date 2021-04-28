@@ -5,7 +5,7 @@ import com.wire.android.InstrumentationTest
 import com.wire.android.core.crypto.data.PreKeyRepository
 import com.wire.android.core.crypto.mapper.PreKeyMapper
 import com.wire.android.core.crypto.model.PreKey
-import com.wire.android.core.crypto.model.UserID
+import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.functional.map
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -32,11 +32,11 @@ class CryptoBoxClientTest : InstrumentationTest() {
 
     lateinit var subject: CryptoBoxClient
 
-    private val userID = UserID("abc")
+    private val userId = UserId("abc")
 
     @Before
     fun setup() {
-        subject = CryptoBoxClient(appContext, repository, userID, mapper)
+        subject = CryptoBoxClient(appContext, repository, userId, mapper)
     }
 
     @Test
@@ -46,7 +46,7 @@ class CryptoBoxClientTest : InstrumentationTest() {
 
         subject.createInitialPreKeys()
         verify(exactly = 1) {
-            repository.updateLastPreKeyIDForUser(userID, any())
+            repository.updateLastPreKeyIdForUser(userId, any())
         }
     }
 
@@ -89,9 +89,9 @@ class CryptoBoxClientTest : InstrumentationTest() {
         result.isRight shouldBe true
 
         result.map {
-            val lastKeyID = it.createdKeys.last().id
+            val lastKeyId = it.createdKeys.last().id
             verify {
-                repository.updateLastPreKeyIDForUser(userID, lastKeyID)
+                repository.updateLastPreKeyIdForUser(userId, lastKeyId)
             }
         }
     }

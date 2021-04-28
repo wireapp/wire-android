@@ -4,7 +4,7 @@ import android.content.Context
 import com.wire.android.core.crypto.data.PreKeyRepository
 import com.wire.android.core.crypto.mapper.PreKeyMapper
 import com.wire.android.core.crypto.model.PreKeyInitialization
-import com.wire.android.core.crypto.model.UserID
+import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.crypto.utils.plus
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
@@ -14,13 +14,13 @@ import com.wire.cryptobox.CryptoException
 class CryptoBoxClient(
     context: Context,
     private val preKeyRepository: PreKeyRepository,
-    private val userID: UserID,
+    private val userId: UserId,
     private val preKeyMapper: PreKeyMapper
 ) {
 
     private var _cryptoBox: CryptoBox? = null
     private val cryptoBoxRootDirectory =
-        context.filesDir + CRYPTOBOX_PARENT_FOLDER_NAME + userID.toString()
+        context.filesDir + CRYPTOBOX_PARENT_FOLDER_NAME + userId.toString()
 
     private val cryptoBox: Either<CryptoException, CryptoBox>
         get() = _cryptoBox?.let { Either.Right(it) } ?: load().map {
@@ -63,7 +63,7 @@ class CryptoBoxClient(
     fun createInitialPreKeys(): Either<CryptoException, PreKeyInitialization> = useBox {
         val lastKey = preKeyMapper.fromCryptoBoxModel(newLastPreKey())
         val keys = newPreKeys(0, PRE_KEYS_COUNT).map(preKeyMapper::fromCryptoBoxModel)
-        preKeyRepository.updateLastPreKeyIDForUser(userID, keys.last().id)
+        preKeyRepository.updateLastPreKeyIdForUser(userId, keys.last().id)
         PreKeyInitialization(keys, lastKey)
     }
 

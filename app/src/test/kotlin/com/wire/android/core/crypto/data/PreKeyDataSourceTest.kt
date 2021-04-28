@@ -1,7 +1,7 @@
 package com.wire.android.core.crypto.data
 
 import com.wire.android.AndroidTest
-import com.wire.android.core.crypto.model.UserID
+import com.wire.android.core.crypto.model.UserId
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
@@ -24,29 +24,29 @@ class PreKeyDataSourceTest : AndroidTest() {
 
     @Test
     fun `given a value is stored, when attempting to read it, then the right user ID should be used`() {
-        val userID = UserID("123")
-        every { preKeyLocalDataSource.lastPreKeyId(userID) } returns any()
+        val userId = UserId("123")
+        every { preKeyLocalDataSource.lastPreKeyId(userId) } returns any()
 
-        subject.lastPreKeyIdForUser(userID)
+        subject.lastPreKeyIdForUser(userId)
 
-        verify { preKeyLocalDataSource.lastPreKeyId(userID) }
+        verify { preKeyLocalDataSource.lastPreKeyId(userId) }
     }
 
     @Test
     fun `given a value is stored locally, when reading it, it should be forwarded from the local data source`() {
-        val userID = UserID("123")
-        every { preKeyLocalDataSource.lastPreKeyId(userID) } returns 42
+        val userId = UserId("123")
+        every { preKeyLocalDataSource.lastPreKeyId(userId) } returns 42
 
-        subject.lastPreKeyIdForUser(userID) shouldBeEqualTo 42
+        subject.lastPreKeyIdForUser(userId) shouldBeEqualTo 42
     }
 
     @Test
     fun `given a value needs storing, when attempting to save it, then the right user ID should be used`() {
-        val userID = UserID("123")
+        val userId = UserId("123")
 
-        subject.updateLastPreKeyIDForUser(userID, 42)
+        subject.updateLastPreKeyIdForUser(userId, 42)
 
-        verify { subject.updateLastPreKeyIDForUser(userID, 42) }
+        verify { subject.updateLastPreKeyIdForUser(userId, 42) }
     }
 
 }

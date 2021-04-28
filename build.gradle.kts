@@ -1,5 +1,3 @@
-
-
 buildscript {
     val nexusUrl = run {
         val urlEnvVar = "NEXUS_URL"
@@ -13,20 +11,11 @@ buildscript {
             properties.load(propertiesFile.inputStream())
             properties.getProperty(urlLocalVar)
         }
-        ?: throw RuntimeException("Missing Nexus URL at $propertiesFile, or environment variable $urlEnvVar")
     }
 
-    if (nexusUrl.isNotBlank()) {
-        buildscript {
-            repositories {
-                maven(nexusUrl)
-            }
-        }
-        allprojects {
-            repositories {
-                maven(nexusUrl)
-            }
-        }
+    nexusUrl?.takeIf { it.isNotBlank() }?.let {
+        buildscript.repositories.maven(it)
+        allprojects { repositories.maven(it) }
     }
     repositories {
         google()

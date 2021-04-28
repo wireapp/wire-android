@@ -5,12 +5,13 @@ import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.PreKeyMapper
 import com.wire.android.core.crypto.model.PreKeyInitialization
 import com.wire.android.core.crypto.model.UserId
-import com.wire.android.core.crypto.utils.plus
+import com.wire.android.core.extension.plus
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
 import com.wire.cryptobox.CryptoBox
 import com.wire.cryptobox.CryptoException
 
+//TODO: Inject this
 class CryptoBoxClient(
     context: Context,
     private val clientPropertyStorage: CryptoBoxClientPropertyStorage,

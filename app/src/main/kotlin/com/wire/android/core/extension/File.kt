@@ -1,4 +1,4 @@
-package com.wire.android.core.crypto.utils
+package com.wire.android.core.extension
 
 import java.io.File
 

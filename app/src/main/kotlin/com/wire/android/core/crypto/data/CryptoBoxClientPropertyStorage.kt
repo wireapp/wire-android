@@ -25,6 +25,6 @@ class CryptoBoxClientPropertyStorage(private val context: Context) {
 
     companion object {
         private const val PREF_FILE_PREFIX = "preKeyPrefs_"
-        private const val LAST_PRE_KEY_PREF_ID = "lastPreKeyID"
+        private const val LAST_PRE_KEY_PREF_ID = "lastPreKeyId"
     }
 }

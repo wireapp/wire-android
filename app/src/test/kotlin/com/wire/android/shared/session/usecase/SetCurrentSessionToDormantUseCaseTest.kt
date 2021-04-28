@@ -28,7 +28,7 @@ class SetCurrentSessionToDormantUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when sessionRepository call successfully the method, then return success`() {
+    fun `given run is called, when sessionRepository calls successfully the method, then return success`() {
         coEvery { sessionRepository.setCurrentSessionToDormant() } returns Either.Right(Unit)
 
         val result = runBlocking { setCurrentSessionToDormantUseCase.run(Unit) }
@@ -37,7 +37,7 @@ class SetCurrentSessionToDormantUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when sessionRepository fail to call the method, then propagates the failure`() {
+    fun `given run is called, when sessionRepository fails to call the method, then propagates the failure`() {
         val failure = mockk<Failure>()
 
         coEvery { sessionRepository.setCurrentSessionToDormant() } returns Either.Left(failure)

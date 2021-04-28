@@ -135,32 +135,32 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     @Test
     fun `given login is called, when loginWithEmailUseCase returns success, then invoke register client method`() {
-        val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
+        val loginParams = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
         val registerParams = RegisterClientParams(password = TEST_VALID_PASSWORD)
         val clientResponse = mockk<ClientResponse>()
 
-        coEvery { loginWithEmailUseCase.run(params) } returns Either.Right(Unit)
+        coEvery { loginWithEmailUseCase.run(loginParams) } returns Either.Right(Unit)
         coEvery { registerClientUseCase.run(registerParams) } returns Either.Right(clientResponse)
 
 
         loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
 
-        coVerify(exactly = 1) { loginWithEmailUseCase.run(params) }
+        coVerify(exactly = 1) { loginWithEmailUseCase.run(loginParams) }
         coVerify(exactly = 1) { registerClientUseCase.run(registerParams) }
     }
 
     @Test
     fun `given login is called, when register client return device limit failure, then set failure for loginResultLiveData`() {
-        val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
+        val loginParams = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
         val registerParams = RegisterClientParams(password = TEST_VALID_PASSWORD)
 
-        coEvery { loginWithEmailUseCase.run(params) } returns Either.Right(Unit)
+        coEvery { loginWithEmailUseCase.run(loginParams) } returns Either.Right(Unit)
         coEvery { registerClientUseCase.run(registerParams) } returns Either.Left(MaximumNumberOfDevicesReached)
 
 
         loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
 
-        coVerify(exactly = 1) { loginWithEmailUseCase.run(params) }
+        coVerify(exactly = 1) { loginWithEmailUseCase.run(loginParams) }
         coVerify(exactly = 1) { registerClientUseCase.run(registerParams) }
 
         loginWithEmailViewModel.loginResultLiveData shouldBeUpdated { it shouldFail { it shouldBe DeviceLimitErrorMessage } }

@@ -32,7 +32,7 @@ class DeviceLimitViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given clearSession is called, when the use case run with success, then update isCurrentSessionClearedLiveData`() {
+    fun `given clearSession is called, when the use case runs successfully, then update isCurrentSessionClearedLiveData`() {
         coEvery { setCurrentSessionToDormantUseCase.run(any()) } returns Either.Right(Unit)
 
         deviceLimitViewModel.clearSession()
@@ -44,7 +44,7 @@ class DeviceLimitViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given clearSession is called, when setCurrentSessionToDormantUseCase fail, then update isCurrentSessionClearedLiveData`() {
+    fun `given clearSession is called, when setCurrentSessionToDormantUseCase fails, then update isCurrentSessionClearedLiveData`() {
         val failure = mockk<Failure>()
         coEvery { setCurrentSessionToDormantUseCase.run(any()) } returns Either.Left(failure)
 

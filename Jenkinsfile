@@ -1,7 +1,9 @@
 pipeline {
   agent {
-    dockerfile {
-      filename 'docker-agent/AndroidAgent'
+    docker {
+      image 'android-reloaded-agent:latest'
+      args '''-u 1000:133 --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock
+'''
     }
 
   }

@@ -1,5 +1,6 @@
 package com.wire.android.core.crypto
 
+import androidx.test.filters.RequiresDevice
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.crypto.data.PreKeyRepository
 import com.wire.android.core.crypto.mapper.PreKeyMapper
@@ -17,6 +18,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
+@RequiresDevice
 class CryptoBoxClientTest : InstrumentationTest() {
 
     @get:Rule

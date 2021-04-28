@@ -20,7 +20,6 @@ import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCaseParams
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.functional.shouldFail
-import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.shared.user.email.EmailInvalid
 import com.wire.android.shared.user.email.ValidateEmailParams

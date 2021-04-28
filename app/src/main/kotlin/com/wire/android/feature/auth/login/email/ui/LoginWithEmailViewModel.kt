@@ -67,7 +67,8 @@ class LoginWithEmailViewModel(
     private fun handleLoginFailure(failure: Failure) {
         val errorMessage = when (failure) {
             NetworkConnection -> NetworkErrorMessage
-            LoginAuthenticationFailure -> ErrorMessage(R.string.login_authentication_failure_title, R.string.login_authentication_failure_message)
+            LoginAuthenticationFailure ->
+                ErrorMessage(R.string.login_authentication_failure_title, R.string.login_authentication_failure_message)
             LoginTooFrequentFailure -> ErrorMessage(R.string.login_too_frequent_failure_title, R.string.login_too_frequent_failure_message)
             MaximumNumberOfDevicesReached -> DeviceLimitErrorMessage
             else -> GeneralErrorMessage

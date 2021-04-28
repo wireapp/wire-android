@@ -150,7 +150,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given login is called, when register client return MaximumNumberOfDevicesReached failure, then set failure for loginResultLiveData`() {
+    fun `given login is called, when register client return device limit failure, then set failure for loginResultLiveData`() {
         val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
         val registerParams = RegisterClientParams(password = TEST_VALID_PASSWORD)
 
@@ -167,11 +167,11 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     }
     @Test
-    fun `given login is called, when login use case returns NetworkConnection failure, then sets NetworkErrorMessage to loginResultLiveData`() =
+    fun `given login is called, when use case returns NetworkConnection failure, then sets NetworkErrorMessage to loginResultLiveData`() =
         verifyLoginResultErrorMessage(NetworkConnection) { it shouldBe NetworkErrorMessage }
 
     @Test
-    fun `given login is called, when login use case returns LoginAuthenticationFailure, then sets proper error message to loginResultLiveData`() =
+    fun `given login is called, when use case returns LoginAuthenticationFailure, then sets proper error message to loginResultLiveData`() =
         verifyLoginResultErrorMessage(LoginAuthenticationFailure) {
             with(it) {
                 title shouldBeEqualTo R.string.login_authentication_failure_title

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.wire.android.core.crypto.model.UserId
 
-class PreKeyLocalDataSource(private val context: Context) {
+class CryptoBoxClientPropertyStorage(private val context: Context) {
 
     private fun <R> sharedPreferencesForUser(userId: UserId, apply: SharedPreferences.() -> R): R {
         val prefs = context.getSharedPreferences(

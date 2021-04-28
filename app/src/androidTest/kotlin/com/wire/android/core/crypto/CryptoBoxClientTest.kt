@@ -2,7 +2,7 @@ package com.wire.android.core.crypto
 
 import androidx.test.filters.RequiresDevice
 import com.wire.android.InstrumentationTest
-import com.wire.android.core.crypto.data.PreKeyRepository
+import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.PreKeyMapper
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.UserId
@@ -25,10 +25,10 @@ class CryptoBoxClientTest : InstrumentationTest() {
     val temporaryFolder = TemporaryFolder()
 
     @MockK
-    private lateinit var repository: PreKeyRepository
+    private lateinit var propertyStorage: CryptoBoxClientPropertyStorage
 
     @MockK
-    private lateinit var mapper: PreKeyMapper
+    private lateinit var preKeyMapper: PreKeyMapper
 
     lateinit var subject: CryptoBoxClient
 
@@ -36,43 +36,43 @@ class CryptoBoxClientTest : InstrumentationTest() {
 
     @Before
     fun setup() {
-        subject = CryptoBoxClient(appContext, repository, userId, mapper)
+        subject = CryptoBoxClient(appContext, propertyStorage, userId, preKeyMapper)
     }
 
     @Test
-    fun givenPreKeysAreNeeded_whenTheyAreCreated_thenTheRepositoryIsUpdated() {
+    fun givenPreKeysAreNeeded_whenTheyAreCreated_thenTheStorageIsUpdated() {
         val preKey = PreKey(42, "data")
-        every { mapper.fromCryptoBoxModel(any()) } returns preKey
+        every { preKeyMapper.fromCryptoBoxModel(any()) } returns preKey
 
         subject.createInitialPreKeys()
         verify(exactly = 1) {
-            repository.updateLastPreKeyIdForUser(userId, any())
+            propertyStorage.updateLastPreKeyId(userId, any())
         }
     }
 
     @Test
     fun givenPreKeysAreGenerated_whenConverting_theMapperShouldBeUsed() {
         val preKey = PreKey(42, "data")
-        every { mapper.fromCryptoBoxModel(any()) } returns preKey
+        every { preKeyMapper.fromCryptoBoxModel(any()) } returns preKey
 
         val generated = subject.createInitialPreKeys()
         generated.isRight shouldBe true
 
         generated.map {
             val allKeys = it.createdKeys + it.lastKey
-            verify(exactly = allKeys.size) { mapper.fromCryptoBoxModel(any()) }
+            verify(exactly = allKeys.size) { preKeyMapper.fromCryptoBoxModel(any()) }
         }
     }
 
     @Test
     fun givenPreKeysAreGenerated_whenReturning_theMapperResultShouldBeUsed() {
         val preKey = PreKey(42, "data")
-        every { mapper.fromCryptoBoxModel(any()) } returns preKey
+        every { preKeyMapper.fromCryptoBoxModel(any()) } returns preKey
 
         val generated = subject.createInitialPreKeys()
         generated.isRight shouldBe true
 
-        generated.map{
+        generated.map {
             it.lastKey shouldBeEqualTo preKey
             it.createdKeys shouldContainSame generateSequence { preKey }
                 .take(it.createdKeys.size)
@@ -83,7 +83,7 @@ class CryptoBoxClientTest : InstrumentationTest() {
     @Test
     fun givenPreKeysAreGenerated_whenStoring_theLastPreKeyIdShouldBeUsed() {
         val preKey = PreKey(42, "data")
-        every { mapper.fromCryptoBoxModel(any()) } returns preKey
+        every { preKeyMapper.fromCryptoBoxModel(any()) } returns preKey
 
         val result = subject.createInitialPreKeys()
         result.isRight shouldBe true
@@ -91,7 +91,7 @@ class CryptoBoxClientTest : InstrumentationTest() {
         result.map {
             val lastKeyId = it.createdKeys.last().id
             verify {
-                repository.updateLastPreKeyIdForUser(userId, lastKeyId)
+                propertyStorage.updateLastPreKeyId(userId, lastKeyId)
             }
         }
     }

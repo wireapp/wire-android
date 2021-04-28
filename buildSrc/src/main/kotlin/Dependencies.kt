@@ -7,7 +7,7 @@ object AndroidSdk {
 }
 
 object AndroidNdk {
-    const val version = "21.3.6528147"
+    const val version = "22.1.7171670"
     const val cMakeVersion = "3.18.1"
 }
 

@@ -1,7 +1,7 @@
 pipeline {
   agent {
-    dockerfile {
-      filename 'docker-agent/AndroidAgent'
+    docker {
+      image 'android-reloaded-agent:latest'
     }
 
   }

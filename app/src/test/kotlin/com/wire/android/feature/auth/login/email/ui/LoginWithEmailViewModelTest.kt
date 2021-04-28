@@ -6,9 +6,13 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
+import com.wire.android.core.ui.dialog.DeviceLimitErrorMessage
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
+import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
+import com.wire.android.feature.auth.client.usecase.MaximumNumberOfDevicesReached
+import com.wire.android.feature.auth.client.usecase.RegisterClientParams
 import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
 import com.wire.android.feature.auth.login.email.usecase.LoginAuthenticationFailure
 import com.wire.android.feature.auth.login.email.usecase.LoginTooFrequentFailure
@@ -25,6 +29,7 @@ import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBe
@@ -129,23 +134,44 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given login is called, when loginWithEmailUseCase returns success, then sets success to loginResultLiveData`() {
+    fun `given login is called, when loginWithEmailUseCase returns success, then invoke register client method`() {
         val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
+        val registerParams = RegisterClientParams(password = TEST_VALID_PASSWORD)
+        val clientResponse = mockk<ClientResponse>()
 
         coEvery { loginWithEmailUseCase.run(params) } returns Either.Right(Unit)
+        coEvery { registerClientUseCase.run(registerParams) } returns Either.Right(clientResponse)
+
 
         loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
 
-        loginWithEmailViewModel.loginResultLiveData shouldBeUpdated { it shouldSucceed {} }
         coVerify(exactly = 1) { loginWithEmailUseCase.run(params) }
+        coVerify(exactly = 1) { registerClientUseCase.run(registerParams) }
     }
 
     @Test
-    fun `given login is called, when use case returns NetworkConnection failure, then sets NetworkErrorMessage to loginResultLiveData`() =
+    fun `given login is called, when register client return MaximumNumberOfDevicesReached failure, then set failure for loginResultLiveData`() {
+        val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
+        val registerParams = RegisterClientParams(password = TEST_VALID_PASSWORD)
+
+        coEvery { loginWithEmailUseCase.run(params) } returns Either.Right(Unit)
+        coEvery { registerClientUseCase.run(registerParams) } returns Either.Left(MaximumNumberOfDevicesReached)
+
+
+        loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
+
+        coVerify(exactly = 1) { loginWithEmailUseCase.run(params) }
+        coVerify(exactly = 1) { registerClientUseCase.run(registerParams) }
+
+        loginWithEmailViewModel.loginResultLiveData shouldBeUpdated { it shouldFail { it shouldBe DeviceLimitErrorMessage } }
+
+    }
+    @Test
+    fun `given login is called, when login use case returns NetworkConnection failure, then sets NetworkErrorMessage to loginResultLiveData`() =
         verifyLoginResultErrorMessage(NetworkConnection) { it shouldBe NetworkErrorMessage }
 
     @Test
-    fun `given login is called, when use case returns LoginAuthenticationFailure, then sets proper error message to loginResultLiveData`() =
+    fun `given login is called, when login use case returns LoginAuthenticationFailure, then sets proper error message to loginResultLiveData`() =
         verifyLoginResultErrorMessage(LoginAuthenticationFailure) {
             with(it) {
                 title shouldBeEqualTo R.string.login_authentication_failure_title

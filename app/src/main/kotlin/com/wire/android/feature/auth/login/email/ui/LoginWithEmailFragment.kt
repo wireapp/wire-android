@@ -6,6 +6,9 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import com.wire.android.R
 import com.wire.android.core.extension.toStringOrEmpty
+import com.wire.android.core.functional.onFailure
+import com.wire.android.core.functional.onSuccess
+import com.wire.android.core.ui.dialog.DeviceLimitErrorMessage
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.navigation.Navigator
@@ -54,10 +57,14 @@ class LoginWithEmailFragment : Fragment(R.layout.fragment_login_with_email) {
     }
 
     private fun observeLoginResult() {
-        viewModel.isDeviceNumberLimitReachedLiveData.observe(viewLifecycleOwner) { isDeviceLimitReached ->
-            if (isDeviceLimitReached)
-                activity?.let { navigator.login.openDeviceLimitScreen(it) }
-            else navigator.main.openMainScreen(requireContext())
+        viewModel.loginResultLiveData.observe(viewLifecycleOwner) { it ->
+            it.onSuccess {
+                navigator.main.openMainScreen(requireContext())
+            }.onFailure { failure ->
+                if(failure is DeviceLimitErrorMessage)
+                    activity?.let { navigator.login.openDeviceLimitScreen(it) }
+                else showErrorDialog(failure)
+            }
         }
     }
 

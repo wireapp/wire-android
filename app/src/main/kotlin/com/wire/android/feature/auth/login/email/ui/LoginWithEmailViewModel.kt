@@ -2,7 +2,6 @@ package com.wire.android.feature.auth.login.email.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
@@ -15,6 +14,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.SingleLiveEvent
+import com.wire.android.core.ui.dialog.DeviceLimitErrorMessage
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
@@ -47,9 +47,6 @@ class LoginWithEmailViewModel(
     private val _loginResultLiveData = SingleLiveEvent<Either<ErrorMessage, Unit>>()
     val loginResultLiveData: LiveData<Either<ErrorMessage, Unit>> = _loginResultLiveData
 
-    private val _isDeviceNumberLimitReachedLiveData = MutableLiveData<Boolean>()
-    val isDeviceNumberLimitReachedLiveData = _isDeviceNumberLimitReachedLiveData
-
     fun validateEmail(email: String) =
         validateEmailUseCase(viewModelScope, ValidateEmailParams(email), dispatcherProvider.default()) { result ->
             isValidEmailLiveData.value = result.isRight
@@ -62,8 +59,7 @@ class LoginWithEmailViewModel(
     fun  login(email: String, password: String) {
         loginWithEmailUseCase(viewModelScope, LoginWithEmailUseCaseParams(email = email, password = password)) { result ->
             result.onSuccess {
-                _loginResultLiveData.success()
-                registerClient()
+                registerClient(password)
             }.onFailure(::handleLoginFailure)
         }
     }
@@ -71,9 +67,9 @@ class LoginWithEmailViewModel(
     private fun handleLoginFailure(failure: Failure) {
         val errorMessage = when (failure) {
             NetworkConnection -> NetworkErrorMessage
-            LoginAuthenticationFailure ->
-                ErrorMessage(R.string.login_authentication_failure_title, R.string.login_authentication_failure_message)
+            LoginAuthenticationFailure -> ErrorMessage(R.string.login_authentication_failure_title, R.string.login_authentication_failure_message)
             LoginTooFrequentFailure -> ErrorMessage(R.string.login_too_frequent_failure_title, R.string.login_too_frequent_failure_message)
+            MaximumNumberOfDevicesReached -> DeviceLimitErrorMessage
             else -> GeneralErrorMessage
         }
         _loginResultLiveData.failure(errorMessage)
@@ -83,14 +79,12 @@ class LoginWithEmailViewModel(
         isValidEmailLiveData.value ?: false &&
             isValidPasswordLiveData.value ?: false
 
-    private fun registerClient() {
-        registerClientUseCase(viewModelScope, RegisterClientParams("")) {
+    private fun registerClient(password: String) {
+        registerClientUseCase(viewModelScope, RegisterClientParams(password)) {
             it.onSuccess {
-                _isDeviceNumberLimitReachedLiveData.value = false
+                _loginResultLiveData.success()
             }
-            it.onFailure { failure ->
-                _isDeviceNumberLimitReachedLiveData.value = failure is MaximumNumberOfDevicesReached
-            }
+            it.onFailure(::handleLoginFailure)
         }
     }
 }

@@ -22,7 +22,7 @@ import org.junit.Test
 class CryptoBoxClientTest : InstrumentationTest() {
 
     @get:Rule
-    val temporaryFolder = InjectMockKsRule.create(this)
+    val injectMocksRule = InjectMockKsRule.create(this)
 
     @MockK
     private lateinit var propertyStorage: CryptoBoxClientPropertyStorage

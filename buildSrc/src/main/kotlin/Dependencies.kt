@@ -6,6 +6,11 @@ object AndroidSdk {
     const val target = compile
 }
 
+object AndroidNdk {
+    const val version = "22.1.7171670"
+    const val cMakeVersion = "3.18.1"
+}
+
 object AndroidClient {
     const val appId = "com.wire.android"
     const val versionCode = 1
@@ -19,6 +24,7 @@ object BuildPlugins {
     }
 
     const val androidApplication = "com.android.application"
+    const val androidLibrary = "com.android.library"
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val kotlinKapt = "kotlin-kapt"
@@ -31,10 +37,16 @@ object ScriptPlugins {
     const val compilation = "scripts.compilation"
 }
 
+object Repositories {
+    const val sonatypeReleases = "https://oss.sonatype.org/content/repositories/releases"
+    const val sonatypeSnapshots = "https://oss.sonatype.org/content/repositories/snapshots"
+}
+
 object Libraries {
     object Versions {
         const val kotlin = "1.4.10"
         const val coroutines = "1.3.9"
+        const val cryptobox = "1.1.2"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
         const val ktx = "1.3.0"
@@ -67,6 +79,9 @@ object Libraries {
     const val glideCompiler    = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val workManager      = "androidx.work:work-runtime-ktx:${Versions.workManager}"
 
+    object Crypto {
+        const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"
+    }
 
     object Koin {
         const val androidCore  = "org.koin:koin-android:${Versions.koin}"
@@ -93,10 +108,11 @@ object Libraries {
 
 object TestLibraries {
     private object Versions {
+        const val androidCore = "1.3.0"
         const val junit4 = "4.13"
         const val mockk = "1.10.5"
         const val kluent = "1.60"
-        const val robolectric = "4.4"
+        const val robolectric = "4.5.1"
         const val testRunner = "1.2.0"
         const val espresso = "3.2.0"
         const val testExtensions = "1.1.1"
@@ -120,6 +136,7 @@ object TestLibraries {
     const val uiAutomator    = "androidx.test.uiautomator:uiautomator:${Versions.uiAutomator}"
     const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libraries.Versions.coroutines}"
     const val testCore       = "androidx.arch.core:core-testing:${Versions.testCore}"
+    const val androidCore    = "androidx.test:core:${Versions.androidCore}"
     const val koinTest       = "org.koin:koin-test:${Libraries.Versions.koin}"
     const val mockk          = "io.mockk:mockk:${Versions.mockk}"
     const val mockkAndroid   = "io.mockk:mockk-android:${Versions.mockk}"

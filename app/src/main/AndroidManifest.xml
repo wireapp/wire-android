@@ -46,6 +46,9 @@
             android:name=".feature.profile.ui.ProfileActivity"
             android:theme="@style/AppTheme.Dark" />
 
+        <activity
+            android:name=".feature.auth.client.ui.DeviceLimitActivity"
+            android:theme="@style/AppTheme.Authentication" />
     </application>
 
 </manifest>

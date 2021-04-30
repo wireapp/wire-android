@@ -124,6 +124,17 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
+    fun setDormantSessionToCurrent_aSessionOfSpecificUserExistsAsDormant_setsIsCurrentToTrue() = databaseTestRule.runTest {
+        val session = prepareSession(id = 1, userId = "userId", current = false)
+        sessionDao.insert(session)
+
+        sessionDao.setDormantSessionToCurrent("userId")
+
+        val currentSession = sessionDao.currentSession()
+        currentSession shouldBeEqualTo session.copy(isCurrent = true)
+    }
+
+    @Test
     fun doesCurrentSessionExist_aSessionExistsAsCurrent_returnsTrue() = databaseTestRule.runTest {
         val session = prepareSession(id = 1, userId = "userId-1", current = true)
         sessionDao.insert(session)

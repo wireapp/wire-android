@@ -114,4 +114,24 @@ class SessionLocalDataSourceTest : UnitTest() {
             sessionLocalDataSource.doesCurrentSessionExist() shouldFail {}
         }
     }
+
+    @Test
+    fun `given setDormantSessionToCurrent is called, when dao operation is successful, then returns success`() {
+        val userId = "user-id"
+        coEvery { sessionDao.setDormantSessionToCurrent(userId) } returns Unit
+
+        runBlockingTest {
+            sessionLocalDataSource.setDormantSessionToCurrent(userId) shouldSucceed { it shouldBe Unit }
+        }
+    }
+
+    @Test
+    fun `given setDormantSessionToCurrent is called, when dao operation fails, then returns failure`() {
+        val userId = "user-id"
+        coEvery { sessionDao.setDormantSessionToCurrent(userId) } throws RuntimeException()
+
+        runBlockingTest {
+            sessionLocalDataSource.setDormantSessionToCurrent(userId) shouldFail {}
+        }
+    }
 }

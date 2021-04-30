@@ -3,14 +3,22 @@ package com.wire.android.feature.auth.client.ui
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
+import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
+import com.wire.android.feature.auth.client.usecase.DevicesLimitReached
+import com.wire.android.feature.auth.client.usecase.MalformedPreKeys
+import com.wire.android.feature.auth.client.usecase.RegisterClientParams
+import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.shouldBeUpdated
-import com.wire.android.shared.session.usecase.SetCurrentSessionToDormantUseCase
+import com.wire.android.framework.livedata.shouldNotBeUpdated
+import com.wire.android.shared.session.usecase.SetDormantSessionToCurrentUseCase
+import com.wire.android.shared.session.usecase.SetDormantSessionToCurrentUseCaseParams
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -21,38 +29,76 @@ class DeviceLimitViewModelTest : UnitTest() {
     val coroutinesTestRule = CoroutinesTestRule()
 
     @MockK
-    private lateinit var setCurrentSessionToDormantUseCase: SetCurrentSessionToDormantUseCase
+    private lateinit var setDormantSessionToCurrentUseCase: SetDormantSessionToCurrentUseCase
 
+    @MockK
+    private lateinit var registerClientUseCase: RegisterClientUseCase
 
     private lateinit var deviceLimitViewModel: DeviceLimitViewModel
 
     @Before
     fun setUp() {
-        deviceLimitViewModel = DeviceLimitViewModel(coroutinesTestRule.dispatcherProvider, setCurrentSessionToDormantUseCase)
+        deviceLimitViewModel = DeviceLimitViewModel(
+            coroutinesTestRule.dispatcherProvider,
+            setDormantSessionToCurrentUseCase,
+            registerClientUseCase
+        )
     }
 
     @Test
-    fun `given clearSession is called, when the use case runs successfully, then update isCurrentSessionClearedLiveData`() {
-        coEvery { setCurrentSessionToDormantUseCase.run(any()) } returns Either.Right(Unit)
+    fun `given registerClient is called, when use case runs successfully, then sets success to registerClientLiveData`() {
+        val clientResponse = mockk<ClientResponse>()
+        val clientParams = RegisterClientParams("")
+        coEvery { registerClientUseCase.run(clientParams) } returns Either.Right(clientResponse)
 
-        deviceLimitViewModel.clearSession()
+        deviceLimitViewModel.registerClient("")
 
-        deviceLimitViewModel.isCurrentSessionDormantLiveData.shouldBeUpdated {
-            it shouldBeEqualTo true
-        }
-        coVerify(exactly = 1) { setCurrentSessionToDormantUseCase.run(any()) }
+        deviceLimitViewModel.registerClientLiveData shouldBeUpdated { it shouldSucceed { } }
     }
 
     @Test
-    fun `given clearSession is called, when setCurrentSessionToDormantUseCase fails, then update isCurrentSessionClearedLiveData`() {
+    fun `given registerClient is called, when use case returns DevicesLimitReached failure, then sets failure to loginResultLiveData`() {
+        val clientParams = RegisterClientParams("")
+
+        coEvery { registerClientUseCase.run(clientParams) } returns Either.Left(DevicesLimitReached)
+
+        deviceLimitViewModel.registerClient("")
+
+        deviceLimitViewModel.registerClientLiveData shouldBeUpdated { it shouldFail { failure -> failure shouldBe Unit } }
+    }
+
+    @Test
+    fun `given registerClient is called, when use case returns MalformedPreKeys failure, then do not updates loginResultLiveData`() {
+        val clientParams = RegisterClientParams("")
+
+        coEvery { registerClientUseCase.run(clientParams) } returns Either.Left(MalformedPreKeys)
+
+        deviceLimitViewModel.registerClient("")
+
+        deviceLimitViewModel.registerClientLiveData.shouldNotBeUpdated()
+    }
+
+    @Test
+    fun `given setDormantSessionToCurrent is called, when use case runs successfully, then sets success to sessionLiveData`() {
+        val userId = "user-Id"
+        val sessionParams = SetDormantSessionToCurrentUseCaseParams(userId)
+        coEvery { setDormantSessionToCurrentUseCase.run(sessionParams) } returns Either.Right(Unit)
+
+        deviceLimitViewModel.setDormantSessionToCurrent(userId)
+
+        deviceLimitViewModel.isDormantSessionCurrentLiveData shouldBeUpdated { it shouldSucceed { } }
+    }
+
+    @Test
+    fun `given setDormantSessionToCurrent is called, when use case returns failure, then sets failure to sessionLiveData`() {
         val failure = mockk<Failure>()
-        coEvery { setCurrentSessionToDormantUseCase.run(any()) } returns Either.Left(failure)
+        val userId = "user-Id"
+        val sessionParams = SetDormantSessionToCurrentUseCaseParams(userId)
+        coEvery { setDormantSessionToCurrentUseCase.run(sessionParams) } returns Either.Left(failure)
 
-        deviceLimitViewModel.clearSession()
+        deviceLimitViewModel.setDormantSessionToCurrent(userId)
 
-        deviceLimitViewModel.isCurrentSessionDormantLiveData.shouldBeUpdated {
-            it shouldBeEqualTo false
-        }
-        coVerify(exactly = 1) { setCurrentSessionToDormantUseCase.run(any()) }
+        deviceLimitViewModel.isDormantSessionCurrentLiveData shouldBeUpdated { it shouldFail { } }
     }
+
 }

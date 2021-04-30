@@ -4,7 +4,7 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 
 interface SessionRepository {
-    suspend fun save(session: Session, current: Boolean = true): Either<Failure, Unit>
+    suspend fun save(session: Session, current: Boolean = false): Either<Failure, Unit>
 
     suspend fun currentSession(): Either<Failure, Session>
 
@@ -14,5 +14,5 @@ interface SessionRepository {
 
     suspend fun doesCurrentSessionExist(): Either<Failure, Boolean>
 
-    suspend fun setCurrentSessionToDormant(): Either<Failure, Unit>
+    suspend fun setDormantSessionToCurrent(userId: String): Either<Failure, Unit>
 }

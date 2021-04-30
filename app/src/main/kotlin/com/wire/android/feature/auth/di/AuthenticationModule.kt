@@ -11,9 +11,9 @@ import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeU
 import com.wire.android.feature.auth.client.ClientRepository
 import com.wire.android.feature.auth.client.datasource.ClientDataSource
 import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
+import com.wire.android.feature.auth.client.ui.DeviceLimitActivity
 import com.wire.android.feature.auth.client.ui.DeviceLimitViewModel
 import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
-import com.wire.android.feature.auth.login.LoginActivity
 import com.wire.android.feature.auth.login.email.LoginRepository
 import com.wire.android.feature.auth.login.email.datasource.LoginDataSource
 import com.wire.android.feature.auth.login.email.datasource.remote.LoginApi
@@ -39,9 +39,8 @@ import com.wire.android.feature.auth.registration.ui.CreateAccountEmailVerificat
 import com.wire.android.feature.auth.registration.ui.CreateAccountEmailViewModel
 import com.wire.android.feature.auth.registration.ui.CreateAccountUsernameViewModel
 import com.wire.android.feature.auth.registration.ui.navigation.CreateAccountNavigator
-import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
 import com.wire.android.shared.auth.remote.LabelGenerator
-import com.wire.android.shared.session.usecase.SetCurrentSessionToDormantUseCase
+import com.wire.android.shared.session.usecase.SetDormantSessionToCurrentUseCase
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
 import com.wire.android.shared.user.username.GenerateRandomUsernameUseCase
@@ -115,10 +114,7 @@ private val createProAccountModule = module {
 
 private val loginModule = module {
     single { LoginNavigator(get(), get(), get()) }
-    factory(qualifier<LoginActivity>()) {
-        FragmentContainerProvider.fixedProvider(R.id.loginFragmentContainer)
-    }
-    viewModel { LoginWithEmailViewModel(get(), get(), get(), get()) }
+    viewModel { LoginWithEmailViewModel(get(), get(), get()) }
     factory { LoginWithEmailUseCase(get(), get(), get()) }
 
     single<LoginRepository> { LoginDataSource(get(), get()) }
@@ -127,9 +123,12 @@ private val loginModule = module {
 }
 
 private val clientModule = module {
+    factory(qualifier<DeviceLimitActivity>()) {
+        FragmentContainerProvider.fixedProvider(R.id.deviceLimitFragmentContainer)
+    }
     single { ClientRemoteDataSource(get(), get()) }
     single<ClientRepository> { ClientDataSource() }
     factory { RegisterClientUseCase(get()) }
-    factory { SetCurrentSessionToDormantUseCase(get()) }
-    viewModel { DeviceLimitViewModel(get(), get()) }
+    factory { SetDormantSessionToCurrentUseCase(get()) }
+    viewModel { DeviceLimitViewModel(get(), get(), get()) }
 }

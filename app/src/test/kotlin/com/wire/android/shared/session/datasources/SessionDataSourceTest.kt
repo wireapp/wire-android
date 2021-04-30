@@ -230,20 +230,22 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given setCurrentSessionToDormant is called, when localDataSource is successful, then return success`() {
-        coEvery { localDataSource.setCurrentSessionToDormant() } returns Either.Right(Unit)
+    fun `given setDormantSessionToCurrent is called, when localDataSource is successful, then return success`() {
+        val userId = "user-id"
+        coEvery { localDataSource.setDormantSessionToCurrent(userId) } returns Either.Right(Unit)
 
-        val result = runBlocking { sessionDataSource.setCurrentSessionToDormant() }
+        val result = runBlocking { sessionDataSource.setDormantSessionToCurrent(userId) }
 
         result shouldSucceed { it shouldBe Unit }
     }
 
     @Test
-    fun `given setCurrentSessionToDormant is called, when localDataSource returns a failure, then propagates the failure`() {
+    fun `given setDormantSessionToCurrent is called, when localDataSource returns a failure, then propagates the failure`() {
+        val userId = "user-id"
         val failure = mockk<Failure>()
-        coEvery { localDataSource.setCurrentSessionToDormant() } returns Either.Left(failure)
+        coEvery { localDataSource.setDormantSessionToCurrent(userId) } returns Either.Left(failure)
 
-        val result = runBlocking { sessionDataSource.setCurrentSessionToDormant() }
+        val result = runBlocking { sessionDataSource.setDormantSessionToCurrent(userId) }
 
         result shouldFail { it shouldBe failure }
     }

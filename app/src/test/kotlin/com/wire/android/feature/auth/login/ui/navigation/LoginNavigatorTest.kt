@@ -7,6 +7,7 @@ import com.wire.android.AndroidTest
 import com.wire.android.core.network.NetworkConfig
 import com.wire.android.core.ui.navigation.FragmentStackHandler
 import com.wire.android.core.ui.navigation.UriNavigationHandler
+import com.wire.android.feature.auth.client.ui.DeviceLimitActivity
 import com.wire.android.feature.auth.login.LoginActivity
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -14,6 +15,7 @@ import io.mockk.slot
 import io.mockk.verify
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBe
 import org.junit.Before
 import org.junit.Test
 
@@ -47,6 +49,19 @@ class LoginNavigatorTest : AndroidTest() {
         intentSlot.captured.let {
             it.component?.className shouldBe LoginActivity::class.java.canonicalName
             it.extras shouldBe null
+        }
+    }
+
+    @Test
+    fun `given openDeviceLimitScreen is called, then opens DeviceLimitActivity`() {
+        val userId = "user-id"
+        val intentSlot = slot<Intent>()
+        loginNavigator.openDeviceLimitScreen(context, userId)
+
+        verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
+        intentSlot.captured.let {
+            it.component?.className shouldBe DeviceLimitActivity::class.java.canonicalName
+            it.extras shouldNotBe null
         }
     }
 

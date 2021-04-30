@@ -5,12 +5,10 @@ import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
 import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.framework.livedata.shouldNotBeUpdated
-import com.wire.android.shared.session.usecase.SetCurrentSessionToDormantUseCase
 import com.wire.android.shared.team.Team
 import com.wire.android.shared.team.usecase.GetUserTeamUseCase
 import com.wire.android.shared.team.usecase.NotATeamUser
@@ -41,12 +39,6 @@ class ConversationListViewModelTest : UnitTest() {
 
     @MockK
     private lateinit var getUserTeamUseCase: GetUserTeamUseCase
-
-    @MockK
-    private lateinit var registerClientUseCase: RegisterClientUseCase
-
-    @MockK
-    private lateinit var setCurrentSessionToDormantUseCase: SetCurrentSessionToDormantUseCase
 
     @MockK
     private lateinit var eventsHandler: EventsHandler

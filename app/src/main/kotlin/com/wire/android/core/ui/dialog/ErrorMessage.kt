@@ -27,5 +27,3 @@ open class ErrorMessage {
 
 object NetworkErrorMessage : ErrorMessage(R.string.network_error_dialog_title, R.string.network_error_dialog_message)
 object GeneralErrorMessage : ErrorMessage(R.string.general_error_dialog_title, R.string.general_error_dialog_message)
-object DeviceLimitErrorMessage : ErrorMessage(R.string.app_name, R.string.devices_limit_notice_text)
-

@@ -14,7 +14,7 @@ class RegisterClientUseCase(private val clientRepository: ClientRepository) :
     override suspend fun run(params: RegisterClientParams): Either<Failure, ClientResponse> =
         clientRepository.registerNewClient(params.password).fold({
             when (it) {
-                is Forbidden -> Either.Left(MaximumNumberOfDevicesReached)
+                is Forbidden -> Either.Left(DevicesLimitReached)
                 is BadRequest -> Either.Left(MalformedPreKeys)
                 else -> Either.Left(it)
             }
@@ -26,4 +26,4 @@ data class RegisterClientParams(val password: String)
 
 sealed class RegisterClientCodeFailure : FeatureFailure()
 object MalformedPreKeys : RegisterClientCodeFailure()
-object MaximumNumberOfDevicesReached : RegisterClientCodeFailure()
+object DevicesLimitReached : RegisterClientCodeFailure()

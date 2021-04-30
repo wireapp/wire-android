@@ -14,15 +14,11 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.SingleLiveEvent
-import com.wire.android.core.ui.dialog.DeviceLimitErrorMessage
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.dialog.NetworkErrorMessage
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
-import com.wire.android.feature.auth.client.usecase.MaximumNumberOfDevicesReached
-import com.wire.android.feature.auth.client.usecase.RegisterClientParams
-import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
 import com.wire.android.feature.auth.login.email.usecase.LoginAuthenticationFailure
 import com.wire.android.feature.auth.login.email.usecase.LoginTooFrequentFailure
 import com.wire.android.feature.auth.login.email.usecase.LoginWithEmailUseCase
@@ -33,8 +29,7 @@ import com.wire.android.shared.user.email.ValidateEmailUseCase
 class LoginWithEmailViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val validateEmailUseCase: ValidateEmailUseCase,
-    private val loginWithEmailUseCase: LoginWithEmailUseCase,
-    private val registerClientUseCase: RegisterClientUseCase
+    private val loginWithEmailUseCase: LoginWithEmailUseCase
     ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val isValidEmailLiveData = SingleLiveEvent<Boolean>()
@@ -44,8 +39,8 @@ class LoginWithEmailViewModel(
         addSource(isValidPasswordLiveData) { value = allInputsAreValid() }
     }
 
-    private val _loginResultLiveData = SingleLiveEvent<Either<ErrorMessage, Unit>>()
-    val loginResultLiveData: LiveData<Either<ErrorMessage, Unit>> = _loginResultLiveData
+    private val _loginResultLiveData = SingleLiveEvent<Either<ErrorMessage, String>>()
+    val loginResultLiveData: LiveData<Either<ErrorMessage, String>> = _loginResultLiveData
 
     fun validateEmail(email: String) =
         validateEmailUseCase(viewModelScope, ValidateEmailParams(email), dispatcherProvider.default()) { result ->
@@ -59,7 +54,7 @@ class LoginWithEmailViewModel(
     fun  login(email: String, password: String) {
         loginWithEmailUseCase(viewModelScope, LoginWithEmailUseCaseParams(email = email, password = password)) { result ->
             result.onSuccess {
-                registerClient(password)
+                _loginResultLiveData.success(it)
             }.onFailure(::handleLoginFailure)
         }
     }
@@ -70,7 +65,6 @@ class LoginWithEmailViewModel(
             LoginAuthenticationFailure ->
                 ErrorMessage(R.string.login_authentication_failure_title, R.string.login_authentication_failure_message)
             LoginTooFrequentFailure -> ErrorMessage(R.string.login_too_frequent_failure_title, R.string.login_too_frequent_failure_message)
-            MaximumNumberOfDevicesReached -> DeviceLimitErrorMessage
             else -> GeneralErrorMessage
         }
         _loginResultLiveData.failure(errorMessage)
@@ -79,13 +73,4 @@ class LoginWithEmailViewModel(
     private fun allInputsAreValid() =
         isValidEmailLiveData.value ?: false &&
             isValidPasswordLiveData.value ?: false
-
-    private fun registerClient(password: String) {
-        registerClientUseCase(viewModelScope, RegisterClientParams(password)) {
-            it.onSuccess {
-                _loginResultLiveData.success()
-            }
-            it.onFailure(::handleLoginFailure)
-        }
-    }
 }

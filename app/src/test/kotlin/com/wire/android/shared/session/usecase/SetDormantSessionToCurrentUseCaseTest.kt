@@ -14,35 +14,39 @@ import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
 
-class SetCurrentSessionToDormantUseCaseTest : UnitTest() {
+class SetDormantSessionToCurrentUseCaseTest : UnitTest() {
 
     @MockK
     private lateinit var sessionRepository: SessionRepository
 
-    private lateinit var setCurrentSessionToDormantUseCase: SetCurrentSessionToDormantUseCase
+    private lateinit var setDormantSessionToCurrentUseCase: SetDormantSessionToCurrentUseCase
 
 
     @Before
     fun setUp() {
-        setCurrentSessionToDormantUseCase = SetCurrentSessionToDormantUseCase(sessionRepository)
+        setDormantSessionToCurrentUseCase = SetDormantSessionToCurrentUseCase(sessionRepository)
     }
 
     @Test
     fun `given run is called, when sessionRepository calls successfully the method, then return success`() {
-        coEvery { sessionRepository.setCurrentSessionToDormant() } returns Either.Right(Unit)
+        val userId = "user-id"
+        val params = SetDormantSessionToCurrentUseCaseParams(userId)
+        coEvery { sessionRepository.setDormantSessionToCurrent(userId) } returns Either.Right(Unit)
 
-        val result = runBlocking { setCurrentSessionToDormantUseCase.run(Unit) }
+        val result = runBlocking { setDormantSessionToCurrentUseCase.run(params) }
 
         result shouldSucceed { it shouldBe Unit }
     }
 
     @Test
     fun `given run is called, when sessionRepository fails to call the method, then propagates the failure`() {
+        val userId = "user-id"
         val failure = mockk<Failure>()
+        val params = SetDormantSessionToCurrentUseCaseParams(userId)
 
-        coEvery { sessionRepository.setCurrentSessionToDormant() } returns Either.Left(failure)
+        coEvery { sessionRepository.setDormantSessionToCurrent(userId) } returns Either.Left(failure)
 
-        val result = runBlocking { setCurrentSessionToDormantUseCase.run(Unit) }
+        val result = runBlocking { setDormantSessionToCurrentUseCase.run(params) }
 
         result shouldFail { it shouldBe failure }
     }

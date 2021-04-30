@@ -15,6 +15,10 @@ class DeviceLimitFragment : Fragment(R.layout.fragment_device_limit) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initLogoutButton()
+    }
+
+    private fun initLogoutButton() {
         deviceLimitLogoutButton.setOnClickListener {
             navigator.welcome.openWelcomeScreen(requireContext())
         }

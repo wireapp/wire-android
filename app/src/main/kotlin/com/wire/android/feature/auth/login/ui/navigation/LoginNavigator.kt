@@ -29,7 +29,7 @@ class LoginNavigator(
     fun openDeviceLimitScreen(context: Context, userId: String) =
         context.startActivity(DeviceLimitActivity.newIntent(context, userId).clearStack())
 
-    fun openDeviceLimitFragment(activity: FragmentActivity, addToBackStack: Boolean = false) {
+    fun openDeviceLimitErrorScreen(activity: FragmentActivity, addToBackStack: Boolean = false) {
         fragmentStackHandler.replaceFragment(activity, addToBackStack = addToBackStack) {
             DeviceLimitFragment.newInstance()
         }

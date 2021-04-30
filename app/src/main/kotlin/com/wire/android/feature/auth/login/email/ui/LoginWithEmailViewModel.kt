@@ -30,7 +30,7 @@ class LoginWithEmailViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val loginWithEmailUseCase: LoginWithEmailUseCase
-    ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val isValidEmailLiveData = SingleLiveEvent<Boolean>()
     private val isValidPasswordLiveData = SingleLiveEvent<Boolean>()

@@ -14,26 +14,26 @@ import org.amshove.kluent.shouldBe
 import org.junit.Before
 import org.junit.Test
 
-class SetDormantSessionToCurrentUseCaseTest : UnitTest() {
+class SetSessionCurrentUseCaseTest : UnitTest() {
 
     @MockK
     private lateinit var sessionRepository: SessionRepository
 
-    private lateinit var setDormantSessionToCurrentUseCase: SetDormantSessionToCurrentUseCase
+    private lateinit var SetSessionCurrentUseCase: SetSessionCurrentUseCase
 
 
     @Before
     fun setUp() {
-        setDormantSessionToCurrentUseCase = SetDormantSessionToCurrentUseCase(sessionRepository)
+        SetSessionCurrentUseCase = SetSessionCurrentUseCase(sessionRepository)
     }
 
     @Test
     fun `given run is called, when sessionRepository calls successfully the method, then return success`() {
         val userId = "user-id"
-        val params = SetDormantSessionToCurrentUseCaseParams(userId)
-        coEvery { sessionRepository.setDormantSessionToCurrent(userId) } returns Either.Right(Unit)
+        val params = SetSessionCurrentUseCaseParams(userId)
+        coEvery { sessionRepository.setSessionCurrent(userId) } returns Either.Right(Unit)
 
-        val result = runBlocking { setDormantSessionToCurrentUseCase.run(params) }
+        val result = runBlocking { SetSessionCurrentUseCase.run(params) }
 
         result shouldSucceed { it shouldBe Unit }
     }
@@ -42,11 +42,11 @@ class SetDormantSessionToCurrentUseCaseTest : UnitTest() {
     fun `given run is called, when sessionRepository fails to call the method, then propagates the failure`() {
         val userId = "user-id"
         val failure = mockk<Failure>()
-        val params = SetDormantSessionToCurrentUseCaseParams(userId)
+        val params = SetSessionCurrentUseCaseParams(userId)
 
-        coEvery { sessionRepository.setDormantSessionToCurrent(userId) } returns Either.Left(failure)
+        coEvery { sessionRepository.setSessionCurrent(userId) } returns Either.Left(failure)
 
-        val result = runBlocking { setDormantSessionToCurrentUseCase.run(params) }
+        val result = runBlocking { SetSessionCurrentUseCase.run(params) }
 
         result shouldFail { it shouldBe failure }
     }

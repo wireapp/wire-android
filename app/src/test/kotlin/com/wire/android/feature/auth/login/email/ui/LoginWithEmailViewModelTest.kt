@@ -177,7 +177,7 @@ class LoginWithEmailViewModelTest : UnitTest() {
 
     private fun mockEmailValidation(success: Boolean) =
         coEvery { validateEmailUseCase.run(ValidateEmailParams(TEST_EMAIL)) } returns
-                if (success) Either.Right(Unit) else Either.Left(EmailInvalid)
+            if (success) Either.Right(Unit) else Either.Left(EmailInvalid)
 
     companion object {
         private const val TEST_EMAIL = "test@wire.com"

@@ -10,6 +10,7 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.navigation.Navigator
+import com.wire.android.feature.auth.client.usecase.DevicesLimitReached
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -19,38 +20,30 @@ class DeviceLimitActivity : AppCompatActivity(R.layout.activity_device_limit) {
     private val navigator: Navigator by inject()
     private val dialogBuilder: DialogBuilder by inject()
 
-    private var userId: String? = ""
+    private val userId get() = intent.getStringExtra(ARG_USER_ID)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        initUserIdArg()
         observeOnClientRegistration()
-        observeUserSession()
-        registerClient()
+        registerClient(userId, "")
     }
 
-    private fun observeUserSession() {
-        viewModel.isDormantSessionCurrentLiveData.observe(this) {
-            it?.onSuccess { navigator.main.openMainScreen(this) }
-            it?.onFailure { showErrorDialog() }
-        }
-    }
-
-    private fun initUserIdArg() {
-        userId = intent.getStringExtra(ARG_USER_ID)
-    }
-
-    private fun registerClient() {
-        viewModel.registerClient("")
+    private fun registerClient(userId: String?, password: String) {
+        userId?.let { viewModel.registerClient(it, password) }
     }
 
     private fun observeOnClientRegistration() {
         viewModel.registerClientLiveData.observe(this) { either ->
             either.onSuccess {
-                userId?.let { viewModel.setDormantSessionToCurrent(it) }
+                navigator.main.openMainScreen(this)
+            }.onFailure {
+                if (it is DevicesLimitReached)
+                    navigator.login.openDeviceLimitErrorScreen(this)
+                else
+                    showErrorDialog()
             }
-            either.onFailure { navigator.login.openDeviceLimitFragment(this) }
+
         }
     }
 

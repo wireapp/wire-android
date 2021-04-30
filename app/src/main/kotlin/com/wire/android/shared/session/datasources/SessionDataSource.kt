@@ -39,6 +39,9 @@ class SessionDataSource(
 
     override suspend fun doesCurrentSessionExist(): Either<Failure, Boolean> = localDataSource.doesCurrentSessionExist()
 
-    override suspend fun setDormantSessionToCurrent(userId: String): Either<Failure, Unit> =
-        localDataSource.setDormantSessionToCurrent(userId)
+    override suspend fun setSessionCurrent(userId: String): Either<Failure, Unit> = suspending {
+        localDataSource.setCurrentSessionToDormant().flatMap {
+            localDataSource.setSessionCurrent(userId)
+        }
+    }
 }

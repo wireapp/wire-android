@@ -40,7 +40,7 @@ import com.wire.android.feature.auth.registration.ui.CreateAccountEmailViewModel
 import com.wire.android.feature.auth.registration.ui.CreateAccountUsernameViewModel
 import com.wire.android.feature.auth.registration.ui.navigation.CreateAccountNavigator
 import com.wire.android.shared.auth.remote.LabelGenerator
-import com.wire.android.shared.session.usecase.SetDormantSessionToCurrentUseCase
+import com.wire.android.shared.session.usecase.SetSessionCurrentUseCase
 import com.wire.android.shared.user.email.ValidateEmailUseCase
 import com.wire.android.shared.user.username.CheckUsernameExistsUseCase
 import com.wire.android.shared.user.username.GenerateRandomUsernameUseCase
@@ -129,6 +129,6 @@ private val clientModule = module {
     single { ClientRemoteDataSource(get(), get()) }
     single<ClientRepository> { ClientDataSource() }
     factory { RegisterClientUseCase(get()) }
-    factory { SetDormantSessionToCurrentUseCase(get()) }
+    factory { SetSessionCurrentUseCase(get()) }
     viewModel { DeviceLimitViewModel(get(), get(), get()) }
 }

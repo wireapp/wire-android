@@ -22,7 +22,7 @@ class SessionLocalDataSource(private val sessionDao: SessionDao) : DatabaseServi
         sessionDao.doesCurrentSessionExist()
     }
 
-    suspend fun setDormantSessionToCurrent(userId: String): Either<Failure, Unit> = request {
-        sessionDao.setDormantSessionToCurrent(userId)
+    suspend fun setSessionCurrent(userId: String): Either<Failure, Unit> = request {
+        sessionDao.setSessionCurrent(userId)
     }
 }

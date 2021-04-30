@@ -101,7 +101,7 @@ class AccessTokenAuthenticatorTest : UnitTest() {
     fun `Given http response, when access token request is successful, then save session`() {
         coEvery { sessionRepository.newAccessToken(any()) } returns Either.Right(currentSession)
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
-        coEvery { sessionRepository.save(any()) } returns Either.Right(Unit)
+        coEvery { sessionRepository.save(any(), false) } returns Either.Right(Unit)
         every { response.headers[TOKEN_HEADER_KEY] } returns CURRENT_REFRESH_TOKEN
         every { currentSession.refreshToken } returns CURRENT_REFRESH_TOKEN
 
@@ -109,7 +109,7 @@ class AccessTokenAuthenticatorTest : UnitTest() {
 
         coVerify(exactly = 1) {
             sessionRepository.newAccessToken(any())
-            sessionRepository.save(currentSession)
+            sessionRepository.save(currentSession, false)
         }
     }
 
@@ -118,7 +118,7 @@ class AccessTokenAuthenticatorTest : UnitTest() {
         every { currentSession.accessToken } returns NEW_ACCESS_TOKEN
         coEvery { sessionRepository.newAccessToken(any()) } returns Either.Right(currentSession)
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
-        coEvery { sessionRepository.save(currentSession) } returns Either.Right(Unit)
+        coEvery { sessionRepository.save(currentSession, false) } returns Either.Right(Unit)
 
         val requestBuilder = mockk<Request.Builder>(relaxed = true)
         every { originalRequest.newBuilder() } returns requestBuilder

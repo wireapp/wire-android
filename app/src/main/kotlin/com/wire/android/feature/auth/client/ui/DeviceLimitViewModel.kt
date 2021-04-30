@@ -13,39 +13,35 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
-import com.wire.android.feature.auth.client.usecase.DevicesLimitReached
 import com.wire.android.feature.auth.client.usecase.RegisterClientParams
 import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
-import com.wire.android.shared.session.usecase.SetDormantSessionToCurrentUseCase
-import com.wire.android.shared.session.usecase.SetDormantSessionToCurrentUseCaseParams
+import com.wire.android.shared.session.usecase.SetSessionCurrentUseCase
+import com.wire.android.shared.session.usecase.SetSessionCurrentUseCaseParams
 
 class DeviceLimitViewModel(
     override val dispatcherProvider: DispatcherProvider,
-    private val setDormantSessionToCurrentUseCase: SetDormantSessionToCurrentUseCase,
+    private val setSessionCurrentUseCase: SetSessionCurrentUseCase,
     private val registerClientUseCase: RegisterClientUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    private val _isDormantSessionCurrentLiveData = SingleLiveEvent<Either<Failure, Unit>>()
-    val isDormantSessionCurrentLiveData: SingleLiveEvent<Either<Failure, Unit>> = _isDormantSessionCurrentLiveData
+    private val _registerClientLiveData = SingleLiveEvent<Either<Failure, Unit>>()
+    val registerClientLiveData: LiveData<Either<Failure, Unit>> = _registerClientLiveData
 
-    private val _registerClientLiveData = SingleLiveEvent<Either<Unit, Unit>>()
-    val registerClientLiveData: LiveData<Either<Unit, Unit>> = _registerClientLiveData
-
-    fun registerClient(password: String) {
+    fun registerClient(userId: String, password: String) {
         registerClientUseCase(viewModelScope, RegisterClientParams(password)) {
-            it.onSuccess {
-                _registerClientLiveData.success()
-            }
-            it.onFailure { failure ->
-                if (failure is DevicesLimitReached) _registerClientLiveData.failure(Unit)
-            }
+            it.onSuccess { setSessionCurrent(userId) }
+                .onFailure { failure ->
+                    _registerClientLiveData.failure(failure)
+                }
         }
     }
 
-    fun setDormantSessionToCurrent(userId: String) {
-        setDormantSessionToCurrentUseCase(viewModelScope, SetDormantSessionToCurrentUseCaseParams(userId)) {
-            it.onSuccess { _isDormantSessionCurrentLiveData.success() }
-            it.onFailure { failure -> _isDormantSessionCurrentLiveData.failure(failure) }
+    private fun setSessionCurrent(userId: String) {
+        setSessionCurrentUseCase(viewModelScope, SetSessionCurrentUseCaseParams(userId)) {
+            it.onSuccess { _registerClientLiveData.success() }
+                .onFailure { failure ->
+                    _registerClientLiveData.failure(failure)
+                }
         }
     }
 }

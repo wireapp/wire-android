@@ -230,23 +230,42 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given setDormantSessionToCurrent is called, when localDataSource is successful, then return success`() {
+    fun `given setSessionCurrent is called, when localDataSource is successful, then return success`() {
         val userId = "user-id"
-        coEvery { localDataSource.setDormantSessionToCurrent(userId) } returns Either.Right(Unit)
+        coEvery { localDataSource.setCurrentSessionToDormant() } returns Either.Right(Unit)
+        coEvery { localDataSource.setSessionCurrent(userId) } returns Either.Right(Unit)
 
-        val result = runBlocking { sessionDataSource.setDormantSessionToCurrent(userId) }
+        val result = runBlocking { sessionDataSource.setSessionCurrent(userId) }
 
+        coVerify(exactly = 1) { localDataSource.setCurrentSessionToDormant() }
+        coVerify(exactly = 1) { localDataSource.setSessionCurrent(userId) }
         result shouldSucceed { it shouldBe Unit }
     }
 
     @Test
-    fun `given setDormantSessionToCurrent is called, when localDataSource returns a failure, then propagates the failure`() {
+    fun `given setSessionCurrent is called, when localDS fails to update current session to dormant, then propagates the failure`() {
         val userId = "user-id"
-        val failure = mockk<Failure>()
-        coEvery { localDataSource.setDormantSessionToCurrent(userId) } returns Either.Left(failure)
+        val failure = DatabaseFailure()
+        coEvery { localDataSource.setCurrentSessionToDormant() } returns Either.Left(failure)
 
-        val result = runBlocking { sessionDataSource.setDormantSessionToCurrent(userId) }
+        val result = runBlocking { sessionDataSource.setSessionCurrent(userId) }
 
+        coVerify(exactly = 1) { localDataSource.setCurrentSessionToDormant() }
+        coVerify(inverse = true) { localDataSource.setSessionCurrent(userId) }
+        result shouldFail { it shouldBe failure }
+    }
+
+    @Test
+    fun `given setSessionCurrent is called, when localDS fails to update session to current, then propagates the failure`() {
+        val userId = "user-id"
+        val failure = DatabaseFailure()
+        coEvery { localDataSource.setCurrentSessionToDormant() } returns Either.Right(Unit)
+        coEvery { localDataSource.setSessionCurrent(userId) } returns Either.Left(failure)
+
+        val result = runBlocking { sessionDataSource.setSessionCurrent(userId) }
+
+        coVerify(exactly = 1) { localDataSource.setCurrentSessionToDormant() }
+        coVerify(exactly = 1) { localDataSource.setSessionCurrent(userId) }
         result shouldFail { it shouldBe failure }
     }
 }

@@ -110,6 +110,6 @@
 
     <!--    devices limit   -->
     <string name="devices_limit_logout_text">logout</string>
-    <string name="devices_limit_notice_text">You reached the maximum number of allowed devices, please use an other client to remove your devices.</string>
+    <string name="devices_limit_notice_text">You reached the maximum number of allowed devices. Please use another client to remove your devices.</string>
 
 </resources>

@@ -116,22 +116,22 @@ class SessionLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given setDormantSessionToCurrent is called, when dao operation is successful, then returns success`() {
+    fun `given setSessionCurrent is called, when dao operation is successful, then returns success`() {
         val userId = "user-id"
-        coEvery { sessionDao.setDormantSessionToCurrent(userId) } returns Unit
+        coEvery { sessionDao.setSessionCurrent(userId) } returns Unit
 
         runBlockingTest {
-            sessionLocalDataSource.setDormantSessionToCurrent(userId) shouldSucceed { it shouldBe Unit }
+            sessionLocalDataSource.setSessionCurrent(userId) shouldSucceed { it shouldBe Unit }
         }
     }
 
     @Test
-    fun `given setDormantSessionToCurrent is called, when dao operation fails, then returns failure`() {
+    fun `given setSessionCurrent is called, when dao operation fails, then returns failure`() {
         val userId = "user-id"
-        coEvery { sessionDao.setDormantSessionToCurrent(userId) } throws RuntimeException()
+        coEvery { sessionDao.setSessionCurrent(userId) } throws RuntimeException()
 
         runBlockingTest {
-            sessionLocalDataSource.setDormantSessionToCurrent(userId) shouldFail {}
+            sessionLocalDataSource.setSessionCurrent(userId) shouldFail {}
         }
     }
 }

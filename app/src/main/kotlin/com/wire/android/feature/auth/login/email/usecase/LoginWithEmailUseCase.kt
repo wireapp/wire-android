@@ -25,11 +25,7 @@ class LoginWithEmailUseCase(
             if (session == Session.EMPTY) Either.Left(SessionCredentialsMissing)
             else {
                 userRepository.selfUser(accessToken = session.accessToken, tokenType = session.tokenType).flatMap { user ->
-                    sessionRepository.save(session).coFold({
-                        Either.Left(it)
-                    }) {
-                        Either.Right(user.id)
-                    }!!
+                    sessionRepository.save(session, false).map { user.id }
                 }
             }
         }!!

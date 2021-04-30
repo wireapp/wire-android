@@ -61,7 +61,7 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
         every { registrationResult.refreshToken } returns TEST_REFRESH_TOKEN
         coEvery { userRepository.save(user) } returns Either.Right(Unit)
         coEvery { sessionRepository.newAccessToken(TEST_REFRESH_TOKEN) } returns Either.Right(session)
-        coEvery { sessionRepository.save(session) } returns Either.Right(Unit)
+        coEvery { sessionRepository.save(session, true) } returns Either.Right(Unit)
 
         val result = runBlocking { useCase.run(params) }
 
@@ -181,7 +181,7 @@ class RegisterPersonalAccountUseCaseTest : UnitTest() {
         coEvery { userRepository.save(user) } returns Either.Right(Unit)
         coEvery { sessionRepository.newAccessToken(TEST_REFRESH_TOKEN) } returns Either.Right(session)
         val failure = mockk<Failure>()
-        coEvery { sessionRepository.save(session) } returns Either.Left(failure)
+        coEvery { sessionRepository.save(session, true) } returns Either.Left(failure)
 
         val result = runBlocking { useCase.run(params) }
 

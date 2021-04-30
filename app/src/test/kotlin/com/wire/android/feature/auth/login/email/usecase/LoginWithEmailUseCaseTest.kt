@@ -18,6 +18,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
@@ -51,16 +52,20 @@ class LoginWithEmailUseCaseTest : UnitTest() {
 
     @Test
     fun `given run is called, when loginRepository returns a valid user and user & session repos return success, then returns success`() {
+        val userId = "user-id"
+        val expectedUser = mockk<User>().also {
+            every { it.id } returns userId
+        }
         coEvery { loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) } returns Either.Right(session)
-        coEvery { userRepository.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) } returns Either.Right(user)
-        coEvery { sessionRepository.save(session, true) } returns Either.Right(Unit)
+        coEvery { userRepository.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) } returns Either.Right(expectedUser)
+        coEvery { sessionRepository.save(session, false) } returns Either.Right(Unit)
 
         val result = runBlocking { loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD)) }
 
-        result shouldSucceed {}
+        result shouldSucceed { it shouldBe userId }
         coVerify(exactly = 1) { loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) }
         coVerify(exactly = 1) { userRepository.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
-        coVerify(exactly = 1) { sessionRepository.save(eq(session), eq(true)) }
+        coVerify(exactly = 1) { sessionRepository.save(eq(session), eq(false)) }
     }
 
     @Test
@@ -121,13 +126,13 @@ class LoginWithEmailUseCaseTest : UnitTest() {
         val failure = DatabaseFailure()
         coEvery { loginRepository.loginWithEmail(TEST_EMAIL, TEST_PASSWORD) } returns Either.Right(session)
         coEvery { userRepository.selfUser(TEST_ACCESS_TOKEN, TEST_TOKEN_TYPE) } returns Either.Right(user)
-        coEvery { sessionRepository.save(session, true) } returns Either.Left(failure)
+        coEvery { sessionRepository.save(session, false) } returns Either.Left(failure)
 
         val result = runBlocking { loginWithEmailUseCase.run(LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_PASSWORD)) }
 
         result shouldFail { it shouldBe failure }
         coVerify(exactly = 1) { userRepository.selfUser(accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE) }
-        coVerify(exactly = 1) { sessionRepository.save(eq(session), eq(true)) }
+        coVerify(exactly = 1) { sessionRepository.save(eq(session), eq(false)) }
     }
 
     companion object {

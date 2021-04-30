@@ -186,5 +186,6 @@ class UserDataSourceTest : UnitTest() {
         private const val TEST_TOKEN_TYPE = "token-type-bearer"
         private const val TEST_USERNAME = "username"
         private const val TEST_USER_ID = "user-id"
+        private const val TEST_ASSET_KEY = "asset-key"
     }
 }

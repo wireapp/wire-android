@@ -6,13 +6,16 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.wire.android.R
 import com.wire.android.core.extension.toast
+import com.wire.android.feature.profile.ui.icon.UserProfileIconProvider
 import com.wire.android.shared.user.User
 import kotlinx.android.synthetic.main.fragment_profile.*
+import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
     private val viewModel by viewModel<ProfileViewModel>()
+    private val iconProvider: UserProfileIconProvider by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -39,6 +42,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun updateUserInfo(user: User) {
+        iconProvider.provide(user).displayOn(profilePictureImageView)
         profileUserNameTextView.text = user.name
         profileHandleTextView.text = getString(R.string.profile_user_handle_text, user.username)
     }

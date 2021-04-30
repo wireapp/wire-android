@@ -5,6 +5,7 @@ import com.wire.android.core.ui.navigation.FragmentContainerProvider
 import com.wire.android.feature.profile.ui.ProfileActivity
 import com.wire.android.feature.profile.ui.ProfileNavigator
 import com.wire.android.feature.profile.ui.ProfileViewModel
+import com.wire.android.feature.profile.ui.icon.UserProfileIconProvider
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.qualifier
 import org.koin.dsl.module
@@ -16,4 +17,5 @@ val profileModule = module {
     }
 
     viewModel { ProfileViewModel(get(), get(), get()) }
+    factory { UserProfileIconProvider(get()) }
 }

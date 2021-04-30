@@ -16,13 +16,14 @@ class UserDataSource(
     private val mapper: UserMapper
 ) : UserRepository {
 
-    override suspend fun selfUser(accessToken: String, tokenType: String): Either<Failure, User> = suspending {
-        remoteDataSource.selfUser(accessToken, tokenType).map {
-            mapper.fromSelfUserResponse(it)
-        }.flatMap { user ->
-            save(user).map { user }
+    override suspend fun selfUser(accessToken: String, tokenType: String): Either<Failure, User> =
+        suspending {
+            remoteDataSource.selfUser(accessToken, tokenType).map {
+                mapper.fromSelfUserResponse(it)
+            }.flatMap { user ->
+                save(user).map { user }
+            }
         }
-    }
 
     override suspend fun userById(userId: String): Either<Failure, User> =
         localDataSource.userById(userId).map {
@@ -38,16 +39,20 @@ class UserDataSource(
     override suspend fun checkUsernamesExist(usernames: List<String>): Either<Failure, List<String>> =
         remoteDataSource.checkUsernamesExist(usernames)
 
-    override suspend fun updateUsername(userId: String, username: String): Either<Failure, Unit> = suspending {
-        updateUsernameRemotely(username).flatMap {
-            updateUsernameLocally(userId, username)
+    override suspend fun updateUsername(userId: String, username: String): Either<Failure, Unit> =
+        suspending {
+            updateUsernameRemotely(username).flatMap {
+                updateUsernameLocally(userId, username)
+            }
         }
-    }
 
     private suspend fun updateUsernameRemotely(username: String): Either<Failure, Unit> =
         remoteDataSource.updateUsername(username)
 
-    private suspend fun updateUsernameLocally(userId: String, username: String): Either<Failure, Unit> = suspending {
+    private suspend fun updateUsernameLocally(
+        userId: String,
+        username: String
+    ): Either<Failure, Unit> = suspending {
         userById(userId).flatMap {
             localDataSource.update(mapper.toUserEntity(it.copy(username = username)))
         }

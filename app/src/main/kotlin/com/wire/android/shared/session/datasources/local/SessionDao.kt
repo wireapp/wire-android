@@ -22,4 +22,7 @@ interface SessionDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM session WHERE is_current = 1)")
     suspend fun doesCurrentSessionExist(): Boolean
+
+    @Query("UPDATE session SET is_current = 1 WHERE user_id = :userId")
+    suspend fun setSessionCurrent(userId: String)
 }

@@ -10,6 +10,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotContain
+import org.amshove.kluent.shouldBeNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -121,6 +122,28 @@ class SessionDaoTest : InstrumentationTest() {
 
         val sessions = sessionDao.sessions()
         sessions shouldContainSame arrayOf(session1.copy(isCurrent = false), session2)
+    }
+
+    @Test
+    fun setSessionCurrent_aSessionOfSpecificUserExistsAsDormant_setsIsCurrentToTrue() = databaseTestRule.runTest {
+        val session = prepareSession(id = 1, userId = "userId", current = false)
+        sessionDao.insert(session)
+
+        sessionDao.setSessionCurrent("userId")
+
+        val currentSession = sessionDao.currentSession()
+        currentSession shouldBeEqualTo session.copy(isCurrent = true)
+    }
+
+    @Test
+    fun setSessionCurrent_aSessionWithUserIdDoesNotExist_doNotUpdateAnyRecord() = databaseTestRule.runTest {
+        val session = prepareSession(id = 1, userId = "", current = false)
+        sessionDao.insert(session)
+
+        sessionDao.setSessionCurrent("userId")
+
+        val currentSession = sessionDao.currentSession()
+        currentSession.shouldBeNull()
     }
 
     @Test

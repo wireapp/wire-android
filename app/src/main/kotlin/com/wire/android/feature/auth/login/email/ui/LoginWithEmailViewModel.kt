@@ -39,8 +39,8 @@ class LoginWithEmailViewModel(
         addSource(isValidPasswordLiveData) { value = allInputsAreValid() }
     }
 
-    private val _loginResultLiveData = SingleLiveEvent<Either<ErrorMessage, Unit>>()
-    val loginResultLiveData: LiveData<Either<ErrorMessage, Unit>> = _loginResultLiveData
+    private val _loginResultLiveData = SingleLiveEvent<Either<ErrorMessage, String>>()
+    val loginResultLiveData: LiveData<Either<ErrorMessage, String>> = _loginResultLiveData
 
     fun validateEmail(email: String) =
         validateEmailUseCase(viewModelScope, ValidateEmailParams(email), dispatcherProvider.default()) { result ->
@@ -51,10 +51,10 @@ class LoginWithEmailViewModel(
         isValidPasswordLiveData.value = password.isNotEmpty()
     }
 
-    fun login(email: String, password: String) {
+    fun  login(email: String, password: String) {
         loginWithEmailUseCase(viewModelScope, LoginWithEmailUseCaseParams(email = email, password = password)) { result ->
             result.onSuccess {
-                _loginResultLiveData.success()
+                _loginResultLiveData.success(it)
             }.onFailure(::handleLoginFailure)
         }
     }

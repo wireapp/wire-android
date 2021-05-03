@@ -45,7 +45,7 @@ class RegisterPersonalAccountUseCase(
             sessionRepository.newAccessToken(refreshToken).coFold({
                 Either.Left(SessionCannotBeCreated)
             }) {
-                sessionRepository.save(it)
+                sessionRepository.save(it, true)
             }!!
         }
     }

@@ -26,7 +26,7 @@ class DeviceLimitActivity : AppCompatActivity(R.layout.activity_device_limit) {
         super.onCreate(savedInstanceState)
 
         observeOnClientRegistration()
-        registerClient(userId, "")
+        registerClient(userId, "") //TODO empty password to be replaced with a valid password value
     }
 
     private fun registerClient(userId: String?, password: String) {

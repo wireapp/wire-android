@@ -3,9 +3,14 @@ package com.wire.android.core.crypto
 import androidx.test.filters.RequiresDevice
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
+import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.PreKeyMapper
+import com.wire.android.core.crypto.model.ClientId
+import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.crypto.model.PreKey
+import com.wire.android.core.crypto.model.SessionId
 import com.wire.android.core.crypto.model.UserId
+import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
 import com.wire.android.framework.mock.InjectMockKsRule
 import io.mockk.every
@@ -30,13 +35,16 @@ class CryptoBoxClientTest : InstrumentationTest() {
     @MockK
     private lateinit var preKeyMapper: PreKeyMapper
 
+    @MockK
+    private lateinit var exceptionMapper: CryptoExceptionMapper
+
     lateinit var subject: CryptoBoxClient
 
     private val userId = UserId("abc")
 
     @Before
     fun setup() {
-        subject = CryptoBoxClient(appContext, propertyStorage, userId, preKeyMapper)
+        subject = CryptoBoxClient(appContext, propertyStorage, userId, preKeyMapper, exceptionMapper)
     }
 
     @Test
@@ -93,6 +101,20 @@ class CryptoBoxClientTest : InstrumentationTest() {
             verify {
                 propertyStorage.updateLastPreKeyId(userId, lastKeyId)
             }
+        }
+    }
+
+    @Test
+    fun givenANonRecognizedSessionId_whenEncrypting_shouldFailReturningMappersResult() {
+        val plainMessage = PlainMessage("Hello".toByteArray())
+
+        val expectedFailure = UnknownCryptoFailure(Throwable())
+        every { exceptionMapper.fromNativeException(any()) } returns expectedFailure
+
+        subject.encryptMessage(SessionId(UserId("Bob"), ClientId("A")), plainMessage) { result ->
+            result.isLeft shouldBe true
+            (result as Either.Left).a shouldBeEqualTo expectedFailure
+            true
         }
     }
 }

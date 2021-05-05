@@ -86,6 +86,15 @@ fun <T, L, R> Either<L, R>.flatMap(fn: (R) -> Either<L, T>): Either<L, T> =
     }
 
 /**
+ * Returns the value from this `Right` or maps to another Either of same type based on this `Left`.
+ */
+fun <L, R> Either<L, R>.handleFailure(fn: (L) -> Either<L, R>): Either<L, R> =
+    when (this){
+        is Either.Left -> fn(a)
+        is Either.Right -> this
+    }
+
+/**
  * Left-biased onFailure() FP convention dictates that when this class is Left, it'll perform
  * the onFailure functionality passed as a parameter, but, overall will still return an either
  * object so you chain calls.

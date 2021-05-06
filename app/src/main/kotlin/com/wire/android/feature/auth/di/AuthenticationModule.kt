@@ -11,8 +11,11 @@ import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeU
 import com.wire.android.feature.auth.client.ClientRepository
 import com.wire.android.feature.auth.client.datasource.ClientDataSource
 import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
+import com.wire.android.feature.auth.client.datasource.remote.api.ClientApi
+import com.wire.android.feature.auth.client.mapper.ClientMapper
 import com.wire.android.feature.auth.client.ui.DeviceLimitActivity
 import com.wire.android.feature.auth.client.ui.DeviceLimitViewModel
+import com.wire.android.feature.auth.client.usecase.LocalClientGeneratorUseCase
 import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
 import com.wire.android.feature.auth.login.email.LoginRepository
 import com.wire.android.feature.auth.login.email.datasource.LoginDataSource
@@ -39,6 +42,7 @@ import com.wire.android.feature.auth.registration.ui.CreateAccountEmailVerificat
 import com.wire.android.feature.auth.registration.ui.CreateAccountEmailViewModel
 import com.wire.android.feature.auth.registration.ui.CreateAccountUsernameViewModel
 import com.wire.android.feature.auth.registration.ui.navigation.CreateAccountNavigator
+import com.wire.android.shared.asset.mapper.AssetMapper
 import com.wire.android.shared.auth.remote.LabelGenerator
 import com.wire.android.shared.session.usecase.SetSessionCurrentUseCase
 import com.wire.android.shared.user.email.ValidateEmailUseCase
@@ -126,9 +130,13 @@ private val clientModule = module {
     factory(qualifier<DeviceLimitActivity>()) {
         FragmentContainerProvider.fixedProvider(R.id.deviceLimitFragmentContainer)
     }
-    single { ClientRemoteDataSource(get(), get()) }
-    single<ClientRepository> { ClientDataSource() }
-    factory { RegisterClientUseCase(get()) }
+    factory { get<NetworkClient>().create(ClientApi::class.java) }
+    single { ClientRemoteDataSource(get(), get(), get()) }
+    single<ClientRepository> { ClientDataSource(get()) }
+    factory { RegisterClientUseCase(get(), get(), get(), get()) }
+    factory { LocalClientGeneratorUseCase(get(), get()) }
+    factory { ClientMapper() }
+
     factory { SetSessionCurrentUseCase(get()) }
     viewModel { DeviceLimitViewModel(get(), get(), get()) }
 }

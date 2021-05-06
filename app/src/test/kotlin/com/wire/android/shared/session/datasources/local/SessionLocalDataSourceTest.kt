@@ -117,21 +117,50 @@ class SessionLocalDataSourceTest : UnitTest() {
 
     @Test
     fun `given setSessionCurrent is called, when dao operation is successful, then returns success`() {
-        val userId = "user-id"
-        coEvery { sessionDao.setSessionCurrent(userId) } returns Unit
+        coEvery { sessionDao.setSessionCurrent(USER_ID) } returns Unit
 
         runBlockingTest {
-            sessionLocalDataSource.setSessionCurrent(userId) shouldSucceed { it shouldBe Unit }
+            sessionLocalDataSource.setSessionCurrent(USER_ID) shouldSucceed { it shouldBe Unit }
         }
     }
 
     @Test
     fun `given setSessionCurrent is called, when dao operation fails, then returns failure`() {
-        val userId = "user-id"
-        coEvery { sessionDao.setSessionCurrent(userId) } throws RuntimeException()
+        coEvery { sessionDao.setSessionCurrent(USER_ID) } throws RuntimeException()
 
         runBlockingTest {
-            sessionLocalDataSource.setSessionCurrent(userId) shouldFail {}
+            sessionLocalDataSource.setSessionCurrent(USER_ID) shouldFail {}
         }
+    }
+
+    @Test
+    fun `given userAuthorizationToken is called, when dao returns a valid authorizationToken, then propagates it in Either`() {
+        val authorizationToken = "authorizationToken"
+        coEvery { sessionDao.userAuthorizationToken(USER_ID) } returns authorizationToken
+
+        runBlockingTest {
+            sessionLocalDataSource.userAuthorizationToken(USER_ID) shouldSucceed { it shouldBe authorizationToken }
+        }
+    }
+
+    @Test
+    fun `given userAuthorizationToken is called, when dao returns null, then returns NoEntityFound error`() {
+        coEvery { sessionDao.userAuthorizationToken(USER_ID) } returns null
+
+        runBlockingTest {
+            sessionLocalDataSource.userAuthorizationToken(USER_ID) shouldFail { it shouldBe NoEntityFound }
+        }
+    }
+
+    @Test
+    fun `given userAuthorizationToken is called, when dao returns error, then returns error`() {
+        coEvery { sessionDao.userAuthorizationToken(USER_ID) } throws RuntimeException()
+
+        runBlockingTest {
+            sessionLocalDataSource.userAuthorizationToken(USER_ID) shouldFail {}
+        }
+    }
+    companion object{
+        private const val USER_ID = "user-id"
     }
 }

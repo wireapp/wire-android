@@ -18,9 +18,9 @@ import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
@@ -181,14 +181,26 @@ class SessionDataSourceTest : UnitTest() {
     fun `given newAccessToken is called, when remoteDataSource is successful, then maps the response and returns session`() {
         val accessTokenResponse = mockk<AccessTokenResponse>()
         val refreshToken = "refresh-token-123"
-        coEvery { remoteDataSource.accessToken(refreshToken) } returns Either.Right(accessTokenResponse)
-        every { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken) } returns session
+        coEvery { remoteDataSource.accessToken(refreshToken) } returns Either.Right(
+            accessTokenResponse
+        )
+        every {
+            sessionMapper.fromAccessTokenResponse(
+                accessTokenResponse,
+                refreshToken
+            )
+        } returns session
 
         val result = runBlocking { sessionDataSource.newAccessToken(refreshToken) }
 
         result shouldSucceed { it shouldBe session }
         coVerify(exactly = 1) { remoteDataSource.accessToken(refreshToken) }
-        verify(exactly = 1) { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken) }
+        verify(exactly = 1) {
+            sessionMapper.fromAccessTokenResponse(
+                accessTokenResponse,
+                refreshToken
+            )
+        }
     }
 
     @Test
@@ -268,4 +280,27 @@ class SessionDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { localDataSource.setSessionCurrent(userId) }
         result shouldFail { it shouldBe failure }
     }
+
+    @Test
+    fun `given userAuthorizationToken is called, when localDataSource returns a failure, then propagates the failure`() {
+        val userId = "user-id"
+        val failure = mockk<Failure>()
+        coEvery { localDataSource.userAuthorizationToken(userId) } returns Either.Left(failure)
+
+        val result = runBlocking { sessionDataSource.userAuthorizationToken(userId) }
+
+        result shouldFail { it shouldBe failure }
+    }
+
+    @Test
+    fun `given userAuthorizationToken is called, when localDataSource successfully returns valid string, then propagates the result`() {
+        val userId = "user-id"
+        val authorizationToken = "authorizationToken"
+        coEvery { localDataSource.userAuthorizationToken(userId) }  returns Either.Right(authorizationToken)
+
+        val result = runBlocking { sessionDataSource.userAuthorizationToken(userId) }
+
+        result shouldSucceed { it shouldBe authorizationToken }
+    }
+
 }

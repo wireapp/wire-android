@@ -11,7 +11,9 @@ import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.navigation.Navigator
+import com.wire.android.shared.crypto.di.USER_ID_KOIN_PROPERTY
 import kotlinx.android.synthetic.main.fragment_login_with_email.*
+import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -58,7 +60,8 @@ class LoginWithEmailFragment : Fragment(R.layout.fragment_login_with_email) {
     private fun observeLoginResult() {
         viewModel.loginResultLiveData.observe(viewLifecycleOwner) {
             it.onSuccess { userId ->
-                navigator.login.openDeviceLimitScreen(requireContext(), userId)
+                getKoin().setProperty(USER_ID_KOIN_PROPERTY, userId)
+                navigator.login.openDeviceLimitScreen(requireContext(), userId, loginWithEmailPasswordEditText.text.toStringOrEmpty())
             }.onFailure(::showErrorDialog)
         }
     }

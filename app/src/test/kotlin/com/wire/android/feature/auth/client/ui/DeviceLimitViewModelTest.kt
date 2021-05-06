@@ -35,7 +35,7 @@ class DeviceLimitViewModelTest : UnitTest() {
 
     private lateinit var deviceLimitViewModel: DeviceLimitViewModel
 
-    private val clientParams = RegisterClientParams(PASSWORD)
+    private val clientParams = RegisterClientParams(USER_ID, PASSWORD)
     private val sessionParams = SetSessionCurrentUseCaseParams(USER_ID)
 
     @Before

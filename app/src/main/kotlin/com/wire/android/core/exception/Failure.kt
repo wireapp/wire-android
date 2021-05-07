@@ -36,3 +36,4 @@ data class CryptoBoxFailure(val reason: CryptoException? = null) : Failure()
 
 /** Extend this class for UseCase specific failures.*/
 abstract class FeatureFailure : Failure()
+object ClientRegistrationFailure : FeatureFailure()

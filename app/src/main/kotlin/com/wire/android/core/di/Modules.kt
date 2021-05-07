@@ -9,6 +9,8 @@ import com.wire.android.core.async.DefaultDispatcherProvider
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.compatibility.Compatibility
 import com.wire.android.core.config.LocaleConfig
+import com.wire.android.core.device.DeviceNameUseCase
+import com.wire.android.core.device.DeviceTypeUseCase
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.io.FileSystem
 import com.wire.android.core.ui.dialog.DialogBuilder
@@ -25,6 +27,8 @@ val coreModule = module {
     single { EventsHandler() }
     //TODO: this should be separate per user
     factory { androidContext().getSharedPreferences("com.wire.android.userprefs", Context.MODE_PRIVATE) }
+    factory { DeviceTypeUseCase(get()) }
+    factory { DeviceNameUseCase(get()) }
 }
 
 val accessibilityModule = module {

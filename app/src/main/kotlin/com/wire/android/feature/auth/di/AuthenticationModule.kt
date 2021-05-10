@@ -10,6 +10,7 @@ import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemo
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
 import com.wire.android.feature.auth.client.ClientRepository
 import com.wire.android.feature.auth.client.datasource.ClientDataSource
+import com.wire.android.feature.auth.client.datasource.mapper.ClientTypeMapper
 import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientApi
 import com.wire.android.feature.auth.client.mapper.ClientMapper

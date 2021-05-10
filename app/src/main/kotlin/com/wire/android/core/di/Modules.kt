@@ -8,9 +8,12 @@ import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.async.DefaultDispatcherProvider
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.compatibility.Compatibility
+import com.wire.android.core.config.DeviceConfig
 import com.wire.android.core.config.LocaleConfig
-import com.wire.android.core.device.DeviceNameUseCase
-import com.wire.android.core.device.DeviceTypeUseCase
+import com.wire.android.core.crypto.CryptoBoxClient
+import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
+import com.wire.android.core.crypto.mapper.PreKeyMapper
+import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.io.FileSystem
 import com.wire.android.core.ui.dialog.DialogBuilder
@@ -23,12 +26,12 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
+const val USER_ID_KOIN_PROPERTY = "user_id"
+
 val coreModule = module {
     single { EventsHandler() }
     //TODO: this should be separate per user
     factory { androidContext().getSharedPreferences("com.wire.android.userprefs", Context.MODE_PRIVATE) }
-    factory { DeviceTypeUseCase(get()) }
-    factory { DeviceNameUseCase(get()) }
 }
 
 val accessibilityModule = module {
@@ -44,6 +47,7 @@ val compatibilityModule = module {
 
 val appConfigModule = module {
     factory { LocaleConfig(androidContext()) }
+    factory { DeviceConfig(androidContext()) }
 }
 
 
@@ -64,4 +68,13 @@ val uiModule = module {
 
 val ioModule = module {
     single { FileSystem(androidContext()) }
+}
+
+val cryptoBoxModule = module {
+    factory { PreKeyMapper() }
+    factory {
+        UserId(getProperty(USER_ID_KOIN_PROPERTY))
+    }
+    factory { CryptoBoxClientPropertyStorage(androidContext()) }
+    factory { CryptoBoxClient(androidContext(), get(), get(), get()) }
 }

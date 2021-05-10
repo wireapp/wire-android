@@ -16,12 +16,6 @@ data class Client(
 
 
 data class SignalingKey(
-    val encryptionKey: String,
-    val macKey: String
+    val encryptionKey: String = "",
+    val macKey: String = ""
 )
-
-enum class ClientType(val type: String) {
-    PERMANENT("permanent"),
-    TEMPORARY("temporary"),
-    LEGALHOLD("legalhold")
-}

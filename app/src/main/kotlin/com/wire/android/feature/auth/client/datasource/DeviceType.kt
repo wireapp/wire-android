@@ -5,3 +5,4 @@ sealed class DeviceType
 object Permanent : DeviceType()
 object Temporary : DeviceType()
 object LegalHold : DeviceType()
+object Unknown : DeviceType()

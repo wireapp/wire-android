@@ -8,16 +8,11 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
 import com.wire.android.feature.auth.client.Client
 import com.wire.android.feature.auth.client.ClientRepository
-import com.wire.android.feature.auth.client.SignalingKey
-import com.wire.android.feature.auth.client.datasource.mapper.ClientTypeMapper
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
 import com.wire.android.feature.auth.client.datasource.remote.api.LocationResponse
-import com.wire.android.shared.config.DeviceTypeMapper
 
 class ClientDataSource(
     private val cryptoBoxClient: CryptoBoxClient,
-    private val clientTypeMapper: ClientTypeMapper,
-    private val deviceTypeMapper: DeviceTypeMapper,
     private val deviceConfig: DeviceConfig
 ) : ClientRepository {
 
@@ -28,12 +23,11 @@ class ClientDataSource(
         cryptoBoxClient.createInitialPreKeys().map {
             Client(
                 userId,
-                clientTypeMapper.toStringValue(Permanent),
+                Permanent,
                 deviceConfig.deviceName(),
                 password,
                 "${Build.MANUFACTURER} ${Build.MODEL}",
-                deviceTypeMapper.toStringValue(deviceConfig.deviceType()),
-                SignalingKey(), //TODO No longer required - to be implemented later in case of need
+                deviceConfig.deviceClass(),
                 it.createdKeys,
                 it.lastKey
             )

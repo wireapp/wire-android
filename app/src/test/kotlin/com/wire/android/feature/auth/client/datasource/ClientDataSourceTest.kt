@@ -9,10 +9,8 @@ import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.PreKeyInitialization
 import com.wire.android.core.exception.CryptoBoxFailure
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.auth.client.datasource.mapper.ClientTypeMapper
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import com.wire.android.shared.config.DeviceTypeMapper
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -29,12 +27,6 @@ class ClientDataSourceTest : UnitTest() {
     private lateinit var cryptoBoxClient: CryptoBoxClient
 
     @MockK
-    private lateinit var clientTypeMapper: ClientTypeMapper
-
-    @MockK
-    private lateinit var deviceTypeMapper: DeviceTypeMapper
-
-    @MockK
     private lateinit var deviceConfig: DeviceConfig
 
     private lateinit var clientDataSource: ClientDataSource
@@ -42,7 +34,7 @@ class ClientDataSourceTest : UnitTest() {
     @Before
     fun setUp() {
         clientDataSource =
-            ClientDataSource(cryptoBoxClient, clientTypeMapper, deviceTypeMapper, deviceConfig)
+            ClientDataSource(cryptoBoxClient, deviceConfig)
     }
 
     @Test
@@ -50,8 +42,6 @@ class ClientDataSourceTest : UnitTest() {
         val userId = "user-id"
         val password = "user-id"
         val deviceName = "Wire-device"
-        val deviceType = "phone"
-        val type = "permanent"
         val manufacturer = "Google"
         val model = "Pixel 4"
 
@@ -64,9 +54,7 @@ class ClientDataSourceTest : UnitTest() {
         mockBuild("MODEL", model)
         every { cryptoBoxClient.createInitialPreKeys() } returns Either.Right(preKeyInitialization)
         every { deviceConfig.deviceName() } returns deviceName
-        every { deviceConfig.deviceType() } returns Phone
-        every { deviceTypeMapper.toStringValue(Phone) } returns deviceType
-        every { clientTypeMapper.toStringValue(Permanent) } returns type
+        every { deviceConfig.deviceClass() } returns Phone
 
         val result = runBlocking { clientDataSource.createNewClient(userId, password) }
 
@@ -74,8 +62,8 @@ class ClientDataSourceTest : UnitTest() {
             it.id shouldBeEqualTo userId
             it.password shouldBeEqualTo password
             it.label shouldBeEqualTo deviceName
-            it.deviceType shouldBeEqualTo deviceType
-            it.type shouldBeEqualTo type
+            it.deviceClass shouldBeEqualTo Phone
+            it.deviceType shouldBeEqualTo Permanent
             it.lastKey shouldBeEqualTo preKey
             it.preKeys shouldBeEqualTo listOf()
             it.model shouldBeEqualTo "$manufacturer $model"

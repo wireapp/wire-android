@@ -8,7 +8,7 @@ class DeviceConfig(val context: Context) {
 
     fun deviceName(): String? = Settings.Secure.getString(context.contentResolver, bluetoothName)
 
-    fun deviceType(): DeviceType {
+    fun deviceClass(): DeviceClass {
         if ((context.resources.configuration.screenLayout
                     and Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE)
             return Tablet

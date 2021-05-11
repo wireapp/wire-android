@@ -22,11 +22,10 @@ import com.wire.android.core.ui.navigation.FragmentStackHandler
 import com.wire.android.core.ui.navigation.Navigator
 import com.wire.android.core.ui.navigation.UriNavigationHandler
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
+import com.wire.android.shared.config.DeviceTypeMapper
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-
-const val USER_ID_KOIN_PROPERTY = "user_id"
 
 val coreModule = module {
     single { EventsHandler() }
@@ -48,6 +47,7 @@ val compatibilityModule = module {
 val appConfigModule = module {
     factory { LocaleConfig(androidContext()) }
     factory { DeviceConfig(androidContext()) }
+    factory { DeviceTypeMapper() }
 }
 
 
@@ -72,9 +72,7 @@ val ioModule = module {
 
 val cryptoBoxModule = module {
     factory { PreKeyMapper() }
-    factory {
-        UserId(getProperty(USER_ID_KOIN_PROPERTY))
-    }
     factory { CryptoBoxClientPropertyStorage(androidContext()) }
-    factory { CryptoBoxClient(androidContext(), get(), get(), get()) }
+    //TODO hardcoded UserId should be replaced with real userId value (AR-711)
+    factory { CryptoBoxClient(androidContext(), get(), UserId("dummy-id"), get()) }
 }

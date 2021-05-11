@@ -2,6 +2,7 @@ package com.wire.android.core.config
 
 import android.content.Context
 import android.content.res.Configuration
+import android.os.Build
 import android.provider.Settings
 
 class DeviceConfig(val context: Context) {
@@ -14,6 +15,8 @@ class DeviceConfig(val context: Context) {
             return Tablet
         return Phone
     }
+
+    fun deviceModelName() = "${Build.MANUFACTURER} ${Build.MODEL}"
 
     companion object {
         private const val bluetoothName = "bluetooth_name"

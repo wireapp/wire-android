@@ -26,7 +26,7 @@ class ClientDataSource(
                 Permanent,
                 deviceConfig.deviceName(),
                 password,
-                "${Build.MANUFACTURER} ${Build.MODEL}",
+                deviceConfig.deviceModelName(),
                 deviceConfig.deviceClass(),
                 it.createdKeys,
                 it.lastKey

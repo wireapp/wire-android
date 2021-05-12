@@ -2,6 +2,7 @@ package com.wire.android.feature.auth.client.datasource
 
 import com.wire.android.UnitTest
 import com.wire.android.core.config.DeviceConfig
+import com.wire.android.core.config.Permanent
 import com.wire.android.core.config.Phone
 import com.wire.android.core.crypto.CryptoBoxClient
 import com.wire.android.core.crypto.model.PreKey

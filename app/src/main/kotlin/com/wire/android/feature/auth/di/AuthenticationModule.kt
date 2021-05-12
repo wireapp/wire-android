@@ -10,7 +10,6 @@ import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemo
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
 import com.wire.android.feature.auth.client.ClientRepository
 import com.wire.android.feature.auth.client.datasource.ClientDataSource
-import com.wire.android.feature.auth.client.datasource.mapper.DeviceTypeMapper
 import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
 import com.wire.android.feature.auth.client.ui.DeviceLimitActivity
 import com.wire.android.feature.auth.client.ui.DeviceLimitViewModel
@@ -132,5 +131,4 @@ private val clientModule = module {
     factory { RegisterClientUseCase(get()) }
     factory { SetSessionCurrentUseCase(get()) }
     viewModel { DeviceLimitViewModel(get(), get(), get()) }
-    factory { DeviceTypeMapper() }
 }

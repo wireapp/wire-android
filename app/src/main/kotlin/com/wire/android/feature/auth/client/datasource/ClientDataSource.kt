@@ -1,7 +1,7 @@
 package com.wire.android.feature.auth.client.datasource
 
-import android.os.Build
 import com.wire.android.core.config.DeviceConfig
+import com.wire.android.core.config.Permanent
 import com.wire.android.core.crypto.CryptoBoxClient
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either

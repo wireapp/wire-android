@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.client.datasource
+package com.wire.android.core.config
 
 sealed class DeviceType
 

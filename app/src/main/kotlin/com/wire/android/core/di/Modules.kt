@@ -23,6 +23,7 @@ import com.wire.android.core.ui.navigation.Navigator
 import com.wire.android.core.ui.navigation.UriNavigationHandler
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.shared.config.DeviceClassMapper
+import com.wire.android.shared.config.DeviceTypeMapper
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -48,6 +49,7 @@ val appConfigModule = module {
     factory { LocaleConfig(androidContext()) }
     factory { DeviceConfig(androidContext()) }
     factory { DeviceClassMapper() }
+    factory { DeviceTypeMapper() }
 }
 
 

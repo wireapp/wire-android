@@ -1,15 +1,16 @@
 package com.wire.android.feature.auth.client.datasource.mapper
 
 import com.wire.android.UnitTest
-import com.wire.android.feature.auth.client.datasource.LegalHold
-import com.wire.android.feature.auth.client.datasource.Permanent
-import com.wire.android.feature.auth.client.datasource.Temporary
-import com.wire.android.feature.auth.client.datasource.Unknown
+import com.wire.android.core.config.LegalHold
+import com.wire.android.core.config.Permanent
+import com.wire.android.core.config.Temporary
+import com.wire.android.core.config.Unknown
+import com.wire.android.shared.config.DeviceTypeMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
-class DeviceClassMapperTest : UnitTest() {
+class DeviceTypeMapperTest : UnitTest() {
 
     private lateinit var deviceTypeMapper: DeviceTypeMapper
 

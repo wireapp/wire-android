@@ -10,7 +10,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 
-class DeviceTypeMapperTest : UnitTest() {
+class DeviceClassMapperTest : UnitTest() {
 
     private lateinit var deviceTypeMapper: DeviceTypeMapper
 

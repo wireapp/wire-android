@@ -4,10 +4,10 @@ import com.wire.android.core.config.DeviceClass
 import com.wire.android.core.config.Phone
 import com.wire.android.core.config.Tablet
 
-class DeviceTypeMapper {
+class DeviceClassMapper {
 
-    fun toStringValue(aClass: DeviceClass): String =
-        when (aClass) {
+    fun toStringValue(deviceClass: DeviceClass): String =
+        when (deviceClass) {
             Tablet -> "tablet"
             Phone -> "phone"
         }

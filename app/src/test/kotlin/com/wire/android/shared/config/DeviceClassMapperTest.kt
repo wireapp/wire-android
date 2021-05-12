@@ -9,22 +9,22 @@ import org.junit.Test
 
 class DeviceClassMapperTest : UnitTest() {
 
-    private lateinit var deviceTypeMapper: DeviceTypeMapper
+    private lateinit var deviceClassMapper: DeviceClassMapper
 
     @Before
     fun setUp() {
-        deviceTypeMapper = DeviceTypeMapper()
+        deviceClassMapper = DeviceClassMapper()
     }
 
     @Test
     fun `given toStringValue is called, when type is Tablet, then return tablet string value`() {
-        val result = deviceTypeMapper.toStringValue(Tablet)
+        val result = deviceClassMapper.toStringValue(Tablet)
         result shouldBeEqualTo "tablet"
     }
 
     @Test
     fun `given toStringValue is called, when type is Phone, then return phone string value`() {
-        val result = deviceTypeMapper.toStringValue(Phone)
+        val result = deviceClassMapper.toStringValue(Phone)
         result shouldBeEqualTo "phone"
     }
 

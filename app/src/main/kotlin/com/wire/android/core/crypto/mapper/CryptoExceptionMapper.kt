@@ -8,7 +8,6 @@ import com.wire.cryptobox.CryptoException
 
 class CryptoExceptionMapper {
 
-
     fun fromNativeException(cryptoException: CryptoException): CryptoBoxFailure {
         return when (cryptoException.code) {
             CryptoException.Code.SESSION_NOT_FOUND -> SessionNotFound(cryptoException)

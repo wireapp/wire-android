@@ -1,6 +1,5 @@
 package com.wire.android.core.crypto
 
-import androidx.test.filters.RequiresDevice
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
@@ -19,8 +18,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-@RequiresDevice
-class AliceAndBobCryptoBoxClientTest : InstrumentationTest() {
+class CryptoBoxClientIntegrationTest : InstrumentationTest() {
 
     private val alice = UserId("Alice")
     private val aliceClientId = ClientId("clientA")

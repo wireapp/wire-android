@@ -4,13 +4,14 @@ import android.content.Context
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.PreKeyMapper
+import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.PreKeyInitialization
-import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.exception.CryptoBoxFailure
+import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.InitializationFailure
 import com.wire.android.core.exception.SessionNotFound
 import com.wire.android.core.extension.plus
@@ -35,7 +36,7 @@ class CryptoBoxClient(
     private val cryptoBoxRootDirectory =
         context.filesDir + CRYPTOBOX_PARENT_FOLDER_NAME + userId.toString()
 
-    private val cryptoBox: Either<CryptoBoxFailure, CryptoBox>
+    private val cryptoBox: Either<Failure, CryptoBox>
         get() = _cryptoBox?.let { Either.Right(it) } ?: load().map {
             _cryptoBox = it
             it
@@ -47,7 +48,7 @@ class CryptoBoxClient(
         cryptoBoxRootDirectory.deleteRecursively()
     }
 
-    fun createInitialPreKeys(): Either<CryptoBoxFailure, PreKeyInitialization> = useBox {
+    fun createInitialPreKeys(): Either<Failure, PreKeyInitialization> = useBox {
         val lastKey = preKeyMapper.fromCryptoBoxModel(newLastPreKey())
         val keys = newPreKeys(0, PRE_KEYS_COUNT).map(preKeyMapper::fromCryptoBoxModel)
         clientPropertyStorage.updateLastPreKeyId(userId, keys.last().id)
@@ -65,7 +66,7 @@ class CryptoBoxClient(
     fun encryptMessage(
         cryptoSessionId: CryptoSessionId,
         message: PlainMessage,
-        onEncrypt: (encryptedMessage: Either<CryptoBoxFailure, EncryptedMessage>) -> Boolean
+        onEncrypt: (encryptedMessage: Either<Failure, EncryptedMessage>) -> Boolean
     ) {
         val sessionMessage = withSession(cryptoSessionId) { session ->
             session to EncryptedMessage(session.encrypt(message.data))
@@ -90,7 +91,7 @@ class CryptoBoxClient(
     fun decryptMessage(
         cryptoSessionId: CryptoSessionId,
         message: EncryptedMessage,
-        onDecrypt: (plainMessage: Either<CryptoBoxFailure, PlainMessage>) -> Boolean
+        onDecrypt: (plainMessage: Either<Failure, PlainMessage>) -> Boolean
     ) {
         val sessionMessagePair = withSession(cryptoSessionId) { session ->
             session to session.decrypt(message.data)
@@ -119,8 +120,8 @@ class CryptoBoxClient(
     /**
      * Verifies if a session exists, or creates one with the provided [preKey].
      */
-    fun assertSession(cryptoSessionId: CryptoSessionId, preKey: PreKey): Either<CryptoBoxFailure, Unit> {
-        return session(cryptoSessionId).handleFailure { failure ->
+    fun assertSession(cryptoSessionId: CryptoSessionId, preKey: PreKey): Either<Failure, Unit> =
+        session(cryptoSessionId).handleFailure { failure ->
             if (failure !is SessionNotFound)
                 return@handleFailure Either.Left(failure)
 
@@ -128,21 +129,20 @@ class CryptoBoxClient(
                 initSessionFromPreKey(cryptoSessionId.value, preKeyMapper.toCryptoBoxModel(preKey))
             }
         }.map {}
-    }
 
-    private fun <T> withSession(cryptoSessionId: CryptoSessionId, action: (session: CryptoSession) -> T): Either<CryptoBoxFailure, T> {
+    private fun <T> withSession(cryptoSessionId: CryptoSessionId, action: (session: CryptoSession) -> T): Either<Failure, T> {
         return session(cryptoSessionId).flatMap { session ->
             useBox { action(session) }
         }
     }
 
-    private fun session(cryptoSessionId: CryptoSessionId): Either<CryptoBoxFailure, CryptoSession> {
+    private fun session(cryptoSessionId: CryptoSessionId): Either<Failure, CryptoSession> {
         return useBox {
             getSession(cryptoSessionId.value)
         }
     }
 
-    private fun <T> useBox(action: CryptoBox.() -> T): Either<CryptoBoxFailure, T> {
+    private fun <T> useBox(action: CryptoBox.() -> T): Either<Failure, T> {
         return try {
             cryptoBox.map {
                 it.action()
@@ -152,7 +152,7 @@ class CryptoBoxClient(
         }
     }
 
-    private fun load(): Either<CryptoBoxFailure, CryptoBox> {
+    private fun load(): Either<Failure, CryptoBox> {
         if (cryptoBoxRootDirectory.exists() && !cryptoBoxRootDirectory.isDirectory) {
             return Either.Left(InitializationFailure)
         } else {

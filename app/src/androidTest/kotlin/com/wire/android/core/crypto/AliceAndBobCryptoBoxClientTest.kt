@@ -8,7 +8,7 @@ import com.wire.android.core.crypto.mapper.PreKeyMapper
 import com.wire.android.core.crypto.model.ClientId
 import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
-import com.wire.android.core.crypto.model.SessionId
+import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.onSuccess
@@ -24,7 +24,7 @@ class AliceAndBobCryptoBoxClientTest : InstrumentationTest() {
 
     private val alice = UserId("Alice")
     private val aliceClientId = ClientId("clientA")
-    private val aliceSessionId = SessionId(alice, aliceClientId)
+    private val aliceSessionId = CryptoSessionId(alice, aliceClientId)
 
     private val bob = UserId("Bob")
 
@@ -76,7 +76,7 @@ class AliceAndBobCryptoBoxClientTest : InstrumentationTest() {
             result.isRight shouldBe true
             result.onSuccess { encryptedMessage: EncryptedMessage ->
 
-                aliceClient.decryptMessage(SessionId(bob, ClientId("doesntmatter")), encryptedMessage) { decryptedResult ->
+                aliceClient.decryptMessage(CryptoSessionId(bob, ClientId("doesntmatter")), encryptedMessage) { decryptedResult ->
                     decryptedResult.isRight shouldBe true
                     decryptedResult.onSuccess { decryptedMessage ->
                         decryptedMessage.data shouldBeEqualTo plainMessage.data
@@ -100,7 +100,7 @@ class AliceAndBobCryptoBoxClientTest : InstrumentationTest() {
             true
         }
 
-        val bobSessionID = SessionId(bob, ClientId("clientB"))
+        val bobSessionID = CryptoSessionId(bob, ClientId("clientB"))
 
         aliceClient.decryptMessage(bobSessionID, firstMessage!!) { decryptedResult ->
             decryptedResult.isRight shouldBe true

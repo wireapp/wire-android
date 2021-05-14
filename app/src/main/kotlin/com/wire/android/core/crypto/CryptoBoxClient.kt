@@ -8,7 +8,7 @@ import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.PreKeyInitialization
-import com.wire.android.core.crypto.model.SessionId
+import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.extension.plus
 import com.wire.android.core.functional.Either
@@ -54,17 +54,17 @@ class CryptoBoxClient(
     /**
      * Attempts to encrypt a message for the specified session.
      * This function assumes that the session already exists.
-     * @param sessionId the ID of the session.
+     * @param cryptoSessionId the ID of the session.
      * @param message the original message, in plain-text.
      * @param onEncrypt action to be performed after the message is encrypted, should return true if the message was
      * successfully sent, so the session state can be persisted.
      */
     fun encryptMessage(
-        sessionId: SessionId,
+        cryptoSessionId: CryptoSessionId,
         message: PlainMessage,
         onEncrypt: (encryptedMessage: Either<CryptoBoxFailure, EncryptedMessage>) -> Boolean
     ) {
-        val sessionMessage = withSession(sessionId) { session ->
+        val sessionMessage = withSession(cryptoSessionId) { session ->
             session to EncryptedMessage(session.encrypt(message.data))
         }
         if (onEncrypt(sessionMessage.map { it.second })) {
@@ -78,24 +78,24 @@ class CryptoBoxClient(
      * Attempts to decrypt a message for a specified session.
      * The first message sent by the sender should be a PreKey message, which has enough data for CryptoBox to start a session.
      * If the session is not found, this assumes that it is a PreKey message and attempts to establish a session based on its content.
-     * @param sessionId the ID of the session.
+     * @param cryptoSessionId the ID of the session.
      * @param message the encrypted message.
      * @param onDecrypt action to be performed after the message is decrypted, should return true if the message was
      * successfully stored locally, so the session state can be persisted.
      * @see
      */
     fun decryptMessage(
-        sessionId: SessionId,
+        cryptoSessionId: CryptoSessionId,
         message: EncryptedMessage,
         onDecrypt: (plainMessage: Either<CryptoBoxFailure, PlainMessage>) -> Boolean
     ) {
-        val sessionMessagePair = withSession(sessionId) { session ->
+        val sessionMessagePair = withSession(cryptoSessionId) { session ->
             session to session.decrypt(message.data)
         }.handleFailure { failure ->
             if (failure !is SessionNotFound)
                 return@handleFailure Either.Left(failure)
 
-            initiateSessionFromReceivedMessage(sessionId, message)
+            initiateSessionFromReceivedMessage(cryptoSessionId, message)
         }
 
         val plainMessage = sessionMessagePair.map { PlainMessage(it.second) }
@@ -107,8 +107,8 @@ class CryptoBoxClient(
         }
     }
 
-    private fun initiateSessionFromReceivedMessage(sessionId: SessionId, message: EncryptedMessage) = useBox {
-        initSessionFromMessage(sessionId.value, message.data)
+    private fun initiateSessionFromReceivedMessage(cryptoSessionId: CryptoSessionId, message: EncryptedMessage) = useBox {
+        initSessionFromMessage(cryptoSessionId.value, message.data)
     }.map { sessionMessage ->
         sessionMessage.session to sessionMessage.message
     }
@@ -116,26 +116,26 @@ class CryptoBoxClient(
     /**
      * Verifies if a session exists, or creates one with the provided [preKey].
      */
-    fun assertSession(sessionId: SessionId, preKey: PreKey): Either<CryptoBoxFailure, Unit> {
-        return session(sessionId).handleFailure { failure ->
+    fun assertSession(cryptoSessionId: CryptoSessionId, preKey: PreKey): Either<CryptoBoxFailure, Unit> {
+        return session(cryptoSessionId).handleFailure { failure ->
             if (failure !is SessionNotFound)
                 return@handleFailure Either.Left(failure)
 
             useBox {
-                initSessionFromPreKey(sessionId.value, preKeyMapper.toCryptoBoxModel(preKey))
+                initSessionFromPreKey(cryptoSessionId.value, preKeyMapper.toCryptoBoxModel(preKey))
             }
         }.map {}
     }
 
-    private fun <T> withSession(sessionId: SessionId, action: (session: CryptoSession) -> T): Either<CryptoBoxFailure, T> {
-        return session(sessionId).flatMap { session ->
+    private fun <T> withSession(cryptoSessionId: CryptoSessionId, action: (session: CryptoSession) -> T): Either<CryptoBoxFailure, T> {
+        return session(cryptoSessionId).flatMap { session ->
             useBox { action(session) }
         }
     }
 
-    private fun session(sessionId: SessionId): Either<CryptoBoxFailure, CryptoSession> {
+    private fun session(cryptoSessionId: CryptoSessionId): Either<CryptoBoxFailure, CryptoSession> {
         return useBox {
-            getSession(sessionId.value)
+            getSession(cryptoSessionId.value)
         }
     }
 

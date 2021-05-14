@@ -9,6 +9,8 @@ import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.UserId
+import com.wire.android.core.exception.MessageAlreadyDecrypted
+import com.wire.android.core.exception.SessionNotFound
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.onSuccess
 import org.amshove.kluent.shouldBe
@@ -107,7 +109,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
 
         aliceClient.decryptMessage(bobSessionID, firstMessage!!) { decryptedResult ->
             decryptedResult.isLeft shouldBe true
-            (decryptedResult as Either.Left).a shouldBeInstanceOf DuplicatedMessage::class
+            (decryptedResult as Either.Left).a shouldBeInstanceOf MessageAlreadyDecrypted::class
             true
         }
     }

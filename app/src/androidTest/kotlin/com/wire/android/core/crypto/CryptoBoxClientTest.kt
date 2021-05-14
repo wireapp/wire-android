@@ -10,6 +10,7 @@ import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.SessionId
 import com.wire.android.core.crypto.model.UserId
+import com.wire.android.core.exception.UnknownCryptoFailure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
 import com.wire.android.framework.mock.InjectMockKsRule

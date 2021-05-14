@@ -10,6 +10,9 @@ import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.PreKeyInitialization
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.UserId
+import com.wire.android.core.exception.CryptoBoxFailure
+import com.wire.android.core.exception.InitializationFailure
+import com.wire.android.core.exception.SessionNotFound
 import com.wire.android.core.extension.plus
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.flatMap
@@ -151,7 +154,7 @@ class CryptoBoxClient(
 
     private fun load(): Either<CryptoBoxFailure, CryptoBox> {
         if (cryptoBoxRootDirectory.exists() && !cryptoBoxRootDirectory.isDirectory) {
-            return Either.Left(InitializationFailure())
+            return Either.Left(InitializationFailure)
         } else {
             cryptoBoxRootDirectory.mkdirs()
         }

@@ -58,8 +58,7 @@ class LoginWithEmailFragment : Fragment(R.layout.fragment_login_with_email) {
     private fun observeLoginResult() {
         viewModel.loginResultLiveData.observe(viewLifecycleOwner) {
             it.onSuccess { userId ->
-                val password = loginWithEmailPasswordEditText.text.toStringOrEmpty()
-                navigator.login.openDeviceLimitScreen(requireContext(), userId, password)
+                navigator.login.openDeviceLimitScreen(requireContext(), userId)
             }.onFailure(::showErrorDialog)
         }
     }

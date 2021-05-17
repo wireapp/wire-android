@@ -26,8 +26,8 @@ class LoginNavigator(
 
     fun openForgotPassword(context: Context) = uriNavigationHandler.openUri(context, forgotPasswordUri)
 
-    fun openDeviceLimitScreen(context: Context, userId: String, password: String) =
-        context.startActivity(DeviceLimitActivity.newIntent(context, userId, password).clearStack())
+    fun openDeviceLimitScreen(context: Context, userId: String) =
+        context.startActivity(DeviceLimitActivity.newIntent(context, userId).clearStack())
 
     fun openDeviceLimitErrorScreen(activity: FragmentActivity, addToBackStack: Boolean = false) {
         fragmentStackHandler.replaceFragment(activity, addToBackStack = addToBackStack) {

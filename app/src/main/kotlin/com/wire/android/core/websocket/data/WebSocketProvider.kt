@@ -4,7 +4,6 @@ import android.util.Log
 import kotlinx.coroutines.channels.Channel
 import okhttp3.WebSocket
 import java.io.IOException
-import kotlin.math.log
 
 class WebSocketProvider(private var wireWebSocketListener: WireWebSocketListener?, private var webSocket: WebSocket?) {
 

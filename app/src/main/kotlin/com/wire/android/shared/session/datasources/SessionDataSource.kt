@@ -44,6 +44,4 @@ class SessionDataSource(
             localDataSource.setSessionCurrent(userId)
         }
     }
-
-    override suspend fun userAuthorizationToken(userId: String): Either<Failure, String> = localDataSource.userAuthorizationToken(userId)
 }

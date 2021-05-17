@@ -18,9 +18,9 @@ import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
-import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
@@ -268,27 +268,4 @@ class SessionDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { localDataSource.setSessionCurrent(userId) }
         result shouldFail { it shouldBe failure }
     }
-
-    @Test
-    fun `given userAuthorizationToken is called, when localDataSource returns a failure, then propagates the failure`() {
-        val userId = "user-id"
-        val failure = mockk<Failure>()
-        coEvery { localDataSource.userAuthorizationToken(userId) } returns Either.Left(failure)
-
-        val result = runBlocking { sessionDataSource.userAuthorizationToken(userId) }
-
-        result shouldFail { it shouldBe failure }
-    }
-
-    @Test
-    fun `given userAuthorizationToken is called, when localDataSource successfully returns valid string, then propagates the result`() {
-        val userId = "user-id"
-        val authorizationToken = "authorizationToken"
-        coEvery { localDataSource.userAuthorizationToken(userId) }  returns Either.Right(authorizationToken)
-
-        val result = runBlocking { sessionDataSource.userAuthorizationToken(userId) }
-
-        result shouldSucceed { it shouldBe authorizationToken }
-    }
-
 }

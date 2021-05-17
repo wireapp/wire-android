@@ -166,24 +166,7 @@ class SessionDaoTest : InstrumentationTest() {
         result shouldBe false
     }
 
-    @Test
-    fun userAuthorizationToken_aSessionOfUserExists_emitsTokenTypeAndAccessTokenConcatenated() = databaseTestRule.runTest {
-        val session = prepareSession(id = 1, userId = TEST_USER_ID)
-        sessionDao.insert(session)
-
-        sessionDao.userAuthorizationToken(TEST_USER_ID) shouldBeEqualTo "$TEST_TOKEN_TYPE $TEST_ACCESS_TOKEN"
-    }
-
-    @Test
-    fun userAuthorizationToken_noSessionExistsWithUserId_emitsNull() = databaseTestRule.runTest {
-        val userId = "user-id"
-        val session = prepareSession(id = 1, userId = userId, current = false)
-        sessionDao.insert(session)
-
-        sessionDao.userAuthorizationToken(TEST_USER_ID) shouldBeEqualTo null
-    }
-
-    private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean = false): SessionEntity {
+    private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean): SessionEntity {
         globalDatabase.userDao().insert(UserEntity(userId, TEST_USER_NAME))
 
         return SessionEntity(

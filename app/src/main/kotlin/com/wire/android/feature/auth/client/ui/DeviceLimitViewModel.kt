@@ -28,7 +28,7 @@ class DeviceLimitViewModel(
     val registerClientLiveData: LiveData<Either<Failure, Unit>> = _registerClientLiveData
 
     fun registerClient(userId: String, password: String) {
-        registerClientUseCase(viewModelScope, RegisterClientParams(userId, password)) {
+        registerClientUseCase(viewModelScope, RegisterClientParams(password)) {
             it.onSuccess { setSessionCurrent(userId) }
                 .onFailure { failure ->
                     _registerClientLiveData.failure(failure)

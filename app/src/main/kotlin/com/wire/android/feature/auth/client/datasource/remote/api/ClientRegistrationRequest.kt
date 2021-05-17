@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class ClientRegistrationRequest(
     @SerializedName("cookie") val refreshToken : String,
-    @SerializedName("lastkey") val lastKey: PreKeyRequest,
+    @SerializedName("lastKey") val lastKey: PreKeyRequest,
     @SerializedName("prekeys") val preKeys: List<PreKeyRequest>,
     @SerializedName("sigkeys") val signalingKey: SignalingKeyRequest,
     @SerializedName("type") val type: String,

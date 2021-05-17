@@ -22,7 +22,6 @@ import com.wire.android.shared.team.usecase.GetUserTeamUseCaseParams
 import com.wire.android.shared.team.usecase.NotATeamUser
 import com.wire.android.shared.user.User
 import com.wire.android.shared.user.usecase.GetCurrentUserUseCase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 class ConversationListViewModel(
     override val dispatcherProvider: DispatcherProvider,
@@ -71,15 +70,9 @@ class ConversationListViewModel(
         //TODO: display some kind of error
     }
 
-    @ExperimentalCoroutinesApi
     fun subscribeToEvents() = with(eventsHandler) {
-        subscribe<Event.UsernameChanged> {
-            when(it){
-                is Event.UsernameChanged -> fetchUserData()
-                is Event.ConversationNameChanged -> TODO()
-                else -> TODO()
-            }
-        }
+        subscribe<Event.UsernameChanged> { fetchUserData() }
+        subscribe<Event.ConversationNameChanged> { TODO() }
     }
 
     companion object {

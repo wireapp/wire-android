@@ -34,5 +34,8 @@ object IOAccessDenied : IOFailure()
 
 data class CryptoBoxFailure(val reason: CryptoException? = null) : Failure()
 
+data class SocketFailure(val reason: Throwable? = null) : DatabaseRequestFailure()
+object SocketAbortedFailure : Failure()
+
 /** Extend this class for UseCase specific failures.*/
 abstract class FeatureFailure : Failure()

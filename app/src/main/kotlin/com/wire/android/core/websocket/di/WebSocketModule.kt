@@ -1,9 +1,9 @@
 package com.wire.android.core.websocket.di
 
 import com.wire.android.core.network.auth.accesstoken.AccessTokenInterceptor
-import com.wire.android.core.websocket.data.WebSocketProvider
 import com.wire.android.core.websocket.WebSocketConfig
 import com.wire.android.core.websocket.data.EventRepository
+import com.wire.android.core.websocket.data.WebSocketProvider
 import com.wire.android.core.websocket.data.WireWebSocketListener
 import com.wire.android.core.websocket.usecase.CloseWebSocketUseCase
 import com.wire.android.core.websocket.usecase.ListenToWebSocketUseCase
@@ -14,6 +14,9 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import java.util.concurrent.TimeUnit
 
+const val READ_TIMEOUT: Long = 30
+const val CONNECT_TIMEOUT: Long = 30
+const val PING_INTERVAL: Long = 30
 
 private fun buildSocket(socketOkHttpClient: OkHttpClient, config: WebSocketConfig, webSocketListener: WireWebSocketListener) : WebSocket {
     val webSocket = socketOkHttpClient.newWebSocket(
@@ -27,9 +30,9 @@ private fun buildSocket(socketOkHttpClient: OkHttpClient, config: WebSocketConfi
 
 private fun socketHttpClient(accessTokenInterceptor: AccessTokenInterceptor): OkHttpClient =
     OkHttpClient.Builder()
-        .readTimeout(30, TimeUnit.SECONDS)
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .pingInterval(30, TimeUnit.SECONDS)
+        .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
+        .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
+        .pingInterval(PING_INTERVAL, TimeUnit.SECONDS)
         .addInterceptor(accessTokenInterceptor)
         .hostnameVerifier { _, _ -> true }
         .build()

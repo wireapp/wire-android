@@ -1,7 +1,10 @@
 package com.wire.android.core.websocket.data
 
+import android.util.Log
 import kotlinx.coroutines.channels.Channel
 import okhttp3.WebSocket
+import java.io.IOException
+import kotlin.math.log
 
 class WebSocketProvider(private var wireWebSocketListener: WireWebSocketListener?, private var webSocket: WebSocket?) {
 
@@ -16,7 +19,8 @@ class WebSocketProvider(private var wireWebSocketListener: WireWebSocketListener
             webSocket = null
             wireWebSocketListener?.socketEventChannel?.close()
             wireWebSocketListener = null
-        } catch (ex: Exception) {
+        } catch (ex: IOException) {
+            Log.d("TAG", "stopSocket: $ex")
         }
     }
 

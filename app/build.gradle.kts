@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.AndroidSourceSet
+
 plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
@@ -39,7 +41,15 @@ android {
         }
     }
 
-    sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
+    sourceSets {
+        map { it.java.srcDir("src/${it.name}/kotlin") }
+    }
+    fun AndroidSourceSet.includeCommonTestSourceDir() = java {
+        val commonTestSourcesDir = "src/commonTest/kotlin"
+        srcDir(commonTestSourcesDir)
+    }
+    sourceSets["test"].includeCommonTestSourceDir()
+    sourceSets["androidTest"].includeCommonTestSourceDir()
 }
 
 dependencies {

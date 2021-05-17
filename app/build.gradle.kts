@@ -43,8 +43,7 @@ android {
 
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
     fun AndroidSourceSet.includeCommonTestSourceDir() = java {
-        val commonTestSourcesDir = "src/commonTest/kotlin"
-        srcDir(commonTestSourcesDir)
+        srcDir("src/commonTest/kotlin")
     }
     sourceSets["test"].includeCommonTestSourceDir()
     sourceSets["androidTest"].includeCommonTestSourceDir()

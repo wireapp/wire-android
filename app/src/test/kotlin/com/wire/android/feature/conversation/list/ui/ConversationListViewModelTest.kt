@@ -49,7 +49,9 @@ class ConversationListViewModelTest : UnitTest() {
     fun setUp() {
         conversationListViewModel = ConversationListViewModel(
             coroutinesTestRule.dispatcherProvider,
-            getConversationListUseCase, getCurrentUserUseCase, getUserTeamUseCase,
+            getConversationListUseCase,
+            getCurrentUserUseCase,
+            getUserTeamUseCase,
             eventsHandler
         )
     }

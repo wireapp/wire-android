@@ -31,7 +31,7 @@ class AccessTokenAuthenticator(private val repository: SessionRepository) : Auth
         }.flatMap { refreshToken ->
             repository.newAccessToken(refreshToken)
         }.flatMap { session ->
-            repository.save(session).map { session }
+            repository.save(session, false).map { session }
         }.fold({ null }) {
             proceedWithNewAccessToken(response, it.accessToken)
         }

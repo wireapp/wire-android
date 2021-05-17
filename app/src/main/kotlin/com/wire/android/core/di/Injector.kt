@@ -35,7 +35,8 @@ object Injector {
         networkModule,
         databaseModule,
         uiModule,
-        ioModule
+        ioModule,
+        cryptoBoxModule
     )
 
     /**

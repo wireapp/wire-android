@@ -44,12 +44,15 @@ class LoginWithEmailViewModelTest : UnitTest() {
     @MockK
     private lateinit var loginWithEmailUseCase: LoginWithEmailUseCase
 
+
     private lateinit var loginWithEmailViewModel: LoginWithEmailViewModel
 
     @Before
     fun setUp() {
         loginWithEmailViewModel = LoginWithEmailViewModel(
-            coroutinesTestRule.dispatcherProvider, validateEmailUseCase, loginWithEmailUseCase
+            coroutinesTestRule.dispatcherProvider,
+            validateEmailUseCase,
+            loginWithEmailUseCase
         )
     }
 
@@ -125,14 +128,14 @@ class LoginWithEmailViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given login is called, when loginWithEmailUseCase returns success, then sets success to loginResultLiveData`() {
+    fun `given login is called, when loginWithEmailUseCase returns success, then sets success to loginResultLiveData and returns userId`() {
         val params = LoginWithEmailUseCaseParams(email = TEST_EMAIL, password = TEST_VALID_PASSWORD)
-
-        coEvery { loginWithEmailUseCase.run(params) } returns Either.Right(Unit)
+        val expectedUserId = "user-Id"
+        coEvery { loginWithEmailUseCase.run(params) } returns Either.Right(expectedUserId)
 
         loginWithEmailViewModel.login(TEST_EMAIL, TEST_VALID_PASSWORD)
 
-        loginWithEmailViewModel.loginResultLiveData shouldBeUpdated { it shouldSucceed {} }
+        loginWithEmailViewModel.loginResultLiveData shouldBeUpdated { it shouldSucceed { userId -> userId shouldBe expectedUserId } }
         coVerify(exactly = 1) { loginWithEmailUseCase.run(params) }
     }
 

@@ -97,4 +97,8 @@
     <dimen name="profile_user_picture_height">300dp</dimen>
 
     <!-- endregion -->
+
+    <!--    device limit-->
+    <dimen name="device_limit_notice_message_margin_bottom">24dp</dimen>
+
 </resources>

@@ -66,13 +66,14 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         }
     }
 
-    private fun handleConversationListChange(conversationList: PagedList<ConversationListItem>) = conversationList.let {
-        if (it.isEmpty()) showNoConversationsMessage()
-        else {
-            showConversationList()
-            conversationListAdapter.submitList(it)
+    private fun handleConversationListChange(conversationList: PagedList<ConversationListItem>) =
+        conversationList.let {
+            if (it.isEmpty()) showNoConversationsMessage()
+            else {
+                showConversationList()
+                conversationListAdapter.submitList(it)
+            }
         }
-    }
 
     private fun showConversationList() {
         conversationListNoConversationsLayout.isVisible = false

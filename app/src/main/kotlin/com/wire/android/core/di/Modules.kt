@@ -8,7 +8,12 @@ import com.wire.android.core.accessibility.InputFocusViewModel
 import com.wire.android.core.async.DefaultDispatcherProvider
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.compatibility.Compatibility
+import com.wire.android.core.config.DeviceConfig
 import com.wire.android.core.config.LocaleConfig
+import com.wire.android.core.crypto.CryptoBoxClient
+import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
+import com.wire.android.core.crypto.mapper.PreKeyMapper
+import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.io.FileSystem
 import com.wire.android.core.ui.dialog.DialogBuilder
@@ -17,6 +22,8 @@ import com.wire.android.core.ui.navigation.FragmentStackHandler
 import com.wire.android.core.ui.navigation.Navigator
 import com.wire.android.core.ui.navigation.UriNavigationHandler
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
+import com.wire.android.shared.config.DeviceClassMapper
+import com.wire.android.shared.config.DeviceTypeMapper
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -40,6 +47,9 @@ val compatibilityModule = module {
 
 val appConfigModule = module {
     factory { LocaleConfig(androidContext()) }
+    factory { DeviceConfig(androidContext()) }
+    factory { DeviceClassMapper() }
+    factory { DeviceTypeMapper() }
 }
 
 
@@ -60,4 +70,11 @@ val uiModule = module {
 
 val ioModule = module {
     single { FileSystem(androidContext()) }
+}
+
+val cryptoBoxModule = module {
+    factory { PreKeyMapper() }
+    factory { CryptoBoxClientPropertyStorage(androidContext()) }
+    //TODO hardcoded UserId should be replaced with real userId value (AR-711)
+    factory { CryptoBoxClient(androidContext(), get(), UserId("dummy-id"), get()) }
 }

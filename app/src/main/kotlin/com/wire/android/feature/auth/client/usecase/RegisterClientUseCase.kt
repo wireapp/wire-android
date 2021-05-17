@@ -9,8 +9,7 @@ import com.wire.android.core.usecase.UseCase
 import com.wire.android.feature.auth.client.ClientRepository
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
 
-class RegisterClientUseCase(private val clientRepository: ClientRepository) :
-    UseCase<ClientResponse, RegisterClientParams> {
+class RegisterClientUseCase(private val clientRepository: ClientRepository) : UseCase<ClientResponse, RegisterClientParams> {
     override suspend fun run(params: RegisterClientParams): Either<Failure, ClientResponse> =
         clientRepository.registerNewClient(params.password).fold({
             when (it) {

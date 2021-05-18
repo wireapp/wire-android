@@ -17,7 +17,6 @@ import com.wire.android.core.extension.plus
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.flatMap
 import com.wire.android.core.functional.map
-import com.wire.android.core.functional.onSuccess
 import com.wire.cryptobox.CryptoBox
 import com.wire.cryptobox.CryptoException
 import com.wire.cryptobox.CryptoSession
@@ -64,16 +63,14 @@ class CryptoBoxClient(
     fun encryptMessage(
         cryptoSessionId: CryptoSessionId,
         message: PlainMessage,
-        onEncrypt: (encryptedMessage: Either<Failure, EncryptedMessage>) -> Boolean
-    ) {
-        val sessionMessage = withSession(cryptoSessionId) { session ->
-            session to EncryptedMessage(session.encrypt(message.data))
-        }
-        if (onEncrypt(sessionMessage.map { it.second })) {
-            sessionMessage.onSuccess { (session, _) ->
-                session.save()
-            }
-        }
+        onEncrypt: (EncryptedMessage) -> Either<Failure, Unit>
+    ): Either<Failure, Unit> = session(cryptoSessionId).flatMap { session ->
+        useBox {
+            val encryptedMessage = EncryptedMessage(session.encrypt(message.data))
+            onEncrypt(encryptedMessage)
+        }.map { session }
+    }.flatMap { session ->
+        useBox { session.save() }
     }
 
     /**
@@ -89,25 +86,21 @@ class CryptoBoxClient(
     fun decryptMessage(
         cryptoSessionId: CryptoSessionId,
         message: EncryptedMessage,
-        onDecrypt: (plainMessage: Either<Failure, PlainMessage>) -> Boolean
-    ) {
-        val sessionMessagePair = withSession(cryptoSessionId) { session ->
-            session to session.decrypt(message.data)
-        }.fold({ failure ->
-            if (failure !is SessionNotFound)
-                return@fold Either.Left(failure)
+        onDecrypt: (PlainMessage) -> Either<Failure, Unit>
+    ): Either<Failure, Unit> = session(cryptoSessionId).fold({ failure ->
+        if (failure !is SessionNotFound)
+            return@fold Either.Left(failure)
 
-            initiateSessionFromReceivedMessage(cryptoSessionId, message)
-        }, { Either.Right(it) })!!
-
-        val plainMessage = sessionMessagePair.map { PlainMessage(it.second) }
-
-        if (onDecrypt(plainMessage)) {
-            sessionMessagePair.onSuccess { (session, _) ->
-                session.save()
-            }
+        initiateSessionFromReceivedMessage(cryptoSessionId, message)
+    }, { Either.Right(it to null) })!!
+        .flatMap { (session, decryptedData) ->
+            useBox {
+                val decryptedMessage = PlainMessage(decryptedData ?: session.decrypt(message.data))
+                onDecrypt(decryptedMessage)
+            }.map { session }
+        }.flatMap { session ->
+            useBox { session.save() }
         }
-    }
 
     private fun initiateSessionFromReceivedMessage(cryptoSessionId: CryptoSessionId, message: EncryptedMessage) = useBox {
         initSessionFromMessage(cryptoSessionId.value, message.data)
@@ -127,12 +120,6 @@ class CryptoBoxClient(
                 initSessionFromPreKey(cryptoSessionId.value, preKeyMapper.toCryptoBoxModel(preKey))
             }
         }, { Either.Right(it) })!!.map {}
-
-    private fun <T> withSession(cryptoSessionId: CryptoSessionId, action: (session: CryptoSession) -> T): Either<Failure, T> {
-        return session(cryptoSessionId).flatMap { session ->
-            useBox { action(session) }
-        }
-    }
 
     private fun session(cryptoSessionId: CryptoSessionId): Either<Failure, CryptoSession> {
         return useBox {

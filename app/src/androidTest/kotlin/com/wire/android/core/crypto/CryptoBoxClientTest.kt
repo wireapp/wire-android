@@ -112,10 +112,8 @@ class CryptoBoxClientTest : InstrumentationTest() {
         val expectedFailure = UnknownCryptoFailure(Throwable())
         every { exceptionMapper.fromNativeException(any()) } returns expectedFailure
 
-        subject.encryptMessage(CryptoSessionId(UserId("Bob"), ClientId("A")), plainMessage) { result ->
-            result.isLeft shouldBe true
-            (result as Either.Left).a shouldBeEqualTo expectedFailure
-            true
-        }
+        val result = subject.encryptMessage(CryptoSessionId(UserId("Bob"), ClientId("A")), plainMessage) { Either.Right(Unit) }
+        result.isLeft shouldBe true
+        (result as Either.Left).a shouldBeEqualTo expectedFailure
     }
 }

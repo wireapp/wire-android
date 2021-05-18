@@ -10,14 +10,12 @@ import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.PreKeyInitialization
 import com.wire.android.core.crypto.model.UserId
-import com.wire.android.core.exception.CryptoBoxFailure
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.InitializationFailure
 import com.wire.android.core.exception.SessionNotFound
 import com.wire.android.core.extension.plus
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.flatMap
-import com.wire.android.core.functional.handleFailure
 import com.wire.android.core.functional.map
 import com.wire.android.core.functional.onSuccess
 import com.wire.cryptobox.CryptoBox
@@ -95,12 +93,12 @@ class CryptoBoxClient(
     ) {
         val sessionMessagePair = withSession(cryptoSessionId) { session ->
             session to session.decrypt(message.data)
-        }.handleFailure { failure ->
+        }.fold({ failure ->
             if (failure !is SessionNotFound)
-                return@handleFailure Either.Left(failure)
+                return@fold Either.Left(failure)
 
             initiateSessionFromReceivedMessage(cryptoSessionId, message)
-        }
+        }, { Either.Right(it) })!!
 
         val plainMessage = sessionMessagePair.map { PlainMessage(it.second) }
 
@@ -121,14 +119,14 @@ class CryptoBoxClient(
      * Verifies if a session exists, or creates one with the provided [preKey].
      */
     fun assertSession(cryptoSessionId: CryptoSessionId, preKey: PreKey): Either<Failure, Unit> =
-        session(cryptoSessionId).handleFailure { failure ->
+        session(cryptoSessionId).fold({ failure ->
             if (failure !is SessionNotFound)
-                return@handleFailure Either.Left(failure)
+                return@fold Either.Left(failure)
 
             useBox {
                 initSessionFromPreKey(cryptoSessionId.value, preKeyMapper.toCryptoBoxModel(preKey))
             }
-        }.map {}
+        }, { Either.Right(it) })!!.map {}
 
     private fun <T> withSession(cryptoSessionId: CryptoSessionId, action: (session: CryptoSession) -> T): Either<Failure, T> {
         return session(cryptoSessionId).flatMap { session ->

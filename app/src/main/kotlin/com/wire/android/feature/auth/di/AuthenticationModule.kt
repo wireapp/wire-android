@@ -2,6 +2,7 @@ package com.wire.android.feature.auth.di
 
 import com.wire.android.R
 import com.wire.android.core.network.NetworkClient
+import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.core.ui.navigation.FragmentContainerProvider
 import com.wire.android.feature.auth.activation.ActivationRepository
 import com.wire.android.feature.auth.activation.datasource.ActivationDataSource
@@ -131,4 +132,5 @@ private val clientModule = module {
     factory { RegisterClientUseCase(get()) }
     factory { SetSessionCurrentUseCase(get()) }
     viewModel { DeviceLimitViewModel(get(), get(), get()) }
+    factory { get<UserDatabase>().clientDao() }
 }

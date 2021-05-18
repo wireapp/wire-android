@@ -75,9 +75,7 @@ class ClientDataSourceTest : UnitTest() {
         }
 
         result shouldFail { it shouldBeEqualTo failure }
-
     }
-
 
     @Test
     fun `given registerNewClient is called, when remote registration fails, then propagates failure`() {
@@ -89,8 +87,7 @@ class ClientDataSourceTest : UnitTest() {
             every { it.createdKeys } returns createdPreKeys
         }
         every { cryptoBoxClient.createInitialPreKeys() } returns Either.Right(preKeyInitialization)
-        runBlocking {
-            clientDataSource.createNewClient(USER_ID, PASSWORD).map {
+        runBlocking { clientDataSource.createNewClient(USER_ID, PASSWORD).map {
                 coEvery { clientRemoteDataSource.registerNewClient(AUTHORIZATION_TOKEN, it) } returns Either.Left(failure)
             }
         }
@@ -99,7 +96,6 @@ class ClientDataSourceTest : UnitTest() {
 
         result shouldFail  { it shouldBeEqualTo failure }
     }
-
 
     @Test
     fun `given createNewClient is called, when client is successfully created, then return a valid client`() {
@@ -142,7 +138,7 @@ class ClientDataSourceTest : UnitTest() {
         result.shouldFail { it shouldBeEqualTo failure }
     }
 
-    companion object{
+    companion object {
         private const val USER_ID = "user-id"
         private const val PASSWORD = "password"
         private const val AUTHORIZATION_TOKEN = "authorization-token"

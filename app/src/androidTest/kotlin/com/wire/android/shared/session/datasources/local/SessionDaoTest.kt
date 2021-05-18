@@ -167,7 +167,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun userAuthorizationToken_aSessionOfUserExists_emitsTokenTypeAndAccessTokenConcatenated() = databaseTestRule.runTest {
+    fun userAuthorizationToken_aSessionOfUserExists_returnsToken() = databaseTestRule.runTest {
         val session = prepareSession(id = 1, userId = TEST_USER_ID)
         sessionDao.insert(session)
 
@@ -175,7 +175,7 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun userAuthorizationToken_noSessionExistsWithUserId_emitsNull() = databaseTestRule.runTest {
+    fun userAuthorizationToken_noSessionExistsWithUserId_returnsNull() = databaseTestRule.runTest {
         val userId = "user-id"
         val session = prepareSession(id = 1, userId = userId, current = false)
         sessionDao.insert(session)

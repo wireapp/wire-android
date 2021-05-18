@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.wire.android.R
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
+import com.wire.android.core.logger.Logger
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.GeneralErrorMessage
 import com.wire.android.core.ui.navigation.Navigator
@@ -19,6 +20,7 @@ class DeviceLimitActivity : AppCompatActivity(R.layout.activity_device_limit) {
     private val viewModel by viewModel<DeviceLimitViewModel>()
     private val navigator: Navigator by inject()
     private val dialogBuilder: DialogBuilder by inject()
+    private val logger: Logger by inject()
 
     private val userId get() = intent.getStringExtra(ARG_USER_ID)
     private val password get() = intent.getStringExtra(ARG_PASSWORD)
@@ -27,14 +29,15 @@ class DeviceLimitActivity : AppCompatActivity(R.layout.activity_device_limit) {
         super.onCreate(savedInstanceState)
 
         observeOnClientRegistration()
-        registerClient(userId, password) //TODO empty password to be replaced with a valid password value
+        registerClient(userId, password)
     }
 
     private fun registerClient(userId: String?, password: String?) {
-        userId?.let {
-            if (password != null) {
-                viewModel.registerClient(it, password)
-            }
+        if (userId != null && password != null) {
+            viewModel.registerClient(userId, password)
+        } else {
+            logger.d(DeviceLimitActivity::class.simpleName, "userId or password is null")
+            showErrorDialog()
         }
     }
 

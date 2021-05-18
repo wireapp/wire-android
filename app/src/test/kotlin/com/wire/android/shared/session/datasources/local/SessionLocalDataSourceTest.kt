@@ -134,7 +134,7 @@ class SessionLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given userAuthorizationToken is called, when dao returns a valid authorizationToken, then propagates it in Either`() {
+    fun `given userAuthorizationToken is called, when dao returns a valid authorizationToken, then propagates it`() {
         val authorizationToken = "authorizationToken"
         coEvery { sessionDao.userAuthorizationToken(USER_ID) } returns authorizationToken
 

@@ -8,16 +8,15 @@ import com.wire.android.shared.config.DeviceClassMapper
 import com.wire.android.shared.config.DeviceTypeMapper
 
 class ClientMapper(private val deviceTypeMapper: DeviceTypeMapper, private val deviceClassMapper: DeviceClassMapper) {
-
     fun toClientRegistrationRequest(client: Client) = ClientRegistrationRequest(
-            client.id,
-            PreKeyRequest(client.lastKey.id, client.lastKey.encodedData),
-            client.preKeys.map { PreKeyRequest(it.id, it.encodedData) },
-            SignalingKeyRequest(),
-            deviceTypeMapper.toStringValue(client.deviceType),
-            deviceClassMapper.toStringValue(client.deviceClass),
-            client.model,
-            client.password,
-            client.label
-        )
+        client.id,
+        PreKeyRequest(client.lastKey.id, client.lastKey.encodedData),
+        client.preKeys.map { PreKeyRequest(it.id, it.encodedData) },
+        SignalingKeyRequest(),
+        deviceTypeMapper.value(client.deviceType),
+        deviceClassMapper.value(client.deviceClass),
+        client.model,
+        client.password,
+        client.label
+    )
 }

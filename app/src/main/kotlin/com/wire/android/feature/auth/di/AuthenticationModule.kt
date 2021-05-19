@@ -129,10 +129,10 @@ private val clientModule = module {
         FragmentContainerProvider.fixedProvider(R.id.deviceLimitFragmentContainer)
     }
     factory { get<NetworkClient>().create(ClientApi::class.java) }
-    single { ClientRemoteDataSource(get(), get(), get()) }
+    single { ClientRemoteDataSource(get(), get()) }
     single<ClientRepository> { ClientDataSource(get(), get(), get()) }
     factory { RegisterClientUseCase(get(), get()) }
-    factory { ClientMapper(get(), get()) }
+    factory { ClientMapper(get(), get(), get()) }
     factory { SetSessionCurrentUseCase(get()) }
     viewModel { DeviceLimitViewModel(get(), get(), get()) }
 }

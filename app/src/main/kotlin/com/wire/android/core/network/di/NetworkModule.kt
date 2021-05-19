@@ -13,6 +13,7 @@ import com.wire.android.core.network.RetrofitClient
 import com.wire.android.core.network.UserAgentInterceptor
 import com.wire.android.core.network.auth.accesstoken.AccessTokenAuthenticator
 import com.wire.android.core.network.auth.accesstoken.AccessTokenInterceptor
+import com.wire.android.core.network.auth.accesstoken.AuthenticationManager
 import com.wire.android.core.network.di.NetworkDependencyProvider.createHttpClientWithAuth
 import com.wire.android.core.network.di.NetworkDependencyProvider.createHttpClientWithoutAuth
 import com.wire.android.core.network.di.NetworkDependencyProvider.retrofit
@@ -68,9 +69,10 @@ val networkModule: Module = module {
     single { retrofit(get(), get<NetworkConfig>().baseUrl) }
     single { createHttpClientWithAuth(get(), get(), get(), get()) }
     single { HttpRequestParams() }
-    single { AccessTokenAuthenticator(get()) }
+    single { AccessTokenAuthenticator(get(), get()) }
     single { AccessTokenInterceptor(get()) }
     single { UserAgentInterceptor(get()) }
+    factory { AuthenticationManager() }
 
     val networkClientForNoAuth = "NETWORK_CLIENT_NO_AUTH_REQUEST"
     single<NetworkClient>(named(networkClientForNoAuth)) {

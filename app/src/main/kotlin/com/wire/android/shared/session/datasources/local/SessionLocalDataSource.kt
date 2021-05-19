@@ -14,6 +14,10 @@ class SessionLocalDataSource(private val sessionDao: SessionDao) : DatabaseServi
         sessionDao.currentSession()
     }
 
+    suspend fun userSession(userId: String): Either<Failure, SessionEntity> = request {
+        sessionDao.userSession(userId)
+    }
+
     suspend fun setCurrentSessionToDormant(): Either<Failure, Unit> = request {
         sessionDao.setCurrentSessionToDormant()
     }
@@ -24,9 +28,5 @@ class SessionLocalDataSource(private val sessionDao: SessionDao) : DatabaseServi
 
     suspend fun setSessionCurrent(userId: String): Either<Failure, Unit> = request {
         sessionDao.setSessionCurrent(userId)
-    }
-
-    suspend fun userAuthorizationToken(userId: String): Either<Failure, String> = request {
-        sessionDao.userAuthorizationToken(userId)
     }
 }

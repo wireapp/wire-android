@@ -134,30 +134,29 @@ class SessionLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given userAuthorizationToken is called, when dao returns a valid authorizationToken, then propagates it`() {
-        val authorizationToken = "authorizationToken"
-        coEvery { sessionDao.userAuthorizationToken(USER_ID) } returns authorizationToken
+    fun `given userSession is called, when dao returns an entity, then propagates it in Either`() {
+        coEvery { sessionDao.userSession(USER_ID) } returns sessionEntity
 
         runBlockingTest {
-            sessionLocalDataSource.userAuthorizationToken(USER_ID) shouldSucceed { it shouldBe authorizationToken }
+            sessionLocalDataSource.userSession(USER_ID) shouldSucceed { it shouldBe sessionEntity }
         }
     }
 
     @Test
-    fun `given userAuthorizationToken is called, when dao returns null, then returns NoEntityFound error`() {
-        coEvery { sessionDao.userAuthorizationToken(USER_ID) } returns null
+    fun `given userSession is called, when dao returns null, then returns NoEntityFound error`() {
+        coEvery { sessionDao.userSession(USER_ID) } returns null
 
         runBlockingTest {
-            sessionLocalDataSource.userAuthorizationToken(USER_ID) shouldFail { it shouldBe NoEntityFound }
+            sessionLocalDataSource.userSession(USER_ID) shouldFail { it shouldBe NoEntityFound }
         }
     }
 
     @Test
-    fun `given userAuthorizationToken is called, when dao returns error, then returns error`() {
-        coEvery { sessionDao.userAuthorizationToken(USER_ID) } throws RuntimeException()
+    fun `given userSession is called, when dao returns error, then returns error`() {
+        coEvery { sessionDao.userSession(USER_ID) } throws RuntimeException()
 
         runBlockingTest {
-            sessionLocalDataSource.userAuthorizationToken(USER_ID) shouldFail {}
+            sessionLocalDataSource.userSession(USER_ID) shouldFail {}
         }
     }
     companion object{

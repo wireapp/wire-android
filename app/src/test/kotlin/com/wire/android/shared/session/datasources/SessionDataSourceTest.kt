@@ -153,6 +153,30 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
+    fun `given userSession is called, when localDataSource returns an entity, then maps the entity to Session and returns it`() {
+        val userId = "user-id"
+        every { sessionMapper.fromSessionEntity(sessionEntity) } returns session
+        coEvery { localDataSource.userSession(userId) } returns Either.Right(sessionEntity)
+
+        val result = runBlocking { sessionDataSource.userSession(userId) }
+
+        result shouldSucceed { it shouldBe session }
+        verify(exactly = 1) { sessionMapper.fromSessionEntity(sessionEntity) }
+    }
+
+    @Test
+    fun `given userSession is called, when localDataSource returns a failure, then directly propagates the failure`() {
+        val failure = mockk<Failure>()
+        val userId = "user-id"
+        coEvery { localDataSource.userSession(userId) } returns Either.Left(failure)
+
+        val result = runBlocking { sessionDataSource.userSession(userId) }
+
+        result shouldFail { it shouldBe failure }
+        verify { sessionMapper wasNot Called }
+    }
+
+    @Test
     fun `given accessToken is called, when localDataSource returns current session, then maps its access token and propagates it`() {
         coEvery { localDataSource.currentSession() } returns Either.Right(sessionEntity)
         every { sessionMapper.fromSessionEntity(sessionEntity) } returns session
@@ -268,27 +292,4 @@ class SessionDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { localDataSource.setSessionCurrent(userId) }
         result shouldFail { it shouldBe failure }
     }
-
-    @Test
-    fun `given userAuthorizationToken is called, when localDataSource returns a failure, then propagates the failure`() {
-        val userId = "user-id"
-        val failure = mockk<Failure>()
-        coEvery { localDataSource.userAuthorizationToken(userId) } returns Either.Left(failure)
-
-        val result = runBlocking { sessionDataSource.userAuthorizationToken(userId) }
-
-        result shouldFail { it shouldBe failure }
-    }
-
-    @Test
-    fun `given userAuthorizationToken is called, when localDataSource successfully returns valid string, then propagates the result`() {
-        val userId = "user-id"
-        val authorizationToken = "authorizationToken"
-        coEvery { localDataSource.userAuthorizationToken(userId) }  returns Either.Right(authorizationToken)
-
-        val result = runBlocking { sessionDataSource.userAuthorizationToken(userId) }
-
-        result shouldSucceed { it shouldBe authorizationToken }
-    }
-
 }

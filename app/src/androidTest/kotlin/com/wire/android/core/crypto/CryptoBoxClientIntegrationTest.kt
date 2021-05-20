@@ -33,9 +33,23 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
     @Before
     fun setup() {
         aliceClient =
-            CryptoBoxClient(appContext, CryptoBoxClientPropertyStorage(appContext), alice, PreKeyMapper(), CryptoExceptionMapper())
+            CryptoBoxClient(
+                appContext,
+                CryptoBoxClientPropertyStorage(appContext),
+                alice,
+                PreKeyMapper(),
+                CryptoExceptionMapper(),
+                DefaultCryptoBoxProvider
+            )
         bobClient =
-            CryptoBoxClient(appContext, CryptoBoxClientPropertyStorage(appContext), bob, PreKeyMapper(), CryptoExceptionMapper())
+            CryptoBoxClient(
+                appContext,
+                CryptoBoxClientPropertyStorage(appContext),
+                bob,
+                PreKeyMapper(),
+                CryptoExceptionMapper(),
+                DefaultCryptoBoxProvider
+            )
     }
 
     @After

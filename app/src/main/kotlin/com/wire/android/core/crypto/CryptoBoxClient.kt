@@ -26,7 +26,8 @@ class CryptoBoxClient(
     private val clientPropertyStorage: CryptoBoxClientPropertyStorage,
     private val userId: UserId,
     private val preKeyMapper: PreKeyMapper,
-    private val exceptionMapper: CryptoExceptionMapper
+    private val exceptionMapper: CryptoExceptionMapper,
+    private val cryptoBoxProvider: CryptoBoxProvider
 ) {
 
     private var _cryptoBox: CryptoBox? = null
@@ -145,7 +146,7 @@ class CryptoBoxClient(
         }
 
         return try {
-            Either.Right(CryptoBox.open(cryptoBoxRootDirectory.absolutePath))
+            cryptoBoxProvider.cryptoBoxAtPath(cryptoBoxRootDirectory.absolutePath)
         } catch (cryptoException: CryptoException) {
             Either.Left(exceptionMapper.fromNativeException(cryptoException))
         }

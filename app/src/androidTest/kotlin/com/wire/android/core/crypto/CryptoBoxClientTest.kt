@@ -1,6 +1,7 @@
 package com.wire.android.core.crypto
 
 import androidx.test.filters.RequiresDevice
+import com.wire.android.InjectMockKsRule
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
@@ -13,7 +14,6 @@ import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.exception.UnknownCryptoFailure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
-import com.wire.android.framework.mock.InjectMockKsRule
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify

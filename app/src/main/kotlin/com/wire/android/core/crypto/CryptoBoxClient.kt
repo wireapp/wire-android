@@ -67,8 +67,9 @@ class CryptoBoxClient(
         onEncrypt: (EncryptedMessage) -> Either<Failure, Unit>
     ): Either<Failure, Unit> = session(cryptoSessionId).flatMap { session ->
         useBox {
-            val encryptedMessage = EncryptedMessage(session.encrypt(message.data))
-            onEncrypt(encryptedMessage)
+            EncryptedMessage(session.encrypt(message.data))
+        }.flatMap {
+            onEncrypt(it)
         }.map { session }
     }.flatMap { session ->
         useBox { session.save() }
@@ -96,8 +97,9 @@ class CryptoBoxClient(
     }, { Either.Right(it to null) })!!
         .flatMap { (session, decryptedData) ->
             useBox {
-                val decryptedMessage = PlainMessage(decryptedData ?: session.decrypt(message.data))
-                onDecrypt(decryptedMessage)
+                PlainMessage(decryptedData ?: session.decrypt(message.data))
+            }.flatMap {
+                onDecrypt(it)
             }.map { session }
         }.flatMap { session ->
             useBox { session.save() }

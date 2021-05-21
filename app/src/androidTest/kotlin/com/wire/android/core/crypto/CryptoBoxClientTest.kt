@@ -8,22 +8,34 @@ import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.PreKeyMapper
 import com.wire.android.core.crypto.model.ClientId
 import com.wire.android.core.crypto.model.CryptoSessionId
+import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.UserId
+import com.wire.android.core.exception.Failure
+import com.wire.android.core.exception.IOAccessDenied
+import com.wire.android.core.exception.InitializationFailure
+import com.wire.android.core.exception.SessionNotFound
 import com.wire.android.core.exception.UnknownCryptoFailure
 import com.wire.android.core.functional.Either
-import com.wire.android.core.functional.map
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
+import com.wire.cryptobox.CryptoBox
+import com.wire.cryptobox.CryptoException
+import com.wire.cryptobox.CryptoSession
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.verify
-import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
+typealias CryptoPreKey = com.wire.cryptobox.PreKey
+
+//TODO: Consider running x64 emulators for testing
 @RequiresDevice
 class CryptoBoxClientTest : InstrumentationTest() {
 
@@ -39,81 +51,256 @@ class CryptoBoxClientTest : InstrumentationTest() {
     @MockK
     private lateinit var exceptionMapper: CryptoExceptionMapper
 
+    @MockK
+    private lateinit var cryptoBox: CryptoBox
+
     lateinit var subject: CryptoBoxClient
 
     private val userId = UserId("abc")
 
     @Before
     fun setup() {
-        subject = CryptoBoxClient(appContext, propertyStorage, userId, preKeyMapper, exceptionMapper)
+        val fakeCryptoBoxProvider = object : CryptoBoxProvider {
+            override fun cryptoBoxAtPath(path: String): Either<Failure, CryptoBox> = Either.Right(cryptoBox)
+        }
+        subject = CryptoBoxClient(appContext, propertyStorage, userId, preKeyMapper, exceptionMapper, fakeCryptoBoxProvider)
     }
 
     @Test
-    fun givenPreKeysAreNeeded_whenTheyAreCreated_thenTheStorageIsUpdated() {
-        val preKey = PreKey(42, "data")
-        every { preKeyMapper.fromCryptoBoxModel(any()) } returns preKey
+    fun givenPreKeysAreNeeded_whenCallingCreateInitialPreKeys_thenCryptoBoxIsUsedToCreateLastPreKeyAndRegularPreKeys() {
+        val key = CryptoPreKey(2, byteArrayOf(0, 1, 2))
+        every { cryptoBox.newLastPreKey() } returns key
+        every { cryptoBox.newPreKeys(any(), any()) } returns arrayOf(key)
 
         subject.createInitialPreKeys()
-        verify(exactly = 1) {
-            propertyStorage.updateLastPreKeyId(userId, any())
+
+        verify(exactly = 1) { cryptoBox.newLastPreKey() }
+        verify(exactly = 1) { cryptoBox.newPreKeys(any(), any()) }
+    }
+
+    @Test
+    fun givenPreKeysAreNeeded_whenCallingCreateInitialPreKeys_thenTheMapperShouldTakeTheResultsFromCryptoBox() {
+        val lastCryptoKey = CryptoPreKey(2, byteArrayOf(0, 1, 2))
+        val regularCryptoKey = CryptoPreKey(42, byteArrayOf(2))
+        every { cryptoBox.newLastPreKey() } returns lastCryptoKey
+        every { cryptoBox.newPreKeys(any(), any()) } returns arrayOf(regularCryptoKey)
+
+        subject.createInitialPreKeys()
+
+        verify(exactly = 1) { preKeyMapper.fromCryptoBoxModel(lastCryptoKey) }
+        verify(exactly = 1) { preKeyMapper.fromCryptoBoxModel(regularCryptoKey) }
+    }
+
+    @Test
+    fun givenPreKeysAreNeeded_whenCallingCreateInitialPreKeys_thenTheMappedDataShouldBeReturned() {
+        val lastCryptoKey = CryptoPreKey(2, byteArrayOf(0, 1, 2))
+        every { cryptoBox.newLastPreKey() } returns lastCryptoKey
+
+        val lastKey = PreKey(1, "a")
+        every { preKeyMapper.fromCryptoBoxModel(lastCryptoKey) } returns lastKey
+
+        val regularCryptoKey = CryptoPreKey(42, byteArrayOf(2))
+        every { cryptoBox.newPreKeys(any(), any()) } returns arrayOf(regularCryptoKey)
+
+        val lastRegularKey = PreKey(42, "z")
+        every { preKeyMapper.fromCryptoBoxModel(regularCryptoKey) } returns lastRegularKey
+
+        subject.createInitialPreKeys().shouldSucceed {
+            it.lastKey shouldBeEqualTo lastKey
+            it.createdKeys shouldContainSame listOf(lastRegularKey)
         }
     }
 
     @Test
-    fun givenPreKeysAreGenerated_whenConverting_theMapperShouldBeUsed() {
-        val preKey = PreKey(42, "data")
-        every { preKeyMapper.fromCryptoBoxModel(any()) } returns preKey
+    fun givenPreKeysAreNeeded_whenGenerated_thenThePropertyStorageShouldBeUsed() {
+        val cryptoKey = CryptoPreKey(2, byteArrayOf(0, 1, 2))
+        every { cryptoBox.newLastPreKey() } returns cryptoKey
+        every { cryptoBox.newPreKeys(any(), any()) } returns arrayOf(cryptoKey)
 
-        val generated = subject.createInitialPreKeys()
-        generated.isRight shouldBe true
+        val key = PreKey(1, "a")
+        every { preKeyMapper.fromCryptoBoxModel(any()) } returns key
 
-        generated.map {
-            val allKeys = it.createdKeys + it.lastKey
-            verify(exactly = allKeys.size) { preKeyMapper.fromCryptoBoxModel(any()) }
-        }
+        subject.createInitialPreKeys()
+
+        verify { propertyStorage.updateLastPreKeyId(any(), any()) }
     }
 
     @Test
-    fun givenPreKeysAreGenerated_whenReturning_theMapperResultShouldBeUsed() {
-        val preKey = PreKey(42, "data")
-        every { preKeyMapper.fromCryptoBoxModel(any()) } returns preKey
+    fun givenPreKeysAreGenerated_whenStoringTheLastPreKeyId_thenTheLastRegularKeyIdShouldBeUsed() {
+        val lastCryptoKey = CryptoPreKey(2, byteArrayOf(0, 1, 2))
+        every { cryptoBox.newLastPreKey() } returns lastCryptoKey
 
-        val generated = subject.createInitialPreKeys()
-        generated.isRight shouldBe true
+        val lastKey = PreKey(1, "a")
+        every { preKeyMapper.fromCryptoBoxModel(lastCryptoKey) } returns lastKey
 
-        generated.map {
-            it.lastKey shouldBeEqualTo preKey
-            it.createdKeys shouldContainSame generateSequence { preKey }
-                .take(it.createdKeys.size)
-                .toList()
-        }
+        val lastRegularCryptoKey = CryptoPreKey(42, byteArrayOf(2))
+        every { cryptoBox.newPreKeys(any(), any()) } returns arrayOf(lastRegularCryptoKey)
+
+        val lastRegularKey = PreKey(42, "z")
+        every { preKeyMapper.fromCryptoBoxModel(lastRegularCryptoKey) } returns lastRegularKey
+
+        subject.createInitialPreKeys()
+
+        verify { propertyStorage.updateLastPreKeyId(userId, lastRegularKey.id) }
     }
 
     @Test
-    fun givenPreKeysAreGenerated_whenStoring_theLastPreKeyIdShouldBeUsed() {
-        val preKey = PreKey(42, "data")
-        every { preKeyMapper.fromCryptoBoxModel(any()) } returns preKey
+    fun givenPreKeysAreBeingGenerated_whenCryptoBoxThrowsAtLastPreKey_thenTheMapperShouldBeUsed() {
+        val expectedException = CryptoException(CryptoException.Code.INIT_ERROR)
+        every { cryptoBox.newLastPreKey() } throws expectedException
+        every { cryptoBox.newPreKeys(any(), any()) } returns arrayOf(CryptoPreKey(0, byteArrayOf(2)))
 
-        val result = subject.createInitialPreKeys()
-        result.isRight shouldBe true
-
-        result.map {
-            val lastKeyId = it.createdKeys.last().id
-            verify {
-                propertyStorage.updateLastPreKeyId(userId, lastKeyId)
-            }
-        }
-    }
-
-    @Test
-    fun givenANonRecognizedSessionId_whenEncrypting_shouldFailReturningMappersResult() {
-        val plainMessage = PlainMessage("Hello".toByteArray())
-
-        val expectedFailure = UnknownCryptoFailure(Throwable())
+        val expectedFailure = InitializationFailure
         every { exceptionMapper.fromNativeException(any()) } returns expectedFailure
 
-        val result = subject.encryptMessage(CryptoSessionId(UserId("Bob"), ClientId("A")), plainMessage) { Either.Right(Unit) }
-        result.isLeft shouldBe true
-        (result as Either.Left).a shouldBeEqualTo expectedFailure
+        subject.createInitialPreKeys().shouldFail { it shouldBeEqualTo expectedFailure }
+
+        verify { exceptionMapper.fromNativeException(expectedException) }
     }
+
+    @Test
+    fun givenLastPreKeyAreBeingGenerated_whenCryptoBoxThrowsAtPreKeys_thenTheMapperShouldBeUsed() {
+        val expectedException = CryptoException(CryptoException.Code.INIT_ERROR)
+        every { cryptoBox.newLastPreKey() } returns CryptoPreKey(0, byteArrayOf(2))
+        every { cryptoBox.newPreKeys(any(), any()) } throws expectedException
+
+        val expectedFailure = InitializationFailure
+        every { exceptionMapper.fromNativeException(any()) } returns expectedFailure
+
+        subject.createInitialPreKeys().shouldFail { it shouldBeEqualTo expectedFailure }
+
+        verify { exceptionMapper.fromNativeException(expectedException) }
+    }
+
+    @Test
+    fun givenAMessageNeedsEncrypting_whenThereIsAnErrorGettingTheSession_shouldReturnMappersResult() {
+        val expectedException = CryptoException(CryptoException.Code.SESSION_NOT_FOUND)
+        every { cryptoBox.getSession(any()) } throws expectedException
+
+        val expectedFailure = SessionNotFound
+        every { exceptionMapper.fromNativeException(any()) } returns expectedFailure
+
+        subject.encryptMessage(
+            CryptoSessionId(UserId("a"), ClientId("b")),
+            PlainMessage(byteArrayOf())
+        ) { _ -> Either.Right(Unit) }.shouldFail { it shouldBeEqualTo expectedFailure }
+
+        verify { exceptionMapper.fromNativeException(expectedException) }
+    }
+
+    @Test
+    fun givenAMessageWasEncrypted_whenTheHandlerFails_theFailureShouldBePropagated() {
+        val session = mockk<CryptoSession>()
+        every { cryptoBox.getSession(any()) } returns session
+        every { session.encrypt(any()) } returns byteArrayOf()
+
+        val handlerResult = Either.Left(IOAccessDenied)
+        subject.encryptMessage(
+            CryptoSessionId(UserId("a"), ClientId("b")),
+            PlainMessage(byteArrayOf())
+        ) { _ -> handlerResult }.shouldFail { it shouldBeEqualTo handlerResult.a }
+    }
+
+    @Test
+    fun givenAMessageWasEncrypted_whenTheHandlerFails_theSessionShouldNotBeSaved() {
+        val session = mockk<CryptoSession>()
+        every { cryptoBox.getSession(any()) } returns session
+        every { session.encrypt(any()) } returns byteArrayOf()
+
+        subject.encryptMessage(
+            CryptoSessionId(UserId("a"), ClientId("b")),
+            PlainMessage(byteArrayOf())
+        ) { _ -> Either.Left(IOAccessDenied) }
+
+        verify(exactly = 0) { session.save() }
+    }
+
+    @Test
+    fun givenAMessageWasEncrypted_whenTheHandlerSucceeds_theSessionShouldBeSaved() {
+        val session = mockk<CryptoSession>()
+        every { cryptoBox.getSession(any()) } returns session
+        every { session.encrypt(any()) } returns byteArrayOf()
+        every { session.save() } returns Unit
+
+        subject.encryptMessage(
+            CryptoSessionId(UserId("a"), ClientId("b")),
+            PlainMessage(byteArrayOf())
+        ) { _ -> Either.Right(Unit) }
+
+        verify(exactly = 1) { session.save() }
+    }
+    @Test
+    fun givenAMessageNeedsDecrypting_whenTheSessionIsNotFound_shouldAttemptToCreateSessionBasedOnMessage() {
+        val notFoundException = CryptoException(CryptoException.Code.SESSION_NOT_FOUND)
+        every { cryptoBox.getSession(any()) } throws notFoundException
+        every { exceptionMapper.fromNativeException(notFoundException) } returns SessionNotFound
+
+        val sessionId = CryptoSessionId(UserId("a"), ClientId("b"))
+
+        subject.decryptMessage(sessionId, EncryptedMessage(byteArrayOf())) { _ ->
+            Either.Right(Unit)
+        }.shouldSucceed {}
+
+        verify(exactly = 1) { cryptoBox.initSessionFromMessage(any(), any()) }
+    }
+
+    @Test
+    fun givenAMessageNeedsDecrypting_whenThereIsAnErrorGettingTheSession_shouldReturnMappersResult() {
+        val expectedException = CryptoException(CryptoException.Code.INIT_ERROR)
+        every { cryptoBox.getSession(any()) } throws expectedException
+
+        val expectedFailure = UnknownCryptoFailure(expectedException)
+        every { exceptionMapper.fromNativeException(any()) } returns expectedFailure
+
+        subject.decryptMessage(
+            CryptoSessionId(UserId("a"), ClientId("b")),
+            EncryptedMessage(byteArrayOf())
+        ) { _ -> Either.Right(Unit) }.shouldFail { it shouldBeEqualTo expectedFailure }
+
+        verify(exactly = 0) { cryptoBox.initSessionFromMessage(any(), any()) }
+        verify { exceptionMapper.fromNativeException(expectedException) }
+    }
+
+    @Test
+    fun givenAMessageWasDecrypted_whenTheHandlerFails_theFailureShouldBePropagated() {
+        val session = mockk<CryptoSession>()
+        every { cryptoBox.getSession(any()) } returns session
+        every { session.decrypt(any()) } returns byteArrayOf()
+
+        val handlerResult = Either.Left(IOAccessDenied)
+        subject.decryptMessage(
+            CryptoSessionId(UserId("a"), ClientId("b")),
+            EncryptedMessage(byteArrayOf())
+        ) { _ -> handlerResult }.shouldFail { it shouldBeEqualTo handlerResult.a }
+    }
+
+    @Test
+    fun givenAMessageWasDecrypted_whenTheHandlerFails_theSessionShouldNotBeSaved() {
+        val session = mockk<CryptoSession>()
+        every { cryptoBox.getSession(any()) } returns session
+        every { session.decrypt(any()) } returns byteArrayOf()
+
+        subject.decryptMessage(
+            CryptoSessionId(UserId("a"), ClientId("b")),
+            EncryptedMessage(byteArrayOf())
+        ) { _ -> Either.Left(IOAccessDenied) }
+
+        verify(exactly = 0) { session.save() }
+    }
+
+    @Test
+    fun givenAMessageWasDecrypted_whenTheHandlerSucceeds_theSessionShouldBeSaved() {
+        val session = mockk<CryptoSession>()
+        every { cryptoBox.getSession(any()) } returns session
+        every { session.decrypt(any()) } returns byteArrayOf()
+        every { session.save() } returns Unit
+
+        subject.decryptMessage(
+            CryptoSessionId(UserId("a"), ClientId("b")),
+            EncryptedMessage(byteArrayOf())
+        ) { _ -> Either.Right(Unit) }
+
+        verify(exactly = 1) { session.save() }
+    }
+
 }

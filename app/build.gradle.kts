@@ -81,6 +81,7 @@ dependencies {
     kapt(Libraries.Room.compiler)
 
     // Unit/Android tests dependencies
+    testImplementation(TestLibraries.androidCore)
     testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.coroutinesTest)

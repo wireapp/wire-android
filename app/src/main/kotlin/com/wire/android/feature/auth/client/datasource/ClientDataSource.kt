@@ -7,23 +7,30 @@ import com.wire.android.core.functional.map
 import com.wire.android.core.functional.suspending
 import com.wire.android.feature.auth.client.Client
 import com.wire.android.feature.auth.client.ClientRepository
+import com.wire.android.feature.auth.client.datasource.local.ClientLocalDataSource
 import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
-import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
 import com.wire.android.feature.auth.client.mapper.ClientMapper
 
 class ClientDataSource(
     private val cryptoBoxClient: CryptoBoxClient,
     private val clientRemoteDataSource: ClientRemoteDataSource,
+    private val clientLocalDataSource: ClientLocalDataSource,
     private val clientMapper: ClientMapper
 ) : ClientRepository {
 
-    override suspend fun registerNewClient(authorizationToken: String, userId: String, password: String): Either<Failure, ClientResponse> =
+    override suspend fun registerNewClient(authorizationToken: String, userId: String, password: String): Either<Failure, Client> =
         suspending {
             createNewClient(userId, password).flatMap {
                 val clientRegistrationRequest = clientMapper.toClientRegistrationRequest(it)
                 clientRemoteDataSource.registerNewClient(authorizationToken, clientRegistrationRequest)
+            }.map {
+                clientMapper.fromClientResponseToClient(it)
             }
         }
+
+    override suspend fun saveLocally(client: Client) = suspending {
+        clientLocalDataSource.save(clientMapper.fromClientToEntity(client))
+    }
 
     private fun createNewClient(userId: String, password: String): Either<Failure, Client> =
         cryptoBoxClient.createInitialPreKeys().map {

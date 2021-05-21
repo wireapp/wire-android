@@ -2,12 +2,13 @@ package com.wire.android.feature.auth.client.usecase
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.BadRequest
+import com.wire.android.core.exception.DatabaseFailure
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.Forbidden
 import com.wire.android.core.functional.Either
 import com.wire.android.core.network.auth.accesstoken.AuthenticationManager
+import com.wire.android.feature.auth.client.Client
 import com.wire.android.feature.auth.client.ClientRepository
-import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.shared.session.Session
@@ -39,6 +40,10 @@ class RegisterClientUseCaseTest : UnitTest() {
 
     @MockK
     private lateinit var session: Session
+
+    @MockK
+    private lateinit var client: Client
+
 
     @MockK
     private lateinit var authenticationManager: AuthenticationManager
@@ -76,12 +81,12 @@ class RegisterClientUseCaseTest : UnitTest() {
         coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
         coVerify(exactly = 1) { authenticationManager.authorizationToken(session) }
         coVerify(exactly = 1) { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
+        coVerify(inverse = true) { clientRepository.saveLocally(client) }
     }
 
     @Test
     fun `given repository returns session, when registerNewClient returns BadRequest, then propagate MalformedPreKeys`() {
         val failure = mockk<BadRequest>()
-
         coEvery { sessionRepository.userSession(USER_ID) } returns Either.Right(session)
         coEvery { authenticationManager.authorizationToken(session) } returns AUTHORIZATION_TOKEN
         coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Left(failure)
@@ -92,12 +97,12 @@ class RegisterClientUseCaseTest : UnitTest() {
         coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
         coVerify(exactly = 1) { authenticationManager.authorizationToken(session) }
         coVerify(exactly = 1) { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
+        coVerify(inverse = true) { clientRepository.saveLocally(client) }
     }
 
     @Test
     fun `given repository returns session, when registerNewClient returns Forbidden, then propagate DevicesLimitReached`() {
         val failure = mockk<Forbidden>()
-
         coEvery { sessionRepository.userSession(USER_ID) } returns Either.Right(session)
         coEvery { authenticationManager.authorizationToken(session) } returns AUTHORIZATION_TOKEN
         coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Left(failure)
@@ -108,23 +113,41 @@ class RegisterClientUseCaseTest : UnitTest() {
         coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
         coVerify(exactly = 1) { authenticationManager.authorizationToken(session) }
         coVerify(exactly = 1) { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
+        coVerify(inverse = true) { clientRepository.saveLocally(client) }
     }
 
 
     @Test
-    fun `given use case is run, when registerNewClient runs successfully, then return valid client response`() {
-        val clientResponse = mockk<ClientResponse>()
+    fun `given registerNewClient returns client, when saveLocally runs successfully, then return Unit`() {
         coEvery { sessionRepository.userSession(USER_ID) } returns Either.Right(session)
         coEvery { authenticationManager.authorizationToken(session) } returns AUTHORIZATION_TOKEN
-        coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Right(clientResponse)
+        coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Right(client)
+        coEvery { clientRepository.saveLocally(client) } returns Either.Right(Unit)
 
         val response = runBlocking { registerClientUseCase.run(registerClientParams)}
 
-        response shouldSucceed  { it shouldBeEqualTo clientResponse}
-
+        response shouldSucceed  { it shouldBeEqualTo Unit}
         coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
         coVerify(exactly = 1) { authenticationManager.authorizationToken(session) }
         coVerify(exactly = 1) { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
+        coVerify(exactly = 1) { clientRepository.saveLocally(client) }
+    }
+
+    @Test
+    fun `given registerNewClient returns client, when saveLocally fails to save client locally, then propagate failure`() {
+        val failure = DatabaseFailure()
+        coEvery { sessionRepository.userSession(USER_ID) } returns Either.Right(session)
+        coEvery { authenticationManager.authorizationToken(session) } returns AUTHORIZATION_TOKEN
+        coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Right(client)
+        coEvery { clientRepository.saveLocally(client) } returns Either.Left(failure)
+
+        val response = runBlocking { registerClientUseCase.run(registerClientParams)}
+
+        response shouldFail   { it shouldBeEqualTo failure }
+        coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
+        coVerify(exactly = 1) { authenticationManager.authorizationToken(session) }
+        coVerify(exactly = 1) { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
+        coVerify(exactly = 1) { clientRepository.saveLocally(client) }
     }
 
     companion object {

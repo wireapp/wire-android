@@ -11,7 +11,6 @@ import com.wire.android.framework.network.mockNetworkResponse
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -20,6 +19,9 @@ class ClientRemoteDataSourceTest : UnitTest() {
 
     @MockK
     private lateinit var clientApi: ClientApi
+
+    @MockK
+    private lateinit var clientRegistrationRequest: ClientRegistrationRequest
 
     private lateinit var clientRemoteDataSource: ClientRemoteDataSource
 
@@ -30,23 +32,25 @@ class ClientRemoteDataSourceTest : UnitTest() {
 
     @Test
     fun `given registerNewClient is called, when api response is successful, then return success`() {
-        val clientRegistrationRequest = mockk<ClientRegistrationRequest>()
-        coEvery { clientApi.registerClient(any()) } returns mockNetworkResponse()
+        coEvery { clientApi.registerClient(authorizationToken, clientRegistrationRequest) } returns mockNetworkResponse()
 
-        val result = runBlocking { clientRemoteDataSource.registerNewClient(clientRegistrationRequest) }
+        val result = runBlocking { clientRemoteDataSource.registerNewClient(authorizationToken, clientRegistrationRequest) }
 
-        coVerify(exactly = 1) { clientApi.registerClient(clientRegistrationRequest) }
+        coVerify(exactly = 1) { clientApi.registerClient(authorizationToken, clientRegistrationRequest) }
         result shouldSucceed {}
     }
 
     @Test
     fun `given registerNewClient is called, when api response fails, then return a failure`() {
-        val clientRegistrationRequest = mockk<ClientRegistrationRequest>()
-        coEvery { clientApi.registerClient(any()) } returns mockNetworkError()
+        coEvery { clientApi.registerClient(authorizationToken, clientRegistrationRequest) } returns mockNetworkError()
 
-        val result = runBlocking { clientRemoteDataSource.registerNewClient(clientRegistrationRequest) }
+        val result = runBlocking { clientRemoteDataSource.registerNewClient(authorizationToken, clientRegistrationRequest) }
 
-        coVerify(exactly = 1) { clientApi.registerClient(clientRegistrationRequest) }
+        coVerify(exactly = 1) { clientApi.registerClient(authorizationToken, clientRegistrationRequest) }
         result shouldFail {}
+    }
+
+    companion object {
+        private const val authorizationToken = "authorizationHeader-key"
     }
 }

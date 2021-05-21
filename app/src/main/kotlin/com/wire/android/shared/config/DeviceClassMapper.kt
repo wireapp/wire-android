@@ -6,7 +6,7 @@ import com.wire.android.core.config.Tablet
 
 class DeviceClassMapper {
 
-    fun toStringValue(deviceClass: DeviceClass): String =
+    fun value(deviceClass: DeviceClass): String =
         when (deviceClass) {
             Tablet -> "tablet"
             Phone -> "phone"

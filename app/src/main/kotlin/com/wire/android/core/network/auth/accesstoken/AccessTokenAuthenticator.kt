@@ -16,7 +16,10 @@ import okhttp3.Route
  * refresh is being performed. In-flight requests that fail with a 401 (unauthorized)
  * are automatically retried.
  */
-class AccessTokenAuthenticator(private val repository: SessionRepository) : Authenticator {
+class AccessTokenAuthenticator(
+    private val repository: SessionRepository,
+    private val authenticationManager: AuthenticationManager
+) : Authenticator {
 
     /**
      * This authenticate() method is called when server returns 401 Unauthorized.
@@ -33,7 +36,8 @@ class AccessTokenAuthenticator(private val repository: SessionRepository) : Auth
         }.flatMap { session ->
             repository.save(session, false).map { session }
         }.fold({ null }) {
-            proceedWithNewAccessToken(response, it.accessToken)
+            val authorizationToken = authenticationManager.authorizationToken(it)
+            proceedWithNewAccessToken(response, authorizationToken)
         }
     }
 
@@ -42,7 +46,7 @@ class AccessTokenAuthenticator(private val repository: SessionRepository) : Auth
             response.request
                 .newBuilder()
                 .removeHeader(AUTH_HEADER_KEY)
-                .addHeader(AUTH_HEADER_KEY, "$AUTH_HEADER_TOKEN_TYPE $newAccessToken")
+                .addHeader(AUTH_HEADER_KEY, newAccessToken)
                 .build()
         }
 
@@ -56,6 +60,5 @@ class AccessTokenAuthenticator(private val repository: SessionRepository) : Auth
     companion object {
         private const val TOKEN_HEADER_KEY = "Cookie"
         private const val AUTH_HEADER_KEY = "Authorization"
-        private const val AUTH_HEADER_TOKEN_TYPE = "Bearer"
     }
 }

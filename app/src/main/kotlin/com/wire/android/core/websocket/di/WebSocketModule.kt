@@ -44,10 +44,10 @@ val webSocketModule = module {
     factory { CloseWebSocketUseCase(get()) }
     factory { ListenToWebSocketUseCase(get()) }
     single { WebSocketConfig() }
-    val webSocketClient = "WEB_SOCKET_CLIENT"
+    val webSocketClient = "WEB_SOCKET_HTTP_CLIENT"
     single(named(webSocketClient)) {
-        buildSocket(socketHttpClient(get()), get(), get())
+        socketHttpClient(get())
     }
-    single { buildSocket(get(), get(), get()) }
+    single { buildSocket(get(named(webSocketClient)), get(), get()) }
     single { WireWebSocketListener() }
 }

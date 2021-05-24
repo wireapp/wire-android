@@ -7,7 +7,7 @@ import com.wire.android.core.config.Temporary
 
 class DeviceTypeMapper {
 
-    fun toStringValue(type: DeviceType): String =
+    fun value(type: DeviceType): String =
         when (type) {
             Permanent -> "permanent"
             Temporary -> "temporary"

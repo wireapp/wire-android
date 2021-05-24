@@ -11,6 +11,8 @@ import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeU
 import com.wire.android.feature.auth.client.ClientRepository
 import com.wire.android.feature.auth.client.datasource.ClientDataSource
 import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
+import com.wire.android.feature.auth.client.datasource.remote.api.ClientApi
+import com.wire.android.feature.auth.client.mapper.ClientMapper
 import com.wire.android.feature.auth.client.ui.DeviceLimitActivity
 import com.wire.android.feature.auth.client.ui.DeviceLimitViewModel
 import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
@@ -126,9 +128,11 @@ private val clientModule = module {
     factory(qualifier<DeviceLimitActivity>()) {
         FragmentContainerProvider.fixedProvider(R.id.deviceLimitFragmentContainer)
     }
+    factory { get<NetworkClient>().create(ClientApi::class.java) }
     single { ClientRemoteDataSource(get(), get()) }
-    single<ClientRepository> { ClientDataSource(get(), get()) }
-    factory { RegisterClientUseCase(get()) }
+    single<ClientRepository> { ClientDataSource(get(), get(), get()) }
+    factory { RegisterClientUseCase(get(), get(), get()) }
+    factory { ClientMapper(get(), get(), get()) }
     factory { SetSessionCurrentUseCase(get()) }
     viewModel { DeviceLimitViewModel(get(), get(), get()) }
 }

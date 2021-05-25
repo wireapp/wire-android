@@ -18,9 +18,14 @@ const val READ_TIMEOUT: Long = 30
 const val CONNECT_TIMEOUT: Long = 30
 const val PING_INTERVAL: Long = 30
 
-private fun buildSocket(socketOkHttpClient: OkHttpClient, config: WebSocketConfig, webSocketListener: WireWebSocketListener) : WebSocket {
+private fun buildSocket(
+    socketOkHttpClient: OkHttpClient,
+    config: WebSocketConfig,
+    webSocketListener: WireWebSocketListener,
+    clientId: String
+) : WebSocket {
     val webSocket = socketOkHttpClient.newWebSocket(
-        Request.Builder().url(config.socketUrl).build(),
+        Request.Builder().url("${config.socketUrl}$clientId").build(),
         webSocketListener
     )
     socketOkHttpClient.dispatcher.executorService.shutdown()
@@ -48,6 +53,7 @@ val webSocketModule = module {
     single(named(webSocketClient)) {
         socketHttpClient(get())
     }
-    single { buildSocket(get(named(webSocketClient)), get(), get()) }
+    //TODO hardcoded client should be replaced with real client value
+    single { buildSocket(get(named(webSocketClient)), get(), get(), "9ea731e3f0de0735") }
     single { WireWebSocketListener() }
 }

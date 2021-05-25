@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 class EventsHandler(private val listenToWebSocketUseCase: ListenToWebSocketUseCase) {
 
     @ExperimentalCoroutinesApi
-    fun <T> subscribe(onEventReceived: (T: Event) -> Unit) {
+    fun <T> subscribe(onEventReceived: (T : Event) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 listenToWebSocketUseCase.run(Unit).map {

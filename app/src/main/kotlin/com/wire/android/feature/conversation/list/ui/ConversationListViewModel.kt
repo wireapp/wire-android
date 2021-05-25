@@ -71,8 +71,12 @@ class ConversationListViewModel(
     }
 
     fun subscribeToEvents() = with(eventsHandler) {
-        subscribe<Event.UsernameChanged> { fetchUserData() }
-        subscribe<Event.ConversationNameChanged> { TODO() }
+        subscribe<Event.UsernameChanged> {
+            if(it is Event.UsernameChanged)
+                fetchUserData()
+            else if(it is Event.ConversationNameChanged)
+                TODO()
+        }
     }
 
     companion object {

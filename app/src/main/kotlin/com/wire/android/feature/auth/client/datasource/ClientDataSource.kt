@@ -3,6 +3,7 @@ package com.wire.android.feature.auth.client.datasource
 import com.wire.android.core.crypto.CryptoBoxClient
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.flatMap
 import com.wire.android.core.functional.map
 import com.wire.android.core.functional.suspending
 import com.wire.android.feature.auth.client.Client
@@ -29,4 +30,11 @@ class ClientDataSource(
         cryptoBoxClient.createInitialPreKeys().map {
             clientMapper.newClient(userId, password, it)
         }
+
+    override suspend fun updatePreKeysIfNeeded(authorizationToken: String, clientId: String): Either<Failure, Unit> {
+        clientRemoteDataSource.remainingPreKeys(authorizationToken, clientId).flatMap {
+
+        }
+
+    }
 }

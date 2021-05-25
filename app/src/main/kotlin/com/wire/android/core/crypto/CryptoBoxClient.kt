@@ -3,9 +3,11 @@ package com.wire.android.core.crypto
 import android.content.Context
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.PreKeyMapper
+import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.PreKeyInitialization
 import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.exception.CryptoBoxFailure
+import com.wire.android.core.exception.Failure
 import com.wire.android.core.extension.plus
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
@@ -55,6 +57,10 @@ class CryptoBoxClient(
         } catch (cryptoException: CryptoException) {
             Either.Left(CryptoBoxFailure(cryptoException))
         }
+    }
+
+    fun createUpdatePreKeysIfNeeded(remainingPreKeysIds: List<Int>): Either<Failure, List<PreKey>> = useBox {
+        remainingPreKeysIds.filter { id -> id <= CryptoBox.MAX_PREKEY_ID }
     }
 
     fun delete() = useBox {

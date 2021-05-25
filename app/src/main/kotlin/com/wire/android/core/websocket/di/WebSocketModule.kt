@@ -2,7 +2,7 @@ package com.wire.android.core.websocket.di
 
 import com.wire.android.core.network.auth.accesstoken.AccessTokenInterceptor
 import com.wire.android.core.websocket.WebSocketConfig
-import com.wire.android.core.websocket.data.EventRepository
+import com.wire.android.core.websocket.data.WebSocketDataSource
 import com.wire.android.core.websocket.data.WebSocketProvider
 import com.wire.android.core.websocket.data.WireWebSocketListener
 import com.wire.android.core.websocket.usecase.CloseWebSocketUseCase
@@ -40,7 +40,7 @@ private fun socketHttpClient(accessTokenInterceptor: AccessTokenInterceptor): Ok
 
 val webSocketModule = module {
     factory { WebSocketProvider(get(), get()) }
-    factory { EventRepository(get()) }
+    factory { WebSocketDataSource(get()) }
     factory { CloseWebSocketUseCase(get()) }
     factory { ListenToWebSocketUseCase(get()) }
     single { WebSocketConfig() }

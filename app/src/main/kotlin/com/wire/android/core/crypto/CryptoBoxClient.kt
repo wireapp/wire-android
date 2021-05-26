@@ -2,7 +2,7 @@ package com.wire.android.core.crypto
 
 import android.content.Context
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
-import com.wire.android.core.crypto.mapper.PreKeyMapper
+import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.PreKeyInitialization
 import com.wire.android.core.crypto.model.UserId
@@ -19,7 +19,7 @@ class CryptoBoxClient(
     context: Context,
     private val clientPropertyStorage: CryptoBoxClientPropertyStorage,
     private val userId: UserId,
-    private val preKeyMapper: PreKeyMapper
+    private val cryptoPreKeyMapper: CryptoPreKeyMapper
 ) {
 
     private var _cryptoBox: CryptoBox? = null
@@ -59,8 +59,8 @@ class CryptoBoxClient(
         }
     }
 
-    fun createUpdatePreKeysIfNeeded(remainingPreKeysIds: List<Int>): Either<Failure, List<PreKey>> = useBox {
-        remainingPreKeysIds.filter { id -> id <= CryptoBox.MAX_PREKEY_ID }
+    fun createNewPreKeysIfNeeded(remainingPreKeysIds: List<Int>): Either<Failure, List<PreKey>> = useBox {
+        TODO("Handled in another PR")
     }
 
     fun delete() = useBox {
@@ -70,8 +70,8 @@ class CryptoBoxClient(
     }
 
     fun createInitialPreKeys(): Either<CryptoBoxFailure, PreKeyInitialization> = useBox {
-        val lastKey = preKeyMapper.fromCryptoBoxModel(newLastPreKey())
-        val keys = newPreKeys(0, PRE_KEYS_COUNT).map(preKeyMapper::fromCryptoBoxModel)
+        val lastKey = cryptoPreKeyMapper.fromCryptoBoxModel(newLastPreKey())
+        val keys = newPreKeys(0, PRE_KEYS_COUNT).map(cryptoPreKeyMapper::fromCryptoBoxModel)
         clientPropertyStorage.updateLastPreKeyId(userId, keys.last().id)
         PreKeyInitialization(keys, lastKey)
     }

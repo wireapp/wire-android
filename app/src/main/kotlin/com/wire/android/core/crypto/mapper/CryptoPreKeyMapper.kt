@@ -4,7 +4,7 @@ import android.util.Base64
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.cryptobox.PreKey as CryptoPreKey
 
-class PreKeyMapper {
+class CryptoPreKeyMapper {
 
     fun toCryptoBoxModel(data: PreKey): CryptoPreKey {
         val decoded = Base64.decode(data.encodedData, Base64.NO_WRAP)

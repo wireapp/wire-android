@@ -6,9 +6,9 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 import com.wire.cryptobox.PreKey as CryptoPreKey
 
-class PreKeyMapperTest : AndroidTest() {
+class CryptoPreKeyMapperTest : AndroidTest() {
 
-    private val subject = PreKeyMapper()
+    private val subject = CryptoPreKeyMapper()
 
     @Test
     fun `given a CryptoBox model, when converting to data model, it should be done correctly`() {

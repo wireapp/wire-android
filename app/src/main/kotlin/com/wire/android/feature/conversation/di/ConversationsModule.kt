@@ -4,6 +4,12 @@ import com.wire.android.R
 import com.wire.android.core.network.NetworkClient
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.core.ui.navigation.FragmentContainerProvider
+import com.wire.android.feature.conversation.conversation.MessageRepository
+import com.wire.android.feature.conversation.conversation.datasources.MessageDataSource
+import com.wire.android.feature.conversation.conversation.datasources.local.MessageLocalDataSource
+import com.wire.android.feature.conversation.conversation.mapper.MessageMapper
+import com.wire.android.feature.conversation.conversation.mapper.MessageStateMapper
+import com.wire.android.feature.conversation.conversation.mapper.MessageTypeMapper
 import com.wire.android.feature.conversation.data.ConversationDataSource
 import com.wire.android.feature.conversation.data.ConversationMapper
 import com.wire.android.feature.conversation.data.ConversationRepository
@@ -57,4 +63,12 @@ val conversationsModule = module {
     factory { GetConversationListUseCase(get()) }
 
     factory { GetConversationMembersUseCase(get(), get()) }
+
+    factory { get<UserDatabase>().messageDao() }
+    factory { MessageLocalDataSource(get()) }
+    factory { MessageTypeMapper() }
+    factory { MessageStateMapper() }
+    factory { MessageMapper(get(), get()) }
+    factory<MessageRepository> { MessageDataSource(get(), get()) }
+
 }

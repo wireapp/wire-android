@@ -18,19 +18,16 @@ class ClientDataSource(
     private val clientMapper: ClientMapper
 ) : ClientRepository {
 
-    override suspend fun registerNewClient(authorizationToken: String, userId: String, password: String): Either<Failure, Client> =
+    override suspend fun registerNewClient(authorizationToken: String, userId: String, password: String): Either<Failure, Unit> =
         suspending {
             createNewClient(userId, password).flatMap {
                 val clientRegistrationRequest = clientMapper.toClientRegistrationRequest(it)
                 clientRemoteDataSource.registerNewClient(authorizationToken, clientRegistrationRequest)
-            }.map {
-                clientMapper.fromClientResponseToClient(it)
+            }.flatMap {
+                val clientEntity = clientMapper.fromClientResponseToClientEntity(it)
+                clientLocalDataSource.save(clientEntity)
             }
         }
-
-    override suspend fun saveLocally(client: Client) = suspending {
-        clientLocalDataSource.save(clientMapper.fromClientToEntity(client))
-    }
 
     private fun createNewClient(userId: String, password: String): Either<Failure, Client> =
         cryptoBoxClient.createInitialPreKeys().map {

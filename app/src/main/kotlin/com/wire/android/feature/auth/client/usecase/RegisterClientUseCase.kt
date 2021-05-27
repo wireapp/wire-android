@@ -26,7 +26,7 @@ class RegisterClientUseCase(
                     is BadRequest -> Either.Left(MalformedPreKeys)
                     else -> Either.Left(it)
                 }
-            }) { clientRepository.saveLocally(it) }!!
+            }) { Either.Right(Unit) }!!
         }
     }
 }

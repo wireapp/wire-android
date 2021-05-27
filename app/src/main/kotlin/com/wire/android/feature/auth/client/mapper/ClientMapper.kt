@@ -18,10 +18,9 @@ class ClientMapper(
     private val deviceConfig: DeviceConfig
 ) {
 
-    fun fromClientResponseToClient(clientResponse: ClientResponse) =
-        Client(clientResponse.id, refreshToken = clientResponse.refreshToken, registrationTime = clientResponse.registrationTime)
-
-    fun fromClientToEntity(client: Client) = ClientEntity(client.id, client.refreshToken, client.registrationTime)
+    fun fromClientResponseToClientEntity(clientResponse: ClientResponse) = with(clientResponse){
+        ClientEntity(id, refreshToken, registrationTime)
+    }
 
     fun toClientRegistrationRequest(client: Client) = ClientRegistrationRequest(
         client.id,

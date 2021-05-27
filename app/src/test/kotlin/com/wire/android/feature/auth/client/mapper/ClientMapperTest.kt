@@ -33,7 +33,7 @@ class ClientMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given fromClientResponseToClient is called, when client response model is valid, then returns correct client`() {
+    fun `given fromClientResponseToClientEntity is called, when clientReposne model is valid, then returns correct clientEntity`() {
         val locationResponse = mockk<LocationResponse>()
         val clientResponse = ClientResponse(
             TEST_CLIENT_ID,
@@ -47,24 +47,7 @@ class ClientMapperTest : UnitTest() {
             String.EMPTY
         )
 
-        val result = clientMapper.fromClientResponseToClient(clientResponse)
-
-        with(result) {
-            id shouldBeEqualTo TEST_CLIENT_ID
-            refreshToken shouldBeEqualTo TEST_REFRESH_TOKEN
-            registrationTime shouldBeEqualTo TEST_REGISTRATION_TIME
-        }
-    }
-
-    @Test
-    fun `given fromClientToEntity is called, when client model is valid, then returns correct clientEntity`() {
-        val client = Client(
-            id = TEST_CLIENT_ID,
-            refreshToken = TEST_REFRESH_TOKEN,
-            registrationTime = TEST_REGISTRATION_TIME,
-        )
-
-        val result = clientMapper.fromClientToEntity(client)
+        val result = clientMapper.fromClientResponseToClientEntity(clientResponse)
 
         with(result) {
             id shouldBeEqualTo TEST_CLIENT_ID

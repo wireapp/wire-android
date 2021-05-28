@@ -55,8 +55,9 @@ class LoginNavigatorTest : AndroidTest() {
     @Test
     fun `given openDeviceLimitScreen is called, then opens DeviceLimitActivity`() {
         val userId = "user-id"
+        val password = "password-value"
         val intentSlot = slot<Intent>()
-        loginNavigator.openDeviceLimitScreen(context, userId)
+        loginNavigator.openDeviceLimitScreen(context, userId, password)
 
         verify(exactly = 1) { context.startActivity(capture(intentSlot)) }
         intentSlot.captured.let {

@@ -166,7 +166,24 @@ class SessionDaoTest : InstrumentationTest() {
         result shouldBe false
     }
 
-    private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean): SessionEntity {
+    @Test
+    fun userSession_aSessionOfUserExists_returnsThatSession() = databaseTestRule.runTest {
+        val session = prepareSession(id = 1, userId = TEST_USER_ID)
+        sessionDao.insert(session)
+
+        sessionDao.userSession(TEST_USER_ID) shouldBeEqualTo session
+    }
+
+    @Test
+    fun userSession_noSessionExistsWithUserId_returnsNull() = databaseTestRule.runTest {
+        val userId = "user-id"
+        val session = prepareSession(id = 1, userId = userId, current = false)
+        sessionDao.insert(session)
+
+        sessionDao.userSession(TEST_USER_ID) shouldBeEqualTo null
+    }
+
+    private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean = false): SessionEntity {
         globalDatabase.userDao().insert(UserEntity(userId, TEST_USER_NAME))
 
         return SessionEntity(

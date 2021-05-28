@@ -18,9 +18,9 @@ import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
@@ -147,6 +147,30 @@ class SessionDataSourceTest : UnitTest() {
         coEvery { localDataSource.currentSession() } returns Either.Left(failure)
 
         val result = runBlocking { sessionDataSource.currentSession() }
+
+        result shouldFail { it shouldBe failure }
+        verify { sessionMapper wasNot Called }
+    }
+
+    @Test
+    fun `given userSession is called, when localDataSource returns an entity, then maps the entity to Session and returns it`() {
+        val userId = "user-id"
+        every { sessionMapper.fromSessionEntity(sessionEntity) } returns session
+        coEvery { localDataSource.userSession(userId) } returns Either.Right(sessionEntity)
+
+        val result = runBlocking { sessionDataSource.userSession(userId) }
+
+        result shouldSucceed { it shouldBe session }
+        verify(exactly = 1) { sessionMapper.fromSessionEntity(sessionEntity) }
+    }
+
+    @Test
+    fun `given userSession is called, when localDataSource returns a failure, then directly propagates the failure`() {
+        val failure = mockk<Failure>()
+        val userId = "user-id"
+        coEvery { localDataSource.userSession(userId) } returns Either.Left(failure)
+
+        val result = runBlocking { sessionDataSource.userSession(userId) }
 
         result shouldFail { it shouldBe failure }
         verify { sessionMapper wasNot Called }

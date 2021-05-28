@@ -38,9 +38,12 @@ class AccessTokenAuthenticatorTest : UnitTest() {
     @MockK
     private lateinit var originalRequest: Request
 
+    @MockK
+    private lateinit var authenticationManager: AuthenticationManager
+
     @Before
     fun setup() {
-        accessTokenAuthenticator = AccessTokenAuthenticator(sessionRepository)
+        accessTokenAuthenticator = AccessTokenAuthenticator(sessionRepository, authenticationManager)
 
         every { response.request } returns originalRequest
         every { originalRequest.header(AUTH_HEADER_KEY) } returns String.EMPTY
@@ -115,7 +118,9 @@ class AccessTokenAuthenticatorTest : UnitTest() {
 
     @Test
     fun `Given http response, when access token request is successful, then build new authentication request`() {
+        val authorizationToken = "$AUTH_HEADER_TOKEN_TYPE $NEW_ACCESS_TOKEN"
         every { currentSession.accessToken } returns NEW_ACCESS_TOKEN
+        every { authenticationManager.authorizationToken(currentSession) } returns authorizationToken
         coEvery { sessionRepository.newAccessToken(any()) } returns Either.Right(currentSession)
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
         coEvery { sessionRepository.save(currentSession, false) } returns Either.Right(Unit)
@@ -128,7 +133,8 @@ class AccessTokenAuthenticatorTest : UnitTest() {
 
         coVerify(exactly = 1) { sessionRepository.newAccessToken(any()) }
         verify(exactly = 1) { requestBuilder.removeHeader(AUTH_HEADER_KEY) }
-        verify(exactly = 1) { requestBuilder.addHeader(AUTH_HEADER_KEY, "$AUTH_HEADER_TOKEN_TYPE $NEW_ACCESS_TOKEN") }
+        verify(exactly = 1) { requestBuilder.addHeader(AUTH_HEADER_KEY, authorizationToken) }
+        verify(exactly = 1) { authenticationManager.authorizationToken(currentSession) }
     }
 
     companion object {

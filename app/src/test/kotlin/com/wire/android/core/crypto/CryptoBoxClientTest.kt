@@ -1,8 +1,6 @@
 package com.wire.android.core.crypto
 
-import androidx.test.filters.RequiresDevice
-import com.wire.android.InjectMockKsRule
-import com.wire.android.InstrumentationTest
+import com.wire.android.AndroidTest
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.PreKeyMapper
@@ -23,24 +21,20 @@ import com.wire.android.framework.functional.shouldSucceed
 import com.wire.cryptobox.CryptoBox
 import com.wire.cryptobox.CryptoException
 import com.wire.cryptobox.CryptoSession
+import com.wire.cryptobox.SessionMessage
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.verify
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
 typealias CryptoPreKey = com.wire.cryptobox.PreKey
 
-//TODO: Consider running x64 emulators for testing
-@RequiresDevice
-class CryptoBoxClientTest : InstrumentationTest() {
-
-    @get:Rule
-    val injectMocksRule = InjectMockKsRule.create(this)
+class CryptoBoxClientTest : AndroidTest() {
 
     @MockK
     private lateinit var propertyStorage: CryptoBoxClientPropertyStorage
@@ -51,7 +45,6 @@ class CryptoBoxClientTest : InstrumentationTest() {
     @MockK
     private lateinit var exceptionMapper: CryptoExceptionMapper
 
-    @MockK
     private lateinit var cryptoBox: CryptoBox
 
     lateinit var subject: CryptoBoxClient
@@ -60,10 +53,15 @@ class CryptoBoxClientTest : InstrumentationTest() {
 
     @Before
     fun setup() {
+        mockkStatic(System::class) {
+            every { System.loadLibrary(any()) } returns Unit
+            cryptoBox = mockk()
+        }
+
         val fakeCryptoBoxProvider = object : CryptoBoxProvider {
             override fun cryptoBoxAtPath(path: String): Either<Failure, CryptoBox> = Either.Right(cryptoBox)
         }
-        subject = CryptoBoxClient(appContext, propertyStorage, userId, preKeyMapper, exceptionMapper, fakeCryptoBoxProvider)
+        subject = CryptoBoxClient(context(), propertyStorage, userId, preKeyMapper, exceptionMapper, fakeCryptoBoxProvider)
     }
 
     @Test
@@ -229,10 +227,17 @@ class CryptoBoxClientTest : InstrumentationTest() {
 
         verify(exactly = 1) { session.save() }
     }
+
     @Test
     fun givenAMessageNeedsDecrypting_whenTheSessionIsNotFound_shouldAttemptToCreateSessionBasedOnMessage() {
         val notFoundException = CryptoException(CryptoException.Code.SESSION_NOT_FOUND)
+        val sessionMessage: SessionMessage = mockk()
+        val session: CryptoSession = mockk()
+        every { session.save() } returns Unit
+        every { sessionMessage.message } returns byteArrayOf()
+        every { sessionMessage.session } returns session
         every { cryptoBox.getSession(any()) } throws notFoundException
+        every { cryptoBox.initSessionFromMessage(any(), any()) } returns sessionMessage
         every { exceptionMapper.fromNativeException(notFoundException) } returns SessionNotFound
 
         val sessionId = CryptoSessionId(UserId("a"), ClientId("b"))

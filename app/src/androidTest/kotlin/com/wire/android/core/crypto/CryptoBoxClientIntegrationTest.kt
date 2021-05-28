@@ -12,6 +12,8 @@ import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.exception.MessageAlreadyDecrypted
 import com.wire.android.core.exception.SessionNotFound
 import com.wire.android.core.functional.Either
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -69,9 +71,8 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
 
     @Test
     fun givenBobWantsToTalkToAlice_whenSendingTheFirstMessageWithoutHavingTheSessionAsserted_itShouldFailWithSessionNotFound() {
-        val result = bobClient.encryptMessage(aliceSessionId, PlainMessage("Hello".toByteArray())) { Either.Right(Unit) }
-        result.isLeft shouldBe true
-        (result as Either.Left).a shouldBeInstanceOf SessionNotFound::class
+        bobClient.encryptMessage(aliceSessionId, PlainMessage("Hello".toByteArray())) { Either.Right(Unit) }
+            .shouldFail { it shouldBeInstanceOf SessionNotFound::class }
     }
 
     @Test
@@ -81,17 +82,15 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
         bobClient.assertSession(aliceSessionId, aliceKey)
 
         val plainMessage = PlainMessage("Hello".toByteArray())
-        val result = bobClient.encryptMessage(aliceSessionId, plainMessage) { encryptedMessage ->
+        bobClient.encryptMessage(aliceSessionId, plainMessage) { encryptedMessage ->
 
-            val decryptedResult =
-                aliceClient.decryptMessage(CryptoSessionId(bob, ClientId("doesntmatter")), encryptedMessage) { decryptedMessage ->
-                    decryptedMessage.data shouldBeEqualTo plainMessage.data
-                    Either.Right(Unit)
-                }
-            decryptedResult.isRight shouldBe true
+            aliceClient.decryptMessage(CryptoSessionId(bob, ClientId("doesntmatter")), encryptedMessage) { decryptedMessage ->
+                decryptedMessage.data shouldBeEqualTo plainMessage.data
+                Either.Right(Unit)
+            }.shouldSucceed { }
+
             Either.Right(Unit)
-        }
-        result.isRight shouldBe true
+        }.shouldSucceed { }
     }
 
     @Test
@@ -108,14 +107,10 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
 
         val bobSessionID = CryptoSessionId(bob, ClientId("clientB"))
 
-        val firstDecryptionResult = aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }
-        firstDecryptionResult.isRight shouldBe true
+        aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }.shouldSucceed { }
 
-        val repeatedDecryptionResult = aliceClient.decryptMessage(bobSessionID, firstMessage!!) { decryptedMessage ->
-            Either.Right(Unit)
-        }
-        repeatedDecryptionResult.isLeft shouldBe true
-        (repeatedDecryptionResult as Either.Left).a shouldBeInstanceOf MessageAlreadyDecrypted::class
+        aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }
+            .shouldFail { it shouldBeInstanceOf MessageAlreadyDecrypted::class }
     }
 
 }

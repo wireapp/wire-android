@@ -104,7 +104,7 @@ class ClientDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given updatePreKeysIfNeeded is called, when there are no keys to update, then the remote data source is not used`() {
+    fun `given updatePreKeysIfNeeded is called, when there are no keys to update, then do not save new pre keys remotely`() {
         every { cryptoBoxClient.createNewPreKeysIfNeeded(any()) } returns Either.Right(listOf())
         every { preKeyMapper.toPreKeyRequest(any()) } returns mockk()
         coEvery { clientRemoteDataSource.remainingPreKeys(any(), any()) } returns Either.Right(listOf())
@@ -115,7 +115,7 @@ class ClientDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given updatePreKeysIfNeeded is called, when talking to cryptoBoxClient, then the remote data source result should be used`() {
+    fun `given updatePreKeysIfNeeded is called, when talking to cryptoBoxClient, then the last remote keys should be passed`() {
         val remainingPreKeysIds = mockk<List<Int>>()
         coEvery { clientRemoteDataSource.remainingPreKeys(any(), any()) } returns Either.Right(remainingPreKeysIds)
         every { preKeyMapper.toPreKeyRequest(any()) } returns mockk()
@@ -127,7 +127,7 @@ class ClientDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given updatePreKeysIfNeeded is called, when there are keys to update, then the remote data source is used`() {
+    fun `given updatePreKeysIfNeeded is called, when there are keys to update, then saveNewPreKeys is called on remote data source`() {
         coEvery { clientRemoteDataSource.remainingPreKeys(any(), any()) } returns Either.Right(mockk())
         every { preKeyMapper.toPreKeyRequest(any()) } returns mockk()
         every { cryptoBoxClient.createNewPreKeysIfNeeded(any()) } returns Either.Right(listOf(mockk()))
@@ -139,7 +139,7 @@ class ClientDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given updatePreKeysIfNeeded is called, when pre keys need mapping, then the PreKey mapper is used`() {
+    fun `given updatePreKeysIfNeeded is called, when pre keys need mapping, then the PreKey mapper is called with the created value`() {
         val createdPreKey: PreKey = mockk()
         every { cryptoBoxClient.createNewPreKeysIfNeeded(any()) } returns Either.Right(listOf(createdPreKey))
         coEvery { clientRemoteDataSource.remainingPreKeys(any(), any()) } returns Either.Right(mockk())
@@ -152,7 +152,7 @@ class ClientDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given updatePreKeysIfNeeded is called, when forwarding to remote data source, then the mapper result is used`() {
+    fun `given updatePreKeysIfNeeded is called, when forwarding to remote data source, then the result of the mapper is returned`() {
         val mappedKeyRequest: PreKeyRequest = mockk()
         every { preKeyMapper.toPreKeyRequest(any()) } returns mappedKeyRequest
         coEvery { clientRemoteDataSource.remainingPreKeys(any(), any()) } returns Either.Right(mockk())

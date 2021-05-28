@@ -72,7 +72,7 @@ class ClientRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given remainingPreKeys is called, when requesting from remote data source, then correct parameters should be used`() {
+    fun `given remainingPreKeys is called, when requesting from remote data source, then correct auth tokens and client ids are passed`() {
         coEvery { clientApi.remainingPreKeys(authorizationToken, CLIENT_ID) } returns mockNetworkResponse()
 
         runBlocking { clientRemoteDataSource.remainingPreKeys(authorizationToken, CLIENT_ID) }
@@ -89,7 +89,7 @@ class ClientRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given saveNewPreKeys is called, when requesting update from remote data source, then the correct parameters should be used`() {
+    fun `given saveNewPreKeys is called, when requesting update from remote data source, then the correct parameters should be passed`() {
         coEvery { clientApi.updatePreKeys(any(), any(), any()) } returns mockNetworkResponse()
 
         val requestedBody = mockk<UpdatePreKeysRequest>()

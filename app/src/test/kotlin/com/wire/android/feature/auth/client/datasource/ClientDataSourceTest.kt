@@ -7,7 +7,6 @@ import com.wire.android.core.exception.CryptoBoxFailure
 import com.wire.android.core.exception.NetworkFailure
 import com.wire.android.core.exception.SQLiteFailure
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.auth.client.Client
 import com.wire.android.feature.auth.client.datasource.local.ClientEntity
 import com.wire.android.feature.auth.client.datasource.local.ClientLocalDataSource
 import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
@@ -47,9 +46,6 @@ class ClientDataSourceTest : UnitTest() {
     private lateinit var clientResponse: ClientResponse
 
     @MockK
-    private lateinit var client: Client
-
-    @MockK
     private lateinit var clientEntity: ClientEntity
 
     @MockK
@@ -79,8 +75,7 @@ class ClientDataSourceTest : UnitTest() {
     fun `given registerNewClient is called, when remote registration fails, then propagates failure`() {
         val failure = mockk<NetworkFailure>()
         every { cryptoBoxClient.createInitialPreKeys() } returns Either.Right(preKeyInitialization)
-        every { clientMapper.newClient(USER_ID, PASSWORD, preKeyInitialization) } returns client
-        every { clientMapper.toClientRegistrationRequest(client) } returns clientRegistrationRequest
+        every { clientMapper.newRegistrationRequest(USER_ID, PASSWORD, preKeyInitialization) } returns clientRegistrationRequest
         coEvery { clientRemoteDataSource.registerNewClient(AUTHORIZATION_TOKEN, clientRegistrationRequest) } returns Either.Left(failure)
 
         val result = runBlocking { clientDataSource.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
@@ -95,8 +90,7 @@ class ClientDataSourceTest : UnitTest() {
     fun `given registerNewClient is called, when remoteDataSource returns success and client save fails, then returns Failure`() {
         val failure = mockk<SQLiteFailure>()
         every { cryptoBoxClient.createInitialPreKeys() } returns Either.Right(preKeyInitialization)
-        every { clientMapper.newClient(USER_ID, PASSWORD, preKeyInitialization) } returns client
-        every { clientMapper.toClientRegistrationRequest(client) } returns clientRegistrationRequest
+        every { clientMapper.newRegistrationRequest(USER_ID, PASSWORD, preKeyInitialization) } returns clientRegistrationRequest
         coEvery {
             clientRemoteDataSource.registerNewClient(AUTHORIZATION_TOKEN, clientRegistrationRequest)
         } returns Either.Right(clientResponse)
@@ -115,8 +109,7 @@ class ClientDataSourceTest : UnitTest() {
     @Test
     fun `given registerNewClient is called, when remoteDataSource returns success and client is saved locally, then returns Unit`() {
         every { cryptoBoxClient.createInitialPreKeys() } returns Either.Right(preKeyInitialization)
-        every { clientMapper.newClient(USER_ID, PASSWORD, preKeyInitialization) } returns client
-        every { clientMapper.toClientRegistrationRequest(client) } returns clientRegistrationRequest
+        every { clientMapper.newRegistrationRequest(USER_ID, PASSWORD, preKeyInitialization) } returns clientRegistrationRequest
         coEvery {
             clientRemoteDataSource.registerNewClient(AUTHORIZATION_TOKEN, clientRegistrationRequest)
         } returns Either.Right(clientResponse)

@@ -3,7 +3,6 @@ package com.wire.android.feature.auth.client.mapper
 import com.wire.android.UnitTest
 import com.wire.android.core.config.DeviceConfig
 import com.wire.android.core.extension.EMPTY
-import com.wire.android.feature.auth.client.Client
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
 import com.wire.android.feature.auth.client.datasource.remote.api.LocationResponse
 import com.wire.android.shared.config.DeviceClassMapper
@@ -51,8 +50,6 @@ class ClientMapperTest : UnitTest() {
 
         with(result) {
             id shouldBeEqualTo TEST_CLIENT_ID
-            refreshToken shouldBeEqualTo TEST_REFRESH_TOKEN
-            registrationTime shouldBeEqualTo TEST_REGISTRATION_TIME
         }
     }
 

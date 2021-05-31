@@ -3,7 +3,6 @@ package com.wire.android.feature.auth.client.mapper
 import com.wire.android.core.config.DeviceConfig
 import com.wire.android.core.config.Permanent
 import com.wire.android.core.crypto.model.PreKeyInitialization
-import com.wire.android.feature.auth.client.Client
 import com.wire.android.feature.auth.client.datasource.local.ClientEntity
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientRegistrationRequest
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
@@ -18,31 +17,24 @@ class ClientMapper(
     private val deviceConfig: DeviceConfig
 ) {
 
-    fun fromClientResponseToClientEntity(clientResponse: ClientResponse) = with(clientResponse){
-        ClientEntity(id, refreshToken, registrationTime)
-    }
+    fun fromClientResponseToClientEntity(clientResponse: ClientResponse) =
+        ClientEntity(clientResponse.id)
 
-    fun toClientRegistrationRequest(client: Client) = ClientRegistrationRequest(
-        client.id,
-        PreKeyRequest(client.lastKey.id, client.lastKey.encodedData),
-        client.preKeys.map { PreKeyRequest(it.id, it.encodedData) },
-        SignalingKeyRequest(),
-        deviceTypeMapper.value(client.deviceType),
-        deviceClassMapper.value(client.deviceClass),
-        client.model,
-        client.password,
-        client.label
-    )
+    fun newRegistrationRequest(userId: String, password: String, preKeyInitialization: PreKeyInitialization): ClientRegistrationRequest {
 
-    fun newClient(userId: String, password: String, preKeyInitialization: PreKeyInitialization) =
-        Client(
+        val lastPreKey =
+            PreKeyRequest(preKeyInitialization.lastKey.id, preKeyInitialization.lastKey.encodedData)
+        val preKeys = preKeyInitialization.createdKeys.map { PreKeyRequest(it.id, it.encodedData) }
+        return ClientRegistrationRequest(
             userId,
-            Permanent,
-            deviceConfig.deviceName(),
-            password,
+            lastPreKey,
+            preKeys,
+            SignalingKeyRequest(),
+            deviceTypeMapper.value(Permanent),
+            deviceClassMapper.value(deviceConfig.deviceClass()),
             deviceConfig.deviceModelName(),
-            deviceConfig.deviceClass(),
-            preKeyInitialization.createdKeys,
-            preKeyInitialization.lastKey
+            password,
+            deviceConfig.deviceName()
         )
+    }
 }

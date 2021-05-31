@@ -50,5 +50,4 @@ class ClientMapperTest : UnitTest() {
     companion object {
         private const val TEST_CLIENT_ID = "test-id-123"
     }
-
 }

@@ -22,17 +22,17 @@ class MessageDaoTest : InstrumentationTest() {
     private lateinit var messageDao: MessageDao
     private lateinit var conversationDao: ConversationDao
 
+    private lateinit var conversationEntity: ConversationEntity
+    private lateinit var messageEntity: MessageEntity
+
     @Before
     fun setUp() {
         val userDatabase = databaseTestRule.database
         messageDao = userDatabase.messageDao()
         conversationDao = userDatabase.conversationDao()
-    }
 
-    @Test
-    fun messagesByConversationId_entitiesForConversationIdExists_returnsMessages() {
-        val conversation = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
-        val message =  MessageEntity(
+        conversationEntity = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
+        messageEntity = MessageEntity(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
             type = TEST_MESSAGE_TYPE,
@@ -43,33 +43,37 @@ class MessageDaoTest : InstrumentationTest() {
         )
 
         runBlocking {
-            conversationDao.insert(conversation)
-            messageDao.insert(message)
+            conversationDao.insert(conversationEntity)
+            messageDao.insert(messageEntity)
+        }
+    }
 
+    @Test
+    fun messagesByConversationId_entitiesForConversationIdExists_returnsMessages() {
+        runBlocking {
             val result = messageDao.messagesByConversationId(TEST_CONVERSATION_ID)
 
             result.first().size shouldBeEqualTo 1
-            result.first().first() shouldBeEqualTo message
+            result.first().first() shouldBeEqualTo messageEntity
         }
     }
 
     @Test
     fun messagesByConversationId_noEntitiesForConversationIdExists_returnsEmptyList() {
-        val conversation = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
-        val message =  MessageEntity(
-            id = TEST_MESSAGE_ID,
-            conversationId = TEST_CONVERSATION_ID,
-            type = TEST_MESSAGE_TYPE,
-            content = TEST_MESSAGE_CONTENT,
-            state = TEST_MESSAGE_STATE,
-            time = TEST_MESSAGE_TIME,
-            editTime = null
-        )
-
         runBlocking {
-            conversationDao.insert(conversation)
-            messageDao.insert(message)
             val result = messageDao.messagesByConversationId("$TEST_CONVERSATION_ID#1")
+
+            result.first().size shouldBeEqualTo 0
+        }
+    }
+
+    @Test
+    fun `givenAMessageInConversationExists_whenConversationIsDeleted_thenMessagesAreDeleted`() {
+        runBlocking {
+            conversationDao.delete(conversationEntity)
+
+            val result = messageDao.messagesByConversationId(TEST_CONVERSATION_ID)
+
             result.first().size shouldBeEqualTo 0
         }
     }

@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Delete
 
 @Dao
 interface ConversationDao {
@@ -26,4 +27,7 @@ interface ConversationDao {
 
     @Query("SELECT COUNT(*) FROM conversation")
     suspend fun count(): Int
+
+    @Delete
+    fun delete(conversation: ConversationEntity)
 }

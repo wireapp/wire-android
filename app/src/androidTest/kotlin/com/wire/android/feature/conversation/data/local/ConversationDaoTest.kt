@@ -4,6 +4,7 @@ import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.framework.storage.db.DatabaseTestRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
@@ -113,6 +114,15 @@ class ConversationDaoTest : InstrumentationTest() {
         val result = conversationDao.count()
 
         result shouldBeEqualTo 0
+    }
+
+    @Test
+    fun deleteEntity_readConversations_doesNotContainDeletedItem() = databaseTestRule.runTest {
+        conversationDao.insert(TEST_CONVERSATION_ENTITY)
+
+        conversationDao.delete(TEST_CONVERSATION_ENTITY)
+
+        conversationDao.conversations().isEmpty() shouldBe true
     }
 
     companion object {

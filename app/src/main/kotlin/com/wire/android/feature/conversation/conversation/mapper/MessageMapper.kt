@@ -8,10 +8,10 @@ class MessageMapper(
     private val messageStateMapper: MessageStateMapper
 ) {
 
-    fun fromEntityToMessage(messageEntity: MessageEntity): Message = with(messageEntity) {
+    fun fromEntityToMessage(messageEntity: MessageEntity) = with(messageEntity) {
         val messageType = messageTypeMapper.fromStringValue(type)
         val messageState = messageStateMapper.fromStringValue(state)
-        Message(id, conversationId, content , messageType, messageState, time, editTime)
+        Message(id, conversationId, content, messageType, messageState, time, editTime)
     }
 
     fun fromMessageToEntity(message: Message) = with(message) {

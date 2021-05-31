@@ -11,8 +11,8 @@ import com.wire.android.feature.conversation.conversation.Pending
 
 class MessageStateMapper {
 
-    fun fromStringValue(type: String): MessageState =
-        when (type) {
+    fun fromStringValue(state: String): MessageState =
+        when (state) {
             "sent" -> Sent
             "pending" -> Pending
             "delivered" -> Delivered

@@ -1,7 +1,6 @@
 package com.wire.android.feature.conversation.conversation.datasources.local
 
 import com.wire.android.InstrumentationTest
-import com.wire.android.core.extension.EMPTY
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.feature.conversation.data.local.ConversationDao
 import com.wire.android.feature.conversation.data.local.ConversationEntity
@@ -32,15 +31,15 @@ class MessageDaoTest : InstrumentationTest() {
 
     @Test
     fun messagesByConversationId_entitiesForConversationIdExists_returnsMessages() {
-        val conversation = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, 0)
+        val conversation = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
         val message =  MessageEntity(
-            TEST_MESSAGE_ID,
-            TEST_CONVERSATION_ID,
-            String.EMPTY,
-            String.EMPTY,
-            String.EMPTY,
-            String.EMPTY,
-            String.EMPTY
+            id = TEST_MESSAGE_ID,
+            conversationId = TEST_CONVERSATION_ID,
+            type = TEST_MESSAGE_TYPE,
+            content = TEST_MESSAGE_CONTENT,
+            state = TEST_MESSAGE_STATE,
+            time = TEST_MESSAGE_TIME,
+            editTime = null
         )
 
         runBlocking {
@@ -56,15 +55,33 @@ class MessageDaoTest : InstrumentationTest() {
 
     @Test
     fun messagesByConversationId_noEntitiesForConversationIdExists_returnsEmptyList() {
+        val conversation = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
+        val message =  MessageEntity(
+            id = TEST_MESSAGE_ID,
+            conversationId = TEST_CONVERSATION_ID,
+            type = TEST_MESSAGE_TYPE,
+            content = TEST_MESSAGE_CONTENT,
+            state = TEST_MESSAGE_STATE,
+            time = TEST_MESSAGE_TIME,
+            editTime = null
+        )
+
         runBlocking {
-            val result = messageDao.messagesByConversationId(TEST_CONVERSATION_ID)
+            conversationDao.insert(conversation)
+            messageDao.insert(message)
+            val result = messageDao.messagesByConversationId("$TEST_CONVERSATION_ID#1")
             result.first().size shouldBeEqualTo 0
         }
     }
 
     companion object {
-        private const val TEST_MESSAGE_ID = "message-id"
         private const val TEST_CONVERSATION_ID = "conversation-id"
+        private const val TEST_CONVERSATION_TYPE = 0
         private const val TEST_CONVERSATION_NAME = "conversation-name"
+        private const val TEST_MESSAGE_ID = "message-id"
+        private const val TEST_MESSAGE_TYPE = "message-type"
+        private const val TEST_MESSAGE_CONTENT = "message-content"
+        private const val TEST_MESSAGE_STATE = "message-state"
+        private const val TEST_MESSAGE_TIME = "message-time"
     }
 }

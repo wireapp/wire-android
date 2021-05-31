@@ -87,7 +87,7 @@ class ClientDataSourceTest : UnitTest() {
 
 
     @Test
-    fun `given registerNewClient is called, when remoteDataSource returns success and client save fails, then returns Failure`() {
+    fun `given registerNewClient is called and remoteDataSource returns success, when client save fails, then returns Failure`() {
         val failure = mockk<SQLiteFailure>()
         every { cryptoBoxClient.createInitialPreKeys() } returns Either.Right(preKeyInitialization)
         every { clientMapper.newRegistrationRequest(USER_ID, PASSWORD, preKeyInitialization) } returns clientRegistrationRequest
@@ -107,7 +107,7 @@ class ClientDataSourceTest : UnitTest() {
 
 
     @Test
-    fun `given registerNewClient is called, when remoteDataSource returns success and client is saved locally, then returns Unit`() {
+    fun `given registerNewClient is called and remoteDataSource returns success, when client is saved locally, then returns Unit`() {
         every { cryptoBoxClient.createInitialPreKeys() } returns Either.Right(preKeyInitialization)
         every { clientMapper.newRegistrationRequest(USER_ID, PASSWORD, preKeyInitialization) } returns clientRegistrationRequest
         coEvery {

@@ -27,8 +27,8 @@ class ClientDaoTest : InstrumentationTest() {
 
     @Test
     fun insertClient_readClient_containsInsertedItems() = databaseTestRule.runTest {
-        val client1 = ClientEntity("1254-1", "refresh-token1", "registration-time1")
-        val client2 = ClientEntity("1254-2", "refresh-token2", "registration-time2")
+        val client1 = ClientEntity("1254-1")
+        val client2 = ClientEntity("1254-2")
         clientDao.insert(client1)
         clientDao.insert(client2)
 

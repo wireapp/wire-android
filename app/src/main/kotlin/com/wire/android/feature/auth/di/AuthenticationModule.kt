@@ -134,7 +134,7 @@ private val clientModule = module {
     single { ClientRemoteDataSource(get(), get()) }
     single<ClientRepository> { ClientDataSource(get(), get(), get(), get()) }
     factory { RegisterClientUseCase(get(), get(), get()) }
-    factory { ClientMapper(get(), get(), get()) }
+    factory { ClientMapper(get(), get(), get(), get()) }
     factory { SetSessionCurrentUseCase(get()) }
     viewModel { DeviceLimitViewModel(get(), get(), get()) }
     factory { get<UserDatabase>().clientDao() }

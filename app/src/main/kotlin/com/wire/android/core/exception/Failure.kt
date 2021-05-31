@@ -1,7 +1,6 @@
 package com.wire.android.core.exception
 
 import android.database.sqlite.SQLiteException
-import com.wire.cryptobox.CryptoException
 
 /**
  * Base Class for handling errors/failures/exceptions.
@@ -32,7 +31,11 @@ data class GeneralIOFailure(val reason: Exception? = null) : IOFailure()
 object FileDoesNotExist : IOFailure()
 object IOAccessDenied : IOFailure()
 
-data class CryptoBoxFailure(val reason: CryptoException? = null) : Failure()
+sealed class CryptoBoxFailure : Failure()
+object InitializationFailure : CryptoBoxFailure()
+object SessionNotFound : CryptoBoxFailure()
+object MessageAlreadyDecrypted : CryptoBoxFailure()
+class UnknownCryptoFailure(val cause: Throwable? = null) : CryptoBoxFailure()
 
 /** Extend this class for UseCase specific failures.*/
 abstract class FeatureFailure : Failure()

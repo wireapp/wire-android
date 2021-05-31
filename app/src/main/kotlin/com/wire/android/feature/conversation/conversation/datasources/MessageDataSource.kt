@@ -19,7 +19,6 @@ class MessageDataSource(
         return messageLocalDataSource.save(messageEntity)
     }
 
-
     override suspend fun conversationMessages(conversationId: String): Flow<List<Message>> =
         messageLocalDataSource.messagesByConversationId(conversationId).map { messages ->
             messages.map { messageMapper.fromEntityToMessage(it) }

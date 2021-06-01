@@ -1,10 +1,10 @@
-package com.wire.android.feature.conversation.conversation.datasources
+package com.wire.android.feature.conversation.content.datasources
 
 import com.wire.android.UnitTest
-import com.wire.android.feature.conversation.conversation.Message
-import com.wire.android.feature.conversation.conversation.datasources.local.MessageEntity
-import com.wire.android.feature.conversation.conversation.datasources.local.MessageLocalDataSource
-import com.wire.android.feature.conversation.conversation.mapper.MessageMapper
+import com.wire.android.feature.conversation.content.Message
+import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
+import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
+import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK

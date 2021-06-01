@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.conversation.datasources.local
+package com.wire.android.feature.conversation.content.datasources.local
 
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either

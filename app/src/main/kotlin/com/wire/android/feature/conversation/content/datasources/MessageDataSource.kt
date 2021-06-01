@@ -1,11 +1,11 @@
-package com.wire.android.feature.conversation.conversation.datasources
+package com.wire.android.feature.conversation.content.datasources
 
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.conversation.conversation.Message
-import com.wire.android.feature.conversation.conversation.MessageRepository
-import com.wire.android.feature.conversation.conversation.datasources.local.MessageLocalDataSource
-import com.wire.android.feature.conversation.conversation.mapper.MessageMapper
+import com.wire.android.feature.conversation.content.Message
+import com.wire.android.feature.conversation.content.MessageRepository
+import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
+import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

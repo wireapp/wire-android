@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.conversation
+package com.wire.android.feature.conversation.content
 
 data class Message(
     val id: String,

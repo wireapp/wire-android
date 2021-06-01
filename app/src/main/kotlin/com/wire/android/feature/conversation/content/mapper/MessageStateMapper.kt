@@ -1,13 +1,13 @@
-package com.wire.android.feature.conversation.conversation.mapper
+package com.wire.android.feature.conversation.content.mapper
 
-import com.wire.android.feature.conversation.conversation.MessageState
-import com.wire.android.feature.conversation.conversation.Default
-import com.wire.android.feature.conversation.conversation.Deleted
-import com.wire.android.feature.conversation.conversation.FailedRead
-import com.wire.android.feature.conversation.conversation.Sent
-import com.wire.android.feature.conversation.conversation.Delivered
-import com.wire.android.feature.conversation.conversation.Failed
-import com.wire.android.feature.conversation.conversation.Pending
+import com.wire.android.feature.conversation.content.MessageState
+import com.wire.android.feature.conversation.content.Default
+import com.wire.android.feature.conversation.content.Deleted
+import com.wire.android.feature.conversation.content.FailedRead
+import com.wire.android.feature.conversation.content.Sent
+import com.wire.android.feature.conversation.content.Delivered
+import com.wire.android.feature.conversation.content.Failed
+import com.wire.android.feature.conversation.content.Pending
 
 class MessageStateMapper {
 

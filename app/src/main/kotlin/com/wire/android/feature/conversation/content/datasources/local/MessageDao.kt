@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.conversation.datasources.local
+package com.wire.android.feature.conversation.content.datasources.local
 
 import androidx.room.Dao
 import androidx.room.Insert

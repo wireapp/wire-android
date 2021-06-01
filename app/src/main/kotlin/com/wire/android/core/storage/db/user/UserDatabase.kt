@@ -6,8 +6,8 @@ import com.wire.android.feature.auth.client.datasource.local.ClientDao
 import com.wire.android.feature.auth.client.datasource.local.ClientEntity
 import com.wire.android.feature.contact.datasources.local.ContactDao
 import com.wire.android.feature.contact.datasources.local.ContactEntity
-import com.wire.android.feature.conversation.conversation.datasources.local.MessageDao
-import com.wire.android.feature.conversation.conversation.datasources.local.MessageEntity
+import com.wire.android.feature.conversation.content.datasources.local.MessageDao
+import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
 import com.wire.android.feature.conversation.data.local.ConversationDao
 import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListDao

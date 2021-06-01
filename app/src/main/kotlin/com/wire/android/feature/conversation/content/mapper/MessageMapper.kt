@@ -1,7 +1,7 @@
-package com.wire.android.feature.conversation.conversation.mapper
+package com.wire.android.feature.conversation.content.mapper
 
-import com.wire.android.feature.conversation.conversation.Message
-import com.wire.android.feature.conversation.conversation.datasources.local.MessageEntity
+import com.wire.android.feature.conversation.content.Message
+import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
 
 class MessageMapper(
     private val messageTypeMapper: MessageTypeMapper,

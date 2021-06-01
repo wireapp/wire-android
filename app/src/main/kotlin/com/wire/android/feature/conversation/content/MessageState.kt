@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.conversation
+package com.wire.android.feature.conversation.content
 
 sealed class MessageState
 object Sent: MessageState()

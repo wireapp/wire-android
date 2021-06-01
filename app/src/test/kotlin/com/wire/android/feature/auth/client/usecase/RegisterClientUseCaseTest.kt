@@ -7,7 +7,6 @@ import com.wire.android.core.exception.Forbidden
 import com.wire.android.core.functional.Either
 import com.wire.android.core.network.auth.accesstoken.AuthenticationManager
 import com.wire.android.feature.auth.client.ClientRepository
-import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.shared.session.Session
@@ -112,15 +111,14 @@ class RegisterClientUseCaseTest : UnitTest() {
 
 
     @Test
-    fun `given use case is run, when registerNewClient runs successfully, then return valid client response`() {
-        val clientResponse = mockk<ClientResponse>()
+    fun `given use case is run, when registerNewClient runs successfully, then return valid Unit`() {
         coEvery { sessionRepository.userSession(USER_ID) } returns Either.Right(session)
         coEvery { authenticationManager.authorizationToken(session) } returns AUTHORIZATION_TOKEN
-        coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Right(clientResponse)
+        coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Right(Unit)
 
         val response = runBlocking { registerClientUseCase.run(registerClientParams)}
 
-        response shouldSucceed  { it shouldBeEqualTo clientResponse}
+        response shouldSucceed  { it shouldBeEqualTo Unit}
 
         coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
         coVerify(exactly = 1) { authenticationManager.authorizationToken(session) }

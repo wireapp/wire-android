@@ -9,8 +9,8 @@ data class ClientResponse(
     @SerializedName("location") val location: LocationResponse?,
     @SerializedName("address") val ipAddress: String?,
     @SerializedName("model") val model: String?,
-    @SerializedName("type") val type: String,
-    @SerializedName("class") val deviceType: String,
+    @SerializedName("type") val deviceType: String,
+    @SerializedName("class") val deviceClass: String,
     @SerializedName("label") val label: String?
 )
 

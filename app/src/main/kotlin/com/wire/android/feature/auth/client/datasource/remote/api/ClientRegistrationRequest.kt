@@ -8,8 +8,8 @@ data class ClientRegistrationRequest(
     @SerializedName("lastkey") val lastKey: PreKeyRequest,
     @SerializedName("prekeys") val preKeys: List<PreKeyRequest>,
     @SerializedName("sigkeys") val signalingKey: SignalingKeyRequest,
-    @SerializedName("type") val type: String,
-    @SerializedName("class") val deviceType: String,
+    @SerializedName("type") val deviceType: String,
+    @SerializedName("class") val deviceClass: String,
     @SerializedName("model") val model: String?,
     @SerializedName("password") val password: String?,
     @SerializedName("label") val label: String?

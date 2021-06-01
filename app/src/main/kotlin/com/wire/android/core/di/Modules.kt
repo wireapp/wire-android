@@ -11,7 +11,10 @@ import com.wire.android.core.compatibility.Compatibility
 import com.wire.android.core.config.DeviceConfig
 import com.wire.android.core.config.LocaleConfig
 import com.wire.android.core.crypto.CryptoBoxClient
+import com.wire.android.core.crypto.CryptoBoxProvider
+import com.wire.android.core.crypto.DefaultCryptoBoxProvider
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
+import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.events.EventsHandler
@@ -76,7 +79,9 @@ val ioModule = module {
 
 val cryptoBoxModule = module {
     factory { CryptoPreKeyMapper() }
+    factory { CryptoExceptionMapper() }
     factory { CryptoBoxClientPropertyStorage(androidContext()) }
+    single<CryptoBoxProvider> { DefaultCryptoBoxProvider }
     //TODO hardcoded UserId should be replaced with real userId value (AR-711)
-    factory { CryptoBoxClient(androidContext(), get(), UserId("dummy-id"), get()) }
+    factory { CryptoBoxClient(androidContext(), get(), UserId("dummy-id"), get(), get(), get()) }
 }

@@ -2,6 +2,7 @@ package com.wire.android.feature.auth.di
 
 import com.wire.android.R
 import com.wire.android.core.network.NetworkClient
+import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.core.ui.navigation.FragmentContainerProvider
 import com.wire.android.feature.auth.activation.ActivationRepository
 import com.wire.android.feature.auth.activation.datasource.ActivationDataSource
@@ -10,6 +11,7 @@ import com.wire.android.feature.auth.activation.datasource.remote.ActivationRemo
 import com.wire.android.feature.auth.activation.usecase.SendEmailActivationCodeUseCase
 import com.wire.android.feature.auth.client.ClientRepository
 import com.wire.android.feature.auth.client.datasource.ClientDataSource
+import com.wire.android.feature.auth.client.datasource.local.ClientLocalDataSource
 import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientApi
 import com.wire.android.feature.auth.client.mapper.ClientMapper
@@ -131,10 +133,12 @@ private val clientModule = module {
     }
     factory { get<NetworkClient>().create(ClientApi::class.java) }
     single { ClientRemoteDataSource(get(), get()) }
-    single<ClientRepository> { ClientDataSource(get(), get(), get(), get()) }
+    single<ClientRepository> { ClientDataSource(get(), get(), get(), get(), get()) }
     factory { RegisterClientUseCase(get(), get(), get()) }
     factory { PreKeyMapper() }
     factory { ClientMapper(get(), get(), get(), get()) }
     factory { SetSessionCurrentUseCase(get()) }
     viewModel { DeviceLimitViewModel(get(), get(), get()) }
+    factory { get<UserDatabase>().clientDao() }
+    factory { ClientLocalDataSource(get()) }
 }

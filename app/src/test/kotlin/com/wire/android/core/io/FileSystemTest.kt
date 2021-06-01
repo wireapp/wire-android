@@ -86,7 +86,7 @@ class FileSystemTest : AndroidTest() {
 
     companion object {
         private const val TEST_DIRECTORY = "file_system_test_files"
-        private const val TEST_PATH = "file_system_test/test_file.txt"
+        private val TEST_PATH = "file_system_test${File.separator}test_file.txt"
 
         private const val TEST_FILE_CONTENT = "some content"
         private val TEST_INPUT_STREAM = ByteArrayInputStream(TEST_FILE_CONTENT.toByteArray())

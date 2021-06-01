@@ -71,7 +71,7 @@ val networkModule: Module = module {
     single { HttpRequestParams() }
     single { AccessTokenAuthenticator(get(), get()) }
     single { AccessTokenInterceptor(get()) }
-    single { UserAgentInterceptor(get()) }
+    single { UserAgentInterceptor() }
     factory { AuthenticationManager() }
 
     val networkClientForNoAuth = "NETWORK_CLIENT_NO_AUTH_REQUEST"

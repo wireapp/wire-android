@@ -3,7 +3,6 @@ package com.wire.android.feature.auth.client.ui
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
 import com.wire.android.feature.auth.client.usecase.DevicesLimitReached
 import com.wire.android.feature.auth.client.usecase.RegisterClientParams
 import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
@@ -49,8 +48,7 @@ class DeviceLimitViewModelTest : UnitTest() {
 
     @Test
     fun `given registerClient is called, when use case runs successfully, then sets success to registerClientLiveData`() {
-        val clientResponse = mockk<ClientResponse>()
-        coEvery { registerClientUseCase.run(clientParams) } returns Either.Right(clientResponse)
+        coEvery { registerClientUseCase.run(clientParams) } returns Either.Right(Unit)
         coEvery { setSessionCurrentUseCase.run(sessionParams) } returns Either.Right(Unit)
 
         deviceLimitViewModel.registerClient(USER_ID, PASSWORD)
@@ -73,10 +71,9 @@ class DeviceLimitViewModelTest : UnitTest() {
 
     @Test
     fun `given registerClient is called, when setSessionCurrent use case returns failure, then sets failure to loginResultLiveData`() {
-        val clientResponse = mockk<ClientResponse>()
         val failure = mockk<Failure>()
 
-        coEvery { registerClientUseCase.run(clientParams) } returns Either.Right(clientResponse)
+        coEvery { registerClientUseCase.run(clientParams) } returns Either.Right(Unit)
         coEvery { setSessionCurrentUseCase.run(sessionParams) } returns Either.Left(failure)
 
         deviceLimitViewModel.registerClient(USER_ID, PASSWORD)

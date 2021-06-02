@@ -117,7 +117,7 @@ class ConversationDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun deleteEntity_readConversations_doesNotContainDeletedItem() = databaseTestRule.runTest {
+    fun deleteConversation_readConversations_doesNotContainDeletedConversation() = databaseTestRule.runTest {
         conversationDao.insert(TEST_CONVERSATION_ENTITY)
 
         conversationDao.delete(TEST_CONVERSATION_ENTITY)

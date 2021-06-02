@@ -33,18 +33,19 @@ import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.qualifier
 import org.koin.dsl.module
 
+val conversationModules
+    get() = arrayOf(
+        conversationsModule,
+        conversationListModule,
+        conversationMembersModule,
+        conversationContentModule
+    )
+
 val conversationsModule = module {
     single { MainNavigator(get()) }
     factory(qualifier<MainActivity>()) {
         FragmentContainerProvider.fixedProvider(R.id.mainFragmentContainer)
     }
-
-    factory { ConversationListAdapter(get(), get(), get()) }
-    factory { ConversationListDiffCallback() }
-    viewModel { ConversationListViewModel(get(), get(), get(), get(), get()) }
-
-    factory { ConversationIconProvider(get()) }
-
     single<ConversationRepository> { ConversationDataSource(get(), get(), get()) }
     factory { ConversationMapper(get()) }
     factory { ConversationTypeMapper() }
@@ -53,22 +54,33 @@ val conversationsModule = module {
     single { get<NetworkClient>().create(ConversationsApi::class.java) }
 
     factory { get<UserDatabase>().conversationDao() }
-    factory { get<UserDatabase>().conversationMembersDao() }
     factory { ConversationLocalDataSource(get(), get()) }
+}
+
+val conversationListModule = module {
+    factory { ConversationListAdapter(get(), get(), get()) }
+    factory { ConversationListDiffCallback() }
+    viewModel { ConversationListViewModel(get(), get(), get(), get(), get()) }
+
+    factory { ConversationIconProvider(get()) }
 
     factory { get<UserDatabase>().conversationListDao() }
     factory { ConversationListLocalDataSource(get()) }
     factory { ConversationListMapper(get(), get()) }
     factory<ConversationListRepository> { ConversationListDataSource(get(), get(), get()) }
     factory { GetConversationListUseCase(get()) }
+}
 
+val conversationMembersModule = module {
+    factory { get<UserDatabase>().conversationMembersDao() }
     factory { GetConversationMembersUseCase(get(), get()) }
+}
 
+val conversationContentModule = module {
     factory { get<UserDatabase>().messageDao() }
     factory { MessageLocalDataSource(get()) }
     factory { MessageTypeMapper() }
     factory { MessageStateMapper() }
     factory { MessageMapper(get(), get()) }
     factory<MessageRepository> { MessageDataSource(get(), get()) }
-
 }

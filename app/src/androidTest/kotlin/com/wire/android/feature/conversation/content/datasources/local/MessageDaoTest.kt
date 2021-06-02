@@ -68,7 +68,7 @@ class MessageDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun `givenAMessageInConversationExists_whenConversationIsDeleted_thenMessagesAreDeleted`() {
+    fun givenAMessageInConversationExists_whenConversationIsDeleted_thenMessagesAreDeleted() {
         runBlocking {
             conversationDao.delete(conversationEntity)
 

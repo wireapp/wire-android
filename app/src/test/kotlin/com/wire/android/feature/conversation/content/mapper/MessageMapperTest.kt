@@ -83,8 +83,6 @@ class MessageMapperTest : UnitTest() {
             it.time shouldBeEqualTo TEST_MESSAGE_TIME
             it.editTime shouldBeEqualTo TEST_MESSAGE_EDIT_TIME
         }
-
-
     }
 
     companion object {

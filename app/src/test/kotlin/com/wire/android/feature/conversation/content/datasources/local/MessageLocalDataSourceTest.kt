@@ -51,7 +51,7 @@ class MessageLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given messagesByConversationId is called, when no message exists, then don't emits messages`() {
+    fun `given messagesByConversationId is called, when no message exists, then emits empty list`() {
         val conversationId = "conversationId"
         coEvery { messageDao.messagesByConversationId(conversationId) } returns flowOf(listOf())
 
@@ -63,7 +63,7 @@ class MessageLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given messagesByConversationId is called, when when dao operation is successful, then emits a list of messages`() {
+    fun `given messagesByConversationId is called, when dao emits some messages, then emits a list of messages`() {
         val conversationId = "conversationId"
         val messageEntity1 = mockk<MessageEntity>()
         val messageEntity2 = mockk<MessageEntity>()

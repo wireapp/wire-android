@@ -3,7 +3,6 @@ package com.wire.android.feature.conversation.content.mapper
 import com.wire.android.feature.conversation.content.MessageState
 import com.wire.android.feature.conversation.content.Default
 import com.wire.android.feature.conversation.content.Deleted
-import com.wire.android.feature.conversation.content.FailedRead
 import com.wire.android.feature.conversation.content.Sent
 import com.wire.android.feature.conversation.content.Delivered
 import com.wire.android.feature.conversation.content.Failed
@@ -17,7 +16,6 @@ class MessageStateMapper {
             "pending" -> Pending
             "delivered" -> Delivered
             "failed" -> Failed
-            "failed_read" -> FailedRead
             "deleted" -> Deleted
             else -> Default
         }
@@ -28,7 +26,6 @@ class MessageStateMapper {
             Pending -> "pending"
             Delivered -> "delivered"
             Failed -> "failed"
-            FailedRead -> "failed_read"
             Deleted -> "deleted"
             else -> "default"
         }

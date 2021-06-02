@@ -6,7 +6,6 @@ import org.junit.Before
 import org.junit.Test
 import com.wire.android.feature.conversation.content.Default
 import com.wire.android.feature.conversation.content.Deleted
-import com.wire.android.feature.conversation.content.FailedRead
 import com.wire.android.feature.conversation.content.Sent
 import com.wire.android.feature.conversation.content.Delivered
 import com.wire.android.feature.conversation.content.Failed
@@ -27,7 +26,6 @@ class MessageStateMapperTest : UnitTest() {
         messageStateMapper.fromStringValue(TEST_PENDING_STATE) shouldBeEqualTo Pending
         messageStateMapper.fromStringValue(TEST_FAILED_STATE) shouldBeEqualTo Failed
         messageStateMapper.fromStringValue(TEST_DELIVERED_STATE) shouldBeEqualTo Delivered
-        messageStateMapper.fromStringValue(TEST_FAILED_READ_STATE) shouldBeEqualTo FailedRead
         messageStateMapper.fromStringValue(TEST_DELETED_STATE) shouldBeEqualTo Deleted
         messageStateMapper.fromStringValue(TEST_DEFAULT_STATE) shouldBeEqualTo Default
     }
@@ -38,7 +36,6 @@ class MessageStateMapperTest : UnitTest() {
         messageStateMapper.fromValueToString(Pending) shouldBeEqualTo TEST_PENDING_STATE
         messageStateMapper.fromValueToString(Failed) shouldBeEqualTo TEST_FAILED_STATE
         messageStateMapper.fromValueToString(Delivered) shouldBeEqualTo TEST_DELIVERED_STATE
-        messageStateMapper.fromValueToString(FailedRead) shouldBeEqualTo TEST_FAILED_READ_STATE
         messageStateMapper.fromValueToString(Deleted) shouldBeEqualTo TEST_DELETED_STATE
         messageStateMapper.fromValueToString(Default) shouldBeEqualTo TEST_DEFAULT_STATE
     }
@@ -48,7 +45,6 @@ class MessageStateMapperTest : UnitTest() {
         private const val TEST_PENDING_STATE = "pending"
         private const val TEST_FAILED_STATE = "failed"
         private const val TEST_DELIVERED_STATE = "delivered"
-        private const val TEST_FAILED_READ_STATE = "failed_read"
         private const val TEST_DELETED_STATE = "deleted"
         private const val TEST_DEFAULT_STATE = "default"
     }

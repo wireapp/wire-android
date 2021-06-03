@@ -11,12 +11,12 @@ class MessageMapper(
     fun fromEntityToMessage(messageEntity: MessageEntity) = with(messageEntity) {
         val messageType = messageTypeMapper.fromStringValue(type)
         val messageState = messageStateMapper.fromStringValue(state)
-        Message(id, conversationId, content, messageType, messageState, time, editTime)
+        Message(id, conversationId, content, messageType, messageState, time)
     }
 
     fun fromMessageToEntity(message: Message) = with(message) {
         val messageType = messageTypeMapper.fromValueToString(type)
         val messageState = messageStateMapper.fromValueToString(state)
-        MessageEntity(id, conversationId, messageType, content, messageState, time, editTime)
+        MessageEntity(id, conversationId, messageType, content, messageState, time)
     }
 }

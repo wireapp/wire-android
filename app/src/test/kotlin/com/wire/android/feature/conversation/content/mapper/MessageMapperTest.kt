@@ -38,8 +38,7 @@ class MessageMapperTest : UnitTest() {
             type = TEST_MESSAGE_TYPE,
             content = TEST_MESSAGE_CONTENT,
             state = TEST_MESSAGE_STATE,
-            time = TEST_MESSAGE_TIME,
-            editTime = TEST_MESSAGE_EDIT_TIME
+            time = TEST_MESSAGE_TIME
         )
 
         val result = messageMapper.fromEntityToMessage(messageEntity)
@@ -52,7 +51,6 @@ class MessageMapperTest : UnitTest() {
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
             it.state shouldBeEqualTo Sent
             it.time shouldBeEqualTo TEST_MESSAGE_TIME
-            it.editTime shouldBeEqualTo TEST_MESSAGE_EDIT_TIME
         }
 
     }
@@ -67,8 +65,7 @@ class MessageMapperTest : UnitTest() {
             type = Text,
             content = TEST_MESSAGE_CONTENT,
             state = Sent,
-            time = TEST_MESSAGE_TIME,
-            editTime = TEST_MESSAGE_EDIT_TIME
+            time = TEST_MESSAGE_TIME
         )
 
         val result = messageMapper.fromMessageToEntity(message)
@@ -81,7 +78,6 @@ class MessageMapperTest : UnitTest() {
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
             it.state shouldBeEqualTo TEST_MESSAGE_STATE
             it.time shouldBeEqualTo TEST_MESSAGE_TIME
-            it.editTime shouldBeEqualTo TEST_MESSAGE_EDIT_TIME
         }
     }
 
@@ -92,6 +88,5 @@ class MessageMapperTest : UnitTest() {
         private const val TEST_MESSAGE_CONTENT = "Hello!"
         private const val TEST_MESSAGE_STATE = "sent"
         private const val TEST_MESSAGE_TIME = "12345655456"
-        private const val TEST_MESSAGE_EDIT_TIME = "12345655456"
     }
 }

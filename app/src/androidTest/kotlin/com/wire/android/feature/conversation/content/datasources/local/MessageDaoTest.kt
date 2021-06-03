@@ -38,8 +38,7 @@ class MessageDaoTest : InstrumentationTest() {
             type = TEST_MESSAGE_TYPE,
             content = TEST_MESSAGE_CONTENT,
             state = TEST_MESSAGE_STATE,
-            time = TEST_MESSAGE_TIME,
-            editTime = null
+            time = TEST_MESSAGE_TIME
         )
 
         runBlocking {

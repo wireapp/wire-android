@@ -23,6 +23,5 @@ data class MessageEntity(
     @ColumnInfo(name = "type") val type: String,
     @ColumnInfo(name = "content") val content: String,
     @ColumnInfo(name = "state") val state: String,
-    @ColumnInfo(name = "time") val time: String,
-    @ColumnInfo(name = "edit_time") val editTime: String?
+    @ColumnInfo(name = "time") val time: String
 )

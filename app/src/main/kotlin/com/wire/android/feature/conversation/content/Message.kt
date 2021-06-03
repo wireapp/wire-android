@@ -6,6 +6,5 @@ data class Message(
     val content: String,
     val type: MessageType,
     val state: MessageState,
-    val time: String,
-    val editTime: String?
+    val time: String
 )

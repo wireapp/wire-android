@@ -2,7 +2,6 @@ package com.wire.android.feature.auth.client.mapper
 
 import com.wire.android.UnitTest
 import com.wire.android.core.config.DeviceConfig
-import com.wire.android.core.crypto.mapper.PreKeyMapper
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
 import com.wire.android.feature.auth.client.datasource.remote.api.LocationResponse
 import com.wire.android.shared.config.DeviceClassMapper

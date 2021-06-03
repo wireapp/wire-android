@@ -3,7 +3,7 @@ package com.wire.android.core.crypto
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
-import com.wire.android.core.crypto.mapper.PreKeyMapper
+import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.model.ClientId
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
@@ -39,7 +39,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
                 appContext,
                 CryptoBoxClientPropertyStorage(appContext),
                 alice,
-                PreKeyMapper(),
+                CryptoPreKeyMapper(),
                 CryptoExceptionMapper(),
                 DefaultCryptoBoxProvider
             )
@@ -48,7 +48,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
                 appContext,
                 CryptoBoxClientPropertyStorage(appContext),
                 bob,
-                PreKeyMapper(),
+                CryptoPreKeyMapper(),
                 CryptoExceptionMapper(),
                 DefaultCryptoBoxProvider
             )
@@ -112,5 +112,4 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
         aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }
             .shouldFail { it shouldBeInstanceOf MessageAlreadyDecrypted::class }
     }
-
 }

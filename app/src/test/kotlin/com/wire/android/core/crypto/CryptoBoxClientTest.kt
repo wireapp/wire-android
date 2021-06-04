@@ -3,7 +3,7 @@ package com.wire.android.core.crypto
 import com.wire.android.AndroidTest
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
-import com.wire.android.core.crypto.mapper.PreKeyMapper
+import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.model.ClientId
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
@@ -13,7 +13,6 @@ import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.exception.CryptoBoxFailure
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.IOAccessDenied
-import com.wire.android.core.exception.InitializationFailure
 import com.wire.android.core.exception.SessionNotFound
 import com.wire.android.core.exception.UnknownCryptoFailure
 import com.wire.android.core.functional.Either
@@ -41,7 +40,7 @@ class CryptoBoxClientTest : AndroidTest() {
     private lateinit var propertyStorage: CryptoBoxClientPropertyStorage
 
     @MockK
-    private lateinit var preKeyMapper: PreKeyMapper
+    private lateinit var preKeyMapper: CryptoPreKeyMapper
 
     @MockK
     private lateinit var exceptionMapper: CryptoExceptionMapper

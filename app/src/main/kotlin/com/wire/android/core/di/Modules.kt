@@ -15,7 +15,7 @@ import com.wire.android.core.crypto.CryptoBoxProvider
 import com.wire.android.core.crypto.DefaultCryptoBoxProvider
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
-import com.wire.android.core.crypto.mapper.PreKeyMapper
+import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.io.FileSystem
@@ -78,7 +78,7 @@ val ioModule = module {
 }
 
 val cryptoBoxModule = module {
-    factory { PreKeyMapper() }
+    factory { CryptoPreKeyMapper() }
     factory { CryptoExceptionMapper() }
     factory { CryptoBoxClientPropertyStorage(androidContext()) }
     single<CryptoBoxProvider> { DefaultCryptoBoxProvider }

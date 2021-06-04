@@ -2,17 +2,17 @@ package com.wire.android.core.crypto
 
 import android.content.Context
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
+import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
-import com.wire.android.core.crypto.mapper.PreKeyMapper
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.PreKeyInitialization
 import com.wire.android.core.crypto.model.UserId
-import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.InitializationFailure
 import com.wire.android.core.exception.SessionNotFound
+import com.wire.android.core.exception.Failure
 import com.wire.android.core.extension.plus
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.flatMap
@@ -25,7 +25,7 @@ class CryptoBoxClient(
     context: Context,
     private val clientPropertyStorage: CryptoBoxClientPropertyStorage,
     private val userId: UserId,
-    private val preKeyMapper: PreKeyMapper,
+    private val cryptoPreKeyMapper: CryptoPreKeyMapper,
     private val exceptionMapper: CryptoExceptionMapper,
     private val cryptoBoxProvider: CryptoBoxProvider
 ) {
@@ -40,6 +40,10 @@ class CryptoBoxClient(
             it
         }
 
+    fun createNewPreKeysIfNeeded(remainingPreKeysIds: List<Int>): Either<Failure, List<PreKey>> = useBox {
+        TODO("Handled in another PR")
+    }
+
     fun delete() = useBox {
         close()
         _cryptoBox = null
@@ -47,8 +51,8 @@ class CryptoBoxClient(
     }
 
     fun createInitialPreKeys(): Either<Failure, PreKeyInitialization> = useBox {
-        val lastKey = preKeyMapper.fromCryptoBoxModel(newLastPreKey())
-        val keys = newPreKeys(0, PRE_KEYS_COUNT).map(preKeyMapper::fromCryptoBoxModel)
+        val lastKey = cryptoPreKeyMapper.fromCryptoBoxModel(newLastPreKey())
+        val keys = newPreKeys(0, PRE_KEYS_COUNT).map(cryptoPreKeyMapper::fromCryptoBoxModel)
         clientPropertyStorage.updateLastPreKeyId(userId, keys.last().id)
         PreKeyInitialization(keys, lastKey)
     }
@@ -120,7 +124,7 @@ class CryptoBoxClient(
                 return@fold Either.Left(failure)
 
             useBox {
-                initSessionFromPreKey(cryptoSessionId.value, preKeyMapper.toCryptoBoxModel(preKey))
+                initSessionFromPreKey(cryptoSessionId.value, cryptoPreKeyMapper.toCryptoBoxModel(preKey))
             }
         }, { Either.Right(it) })!!.map {}
 

@@ -15,6 +15,7 @@ import com.wire.android.feature.auth.client.datasource.local.ClientLocalDataSour
 import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientApi
 import com.wire.android.feature.auth.client.mapper.ClientMapper
+import com.wire.android.feature.auth.client.mapper.PreKeyMapper
 import com.wire.android.feature.auth.client.ui.DeviceLimitActivity
 import com.wire.android.feature.auth.client.ui.DeviceLimitViewModel
 import com.wire.android.feature.auth.client.usecase.RegisterClientUseCase
@@ -132,8 +133,9 @@ private val clientModule = module {
     }
     factory { get<NetworkClient>().create(ClientApi::class.java) }
     single { ClientRemoteDataSource(get(), get()) }
-    single<ClientRepository> { ClientDataSource(get(), get(), get(), get()) }
+    single<ClientRepository> { ClientDataSource(get(), get(), get(), get(), get()) }
     factory { RegisterClientUseCase(get(), get(), get()) }
+    factory { PreKeyMapper() }
     factory { ClientMapper(get(), get(), get(), get()) }
     factory { SetSessionCurrentUseCase(get()) }
     viewModel { DeviceLimitViewModel(get(), get(), get()) }

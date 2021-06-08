@@ -1,4 +1,4 @@
-package com.wire.android.feature.messaging.datasource.remote.remote
+package com.wire.android.feature.messaging.datasource.mapper
 
 import com.google.protobuf.MessageLite
 import com.waz.model.Messages
@@ -7,8 +7,6 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
 import com.wire.android.feature.messaging.ChatMessage
 import com.wire.android.feature.messaging.MessageContent
-import com.wire.android.feature.messaging.datasource.remote.remote.mapper.ContentMapper
-import com.wire.android.feature.messaging.datasource.remote.remote.mapper.TextMessageMapper
 
 class ChatMessageMapper(private val textMapper: TextMessageMapper) {
 

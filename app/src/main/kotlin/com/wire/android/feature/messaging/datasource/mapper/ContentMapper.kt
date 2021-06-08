@@ -1,4 +1,4 @@
-package com.wire.android.feature.messaging.datasource.remote.remote.mapper
+package com.wire.android.feature.messaging.datasource.mapper
 
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either

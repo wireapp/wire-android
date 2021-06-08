@@ -1,4 +1,4 @@
-package com.wire.android.feature.messaging.datasource.remote.remote.api
+package com.wire.android.feature.messaging.datasource.remote.api
 
 import com.wire.messages.Otr
 import retrofit2.Response

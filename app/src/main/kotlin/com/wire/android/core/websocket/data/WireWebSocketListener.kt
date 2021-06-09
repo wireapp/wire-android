@@ -4,6 +4,7 @@ import com.wire.android.core.exception.SocketAbortedFailure
 import com.wire.android.core.exception.SocketFailure
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import okhttp3.Response
 import okhttp3.WebSocket
@@ -14,6 +15,7 @@ import okio.ByteString
 class WireWebSocketListener : WebSocketListener() {
 
     val socketEventChannel: Channel<Message> = Channel(Channel.UNLIMITED)
+    val socketFlow = socketEventChannel.consumeAsFlow()
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         GlobalScope.launch {

@@ -37,7 +37,7 @@ object SessionNotFound : CryptoBoxFailure()
 object MessageAlreadyDecrypted : CryptoBoxFailure()
 class UnknownCryptoFailure(val cause: Throwable? = null) : CryptoBoxFailure()
 
-data class SocketFailure(val reason: Throwable? = null) : DatabaseRequestFailure()
+data class SocketFailure(val reason: Throwable? = null) : NetworkFailure()
 object SocketAbortedFailure : Failure()
 
 /** Extend this class for UseCase specific failures.*/

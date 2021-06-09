@@ -1,12 +1,10 @@
 package com.wire.android.core.websocket.usecase
 
-import com.wire.android.core.exception.Failure
-import com.wire.android.core.functional.Either
-import com.wire.android.core.usecase.UseCase
-import com.wire.android.core.websocket.data.WebSocketDataSource
+import com.wire.android.core.usecase.ObservableUseCase
+import com.wire.android.core.websocket.data.EventDataSource
 import com.wire.android.core.websocket.data.Message
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 
-class ListenToWebSocketUseCase(private val repository: WebSocketDataSource) : UseCase<Channel<Message>, Unit> {
-    override suspend fun run(params: Unit): Either<Failure, Channel<Message>> = Either.Right(repository.startSocket())
+class ListenToWebSocketUseCase(private val repository: EventDataSource) : ObservableUseCase<Message, Unit> {
+    override suspend fun run(params: Unit): Flow<Message> = repository.startSocket()
 }

@@ -1,18 +1,21 @@
 package com.wire.android.core.websocket.data
 
 import android.util.Log
-import kotlinx.coroutines.channels.Channel
+import com.wire.android.core.websocket.EventRepository
+import kotlinx.coroutines.flow.Flow
 import okhttp3.WebSocket
 import java.io.IOException
 
-class WebSocketProvider(private var wireWebSocketListener: WireWebSocketListener?, private var webSocket: WebSocket?) {
+class EventDataSource(
+    private var wireWebSocketListener: WireWebSocketListener?,
+    private var webSocket: WebSocket?
+) : EventRepository {
 
-    fun startSocket(): Channel<Message> =
-        with(wireWebSocketListener) {
-            this@with?.socketEventChannel!!
-        }
+    override fun startSocket(): Flow<Message> = with(wireWebSocketListener) {
+        this@with?.socketFlow!!
+    }
 
-    fun stopSocket() {
+    override fun closeSocket() {
         try {
             webSocket?.close(NORMAL_CLOSURE_STATUS, null)
             webSocket = null
@@ -23,9 +26,7 @@ class WebSocketProvider(private var wireWebSocketListener: WireWebSocketListener
         }
     }
 
-
     companion object {
         const val NORMAL_CLOSURE_STATUS = 1000
     }
-
 }

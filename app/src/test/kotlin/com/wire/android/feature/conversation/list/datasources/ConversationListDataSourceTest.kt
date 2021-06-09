@@ -9,10 +9,10 @@ import com.wire.android.feature.conversation.list.datasources.local.Conversation
 import com.wire.android.feature.conversation.list.ui.ConversationListItem
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.impl.annotations.MockK
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking

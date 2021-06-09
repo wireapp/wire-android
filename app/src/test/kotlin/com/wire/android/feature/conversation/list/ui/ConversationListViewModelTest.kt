@@ -1,6 +1,6 @@
 package com.wire.android.feature.conversation.list.ui
 
-import androidx.paging.PagedList
+import androidx.paging.PagingData
 import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.ServerError
@@ -21,6 +21,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -58,16 +59,18 @@ class ConversationListViewModelTest : UnitTest() {
 
     @Test
     fun `given fetchConversationList is called, when getConversationListUseCase emits items, then updates conversationListItemsLiveData`() {
-        val items = mockk<PagedList<ConversationListItem>>()
-        coEvery { getConversationListUseCase.run(any()) } returns flowOf(items)
+            val items = mockk<PagingData<ConversationListItem>>(relaxed = true)
+            coEvery { getConversationListUseCase.run(any()) } returns flowOf(items)
 
-        conversationListViewModel.fetchConversationList()
+            conversationListViewModel.fetchConversationList()
 
-        conversationListViewModel.conversationListItemsLiveData.shouldBeUpdated {
-            it shouldBeEqualTo items
+            coroutinesTestRule.runTest {
+                conversationListViewModel.conversationListItemsLiveData.shouldBeUpdated {
+                    it shouldBeInstanceOf PagingData::class
+                }
+            }
+            coVerify(exactly = 1) { getConversationListUseCase.run(any()) }
         }
-        coVerify(exactly = 1) { getConversationListUseCase.run(any()) }
-    }
 
     @Test
     fun `given fetchToolbarData is called, when GetCurrentUserUseCase fails, then does not set anything to toolbarDataLiveData`() {

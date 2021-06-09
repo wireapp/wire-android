@@ -47,6 +47,10 @@ android {
     }
     sourceSets["test"].includeCommonTestSourceDir()
     sourceSets["androidTest"].includeCommonTestSourceDir()
+
+    configurations.implementation.configure {
+        exclude(module = "protobuf-java")
+    }
 }
 
 dependencies {

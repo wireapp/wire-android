@@ -28,6 +28,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
+@SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O_MR1)
 class ConversationListDataSourceIntegrationTest : InstrumentationTest() {
 
     @get:Rule

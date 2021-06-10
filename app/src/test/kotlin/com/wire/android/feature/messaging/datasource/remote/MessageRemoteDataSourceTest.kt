@@ -73,5 +73,4 @@ class MessageRemoteDataSourceTest : UnitTest() {
         runBlocking { subject.sendMessage(any(), any()) }
             .shouldFail()
     }
-
 }

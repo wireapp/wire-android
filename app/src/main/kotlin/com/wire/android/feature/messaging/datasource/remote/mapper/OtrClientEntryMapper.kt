@@ -6,11 +6,8 @@ import com.wire.messages.Otr
 
 class OtrClientEntryMapper(private val clientIdMapper: OtrClientIdMapper) {
 
-    fun toOtrClientEntry(clientPayload: ClientPayload): Otr.ClientEntry {
-        val builder = Otr.ClientEntry.newBuilder()
-        builder.setClient(clientIdMapper.toOtrClientId(clientPayload.clientId))
-        builder.setText(ByteString.copyFrom(clientPayload.payload))
-        return builder.build()
-    }
-
+    fun toOtrClientEntry(clientPayload: ClientPayload): Otr.ClientEntry = Otr.ClientEntry.newBuilder()
+        .setClient(clientIdMapper.toOtrClientId(clientPayload.clientId))
+        .setText(ByteString.copyFrom(clientPayload.payload))
+        .build()
 }

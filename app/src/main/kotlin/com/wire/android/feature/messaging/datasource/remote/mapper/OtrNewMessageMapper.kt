@@ -21,5 +21,4 @@ class OtrNewMessageMapper(
 
         return builder.build()
     }
-
 }

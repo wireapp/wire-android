@@ -5,12 +5,9 @@ import java.math.BigInteger
 
 class OtrClientIdMapper {
 
-    fun toOtrClientId(clientId: String): Otr.ClientId {
-        val longId = BigInteger(clientId, CLIENT_ID_RADIX).toLong()
-        return Otr.ClientId.newBuilder()
-            .setClient(longId)
-            .build()
-    }
+    fun toOtrClientId(clientId: String): Otr.ClientId = Otr.ClientId.newBuilder()
+        .setClient(BigInteger(clientId, CLIENT_ID_RADIX).toLong())
+        .build()
 
     fun fromOtrClientId(otrClientId: Otr.ClientId): String = otrClientId.client.toBigInteger().toString(CLIENT_ID_RADIX)
 

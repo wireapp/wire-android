@@ -8,10 +8,8 @@ class OtrUserEntryMapper(
     private val clientEntryMapper: OtrClientEntryMapper
 ) {
 
-    fun toOtrUserEntry(recipientEntry: RecipientEntry): Otr.UserEntry =
-        Otr.UserEntry.newBuilder()
-            .addAllClients(recipientEntry.clientPayloads.map(clientEntryMapper::toOtrClientEntry))
-            .setUser(userIdMapper.toOtrUserId(recipientEntry.userId))
-            .build()
-
+    fun toOtrUserEntry(recipientEntry: RecipientEntry): Otr.UserEntry = Otr.UserEntry.newBuilder()
+        .addAllClients(recipientEntry.clientPayloads.map(clientEntryMapper::toOtrClientEntry))
+        .setUser(userIdMapper.toOtrUserId(recipientEntry.userId))
+        .build()
 }

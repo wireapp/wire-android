@@ -20,6 +20,7 @@ import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.io.FileSystem
 import com.wire.android.core.logger.Logger
+import com.wire.android.core.storage.cache.CacheGateway
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.MaterialDialogBuilderProvider
 import com.wire.android.core.ui.navigation.FragmentStackHandler
@@ -33,10 +34,11 @@ import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val coreModule = module {
-    single { EventsHandler(get()) }
+    single { EventsHandler() }
     //TODO: this should be separate per user
     factory { androidContext().getSharedPreferences("com.wire.android.userprefs", Context.MODE_PRIVATE) }
     single { Logger() }
+    single { CacheGateway() }
 }
 
 val accessibilityModule = module {

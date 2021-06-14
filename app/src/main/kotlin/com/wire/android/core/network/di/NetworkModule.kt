@@ -27,6 +27,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 
 object NetworkDependencyProvider {
@@ -54,6 +55,7 @@ object NetworkDependencyProvider {
     private fun defaultHttpClient(httpParams: HttpRequestParams,
                                   userAgentInterceptor: UserAgentInterceptor): OkHttpClient.Builder =
         OkHttpClient.Builder()
+            .pingInterval(30, TimeUnit.SECONDS)
             .connectionSpecs(httpParams.connectionSpecs)
             .addInterceptor(userAgentInterceptor)
             .addLoggingInterceptor()

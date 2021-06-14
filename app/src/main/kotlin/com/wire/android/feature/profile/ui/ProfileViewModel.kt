@@ -23,9 +23,8 @@ import com.wire.android.shared.user.usecase.GetCurrentUserUseCase
 class ProfileViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
-    private val getUserTeamUseCase: GetUserTeamUseCase,
-) : ViewModel(),
-    UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
+    private val getUserTeamUseCase: GetUserTeamUseCase
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _errorLiveData = SingleLiveEvent<ErrorMessage>()
     val errorLiveData: LiveData<ErrorMessage> = _errorLiveData

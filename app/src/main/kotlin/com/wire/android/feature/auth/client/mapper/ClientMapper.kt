@@ -2,7 +2,6 @@ package com.wire.android.feature.auth.client.mapper
 
 import com.wire.android.core.config.DeviceConfig
 import com.wire.android.core.config.Permanent
-import com.wire.android.core.crypto.mapper.PreKeyMapper
 import com.wire.android.core.crypto.model.PreKeyInitialization
 import com.wire.android.feature.auth.client.datasource.local.ClientEntity
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientRegistrationRequest
@@ -22,9 +21,8 @@ class ClientMapper(
         ClientEntity(clientResponse.id)
 
     fun newRegistrationRequest(userId: String, password: String, preKeyInitialization: PreKeyInitialization): ClientRegistrationRequest {
-
-        val lastPreKey = with(preKeyInitialization.lastKey) { preKeyMapper.toPreKeyRequest(id, encodedData) }
-        val preKeys = preKeyInitialization.createdKeys.map { preKeyMapper.toPreKeyRequest(it.id, it.encodedData) }
+        val lastPreKey = preKeyMapper.toPreKeyRequest(preKeyInitialization.lastKey)
+        val preKeys = preKeyInitialization.createdKeys.map(preKeyMapper::toPreKeyRequest)
         return ClientRegistrationRequest(
             userId,
             lastPreKey,

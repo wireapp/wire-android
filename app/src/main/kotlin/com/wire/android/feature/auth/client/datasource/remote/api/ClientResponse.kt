@@ -19,3 +19,5 @@ data class LocationResponse(
     @SerializedName("lat") val latitude: String,
     @SerializedName("lon") val longitude: String
 )
+
+typealias RemainingPreKeysResponse = List<Int>

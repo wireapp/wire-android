@@ -29,6 +29,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
+private const val PING_INTERVAL : Long = 30
 
 object NetworkDependencyProvider {
 
@@ -55,7 +56,7 @@ object NetworkDependencyProvider {
     private fun defaultHttpClient(httpParams: HttpRequestParams,
                                   userAgentInterceptor: UserAgentInterceptor): OkHttpClient.Builder =
         OkHttpClient.Builder()
-            .pingInterval(30, TimeUnit.SECONDS)
+            .pingInterval(PING_INTERVAL, TimeUnit.SECONDS)
             .connectionSpecs(httpParams.connectionSpecs)
             .addInterceptor(userAgentInterceptor)
             .addLoggingInterceptor()

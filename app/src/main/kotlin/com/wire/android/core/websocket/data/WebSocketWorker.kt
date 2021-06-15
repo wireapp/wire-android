@@ -22,10 +22,9 @@ class WebSocketWorker(appContext: Context, params: WorkerParameters) : Worker(ap
         if (isAppInBackground)
             return Result.failure()
 
-        if (webSocketConnection.isConnected)
-            return Result.success()
+        if (!webSocketConnection.isConnected)
+            webSocketConnection.connect()
 
-        webSocketConnection.connect()
         return Result.success()
     }
 

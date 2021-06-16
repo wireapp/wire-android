@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
         syncData()
         setUpBottomNavigation()
-        syncViewModel.establishConnection()
     }
 
     private fun syncData() {

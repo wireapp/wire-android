@@ -8,10 +8,4 @@ import kotlinx.coroutines.flow.Flow
 interface WebSocketService {
     @Receive
     fun observeEvent(): Flow<Event>
-
-    @Receive
-    fun observeText(): Flow<String>
-
-    @Send
-    fun sendText(message: String): Boolean
 }

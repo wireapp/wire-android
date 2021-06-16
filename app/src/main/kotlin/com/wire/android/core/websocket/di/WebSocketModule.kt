@@ -5,9 +5,12 @@ import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.lifecycle.android.AndroidLifecycle
 import com.tinder.scarlet.messageadapter.protobuf.ProtobufMessageAdapter
 import com.tinder.scarlet.websocket.okhttp.newWebSocketFactory
+import com.wire.android.core.websocket.EventRepository
 import com.wire.android.core.websocket.WebSocketConfig
 import com.wire.android.core.websocket.WebSocketService
 import com.wire.android.core.websocket.adapter.FlowStreamAdapter
+import com.wire.android.core.websocket.data.EventDataSource
+import com.wire.android.core.websocket.usecase.ListenToEventsUseCase
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
@@ -23,7 +26,7 @@ val webSocketModule = module {
         return scarlet.create()
     }
     //TODO hardcoded client to be replaced with current clientId
-    single { WebSocketConfig("1b307f60d99f1f29") }
+    single { WebSocketConfig("2b6bef74ced2558d") }
     single {
         provideWebSocketService(
             get(),
@@ -31,4 +34,6 @@ val webSocketModule = module {
             get<WebSocketConfig>().socketUrl
         )
     }
+    single<EventRepository> { EventDataSource(get()) }
+    single { ListenToEventsUseCase(get()) }
 }

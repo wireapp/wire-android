@@ -4,16 +4,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkInfo
 import com.wire.android.UnitTest
 import com.wire.android.core.functional.Either
+import com.wire.android.core.websocket.WebSocketService
 import com.wire.android.feature.sync.slow.SlowSyncWorkHandler
 import com.wire.android.feature.sync.slow.usecase.CheckSlowSyncRequiredUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo
@@ -33,11 +34,19 @@ class SyncViewModelTest : UnitTest() {
     @MockK
     private lateinit var slowSyncWorkHandler: SlowSyncWorkHandler
 
+    @MockK
+    private lateinit var webSocketService: WebSocketService
+
     private lateinit var syncViewModel: SyncViewModel
 
     @Before
     fun setUp() {
-        syncViewModel = SyncViewModel(checkSlowSyncRequiredUseCase, slowSyncWorkHandler, coroutinesTestRule.dispatcherProvider)
+        syncViewModel = SyncViewModel(
+            checkSlowSyncRequiredUseCase,
+            slowSyncWorkHandler,
+            webSocketService,
+            coroutinesTestRule.dispatcherProvider
+        )
     }
 
     @Test

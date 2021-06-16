@@ -62,6 +62,7 @@ object Libraries {
         const val paging = "2.1.2"
         const val glide = "4.12.0"
         const val workManager = "2.4.0"
+        const val scralet = "0.1.12"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -78,6 +79,10 @@ object Libraries {
     const val glide            = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideCompiler    = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val workManager      = "androidx.work:work-runtime-ktx:${Versions.workManager}"
+    const val scralet          =  "com.tinder.scarlet:scarlet:${Versions.scralet}"
+    const val scraletOkhttp    =  "com.tinder.scarlet:websocket-okhttp:${Versions.scralet}"
+    const val scraletLifecycle        =  "com.tinder.scarlet:lifecycle-android:${Versions.scralet}"
+    const val scraletProtobuf         =  "com.tinder.scarlet:message-adapter-protobuf:${Versions.scralet}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

@@ -5,7 +5,6 @@ import androidx.paging.PagingSource
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.conversation.ConversationType
 import com.wire.android.feature.conversation.Self
 import com.wire.android.feature.conversation.data.ConversationTypeMapper
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListItemEntity
@@ -20,9 +19,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.any
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldContainSame

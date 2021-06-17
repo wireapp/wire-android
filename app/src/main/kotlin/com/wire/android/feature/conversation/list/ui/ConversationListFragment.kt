@@ -6,10 +6,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wire.android.R
@@ -19,7 +17,6 @@ import com.wire.android.feature.conversation.list.toolbar.ToolbarData
 import com.wire.android.feature.conversation.list.toolbar.ui.icon.ToolbarProfileIcon
 import com.wire.android.shared.user.User
 import kotlinx.android.synthetic.main.fragment_conversation_list.*
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -105,8 +102,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         adapter = conversationListAdapter
 
         val divider = DividerItemDecoration(context, DividerItemDecoration.VERTICAL).apply {
-            ContextCompat.getDrawable(context, R.drawable.conversation_list_divider)
-                ?.let { setDrawable(it) }
+            ContextCompat.getDrawable(context, R.drawable.conversation_list_divider)?.let { setDrawable(it) }
         }
         addItemDecoration(divider)
     }

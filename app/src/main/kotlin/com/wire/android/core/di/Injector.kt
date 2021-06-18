@@ -6,7 +6,6 @@ import android.content.Context
 import com.wire.android.core.events.di.eventModule
 import com.wire.android.core.network.di.networkModule
 import com.wire.android.core.storage.db.di.databaseModule
-import com.wire.android.core.websocket.di.webSocketModule
 import com.wire.android.feature.auth.di.authenticationModules
 import com.wire.android.feature.contact.di.contactModule
 import com.wire.android.feature.conversation.di.conversationModules
@@ -39,7 +38,6 @@ object Injector {
         uiModule,
         ioModule,
         cryptoBoxModule,
-        webSocketModule,
         eventModule
     )
 

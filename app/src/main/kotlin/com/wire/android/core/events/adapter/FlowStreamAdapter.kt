@@ -1,4 +1,4 @@
-package com.wire.android.core.websocket.adapter
+package com.wire.android.core.events.adapter
 
 import com.tinder.scarlet.Stream
 import com.tinder.scarlet.StreamAdapter

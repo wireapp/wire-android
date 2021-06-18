@@ -1,11 +1,10 @@
 package com.wire.android.core.websocket
 
-import com.tinder.scarlet.Event
 import com.tinder.scarlet.ws.Receive
-import com.tinder.scarlet.ws.Send
+import com.wire.android.core.events.datasource.remote.EventResponse
 import kotlinx.coroutines.flow.Flow
 
 interface WebSocketService {
     @Receive
-    fun observeEvent(): Flow<Event>
+    fun receiveEvent(): Flow<EventResponse>
 }

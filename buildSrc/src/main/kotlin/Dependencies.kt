@@ -81,8 +81,8 @@ object Libraries {
     const val workManager      = "androidx.work:work-runtime-ktx:${Versions.workManager}"
     const val scralet          =  "com.tinder.scarlet:scarlet:${Versions.scralet}"
     const val scraletOkhttp    =  "com.tinder.scarlet:websocket-okhttp:${Versions.scralet}"
-    const val scraletLifecycle        =  "com.tinder.scarlet:lifecycle-android:${Versions.scralet}"
-    const val scraletProtobuf         =  "com.tinder.scarlet:message-adapter-protobuf:${Versions.scralet}"
+    const val scraletLifecycle =  "com.tinder.scarlet:lifecycle-android:${Versions.scralet}"
+    const val scraletGson      =  "com.tinder.scarlet:message-adapter-gson:${Versions.scralet}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

@@ -72,7 +72,7 @@ dependencies {
     implementation(Libraries.scralet)
     implementation(Libraries.scraletOkhttp)
     implementation(Libraries.scraletLifecycle)
-    implementation(Libraries.scraletProtobuf)
+    implementation(Libraries.scraletGson)
 
     implementation(Libraries.Crypto.cryptobox)
 

@@ -8,12 +8,12 @@ import com.wire.android.feature.sync.slow.SlowSyncWorkHandler
 import com.wire.android.feature.sync.slow.usecase.CheckSlowSyncRequiredUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo

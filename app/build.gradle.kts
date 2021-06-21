@@ -73,6 +73,10 @@ dependencies {
     implementation(Libraries.glide)
     kapt(Libraries.glideCompiler)
     implementation(Libraries.workManager)
+    implementation(Libraries.scralet)
+    implementation(Libraries.scraletOkhttp)
+    implementation(Libraries.scraletLifecycle)
+    implementation(Libraries.scraletGson)
 
     implementation(Libraries.messageProto)
     implementation(Libraries.Crypto.cryptobox)

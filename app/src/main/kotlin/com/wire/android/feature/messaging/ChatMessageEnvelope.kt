@@ -13,9 +13,13 @@ data class ChatMessageEnvelope(
 
     override fun hashCode(): Int {
         var result = senderClientId.hashCode()
-        result = 31 * result + recipients.hashCode()
-        result = 31 * result + (dataBlob?.contentHashCode() ?: 0)
+        result = HASH_MULTIPLIER * result + recipients.hashCode()
+        result = HASH_MULTIPLIER * result + (dataBlob?.contentHashCode() ?: 0)
         return result
+    }
+
+    companion object {
+        private const val HASH_MULTIPLIER = 31
     }
 }
 
@@ -28,6 +32,9 @@ data class ClientPayload(val clientId: String, val payload: ByteArray) {
                 && other.clientId == clientId
                 && other.payload.contentEquals(payload))
 
-    override fun hashCode(): Int = 31 * clientId.hashCode() + payload.contentHashCode()
+    override fun hashCode(): Int = HASH_MULTIPLIER * clientId.hashCode() + payload.contentHashCode()
 
+    companion object {
+        private const val HASH_MULTIPLIER = 31
+    }
 }

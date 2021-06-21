@@ -59,18 +59,18 @@ class ConversationListViewModelTest : UnitTest() {
 
     @Test
     fun `given fetchConversationList is called, when getConversationListUseCase emits items, then updates conversationListItemsLiveData`() {
-            val items = mockk<PagingData<ConversationListItem>>(relaxed = true)
-            coEvery { getConversationListUseCase.run(any()) } returns flowOf(items)
+        val items = mockk<PagingData<ConversationListItem>>(relaxed = true)
+        coEvery { getConversationListUseCase.run(any()) } returns flowOf(items)
 
-            conversationListViewModel.fetchConversationList()
+        conversationListViewModel.fetchConversationList()
 
-            coroutinesTestRule.runTest {
-                conversationListViewModel.conversationListItemsLiveData.shouldBeUpdated {
-                    it shouldBeInstanceOf PagingData::class
-                }
+        coroutinesTestRule.runTest {
+            conversationListViewModel.conversationListItemsLiveData.shouldBeUpdated {
+                it shouldBeInstanceOf PagingData::class
             }
-            coVerify(exactly = 1) { getConversationListUseCase.run(any()) }
         }
+        coVerify(exactly = 1) { getConversationListUseCase.run(any()) }
+    }
 
     @Test
     fun `given fetchToolbarData is called, when GetCurrentUserUseCase fails, then does not set anything to toolbarDataLiveData`() {

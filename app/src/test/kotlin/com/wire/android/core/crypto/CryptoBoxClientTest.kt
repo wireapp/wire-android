@@ -4,7 +4,7 @@ import com.wire.android.AndroidTest
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
-import com.wire.android.core.crypto.model.ClientId
+import com.wire.android.core.crypto.model.CryptoClientId
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
@@ -287,7 +287,7 @@ class CryptoBoxClientTest : AndroidTest() {
     }
 
     companion object {
-        private val CRYPTO_SESSION_ID = CryptoSessionId(UserId("a"), ClientId("b"))
+        private val CRYPTO_SESSION_ID = CryptoSessionId(UserId("a"), CryptoClientId("b"))
         private val ENCRYPTED_MESSAGE = EncryptedMessage(byteArrayOf())
         private val PLAIN_MESSAGE = PlainMessage(byteArrayOf())
     }

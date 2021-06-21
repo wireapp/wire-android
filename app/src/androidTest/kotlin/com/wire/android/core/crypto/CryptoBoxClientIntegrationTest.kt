@@ -4,7 +4,7 @@ import com.wire.android.InstrumentationTest
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
-import com.wire.android.core.crypto.model.ClientId
+import com.wire.android.core.crypto.model.CryptoClientId
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
@@ -24,7 +24,7 @@ import org.junit.Test
 class CryptoBoxClientIntegrationTest : InstrumentationTest() {
 
     private val alice = UserId("Alice")
-    private val aliceClientId = ClientId("clientA")
+    private val aliceClientId = CryptoClientId("clientA")
     private val aliceSessionId = CryptoSessionId(alice, aliceClientId)
 
     private val bob = UserId("Bob")
@@ -84,7 +84,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
         val plainMessage = PlainMessage("Hello".toByteArray())
         bobClient.encryptMessage(aliceSessionId, plainMessage) { encryptedMessage ->
 
-            aliceClient.decryptMessage(CryptoSessionId(bob, ClientId("doesntmatter")), encryptedMessage) { decryptedMessage ->
+            aliceClient.decryptMessage(CryptoSessionId(bob, CryptoClientId("doesntmatter")), encryptedMessage) { decryptedMessage ->
                 decryptedMessage.data shouldBeEqualTo plainMessage.data
                 Either.Right(Unit)
             }.shouldSucceed { }
@@ -105,7 +105,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
             Either.Right(Unit)
         }
 
-        val bobSessionID = CryptoSessionId(bob, ClientId("clientB"))
+        val bobSessionID = CryptoSessionId(bob, CryptoClientId("clientB"))
 
         aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }.shouldSucceed { }
 

@@ -27,6 +27,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.protobuf.ProtoConverterFactory
 
 
 object NetworkDependencyProvider {
@@ -36,6 +37,7 @@ object NetworkDependencyProvider {
             .baseUrl(baseUrl)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(ProtoConverterFactory.create())
             .build()
 
     fun createHttpClientWithAuth(httpsRequestParams: HttpRequestParams,

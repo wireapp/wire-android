@@ -53,6 +53,7 @@ object Libraries {
         const val material = "1.3.0"
         const val koin = "2.1.6"
         const val lifecycleKtx = "2.2.0"
+        const val messageProto = "1.28.2"
         const val retrofit = "2.9.0"
         const val okHttpLogging = "4.7.2"
         const val pinEditText = "1.2.3"
@@ -69,6 +70,7 @@ object Libraries {
     const val ktxCore          = "androidx.core:core-ktx:${Versions.ktx}"
     const val material         = "com.google.android.material:material:${Versions.material}"
     const val livedataKtx      = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycleKtx}"
+    const val messageProto     = "com.wire:generic-message-proto:${Versions.messageProto}"
     const val viewModelKtx     = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycleKtx}"
     const val okHttpLogging    = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"
     const val pinEditText      = "com.poovam:pin-edittext-field:${Versions.pinEditText}"
@@ -95,8 +97,9 @@ object Libraries {
     }
 
     object Retrofit {
-        const val core          = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
-        const val gsonConverter = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
+        const val core              = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
+        const val gsonConverter     = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
+        const val protoConverter    = "com.squareup.retrofit2:converter-protobuf:${Versions.retrofit}"
     }
 
     object Room {

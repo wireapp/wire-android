@@ -31,7 +31,7 @@ val eventModule = module {
     single {
         provideWebSocketService(
             get(),
-            AndroidLifecycle.ofApplicationForeground(androidApplication(), WebSocketConfig.THROTTLE_TIMEOUT),
+            AndroidLifecycle.ofApplicationForeground(androidApplication(), get<WebSocketConfig>().throttleTimeout),
             get<WebSocketConfig>().socketUrl
         )
     }

@@ -3,16 +3,16 @@ package com.wire.android.core.events.datasource.remote
 import com.google.gson.annotations.SerializedName
 
 data class EventResponse(
-    @SerializedName("transient") val transient: Boolean,
     @SerializedName("id") val id: String,
-    @SerializedName("payload") val payload: List<Payload>
+    @SerializedName("transient") val transient: Boolean,
+    @SerializedName("payload") val payload: List<Payload>?
 )
 
 data class Payload(
     @SerializedName("qualified_conversation") val qualifiedConversation: QualifiedConversation,
     @SerializedName("conversation") val conversation: String,
     @SerializedName("time") val time: String,
-    @SerializedName("data") val data: Data,
+    @SerializedName("data") val data: Data?,
     @SerializedName("from") val from: String,
     @SerializedName("qualified_from") val qualifiedFrom: QualifiedFrom,
     @SerializedName("type") val type: String

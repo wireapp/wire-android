@@ -10,7 +10,7 @@ class MessageTimeMapperTest : UnitTest() {
     private val subject = MessageTimeMapper()
 
     @Test
-    fun `given fromOffsetDateTimeToString is called, when calling fromStringToOffsetDateTime, the original offsetTime should be returned`() {
+    fun `given fromOffsetDateTimeToString is called, when calling fromStringToOffsetDateTime, the original time should be returned`() {
         val currentTime = OffsetDateTime.now()
 
         val stringRepresentation = subject.fromOffsetDateTimeToString(currentTime)

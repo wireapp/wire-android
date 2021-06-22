@@ -16,7 +16,7 @@ import com.wire.android.feature.sync.slow.usecase.CheckSlowSyncRequiredUseCase
 class SyncViewModel(
     private val checkSlowSyncRequiredUseCase: CheckSlowSyncRequiredUseCase,
     private val slowSyncWorkHandler: SlowSyncWorkHandler,
-    override val dispatcherProvider: DispatcherProvider
+    override val dispatcherProvider: DispatcherProvider,
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _syncStatusLiveData = MutableLiveData<WorkInfo.State>()

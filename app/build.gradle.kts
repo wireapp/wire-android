@@ -47,6 +47,10 @@ android {
     }
     sourceSets["test"].includeCommonTestSourceDir()
     sourceSets["androidTest"].includeCommonTestSourceDir()
+
+    configurations.implementation.configure {
+        exclude(module = "protobuf-java")
+    }
 }
 
 dependencies {
@@ -69,11 +73,17 @@ dependencies {
     implementation(Libraries.glide)
     kapt(Libraries.glideCompiler)
     implementation(Libraries.workManager)
+    implementation(Libraries.scralet)
+    implementation(Libraries.scraletOkhttp)
+    implementation(Libraries.scraletLifecycle)
+    implementation(Libraries.scraletGson)
 
+    implementation(Libraries.messageProto)
     implementation(Libraries.Crypto.cryptobox)
 
     implementation(Libraries.Retrofit.core)
     implementation(Libraries.Retrofit.gsonConverter)
+    implementation(Libraries.Retrofit.protoConverter)
     implementation(Libraries.okHttpLogging)
 
     implementation(Libraries.Room.runtime)

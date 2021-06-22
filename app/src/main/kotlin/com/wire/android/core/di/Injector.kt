@@ -3,6 +3,7 @@
 package com.wire.android.core.di
 
 import android.content.Context
+import com.wire.android.core.events.di.eventModule
 import com.wire.android.core.network.di.networkModule
 import com.wire.android.core.storage.db.di.databaseModule
 import com.wire.android.feature.auth.di.authenticationModules
@@ -37,7 +38,8 @@ object Injector {
         uiModule,
         ioModule,
         cryptoBoxModule,
-        dateModule
+        dateModule,
+        eventModule
     )
 
     /**

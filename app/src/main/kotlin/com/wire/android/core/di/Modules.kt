@@ -34,7 +34,6 @@ import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val coreModule = module {
-    single { EventsHandler() }
     //TODO: this should be separate per user
     factory { androidContext().getSharedPreferences("com.wire.android.userprefs", Context.MODE_PRIVATE) }
     single { Logger() }

@@ -1,6 +1,6 @@
 package com.wire.android.feature.conversation.list.datasources.local
 
-import androidx.paging.DataSource
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
@@ -14,7 +14,7 @@ interface ConversationListDao {
 
     @Transaction
     @Query("SELECT * FROM conversation WHERE type != :excludeType")
-    fun conversationListItemsInBatch(excludeType: Int): DataSource.Factory<Int, ConversationListItemEntity>
+    fun conversationListItemsInBatch(excludeType: Int): PagingSource<Int, ConversationListItemEntity>
 
     @Transaction
     @Query("SELECT * FROM conversation ORDER BY id LIMIT :count OFFSET :start ")

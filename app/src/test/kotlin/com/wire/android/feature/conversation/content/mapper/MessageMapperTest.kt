@@ -1,6 +1,7 @@
 package com.wire.android.feature.conversation.content.mapper
 
 import com.wire.android.UnitTest
+import com.wire.android.core.date.DateStringMapper
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.Sent
 import com.wire.android.feature.conversation.content.Text
@@ -23,13 +24,13 @@ class MessageMapperTest : UnitTest() {
     private lateinit var messageStateMapper: MessageStateMapper
 
     @MockK
-    private lateinit var messageTimeMapper: MessageTimeMapper
+    private lateinit var dateStringMapper: DateStringMapper
 
     private lateinit var messageMapper: MessageMapper
 
     @Before
     fun setUp() {
-        messageMapper = MessageMapper(messageTypeMapper, messageStateMapper, messageTimeMapper)
+        messageMapper = MessageMapper(messageTypeMapper, messageStateMapper, dateStringMapper)
     }
 
     @Test
@@ -38,7 +39,7 @@ class MessageMapperTest : UnitTest() {
 
         every { messageTypeMapper.fromStringValue(TEST_MESSAGE_TYPE) } returns Text
         every { messageStateMapper.fromStringValue(TEST_MESSAGE_STATE) } returns Sent
-        every { messageTimeMapper.fromStringToOffsetDateTime(TEST_MESSAGE_TIME) } returns expectedTimeOffset
+        every { dateStringMapper.fromStringToOffsetDateTime(TEST_MESSAGE_TIME) } returns expectedTimeOffset
 
         val messageEntity = MessageEntity(
             id = TEST_MESSAGE_ID,
@@ -68,7 +69,7 @@ class MessageMapperTest : UnitTest() {
 
         every { messageTypeMapper.fromValueToString(Text) } returns TEST_MESSAGE_TYPE
         every { messageStateMapper.fromValueToString(Sent) } returns TEST_MESSAGE_STATE
-        every { messageTimeMapper.fromOffsetDateTimeToString(timeOffset) } returns TEST_MESSAGE_TIME
+        every { dateStringMapper.fromOffsetDateTimeToString(timeOffset) } returns TEST_MESSAGE_TIME
         val message = Message(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,

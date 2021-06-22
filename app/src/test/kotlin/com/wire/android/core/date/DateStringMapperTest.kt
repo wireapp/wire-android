@@ -1,13 +1,13 @@
-package com.wire.android.feature.conversation.content.mapper
+package com.wire.android.core.date
 
 import com.wire.android.UnitTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 import java.time.OffsetDateTime
 
-class MessageTimeMapperTest : UnitTest() {
+class DateStringMapperTest : UnitTest() {
 
-    private val subject = MessageTimeMapper()
+    private val subject = DateStringMapper()
 
     @Test
     fun `given fromOffsetDateTimeToString is called, when calling fromStringToOffsetDateTime, the original time should be returned`() {

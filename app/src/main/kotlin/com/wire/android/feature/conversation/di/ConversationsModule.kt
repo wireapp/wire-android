@@ -9,7 +9,7 @@ import com.wire.android.feature.conversation.content.datasources.MessageDataSour
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.mapper.MessageStateMapper
-import com.wire.android.feature.conversation.content.mapper.MessageTimeMapper
+import com.wire.android.core.date.DateStringMapper
 import com.wire.android.feature.conversation.content.mapper.MessageTypeMapper
 import com.wire.android.feature.conversation.data.ConversationDataSource
 import com.wire.android.feature.conversation.data.ConversationMapper
@@ -82,7 +82,6 @@ val conversationContentModule = module {
     factory { MessageLocalDataSource(get()) }
     factory { MessageTypeMapper() }
     factory { MessageStateMapper() }
-    factory { MessageTimeMapper() }
     factory { MessageMapper(get(), get(), get()) }
     factory<MessageRepository> { MessageDataSource(get(), get()) }
 }

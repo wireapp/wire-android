@@ -1,9 +1,9 @@
-package com.wire.android.feature.conversation.content.mapper
+package com.wire.android.core.date
 
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
-class MessageTimeMapper {
+class DateStringMapper {
 
     fun fromOffsetDateTimeToString(offsetDateTime: OffsetDateTime): String = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(offsetDateTime)
 

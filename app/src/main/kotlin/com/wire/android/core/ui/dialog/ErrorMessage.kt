@@ -6,6 +6,7 @@ import com.wire.android.R
 open class ErrorMessage {
     @StringRes
     val message: Int
+
     @StringRes
     val title: Int?
 
@@ -18,8 +19,11 @@ open class ErrorMessage {
         this.title = title
         this.message = message
     }
+
+    companion object {
+        val EMPTY = ErrorMessage(0)
+    }
 }
 
 object NetworkErrorMessage : ErrorMessage(R.string.network_error_dialog_title, R.string.network_error_dialog_message)
 object GeneralErrorMessage : ErrorMessage(R.string.general_error_dialog_title, R.string.general_error_dialog_message)
-

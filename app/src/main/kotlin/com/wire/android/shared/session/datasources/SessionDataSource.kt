@@ -27,13 +27,24 @@ class SessionDataSource(
     override suspend fun currentSession(): Either<Failure, Session> = localDataSource.currentSession()
         .map { mapper.fromSessionEntity(it) }
 
+    override suspend fun userSession(userId: String): Either<Failure, Session> = localDataSource.userSession(userId)
+        .map { mapper.fromSessionEntity(it) }
+
     private suspend fun saveLocally(session: Session, current: Boolean) =
         localDataSource.save(mapper.toSessionEntity(session, current))
 
-    override suspend fun accessToken(refreshToken: String): Either<Failure, Session> =
+    override suspend fun accessToken(): Either<Failure, String> = currentSession().map { it.accessToken }
+
+    override suspend fun newAccessToken(refreshToken: String): Either<Failure, Session> =
         remoteDataSource.accessToken(refreshToken).map {
             mapper.fromAccessTokenResponse(it, refreshToken)
         }
 
     override suspend fun doesCurrentSessionExist(): Either<Failure, Boolean> = localDataSource.doesCurrentSessionExist()
+
+    override suspend fun setSessionCurrent(userId: String): Either<Failure, Unit> = suspending {
+        localDataSource.setCurrentSessionToDormant().flatMap {
+            localDataSource.setSessionCurrent(userId)
+        }
+    }
 }

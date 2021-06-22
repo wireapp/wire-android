@@ -23,7 +23,7 @@ interface UseCaseExecutor {
         scope: CoroutineScope,
         params: P,
         dispatcher: CoroutineDispatcher = dispatcherProvider.io(),
-        onResult: (Either<Failure, T>) -> Unit = {}
+        onResult: (T) -> Unit = {}
     )
 }
 
@@ -45,7 +45,7 @@ class DefaultUseCaseExecutor(override val dispatcherProvider: DispatcherProvider
         scope: CoroutineScope,
         params: P,
         dispatcher: CoroutineDispatcher,
-        onResult: (Either<Failure, T>) -> Unit
+        onResult: (T) -> Unit
     ) {
         val backgroundJob = scope.async(dispatcher) { run(params) }
         scope.launch {

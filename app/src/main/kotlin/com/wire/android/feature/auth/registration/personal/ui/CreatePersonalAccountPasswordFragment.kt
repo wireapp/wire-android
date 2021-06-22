@@ -16,7 +16,10 @@ import com.wire.android.core.ui.arg
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.navigation.Navigator
-import kotlinx.android.synthetic.main.fragment_create_personal_account_password.*
+import kotlinx.android.synthetic.main.fragment_create_personal_account_password.createPersonalAccountEmailPasswordPolicyTextView
+import kotlinx.android.synthetic.main.fragment_create_personal_account_password.createPersonalAccountPasswordConfirmationButton
+import kotlinx.android.synthetic.main.fragment_create_personal_account_password.createPersonalAccountPasswordEditText
+import kotlinx.android.synthetic.main.fragment_create_personal_account_password.createPersonalAccountPasswordTitleTextView
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -52,15 +55,15 @@ class CreatePersonalAccountPasswordFragment : Fragment(R.layout.fragment_create_
         createPersonalAccountPasswordTitleTextView.headingForAccessibility()
 
     private fun observePasswordValidationData() {
-        passwordViewModel.continueEnabledLiveData.observe(viewLifecycleOwner) {
+        passwordViewModel.confirmationButtonEnabledLiveData.observe(viewLifecycleOwner) {
             createPersonalAccountPasswordConfirmationButton.isEnabled = it
         }
     }
 
     private fun observeRegistrationData() {
-        passwordViewModel.registerStatusLiveData.observe(viewLifecycleOwner) {
+        passwordViewModel.registrationStatusLiveData.observe(viewLifecycleOwner) {
             it.onSuccess {
-                showMainScreen()
+                showUsernameScreen()
             }.onFailure(::showErrorDialog)
         }
     }
@@ -86,7 +89,7 @@ class CreatePersonalAccountPasswordFragment : Fragment(R.layout.fragment_create_
     private fun registerNewUser() =
         passwordViewModel.registerUser(name = name, email = email, code = activationCode, password = password)
 
-    private fun showMainScreen() = navigator.main.openMainScreen(requireContext())
+    private fun showUsernameScreen() = navigator.createAccount.openPersonalAccountUsernameScreen(requireActivity())
 
     private fun showErrorDialog(message: ErrorMessage) = dialogBuilder.showErrorDialog(requireContext(), message)
 

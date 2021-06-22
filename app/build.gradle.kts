@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.AndroidSourceSet
+
 plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
@@ -21,12 +23,38 @@ android {
         versionCode = AndroidClient.versionCode
         versionName = AndroidClient.versionName
         testInstrumentationRunner = AndroidClient.testRunner
+
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            version = AndroidNdk.cMakeVersion
+        }
+        ndkBuild {
+            ndkVersion = AndroidNdk.version
+            path(File("src/main/jni/Android.mk"))
+        }
     }
 
     sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
+    fun AndroidSourceSet.includeCommonTestSourceDir() = java {
+        srcDir("src/commonTest/kotlin")
+    }
+    sourceSets["test"].includeCommonTestSourceDir()
+    sourceSets["androidTest"].includeCommonTestSourceDir()
+
+    configurations.implementation.configure {
+        exclude(module = "protobuf-java")
+    }
 }
 
 dependencies {
+
     // Application dependencies
     implementation(Libraries.Kotlin.stdLib)
     implementation(Libraries.appCompat)
@@ -42,9 +70,20 @@ dependencies {
     implementation(Libraries.pinEditText)
     implementation(Libraries.viewPager2)
     implementation(Libraries.paging)
+    implementation(Libraries.glide)
+    kapt(Libraries.glideCompiler)
+    implementation(Libraries.workManager)
+    implementation(Libraries.scralet)
+    implementation(Libraries.scraletOkhttp)
+    implementation(Libraries.scraletLifecycle)
+    implementation(Libraries.scraletGson)
+
+    implementation(Libraries.messageProto)
+    implementation(Libraries.Crypto.cryptobox)
 
     implementation(Libraries.Retrofit.core)
     implementation(Libraries.Retrofit.gsonConverter)
+    implementation(Libraries.Retrofit.protoConverter)
     implementation(Libraries.okHttpLogging)
 
     implementation(Libraries.Room.runtime)
@@ -52,6 +91,7 @@ dependencies {
     kapt(Libraries.Room.compiler)
 
     // Unit/Android tests dependencies
+    testImplementation(TestLibraries.androidCore)
     testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.coroutinesTest)

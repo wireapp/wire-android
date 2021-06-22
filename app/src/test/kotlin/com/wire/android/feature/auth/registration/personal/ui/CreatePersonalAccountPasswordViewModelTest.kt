@@ -73,7 +73,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.continueEnabledLiveData shouldBeUpdated { }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { }
         coVerify(exactly = 1) { validatePasswordUseCase.run(ValidatePasswordParams(TEST_PASSWORD)) }
     }
 
@@ -83,7 +83,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.continueEnabledLiveData shouldBeUpdated { it shouldBe true }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe true }
     }
 
     @Test
@@ -92,7 +92,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.continueEnabledLiveData shouldBeUpdated { it shouldBe false }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test
@@ -102,7 +102,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.validatePassword(TEST_PASSWORD)
 
-        viewModel.continueEnabledLiveData shouldBeUpdated { it shouldBe false }
+        viewModel.confirmationButtonEnabledLiveData shouldBeUpdated { it shouldBe false }
     }
 
     @Test
@@ -111,7 +111,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated {}
+        viewModel.registrationStatusLiveData shouldBeUpdated {}
 
         coVerify(exactly = 1) {
             registerUseCase.run(
@@ -129,7 +129,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldSucceed { it shouldBe Unit }
         }
     }
@@ -141,7 +141,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
         viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
         //TODO: assertion about logout
-        viewModel.registerStatusLiveData.shouldNotBeUpdated()
+        viewModel.registrationStatusLiveData.shouldNotBeUpdated()
     }
 
     @Test
@@ -150,7 +150,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldFail { it shouldBe NetworkErrorMessage }
         }
     }
@@ -161,7 +161,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_unauthorized_email_error }
         }
     }
@@ -172,7 +172,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_invalid_activation_code_error }
         }
     }
@@ -183,7 +183,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldFail { it.message shouldBeEqualTo R.string.create_personal_account_email_in_use_error }
         }
     }
@@ -194,7 +194,7 @@ class CreatePersonalAccountPasswordViewModelTest : UnitTest() {
 
         viewModel.registerUser(TEST_NAME, TEST_EMAIL, TEST_PASSWORD, TEST_ACTIVATION_CODE)
 
-        viewModel.registerStatusLiveData shouldBeUpdated { result ->
+        viewModel.registrationStatusLiveData shouldBeUpdated { result ->
             result shouldFail { it shouldBe GeneralErrorMessage }
         }
     }

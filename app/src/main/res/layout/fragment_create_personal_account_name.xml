@@ -45,7 +45,7 @@
             android:id="@+id/createPersonalAccountNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/create_personal_account_name_text_input_layout_hint"
+            android:hint="@string/create_personal_account_name_hint"
             android:inputType="textEmailAddress"
             android:paddingEnd="@dimen/text_input_layout_with_confirmation_padding_end" />
 
@@ -56,7 +56,7 @@
         style="@style/Button.Primary.Circle.Confirmation"
         android:layout_marginEnd="@dimen/authentication_confirmation_button_margin_end"
         android:enabled="false"
-        app:icon="@drawable/ic_arrow_right"
+        app:icon="@drawable/ic_arrow_forward"
         app:layout_constraintBottom_toBottomOf="@id/createPersonalAccountNameTextInputLayout"
         app:layout_constraintEnd_toEndOf="@+id/createPersonalAccountNameTextInputLayout"
         app:layout_constraintTop_toTopOf="@+id/createPersonalAccountNameTextInputLayout" />

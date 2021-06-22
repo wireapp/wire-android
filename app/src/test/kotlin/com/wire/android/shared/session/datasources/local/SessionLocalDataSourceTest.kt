@@ -114,4 +114,52 @@ class SessionLocalDataSourceTest : UnitTest() {
             sessionLocalDataSource.doesCurrentSessionExist() shouldFail {}
         }
     }
+
+    @Test
+    fun `given setSessionCurrent is called, when dao operation is successful, then returns success`() {
+        coEvery { sessionDao.setSessionCurrent(USER_ID) } returns Unit
+
+        runBlockingTest {
+            sessionLocalDataSource.setSessionCurrent(USER_ID) shouldSucceed { it shouldBe Unit }
+        }
+    }
+
+    @Test
+    fun `given setSessionCurrent is called, when dao operation fails, then returns failure`() {
+        coEvery { sessionDao.setSessionCurrent(USER_ID) } throws RuntimeException()
+
+        runBlockingTest {
+            sessionLocalDataSource.setSessionCurrent(USER_ID) shouldFail {}
+        }
+    }
+
+    @Test
+    fun `given userSession is called, when dao returns an entity, then propagates it in Either`() {
+        coEvery { sessionDao.userSession(USER_ID) } returns sessionEntity
+
+        runBlockingTest {
+            sessionLocalDataSource.userSession(USER_ID) shouldSucceed { it shouldBe sessionEntity }
+        }
+    }
+
+    @Test
+    fun `given userSession is called, when dao returns null, then returns NoEntityFound error`() {
+        coEvery { sessionDao.userSession(USER_ID) } returns null
+
+        runBlockingTest {
+            sessionLocalDataSource.userSession(USER_ID) shouldFail { it shouldBe NoEntityFound }
+        }
+    }
+
+    @Test
+    fun `given userSession is called, when dao returns error, then returns error`() {
+        coEvery { sessionDao.userSession(USER_ID) } throws RuntimeException()
+
+        runBlockingTest {
+            sessionLocalDataSource.userSession(USER_ID) shouldFail {}
+        }
+    }
+    companion object{
+        private const val USER_ID = "user-id"
+    }
 }

@@ -9,5 +9,5 @@ interface UseCase<out Type, in Params> {
 }
 
 interface ObservableUseCase<out Type, in Params> {
-    suspend fun run(params: Params): Flow<Either<Failure, Type>>
+    suspend fun run(params: Params): Flow<Type>
 }

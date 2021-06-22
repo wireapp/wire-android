@@ -42,10 +42,10 @@ class RegisterPersonalAccountUseCase(
 
     private suspend fun saveDataAndRetrieveSession(user: User, refreshToken: String): Either<Failure, Unit> = suspending {
         userRepository.save(user).flatMap {
-            sessionRepository.accessToken(refreshToken).coFold({
+            sessionRepository.newAccessToken(refreshToken).coFold({
                 Either.Left(SessionCannotBeCreated)
             }) {
-                sessionRepository.save(it)
+                sessionRepository.save(it, true)
             }!!
         }
     }

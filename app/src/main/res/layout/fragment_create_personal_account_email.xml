@@ -21,7 +21,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="@dimen/create_account_editable_field_guideline_percent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/createPersonalAccountEmailTitleTextView"
         style="@style/TextView.Authentication.Header"
         android:layout_width="wrap_content"
@@ -30,6 +30,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/createPersonalAccountEmailTopGuideline" />
+
+    <TextView
+        android:id="@+id/createProAccountTeamEmailSubtitleTextView"
+        style="@style/TextView.Authentication.Description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/create_pro_account_team_email_subtitle_margin_top"
+        android:gravity="center_horizontal"
+        android:text="@string/create_personal_account_email_subtitle"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/createPersonalAccountEmailTitleTextView" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/createPersonalAccountEmailTextInputLayout"
@@ -46,6 +58,7 @@
             style="@style/TextInputEditText.OutlinedBox.Email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/create_personal_account_email_input_hint"
             android:paddingEnd="@dimen/text_input_layout_with_confirmation_padding_end"
             tools:ignore="RtlSymmetry" />
 
@@ -55,7 +68,7 @@
         android:id="@+id/createPersonalAccountEmailConfirmationButton"
         style="@style/Button.Primary.Circle.Confirmation"
         android:layout_marginEnd="@dimen/authentication_confirmation_button_margin_end"
-        app:icon="@drawable/ic_arrow_right"
+        app:icon="@drawable/ic_arrow_forward"
         app:layout_constraintBottom_toBottomOf="@id/createPersonalAccountEmailTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/createPersonalAccountEmailTextInputLayout" />

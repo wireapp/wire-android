@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="welcome_button_width_percent" format="float" type="dimen">0.5</item>
-    <item name="create_account_layout_container_width_percent" format="float" type="dimen">0.4</item>
-    <item name="authentication_editable_field_width_percent" format="float" type="dimen">0.7</item>
 
+    <!-- region Features -->
+
+    <!-- Authentication -->
+    <item name="welcome_button_width_percent" format="float" type="dimen">0.5</item>
+    <item name="create_account_layout_container_width_percent" format="float" type="dimen">0.4
+    </item>
+    <item name="authentication_editable_field_width_percent" format="float" type="dimen">0.7</item>
+    <item name="create_account_editable_field_guideline_percent" format="float" type="dimen">0.5</item>
     <item name="login_header_guideline_percent" format="float" type="dimen">0.12</item>
+
+    <!-- endregion -->
+
+    <!--    profile-->
+    <dimen name="profile_user_picture_margin_top">8dp</dimen>
+    <dimen name="profile_user_picture_width">70dp</dimen>
+    <dimen name="profile_user_picture_height">70dp</dimen>
 </resources>

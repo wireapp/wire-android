@@ -54,13 +54,3 @@ tasks.register("runApp", Exec::class) {
         commandLine(adb, "shell", "am", "start", "-n", "${applicationPackage}/${launchActivity}")
     }
 }
-
-tasks.register("createSignedArtifact") {
-    description = "publishes the Wire Android Client source."
-    dependsOn(":app:compile${Default.BUILD_VARIANT}Sources")
-}
-
-tasks.register("publishToGooglePlayStore") {
-    description = "publishes the Wire Android Client source."
-    dependsOn(":app:compile${Default.BUILD_VARIANT}Sources")
-}

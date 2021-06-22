@@ -11,11 +11,18 @@ class DialogBuilder(private val dialogBuilderProvider: MaterialDialogBuilderProv
         dialogBuilderProvider.provide(context).apply(block).create().show()
     }
 
-    fun showErrorDialog(context: Context, errorMessage: ErrorMessage) = showDialog(context) {
-        errorMessage.title?.let { setTitle(it) }
-        setMessage(errorMessage.message)
-        setPositiveButton(R.string.ok, NO_OP_LISTENER)
-    }
+    fun showErrorDialog(
+        context: Context,
+        errorMessage: ErrorMessage,
+        isCancelable: Boolean = true,
+        clickListener: DialogInterface.OnClickListener = NO_OP_LISTENER
+    ) =
+        showDialog(context) {
+            setCancelable(isCancelable)
+            errorMessage.title?.let { setTitle(it) }
+            setMessage(errorMessage.message)
+            setPositiveButton(R.string.ok, clickListener)
+        }
 
     companion object {
         val NO_OP_LISTENER = DialogInterface.OnClickListener { _, _ -> /*no-op*/ }

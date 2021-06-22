@@ -21,8 +21,8 @@ class CreateProAccountTeamNameViewModel(
     private val _teamNameLiveData = MutableLiveData<String>()
     val teamNameLiveData: LiveData<String> = _teamNameLiveData
 
-    private val _confirmationButtonEnabled = MutableLiveData<Boolean>()
-    val confirmationButtonEnabled: LiveData<Boolean> = _confirmationButtonEnabled
+    private val _confirmationButtonEnabledLiveData = MutableLiveData<Boolean>()
+    val confirmationButtonEnabledLiveData: LiveData<Boolean> = _confirmationButtonEnabledLiveData
 
     init {
         getTeamName()
@@ -41,6 +41,6 @@ class CreateProAccountTeamNameViewModel(
     }
 
     fun onTeamNameTextChanged(teamNameInput: String) {
-        _confirmationButtonEnabled.value = teamNameInput.isNotEmpty()
+        _confirmationButtonEnabledLiveData.value = teamNameInput.isNotEmpty()
     }
 }

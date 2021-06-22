@@ -1,8 +1,8 @@
 pipeline {
   agent {
     docker {
-      image 'android-agent:latest'
-      args '-u 1000:133 --network docker-compose-files_build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
+      args '-u 1000:133 --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
+      image 'android-reloaded-agent:latest'
     }
 
   }
@@ -28,6 +28,7 @@ pipeline {
                         else
                             echo "sdk.dir="$ANDROID_HOME >> ${propertiesFile}
                             echo "ndk.dir="$NDK_HOME >> ${propertiesFile}
+                            echo "nexus.url=http://10.10.124.11:8081/nexus/content/groups/public" >> local.properties
                         fi
                     '''
           }
@@ -50,14 +51,14 @@ pipeline {
         stage('Spawn Emulator 9.0') {
           steps {
             sh '''docker rm ${emulatorPrefix}_9 || true
-docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}_9 budtmo/docker-android-x86-9.0'''
+docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
         stage('Spawn Emulator 10.0') {
           steps {
             sh '''docker rm ${emulatorPrefix}_10 || true
-docker run --privileged --network docker-compose-files_build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}_10 budtmo/docker-android-x86-10.0'''
+docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
           }
         }
 
@@ -107,13 +108,13 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
       parallel {
         stage('Emulator 10.0') {
           steps {
-            sh 'adb connect ${emulatorPrefix}_10:${adbPort}'
+            sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'
           }
         }
 
         stage('Emulator 9.0') {
           steps {
-            sh 'adb connect ${emulatorPrefix}_9:${adbPort}'
+            sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_9:${adbPort}'
           }
         }
 
@@ -215,8 +216,6 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
       }
 
       sh './gradlew jacocoReport'
-      sh 'curl -s https://codecov.io/bash > codecov.sh'
-      sh "bash codecov.sh -t ${env.CODECOV_TOKEN}"
       wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
     }
 
@@ -225,8 +224,8 @@ docker run --privileged --network docker-compose-files_build-machine -d -e DEVIC
     }
 
     always {
-      sh 'docker stop ${emulatorPrefix}_9 ${emulatorPrefix}_10 || true'
-      sh 'docker rm ${emulatorPrefix}_9 ${emulatorPrefix}_10 || true'
+      sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
+      sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
     }
 
   }

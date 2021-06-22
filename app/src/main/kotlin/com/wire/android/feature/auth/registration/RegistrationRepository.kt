@@ -6,5 +6,5 @@ import com.wire.android.feature.auth.registration.personal.PersonalAccountRegist
 
 interface RegistrationRepository {
     suspend fun registerPersonalAccount(name: String, email: String, password: String, activationCode: String):
-        Either<Failure, PersonalAccountRegistrationResult>
+            Either<Failure, PersonalAccountRegistrationResult>
 }

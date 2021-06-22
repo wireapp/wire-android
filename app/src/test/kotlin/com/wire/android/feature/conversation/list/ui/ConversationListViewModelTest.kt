@@ -3,19 +3,19 @@ package com.wire.android.feature.conversation.list.ui
 import androidx.paging.PagedList
 import com.wire.android.UnitTest
 import com.wire.android.core.events.EventsHandler
-import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
-import com.wire.android.feature.conversation.Conversation
-import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
+import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
-import com.wire.android.framework.functional.shouldFail
-import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.livedata.shouldBeUpdated
 import com.wire.android.framework.livedata.shouldNotBeUpdated
-import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
+import com.wire.android.shared.team.Team
+import com.wire.android.shared.team.usecase.GetUserTeamUseCase
+import com.wire.android.shared.team.usecase.NotATeamUser
 import com.wire.android.shared.user.User
+import com.wire.android.shared.user.usecase.GetCurrentUserUseCase
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,10 +32,13 @@ class ConversationListViewModelTest : UnitTest() {
     val coroutinesTestRule = CoroutinesTestRule()
 
     @MockK
-    private lateinit var getActiveUserUseCase: GetActiveUserUseCase
+    private lateinit var getConversationListUseCase: GetConversationListUseCase
 
     @MockK
-    private lateinit var getConversationsUseCase: GetConversationsUseCase
+    private lateinit var getCurrentUserUseCase: GetCurrentUserUseCase
+
+    @MockK
+    private lateinit var getUserTeamUseCase: GetUserTeamUseCase
 
     @MockK
     private lateinit var eventsHandler: EventsHandler
@@ -44,56 +47,75 @@ class ConversationListViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        conversationListViewModel =
-            ConversationListViewModel(coroutinesTestRule.dispatcherProvider, getActiveUserUseCase,
-                getConversationsUseCase, eventsHandler)
+        conversationListViewModel = ConversationListViewModel(
+            coroutinesTestRule.dispatcherProvider,
+            getConversationListUseCase,
+            getCurrentUserUseCase,
+            getUserTeamUseCase,
+            eventsHandler
+        )
     }
 
     @Test
-    fun `given fetchUserName is called, when GetActiveUserUseCase is successful, then sets user name to userNameLiveData`() {
-        val user = User(id = TEST_USER_ID, name = TEST_USER_NAME)
-        coEvery { getActiveUserUseCase.run(Unit) } returns Either.Right(user)
+    fun `given fetchConversationList is called, when getConversationListUseCase emits items, then updates conversationListItemsLiveData`() {
+        val items = mockk<PagedList<ConversationListItem>>()
+        coEvery { getConversationListUseCase.run(any()) } returns flowOf(items)
 
-        conversationListViewModel.fetchUserName()
+        conversationListViewModel.fetchConversationList()
 
-        conversationListViewModel.userNameLiveData shouldBeUpdated { it shouldBeEqualTo TEST_USER_NAME }
+        conversationListViewModel.conversationListItemsLiveData.shouldBeUpdated {
+            it shouldBeEqualTo items
+        }
+        coVerify(exactly = 1) { getConversationListUseCase.run(any()) }
     }
 
     @Test
-    fun `given fetchUserName is called, when GetActiveUserUseCase is successful, then does not set anything to userNameLiveData`() {
-        coEvery { getActiveUserUseCase.run(Unit) } returns Either.Left(ServerError)
+    fun `given fetchToolbarData is called, when GetCurrentUserUseCase fails, then does not set anything to toolbarDataLiveData`() {
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Left(ServerError)
 
-        conversationListViewModel.fetchUserName()
+        conversationListViewModel.fetchToolbarData()
 
-        conversationListViewModel.userNameLiveData.shouldNotBeUpdated()
+        conversationListViewModel.toolbarDataLiveData.shouldNotBeUpdated()
     }
 
     @Test
-    fun `given fetchConversations is called, when GetConversationsUseCase emits success, then sets success to conversationsLiveData`() {
-        val conversations = mockk<PagedList<Conversation>>()
-        coEvery { getConversationsUseCase.run(any()) } returns flowOf(Either.Right(conversations))
+    fun `given fetchToolbarData is called and current user is fetched, when GetUserTeamUseCase is successful, then updates toolbarData`() {
+        val user = mockk<User>()
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
+        val team = mockk<Team>()
+        coEvery { getUserTeamUseCase.run(any()) } returns Either.Right(team)
 
-        conversationListViewModel.fetchConversations()
+        conversationListViewModel.fetchToolbarData()
 
-        conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
-            result shouldSucceed { it shouldBeEqualTo conversations }
+        conversationListViewModel.toolbarDataLiveData shouldBeUpdated {
+            it.user shouldBeEqualTo user
+            it.team shouldBeEqualTo team
+        }
+    }
+
+
+    @Test
+    fun `given fetchToolbarData called & user fetched, when GetUserTeamUseCase fails with NotATeamUser, then updates toolbarData`() {
+        val user = mockk<User>()
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
+        coEvery { getUserTeamUseCase.run(any()) } returns Either.Left(NotATeamUser)
+
+        conversationListViewModel.fetchToolbarData()
+
+        conversationListViewModel.toolbarDataLiveData shouldBeUpdated {
+            it.user shouldBeEqualTo user
+            it.team shouldBeEqualTo null
         }
     }
 
     @Test
-    fun `given fetchConversations is called, when GetConversationsUseCase emits failure, then sets failure to conversationsLiveData`() {
-        val failure = mockk<Failure>()
-        coEvery { getConversationsUseCase.run(any()) } returns flowOf(Either.Left(failure))
+    fun `given fetchToolbarData called & user fetched, when GetUserTeamUseCase fails with other error, then does not update toolbarData`() {
+        val user = mockk<User>()
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
+        coEvery { getUserTeamUseCase.run(any()) } returns Either.Left(mockk())
 
-        conversationListViewModel.fetchConversations()
+        conversationListViewModel.fetchToolbarData()
 
-        conversationListViewModel.conversationsLiveData shouldBeUpdated { result ->
-            result shouldFail  { it shouldBeEqualTo failure }
-        }
-    }
-
-    companion object {
-        private const val TEST_USER_ID = "user-id-123"
-        private const val TEST_USER_NAME = "User Name"
+        conversationListViewModel.toolbarDataLiveData.shouldNotBeUpdated()
     }
 }

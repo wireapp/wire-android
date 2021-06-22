@@ -14,6 +14,7 @@ import com.wire.android.core.ui.arg
 import com.wire.android.core.ui.dialog.DialogBuilder
 import com.wire.android.core.ui.dialog.ErrorMessage
 import com.wire.android.core.ui.navigation.Navigator
+import com.wire.android.feature.auth.registration.ui.CreateAccountEmailVerificationCodeViewModel
 import kotlinx.android.synthetic.main.fragment_create_personal_account_code.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -22,7 +23,7 @@ class CreatePersonalAccountCodeFragment : Fragment(R.layout.fragment_create_pers
 
     private val email by arg<String>(KEY_EMAIL)
 
-    private val codeViewModel: CreatePersonalAccountCodeViewModel by viewModel()
+    private val emailVerificationCodeViewModel: CreateAccountEmailVerificationCodeViewModel by viewModel()
 
     private val inputFocusViewModel: InputFocusViewModel by viewModel()
 
@@ -56,7 +57,7 @@ class CreatePersonalAccountCodeFragment : Fragment(R.layout.fragment_create_pers
     private fun initPinCodeListener() {
         createPersonalAccountCodePinEditText.onTextCompleteListener = object : OnTextCompleteListener {
             override fun onTextComplete(enteredText: String): Boolean {
-                codeViewModel.activateEmail(email, enteredText)
+                emailVerificationCodeViewModel.activateEmail(email, enteredText)
                 return false
             }
         }
@@ -67,7 +68,7 @@ class CreatePersonalAccountCodeFragment : Fragment(R.layout.fragment_create_pers
     }
 
     private fun observeActivateEmailData() {
-        codeViewModel.activateEmailLiveData.observe(viewLifecycleOwner) {
+        emailVerificationCodeViewModel.activateEmailLiveData.observe(viewLifecycleOwner) {
             it.onSuccess {
                 showEnterNameScreen(it)
             }.onFailure {

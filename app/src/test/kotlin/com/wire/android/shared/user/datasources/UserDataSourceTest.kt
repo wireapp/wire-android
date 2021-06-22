@@ -120,8 +120,72 @@ class UserDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { localDataSource.save(userEntity) }
     }
 
+    @Test
+    fun `given doesUsernameExist, then request remote data source doesUsernameExist`() = runBlocking {
+        userDataSource.doesUsernameExist(TEST_USERNAME)
+
+        coVerify(exactly = 1) { remoteDataSource.doesUsernameExist(eq(TEST_USERNAME)) }
+    }
+
+    @Test
+    fun `given checkUsernamesExist, then request remote data source checkUsernamesExist`() = runBlocking {
+        val listOfUsernames = listOf(TEST_USERNAME)
+
+        userDataSource.checkUsernamesExist(listOfUsernames)
+
+        coVerify(exactly = 1) { remoteDataSource.checkUsernamesExist(eq(listOfUsernames)) }
+    }
+
+    @Test
+    fun `given updateUsername, then request remote data source updateUser`() = runBlocking {
+        coEvery { remoteDataSource.updateUsername(any()) } returns Either.Left(ServerError)
+
+        userDataSource.updateUsername(TEST_USER_ID, TEST_USERNAME)
+
+        coVerify(exactly = 1) { remoteDataSource.updateUsername(eq(TEST_USERNAME)) }
+    }
+
+    @Test
+    fun `given updateUsername, when remote data source succeeds then update database`(): Unit {
+        runBlocking {
+            coEvery { remoteDataSource.updateUsername(TEST_USERNAME) } returns Either.Right(Unit)
+            coEvery { localDataSource.userById(TEST_USER_ID) } returns Either.Right(userEntity)
+            coEvery { localDataSource.update(any()) } returns Either.Right(Unit)
+
+            userDataSource.updateUsername(TEST_USER_ID, TEST_USERNAME)
+
+            coVerify(exactly = 1) { localDataSource.update(any()) }
+        }
+    }
+
+    @Test
+    fun `given updateUsername, when remote data source fails then do not update database`(): Unit {
+        runBlocking {
+            coEvery { remoteDataSource.updateUsername(TEST_USERNAME) } returns Either.Left(ServerError)
+            coEvery { localDataSource.userById(TEST_USER_ID) } returns Either.Right(userEntity)
+            coEvery { localDataSource.update(any()) } returns Either.Right(Unit)
+
+            userDataSource.updateUsername(TEST_USER_ID, TEST_USERNAME)
+
+            coVerify(inverse = true) { localDataSource.update(any()) }
+        }
+    }
+
+    @Test
+    fun `given userById is called, when localDataSource returns success, then returns success`() {
+        every { userMapper.fromUserEntity(userEntity) } returns user
+        coEvery { localDataSource.userById(TEST_USER_ID) } returns Either.Right(userEntity)
+
+        val result = runBlocking { userDataSource.userById(TEST_USER_ID) }
+
+        result shouldSucceed { it shouldBe user }
+    }
+
     companion object {
         private const val TEST_ACCESS_TOKEN = "access-token-567"
         private const val TEST_TOKEN_TYPE = "token-type-bearer"
+        private const val TEST_USERNAME = "username"
+        private const val TEST_USER_ID = "user-id"
+        private const val TEST_ASSET_KEY = "asset-key"
     }
 }

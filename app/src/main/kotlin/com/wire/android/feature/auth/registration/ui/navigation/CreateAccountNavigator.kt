@@ -9,7 +9,9 @@ import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAcco
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountEmailFragment
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountNameFragment
 import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountPasswordFragment
-import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailActivity
+import com.wire.android.feature.auth.registration.personal.ui.CreatePersonalAccountUsernameFragment
+import com.wire.android.feature.auth.registration.pro.email.CreateProAccountTeamEmailFragment
+import com.wire.android.feature.auth.registration.pro.email.verification.CreateProAccountTeamEmailVerificationFragment
 import com.wire.android.feature.auth.registration.pro.team.CreateProAccountTeamNameFragment
 
 class CreateAccountNavigator(
@@ -20,28 +22,54 @@ class CreateAccountNavigator(
     fun openCreateAccount(context: Context) = context.startActivity(CreateAccountActivity.newIntent(context))
 
     fun openPersonalAccountEmailScreen(activity: FragmentActivity) {
-        fragmentStackHandler.replaceFragment(activity, CreatePersonalAccountEmailFragment.newInstance())
+        fragmentStackHandler.replaceFragment(activity) {
+            CreatePersonalAccountEmailFragment.newInstance()
+        }
     }
 
     fun openPersonalAccountCodeScreen(activity: FragmentActivity, email: String) {
-        fragmentStackHandler.replaceFragment(activity, CreatePersonalAccountCodeFragment.newInstance(email))
+        fragmentStackHandler.replaceFragment(activity) {
+            CreatePersonalAccountCodeFragment.newInstance(email)
+        }
     }
 
     fun openPersonalAccountNameScreen(activity: FragmentActivity, email: String, activationCode: String) {
-        fragmentStackHandler.replaceFragment(activity,
-            CreatePersonalAccountNameFragment.newInstance(email = email, activationCode = activationCode))
+        fragmentStackHandler.replaceFragment(activity) {
+            CreatePersonalAccountNameFragment.newInstance(email = email, activationCode = activationCode)
+        }
     }
 
-    fun openPersonalAccountPasswordScreen(activity: FragmentActivity, name: String, email: String, activationCode: String) {
-        fragmentStackHandler.replaceFragment(activity, CreatePersonalAccountPasswordFragment.newInstance(name, email, activationCode))
+    fun openPersonalAccountUsernameScreen(activity: FragmentActivity) =
+        fragmentStackHandler.replaceFragment(activity) {
+            CreatePersonalAccountUsernameFragment.newInstance()
+        }
+
+    fun openPersonalAccountPasswordScreen(
+        activity: FragmentActivity,
+        name: String,
+        email: String,
+        activationCode: String
+    ) {
+        fragmentStackHandler.replaceFragment(activity) {
+            CreatePersonalAccountPasswordFragment.newInstance(name, email, activationCode)
+        }
     }
 
     fun openProAccountTeamNameScreen(activity: FragmentActivity) {
-        fragmentStackHandler.replaceFragment(activity, CreateProAccountTeamNameFragment.newInstance())
+        fragmentStackHandler.replaceFragment(activity) {
+            CreateProAccountTeamNameFragment.newInstance()
+        }
     }
 
-    fun openProAccountTeamEmailScreen(context: Context) =
-        context.startActivity(CreateProAccountTeamEmailActivity.newIntent(context))
+    fun openProAccountTeamEmailScreen(activity: FragmentActivity) =
+        fragmentStackHandler.replaceFragment(activity) {
+            CreateProAccountTeamEmailFragment.newInstance()
+        }
+
+    fun openProAccountTeamEmailVerificationScreen(activity: FragmentActivity, email: String) =
+        fragmentStackHandler.replaceFragment(activity) {
+            CreateProAccountTeamEmailVerificationFragment.newInstance(email)
+        }
 
     fun openProAccountAboutTeamScreen(context: Context) =
         uriNavigationHandler.openUri(context, "$CONFIG_URL$TEAM_ABOUT_URL_SUFFIX")

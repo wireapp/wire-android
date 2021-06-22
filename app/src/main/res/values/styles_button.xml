@@ -9,7 +9,7 @@
         <item name="android:paddingBottom">@dimen/button_padding</item>
     </style>
 
-    <style name="Button.Secondary" parent="Widget.AppCompat.Button.Borderless.Colored">
+    <style name="Button.Secondary" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:textColor">@color/button_secondary_text_color</item>
         <item name="backgroundTint">@color/button_secondary_background</item>
         <item name="android:paddingTop">@dimen/button_padding</item>
@@ -47,7 +47,6 @@
 
     <style name="ImageButton.Back">
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
-        <item name="android:tint">?colorPrimary</item>
         <item name="android:contentDescription">@string/back</item>
         <item name="android:src">?attr/homeAsUpIndicator</item>
     </style>

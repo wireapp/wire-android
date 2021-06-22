@@ -18,9 +18,9 @@ import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.junit.Before
@@ -153,13 +153,62 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given accessToken is called, when remoteDataSource is successful, then maps the response and returns session`() {
+    fun `given userSession is called, when localDataSource returns an entity, then maps the entity to Session and returns it`() {
+        val userId = "user-id"
+        every { sessionMapper.fromSessionEntity(sessionEntity) } returns session
+        coEvery { localDataSource.userSession(userId) } returns Either.Right(sessionEntity)
+
+        val result = runBlocking { sessionDataSource.userSession(userId) }
+
+        result shouldSucceed { it shouldBe session }
+        verify(exactly = 1) { sessionMapper.fromSessionEntity(sessionEntity) }
+    }
+
+    @Test
+    fun `given userSession is called, when localDataSource returns a failure, then directly propagates the failure`() {
+        val failure = mockk<Failure>()
+        val userId = "user-id"
+        coEvery { localDataSource.userSession(userId) } returns Either.Left(failure)
+
+        val result = runBlocking { sessionDataSource.userSession(userId) }
+
+        result shouldFail { it shouldBe failure }
+        verify { sessionMapper wasNot Called }
+    }
+
+    @Test
+    fun `given accessToken is called, when localDataSource returns current session, then maps its access token and propagates it`() {
+        coEvery { localDataSource.currentSession() } returns Either.Right(sessionEntity)
+        every { sessionMapper.fromSessionEntity(sessionEntity) } returns session
+        val testAccessToken = "access-token-123"
+        every { session.accessToken } returns testAccessToken
+
+        val result = runBlocking { sessionDataSource.accessToken() }
+
+        result shouldSucceed { it shouldBe testAccessToken }
+        coVerify(exactly = 1) { localDataSource.currentSession() }
+    }
+
+    @Test
+    fun `given accessToken is called, when localDataSource fails to return current session, then directly propagates the failure`() {
+        val failure = mockk<Failure>()
+        coEvery { localDataSource.currentSession() } returns Either.Left(failure)
+
+        val result = runBlocking { sessionDataSource.accessToken() }
+
+        result shouldFail { it shouldBe failure }
+        coVerify { localDataSource.currentSession() }
+        verify { sessionMapper wasNot Called }
+    }
+
+    @Test
+    fun `given newAccessToken is called, when remoteDataSource is successful, then maps the response and returns session`() {
         val accessTokenResponse = mockk<AccessTokenResponse>()
         val refreshToken = "refresh-token-123"
         coEvery { remoteDataSource.accessToken(refreshToken) } returns Either.Right(accessTokenResponse)
         every { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken) } returns session
 
-        val result = runBlocking { sessionDataSource.accessToken(refreshToken) }
+        val result = runBlocking { sessionDataSource.newAccessToken(refreshToken) }
 
         result shouldSucceed { it shouldBe session }
         coVerify(exactly = 1) { remoteDataSource.accessToken(refreshToken) }
@@ -167,11 +216,11 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given accessToken is called, when remoteDataSource fails, then directly propagates that failure`() {
+    fun `given newAccessToken is called, when remoteDataSource fails, then directly propagates that failure`() {
         val refreshToken = "refresh-token-123"
         coEvery { remoteDataSource.accessToken(refreshToken) } returns Either.Left(ServerError)
 
-        val result = runBlocking { sessionDataSource.accessToken(refreshToken) }
+        val result = runBlocking { sessionDataSource.newAccessToken(refreshToken) }
 
         result shouldFail { it shouldBe ServerError }
         coVerify(exactly = 1) { remoteDataSource.accessToken(refreshToken) }
@@ -201,6 +250,46 @@ class SessionDataSourceTest : UnitTest() {
 
         val result = runBlocking { sessionDataSource.doesCurrentSessionExist() }
 
+        result shouldFail { it shouldBe failure }
+    }
+
+    @Test
+    fun `given setSessionCurrent is called, when localDataSource is successful, then return success`() {
+        val userId = "user-id"
+        coEvery { localDataSource.setCurrentSessionToDormant() } returns Either.Right(Unit)
+        coEvery { localDataSource.setSessionCurrent(userId) } returns Either.Right(Unit)
+
+        val result = runBlocking { sessionDataSource.setSessionCurrent(userId) }
+
+        coVerify(exactly = 1) { localDataSource.setCurrentSessionToDormant() }
+        coVerify(exactly = 1) { localDataSource.setSessionCurrent(userId) }
+        result shouldSucceed { it shouldBe Unit }
+    }
+
+    @Test
+    fun `given setSessionCurrent is called, when localDS fails to update current session to dormant, then propagates the failure`() {
+        val userId = "user-id"
+        val failure = DatabaseFailure()
+        coEvery { localDataSource.setCurrentSessionToDormant() } returns Either.Left(failure)
+
+        val result = runBlocking { sessionDataSource.setSessionCurrent(userId) }
+
+        coVerify(exactly = 1) { localDataSource.setCurrentSessionToDormant() }
+        coVerify(inverse = true) { localDataSource.setSessionCurrent(userId) }
+        result shouldFail { it shouldBe failure }
+    }
+
+    @Test
+    fun `given setSessionCurrent is called, when localDS fails to update session to current, then propagates the failure`() {
+        val userId = "user-id"
+        val failure = DatabaseFailure()
+        coEvery { localDataSource.setCurrentSessionToDormant() } returns Either.Right(Unit)
+        coEvery { localDataSource.setSessionCurrent(userId) } returns Either.Left(failure)
+
+        val result = runBlocking { sessionDataSource.setSessionCurrent(userId) }
+
+        coVerify(exactly = 1) { localDataSource.setCurrentSessionToDormant() }
+        coVerify(exactly = 1) { localDataSource.setSessionCurrent(userId) }
         result shouldFail { it shouldBe failure }
     }
 }

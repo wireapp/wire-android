@@ -17,6 +17,7 @@ import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.model.UserId
+import com.wire.android.core.date.DateStringMapper
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.io.FileSystem
 import com.wire.android.core.logger.Logger
@@ -56,7 +57,6 @@ val appConfigModule = module {
     factory { DeviceTypeMapper() }
 }
 
-
 val asyncModule = module {
     single<DispatcherProvider> { DefaultDispatcherProvider() }
 }
@@ -83,4 +83,8 @@ val cryptoBoxModule = module {
     single<CryptoBoxProvider> { DefaultCryptoBoxProvider }
     //TODO hardcoded UserId should be replaced with real userId value (AR-711)
     factory { CryptoBoxClient(androidContext(), get(), UserId("dummy-id"), get(), get(), get()) }
+}
+
+val dateModule = module {
+    factory { DateStringMapper() }
 }

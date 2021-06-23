@@ -29,7 +29,7 @@ class VersionizerTest {
         val versionCodeOld = Versionizer(LocalDateTime.now().minusSeconds(10)).versionCode
         val versionCodeNew = Versionizer().versionCode
 
-        versionCodeOld + 1 shouldBeEqualTo versionCodeNew
+        versionCodeNew shouldBeEqualTo versionCodeOld + 1
     }
 
     @Test
@@ -37,7 +37,7 @@ class VersionizerTest {
         val oldVersionCode = Versionizer().versionCode
         val newVersionCode = Versionizer(LocalDateTime.now().plusDays(1)).versionCode
 
-        assertVersionCodes(oldVersionCode, newVersionCode)
+        assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
     }
 
     @Test
@@ -45,7 +45,7 @@ class VersionizerTest {
         val oldVersionCode = Versionizer().versionCode
         val newVersionCode = Versionizer(LocalDateTime.now().plusYears(1)).versionCode
 
-        assertVersionCodes(oldVersionCode, newVersionCode)
+        assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
     }
 
     @Test
@@ -54,7 +54,7 @@ class VersionizerTest {
         val oldVersionCode = Versionizer(now.plusYears(1)).versionCode
         val newVersionCode = Versionizer(now.plusYears(2)).versionCode
 
-        assertVersionCodes(oldVersionCode, newVersionCode)
+        assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
     }
 
     @Test
@@ -63,10 +63,10 @@ class VersionizerTest {
         val newVersionCode = Versionizer(LocalDateTime.now().plusYears(10)).versionCode
 
         // This will break 655 years from now.
-        assertVersionCodes(oldVersionCode, newVersionCode)
+        assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
     }
 
-    private fun assertVersionCodes(oldVersionCode: Int, newVersionCode: Int) {
+    private fun assertVersionCodeAreProperlyIncremented(oldVersionCode: Int, newVersionCode: Int) {
         oldVersionCode shouldBeGreaterThan 0
         newVersionCode shouldBeGreaterThan 0
         oldVersionCode shouldBeLessThan newVersionCode

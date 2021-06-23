@@ -1,22 +1,39 @@
-package com.wire.android
-
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import java.time.LocalDateTime
 
-class VersionizerTest: UnitTest() {
+@RunWith(JUnit4::class)
+class VersionizerTest {
 
     @Test
-    fun `given version generator when I generate a new version NOW then I should get an incremented version number`() {
-        val versionCodeOld = Versionizer(LocalDateTime.now().minusSeconds(10)).versionCode
-        val versionCodeNew = Versionizer().versionCode
+    fun `given version generator when I generate two versions AT THE SAME TIME I should get the same version number`() {
+        val dateTime = LocalDateTime.now()
 
-        assertVersionCodes(versionCodeOld, versionCodeNew)
+        Versionizer(dateTime).versionCode shouldBeEqualTo Versionizer(dateTime).versionCode
+    }
+
+
+    @Test
+    fun `given version generator when I generate a version I should get the same version number on the current Android project`() {
+        val dateTime = LocalDateTime.of(2021, 6, 23, 13, 54, 28)
+
+        Versionizer(dateTime).versionCode shouldBeEqualTo 548966
     }
 
     @Test
-    fun `given version generator when I generate a new version TOMORROW then I should get an incremented version number`() {
+    fun `given version generator when I generate a new version AFTER 10 SECONDS then I should get an directly incremented number`() {
+        val versionCodeOld = Versionizer(LocalDateTime.now().minusSeconds(10)).versionCode
+        val versionCodeNew = Versionizer().versionCode
+
+        versionCodeOld + 1 shouldBeEqualTo versionCodeNew
+    }
+
+    @Test
+    fun `given version generator when I generate a new version THE NEXT DAY then I should get an incremented version number`() {
         val oldVersionCode = Versionizer().versionCode
         val newVersionCode = Versionizer(LocalDateTime.now().plusDays(1)).versionCode
 
@@ -45,6 +62,7 @@ class VersionizerTest: UnitTest() {
         val oldVersionCode = Versionizer().versionCode
         val newVersionCode = Versionizer(LocalDateTime.now().plusYears(10)).versionCode
 
+        // This will break 655 years from now.
         assertVersionCodes(oldVersionCode, newVersionCode)
     }
 

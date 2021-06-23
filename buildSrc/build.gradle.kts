@@ -17,4 +17,7 @@ dependencies {
     implementation(Dependencies.androidBuildTools)
     implementation(Dependencies.kotlinGradlePlugin)
     implementation(Dependencies.detektGradlePlugin)
+
+    testImplementation("junit:junit:4.13")
+    testImplementation("org.amshove.kluent:kluent:1.60")
 }

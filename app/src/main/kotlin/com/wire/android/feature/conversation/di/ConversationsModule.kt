@@ -60,7 +60,7 @@ val conversationsModule = module {
 val conversationListModule = module {
     factory { ConversationListAdapter(get(), get(), get()) }
     factory { ConversationListDiffCallback() }
-    viewModel { ConversationListViewModel(get(), get(), get(), get(), get()) }
+    viewModel { ConversationListViewModel(get(), get(), get(), get()) }
 
     factory { ConversationIconProvider(get()) }
 
@@ -82,5 +82,5 @@ val conversationContentModule = module {
     factory { MessageTypeMapper() }
     factory { MessageStateMapper() }
     factory { MessageMapper(get(), get()) }
-    factory<MessageRepository> { MessageDataSource(get(), get()) }
+    factory<MessageRepository> { MessageDataSource(get(), get(), get()) }
 }

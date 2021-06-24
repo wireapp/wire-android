@@ -6,8 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagedList
 import com.wire.android.core.async.DispatcherProvider
-import com.wire.android.core.events.Event
-import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
@@ -27,8 +25,7 @@ class ConversationListViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val getConversationListUseCase: GetConversationListUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
-    private val getUserTeamUseCase: GetUserTeamUseCase,
-    private val eventsHandler: EventsHandler
+    private val getUserTeamUseCase: GetUserTeamUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _toolbarDataLiveData = MutableLiveData<ToolbarData>()
@@ -68,11 +65,6 @@ class ConversationListViewModel(
 
     private fun handleToolbarDataFailure(failure: Failure) {
         //TODO: display some kind of error
-    }
-
-    fun subscribeToEvents() = with(eventsHandler) {
-        subscribe<Event.UsernameChanged> { fetchUserData() }
-        subscribe<Event.ConversationNameChanged> { TODO() }
     }
 
     companion object {

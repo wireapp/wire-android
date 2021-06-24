@@ -6,5 +6,7 @@ data class Message(
     val content: String,
     val type: MessageType,
     val state: MessageState,
-    val time: String
+    val time: String,
+    val userId: String = "",
+    val clientId: String = "",
 )

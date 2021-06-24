@@ -17,7 +17,6 @@ import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.model.UserId
-import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.io.FileSystem
 import com.wire.android.core.logger.Logger
 import com.wire.android.core.ui.dialog.DialogBuilder

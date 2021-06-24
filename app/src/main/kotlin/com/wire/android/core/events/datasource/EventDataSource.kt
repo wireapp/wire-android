@@ -12,8 +12,17 @@ class EventDataSource(private val webSocketService: WebSocketService) : EventRep
         webSocketService.receiveEvent().collect {
             it.payload?.let { payloads ->
                 for (payload in payloads)
-                    if(payload.type == Event.Conversation.NEW_MESSAGE_TYPE && payload.data != null)
-                        emit(Event.Conversation.Message(it.id, payload.conversation, payload.data.sender, payload.data.text))
+                    if (payload.type == Event.Conversation.NEW_MESSAGE_TYPE && payload.data != null)
+                        emit(
+                            Event.Conversation.Message(
+                                it.id,
+                                payload.conversation,
+                                payload.data.sender,
+                                payload.from,
+                                payload.data.text,
+                                payload.time
+                            )
+                        )
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.wire.android.feature.conversation.content.datasources
 
 import com.wire.android.UnitTest
+import com.wire.android.core.crypto.CryptoBoxClient
 import com.wire.android.core.exception.DatabaseFailure
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.content.Message
@@ -32,9 +33,12 @@ class MessageDataSourceTest : UnitTest() {
     @MockK
     private lateinit var messageMapper: MessageMapper
 
+    @MockK
+    private lateinit var cryptoBoxClient: CryptoBoxClient
+
     @Before
     fun setUp() {
-        messageDataSource = MessageDataSource(messageLocalDataSource, messageMapper)
+        messageDataSource = MessageDataSource(messageLocalDataSource, messageMapper, cryptoBoxClient)
     }
 
     @Test

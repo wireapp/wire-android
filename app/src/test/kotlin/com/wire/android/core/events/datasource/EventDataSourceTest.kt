@@ -112,6 +112,8 @@ class EventDataSourceTest : UnitTest() {
             every { it.data } returns data
             every { it.type } returns Event.Conversation.NEW_MESSAGE_TYPE
             every { it.conversation } returns CONVERSATION_ID
+            every { it.from } returns USER_ID
+            every { it.time } returns TIME
         }
         val eventResponse = mockk<EventResponse>().also {
             every { it.id } returns NOTIFICATION_ID
@@ -122,7 +124,14 @@ class EventDataSourceTest : UnitTest() {
         runBlocking {
             val result = eventDataSource.events()
 
-            val expected = Event.Conversation.Message(eventResponse.id, payload.conversation, data.sender, data.text)
+            val expected = Event.Conversation.Message(
+                eventResponse.id,
+                payload.conversation,
+                data.sender,
+                payload.from,
+                data.text,
+                payload.time
+            )
             with(result) {
                 count() shouldBeEqualTo 1
                 first() shouldBeEqualTo expected
@@ -140,6 +149,8 @@ class EventDataSourceTest : UnitTest() {
             every { it.data } returns data
             every { it.type } returns Event.Conversation.NEW_MESSAGE_TYPE
             every { it.conversation } returns CONVERSATION_ID
+            every { it.from } returns USER_ID
+            every { it.time } returns TIME
         }
         val eventResponse = mockk<EventResponse>().also {
             every { it.id } returns NOTIFICATION_ID
@@ -155,10 +166,12 @@ class EventDataSourceTest : UnitTest() {
     }
 
     companion object {
-        private const val CONVERSATION_ID = "213sdd4564787"
-        private const val NOTIFICATION_ID = "sdfsdfef85544"
-        private const val SENDER = "sdfsdfef85544"
-        private const val TEXT = "qsdferdsfsdfsd4545sd45f45sdf4455s4df454"
+        private const val USER_ID = "user-id-546455546"
+        private const val CONVERSATION_ID = "conversation-id"
+        private const val NOTIFICATION_ID = "notification-id"
+        private const val SENDER = "sender-client-id"
+        private const val TEXT = "encrypted-text"
+        private const val TIME = "time-timestamp"
     }
 }
 

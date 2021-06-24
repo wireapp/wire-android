@@ -26,11 +26,9 @@ class ConversationListDataSource(
         excludeType: ConversationType
     ): Flow<PagingData<ConversationListItem>> {
         val type = conversationTypeMapper.toIntValue(excludeType)
-        val pagingSourceFactory = conversationListLocalDataSource.conversationListInBatch(excludeType = type)
-        return Pager(
-            config = PagingConfig(pageSize = pageSize),
-            pagingSourceFactory = { pagingSourceFactory }
-        ).flow.map { it.map { conversationItem -> conversationListMapper.fromEntity(conversationItem) } }
+        return Pager(config = PagingConfig(pageSize = pageSize)) {
+            conversationListLocalDataSource.conversationListInBatch(excludeType = type)
+        }.flow.map { it.map { conversationItem -> conversationListMapper.fromEntity(conversationItem) } }
     }
 
     override suspend fun conversationListInBatch(start: Int, count: Int): Either<Failure, List<ConversationListItem>> =

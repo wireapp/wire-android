@@ -13,7 +13,7 @@ object AndroidNdk {
 
 object AndroidClient {
     const val appId = "com.wire.android"
-    const val versionCode = 1
+    val versionCode = Versionizer().versionCode
     const val versionName = "1.0"
     const val testRunner = "androidx.test.runner.AndroidJUnitRunner"
 }

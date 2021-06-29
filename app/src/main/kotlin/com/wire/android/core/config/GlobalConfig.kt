@@ -19,5 +19,9 @@ class GlobalConfig private constructor() {
         const val USER_AGENT = "HttpLibrary ${okhttp3.internal.userAgent}"
         const val API_BASE_URL = BuildConfig.API_BASE_URL
         const val ACCOUNTS_URL = BuildConfig.ACCOUNTS_URL
+
+        //WebSocketConfig
+        const val WEB_SOCKET_URL = BuildConfig.WEB_SOCKET_URL
+
     }
 }

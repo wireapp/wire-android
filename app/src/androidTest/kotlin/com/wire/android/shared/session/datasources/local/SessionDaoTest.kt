@@ -10,6 +10,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotContain
+import org.amshove.kluent.shouldBeNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -124,6 +125,28 @@ class SessionDaoTest : InstrumentationTest() {
     }
 
     @Test
+    fun setSessionCurrent_aSessionOfSpecificUserExistsAsDormant_setsIsCurrentToTrue() = databaseTestRule.runTest {
+        val session = prepareSession(id = 1, userId = "userId", current = false)
+        sessionDao.insert(session)
+
+        sessionDao.setSessionCurrent("userId")
+
+        val currentSession = sessionDao.currentSession()
+        currentSession shouldBeEqualTo session.copy(isCurrent = true)
+    }
+
+    @Test
+    fun setSessionCurrent_aSessionWithUserIdDoesNotExist_doNotUpdateAnyRecord() = databaseTestRule.runTest {
+        val session = prepareSession(id = 1, userId = "", current = false)
+        sessionDao.insert(session)
+
+        sessionDao.setSessionCurrent("userId")
+
+        val currentSession = sessionDao.currentSession()
+        currentSession.shouldBeNull()
+    }
+
+    @Test
     fun doesCurrentSessionExist_aSessionExistsAsCurrent_returnsTrue() = databaseTestRule.runTest {
         val session = prepareSession(id = 1, userId = "userId-1", current = true)
         sessionDao.insert(session)
@@ -143,7 +166,24 @@ class SessionDaoTest : InstrumentationTest() {
         result shouldBe false
     }
 
-    private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean): SessionEntity {
+    @Test
+    fun userSession_aSessionOfUserExists_returnsThatSession() = databaseTestRule.runTest {
+        val session = prepareSession(id = 1, userId = TEST_USER_ID)
+        sessionDao.insert(session)
+
+        sessionDao.userSession(TEST_USER_ID) shouldBeEqualTo session
+    }
+
+    @Test
+    fun userSession_noSessionExistsWithUserId_returnsNull() = databaseTestRule.runTest {
+        val userId = "user-id"
+        val session = prepareSession(id = 1, userId = userId, current = false)
+        sessionDao.insert(session)
+
+        sessionDao.userSession(TEST_USER_ID) shouldBeEqualTo null
+    }
+
+    private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean = false): SessionEntity {
         globalDatabase.userDao().insert(UserEntity(userId, TEST_USER_NAME))
 
         return SessionEntity(

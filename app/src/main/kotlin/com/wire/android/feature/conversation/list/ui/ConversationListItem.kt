@@ -1,5 +1,6 @@
 package com.wire.android.feature.conversation.list.ui
 
 import com.wire.android.feature.contact.Contact
+import com.wire.android.feature.conversation.Conversation
 
-data class ConversationListItem(val id: String, val name: String?, val members: List<Contact>)
+data class ConversationListItem(val conversation: Conversation, val members: List<Contact>)

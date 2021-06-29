@@ -1,6 +1,5 @@
 package com.wire.android.feature.conversation.data.local
 
-import androidx.paging.DataSource
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.storage.db.DatabaseService
@@ -12,10 +11,12 @@ class ConversationLocalDataSource(
     private val conversationMembersDao: ConversationMembersDao
 ) : DatabaseService {
 
-    fun conversationsDataFactory(): DataSource.Factory<Int, ConversationEntity> = conversationDao.conversationsInBatch()
-
     suspend fun saveConversations(conversations: List<ConversationEntity>): Either<Failure, Unit> = request {
         conversationDao.insertAll(conversations)
+    }
+
+    suspend fun updateConversations(conversations: List<ConversationEntity>): Either<Failure, Unit> = request {
+        conversationDao.updateConversations(conversations)
     }
 
     suspend fun saveMemberIdsForConversations(conversationMemberEntityList: List<ConversationMemberEntity>) = request {
@@ -25,4 +26,10 @@ class ConversationLocalDataSource(
     suspend fun conversationMemberIds(conversationId: String): Either<Failure, List<String>> = request {
         conversationMembersDao.conversationMembers(conversationId)
     }
+
+    suspend fun allConversationMemberIds(): Either<Failure, List<String>> = request {
+        conversationMembersDao.allConversationMemberIds()
+    }
+
+    suspend fun numberOfConversations(): Either<Failure, Int> = request { conversationDao.count() }
 }

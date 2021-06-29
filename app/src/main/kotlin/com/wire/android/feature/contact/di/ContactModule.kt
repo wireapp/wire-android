@@ -16,5 +16,5 @@ val contactModule = module {
     single { get<NetworkClient>().create(ContactsApi::class.java) }
     factory { ContactLocalDataSource(get()) }
     factory { get<UserDatabase>().contactDao() }
-    factory { ContactMapper() }
+    factory { ContactMapper(get()) }
 }

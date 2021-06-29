@@ -1,35 +1,40 @@
 package com.wire.android.feature.conversation.list.ui
 
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
-import com.wire.android.core.config.LocaleConfig
-import com.wire.android.core.extension.afterMeasured
+import com.wire.android.core.extension.clear
 import com.wire.android.core.extension.lazyFind
-import com.wire.android.core.extension.toStringOrEmpty
-import com.wire.android.core.ui.drawable.TextDrawable
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
+import com.wire.android.feature.conversation.list.ui.icon.ConversationIconProvider
 
 class ConversationViewHolder(
     parent: ViewGroup, inflater: ViewHolderInflater,
-    private val localeConfig: LocaleConfig
+    private val iconProvider: ConversationIconProvider
 ) : RecyclerView.ViewHolder(inflater.inflate(R.layout.conversation_list_item, parent)) {
 
     private val nameTextView by lazyFind<TextView>(R.id.conversationItemNameTextView)
 
+    private val iconLayout by lazyFind<FrameLayout>(R.id.conversationItemIconLayout)
+
     private val iconImageView by lazyFind<ShapeableImageView>(R.id.conversationItemIconImageView)
 
     fun bind(item: ConversationListItem) {
-        val name = item.name ?: item.id
+        val name = item.conversation.name.orEmpty() //TODO: handle empty name case properly
         nameTextView.text = name
 
-        val nameOfFirstMember = item.members.firstOrNull()?.name
-        val nameInitial = nameOfFirstMember?.firstOrNull().toStringOrEmpty().toUpperCase(localeConfig.currentLocale())
-        iconImageView.afterMeasured {
-            it.load(TextDrawable(text = nameInitial, width = it.width.toFloat(), height = it.height.toFloat()))
+        displayConversationIcon(item)
+    }
+
+    private fun displayConversationIcon(item: ConversationListItem) {
+        iconImageView.clear()
+
+        iconProvider.provide(item).let {
+            iconLayout.background = it.background(iconLayout.context)
+            it.displayOn(iconImageView)
         }
     }
 }

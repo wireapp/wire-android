@@ -16,16 +16,16 @@ class LoginWithEmailUseCase(
     private val loginRepository: LoginRepository,
     private val userRepository: UserRepository,
     private val sessionRepository: SessionRepository
-) : UseCase<Unit, LoginWithEmailUseCaseParams> {
+) : UseCase<String, LoginWithEmailUseCaseParams> {
 
-    override suspend fun run(params: LoginWithEmailUseCaseParams): Either<Failure, Unit> = suspending {
+    override suspend fun run(params: LoginWithEmailUseCaseParams): Either<Failure, String> = suspending {
         loginRepository.loginWithEmail(email = params.email, password = params.password).coFold({
             handleFailure(it)
         }) { session ->
             if (session == Session.EMPTY) Either.Left(SessionCredentialsMissing)
             else {
-                userRepository.selfUser(accessToken = session.accessToken, tokenType = session.tokenType).flatMap {
-                    sessionRepository.save(session)
+                userRepository.selfUser(accessToken = session.accessToken, tokenType = session.tokenType).flatMap { user ->
+                    sessionRepository.save(session, false).map { user.id }
                 }
             }
         }!!

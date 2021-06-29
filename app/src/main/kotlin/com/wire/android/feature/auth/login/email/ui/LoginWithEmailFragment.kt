@@ -23,6 +23,8 @@ class LoginWithEmailFragment : Fragment(R.layout.fragment_login_with_email) {
 
     private val navigator: Navigator by inject()
 
+    val password: String get() = loginWithEmailPasswordEditText.text.toStringOrEmpty()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initInputListeners()
@@ -45,7 +47,7 @@ class LoginWithEmailFragment : Fragment(R.layout.fragment_login_with_email) {
         loginWithEmailConfirmationButton.setOnClickListener {
             viewModel.login(
                 email = loginWithEmailEditText.text.toStringOrEmpty(),
-                password = loginWithEmailPasswordEditText.text.toStringOrEmpty()
+                password = this.password
             )
         }
 
@@ -57,8 +59,8 @@ class LoginWithEmailFragment : Fragment(R.layout.fragment_login_with_email) {
 
     private fun observeLoginResult() {
         viewModel.loginResultLiveData.observe(viewLifecycleOwner) {
-            it.onSuccess {
-                navigator.main.openMainScreen(requireContext())
+            it.onSuccess { userId ->
+                navigator.login.openDeviceLimitScreen(requireContext(), userId, password)
             }.onFailure(::showErrorDialog)
         }
     }

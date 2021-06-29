@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.Light">
 
         <activity
             android:name=".feature.launch.ui.LauncherActivity"
@@ -39,8 +39,16 @@
             android:name=".feature.auth.login.LoginActivity"
             android:theme="@style/AppTheme.Authentication" />
 
-        <activity android:name=".feature.conversation.list.MainActivity" />
+        <activity android:name=".feature.conversation.list.MainActivity"
+            android:theme="@style/AppTheme.Dark"/>
 
+        <activity
+            android:name=".feature.profile.ui.ProfileActivity"
+            android:theme="@style/AppTheme.Dark" />
+
+        <activity
+            android:name=".feature.auth.client.ui.DeviceLimitActivity"
+            android:theme="@style/AppTheme.Authentication" />
     </application>
 
 </manifest>

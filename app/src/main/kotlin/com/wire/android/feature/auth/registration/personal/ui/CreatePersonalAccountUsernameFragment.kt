@@ -34,12 +34,17 @@ class CreatePersonalAccountUsernameFragment : Fragment(R.layout.fragment_create_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpAccessibilityHeading()
+        generateUsername()
         initConfirmationButton()
         observeButtonStatus()
         observeUsernameChanges()
         observeDialogErrors()
         initUsernameChangedListener()
         requestInitialFocus()
+    }
+
+    private fun generateUsername() {
+        usernameViewModel.generateUsername()
     }
 
     private fun setUpAccessibilityHeading() =
@@ -62,7 +67,11 @@ class CreatePersonalAccountUsernameFragment : Fragment(R.layout.fragment_create_
     }
 
     private fun observeUsernameChanges() {
-        usernameViewModel.usernameLiveData.observe(viewLifecycleOwner) {
+        usernameViewModel.generatedUsernameLiveData.observe(viewLifecycleOwner) {
+            createPersonalAccountUsernameEditText.setText(it)
+        }
+
+        usernameViewModel.usernameValidationLiveData.observe(viewLifecycleOwner) {
             it.fold(::showUsernameErrorMessage) { showMainScreen() }
         }
     }

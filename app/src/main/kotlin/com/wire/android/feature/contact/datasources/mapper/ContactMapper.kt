@@ -3,23 +3,29 @@ package com.wire.android.feature.contact.datasources.mapper
 import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.contact.datasources.remote.ContactResponse
+import com.wire.android.shared.asset.PublicAsset
+import com.wire.android.shared.asset.mapper.AssetMapper
 
-class ContactMapper {
+class ContactMapper(private val assetMapper: AssetMapper) {
 
-    fun fromContactResponseList(contactResponseList: List<ContactResponse>): List<Contact> =
-        contactResponseList.map { fromContactResponse(it) }
+    fun fromContactResponseListToEntityList(contactResponseList: List<ContactResponse>): List<ContactEntity> =
+        contactResponseList.map { fromContactResponseToEntity(it) }
 
-    //TODO: map other fields as well
-    private fun fromContactResponse(contactResponse: ContactResponse): Contact =
-        Contact(id = contactResponse.id, name = contactResponse.name)
+    private fun fromContactResponseToEntity(
+        contactResponse: ContactResponse,
+    ) = ContactEntity(
+        id = contactResponse.id,
+        name = contactResponse.name,
+        assetKey = assetMapper.profilePictureAssetKey(contactResponse.assets)
+    )
 
-    fun toContactEntityList(contacts: List<Contact>) : List<ContactEntity> = contacts.map { toContactEntity(it) }
-
-    private fun toContactEntity(contact: Contact): ContactEntity =
-        ContactEntity(id = contact.id, name = contact.name)
-
-    fun fromContactEntityList(entityList: List<ContactEntity>): List<Contact> = entityList.map { fromContactEntity(it) }
+    fun fromContactEntityList(entityList: List<ContactEntity>): List<Contact> =
+        entityList.map { fromContactEntity(it) }
 
     private fun fromContactEntity(entity: ContactEntity): Contact =
-        Contact(id = entity.id, name = entity.name)
+        Contact(
+            id = entity.id,
+            name = entity.name,
+            profilePicture = entity.assetKey?.let { PublicAsset(it) }
+        )
 }

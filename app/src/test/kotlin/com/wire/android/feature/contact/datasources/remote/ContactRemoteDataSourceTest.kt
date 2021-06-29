@@ -4,9 +4,10 @@ import com.wire.android.UnitTest
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
+import com.wire.android.framework.network.mockNetworkError
+import com.wire.android.framework.network.mockNetworkResponse
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.slot
@@ -15,7 +16,6 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Test
-import retrofit2.Response
 
 class ContactRemoteDataSourceTest : UnitTest() {
 
@@ -26,13 +26,15 @@ class ContactRemoteDataSourceTest : UnitTest() {
 
     @Before
     fun setUp() {
-        contactRemoteDataSource = ContactRemoteDataSource(contactsApi, connectedNetworkHandler, TEST_CONTACT_COUNT_THRESHOLD)
+        contactRemoteDataSource = ContactRemoteDataSource(
+            contactsApi, connectedNetworkHandler, TEST_CONTACT_COUNT_THRESHOLD
+        )
     }
 
     @Test
     fun `given contactsById is called, when number of ids is less than threshold, then sends a single request`() {
         val contactList: List<ContactResponse> = mockContacts(2)
-        coEvery { contactsApi.contactsById(any()) } returns mockContactsResponseSuccess(contactList)
+        coEvery { contactsApi.contactsById(any()) } returns mockNetworkResponse(contactList)
         val ids: Set<String> = setOf("a", "b")
 
         val result = runBlocking { contactRemoteDataSource.contactsById(ids) }
@@ -47,9 +49,9 @@ class ContactRemoteDataSourceTest : UnitTest() {
     fun `given contactsById is called, when number of ids is greater than threshold, then sends separate requests for each chunk`() {
         val ids: Set<String> = setOf("a", "b", "c", "d", "e", "f", "g") // [a, b, c], [d, e, f], [g]
         coEvery { contactsApi.contactsById(any()) } returnsMany listOf(
-            mockContactsResponseSuccess(mockContacts(3)),
-            mockContactsResponseSuccess(mockContacts(3)),
-            mockContactsResponseSuccess(mockContacts(1))
+            mockNetworkResponse(mockContacts(3)),
+            mockNetworkResponse(mockContacts(3)),
+            mockNetworkResponse(mockContacts(1))
         )
 
         runBlocking { contactRemoteDataSource.contactsById(ids) }
@@ -66,9 +68,9 @@ class ContactRemoteDataSourceTest : UnitTest() {
         val contactList1 = mockContacts(3)
         val contactList3 = mockContacts(1)
         coEvery { contactsApi.contactsById(any()) } returnsMany listOf(
-            mockContactsResponseSuccess(contactList1),
-            mockContactsResponseError(),
-            mockContactsResponseSuccess(contactList3)
+            mockNetworkResponse(contactList1),
+            mockNetworkError(),
+            mockNetworkResponse(contactList3)
         )
 
         val result = runBlocking { contactRemoteDataSource.contactsById(ids) }
@@ -84,9 +86,9 @@ class ContactRemoteDataSourceTest : UnitTest() {
         val ids: Set<String> = setOf("a", "b", "c", "d", "e", "f", "g") // [a, b, c], [d, e, f], [g]
 
         coEvery { contactsApi.contactsById(any()) } returnsMany listOf(
-            mockContactsResponseError(),
-            mockContactsResponseError(),
-            mockContactsResponseError()
+            mockNetworkError(),
+            mockNetworkError(),
+            mockNetworkError()
         )
 
         val result = runBlocking { contactRemoteDataSource.contactsById(ids) }
@@ -106,9 +108,9 @@ class ContactRemoteDataSourceTest : UnitTest() {
         val contactList3: List<ContactResponse> = mockContacts(1)
 
         coEvery { contactsApi.contactsById(any()) } returnsMany listOf(
-            mockContactsResponseSuccess(contactList1),
-            mockContactsResponseSuccess(contactList2),
-            mockContactsResponseSuccess(contactList3)
+            mockNetworkResponse(contactList1),
+            mockNetworkResponse(contactList2),
+            mockNetworkResponse(contactList3)
         )
 
         val result = runBlocking { contactRemoteDataSource.contactsById(ids) }
@@ -121,18 +123,6 @@ class ContactRemoteDataSourceTest : UnitTest() {
 
     companion object {
         private const val TEST_CONTACT_COUNT_THRESHOLD = 3
-
-        private fun mockContactsResponseSuccess(contactList: List<ContactResponse>): Response<List<ContactResponse>> =
-            mockk<Response<List<ContactResponse>>>().also {
-                every { it.isSuccessful } returns true
-                every { it.body() } returns contactList
-            }
-
-        private fun mockContactsResponseError(errorCode: Int = 404): Response<List<ContactResponse>> =
-            mockk<Response<List<ContactResponse>>>().also {
-                every { it.isSuccessful } returns false
-                every { it.code() } returns errorCode
-            }
 
         private fun mockContacts(size: Int): List<ContactResponse> = (0 until size).map { mockk() }
     }

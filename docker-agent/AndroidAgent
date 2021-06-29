@@ -25,12 +25,26 @@ RUN mkdir -p /home/${USER}/android-sdk-linux && \
     unzip tools.zip -d /home/${USER}/android-sdk-linux && \
     rm tools.zip
 
+# Download and untar Android NDK tools
+ENV ANDROID_NDK_HOME /home/${USER}/android-ndk
+ENV ANDROID_NDK_VERSION r22b
+RUN mkdir /home/${USER}/android-ndk-tmp && \
+    cd /home/${USER}/android-ndk-tmp && \
+    wget -q https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip && \
+# uncompress
+    unzip -q android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip && \
+# move to its final location
+    mv ./android-ndk-${ANDROID_NDK_VERSION} ${ANDROID_NDK_HOME} && \
+# remove temp dir
+    cd ${ANDROID_NDK_HOME} && \
+    rm -rf /home/${USER}/android-ndk-tmp
+
 # Set environment variable
 ENV ANDROID_HOME /home/${USER}/android-sdk-linux
 ENV ANDROID_SDK=${ANDROID_HOME}
-ENV ANDROID_NDK_HOME ${ANDROID_HOME}/ndk-bundle
-ENV NDK_HOME ${ANDROID_HOME}/ndk-bundle
-ENV PATH ${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:$PATH
+ENV PATH ${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:$ANDROID_NDK_HOME:$PATH
+
+
 
 #define the values to install/setup via the sdk manager
 ARG BUILD_TOOLS_VERSION=29.0.3
@@ -41,5 +55,5 @@ ARG ARCHITECTURE=x86
 RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
 
 # Update and install using sdkmanager
-RUN $ANDROID_HOME/tools/bin/sdkmanager "tools" "platform-tools" "build-tools;${BUILD_TOOLS_VERSION}" "platforms;${PLATFORMS_VERSION}" "system-images;${PLATFORMS_VERSION};default;${ARCHITECTURE}" "extras;android;m2repository" "extras;google;m2repository" "ndk-bundle"
+RUN $ANDROID_HOME/tools/bin/sdkmanager "tools" "platform-tools" "build-tools;${BUILD_TOOLS_VERSION}" "platforms;${PLATFORMS_VERSION}" "system-images;${PLATFORMS_VERSION};default;${ARCHITECTURE}" "extras;android;m2repository" "extras;google;m2repository"
 

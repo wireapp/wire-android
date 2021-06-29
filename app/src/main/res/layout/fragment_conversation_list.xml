@@ -3,17 +3,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:background="@color/black"
+    tools:theme="@style/AppTheme.Dark">
+
+    <!-- TODO: get rid of background-->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/conversationListProfileIconImageView"
+        android:layout_width="@dimen/conversation_list_toolbar_profile_icon_size"
+        android:layout_height="@dimen/conversation_list_toolbar_profile_icon_size"
+        android:layout_marginStart="@dimen/screen_padding"
+        android:background="@color/white"
+        android:contentDescription="@string/conversation_list_toolbar_profile_image_content_description"
+        app:layout_constraintBottom_toBottomOf="@id/conversationListUserInfoTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/conversationListUserInfoTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/conversation_list_toolbar_user_info_margin_end"
+        android:ellipsize="end"
         android:gravity="center"
-        android:padding="@dimen/screen_padding"
-        android:textAppearance="?textAppearanceBody1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:paddingTop="@dimen/screen_padding"
+        android:paddingBottom="@dimen/screen_padding"
+        android:textAppearance="?textAppearanceHeadline6"
+        android:textSize="@dimen/conversation_list_toolbar_user_info_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/conversationListProfileIconImageView"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Username" />
 
@@ -21,9 +40,15 @@
         android:id="@+id/conversationListRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:overScrollMode="never"
+        android:scrollIndicators="top"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/conversationListUserInfoTextView" />
+
+    <include
+        android:id="@+id/conversationListNoConversationsLayout"
+        layout="@layout/layout_no_conversations_message"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

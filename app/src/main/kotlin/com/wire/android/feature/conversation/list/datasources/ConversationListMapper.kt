@@ -14,10 +14,6 @@ class ConversationListMapper(
         val conversation = conversationMapper.fromEntity(listItemEntity.conversation)
         val contacts = contactMapper.fromContactEntityList(listItemEntity.members)
 
-        return ConversationListItem(
-            id = conversation.id,
-            name = conversation.name,
-            members = contacts
-        )
+        return ConversationListItem(conversation = conversation, members = contacts)
     }
 }

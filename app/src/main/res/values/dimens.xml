@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- region Components -->
     <dimen name="back_button_padding">16dp</dimen>
+    <dimen name="back_button_elevation">1dp</dimen>
+
     <dimen name="screen_padding">16dp</dimen>
 
     <dimen name="button_rounded_corner_radius">48dp</dimen>
@@ -14,12 +17,16 @@
     <dimen name="alert_dialog_body_text_size">16sp</dimen>
     <dimen name="alert_dialog_body_line_height">24sp</dimen>
 
+    <dimen name="divider_height">1dp</dimen>
+    <!-- endregion -->
+
+    <!-- region Features -->
+
     <!-- Welcome -->
     <dimen name="welcome_button_enterprise_login_margin_bottom">16dp</dimen>
     <item name="welcome_button_width_percent" format="float" type="dimen">0.9</item>
 
     <!-- Authentication -->
-    <dimen name="authentication_back_button_elevation">1dp</dimen>
     <dimen name="authentication_text_input_layout_margin_top">14dp</dimen>
 
     <!-- Authentication - Register-->
@@ -57,7 +64,41 @@
     <item name="login_header_guideline_percent" format="float" type="dimen">0.228</item>
     <dimen name="login_password_text_input_margin_top">1dp</dimen>
 
+    <!-- Main -->
+    <dimen name="main_bottom_navigation_icon_size">20dp</dimen>
+
     <!-- Conversation List -->
-    <dimen name="conversation_list_item_icon_size">28dp</dimen>
+    <item name="no_conversations_layout_vertical_guideline_percent" format="float" type="dimen">0.5</item>
+    <item name="no_conversations_info_text_width_percent" format="float" type="dimen">0.8</item>
+    <dimen name="no_conversations_info_text_padding_end">60dp</dimen>
+    <dimen name="no_conversations_info_text_margin_bottom">42dp</dimen>
+
+    <dimen name="conversation_list_toolbar_profile_icon_size">24dp</dimen>
+    <dimen name="conversation_list_toolbar_team_icon_corner_radius">2dp</dimen>
+    <dimen name="conversation_list_toolbar_user_info_margin_end">40dp</dimen>
+    <dimen name="conversation_list_toolbar_user_info_text_size">16sp</dimen>
+
+    <dimen name="conversation_list_contact_icon_size">32dp</dimen>
+    <dimen name="conversation_list_divider_inset">60dp</dimen>
+
+    <dimen name="conversation_icon_corner_radius">4dp</dimen>
+    <dimen name="conversation_icon_layout_padding">2dp</dimen>
+    <dimen name="conversation_icon_border_width">1dp</dimen>
+    <dimen name="group_conversation_member_icon_size">11dp</dimen>
+    <dimen name="group_conversation_member_icon_size_with_padding">13dp</dimen>
+
+    <!-- Profile -->
+    <dimen name="profile_user_detail_margin_top">4dp</dimen>
+    <dimen name="profile_user_picture_margin_top">24dp</dimen>
+    <dimen name="profile_user_picture_margin_bottom">8dp</dimen>
+    <dimen name="profile_user_picture_margin_start">8dp</dimen>
+    <dimen name="profile_user_picture_margin_end">8dp</dimen>
+    <dimen name="profile_user_picture_width">300dp</dimen>
+    <dimen name="profile_user_picture_height">300dp</dimen>
+
+    <!-- endregion -->
+
+    <!--    device limit-->
+    <dimen name="device_limit_notice_message_margin_bottom">24dp</dimen>
 
 </resources>

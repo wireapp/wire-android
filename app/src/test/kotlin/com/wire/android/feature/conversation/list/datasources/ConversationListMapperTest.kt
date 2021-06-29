@@ -34,7 +34,7 @@ class ConversationListMapperTest : UnitTest() {
     @Test
     fun `given a ConversationListItemEntity, when fromEntity is called, then delegates to other mappers and combines the results`() {
         val conversationEntity = mockk<ConversationEntity>()
-        val conversation = Conversation(id = "id", name = "name")
+        val conversation = mockk<Conversation>()
         every { conversationMapper.fromEntity(conversationEntity) } returns conversation
 
         val contactEntities = mockk<List<ContactEntity>>()
@@ -45,8 +45,7 @@ class ConversationListMapperTest : UnitTest() {
 
         val result = conversationListMapper.fromEntity(listItemEntity)
 
-        result.id shouldBeEqualTo conversation.id
-        result.name shouldBeEqualTo conversation.name
+        result.conversation shouldBeEqualTo conversation
         result.members shouldBeEqualTo contacts
         verify(exactly = 1) { conversationMapper.fromEntity(conversationEntity) }
         verify(exactly = 1) { contactMapper.fromContactEntityList(contactEntities) }

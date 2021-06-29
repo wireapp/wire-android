@@ -94,4 +94,22 @@
     <string name="login_too_frequent_failure_message">Please try to log in later.</string>
 
     <string name="login_forgot_password">Forgot Password</string>
+
+    <!-- Main -->
+    <string name="main_bottom_navigation_search_menu_title">Search Users</string>
+    <string name="main_bottom_navigation_conversations_menu_title">Conversations</string>
+
+    <!-- Conversation List -->
+    <string name="no_conversations_info_message">Start a conversation or create a group.</string>
+    <string name="conversation_list_toolbar_profile_image_content_description">My Profile</string>
+
+    <!-- Profile -->
+    <string name="profile_screen_title">Profile</string>
+    <string name="profile_user_handle_text">\@%s</string>
+    <string name="profile_user_team_info_text">in %s</string>
+
+    <!--    devices limit   -->
+    <string name="devices_limit_logout_text">logout</string>
+    <string name="devices_limit_notice_text">You reached the maximum number of allowed devices. Please use another client to remove your devices.</string>
+
 </resources>

@@ -13,6 +13,7 @@ import com.wire.android.core.network.RetrofitClient
 import com.wire.android.core.network.UserAgentInterceptor
 import com.wire.android.core.network.auth.accesstoken.AccessTokenAuthenticator
 import com.wire.android.core.network.auth.accesstoken.AccessTokenInterceptor
+import com.wire.android.core.network.auth.accesstoken.AuthenticationManager
 import com.wire.android.core.network.di.NetworkDependencyProvider.createHttpClientWithAuth
 import com.wire.android.core.network.di.NetworkDependencyProvider.createHttpClientWithoutAuth
 import com.wire.android.core.network.di.NetworkDependencyProvider.retrofit
@@ -26,6 +27,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.protobuf.ProtoConverterFactory
 
 
 object NetworkDependencyProvider {
@@ -35,6 +37,7 @@ object NetworkDependencyProvider {
             .baseUrl(baseUrl)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(ProtoConverterFactory.create())
             .build()
 
     fun createHttpClientWithAuth(httpsRequestParams: HttpRequestParams,
@@ -68,9 +71,10 @@ val networkModule: Module = module {
     single { retrofit(get(), get<NetworkConfig>().baseUrl) }
     single { createHttpClientWithAuth(get(), get(), get(), get()) }
     single { HttpRequestParams() }
-    single { AccessTokenAuthenticator(get()) }
+    single { AccessTokenAuthenticator(get(), get()) }
     single { AccessTokenInterceptor(get()) }
-    single { UserAgentInterceptor(get()) }
+    single { UserAgentInterceptor() }
+    factory { AuthenticationManager() }
 
     val networkClientForNoAuth = "NETWORK_CLIENT_NO_AUTH_REQUEST"
     single<NetworkClient>(named(networkClientForNoAuth)) {

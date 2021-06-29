@@ -4,76 +4,79 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagedList
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.events.Event
 import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.onFailure
 import com.wire.android.core.functional.onSuccess
-import com.wire.android.core.ui.SingleLiveEvent
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
-import com.wire.android.feature.conversation.Conversation
-import com.wire.android.feature.conversation.list.usecase.GetConversationsParams
-import com.wire.android.feature.conversation.list.usecase.GetConversationsUseCase
-import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsParams
-import com.wire.android.feature.conversation.list.usecase.GetMembersOfConversationsUseCase
-import com.wire.android.shared.auth.activeuser.GetActiveUserUseCase
+import com.wire.android.feature.conversation.list.toolbar.ToolbarData
+import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
+import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCaseParams
+import com.wire.android.shared.team.Team
+import com.wire.android.shared.team.usecase.GetUserTeamUseCase
+import com.wire.android.shared.team.usecase.GetUserTeamUseCaseParams
+import com.wire.android.shared.team.usecase.NotATeamUser
+import com.wire.android.shared.user.User
+import com.wire.android.shared.user.usecase.GetCurrentUserUseCase
 
 class ConversationListViewModel(
     override val dispatcherProvider: DispatcherProvider,
-    private val getActiveUserUseCase: GetActiveUserUseCase,
-    private val getConversationsUseCase: GetConversationsUseCase,
-    private val getMembersOfConversationsUseCase: GetMembersOfConversationsUseCase,
-    conversationListPagingDelegate: ConversationListPagingDelegate,
+    private val getConversationListUseCase: GetConversationListUseCase,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val getUserTeamUseCase: GetUserTeamUseCase,
     private val eventsHandler: EventsHandler
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    private val _userNameLiveData = MutableLiveData<String>()
-    val userNameLiveData: LiveData<String> = _userNameLiveData
+    private val _toolbarDataLiveData = MutableLiveData<ToolbarData>()
+    val toolbarDataLiveData: LiveData<ToolbarData> = _toolbarDataLiveData
 
-    private val _conversationListErrorLiveData = SingleLiveEvent<Failure>()
-    val conversationListErrorLiveData: LiveData<Failure> = _conversationListErrorLiveData
+    private val _conversationListItemsLiveData = MutableLiveData<PagingData<ConversationListItem>>()
+    val conversationListItemsLiveData: LiveData<PagingData<ConversationListItem>> = _conversationListItemsLiveData.cachedIn(viewModelScope)
 
-    val conversationListItemsLiveData: LiveData<PagedList<ConversationListItem>> =
-        conversationListPagingDelegate.conversationList(CONVERSATIONS_PAGE_SIZE, ::getConversationListNextPage)
-
-    fun fetchUserName() {
-        getActiveUserUseCase(viewModelScope, Unit) {
-            it.onSuccess { user -> _userNameLiveData.value = user.name }
+    fun fetchConversationList() {
+        val params = GetConversationListUseCaseParams(pageSize = CONVERSATIONS_PAGE_SIZE)
+        getConversationListUseCase(viewModelScope, params) {
+            _conversationListItemsLiveData.value = it
         }
     }
 
-    private fun getConversationListNextPage(lastItemLoaded: ConversationListItem?) =
-        getConversations(lastItemLoaded?.id)
-
-    private fun getConversations(start: String?) {
-        val params = GetConversationsParams(start, CONVERSATIONS_PAGE_SIZE)
-        getConversationsUseCase(viewModelScope, params) { result ->
-            result.onSuccess(::getConversationMembers)
-                .onFailure(::handleConversationListError)
-        }
+    fun fetchToolbarData() {
+        fetchUserData()
     }
 
-    private fun getConversationMembers(conversations: List<Conversation>) {
-        val params = GetMembersOfConversationsParams(conversations, NUMBER_OF_MEMBERS_DISPLAYED_PER_CONVERSATION)
-        getMembersOfConversationsUseCase(viewModelScope, params) {
-            it.onFailure(::handleConversationListError)
+    private fun fetchUserData() =
+        getCurrentUserUseCase(viewModelScope, Unit) {
+            it.onSuccess(::fetchTeamData)
         }
+
+    private fun fetchTeamData(user: User) =
+        getUserTeamUseCase(viewModelScope, GetUserTeamUseCaseParams(user)) { result ->
+            result.onSuccess { updateToolbarData(user, it) }
+                .onFailure {
+                    if (it is NotATeamUser) updateToolbarData(user, null)
+                    else handleToolbarDataFailure(it)
+                }
+        }
+
+    private fun updateToolbarData(user: User, team: Team?) {
+        _toolbarDataLiveData.value = ToolbarData(user, team)
     }
 
-    private fun handleConversationListError(failure: Failure) {
-        _conversationListErrorLiveData.value = failure
+    private fun handleToolbarDataFailure(failure: Failure) {
+        //TODO: display some kind of error
     }
 
     fun subscribeToEvents() = with(eventsHandler) {
-        subscribe<Event.UsernameChanged> { _userNameLiveData.value = it.username }
+        subscribe<Event.UsernameChanged> { fetchUserData() }
         subscribe<Event.ConversationNameChanged> { TODO() }
     }
 
     companion object {
         private const val CONVERSATIONS_PAGE_SIZE = 30
-        private const val NUMBER_OF_MEMBERS_DISPLAYED_PER_CONVERSATION = 4
     }
 }

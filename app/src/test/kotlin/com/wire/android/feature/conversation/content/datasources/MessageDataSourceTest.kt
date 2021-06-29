@@ -2,14 +2,13 @@ package com.wire.android.feature.conversation.content.datasources
 
 import com.wire.android.UnitTest
 import com.wire.android.core.crypto.CryptoBoxClient
-import com.wire.android.core.exception.DatabaseFailure
+import com.wire.android.core.crypto.model.CryptoSessionId
+import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
-import com.wire.android.framework.functional.shouldFail
-import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -18,7 +17,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
@@ -42,31 +40,27 @@ class MessageDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given save is called, when localDataSource returns success, then returns success`() {
-        val message = mockk<Message>()
-        val messageEntity = mockk<MessageEntity>()
-        every { messageMapper.fromMessageToEntity(message) } returns messageEntity
-        coEvery { messageLocalDataSource.save(messageEntity) } returns Either.Right(Unit)
+    fun `given decryptMessage is called, when clientId is null, then do not decrypt message`() {
+        val message = mockk<Message>().also {
+            every { it.clientId } returns null
+        }
+        val cryptoSession = mockk<CryptoSessionId>()
+        val encryptedMessage = mockk<EncryptedMessage>()
+        runBlocking { messageDataSource.decryptMessage(message) }
 
-        val result = runBlocking { messageDataSource.save(message) }
-
-        result shouldSucceed { it shouldBe Unit }
-        coVerify(exactly = 1) { messageLocalDataSource.save(messageEntity) }
+        coVerify(inverse = true) { cryptoBoxClient.decryptMessage(cryptoSession, encryptedMessage){ _ -> Either.Right(Unit) }}
     }
 
     @Test
-    fun `given save is called, when localDataSource returns a failure, then returns that failure`() {
-        val message = mockk<Message>()
-        val messageEntity = mockk<MessageEntity>()
-        val failure = DatabaseFailure()
-        every { messageMapper.fromMessageToEntity(message) } returns messageEntity
-        coEvery { messageLocalDataSource.save(messageEntity) } returns Either.Left(failure)
-
-        val result = runBlocking { messageDataSource.save(message) }
-
-        result shouldFail { it shouldBe failure }
-        coVerify(exactly = 1) { messageLocalDataSource.save(messageEntity) }
+    fun `given decryptMessage is called, when decoded content is invalid, then do not decrypt message`() {
+        //TODO
     }
+
+    @Test
+    fun `given decryptMessage is called, when cryptoSession is invalid, then do not decrypt message`() {
+        //TODO
+    }
+
 
     @Test
     fun `given conversationMessages is called, when messageLocalDataSource emits messages, then propagates mapped items`(){

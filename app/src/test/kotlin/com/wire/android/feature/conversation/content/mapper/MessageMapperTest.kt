@@ -35,6 +35,7 @@ class MessageMapperTest : UnitTest() {
         val messageEntity = MessageEntity(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
+            userId = TEST_USER_ID,
             type = TEST_MESSAGE_TYPE,
             content = TEST_MESSAGE_CONTENT,
             state = TEST_MESSAGE_STATE,
@@ -47,6 +48,7 @@ class MessageMapperTest : UnitTest() {
             it shouldBeInstanceOf Message::class
             it.id shouldBeEqualTo TEST_MESSAGE_ID
             it.conversationId shouldBeEqualTo TEST_CONVERSATION_ID
+            it.userId shouldBeEqualTo TEST_USER_ID
             it.type shouldBeEqualTo Text
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
             it.state shouldBeEqualTo Sent
@@ -62,6 +64,8 @@ class MessageMapperTest : UnitTest() {
         val message = Message(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
+            userId = TEST_USER_ID,
+            clientId = null,
             type = Text,
             content = TEST_MESSAGE_CONTENT,
             state = Sent,
@@ -74,6 +78,7 @@ class MessageMapperTest : UnitTest() {
             it shouldBeInstanceOf MessageEntity::class
             it.id shouldBeEqualTo TEST_MESSAGE_ID
             it.conversationId shouldBeEqualTo TEST_CONVERSATION_ID
+            it.userId shouldBeEqualTo TEST_USER_ID
             it.type shouldBeEqualTo TEST_MESSAGE_TYPE
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
             it.state shouldBeEqualTo TEST_MESSAGE_STATE
@@ -82,11 +87,12 @@ class MessageMapperTest : UnitTest() {
     }
 
     companion object {
-        private const val TEST_MESSAGE_ID = "m126454245456"
+        private const val TEST_MESSAGE_ID = "126454245456"
         private const val TEST_CONVERSATION_ID = "78897845445655"
+        private const val TEST_USER_ID = "05568897845445655"
         private const val TEST_MESSAGE_TYPE = "text"
         private const val TEST_MESSAGE_CONTENT = "Hello!"
         private const val TEST_MESSAGE_STATE = "sent"
-        private const val TEST_MESSAGE_TIME = "12345655456"
+        private const val TEST_MESSAGE_TIME = "1624990688"
     }
 }

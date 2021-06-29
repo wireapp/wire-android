@@ -10,12 +10,12 @@ import kotlinx.coroutines.flow.collect
 
 class ListenToEventsUseCase(
     private val eventRepository: EventRepository,
-    private val eventHandler: EventsHandler<Event>
+    private val messageEventHandler: EventsHandler<Event.Conversation.Message>
 ) : UseCase<Unit, Unit> {
     override suspend fun run(params: Unit): Either<Failure, Unit> {
         eventRepository.events().collect {
             if (it is Event.Conversation.Message)
-                eventHandler.subscribe(it)
+                messageEventHandler.subscribe(it)
         }
         return Either.Right(Unit)
     }

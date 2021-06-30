@@ -27,13 +27,16 @@ class MessageDataSource(
     override suspend fun decryptMessage(message: Message) {
         message.clientId?.let { clientId ->
             val decodedContent = Base64.decode(message.content, Base64.DEFAULT)
-            val cryptoSessionId = CryptoSessionId(UserId(message.userId), CryptoClientId(clientId))
-            cryptoBoxClient.decryptMessage(cryptoSessionId, EncryptedMessage(decodedContent)) {
-                val decryptedMessage = messageMapper.toDecryptedMessage(message, it)
-                GlobalScope.launch(Dispatchers.IO) {
-                    save(decryptedMessage)
+            decodedContent?.let {
+                val cryptoSessionId = CryptoSessionId(UserId(message.userId), CryptoClientId(clientId))
+                val encryptedMessage = EncryptedMessage(decodedContent)
+                cryptoBoxClient.decryptMessage(cryptoSessionId, encryptedMessage) {
+                    val decryptedMessage = messageMapper.toDecryptedMessage(message, it)
+                    GlobalScope.launch(Dispatchers.IO) {
+                        save(decryptedMessage)
+                    }
+                    Either.Right(Unit)
                 }
-                Either.Right(Unit)
             }
         }
     }

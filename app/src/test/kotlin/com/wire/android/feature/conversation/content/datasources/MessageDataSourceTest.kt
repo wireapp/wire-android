@@ -1,5 +1,6 @@
 package com.wire.android.feature.conversation.content.datasources
 
+import android.util.Base64
 import com.wire.android.UnitTest
 import com.wire.android.core.crypto.CryptoBoxClient
 import com.wire.android.core.crypto.model.CryptoSessionId
@@ -9,11 +10,8 @@ import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -46,21 +44,32 @@ class MessageDataSourceTest : UnitTest() {
         }
         val cryptoSession = mockk<CryptoSessionId>()
         val encryptedMessage = mockk<EncryptedMessage>()
+
         runBlocking { messageDataSource.decryptMessage(message) }
 
         coVerify(inverse = true) { cryptoBoxClient.decryptMessage(cryptoSession, encryptedMessage){ _ -> Either.Right(Unit) }}
     }
 
     @Test
-    fun `given decryptMessage is called, when decoded content is invalid, then do not decrypt message`() {
-        //TODO
+    fun `given decryptMessage is called, when decoded content is null, then do not decrypt message`() {
+        mockkStatic(Base64::class)
+        every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns null
+        val message = mockk<Message>().also {
+            every { it.clientId } returns TEST_CLIENT_ID
+            every { it.content } returns TEST_CONTENT
+        }
+        val cryptoSession = mockk<CryptoSessionId>()
+        val encryptedMessage = mockk<EncryptedMessage>()
+
+        runBlocking { messageDataSource.decryptMessage(message) }
+
+        coVerify(inverse = true) { cryptoBoxClient.decryptMessage(cryptoSession, encryptedMessage){ _ -> Either.Right(Unit) }}
     }
 
     @Test
     fun `given decryptMessage is called, when cryptoSession is invalid, then do not decrypt message`() {
-        //TODO
+       //TODO
     }
-
 
     @Test
     fun `given conversationMessages is called, when messageLocalDataSource emits messages, then propagates mapped items`(){
@@ -77,5 +86,10 @@ class MessageDataSourceTest : UnitTest() {
                 get(0) shouldBeEqualTo message
             }
         }
+    }
+
+    companion object {
+        private const val TEST_CLIENT_ID = "client-id"
+        private const val TEST_CONTENT = "This-is-a-content"
     }
 }

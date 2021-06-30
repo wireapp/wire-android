@@ -105,18 +105,18 @@ class EventDataSourceTest : UnitTest() {
     @Test
     fun `given websocket emits events and payload type is message-add, when payload data is not null, then emit Message event`() {
         val data = mockk<Data>().also {
-            every { it.sender } returns SENDER
-            every { it.text } returns TEXT
+            every { it.sender } returns TEST_CLIENT_ID
+            every { it.text } returns TEST_TEXT
         }
         val payload = mockk<Payload>().also {
             every { it.data } returns data
             every { it.type } returns Event.Conversation.NEW_MESSAGE_TYPE
-            every { it.conversation } returns CONVERSATION_ID
-            every { it.from } returns USER_ID
-            every { it.time } returns TIME
+            every { it.conversation } returns TEST_CONVERSATION_ID
+            every { it.from } returns TEST_USER_ID
+            every { it.time } returns TEST_TIME
         }
         val eventResponse = mockk<EventResponse>().also {
-            every { it.id } returns NOTIFICATION_ID
+            every { it.id } returns TEST_NOTIFICATION_ID
             every { it.payload } returns listOf(payload)
         }
         every { webSocketService.receiveEvent() } returns flowOf(eventResponse)
@@ -124,7 +124,7 @@ class EventDataSourceTest : UnitTest() {
         runBlocking {
             val result = eventDataSource.events()
 
-            val expected = Event.Conversation.Message(
+            val expected = Event.Conversation.MessageEvent(
                 eventResponse.id,
                 payload.conversation,
                 data.sender,
@@ -142,18 +142,18 @@ class EventDataSourceTest : UnitTest() {
     @Test
     fun `given websocket emits events, when event have two payloads, then emit two Message events`() {
         val data = mockk<Data>().also {
-            every { it.sender } returns SENDER
-            every { it.text } returns TEXT
+            every { it.sender } returns TEST_CLIENT_ID
+            every { it.text } returns TEST_TEXT
         }
         val payload = mockk<Payload>().also {
             every { it.data } returns data
             every { it.type } returns Event.Conversation.NEW_MESSAGE_TYPE
-            every { it.conversation } returns CONVERSATION_ID
-            every { it.from } returns USER_ID
-            every { it.time } returns TIME
+            every { it.conversation } returns TEST_CONVERSATION_ID
+            every { it.from } returns TEST_USER_ID
+            every { it.time } returns TEST_TIME
         }
         val eventResponse = mockk<EventResponse>().also {
-            every { it.id } returns NOTIFICATION_ID
+            every { it.id } returns TEST_NOTIFICATION_ID
             every { it.payload } returns listOf(payload, payload)
         }
         every { webSocketService.receiveEvent() } returns flowOf(eventResponse)
@@ -161,17 +161,17 @@ class EventDataSourceTest : UnitTest() {
         runBlocking {
             val result = eventDataSource.events()
             result.count() shouldBeEqualTo 2
-            result.onEach { it shouldBeInstanceOf Event.Conversation.Message::class }
+            result.onEach { it shouldBeInstanceOf Event.Conversation.MessageEvent::class }
         }
     }
 
     companion object {
-        private const val USER_ID = "user-id-546455546"
-        private const val CONVERSATION_ID = "conversation-id"
-        private const val NOTIFICATION_ID = "notification-id"
-        private const val SENDER = "sender-client-id"
-        private const val TEXT = "encrypted-text"
-        private const val TIME = "time-timestamp"
+        private const val TEST_USER_ID = "user-id-546455546"
+        private const val TEST_CONVERSATION_ID = "conversation-id"
+        private const val TEST_NOTIFICATION_ID = "notification-id"
+        private const val TEST_CLIENT_ID = "sender-client-id"
+        private const val TEST_TEXT = "encrypted-text"
+        private const val TEST_TIME = "time-timestamp"
     }
 }
 

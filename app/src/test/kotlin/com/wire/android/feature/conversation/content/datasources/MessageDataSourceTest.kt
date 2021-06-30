@@ -53,10 +53,11 @@ class MessageDataSourceTest : UnitTest() {
     @Test
     fun `given decryptMessage is called, when decoded content is null, then do not decrypt message`() {
         mockkStatic(Base64::class)
-        every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns null
+        every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns "null".toByteArray()
         val message = mockk<Message>().also {
             every { it.clientId } returns TEST_CLIENT_ID
             every { it.content } returns TEST_CONTENT
+            every { it.userId } returns TEST_CONTENT
         }
         val cryptoSession = mockk<CryptoSessionId>()
         val encryptedMessage = mockk<EncryptedMessage>()

@@ -38,7 +38,7 @@ val eventModule = module {
         )
     }
 
-    single<EventsHandler<Event.Conversation.Message>> { MessageEventsHandler(get(), get()) }
+    single<EventsHandler<Event.Conversation.MessageEvent>> { MessageEventsHandler(get(), get()) }
     single<EventRepository> { EventDataSource(get()) }
     single { ListenToEventsUseCase(get(), get()) }
 }

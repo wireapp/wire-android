@@ -2,7 +2,7 @@ package com.wire.android.core.events
 
 sealed class Event {
     sealed class Conversation : Event() {
-        data class Message(
+        data class MessageEvent(
             val id: String,
             val conversationId: String,
             val sender: String,

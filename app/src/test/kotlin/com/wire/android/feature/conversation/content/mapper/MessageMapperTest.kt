@@ -2,6 +2,7 @@ package com.wire.android.feature.conversation.content.mapper
 
 import com.wire.android.UnitTest
 import com.wire.android.core.date.DateStringMapper
+import com.wire.android.core.events.Event
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.Sent
 import com.wire.android.feature.conversation.content.Text
@@ -97,10 +98,39 @@ class MessageMapperTest : UnitTest() {
         }
     }
 
+    @Test
+    fun `given fromMessageEventToMessage is called, then maps the MessageEvent and returns a Message`() {
+        val expectedTimeOffset: OffsetDateTime = mockk()
+        every { dateStringMapper.fromStringToOffsetDateTime(TEST_MESSAGE_TIME) } returns expectedTimeOffset
+
+        val messageEvent = Event.Conversation.MessageEvent(
+            id = TEST_MESSAGE_ID,
+            conversationId = TEST_CONVERSATION_ID,
+            sender = TEST_SENDER_ID,
+            userId = TEST_USER_ID,
+            content = TEST_MESSAGE_CONTENT,
+            time = TEST_MESSAGE_TIME
+        )
+
+        val result = messageMapper.fromMessageEventToMessage(messageEvent)
+
+        result.let {
+            it shouldBeInstanceOf Message::class
+            it.id shouldBeEqualTo TEST_MESSAGE_ID
+            it.conversationId shouldBeEqualTo TEST_CONVERSATION_ID
+            it.userId shouldBeEqualTo TEST_USER_ID
+            it.type shouldBeEqualTo Text
+            it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
+            it.state shouldBeEqualTo Sent
+            it.time shouldBeEqualTo expectedTimeOffset
+        }
+    }
+
     companion object {
-        private const val TEST_MESSAGE_ID = "m126454245456"
-        private const val TEST_CONVERSATION_ID = "78897845445655"
-        private const val TEST_USER_ID = "05568897845445655"
+        private const val TEST_MESSAGE_ID = "message-id"
+        private const val TEST_CONVERSATION_ID = "conversation-id"
+        private const val TEST_SENDER_ID = "sender-id"
+        private const val TEST_USER_ID = "user-id"
         private const val TEST_MESSAGE_TYPE = "text"
         private const val TEST_MESSAGE_CONTENT = "Hello!"
         private const val TEST_MESSAGE_STATE = "sent"

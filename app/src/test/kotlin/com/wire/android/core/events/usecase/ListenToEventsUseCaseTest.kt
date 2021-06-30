@@ -19,7 +19,7 @@ class ListenToEventsUseCaseTest : UnitTest() {
     private lateinit var eventRepository: EventRepository
 
     @MockK
-    private lateinit var messageEventsHandler: EventsHandler<Event.Conversation.Message>
+    private lateinit var messageEventsHandler: EventsHandler<Event.Conversation.MessageEvent>
 
     private lateinit var listenToEventsUseCase: ListenToEventsUseCase
 
@@ -30,7 +30,7 @@ class ListenToEventsUseCaseTest : UnitTest() {
 
     @Test
     fun `given eventRepository emits events, when event is Message, then subscribe to messageEventHandler`() {
-        val event = mockk<Event.Conversation.Message>()
+        val event = mockk<Event.Conversation.MessageEvent>()
         every { eventRepository.events() } returns flowOf(event)
 
         runBlocking {

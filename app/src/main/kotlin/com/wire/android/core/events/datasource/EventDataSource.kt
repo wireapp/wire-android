@@ -14,7 +14,7 @@ class EventDataSource(private val webSocketService: WebSocketService) : EventRep
                 for (payload in payloads)
                     if (payload.type == Event.Conversation.NEW_MESSAGE_TYPE && payload.data != null)
                         emit(
-                            Event.Conversation.Message(
+                            Event.Conversation.MessageEvent(
                                 it.id,
                                 payload.conversation,
                                 payload.data.sender,

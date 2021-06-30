@@ -1,5 +1,7 @@
 package com.wire.android.feature.conversation.content
 
+import java.time.OffsetDateTime
+
 data class Message(
     val id: String,
     val conversationId: String,
@@ -8,5 +10,5 @@ data class Message(
     val content: String,
     val type: MessageType,
     val state: MessageState,
-    val time: String
+    val time: OffsetDateTime
 )

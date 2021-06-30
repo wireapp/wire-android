@@ -4,7 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagedList
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.onFailure
@@ -31,8 +32,8 @@ class ConversationListViewModel(
     private val _toolbarDataLiveData = MutableLiveData<ToolbarData>()
     val toolbarDataLiveData: LiveData<ToolbarData> = _toolbarDataLiveData
 
-    private val _conversationListItemsLiveData = MutableLiveData<PagedList<ConversationListItem>>()
-    val conversationListItemsLiveData: LiveData<PagedList<ConversationListItem>> = _conversationListItemsLiveData
+    private val _conversationListItemsLiveData = MutableLiveData<PagingData<ConversationListItem>>()
+    val conversationListItemsLiveData: LiveData<PagingData<ConversationListItem>> = _conversationListItemsLiveData.cachedIn(viewModelScope)
 
     fun fetchConversationList() {
         val params = GetConversationListUseCaseParams(pageSize = CONVERSATIONS_PAGE_SIZE)

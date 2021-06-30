@@ -38,6 +38,7 @@ object Injector {
         uiModule,
         ioModule,
         cryptoBoxModule,
+        dateModule,
         eventModule
     )
 

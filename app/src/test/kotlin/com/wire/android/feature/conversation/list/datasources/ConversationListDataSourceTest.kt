@@ -1,22 +1,27 @@
 package com.wire.android.feature.conversation.list.datasources
 
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
+import com.wire.android.feature.conversation.Self
 import com.wire.android.feature.conversation.data.ConversationTypeMapper
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListItemEntity
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListLocalDataSource
 import com.wire.android.feature.conversation.list.ui.ConversationListItem
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.impl.annotations.MockK
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Test
@@ -41,6 +46,22 @@ class ConversationListDataSourceTest : UnitTest() {
             conversationListLocalDataSource,
             conversationListMapper, conversationTypeMapper
         )
+    }
+
+    @Test
+    fun `given conversationListInBatch is called, then calls conversationListLocalDataSource to get pagingData`() {
+        val excludeType = 0
+        val source = mockk<PagingSource<Int, ConversationListItemEntity>>(relaxed = true)
+        every { conversationTypeMapper.toIntValue(Self) } returns excludeType
+        every { conversationListLocalDataSource.conversationListInBatch(excludeType) } returns source
+
+        runBlocking {
+            val result = conversationListDataSource.conversationListInBatch(10, Self)
+
+           result.first() shouldBeInstanceOf  PagingData::class
+           verify(exactly = 1) { conversationTypeMapper.toIntValue(Self) }
+           verify(exactly = 1) { conversationListLocalDataSource.conversationListInBatch(excludeType) }
+        }
     }
 
     @Test

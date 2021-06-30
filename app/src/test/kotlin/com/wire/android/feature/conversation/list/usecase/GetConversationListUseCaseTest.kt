@@ -1,6 +1,6 @@
 package com.wire.android.feature.conversation.list.usecase
 
-import androidx.paging.PagedList
+import androidx.paging.PagingData
 import com.wire.android.UnitTest
 import com.wire.android.feature.conversation.ConversationType
 import com.wire.android.feature.conversation.Self
@@ -43,7 +43,7 @@ class GetConversationListUseCaseTest : UnitTest() {
 
     @Test
     fun `given run is called, when conversationListRepo emits items, then propagates items`() {
-        val items = mockk<PagedList<ConversationListItem>>()
+        val items = mockk<PagingData<ConversationListItem>>()
         coEvery { conversationListRepository.conversationListInBatch(any(), any<ConversationType>()) } returns flowOf(items)
 
         val params = GetConversationListUseCaseParams(pageSize = TEST_PAGE_SIZE)

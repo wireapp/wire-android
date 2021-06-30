@@ -9,6 +9,7 @@ import com.wire.android.feature.conversation.content.datasources.MessageDataSour
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.mapper.MessageStateMapper
+import com.wire.android.core.date.DateStringMapper
 import com.wire.android.feature.conversation.content.mapper.MessageTypeMapper
 import com.wire.android.feature.conversation.data.ConversationDataSource
 import com.wire.android.feature.conversation.data.ConversationMapper

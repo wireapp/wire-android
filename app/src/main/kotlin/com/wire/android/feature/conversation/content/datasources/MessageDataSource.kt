@@ -2,10 +2,6 @@ package com.wire.android.feature.conversation.content.datasources
 
 import android.util.Base64
 import com.wire.android.core.crypto.CryptoBoxClient
-import com.wire.android.core.crypto.model.CryptoClientId
-import com.wire.android.core.crypto.model.CryptoSessionId
-import com.wire.android.core.crypto.model.EncryptedMessage
-import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.content.Message
@@ -25,13 +21,13 @@ class MessageDataSource(
 ) : MessageRepository {
 
     override suspend fun decryptMessage(message: Message) {
-        message.clientId?.let { clientId ->
+        message.clientId?.let { _ ->
             val decodedContent = Base64.decode(message.content, Base64.DEFAULT)
             decodedContent?.let {
-                val cryptoSessionId = CryptoSessionId(UserId(message.userId), CryptoClientId(clientId))
-                val encryptedMessage = EncryptedMessage(decodedContent)
-                cryptoBoxClient.decryptMessage(cryptoSessionId, encryptedMessage) {
-                    val decryptedMessage = messageMapper.toDecryptedMessage(message, it)
+                val cryptoSessionId = messageMapper.cryptoSessionFromMessage(message)
+                val encryptedMessage = messageMapper.encryptedMessageFromDecodedContent(it)
+                cryptoBoxClient.decryptMessage(cryptoSessionId, encryptedMessage) { plainMessage ->
+                    val decryptedMessage = messageMapper.toDecryptedMessage(message, plainMessage)
                     GlobalScope.launch(Dispatchers.IO) {
                         save(decryptedMessage)
                     }

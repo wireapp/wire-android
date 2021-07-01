@@ -1,7 +1,11 @@
 package com.wire.android.feature.conversation.content.mapper
 
 import com.waz.model.Messages
+import com.wire.android.core.crypto.model.CryptoClientId
+import com.wire.android.core.crypto.model.CryptoSessionId
+import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
+import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.date.DateStringMapper
 import com.wire.android.core.events.Event
 import com.wire.android.feature.conversation.content.Message
@@ -50,4 +54,8 @@ class MessageMapper(
             Sent,
             dateStringMapper.fromStringToOffsetDateTime(event.time)
         )
+
+    fun cryptoSessionFromMessage(message: Message) = CryptoSessionId(UserId(message.userId), CryptoClientId(message.clientId!!))
+
+    fun encryptedMessageFromDecodedContent(decodedContent: ByteArray) = EncryptedMessage(decodedContent)
 }

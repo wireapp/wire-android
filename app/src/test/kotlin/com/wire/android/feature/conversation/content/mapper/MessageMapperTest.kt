@@ -1,6 +1,9 @@
 package com.wire.android.feature.conversation.content.mapper
 
 import com.wire.android.UnitTest
+import com.wire.android.core.crypto.model.CryptoClientId
+import com.wire.android.core.crypto.model.CryptoSessionId
+import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.date.DateStringMapper
 import com.wire.android.core.events.Event
 import com.wire.android.feature.conversation.content.Message
@@ -123,6 +126,24 @@ class MessageMapperTest : UnitTest() {
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
             it.state shouldBeEqualTo Sent
             it.time shouldBeEqualTo expectedTimeOffset
+        }
+    }
+
+    @Test
+    fun `given cryptoSessionFromMessage is called, then maps the Message and returns a CryptoSessionId`() {
+        val message = mockk<Message>().also {
+            every { it.userId } returns TEST_USER_ID
+            every { it.clientId } returns TEST_SENDER_ID
+        }
+        val expected = "${TEST_USER_ID}_${TEST_SENDER_ID}"
+
+        val result = messageMapper.cryptoSessionFromMessage(message)
+
+        result.let {
+            it shouldBeInstanceOf CryptoSessionId::class
+            it.userId shouldBeInstanceOf UserId::class
+            it.cryptoClientId shouldBeInstanceOf CryptoClientId::class
+            it.value shouldBeEqualTo expected
         }
     }
 

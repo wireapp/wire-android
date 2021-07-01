@@ -5,13 +5,21 @@ import com.wire.android.UnitTest
 import com.wire.android.core.crypto.CryptoBoxClient
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
+import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
-import io.mockk.*
+import com.wire.android.core.exception.Failure
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.slot
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -32,6 +40,12 @@ class MessageDataSourceTest : UnitTest() {
     @MockK
     private lateinit var cryptoBoxClient: CryptoBoxClient
 
+    @MockK
+    private lateinit var cryptoSession: CryptoSessionId
+
+    @MockK
+    private lateinit var encryptedMessage: EncryptedMessage
+
     @Before
     fun setUp() {
         messageDataSource = MessageDataSource(messageLocalDataSource, messageMapper, cryptoBoxClient)
@@ -42,8 +56,6 @@ class MessageDataSourceTest : UnitTest() {
         val message = mockk<Message>().also {
             every { it.clientId } returns null
         }
-        val cryptoSession = mockk<CryptoSessionId>()
-        val encryptedMessage = mockk<EncryptedMessage>()
 
         runBlocking { messageDataSource.decryptMessage(message) }
 
@@ -53,14 +65,11 @@ class MessageDataSourceTest : UnitTest() {
     @Test
     fun `given decryptMessage is called, when decoded content is null, then do not decrypt message`() {
         mockkStatic(Base64::class)
-        every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns "null".toByteArray()
+        every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns null
         val message = mockk<Message>().also {
             every { it.clientId } returns TEST_CLIENT_ID
             every { it.content } returns TEST_CONTENT
-            every { it.userId } returns TEST_CONTENT
         }
-        val cryptoSession = mockk<CryptoSessionId>()
-        val encryptedMessage = mockk<EncryptedMessage>()
 
         runBlocking { messageDataSource.decryptMessage(message) }
 
@@ -68,8 +77,28 @@ class MessageDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given decryptMessage is called, when cryptoSession is invalid, then do not decrypt message`() {
-       //TODO
+    fun `given decryptMessage is called, when message is valid, then it should be decrypted`() {
+        val plainMessage = PlainMessage(byteArrayOf())
+        mockkStatic(Base64::class)
+        every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns byteArrayOf()
+        val message = mockk<Message>().also {
+            every { it.clientId } returns TEST_CLIENT_ID
+            every { it.userId } returns TEST_USER_ID
+            every { it.content } returns TEST_CONTENT
+        }
+
+        every { messageMapper.cryptoSessionFromMessage(message) } returns cryptoSession
+        every { messageMapper.encryptedMessageFromDecodedContent(byteArrayOf()) } returns encryptedMessage
+        val lambdaSlot = slot<((PlainMessage) -> Either<Failure, Unit>)>()
+
+        runBlocking { messageDataSource.decryptMessage(message) }
+
+        coVerify { cryptoBoxClient.decryptMessage(cryptoSession, encryptedMessage, capture(lambdaSlot)) }
+        lambdaSlot.captured.invoke(plainMessage)
+        verify(exactly = 1) { messageMapper.cryptoSessionFromMessage(message) }
+        verify(exactly = 1) { messageMapper.encryptedMessageFromDecodedContent(byteArrayOf()) }
+        verify(exactly = 1) { messageMapper.toDecryptedMessage(message, plainMessage) }
+        coVerify(exactly = 1) { messageLocalDataSource.save(any()) }
     }
 
     @Test
@@ -91,6 +120,7 @@ class MessageDataSourceTest : UnitTest() {
 
     companion object {
         private const val TEST_CLIENT_ID = "client-id"
+        private const val TEST_USER_ID = "user-id"
         private const val TEST_CONTENT = "This-is-a-content"
     }
 }

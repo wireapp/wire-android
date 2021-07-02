@@ -12,7 +12,7 @@ class EventDataSource(private val webSocketService: WebSocketService) : EventRep
         webSocketService.receiveEvent().collect {
             it.payload?.let { payloads ->
                 for (payload in payloads)
-                    if (payload.type == Event.Conversation.NEW_MESSAGE_TYPE && payload.data != null)
+                    if (payload.type == NEW_MESSAGE_TYPE && payload.data != null)
                         emit(
                             Event.Conversation.MessageEvent(
                                 it.id,
@@ -25,5 +25,9 @@ class EventDataSource(private val webSocketService: WebSocketService) : EventRep
                         )
             }
         }
+    }
+
+    companion object {
+        const val NEW_MESSAGE_TYPE = "conversation.otr-message-add"
     }
 }

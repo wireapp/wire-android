@@ -25,7 +25,7 @@ class MessageMapper(
         Message(
             id = id,
             conversationId = conversationId,
-            userId = userId,
+            senderUserId = senderUserId,
             clientId = null,
             content = content,
             type = messageType,
@@ -37,7 +37,7 @@ class MessageMapper(
     fun fromMessageToEntity(message: Message) = with(message) {
         val messageType = messageTypeMapper.fromValueToString(type)
         val messageState = messageStateMapper.fromValueToString(state)
-        MessageEntity(id, conversationId, userId, messageType, content, messageState, dateStringMapper.fromOffsetDateTimeToString(time))
+        MessageEntity(id, conversationId, senderUserId, messageType, content, messageState, dateStringMapper.fromOffsetDateTimeToString(time))
     }
 
     fun toDecryptedMessage(message: Message, plainMessage : PlainMessage) =
@@ -47,15 +47,15 @@ class MessageMapper(
         Message(
             event.id,
             event.conversationId,
-            event.userId,
-            event.sender,
+            event.senderUserId,
+            event.senderClientId,
             event.content,
             Text,
             Sent,
             dateStringMapper.fromStringToOffsetDateTime(event.time)
         )
 
-    fun cryptoSessionFromMessage(message: Message) = CryptoSessionId(UserId(message.userId), CryptoClientId(message.clientId!!))
+    fun cryptoSessionFromMessage(message: Message) = CryptoSessionId(UserId(message.senderUserId), CryptoClientId(message.clientId!!))
 
     fun encryptedMessageFromDecodedContent(decodedContent: ByteArray) = EncryptedMessage(decodedContent)
 }

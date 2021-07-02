@@ -48,7 +48,7 @@ class MessageMapperTest : UnitTest() {
         val messageEntity = MessageEntity(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
-            userId = TEST_USER_ID,
+            senderUserId = TEST_SENDER_USER_ID,
             type = TEST_MESSAGE_TYPE,
             content = TEST_MESSAGE_CONTENT,
             state = TEST_MESSAGE_STATE,
@@ -61,7 +61,7 @@ class MessageMapperTest : UnitTest() {
             it shouldBeInstanceOf Message::class
             it.id shouldBeEqualTo TEST_MESSAGE_ID
             it.conversationId shouldBeEqualTo TEST_CONVERSATION_ID
-            it.userId shouldBeEqualTo TEST_USER_ID
+            it.senderUserId shouldBeEqualTo TEST_SENDER_USER_ID
             it.type shouldBeEqualTo Text
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
             it.state shouldBeEqualTo Sent
@@ -79,7 +79,7 @@ class MessageMapperTest : UnitTest() {
         val message = Message(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
-            userId = TEST_USER_ID,
+            senderUserId = TEST_SENDER_USER_ID,
             clientId = null,
             type = Text,
             content = TEST_MESSAGE_CONTENT,
@@ -93,7 +93,7 @@ class MessageMapperTest : UnitTest() {
             it shouldBeInstanceOf MessageEntity::class
             it.id shouldBeEqualTo TEST_MESSAGE_ID
             it.conversationId shouldBeEqualTo TEST_CONVERSATION_ID
-            it.userId shouldBeEqualTo TEST_USER_ID
+            it.senderUserId shouldBeEqualTo TEST_SENDER_USER_ID
             it.type shouldBeEqualTo TEST_MESSAGE_TYPE
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
             it.state shouldBeEqualTo TEST_MESSAGE_STATE
@@ -109,8 +109,8 @@ class MessageMapperTest : UnitTest() {
         val messageEvent = Event.Conversation.MessageEvent(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
-            sender = TEST_SENDER_ID,
-            userId = TEST_USER_ID,
+            senderClientId = TEST_SENDER_ID,
+            senderUserId = TEST_SENDER_USER_ID,
             content = TEST_MESSAGE_CONTENT,
             time = TEST_MESSAGE_TIME
         )
@@ -121,7 +121,7 @@ class MessageMapperTest : UnitTest() {
             it shouldBeInstanceOf Message::class
             it.id shouldBeEqualTo TEST_MESSAGE_ID
             it.conversationId shouldBeEqualTo TEST_CONVERSATION_ID
-            it.userId shouldBeEqualTo TEST_USER_ID
+            it.senderUserId shouldBeEqualTo TEST_SENDER_USER_ID
             it.type shouldBeEqualTo Text
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
             it.state shouldBeEqualTo Sent
@@ -132,10 +132,10 @@ class MessageMapperTest : UnitTest() {
     @Test
     fun `given cryptoSessionFromMessage is called, then maps the Message and returns a CryptoSessionId`() {
         val message = mockk<Message>().also {
-            every { it.userId } returns TEST_USER_ID
+            every { it.senderUserId } returns TEST_SENDER_USER_ID
             every { it.clientId } returns TEST_SENDER_ID
         }
-        val expected = "${TEST_USER_ID}_${TEST_SENDER_ID}"
+        val expected = "${TEST_SENDER_USER_ID}_${TEST_SENDER_ID}"
 
         val result = messageMapper.cryptoSessionFromMessage(message)
 
@@ -151,7 +151,7 @@ class MessageMapperTest : UnitTest() {
         private const val TEST_MESSAGE_ID = "message-id"
         private const val TEST_CONVERSATION_ID = "conversation-id"
         private const val TEST_SENDER_ID = "sender-id"
-        private const val TEST_USER_ID = "user-id"
+        private const val TEST_SENDER_USER_ID = "sender-user-id"
         private const val TEST_MESSAGE_TYPE = "text"
         private const val TEST_MESSAGE_CONTENT = "Hello!"
         private const val TEST_MESSAGE_STATE = "sent"

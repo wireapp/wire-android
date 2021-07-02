@@ -83,7 +83,7 @@ class MessageDataSourceTest : UnitTest() {
         every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns byteArrayOf()
         val message = mockk<Message>().also {
             every { it.clientId } returns TEST_CLIENT_ID
-            every { it.userId } returns TEST_USER_ID
+            every { it.senderUserId } returns TEST_USER_ID
             every { it.content } returns TEST_CONTENT
         }
 

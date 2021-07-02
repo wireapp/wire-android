@@ -66,7 +66,7 @@ class EventDataSourceTest : UnitTest() {
     fun `given websocket emits events, when payload data is null, then do not emit data`() {
         val payload = mockk<Payload>().also {
             every { it.data } returns null
-            every { it.type } returns Event.Conversation.NEW_MESSAGE_TYPE
+            every { it.type } returns EventDataSource.NEW_MESSAGE_TYPE
         }
         val eventResponse = mockk<EventResponse>().also {
             every { it.payload } returns listOf(payload)
@@ -110,7 +110,7 @@ class EventDataSourceTest : UnitTest() {
         }
         val payload = mockk<Payload>().also {
             every { it.data } returns data
-            every { it.type } returns Event.Conversation.NEW_MESSAGE_TYPE
+            every { it.type } returns EventDataSource.NEW_MESSAGE_TYPE
             every { it.conversation } returns TEST_CONVERSATION_ID
             every { it.from } returns TEST_USER_ID
             every { it.time } returns TEST_TIME
@@ -147,7 +147,7 @@ class EventDataSourceTest : UnitTest() {
         }
         val payload = mockk<Payload>().also {
             every { it.data } returns data
-            every { it.type } returns Event.Conversation.NEW_MESSAGE_TYPE
+            every { it.type } returns EventDataSource.NEW_MESSAGE_TYPE
             every { it.conversation } returns TEST_CONVERSATION_ID
             every { it.from } returns TEST_USER_ID
             every { it.time } returns TEST_TIME

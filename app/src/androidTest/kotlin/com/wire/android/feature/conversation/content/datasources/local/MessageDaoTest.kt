@@ -35,7 +35,7 @@ class MessageDaoTest : InstrumentationTest() {
         messageEntity = MessageEntity(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
-            userId = TEST_USER_ID,
+            senderUserId = TEST_USER_ID,
             type = TEST_MESSAGE_TYPE,
             content = TEST_MESSAGE_CONTENT,
             state = TEST_MESSAGE_STATE,

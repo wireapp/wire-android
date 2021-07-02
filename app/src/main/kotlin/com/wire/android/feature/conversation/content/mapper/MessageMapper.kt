@@ -37,7 +37,15 @@ class MessageMapper(
     fun fromMessageToEntity(message: Message) = with(message) {
         val messageType = messageTypeMapper.fromValueToString(type)
         val messageState = messageStateMapper.fromValueToString(state)
-        MessageEntity(id, conversationId, senderUserId, messageType, content, messageState, dateStringMapper.fromOffsetDateTimeToString(time))
+        MessageEntity(
+            id,
+            conversationId,
+            senderUserId,
+            messageType,
+            content,
+            messageState,
+            dateStringMapper.fromOffsetDateTimeToString(time)
+        )
     }
 
     fun toDecryptedMessage(message: Message, plainMessage : PlainMessage) =

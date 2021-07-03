@@ -37,7 +37,6 @@ import com.waz.sync.client.{CredentialsUpdateClient, ErrorOr, UsersClient}
 import com.waz.threading.Threading
 import com.waz.utils._
 import com.wire.signals._
-
 import com.waz.zms.BuildConfig
 
 import scala.collection.breakOut
@@ -49,14 +48,17 @@ trait UserService {
   def userUpdateEventsStage: Stage.Atomic
   def userDeleteEventsStage: Stage.Atomic
 
-  def deleteUsers(ids: Set[UserId]): Future[Unit]
+  def deleteUsers(ids: Set[UserId], sendLeaveMessage: Boolean = true): Future[Unit]
 
   def selfUser: Signal[UserData]
   def currentConvMembers: Signal[Set[UserId]]
   def userNames: Signal[Map[UserId, Name]]
 
   def getSelfUser: Future[Option[UserData]]
+  def isFederated(id: UserId): Future[Boolean]
+  def isFederated(user: UserData): Future[Boolean]
   def findUser(id: UserId): Future[Option[UserData]]
+  def findUsers(ids: Seq[UserId]): Future[Seq[Option[UserData]]]
   def qualifiedId(userId: UserId): Future[QualifiedId]
   def getOrCreateUser(id: UserId): Future[UserData]
   def updateUserData(id: UserId, updater: UserData => UserData): Future[Option[(UserData, UserData)]]
@@ -65,7 +67,6 @@ trait UserService {
   def updateUsers(entries: Seq[UserSearchEntry]): Future[Set[UserData]]
   def syncRichInfoNowForUser(id: UserId): Future[Option[UserData]]
   def syncUser(userId: UserId): Future[Option[UserData]]
-  def syncQualifiedUser(qId: QualifiedId): Future[Option[UserData]]
   def acceptedOrBlockedUsers: Signal[Map[UserId, UserData]]
 
   def updateSyncedUsers(users: Seq[UserInfo], timestamp: LocalInstant = LocalInstant.Now): Future[Set[UserData]]
@@ -151,7 +152,7 @@ class UserServiceImpl(selfUserId:        UserId,
   //Update user data for other accounts
   accounts.accountsWithManagers.map(_ - selfUserId).foreach(syncIfNeeded(_))
 
-  override val selfUser: Signal[UserData] = usersStorage.optSignal(selfUserId) flatMap {
+  override val selfUser: Signal[UserData] = usersStorage.optSignal(selfUserId).flatMap {
     case Some(data) => Signal.const(data)
     case None =>
       sync.syncSelfUser()
@@ -181,14 +182,17 @@ class UserServiceImpl(selfUserId:        UserId,
     }
   }
 
-  override def deleteUsers(ids: Set[UserId]): Future[Unit] =
+  override def deleteUsers(ids: Set[UserId], sendLeaveMessage: Boolean = true): Future[Unit] =
     for {
       members       <- membersStorage.getByUsers(ids)
       _             <- membersStorage.removeAll(members.map(_.id).toSet)
       memberInConvs =  members.groupBy(_.convId)
-      _             <- Future.traverse(memberInConvs) {
-                         case (convId, ms) => messages.addMemberLeaveMessage(convId, selfUserId, ms.map(_.userId).toSet, reason = None)
-                       }
+      _             <- if (sendLeaveMessage)
+                         Future.traverse(memberInConvs) {
+                           case (convId, ms) => messages.addMemberLeaveMessage(convId, selfUserId, ms.map(_.userId).toSet, reason = None)
+                         }
+                       else
+                         Future.successful(())
       _             <- usersStorage.updateAll2(ids, _.copy(deleted = true))
     } yield ()
 
@@ -203,6 +207,8 @@ class UserServiceImpl(selfUserId:        UserId,
     )
 
   override def findUser(id: UserId): Future[Option[UserData]] = usersStorage.get(id)
+
+  override def findUsers(ids: Seq[UserId]): Future[Seq[Option[UserData]]] = usersStorage.getAll(ids)
 
   override def qualifiedId(userId: UserId): Future[QualifiedId] =
     findUser(userId).map(_.flatMap(_.qualifiedId).getOrElse(QualifiedId(userId)))
@@ -250,25 +256,27 @@ class UserServiceImpl(selfUserId:        UserId,
     }
   }
 
-  override def syncUser(userId: UserId): Future[Option[UserData]] =
-    usersClient.loadUser(userId).future.flatMap {
-      case Left(e) =>
-        Future.failed(e)
-      case Right(Some(info)) =>
-        updateSyncedUsers(Seq(info)).map(_.headOption)
-      case Right(None) =>
-        deleteUsers(Set(userId)).map(_ => None)
-    }
+  override def syncUser(userId: UserId): Future[Option[UserData]] = {
+    val updateResult =
+      if (BuildConfig.FEDERATION_USER_DISCOVERY) {
+        for {
+          Some(user) <- findUser(userId)
+          federated  <- isFederated(user)
+          res        <- ((federated, user.qualifiedId) match {
+                          case (true, Some(qId)) => usersClient.loadQualifiedUser(qId)
+                          case _                 => usersClient.loadUser(userId)
+                        }).future
+        } yield res
+      } else {
+          usersClient.loadUser(userId).future
+      }
 
-  override def syncQualifiedUser(qId: QualifiedId): Future[Option[UserData]] =
-    usersClient.loadQualifiedUser(qId).future.flatMap {
-      case Left(e) =>
-        Future.failed(e)
-      case Right(Some(info)) =>
-        updateSyncedUsers(Seq(info)).map(_.headOption)
-      case Right(None) =>
-        deleteUsers(Set(qId.id)).map(_ => None)
+    updateResult.flatMap {
+      case Left(e)           => Future.failed(e)
+      case Right(Some(info)) => updateSyncedUsers(Seq(info)).map(_.headOption)
+      case Right(None)       => deleteUsers(Set(userId)).map(_ => None)
     }
+  }
 
   def syncSelfNow: Future[Option[UserData]] = Serialized.future(s"syncSelfNow $selfUserId") {
     usersClient.loadSelf().future.flatMap {
@@ -282,11 +290,30 @@ class UserServiceImpl(selfUserId:        UserId,
 
   override def deleteAccount(): Future[SyncId] = sync.deleteAccount()
 
+  // @todo: replace with selfUser.head
   override def getSelfUser: Future[Option[UserData]] =
-    usersStorage.get(selfUserId) flatMap {
-      case Some(userData) => Future successful Some(userData)
-      case _ => syncSelfNow
+    usersStorage.get(selfUserId).flatMap {
+      case Some(userData) => Future.successful(Some(userData))
+      case _              => syncSelfNow
     }
+
+  override def isFederated(user: UserData): Future[Boolean] =
+    if (BuildConfig.FEDERATION_USER_DISCOVERY) {
+      selfUser.head.map(_.domain).map {
+        case Some(selfDomain) => user.domain.exists(_ != selfDomain)
+        case _                => false
+      }
+    } else
+      Future.successful(false)
+
+  override def isFederated(id: UserId): Future[Boolean] =
+    if (BuildConfig.FEDERATION_USER_DISCOVERY) {
+      findUser(id).flatMap {
+        case Some(user) => isFederated(user)
+        case _          => Future.successful(false)
+      }
+    } else
+      Future.successful(false)
 
   /**
    * Schedules user data sync if user with given id doesn't exist or has old timestamp.

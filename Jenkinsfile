@@ -2,6 +2,7 @@ pipeline {
   agent {
     docker {
       args '-u 1000:133 --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
+      label 'android-reloaded-builder'
       image 'android-reloaded-agent:latest'
     }
 

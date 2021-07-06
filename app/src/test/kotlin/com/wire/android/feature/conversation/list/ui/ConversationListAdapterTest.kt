@@ -26,11 +26,14 @@ class ConversationListAdapterTest : UnitTest() {
     @MockK
     private lateinit var diffCallback: ConversationListDiffCallback
 
+    @MockK
+    private lateinit var clickListener : (conversationListItem: ConversationListItem?) -> Unit
+
     private lateinit var conversationListAdapter: ConversationListAdapter
 
     @Before
     fun setUp() {
-        conversationListAdapter = ConversationListAdapter(viewHolderInflater, diffCallback, mockk())
+        conversationListAdapter = ConversationListAdapter(viewHolderInflater, diffCallback, mockk(), clickListener)
 //        conversationListAdapter.updateData(conversationList)
     }
 
@@ -55,7 +58,7 @@ class ConversationListAdapterTest : UnitTest() {
         conversationListAdapter.onBindViewHolder(holder, position)
 
         verify(exactly = 1) { conversationListItems[position] }
-        verify(exactly = 1) { holder.bind(item) }
+        verify(exactly = 1) { holder.bind(item, clickListener) }
     }
 
     @Test

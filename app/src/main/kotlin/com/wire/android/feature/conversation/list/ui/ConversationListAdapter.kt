@@ -9,14 +9,15 @@ import com.wire.android.feature.conversation.list.ui.icon.ConversationIconProvid
 class ConversationListAdapter(
     private val viewHolderInflater: ViewHolderInflater,
     diffCallback: ConversationListDiffCallback,
-    private val iconProvider: ConversationIconProvider
+    private val iconProvider: ConversationIconProvider,
+    private val clickListener: (conversationListItem: ConversationListItem?) -> Unit
 ) : PagingDataAdapter<ConversationListItem, ConversationViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationViewHolder =
         ConversationViewHolder(parent, viewHolderInflater, iconProvider)
 
     override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
-        getItem(position)?.let { holder.bind(it) } //TODO what does null mean?
+        getItem(position)?.let { holder.bind(it, clickListener) } //TODO what does null mean?
     }
 }
 

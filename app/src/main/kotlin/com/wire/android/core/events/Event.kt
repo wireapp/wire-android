@@ -1,8 +1,15 @@
 package com.wire.android.core.events
 
 sealed class Event {
-    data class UsernameChanged(val username: String) : Event()
-    data class ConversationNameChanged(val name: String) : Event()
-    data class Message(val conversationId: Int, val text: String) : Event()
+    sealed class Conversation : Event() {
+        data class MessageEvent(
+            val id: String,
+            val conversationId: String,
+            val senderClientId: String,
+            val senderUserId: String,
+            val content: String,
+            val time: String
+        ) : Conversation()
+    }
     object Unknown : Event()
 }

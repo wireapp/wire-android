@@ -33,7 +33,6 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         super.onViewCreated(view, savedInstanceState)
         displayToolbar()
         displayConversationList()
-        subscribeToEvents()
     }
 
     private fun displayToolbar() {
@@ -109,8 +108,6 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
     //TODO: check how we display errors
     private fun showConversationListDisplayError() = toast("Error while loading conversations")
-
-    private fun subscribeToEvents() = viewModel.subscribeToEvents()
 
     companion object {
         fun newInstance() = ConversationListFragment()

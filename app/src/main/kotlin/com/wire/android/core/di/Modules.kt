@@ -18,7 +18,6 @@ import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.date.DateStringMapper
-import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.io.FileSystem
 import com.wire.android.core.logger.Logger
 import com.wire.android.core.ui.dialog.DialogBuilder
@@ -56,6 +55,7 @@ val appConfigModule = module {
     factory { DeviceClassMapper() }
     factory { DeviceTypeMapper() }
 }
+
 
 val asyncModule = module {
     single<DispatcherProvider> { DefaultDispatcherProvider() }

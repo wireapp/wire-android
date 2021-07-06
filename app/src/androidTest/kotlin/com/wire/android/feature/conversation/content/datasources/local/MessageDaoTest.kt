@@ -35,6 +35,7 @@ class MessageDaoTest : InstrumentationTest() {
         messageEntity = MessageEntity(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
+            senderUserId = TEST_USER_ID,
             type = TEST_MESSAGE_TYPE,
             content = TEST_MESSAGE_CONTENT,
             state = TEST_MESSAGE_STATE,
@@ -79,6 +80,7 @@ class MessageDaoTest : InstrumentationTest() {
 
     companion object {
         private const val TEST_CONVERSATION_ID = "conversation-id"
+        private const val TEST_USER_ID = "user-id"
         private const val TEST_CONVERSATION_TYPE = 0
         private const val TEST_CONVERSATION_NAME = "conversation-name"
         private const val TEST_MESSAGE_ID = "message-id"

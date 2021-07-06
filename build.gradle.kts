@@ -13,13 +13,17 @@ buildscript {
         }
     }
 
-    nexusUrl?.takeIf { it.isNotBlank() }?.let {
-        buildscript.repositories.maven(it)
-        allprojects { repositories.maven(it) }
+    nexusUrl?.takeIf { it.isNotBlank() }?.let { url ->
+        fun RepositoryHandler.addNexus() = repositories.maven {
+            setUrl(url)
+            isAllowInsecureProtocol = true //TODO Remove when nexusUrl is not needed anymore
+        }
+        buildscript.repositories.addNexus()
+        allprojects { repositories.addNexus() }
     }
     repositories {
         google()
-        jcenter()
+        jcenter() //TODO Replace with mavenCentral
     }
 }
 

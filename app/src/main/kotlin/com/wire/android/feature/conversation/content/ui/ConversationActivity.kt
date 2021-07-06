@@ -13,8 +13,8 @@ class ConversationActivity : AppCompatActivity(R.layout.activity_conversation) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setUpBackNavigation()
         setUpConversationTitle()
+        setUpBackNavigation()
     }
 
     private fun setUpBackNavigation() {
@@ -22,7 +22,9 @@ class ConversationActivity : AppCompatActivity(R.layout.activity_conversation) {
     }
 
     private fun setUpConversationTitle() {
-        conversationToolbar.title = conversationTitle
+        setSupportActionBar(conversationToolbar)
+        conversationToolbarTitleTextView.text = conversationTitle
+        supportActionBar?.setDisplayShowTitleEnabled(false)
     }
 
     companion object {

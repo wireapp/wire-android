@@ -117,8 +117,12 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
     private fun conversationItemClickListener(conversationListItem: ConversationListItem?) {
         activity?.let {
-            if(conversationListItem != null && conversationListItem.conversation.name != null)
-                navigator.conversation.openConversationScreen(it, conversationListItem.conversation.id, conversationListItem.conversation.name)
+            if (conversationListItem != null && conversationListItem.conversation.name != null)
+                navigator.conversation.openConversationScreen(
+                    it,
+                    conversationListItem.conversation.id,
+                    conversationListItem.conversation.name
+                )
         }
     }
 

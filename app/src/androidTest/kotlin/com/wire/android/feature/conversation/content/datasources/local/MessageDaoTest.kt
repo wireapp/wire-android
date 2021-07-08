@@ -2,6 +2,8 @@ package com.wire.android.feature.conversation.content.datasources.local
 
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
+import com.wire.android.feature.contact.datasources.local.ContactDao
+import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.conversation.data.local.ConversationDao
 import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.framework.storage.db.DatabaseTestRule
@@ -9,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,15 +23,18 @@ class MessageDaoTest : InstrumentationTest() {
     val databaseTestRule = DatabaseTestRule.create<UserDatabase>(appContext)
 
     private lateinit var messageDao: MessageDao
+    private lateinit var contactDao: ContactDao
     private lateinit var conversationDao: ConversationDao
 
     private lateinit var conversationEntity: ConversationEntity
     private lateinit var messageEntity: MessageEntity
+    private lateinit var contactEntity: ContactEntity
 
     @Before
     fun setUp() {
         val userDatabase = databaseTestRule.database
         messageDao = userDatabase.messageDao()
+        contactDao = userDatabase.contactDao()
         conversationDao = userDatabase.conversationDao()
 
         conversationEntity = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
@@ -42,8 +48,15 @@ class MessageDaoTest : InstrumentationTest() {
             time = TEST_MESSAGE_TIME
         )
 
+        contactEntity = ContactEntity(
+            id = TEST_USER_ID,
+            name = TEST_CONTACT_NAME,
+            assetKey = TEST_CONTACT_ASSET_KEY
+        )
+
         runBlocking {
             conversationDao.insert(conversationEntity)
+            contactDao.insert(contactEntity)
             messageDao.insert(messageEntity)
         }
     }
@@ -53,8 +66,12 @@ class MessageDaoTest : InstrumentationTest() {
         runBlocking {
             val result = messageDao.messagesByConversationId(TEST_CONVERSATION_ID)
 
-            result.first().size shouldBeEqualTo 1
-            result.first().first() shouldBeEqualTo messageEntity
+            with(result.first()) {
+                size shouldBeEqualTo 1
+                first() shouldBeInstanceOf MessageAndContactEntity::class
+                messageEntity shouldBeEqualTo messageEntity
+                contactEntity shouldBeEqualTo contactEntity
+            }
         }
     }
 
@@ -88,5 +105,8 @@ class MessageDaoTest : InstrumentationTest() {
         private const val TEST_MESSAGE_CONTENT = "message-content"
         private const val TEST_MESSAGE_STATE = "message-state"
         private const val TEST_MESSAGE_TIME = "message-time"
+
+        private const val TEST_CONTACT_NAME = "contact-name"
+        private const val TEST_CONTACT_ASSET_KEY = "contact-asset-key"
     }
 }

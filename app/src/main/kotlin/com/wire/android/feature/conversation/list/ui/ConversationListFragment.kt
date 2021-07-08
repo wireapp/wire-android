@@ -26,7 +26,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
     private val viewModel by viewModel<ConversationListViewModel>()
 
-    private val conversationListAdapter by inject<ConversationListAdapter>{
+    private val conversationListAdapter by inject<ConversationListAdapter> {
         parametersOf({ conversationListItem : ConversationListItem -> conversationItemClickListener(conversationListItem) })
     }
 

@@ -65,7 +65,7 @@ val uiModule = module {
     factory { MaterialDialogBuilderProvider() }
     factory { DialogBuilder(get()) }
 
-    single { Navigator(get(), get(), get(), get(), get()) }
+    single { Navigator(get(), get(), get(), get(), get(), get()) }
     single { FragmentStackHandler() }
     single { UriNavigationHandler() }
 

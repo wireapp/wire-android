@@ -39,8 +39,9 @@
             android:name=".feature.auth.login.LoginActivity"
             android:theme="@style/AppTheme.Authentication" />
 
-        <activity android:name=".feature.conversation.list.MainActivity"
-            android:theme="@style/AppTheme.Dark"/>
+        <activity
+            android:name=".feature.conversation.list.MainActivity"
+            android:theme="@style/AppTheme.Dark" />
 
         <activity
             android:name=".feature.profile.ui.ProfileActivity"
@@ -49,6 +50,10 @@
         <activity
             android:name=".feature.auth.client.ui.DeviceLimitActivity"
             android:theme="@style/AppTheme.Authentication" />
+
+        <activity
+            android:name=".feature.conversation.content.ui.ConversationActivity" />
+
     </application>
 
 </manifest>

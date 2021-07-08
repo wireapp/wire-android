@@ -10,6 +10,7 @@ import com.wire.android.feature.conversation.content.datasources.local.MessageLo
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.mapper.MessageStateMapper
 import com.wire.android.feature.conversation.content.mapper.MessageTypeMapper
+import com.wire.android.feature.conversation.content.navigation.ConversationNavigator
 import com.wire.android.feature.conversation.data.ConversationDataSource
 import com.wire.android.feature.conversation.data.ConversationMapper
 import com.wire.android.feature.conversation.data.ConversationRepository
@@ -24,6 +25,7 @@ import com.wire.android.feature.conversation.list.datasources.ConversationListMa
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListLocalDataSource
 import com.wire.android.feature.conversation.list.ui.ConversationListAdapter
 import com.wire.android.feature.conversation.list.ui.ConversationListDiffCallback
+import com.wire.android.feature.conversation.list.ui.ConversationListItem
 import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
 import com.wire.android.feature.conversation.list.ui.icon.ConversationIconProvider
 import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
@@ -58,7 +60,14 @@ val conversationsModule = module {
 }
 
 val conversationListModule = module {
-    factory { ConversationListAdapter(get(), get(), get()) }
+    factory { (param: (conversationListItem: ConversationListItem?) -> Unit) ->
+        ConversationListAdapter(
+            get(),
+            get(),
+            get(),
+            clickListener = param
+        )
+    }
     factory { ConversationListDiffCallback() }
     viewModel { ConversationListViewModel(get(), get(), get(), get()) }
 
@@ -83,4 +92,5 @@ val conversationContentModule = module {
     factory { MessageStateMapper() }
     factory { MessageMapper(get(), get(), get()) }
     factory<MessageRepository> { MessageDataSource(get(), get(), get()) }
+    single { ConversationNavigator() }
 }

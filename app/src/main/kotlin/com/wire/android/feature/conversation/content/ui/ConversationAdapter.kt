@@ -11,7 +11,6 @@ class ConversationAdapter(private val viewHolderInflater: ViewHolderInflater) : 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         ConversationTextMessageViewHolder(parent, viewHolderInflater)
 
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (getItemViewType(position) == VIEW_TYPE_TEXT_MESSAGE) {
             val shouldShowAvatar = shouldShowAvatar(position)

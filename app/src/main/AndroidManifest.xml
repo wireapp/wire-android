@@ -52,8 +52,7 @@
             android:theme="@style/AppTheme.Authentication" />
 
         <activity
-            android:name=".feature.conversation.content.ui.ConversationActivity"
-            android:theme="@style/AppTheme.Conversation"/>
+            android:name=".feature.conversation.content.ui.ConversationActivity" />
 
     </application>
 

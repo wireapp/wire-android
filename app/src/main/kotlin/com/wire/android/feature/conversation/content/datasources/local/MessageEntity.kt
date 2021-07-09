@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.conversation.data.local.ConversationEntity
 
 @Entity(
@@ -14,12 +13,6 @@ import com.wire.android.feature.conversation.data.local.ConversationEntity
             entity = ConversationEntity::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("conversation_id"),
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = ContactEntity::class,
-            parentColumns = arrayOf("id"),
-            childColumns = arrayOf("sender_user_id"),
             onDelete = ForeignKey.CASCADE
         )
     ],

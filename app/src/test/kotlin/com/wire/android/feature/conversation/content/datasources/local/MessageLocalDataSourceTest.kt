@@ -74,7 +74,7 @@ class MessageLocalDataSourceTest : UnitTest() {
         runBlocking {
             val result = messageLocalDataSource.messagesByConversationId(conversationId)
 
-            with(result.first()) {
+            with(result.first()){
                 size shouldBeEqualTo 2
                 get(0) shouldBeEqualTo messageAndContactEntity1
                 get(1) shouldBeEqualTo messageAndContactEntity2

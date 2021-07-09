@@ -48,7 +48,6 @@ class ConversationAdapterTest : UnitTest() {
         val holder = mockk<ConversationTextMessageViewHolder>(relaxUnitFun = true)
         val message = mockk<Message>(relaxed = true)
         val contact = mockk<Contact>(relaxed = true)
-
         val item = mockk<MessageAndContact>().also {
             every { it.message } returns message
             every { it.contact } returns contact
@@ -63,7 +62,6 @@ class ConversationAdapterTest : UnitTest() {
 
         spyAdapterLocal.onBindViewHolder(holder, TEST_POSITION)
 
-        verify(exactly = 1) { spyAdapterLocal.notifyDataSetChanged() }
         verify(exactly = 1) { spyAdapterLocal.getItemViewType(TEST_POSITION) }
         verify(exactly = 1) { messages[TEST_POSITION] }
         verify(exactly = 1) { holder.bind(item, false) }
@@ -111,7 +109,6 @@ class ConversationAdapterTest : UnitTest() {
         val itemCount = spyAdapter.itemCount
 
         itemCount shouldBeEqualTo TEST_LIST_SIZE
-        verify { spyAdapter.notifyDataSetChanged() }
     }
 
     private companion object {

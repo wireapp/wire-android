@@ -28,10 +28,7 @@ class ConversationViewModelTest : UnitTest() {
 
     @Before
     fun setup() {
-        conversationViewModel = ConversationViewModel(
-            coroutinesTestRule.dispatcherProvider,
-            getConversationUseCase
-        )
+        conversationViewModel = ConversationViewModel(coroutinesTestRule.dispatcherProvider, getConversationUseCase)
     }
 
     @Test
@@ -51,9 +48,7 @@ class ConversationViewModelTest : UnitTest() {
 
         conversationViewModel.fetchMessages(TEST_CONVERSATION_ID)
 
-        conversationViewModel.conversationMessagesLiveData.shouldBeUpdated {
-            it shouldBeEqualTo items
-        }
+        conversationViewModel.conversationMessagesLiveData.shouldBeUpdated { it shouldBeEqualTo items }
         coVerify(exactly = 1) { getConversationUseCase.run(any()) }
     }
 

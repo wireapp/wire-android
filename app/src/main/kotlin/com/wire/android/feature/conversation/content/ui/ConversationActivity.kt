@@ -41,7 +41,6 @@ class ConversationActivity : AppCompatActivity(R.layout.activity_conversation) {
                 putExtra(ARG_CONVERSATION_ID, conversationId)
                 putExtra(ARG_CONVERSATION_TITLE, conversationTitle)
             }
-
         private const val ARG_CONVERSATION_ID = "conversation-id-arg"
         private const val ARG_CONVERSATION_TITLE = "conversation-title-arg"
     }

@@ -47,12 +47,7 @@ class MessageDaoTest : InstrumentationTest() {
             state = TEST_MESSAGE_STATE,
             time = TEST_MESSAGE_TIME
         )
-
-        contactEntity = ContactEntity(
-            id = TEST_USER_ID,
-            name = TEST_CONTACT_NAME,
-            assetKey = TEST_CONTACT_ASSET_KEY
-        )
+        contactEntity = ContactEntity(TEST_USER_ID, TEST_CONTACT_NAME, TEST_CONTACT_ASSET_KEY)
 
         runBlocking {
             conversationDao.insert(conversationEntity)
@@ -116,7 +111,6 @@ class MessageDaoTest : InstrumentationTest() {
         private const val TEST_MESSAGE_CONTENT = "message-content"
         private const val TEST_MESSAGE_STATE = "message-state"
         private const val TEST_MESSAGE_TIME = "message-time"
-
         private const val TEST_CONTACT_NAME = "contact-name"
         private const val TEST_CONTACT_ASSET_KEY = "contact-asset-key"
     }

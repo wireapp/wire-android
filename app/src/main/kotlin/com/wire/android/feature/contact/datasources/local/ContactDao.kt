@@ -20,7 +20,4 @@ interface ContactDao {
 
     @Query("SELECT * FROM contact")
     suspend fun contacts(): List<ContactEntity>
-
-    @Delete
-    fun delete(contactEntity: ContactEntity)
 }

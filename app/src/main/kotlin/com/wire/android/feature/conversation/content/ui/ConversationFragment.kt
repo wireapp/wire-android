@@ -23,7 +23,7 @@ class ConversationFragment : Fragment(R.layout.fragment_conversation) {
     }
 
     private fun observeConversationId() {
-        viewModel.conversationId.observe(viewLifecycleOwner) {
+        viewModel.conversationIdLiveData.observe(viewLifecycleOwner) {
             viewModel.fetchMessages(it)
         }
     }

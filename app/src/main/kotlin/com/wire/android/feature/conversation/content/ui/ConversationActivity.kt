@@ -22,7 +22,7 @@ class ConversationActivity : AppCompatActivity(R.layout.activity_conversation) {
     }
 
     private fun cacheConversationId() {
-        viewModel.conversationId.value = conversationId
+        conversationId?.let { viewModel.cacheConversationId(it) }
     }
 
     private fun setUpBackNavigation() {

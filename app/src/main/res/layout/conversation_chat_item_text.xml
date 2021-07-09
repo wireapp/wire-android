@@ -18,7 +18,7 @@
         android:id="@+id/conversationChatItemUserAvatarImageView"
         android:layout_width="@dimen/conversation_chat_avatar_size"
         android:layout_height="@dimen/conversation_chat_avatar_size"
-        android:background="@color/black"
+        android:background="?colorSecondary"
         app:layout_constraintEnd_toStartOf="@id/conversationGuideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -15,9 +15,15 @@ class ConversationViewModel(
     private val getConversationUseCase: GetConversationUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    val conversationId: MutableLiveData<String> = MutableLiveData()
+    private val _conversationIdLiveData: MutableLiveData<String> = MutableLiveData()
+    val conversationIdLiveData: LiveData<String> = _conversationIdLiveData
+
     private val _conversationMessagesLiveData = MutableLiveData<List<MessageAndContact>>()
     val conversationMessagesLiveData: LiveData<List<MessageAndContact>> = _conversationMessagesLiveData
+
+    fun cacheConversationId(conversationId: String) {
+        _conversationIdLiveData.value = conversationId
+    }
 
     fun fetchMessages(conversationId: String) {
         val params = GetConversationUseCaseParams(conversationId = conversationId)

@@ -1,9 +1,6 @@
 package com.wire.android.feature.contact.datasources.local
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface ContactDao {
@@ -19,4 +16,7 @@ interface ContactDao {
 
     @Query("SELECT * FROM contact")
     suspend fun contacts(): List<ContactEntity>
+
+    @Delete
+    fun delete(contactEntity: ContactEntity)
 }

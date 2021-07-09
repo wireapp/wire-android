@@ -2,6 +2,8 @@ package com.wire.android.feature.conversation.content.datasources.local
 
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
+import com.wire.android.feature.contact.datasources.local.ContactDao
+import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.conversation.data.local.ConversationDao
 import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.framework.storage.db.DatabaseTestRule
@@ -20,15 +22,18 @@ class MessageDaoTest : InstrumentationTest() {
     val databaseTestRule = DatabaseTestRule.create<UserDatabase>(appContext)
 
     private lateinit var messageDao: MessageDao
+    private lateinit var contactDao: ContactDao
     private lateinit var conversationDao: ConversationDao
 
     private lateinit var conversationEntity: ConversationEntity
     private lateinit var messageEntity: MessageEntity
+    private lateinit var contactEntity: ContactEntity
 
     @Before
     fun setUp() {
         val userDatabase = databaseTestRule.database
         messageDao = userDatabase.messageDao()
+        contactDao = userDatabase.contactDao()
         conversationDao = userDatabase.conversationDao()
 
         conversationEntity = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
@@ -41,9 +46,11 @@ class MessageDaoTest : InstrumentationTest() {
             state = TEST_MESSAGE_STATE,
             time = TEST_MESSAGE_TIME
         )
+        contactEntity = ContactEntity(TEST_USER_ID, TEST_CONTACT_NAME, TEST_CONTACT_ASSET_KEY)
 
         runBlocking {
             conversationDao.insert(conversationEntity)
+            contactDao.insert(contactEntity)
             messageDao.insert(messageEntity)
         }
     }
@@ -78,6 +85,17 @@ class MessageDaoTest : InstrumentationTest() {
         }
     }
 
+    @Test
+    fun givenAMessageInConversationExists_whenContactIsDeleted_thenMessagesAreDeleted() {
+        runBlocking {
+            contactDao.delete(contactEntity)
+
+            val result = messageDao.messagesByConversationId(TEST_CONVERSATION_ID)
+
+            result.first().size shouldBeEqualTo 0
+        }
+    }
+
     companion object {
         private const val TEST_CONVERSATION_ID = "conversation-id"
         private const val TEST_USER_ID = "user-id"
@@ -88,5 +106,7 @@ class MessageDaoTest : InstrumentationTest() {
         private const val TEST_MESSAGE_CONTENT = "message-content"
         private const val TEST_MESSAGE_STATE = "message-state"
         private const val TEST_MESSAGE_TIME = "message-time"
+        private const val TEST_CONTACT_NAME = "contact-name"
+        private const val TEST_CONTACT_ASSET_KEY = "contact-asset-key"
     }
 }

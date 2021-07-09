@@ -102,6 +102,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           sh './gradlew runUnitTests'
         }
 
+        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}DebugUnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
       }
     }
 
@@ -141,50 +142,27 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
     }
 
     stage('Acceptance Tests') {
-      parallel {
-        stage('Acceptance Tests') {
-          steps {
-            script {
-              last_started = env.STAGE_NAME
-            }
-
-            withGradle() {
-              sh './gradlew runAcceptanceTests'
-            }
-
-          }
+      steps {
+        script {
+          last_started = env.STAGE_NAME
         }
 
-        stage('Publish Unit Report') {
-          steps {
-            echo 'Publish JUnit report'
-            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}DebugUnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
-          }
+        withGradle() {
+          sh './gradlew runAcceptanceTests'
         }
 
+        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${flavor.toUpperCase()}/", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
       }
     }
 
     stage('Assemble') {
-      parallel {
-        stage('Assemble') {
-          steps {
-            script {
-              last_started = env.STAGE_NAME
-            }
-
-            withGradle() {
-              sh './gradlew assembleApp'
-            }
-
-          }
+      steps {
+        script {
+          last_started = env.STAGE_NAME
         }
 
-        stage('Publish Acceptance Test') {
-          steps {
-            echo 'Publish Acceptance Test'
-            publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${flavor.toUpperCase()}/", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
-          }
+        withGradle() {
+          sh './gradlew assembleApp'
         }
 
       }

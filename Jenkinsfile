@@ -102,12 +102,6 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           sh './gradlew runUnitTests'
         }
 
-      }
-    }
-
-    stage('Publish Unit Report') {
-      steps {
-        echo 'Publish JUnit report'
         publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}DebugUnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
       }
     }
@@ -157,12 +151,6 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           sh './gradlew runAcceptanceTests'
         }
 
-      }
-    }
-
-    stage('Publish Acceptance Test') {
-      steps {
-        echo 'Publish Acceptance Test'
         publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${flavor.toUpperCase()}/", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
       }
     }
@@ -208,7 +196,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
         stage('APK') {
           steps {
-            archiveArtifacts(artifacts: "app/build/outputs/apk/${flavor.toLowerCase()}/debug/app*.apk", allowEmptyArchive: true, onlyIfSuccessful: true)
+            archiveArtifacts(allowEmptyArchive: true, artifacts: '**/*.apk, **/*.aab, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt')
           }
         }
 

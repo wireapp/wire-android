@@ -68,7 +68,8 @@ class MessageLocalDataSourceTest : UnitTest() {
         val messageAndContactEntity1 = mockk<MessageAndContactEntity>()
         val messageAndContactEntity2 = mockk<MessageAndContactEntity>()
 
-        coEvery { messageDao.messagesByConversationId(conversationId) } returns flowOf(listOf(messageAndContactEntity1, messageAndContactEntity2))
+        coEvery { messageDao.messagesByConversationId(conversationId) } returns
+                flowOf(listOf(messageAndContactEntity1, messageAndContactEntity2))
 
         runBlocking {
             val result = messageLocalDataSource.messagesByConversationId(conversationId)

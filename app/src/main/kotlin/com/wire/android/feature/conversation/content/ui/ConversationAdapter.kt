@@ -32,7 +32,7 @@ class ConversationAdapter(private val viewHolderInflater: ViewHolderInflater) :
 
     override fun getItemCount(): Int = messages.size
 
-    fun setList(newItems: List<MessageAndContact>) {
+    fun setList(newItems: List<Any>) {
         this.messages = newItems
         notifyDataSetChanged()
     }
@@ -44,7 +44,7 @@ class ConversationAdapter(private val viewHolderInflater: ViewHolderInflater) :
     }
 
     companion object {
-        private const val VIEW_TYPE_TEXT_MESSAGE = 10
-        private const val VIEW_TYPE_UNKNOWN = -1
+        const val VIEW_TYPE_TEXT_MESSAGE = 10
+        const val VIEW_TYPE_UNKNOWN = -1
     }
 }

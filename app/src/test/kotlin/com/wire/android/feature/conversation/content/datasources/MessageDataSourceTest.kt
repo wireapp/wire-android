@@ -129,6 +129,7 @@ class MessageDataSourceTest : UnitTest() {
             with(result.first()){
                 size shouldBeEqualTo 1
                 get(0).message shouldBeEqualTo message
+                get(0).contact shouldBeEqualTo contact
             }
         }
     }

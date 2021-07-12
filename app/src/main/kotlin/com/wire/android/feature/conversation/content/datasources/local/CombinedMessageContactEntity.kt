@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import com.wire.android.feature.contact.datasources.local.ContactEntity
 
-class MessageAndContactEntity(
+class CombinedMessageContactEntity(
     @Embedded
     val messageEntity: MessageEntity,
     @Relation(

@@ -15,7 +15,7 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
-import com.wire.android.feature.conversation.content.datasources.local.MessageAndContactEntity
+import com.wire.android.feature.conversation.content.datasources.local.CombinedMessageContactEntity
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import io.mockk.coVerify
@@ -113,7 +113,7 @@ class MessageDataSourceTest : UnitTest() {
         val conversationId = "conversation-id"
         val contactEntity = mockk<ContactEntity>()
         val messageEntity = mockk<MessageEntity>()
-        val messageAndContactEntity = mockk<MessageAndContactEntity>().also {
+        val messageAndContactEntity = mockk<CombinedMessageContactEntity>().also {
             every { it.messageEntity } returns messageEntity
             every { it.contactEntity } returns contactEntity
         }

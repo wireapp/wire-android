@@ -16,13 +16,13 @@ class ConversationTextMessageViewHolder(parent: ViewGroup, inflater: ViewHolderI
     private val conversationChatItemTextMessageTextView by lazyFind<TextView>(R.id.conversationChatItemTextMessageTextView)
     private val conversationChatItemUserAvatarImageView by lazyFind<ShapeableImageView>(R.id.conversationChatItemUserAvatarImageView)
 
-    fun bind(message: MessageAndContact, shouldShowAvatar: Boolean) {
+    fun bind(combinedMessage: CombinedMessageContact, shouldShowAvatar: Boolean) {
         if (shouldShowAvatar)
             conversationChatItemUserAvatarImageView.visibility = View.VISIBLE
         else
             conversationChatItemUserAvatarImageView.visibility = View.GONE
 
-        conversationChatItemUsernameTextView.text = message.contact.name
-        conversationChatItemTextMessageTextView.text = message.message.content
+        conversationChatItemUsernameTextView.text = combinedMessage.contact.name
+        conversationChatItemTextMessageTextView.text = combinedMessage.message.content
     }
 }

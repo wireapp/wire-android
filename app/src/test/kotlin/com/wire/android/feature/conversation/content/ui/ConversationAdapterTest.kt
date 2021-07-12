@@ -48,7 +48,7 @@ class ConversationAdapterTest : UnitTest() {
         val holder = mockk<ConversationTextMessageViewHolder>(relaxUnitFun = true)
         val message = mockk<Message>(relaxed = true)
         val contact = mockk<Contact>(relaxed = true)
-        val item = mockk<MessageAndContact>().also {
+        val item = mockk<CombinedMessageContact>().also {
             every { it.message } returns message
             every { it.contact } returns contact
         }
@@ -89,7 +89,7 @@ class ConversationAdapterTest : UnitTest() {
 
     @Test
     fun `given getItemViewType is called, when item is MessageText, then return VIEW_TYPE_TEXT_MESSAGE`() {
-        val messageAndContact = mockk<MessageAndContact>()
+        val messageAndContact = mockk<CombinedMessageContact>()
         spyAdapter.setList(messages)
         every { messages[TEST_POSITION] } returns messageAndContact
 

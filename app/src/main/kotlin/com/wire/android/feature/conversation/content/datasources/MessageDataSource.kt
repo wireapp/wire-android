@@ -9,7 +9,7 @@ import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.MessageRepository
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
-import com.wire.android.feature.conversation.content.ui.MessageAndContact
+import com.wire.android.feature.conversation.content.ui.CombinedMessageContact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
@@ -45,10 +45,10 @@ class MessageDataSource(
         return messageLocalDataSource.save(messageEntity)
     }
 
-    override suspend fun conversationMessages(conversationId: String): Flow<List<MessageAndContact>> =
+    override suspend fun conversationMessages(conversationId: String): Flow<List<CombinedMessageContact>> =
         messageLocalDataSource.messagesByConversationId(conversationId).map { messagesWithContact ->
             messagesWithContact.map {
-                MessageAndContact(
+                CombinedMessageContact(
                     messageMapper.fromEntityToMessage(it.messageEntity),
                     contactMapper.fromContactEntity(it.contactEntity)
                 )

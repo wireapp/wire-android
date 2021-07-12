@@ -18,8 +18,8 @@ class ConversationViewModel(
     private val _conversationIdLiveData: MutableLiveData<String> = MutableLiveData()
     val conversationIdLiveData: LiveData<String> = _conversationIdLiveData
 
-    private val _conversationMessagesLiveData = MutableLiveData<List<MessageAndContact>>()
-    val conversationMessagesLiveData: LiveData<List<MessageAndContact>> = _conversationMessagesLiveData
+    private val _conversationMessagesLiveData = MutableLiveData<List<CombinedMessageContact>>()
+    val conversationMessagesLiveData: LiveData<List<CombinedMessageContact>> = _conversationMessagesLiveData
 
     fun cacheConversationId(conversationId: String) {
         _conversationIdLiveData.value = conversationId

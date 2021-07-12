@@ -43,7 +43,7 @@ class ConversationViewModelTest : UnitTest() {
 
     @Test
     fun `given fetchMessages is called, when getConversationUseCase emits items, then updates conversationMessagesLiveData`() {
-        val items = mockk<List<MessageAndContact>>()
+        val items = mockk<List<CombinedMessageContact>>()
         coEvery { getConversationUseCase.run(any()) } returns flowOf(items)
 
         conversationViewModel.fetchMessages(TEST_CONVERSATION_ID)

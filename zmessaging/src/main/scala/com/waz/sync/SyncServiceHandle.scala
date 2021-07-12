@@ -228,7 +228,7 @@ class AndroidSyncServiceHandle(account:         UserId,
       id5     <- syncConversations()
       id6     <- syncConnections()
       id7     <- syncProperties()
-      userIds <- usersStorage.list().map(_.map(_.id).toSet)
+      userIds <- usersStorage.keySet
       id8     <- syncUsers(userIds)
       id9     <- syncFolders()
       id10    <- syncLegalHoldRequest()

@@ -63,7 +63,7 @@ class MessageDaoTest : InstrumentationTest() {
 
             with(result.first()) {
                 size shouldBeEqualTo 1
-                first() shouldBeInstanceOf MessageAndContactEntity::class
+                first() shouldBeInstanceOf CombinedMessageContactEntity::class
                 first().messageEntity shouldBeEqualTo messageEntity
                 first().contactEntity shouldBeEqualTo contactEntity
             }

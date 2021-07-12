@@ -64,8 +64,8 @@ class MessageDaoTest : InstrumentationTest() {
             with(result.first()) {
                 size shouldBeEqualTo 1
                 first() shouldBeInstanceOf CombinedMessageContactEntity::class
-                messageEntity shouldBeEqualTo messageEntity
-                contactEntity shouldBeEqualTo contactEntity
+                first().messageEntity shouldBeEqualTo messageEntity
+                first().contactEntity shouldBeEqualTo contactEntity
             }
         }
     }

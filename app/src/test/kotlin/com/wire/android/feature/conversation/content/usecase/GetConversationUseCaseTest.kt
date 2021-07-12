@@ -2,7 +2,7 @@ package com.wire.android.feature.conversation.content.usecase
 
 import com.wire.android.UnitTest
 import com.wire.android.feature.conversation.content.MessageRepository
-import com.wire.android.feature.conversation.content.ui.MessageAndContact
+import com.wire.android.feature.conversation.content.ui.CombinedMessageContact
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -27,7 +27,7 @@ class GetConversationUseCaseTest : UnitTest() {
 
     @Test
     fun `given run is called, when messageRepository emits items, then propagates items`() {
-        val items = mockk<List<MessageAndContact>>()
+        val items = mockk<List<CombinedMessageContact>>()
         val params = GetConversationUseCaseParams(conversationId = TEST_CONVERSATION_ID)
         coEvery { messageRepository.conversationMessages(any()) } returns flowOf(items)
 

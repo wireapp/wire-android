@@ -15,7 +15,7 @@ class ConversationAdapter(private val viewHolderInflater: ViewHolderInflater) : 
         if (getItemViewType(position) == VIEW_TYPE_TEXT_MESSAGE) {
             val shouldShowAvatar = shouldShowAvatar(position)
             (holder as ConversationTextMessageViewHolder).bind(
-                (messages[position] as MessageAndContact),
+                (messages[position] as CombinedMessageContact),
                 shouldShowAvatar
             )
         }
@@ -23,7 +23,7 @@ class ConversationAdapter(private val viewHolderInflater: ViewHolderInflater) : 
 
     override fun getItemViewType(position: Int): Int {
         return when (messages[position]) {
-            is MessageAndContact -> VIEW_TYPE_TEXT_MESSAGE
+            is CombinedMessageContact -> VIEW_TYPE_TEXT_MESSAGE
             else -> VIEW_TYPE_UNKNOWN
         }
     }
@@ -36,9 +36,9 @@ class ConversationAdapter(private val viewHolderInflater: ViewHolderInflater) : 
     }
 
     private fun shouldShowAvatar(position: Int): Boolean {
-        val currentMessage = (messages[position] as MessageAndContact).message
+        val currentMessage = (messages[position] as CombinedMessageContact).message
         return (position == 0) ||
-                (position > 0 && currentMessage.senderUserId != (messages[position - 1] as MessageAndContact).message.senderUserId)
+                (position > 0 && currentMessage.senderUserId != (messages[position - 1] as CombinedMessageContact).message.senderUserId)
     }
 
     companion object {

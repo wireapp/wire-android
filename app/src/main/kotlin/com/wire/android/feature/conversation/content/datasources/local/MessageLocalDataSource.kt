@@ -8,6 +8,6 @@ import kotlinx.coroutines.flow.Flow
 class MessageLocalDataSource(private val messageDao: MessageDao) : DatabaseService {
     suspend fun save(message: MessageEntity): Either<Failure, Unit> = request { messageDao.insert(message) }
 
-    fun messagesByConversationId(conversationId: String): Flow<List<MessageAndContactEntity>> =
+    fun messagesByConversationId(conversationId: String): Flow<List<CombinedMessageContactEntity>> =
         messageDao.messagesByConversationId(conversationId)
 }

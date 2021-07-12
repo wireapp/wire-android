@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="16dp"
+    android:paddingEnd="32dp">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/conversationGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="@dimen/conversation_chat_avatar_guideline_percent" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/conversationChatItemUserAvatarImageView"
+        android:layout_width="@dimen/conversation_chat_avatar_size"
+        android:layout_height="@dimen/conversation_chat_avatar_size"
+        android:background="?colorSecondary"
+        app:layout_constraintEnd_toStartOf="@id/conversationGuideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.Circle"
+        tools:src="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/conversationChatItemUsernameTextView"
+        style="@style/TextView.Conversation.username"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/conversationChatItemUserAvatarImageView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/conversationGuideline"
+        app:layout_constraintTop_toTopOf="@id/conversationChatItemUserAvatarImageView"
+        tools:text="Username" />
+
+    <TextView
+        android:id="@+id/conversationChatItemTextMessageTextView"
+        style="@style/TextView.Conversation.message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/conversationGuideline"
+        app:layout_constraintTop_toBottomOf="@+id/conversationChatItemUsernameTextView"
+        tools:text="Message" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

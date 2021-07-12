@@ -13,5 +13,5 @@ interface MessageDao {
     suspend fun insert(message: MessageEntity)
 
     @Query("SELECT * from message where conversation_id = :conversationId")
-    fun messagesByConversationId(conversationId: String): Flow<List<MessageEntity>>
+    fun messagesByConversationId(conversationId: String): Flow<List<CombinedMessageContactEntity>>
 }

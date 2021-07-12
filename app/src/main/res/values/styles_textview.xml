@@ -30,7 +30,24 @@
     <style name="TextView.Toolbar" parent="TextAppearance.AppCompat.Widget.ActionBar.Title" />
 
     <style name="TextView.Toolbar.Title">
+        <item name="android:textAppearance">?textAppearanceHeadline6</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextView.Conversation" />
+
+    <style name="TextView.Conversation.username">
+        <item name="android:textAppearance">?textAppearanceBody1</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textStyle">bold</item>
+        <item name="maxLines">1</item>
+        <item name="android:textColor">?colorSecondary</item>
+    </style>
+
+    <style name="TextView.Conversation.message">
+        <item name="android:textAppearance">?textAppearanceBody1</item>
+        <item name="android:lineSpacingExtra">8sp</item>
     </style>
 
 </resources>

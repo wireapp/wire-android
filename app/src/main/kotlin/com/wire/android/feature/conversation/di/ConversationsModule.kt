@@ -11,6 +11,9 @@ import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.mapper.MessageStateMapper
 import com.wire.android.feature.conversation.content.mapper.MessageTypeMapper
 import com.wire.android.feature.conversation.content.navigation.ConversationNavigator
+import com.wire.android.feature.conversation.content.ui.ConversationAdapter
+import com.wire.android.feature.conversation.content.ui.ConversationViewModel
+import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
 import com.wire.android.feature.conversation.data.ConversationDataSource
 import com.wire.android.feature.conversation.data.ConversationMapper
 import com.wire.android.feature.conversation.data.ConversationRepository
@@ -91,6 +94,9 @@ val conversationContentModule = module {
     factory { MessageTypeMapper() }
     factory { MessageStateMapper() }
     factory { MessageMapper(get(), get(), get()) }
-    factory<MessageRepository> { MessageDataSource(get(), get(), get()) }
+    factory<MessageRepository> { MessageDataSource(get(), get(), get(), get()) }
     single { ConversationNavigator() }
+    factory { GetConversationUseCase(get()) }
+    viewModel { ConversationViewModel(get(), get()) }
+    factory { ConversationAdapter(get()) }
 }

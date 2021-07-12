@@ -11,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -60,8 +61,12 @@ class MessageDaoTest : InstrumentationTest() {
         runBlocking {
             val result = messageDao.messagesByConversationId(TEST_CONVERSATION_ID)
 
-            result.first().size shouldBeEqualTo 1
-            result.first().first() shouldBeEqualTo messageEntity
+            with(result.first()) {
+                size shouldBeEqualTo 1
+                first() shouldBeInstanceOf CombinedMessageContactEntity::class
+                messageEntity shouldBeEqualTo messageEntity
+                contactEntity shouldBeEqualTo contactEntity
+            }
         }
     }
 

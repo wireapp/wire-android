@@ -65,19 +65,19 @@ class MessageLocalDataSourceTest : UnitTest() {
     @Test
     fun `given messagesByConversationId is called, when dao emits some messages, then emits a list of messages`() {
         val conversationId = "conversationId"
-        val messageAndContactEntity1 = mockk<CombinedMessageContactEntity>()
-        val messageAndContactEntity2 = mockk<CombinedMessageContactEntity>()
+        val combinedMessageContactEntity1 = mockk<CombinedMessageContactEntity>()
+        val combinedMessageContactEntity2 = mockk<CombinedMessageContactEntity>()
 
         coEvery { messageDao.messagesByConversationId(conversationId) } returns
-                flowOf(listOf(messageAndContactEntity1, messageAndContactEntity2))
+                flowOf(listOf(combinedMessageContactEntity1, combinedMessageContactEntity2))
 
         runBlocking {
             val result = messageLocalDataSource.messagesByConversationId(conversationId)
 
             with(result.first()){
                 size shouldBeEqualTo 2
-                get(0) shouldBeEqualTo messageAndContactEntity1
-                get(1) shouldBeEqualTo messageAndContactEntity2
+                get(0) shouldBeEqualTo combinedMessageContactEntity1
+                get(1) shouldBeEqualTo combinedMessageContactEntity2
             }
         }
     }

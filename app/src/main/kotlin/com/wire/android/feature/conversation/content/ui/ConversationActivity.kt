@@ -6,15 +6,23 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.wire.android.R
 import kotlinx.android.synthetic.main.activity_conversation.*
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class ConversationActivity : AppCompatActivity(R.layout.activity_conversation) {
 
+    private val conversationId get() = intent.getStringExtra(ARG_CONVERSATION_ID)
     private val conversationTitle get() = intent.getStringExtra(ARG_CONVERSATION_TITLE)
+    private val viewModel by viewModel<ConversationViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setUpConversationTitle()
         setUpBackNavigation()
+        cacheConversationId()
+    }
+
+    private fun cacheConversationId() {
+        conversationId?.let { viewModel.cacheConversationId(it) }
     }
 
     private fun setUpBackNavigation() {

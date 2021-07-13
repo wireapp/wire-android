@@ -12,6 +12,10 @@ import com.wire.android.feature.conversation.content.datasources.local.MessageEn
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.core.exception.Failure
+import com.wire.android.feature.contact.Contact
+import com.wire.android.feature.contact.datasources.local.ContactEntity
+import com.wire.android.feature.contact.datasources.mapper.ContactMapper
+import com.wire.android.feature.conversation.content.datasources.local.CombinedMessageContactEntity
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import io.mockk.coVerify
@@ -38,6 +42,9 @@ class MessageDataSourceTest : UnitTest() {
     private lateinit var messageMapper: MessageMapper
 
     @MockK
+    private lateinit var contactMapper: ContactMapper
+
+    @MockK
     private lateinit var cryptoBoxClient: CryptoBoxClient
 
     @MockK
@@ -48,7 +55,7 @@ class MessageDataSourceTest : UnitTest() {
 
     @Before
     fun setUp() {
-        messageDataSource = MessageDataSource(messageLocalDataSource, messageMapper, cryptoBoxClient)
+        messageDataSource = MessageDataSource(messageLocalDataSource, messageMapper, contactMapper, cryptoBoxClient)
     }
 
     @Test
@@ -104,16 +111,25 @@ class MessageDataSourceTest : UnitTest() {
     @Test
     fun `given conversationMessages is called, when messageLocalDataSource emits messages, then propagates mapped items`(){
         val conversationId = "conversation-id"
+        val contactEntity = mockk<ContactEntity>()
         val messageEntity = mockk<MessageEntity>()
+        val combinedMessageContactEntity = mockk<CombinedMessageContactEntity>().also {
+            every { it.messageEntity } returns messageEntity
+            every { it.contactEntity } returns contactEntity
+        }
         val message = mockk<Message>()
+        val contact = mockk<Contact>()
         every { messageMapper.fromEntityToMessage(messageEntity) } returns message
-        coEvery { messageLocalDataSource.messagesByConversationId(conversationId) } returns flowOf(listOf(messageEntity))
+        every { contactMapper.fromContactEntity(contactEntity) } returns contact
+        coEvery { messageLocalDataSource.messagesByConversationId(conversationId) } returns flowOf(listOf(combinedMessageContactEntity))
 
         runBlocking {
             val result = messageDataSource.conversationMessages(conversationId)
+
             with(result.first()){
                 size shouldBeEqualTo 1
-                get(0) shouldBeEqualTo message
+                get(0).message shouldBeEqualTo message
+                get(0).contact shouldBeEqualTo contact
             }
         }
     }

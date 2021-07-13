@@ -1,9 +1,16 @@
 package com.wire.android.feature.contact.datasources.mapper
 
 import com.wire.android.UnitTest
+import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.contact.datasources.remote.ContactResponse
+import com.wire.android.feature.conversation.content.Message
+import com.wire.android.feature.conversation.content.Sent
+import com.wire.android.feature.conversation.content.Text
+import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
+import com.wire.android.feature.conversation.content.mapper.MessageMapperTest
 import com.wire.android.framework.collections.second
+import com.wire.android.shared.asset.Asset
 import com.wire.android.shared.asset.PublicAsset
 import com.wire.android.shared.asset.datasources.remote.AssetResponse
 import com.wire.android.shared.asset.mapper.AssetMapper
@@ -14,6 +21,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.Before
 import org.junit.Test
+import java.time.OffsetDateTime
 
 class ContactMapperTest : UnitTest() {
 
@@ -88,6 +96,24 @@ class ContactMapperTest : UnitTest() {
             it.id shouldBeEqualTo TEST_CONTACT_ID_2
             it.name shouldBeEqualTo TEST_CONTACT_NAME_2
             it.profilePicture shouldBeEqualTo null
+        }
+    }
+
+    @Test
+    fun `given fromContactEntity is called, then maps the ContactEntity and returns a Contact`() {
+        val contactEntity = ContactEntity(
+            id = TEST_CONTACT_ID_1,
+            name = TEST_CONTACT_NAME_1,
+            assetKey = TEST_ASSET_KEY
+        )
+
+        val result = contactMapper.fromContactEntity(contactEntity)
+
+        result.let {
+            it shouldBeInstanceOf Contact::class
+            it.id shouldBeEqualTo TEST_CONTACT_ID_1
+            it.name shouldBeEqualTo TEST_CONTACT_NAME_1
+            it.profilePicture shouldBeInstanceOf Asset::class
         }
     }
 

@@ -113,7 +113,7 @@ class MessageDataSourceTest : UnitTest() {
         val conversationId = "conversation-id"
         val contactEntity = mockk<ContactEntity>()
         val messageEntity = mockk<MessageEntity>()
-        val messageAndContactEntity = mockk<CombinedMessageContactEntity>().also {
+        val combinedMessageContactEntity = mockk<CombinedMessageContactEntity>().also {
             every { it.messageEntity } returns messageEntity
             every { it.contactEntity } returns contactEntity
         }
@@ -121,7 +121,7 @@ class MessageDataSourceTest : UnitTest() {
         val contact = mockk<Contact>()
         every { messageMapper.fromEntityToMessage(messageEntity) } returns message
         every { contactMapper.fromContactEntity(contactEntity) } returns contact
-        coEvery { messageLocalDataSource.messagesByConversationId(conversationId) } returns flowOf(listOf(messageAndContactEntity))
+        coEvery { messageLocalDataSource.messagesByConversationId(conversationId) } returns flowOf(listOf(combinedMessageContactEntity))
 
         runBlocking {
             val result = messageDataSource.conversationMessages(conversationId)

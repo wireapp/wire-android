@@ -93,9 +93,9 @@ class ConversationAdapterTest : UnitTest() {
 
     @Test
     fun `given getItemViewType is called, when item is MessageText, then return VIEW_TYPE_TEXT_MESSAGE`() {
-        val messageAndContact = mockk<CombinedMessageContact>()
+        val combinedMessageContact = mockk<CombinedMessageContact>()
         spyAdapter.setList(messages)
-        every { messages[TEST_POSITION] } returns messageAndContact
+        every { messages[TEST_POSITION] } returns combinedMessageContact
 
         val result = spyAdapter.getItemViewType(TEST_POSITION)
 

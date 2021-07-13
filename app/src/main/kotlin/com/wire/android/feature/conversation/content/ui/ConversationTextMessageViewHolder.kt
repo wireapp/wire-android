@@ -25,7 +25,6 @@ class ConversationTextMessageViewHolder(
 
         if (shouldShowAvatar) {
             conversationChatItemUserAvatarImageView.visibility = View.VISIBLE
-
             userAvatarProvider.provide(
                 combinedMessage.contact.profilePicture,
                 combinedMessage.contact.name

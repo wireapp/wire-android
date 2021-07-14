@@ -90,6 +90,17 @@ class MessageDaoTest : InstrumentationTest() {
         }
     }
 
+    @Test
+    fun givenAMessageInConversationExists_whenContactIsDeleted_thenMessagesAreDeleted() {
+        runBlocking {
+            contactDao.delete(contactEntity)
+
+            val result = messageDao.messagesByConversationId(TEST_CONVERSATION_ID)
+
+            result.first().size shouldBeEqualTo 0
+        }
+    }
+
     companion object {
         private const val TEST_CONVERSATION_ID = "conversation-id"
         private const val TEST_USER_ID = "user-id"

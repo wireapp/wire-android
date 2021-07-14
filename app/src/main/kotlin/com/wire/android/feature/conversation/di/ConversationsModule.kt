@@ -98,5 +98,5 @@ val conversationContentModule = module {
     single { ConversationNavigator() }
     factory { GetConversationUseCase(get()) }
     viewModel { ConversationViewModel(get(), get()) }
-    factory { ConversationAdapter(get()) }
+    factory { ConversationAdapter(get(), get()) }
 }

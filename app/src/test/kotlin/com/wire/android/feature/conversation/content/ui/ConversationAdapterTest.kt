@@ -5,6 +5,7 @@ import com.wire.android.UnitTest
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.conversation.content.Message
+import com.wire.android.shared.asset.ui.imageloader.UserAvatarProvider
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -22,6 +23,9 @@ class ConversationAdapterTest : UnitTest() {
     private lateinit var viewHolderInflater: ViewHolderInflater
 
     @MockK
+    private lateinit var userAvatarProvider: UserAvatarProvider
+
+    @MockK
     private lateinit var messages: List<Any>
 
     private lateinit var conversationAdapter: ConversationAdapter
@@ -29,7 +33,7 @@ class ConversationAdapterTest : UnitTest() {
 
     @Before
     fun setUp() {
-        conversationAdapter = ConversationAdapter(viewHolderInflater)
+        conversationAdapter = ConversationAdapter(viewHolderInflater, userAvatarProvider)
         spyAdapter = spyk(conversationAdapter)
         every { spyAdapter.notifyDataSetChanged() } returns Unit
     }
@@ -89,9 +93,9 @@ class ConversationAdapterTest : UnitTest() {
 
     @Test
     fun `given getItemViewType is called, when item is MessageText, then return VIEW_TYPE_TEXT_MESSAGE`() {
-        val messageAndContact = mockk<CombinedMessageContact>()
+        val combinedMessageContact = mockk<CombinedMessageContact>()
         spyAdapter.setList(messages)
-        every { messages[TEST_POSITION] } returns messageAndContact
+        every { messages[TEST_POSITION] } returns combinedMessageContact
 
         val result = spyAdapter.getItemViewType(TEST_POSITION)
 

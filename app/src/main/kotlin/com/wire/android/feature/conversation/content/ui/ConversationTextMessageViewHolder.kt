@@ -8,8 +8,13 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
 import com.wire.android.core.extension.lazyFind
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
+import com.wire.android.shared.asset.ui.imageloader.UserAvatarProvider
 
-class ConversationTextMessageViewHolder(parent: ViewGroup, inflater: ViewHolderInflater) :
+class ConversationTextMessageViewHolder(
+    parent: ViewGroup,
+    inflater: ViewHolderInflater,
+    private val userAvatarProvider: UserAvatarProvider
+) :
     RecyclerView.ViewHolder(inflater.inflate(R.layout.conversation_chat_item_text, parent)) {
 
     private val conversationChatItemUsernameTextView by lazyFind<TextView>(R.id.conversationChatItemUsernameTextView)
@@ -17,9 +22,14 @@ class ConversationTextMessageViewHolder(parent: ViewGroup, inflater: ViewHolderI
     private val conversationChatItemUserAvatarImageView by lazyFind<ShapeableImageView>(R.id.conversationChatItemUserAvatarImageView)
 
     fun bind(combinedMessage: CombinedMessageContact, shouldShowAvatar: Boolean) {
-        if (shouldShowAvatar)
+
+        if (shouldShowAvatar) {
             conversationChatItemUserAvatarImageView.visibility = View.VISIBLE
-        else
+            userAvatarProvider.provide(
+                combinedMessage.contact.profilePicture,
+                combinedMessage.contact.name
+            )?.displayOn(conversationChatItemUserAvatarImageView)
+        } else
             conversationChatItemUserAvatarImageView.visibility = View.GONE
 
         conversationChatItemUsernameTextView.text = combinedMessage.contact.name

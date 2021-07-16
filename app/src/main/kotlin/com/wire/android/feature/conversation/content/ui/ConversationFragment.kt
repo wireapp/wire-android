@@ -13,7 +13,7 @@ import org.koin.android.ext.android.inject
 class ConversationFragment : Fragment(R.layout.fragment_conversation) {
 
     private val viewModel by activityViewModels<ConversationViewModel>()
-    private val conversationListAdapter by inject<ConversationAdapter>()
+    private val conversationAdapter by inject<ConversationAdapter>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,13 +31,13 @@ class ConversationFragment : Fragment(R.layout.fragment_conversation) {
     private fun setUpRecycler(view: View) {
         val recyclerView: RecyclerView = view.findViewById(R.id.conversationRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = conversationListAdapter
+        recyclerView.adapter = conversationAdapter
     }
 
     private fun observeMessages() {
         viewModel.conversationMessagesLiveData.observe(viewLifecycleOwner) {
-            conversationRecyclerView.scrollToPosition(it.size - 1);
-            conversationListAdapter.setList(it)
+            conversationRecyclerView.scrollToPosition(it.size - 1)
+            conversationAdapter.submitList(it)
         }
     }
 }

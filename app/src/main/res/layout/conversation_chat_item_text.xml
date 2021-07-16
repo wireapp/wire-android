@@ -4,8 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="16dp"
-    android:paddingEnd="32dp">
+    android:layout_marginBottom="16dp">
+
+    <include
+        android:id="@+id/timeSeparator"
+        layout="@layout/conversation_chat_time_separator"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/conversationGuideline"
@@ -18,10 +25,11 @@
         android:id="@+id/conversationChatItemUserAvatarImageView"
         android:layout_width="@dimen/conversation_chat_avatar_size"
         android:layout_height="@dimen/conversation_chat_avatar_size"
+        android:layout_marginTop="16dp"
         android:background="?colorSecondary"
         app:layout_constraintEnd_toStartOf="@id/conversationGuideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timeSeparator"
         app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.Circle"
         tools:src="@tools:sample/avatars" />
 
@@ -30,6 +38,7 @@
         style="@style/TextView.Conversation.username"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginEnd="32dp"
         app:layout_constraintBottom_toBottomOf="@id/conversationChatItemUserAvatarImageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/conversationGuideline"
@@ -41,9 +50,21 @@
         style="@style/TextView.Conversation.message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/conversationGuideline"
         app:layout_constraintTop_toBottomOf="@+id/conversationChatItemUsernameTextView"
         tools:text="Message" />
+
+    <TextView
+        android:id="@+id/conversationChatItemTimeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@+id/conversationGuideline"
+        app:layout_constraintTop_toBottomOf="@id/conversationChatItemTextMessageTextView"
+        tools:text="20:00" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

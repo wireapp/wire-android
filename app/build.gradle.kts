@@ -11,6 +11,7 @@ plugins {
     id(ScriptPlugins.variants)
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
+    id(ScriptPlugins.testing)
 }
 
 android {

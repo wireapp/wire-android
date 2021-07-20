@@ -199,7 +199,7 @@ class OffsetDateTimeExtensionTest : UnitTest() {
     fun `given dateWithoutYear is called, when offsetDateTime is valid, then return date without year`() {
         val result = offsetDateTime.dateWithoutYear()
 
-        val expected = "mar., juil. 20, 10:10"
+        val expected = "Tue, Jul 20, 10:10"
         result shouldBeEqualTo expected
     }
 
@@ -207,7 +207,7 @@ class OffsetDateTimeExtensionTest : UnitTest() {
     fun `given dateWithYear is called, when offsetDateTime is valid, then return date with year`() {
         val result = offsetDateTime.dateWithYear()
 
-        val expected = "mar., juil. 20, 2021, 10:10"
+        val expected = "Tue, Jul 20, 2021, 10:10"
         result shouldBeEqualTo expected
     }
 }

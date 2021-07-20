@@ -46,7 +46,7 @@ object Libraries {
     object Versions {
         const val kotlin = "1.5.20"
         const val coroutines = "1.5.0"
-        const val cryptobox = "1.1.2"
+        const val cryptobox = "1.1.3"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
         const val ktx = "1.6.0"

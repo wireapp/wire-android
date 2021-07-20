@@ -1,14 +1,16 @@
 buildscript {
     repositories {
         google()
-        jcenter() //TODO Replace with mavenCentral
+        mavenCentral()
+        jcenter() //TODO Remove by February 1, 2022
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        jcenter() //TODO Remove by February 1, 2022
     }
 }
 

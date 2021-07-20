@@ -22,7 +22,7 @@ class ContactMapper(private val assetMapper: AssetMapper) {
     fun fromContactEntityList(entityList: List<ContactEntity>): List<Contact> =
         entityList.map { fromContactEntity(it) }
 
-    private fun fromContactEntity(entity: ContactEntity): Contact =
+    fun fromContactEntity(entity: ContactEntity): Contact =
         Contact(
             id = entity.id,
             name = entity.name,

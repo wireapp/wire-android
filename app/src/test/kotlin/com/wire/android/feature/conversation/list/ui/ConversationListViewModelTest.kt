@@ -2,7 +2,6 @@ package com.wire.android.feature.conversation.list.ui
 
 import androidx.paging.PagingData
 import com.wire.android.UnitTest
-import com.wire.android.core.events.EventsHandler
 import com.wire.android.core.exception.ServerError
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
@@ -41,9 +40,6 @@ class ConversationListViewModelTest : UnitTest() {
     @MockK
     private lateinit var getUserTeamUseCase: GetUserTeamUseCase
 
-    @MockK
-    private lateinit var eventsHandler: EventsHandler
-
     private lateinit var conversationListViewModel: ConversationListViewModel
 
     @Before
@@ -52,8 +48,7 @@ class ConversationListViewModelTest : UnitTest() {
             coroutinesTestRule.dispatcherProvider,
             getConversationListUseCase,
             getCurrentUserUseCase,
-            getUserTeamUseCase,
-            eventsHandler
+            getUserTeamUseCase
         )
     }
 

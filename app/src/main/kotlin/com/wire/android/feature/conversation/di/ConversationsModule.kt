@@ -9,8 +9,11 @@ import com.wire.android.feature.conversation.content.datasources.MessageDataSour
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.mapper.MessageStateMapper
-import com.wire.android.core.date.DateStringMapper
 import com.wire.android.feature.conversation.content.mapper.MessageTypeMapper
+import com.wire.android.feature.conversation.content.navigation.ConversationNavigator
+import com.wire.android.feature.conversation.content.ui.ConversationAdapter
+import com.wire.android.feature.conversation.content.ui.ConversationViewModel
+import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
 import com.wire.android.feature.conversation.data.ConversationDataSource
 import com.wire.android.feature.conversation.data.ConversationMapper
 import com.wire.android.feature.conversation.data.ConversationRepository
@@ -25,6 +28,7 @@ import com.wire.android.feature.conversation.list.datasources.ConversationListMa
 import com.wire.android.feature.conversation.list.datasources.local.ConversationListLocalDataSource
 import com.wire.android.feature.conversation.list.ui.ConversationListAdapter
 import com.wire.android.feature.conversation.list.ui.ConversationListDiffCallback
+import com.wire.android.feature.conversation.list.ui.ConversationListItem
 import com.wire.android.feature.conversation.list.ui.ConversationListViewModel
 import com.wire.android.feature.conversation.list.ui.icon.ConversationIconProvider
 import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
@@ -59,9 +63,16 @@ val conversationsModule = module {
 }
 
 val conversationListModule = module {
-    factory { ConversationListAdapter(get(), get(), get()) }
+    factory { (param: (conversationListItem: ConversationListItem?) -> Unit) ->
+        ConversationListAdapter(
+            get(),
+            get(),
+            get(),
+            clickListener = param
+        )
+    }
     factory { ConversationListDiffCallback() }
-    viewModel { ConversationListViewModel(get(), get(), get(), get(), get()) }
+    viewModel { ConversationListViewModel(get(), get(), get(), get()) }
 
     factory { ConversationIconProvider(get()) }
 
@@ -83,5 +94,9 @@ val conversationContentModule = module {
     factory { MessageTypeMapper() }
     factory { MessageStateMapper() }
     factory { MessageMapper(get(), get(), get()) }
-    factory<MessageRepository> { MessageDataSource(get(), get()) }
+    factory<MessageRepository> { MessageDataSource(get(), get(), get(), get()) }
+    single { ConversationNavigator() }
+    factory { GetConversationUseCase(get()) }
+    viewModel { ConversationViewModel(get(), get()) }
+    factory { ConversationAdapter(get(), get()) }
 }

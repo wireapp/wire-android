@@ -51,6 +51,10 @@ android {
     configurations.implementation.configure {
         exclude(module = "protobuf-java")
     }
+
+    if (file("signing.gradle.kts").exists()) {
+        apply(from = "signing.gradle.kts")
+    }
 }
 
 dependencies {

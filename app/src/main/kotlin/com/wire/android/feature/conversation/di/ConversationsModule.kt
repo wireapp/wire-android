@@ -34,7 +34,7 @@ import com.wire.android.feature.conversation.list.ui.icon.ConversationIconProvid
 import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
 import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.feature.conversation.list.usecase.GetConversationMembersUseCase
-import com.wire.android.shared.conversation.content.TimeGenerator
+import com.wire.android.shared.conversation.content.ConversationTimeGenerator
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.qualifier
@@ -100,6 +100,6 @@ val conversationContentModule = module {
     single { ConversationNavigator() }
     factory { GetConversationUseCase(get()) }
     viewModel { ConversationViewModel(get(), get()) }
-    factory { TimeGenerator(androidContext()) }
+    factory { ConversationTimeGenerator(androidContext()) }
     factory { ConversationAdapter(get(), get(), get()) }
 }

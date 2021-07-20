@@ -7,17 +7,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
 import com.wire.android.core.extension.lazyFind
+import com.wire.android.core.extension.timeFromOffsetDateTime
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.feature.contact.Contact
 import com.wire.android.shared.asset.ui.imageloader.UserAvatarProvider
-import com.wire.android.shared.conversation.content.TimeGenerator
+import com.wire.android.shared.conversation.content.ConversationTimeGenerator
 import kotlinx.android.synthetic.main.conversation_chat_time_separator.view.*
 
 class ConversationTextMessageViewHolder(
     parent: ViewGroup,
     inflater: ViewHolderInflater,
     private val userAvatarProvider: UserAvatarProvider,
-    private val timeGenerator: TimeGenerator
+    private val conversationTimeGenerator: ConversationTimeGenerator
 ) : RecyclerView.ViewHolder(inflater.inflate(R.layout.conversation_chat_item_text, parent)) {
 
     private val conversationChatItemUsernameTextView by lazyFind<TextView>(R.id.conversationChatItemUsernameTextView)
@@ -29,15 +30,21 @@ class ConversationTextMessageViewHolder(
     private val conversationTimeSeparatorTextTextView by lazyFind<View>(R.id.conversationTimeSeparatorTextTextView)
     private val timeSeparator by lazyFind<View>(R.id.timeSeparator)
 
-    fun bindMessage(combinedMessage: CombinedMessageContact, showUserAvatar: Boolean, showNewDaySeparator: Boolean, showSameDaySeparator: Boolean) {
+    fun bindMessage(
+        combinedMessage: CombinedMessageContact,
+        showUserAvatar: Boolean,
+        showNewDaySeparator: Boolean,
+        showSameDaySeparator: Boolean
+    ) {
         setUpAvatar(showUserAvatar, combinedMessage.contact)
         setUpTimeSeparatorVisibility(showNewDaySeparator, showSameDaySeparator)
         initItemClick()
         val message = combinedMessage.message
-        conversationTimeSeparatorTextTextView.conversationTimeSeparatorTextTextView.text = timeGenerator.separatorTime(message.time)
+        conversationTimeSeparatorTextTextView.conversationTimeSeparatorTextTextView.text =
+            conversationTimeGenerator.separatorTimeLabel(message.time)
         conversationChatItemUsernameTextView.text = combinedMessage.contact.name
         conversationChatItemTextMessageTextView.text = message.content
-        conversationChatItemTimeTextView.text = timeGenerator.timeFromOffsetDateTime(message.time)
+        conversationChatItemTimeTextView.text = message.time.timeFromOffsetDateTime()
     }
 
     private fun setUpAvatar(shouldShowAvatar: Boolean, contact: Contact) {

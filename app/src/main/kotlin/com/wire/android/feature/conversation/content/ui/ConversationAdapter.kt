@@ -7,16 +7,16 @@ import com.wire.android.core.extension.isLastSixtyMinutes
 import com.wire.android.core.extension.isSameDay
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.shared.asset.ui.imageloader.UserAvatarProvider
-import com.wire.android.shared.conversation.content.TimeGenerator
+import com.wire.android.shared.conversation.content.ConversationTimeGenerator
 
 class ConversationAdapter(
     private val viewHolderInflater: ViewHolderInflater,
     private val userAvatarProvider: UserAvatarProvider,
-    private val timeGenerator: TimeGenerator
+    private val conversationTimeGenerator: ConversationTimeGenerator
 ) : ListAdapter<CombinedMessageContact, RecyclerView.ViewHolder>(ConversationDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-        ConversationTextMessageViewHolder(parent, viewHolderInflater, userAvatarProvider, timeGenerator)
+        ConversationTextMessageViewHolder(parent, viewHolderInflater, userAvatarProvider, conversationTimeGenerator)
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (getItemViewType(position) == VIEW_TYPE_TEXT_MESSAGE) {

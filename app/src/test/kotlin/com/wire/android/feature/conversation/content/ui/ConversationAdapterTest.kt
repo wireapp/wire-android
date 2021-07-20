@@ -6,7 +6,7 @@ import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.shared.asset.ui.imageloader.UserAvatarProvider
-import com.wire.android.shared.conversation.content.TimeGenerator
+import com.wire.android.shared.conversation.content.ConversationTimeGenerator
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -32,14 +32,14 @@ class ConversationAdapterTest : UnitTest() {
     private lateinit var messages: List<Any>
 
     @MockK
-    private lateinit var timeGenerator: TimeGenerator
+    private lateinit var conversationTimeGenerator: ConversationTimeGenerator
 
     private lateinit var conversationAdapter: ConversationAdapter
     private lateinit var spyAdapter: ConversationAdapter
 
     @Before
     fun setUp() {
-        conversationAdapter = ConversationAdapter(viewHolderInflater, userAvatarProvider, timeGenerator)
+        conversationAdapter = ConversationAdapter(viewHolderInflater, userAvatarProvider, conversationTimeGenerator)
         spyAdapter = spyk(conversationAdapter)
         every { spyAdapter.notifyDataSetChanged() } returns Unit
     }

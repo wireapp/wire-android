@@ -52,8 +52,8 @@ android {
         exclude(module = "protobuf-java")
     }
 
-    if (file("signing.gradle.kts").exists()) {
-        apply(from = "signing.gradle.kts")
+    if (file("signing.gradle").exists()) {
+        apply(from = "signing.gradle")
     }
 }
 

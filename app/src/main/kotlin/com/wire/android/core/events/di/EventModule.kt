@@ -29,7 +29,7 @@ val eventModule = module {
         return scarlet.create()
     }
     //TODO hardcoded client to be replaced with current clientId
-    single { WebSocketConfig("3e703de2a9988412") }
+    single { WebSocketConfig("82317e19fdc80b7d") }
     single {
         provideWebSocketService(
             get(),

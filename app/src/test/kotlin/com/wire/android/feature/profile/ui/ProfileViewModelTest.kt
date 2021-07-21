@@ -47,32 +47,32 @@ class ProfileViewModelTest : UnitTest() {
 
     @Test
     fun `given fetchProfileInfo is called, when getCurrentUserUseCase fails, then sets error and does not update user info`() {
-        coEvery { getCurrentUserUseCase.run(any()) } returns Either.Left(mockk())
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Left(mockk())
 
         profileViewModel.fetchProfileInfo()
 
         profileViewModel.errorLiveData shouldBeUpdated {}
         profileViewModel.currentUserLiveData.shouldNotBeUpdated()
-        coVerify(exactly = 1) { getCurrentUserUseCase.run(any()) }
+        coVerify(exactly = 1) { getCurrentUserUseCase.run(Unit) }
     }
 
     @Test
     fun `given fetchProfileInfo is called, when getCurrentUserUseCase returns a user, then updates user info`() {
         val user = mockk<User>(relaxed = true)
-        coEvery { getCurrentUserUseCase.run(any()) } returns Either.Right(user)
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
         coEvery { getUserTeamUseCase.run(any()) } returns Either.Left(mockk())
 
         profileViewModel.fetchProfileInfo()
 
         profileViewModel.currentUserLiveData shouldBeUpdated { it shouldBeEqualTo user }
-        coVerify(exactly = 1) { getCurrentUserUseCase.run(any()) }
+        coVerify(exactly = 1) { getCurrentUserUseCase.run(Unit) }
     }
 
 
     @Test
     fun `given fetchProfileInfo called & curr user is fetched, when getUserTeamUC fails w NotATeamUser, then propagates null team name`() {
         val user = mockk<User>()
-        coEvery { getCurrentUserUseCase.run(any()) } returns Either.Right(user)
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
         coEvery { getUserTeamUseCase.run(any()) } returns Either.Left(NotATeamUser)
 
         profileViewModel.fetchProfileInfo()
@@ -87,7 +87,7 @@ class ProfileViewModelTest : UnitTest() {
     @Test
     fun `given fetchProfileInfo called & current user is fetched, when getUserTeamUseCase fails with other error, then sets error`() {
         val user = mockk<User>()
-        coEvery { getCurrentUserUseCase.run(any()) } returns Either.Right(user)
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
         coEvery { getUserTeamUseCase.run(any()) } returns Either.Left(mockk())
 
         profileViewModel.fetchProfileInfo()
@@ -100,7 +100,7 @@ class ProfileViewModelTest : UnitTest() {
     @Test
     fun `given fetchProfileInfo called & current user is fetched, when getUserTeamUseCase returns a team, then propagates team name`() {
         val user = mockk<User>()
-        coEvery { getCurrentUserUseCase.run(any()) } returns Either.Right(user)
+        coEvery { getCurrentUserUseCase.run(Unit) } returns Either.Right(user)
 
         val team = mockk<Team>()
         every { team.name } returns TEST_TEAM_NAME

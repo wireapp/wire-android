@@ -203,7 +203,7 @@ class CreateAccountUsernameViewModelTest : UnitTest() {
 
     @Test
     fun `given generateUsername is called, when use case returns NoAvailableUsernames error, then propagate generate error`() {
-        coEvery { generateUsernameUseCase.run(any()) } returns Either.Left(NoAvailableUsernames)
+        coEvery { generateUsernameUseCase.run(Unit) } returns Either.Left(NoAvailableUsernames)
 
         usernameViewModel.generateUsername()
 
@@ -212,7 +212,7 @@ class CreateAccountUsernameViewModelTest : UnitTest() {
 
     @Test
     fun `given generateUsername is called, when use case returns success, then propagate generated name`() {
-        coEvery { generateUsernameUseCase.run(any()) } returns Either.Right(TEST_USERNAME)
+        coEvery { generateUsernameUseCase.run(Unit) } returns Either.Right(TEST_USERNAME)
 
         usernameViewModel.generateUsername()
 

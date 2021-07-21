@@ -43,11 +43,19 @@
         <item name="android:textStyle">bold</item>
         <item name="maxLines">1</item>
         <item name="android:textColor">?colorSecondary</item>
+        <item name="android:layout_marginEnd">32dp</item>
     </style>
 
     <style name="TextView.Conversation.message">
         <item name="android:textAppearance">?textAppearanceBody1</item>
         <item name="android:lineSpacingExtra">8sp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginEnd">32dp</item>
+    </style>
+
+    <style name="TextView.Conversation.time">
+        <item name="android:textSize">12sp</item>
+        <item name="android:layout_marginTop">10dp</item>
     </style>
 
 </resources>

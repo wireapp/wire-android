@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="40dp">
+    android:layout_height="@dimen/conversation_chat_time_separator_height"
+    android:paddingBottom="@dimen/conversation_chat_time_separator_padding_bottom">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/conversationGuideline"
@@ -16,7 +17,7 @@
         android:id="@+id/conversationNotSameDaySeparatorView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#f0f0f0"
+        android:background="?attr/colorControlHighlight"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -36,7 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="8dp"
-        android:background="#bac8d1"
+        android:background="?attr/colorControlHighlight"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/conversationTimeSeparatorTextTextView" />

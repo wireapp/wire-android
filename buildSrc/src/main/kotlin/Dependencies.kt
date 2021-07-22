@@ -20,7 +20,7 @@ object AndroidClient {
 
 object BuildPlugins {
     object Versions {
-        const val gradleVersion = "6.6.1"
+        const val gradleVersion = "7.1.1"
     }
 
     const val androidApplication = "com.android.application"
@@ -35,6 +35,7 @@ object ScriptPlugins {
     const val variants = "scripts.variants"
     const val quality = "scripts.quality"
     const val compilation = "scripts.compilation"
+    const val testing = "scripts.testing"
 }
 
 object Repositories {
@@ -44,12 +45,12 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.4.10"
-        const val coroutines = "1.3.9"
-        const val cryptobox = "1.1.2"
+        const val kotlin = "1.5.20"
+        const val coroutines = "1.5.0"
+        const val cryptobox = "1.1.3"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
-        const val ktx = "1.3.0"
+        const val ktx = "1.6.0"
         const val material = "1.3.0"
         const val koin = "2.1.6"
         const val lifecycleKtx = "2.2.0"
@@ -118,7 +119,7 @@ object TestLibraries {
     private object Versions {
         const val androidCore = "1.3.0"
         const val junit4 = "4.13"
-        const val mockk = "1.10.5"
+        const val mockk = "1.12.0"
         const val kluent = "1.60"
         const val robolectric = "4.5.1"
         const val testRunner = "1.2.0"

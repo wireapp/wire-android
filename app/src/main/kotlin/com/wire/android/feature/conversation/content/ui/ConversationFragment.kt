@@ -3,16 +3,16 @@ package com.wire.android.feature.conversation.content.ui
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wire.android.R
 import kotlinx.android.synthetic.main.fragment_conversation.*
 import org.koin.android.ext.android.inject
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 
 class ConversationFragment : Fragment(R.layout.fragment_conversation) {
 
-    private val viewModel by activityViewModels<ConversationViewModel>()
+    private val viewModel by sharedViewModel<ConversationViewModel>()
     private val conversationAdapter by inject<ConversationAdapter>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

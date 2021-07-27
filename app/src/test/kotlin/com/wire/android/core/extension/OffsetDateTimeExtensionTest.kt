@@ -6,12 +6,11 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.Before
 import org.junit.Test
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 class OffsetDateTimeExtensionTest : UnitTest() {
@@ -24,7 +23,10 @@ class OffsetDateTimeExtensionTest : UnitTest() {
 
     private val offsetDateTime = OffsetDateTime.of(2021,7,20,10,10,59,10, ZoneOffset.UTC)
 
-    private val nowDate = LocalDateTime.of(2021,7,19,7,10,0)
+    @Before
+    fun setUp() {
+        mockkStatic(OffsetDateTime::class)
+    }
 
     @Test
     fun `given isSameYear is called, when input dates are different in year, then return false`() {
@@ -103,86 +105,75 @@ class OffsetDateTimeExtensionTest : UnitTest() {
     }
 
     @Test
-    fun `given isLastSixtyMinutes is called, when the amount of time between the two dates is fewer than 60 minutes, then return true`() {
+    fun `given isMoreThanSixtyMinutes is called, when the amount of time between 2 dates is less than 60 minutes, then return true`() {
         val offsetDateTime1 = mockk<OffsetDateTime>()
         val offsetDateTime2 = mockk<OffsetDateTime>()
         every { offsetDateTime2.until(offsetDateTime1, ChronoUnit.MINUTES) } returns 100L
         every { offsetDateTime1.until(offsetDateTime2, ChronoUnit.MINUTES) } returns 50L
 
-        val result = offsetDateTime2.isLastSixtyMinutes(offsetDateTime1)
+        val result = offsetDateTime2.isMoreThanSixtyMinutesApartOf(offsetDateTime1)
 
         result shouldBeEqualTo true
     }
 
     @Test
-    fun `given isLastSixtyMinutes is called, when the amount of time between the two dates is greater than 60 minutes, then return false`(){
+    fun `given isMoreThanSixtyMinutes is called, when the amount of time between 2 dates is greater than 60 minutes, then return false`(){
         every { offsetDateTime2.until(offsetDateTime1, ChronoUnit.MINUTES) } returns 10L
         every { offsetDateTime1.until(offsetDateTime2, ChronoUnit.MINUTES) } returns 500L
 
-        val result = offsetDateTime2.isLastSixtyMinutes(offsetDateTime1)
+        val result = offsetDateTime2.isMoreThanSixtyMinutesApartOf(offsetDateTime1)
 
         result shouldBeEqualTo false
     }
 
     @Test
-    fun `given isLastSixtyMinutes is called, when the amount of time between the two dates is equal to to 60 minutes, then return true`() {
+    fun `given isMoreThanSixtyMinutes is called, when the amount of time between 2 dates is equal to 60 minutes, then return true`() {
         every { offsetDateTime2.until(offsetDateTime1, ChronoUnit.MINUTES) } returns 160L
         every { offsetDateTime1.until(offsetDateTime2, ChronoUnit.MINUTES) } returns 100L
 
-        val result = offsetDateTime2.isLastSixtyMinutes(offsetDateTime1)
+        val result = offsetDateTime2.isMoreThanSixtyMinutesApartOf(offsetDateTime1)
 
         result shouldBeEqualTo true
     }
 
     @Test
-    fun `given isLastXMinutesFromNow is called, when the input date is 2 minutes ago from now, then return true`() {
-        val oldDate = LocalDateTime.of(2021,7,19,7,9,0)
-        mockkStatic(LocalDateTime::class)
-        val offsetDateTime = mockk<OffsetDateTime>()
-        every { LocalDateTime.ofInstant(offsetDateTime.toInstant(), ZoneId.systemDefault()) } returns oldDate
-        every { LocalDateTime.now() } returns nowDate
+    fun `given isWithinTheLastMinutes is called, when the input date is within the last 2 minutes, then return true`() {
+        val date = OffsetDateTime.of(2021,7,20,10,9,59,10, ZoneOffset.UTC)
 
-        val result = offsetDateTime.isLastXMinutesFromNow(2L)
+        every { OffsetDateTime.now() } returns offsetDateTime
+
+        val result = date.isWithinTheLastMinutes(2L)
 
         result shouldBeEqualTo true
     }
 
     @Test
-    fun `given isLastXMinutesFromNow is called, when the input date is not 2 minutes ago from now, then return false`() {
-        val oldDate = LocalDateTime.of(2021,7,19,7,5,0)
-        mockkStatic(LocalDateTime::class)
-        val offsetDateTime = mockk<OffsetDateTime>()
-        every { LocalDateTime.ofInstant(offsetDateTime.toInstant(), ZoneId.systemDefault()) } returns oldDate
-        every { LocalDateTime.now() } returns nowDate
+    fun `given isWithinTheLastMinutes is called, when the input date is not within the last 2 minutes, then return false`() {
+        val date = OffsetDateTime.of(2021,7,20,10,5,59,10, ZoneOffset.UTC)
+        every { OffsetDateTime.now() } returns offsetDateTime
 
-        val result = offsetDateTime.isLastXMinutesFromNow(2L)
+        val result = date.isWithinTheLastMinutes(2L)
 
         result shouldBeEqualTo false
     }
 
     @Test
-    fun `given isLastXMinutesFromNow is called, when the input date is 60 minutes ago from now, then return true`() {
-        val oldDate = LocalDateTime.of(2021,7,19,7,50,0)
-        mockkStatic(LocalDateTime::class)
-        val offsetDateTime = mockk<OffsetDateTime>()
-        every { LocalDateTime.ofInstant(offsetDateTime.toInstant(), ZoneId.systemDefault()) } returns oldDate
-        every { LocalDateTime.now() } returns nowDate
+    fun `given isWithinTheLastMinutes is called, when the input date is within the last 60 minutes, then return true`() {
+        val date = OffsetDateTime.of(2021,7,20,9,11,59,10, ZoneOffset.UTC)
+        every { OffsetDateTime.now() } returns offsetDateTime
 
-        val result = offsetDateTime.isLastXMinutesFromNow(60L)
+        val result = date.isWithinTheLastMinutes(60L)
 
         result shouldBeEqualTo true
     }
 
 
     @Test
-    fun `given isLastXMinutesFromNow is called, when the input date is more than 60 minutes ago from now, then return false`() {
-        val oldDate = LocalDateTime.of(2021,7,19,6,5,0)
-        mockkStatic(LocalDateTime::class)
-        val offsetDateTime = mockk<OffsetDateTime>()
-        every { LocalDateTime.ofInstant(offsetDateTime.toInstant(), ZoneId.systemDefault()) } returns oldDate
-        every { LocalDateTime.now() } returns nowDate
+    fun `given isWithinTheLastMinutes is called, when the input date is not within the last 60 minutes, then return false`() {
+        val date = OffsetDateTime.of(2021,7,20,9,10,59,10, ZoneOffset.UTC)
+        every { OffsetDateTime.now() } returns offsetDateTime
 
-        val result = offsetDateTime.isLastXMinutesFromNow(60L)
+        val result = date.isWithinTheLastMinutes(60L)
 
         result shouldBeEqualTo false
     }
@@ -191,7 +182,7 @@ class OffsetDateTimeExtensionTest : UnitTest() {
     fun `given timeFromOffsetDateTime is called, when offsetDateTime is valid, then return time`() {
         val result = offsetDateTime.timeFromOffsetDateTime()
 
-        val expected = "10:10"
+        val expected = "10:10 AM"
         result shouldBeEqualTo expected
     }
 

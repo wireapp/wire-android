@@ -1,10 +1,10 @@
 package com.wire.android.core.extension
 
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
+import kotlin.math.absoluteValue
 
 fun OffsetDateTime.isSameDay(offsetDateTime: OffsetDateTime): Boolean =
     this.toLocalDate().isEqual(offsetDateTime.toLocalDate())
@@ -12,17 +12,14 @@ fun OffsetDateTime.isSameDay(offsetDateTime: OffsetDateTime): Boolean =
 fun OffsetDateTime.isSameYear(offsetDateTime: OffsetDateTime) =
     this.year == offsetDateTime.year
 
-fun OffsetDateTime.isLastSixtyMinutes(offsetDateTime: OffsetDateTime) =
-    this.until(offsetDateTime, ChronoUnit.MINUTES) > SIXTY_MINUTES
+fun OffsetDateTime.isMoreThanSixtyMinutesApartOf(anotherOffsetDateTime: OffsetDateTime) =
+    ChronoUnit.MINUTES.between(this, anotherOffsetDateTime).absoluteValue > SIXTY_MINUTES
 
-fun OffsetDateTime.isLastXMinutesFromNow(minutes: Long): Boolean {
-    val now = LocalDateTime.now()
-    val localTime = LocalDateTime.ofInstant(this.toInstant(), ZoneId.systemDefault())
-    return now.minusMinutes(minutes).isBefore(localTime)
-}
+fun OffsetDateTime.isWithinTheLastMinutes(minutes: Long) =
+    ChronoUnit.MINUTES.between(this, OffsetDateTime.now()) < minutes
 
 fun OffsetDateTime.timeFromOffsetDateTime(): String {
-    val fmt: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    val fmt: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
     return fmt.format(this)
 }
 

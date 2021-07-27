@@ -3,7 +3,7 @@ package com.wire.android.shared.conversation.content
 import android.content.Context
 import com.wire.android.R
 import com.wire.android.UnitTest
-import com.wire.android.core.extension.isLastXMinutesFromNow
+import com.wire.android.core.extension.isWithinTheLastMinutes
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -34,7 +34,7 @@ class ConversationTimeGeneratorTest : UnitTest() {
     @Test
     fun `given separatorTimeLabel is called, when input date is last two minutes from now, then return JUST NOW string` () {
         val justNow = "JUST NOW"
-        every { offsetDateTime.isLastXMinutesFromNow(TEST_TWO_MINUTES) } returns true
+        every { offsetDateTime.isWithinTheLastMinutes(TEST_TWO_MINUTES) } returns true
         every { context.resources.getString(R.string.conversation_chat_just_now) } returns "JUST NOW"
 
         val result = conversationTimeGenerator.separatorTimeLabel(offsetDateTime)
@@ -48,8 +48,8 @@ class ConversationTimeGeneratorTest : UnitTest() {
         val localTime = mockk<LocalTime>()
         val mock = spyk(conversationTimeGenerator, recordPrivateCalls = true)
         every { offsetDateTime.toLocalTime() } returns localTime
-        every { offsetDateTime.isLastXMinutesFromNow(TEST_TWO_MINUTES) } returns false
-        every { offsetDateTime.isLastXMinutesFromNow(TEST_Sixty_MINUTES) } returns true
+        every { offsetDateTime.isWithinTheLastMinutes(TEST_TWO_MINUTES) } returns false
+        every { offsetDateTime.isWithinTheLastMinutes(TEST_Sixty_MINUTES) } returns true
         every { mock["minutesAgo"](localTime) } returns minutesAgo
 
         val result = mock.separatorTimeLabel(offsetDateTime)
@@ -61,8 +61,8 @@ class ConversationTimeGeneratorTest : UnitTest() {
     fun `given separatorTimeLabel is called, when input date passed 60 minutes from now, then return full date` () {
         val fullDate = "Monday, 12 20, 10:10"
         val mock = spyk(conversationTimeGenerator, recordPrivateCalls = true)
-        every { offsetDateTime.isLastXMinutesFromNow(TEST_TWO_MINUTES) } returns false
-        every { offsetDateTime.isLastXMinutesFromNow(TEST_Sixty_MINUTES) } returns false
+        every { offsetDateTime.isWithinTheLastMinutes(TEST_TWO_MINUTES) } returns false
+        every { offsetDateTime.isWithinTheLastMinutes(TEST_Sixty_MINUTES) } returns false
         every { mock["fullDateTime"](offsetDateTime) } returns fullDate
 
         val result = mock.separatorTimeLabel(offsetDateTime)

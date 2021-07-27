@@ -2,7 +2,7 @@ package com.wire.android.shared.conversation.content
 
 import android.content.Context
 import com.wire.android.R
-import com.wire.android.core.extension.isLastXMinutesFromNow
+import com.wire.android.core.extension.isWithinTheLastMinutes
 import com.wire.android.core.extension.isSameDay
 import com.wire.android.core.extension.timeFromOffsetDateTime
 import com.wire.android.core.extension.dateWithYear
@@ -19,8 +19,8 @@ class ConversationTimeGenerator(private val context: Context) {
 
     fun separatorTimeLabel(offsetDateTime: OffsetDateTime) : String {
         return when {
-            offsetDateTime.isLastXMinutesFromNow(TWO_MINUTES) -> context.resources.getString(R.string.conversation_chat_just_now)
-            offsetDateTime.isLastXMinutesFromNow(SIXTY_MINUTES) -> minutesAgo(offsetDateTime.toLocalTime())
+            offsetDateTime.isWithinTheLastMinutes(TWO_MINUTES) -> context.resources.getString(R.string.conversation_chat_just_now)
+            offsetDateTime.isWithinTheLastMinutes(SIXTY_MINUTES) -> minutesAgo(offsetDateTime.toLocalTime())
             else -> fullDateTime(offsetDateTime)
         }
     }

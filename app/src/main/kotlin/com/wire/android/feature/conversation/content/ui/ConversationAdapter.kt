@@ -3,7 +3,7 @@ package com.wire.android.feature.conversation.content.ui
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.wire.android.core.extension.isLastSixtyMinutes
+import com.wire.android.core.extension.isMoreThanSixtyMinutesApartOf
 import com.wire.android.core.extension.isSameDay
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.shared.asset.ui.imageloader.UserAvatarProvider
@@ -30,7 +30,7 @@ class ConversationAdapter(
                 val previousMessage = (getItem(position - 1) as CombinedMessageContact).message
                 showUserAvatar = currentMessage.senderUserId != previousMessage.senderUserId
                 showNewDaySeparator = !currentMessage.time.isSameDay(previousMessage.time)
-                showSameDaySeparator = previousMessage.time.isLastSixtyMinutes(currentMessage.time)
+                showSameDaySeparator = previousMessage.time.isMoreThanSixtyMinutesApartOf(currentMessage.time)
             }
 
             currentHolder.bindMessage(combinedMessageContact, showUserAvatar, showNewDaySeparator, showSameDaySeparator)

@@ -3,6 +3,7 @@ package com.wire.android.feature.conversation.content.ui
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.wire.android.R
@@ -54,25 +55,28 @@ class ConversationTextMessageViewHolder(
         } else conversationChatItemUserAvatarImageView.visibility = View.GONE
     }
 
-    private fun setUpTimeSeparatorVisibility(showSeparator: Boolean, showDefaultTimeSeparator: Boolean) {
-        timeSeparator.visibility = View.GONE
-        if (showSeparator) {
-            timeSeparator.visibility = View.VISIBLE
-            conversationNotSameDaySeparatorView.visibility = View.VISIBLE
-            conversationSameDaySeparatorView.visibility = View.GONE
-        } else if (showDefaultTimeSeparator) {
-            timeSeparator.visibility = View.VISIBLE
-            conversationSameDaySeparatorView.visibility = View.VISIBLE
-            conversationNotSameDaySeparatorView.visibility = View.GONE
+    private fun setUpTimeSeparatorVisibility(showNewDaySeparator: Boolean, showSameDaySeparator: Boolean) {
+        timeSeparator.isVisible = showNewDaySeparator || showSameDaySeparator
+        when {
+            showNewDaySeparator -> {
+                conversationNotSameDaySeparatorView.visibility = View.VISIBLE
+                conversationSameDaySeparatorView.visibility = View.GONE
+            }
+            showSameDaySeparator -> {
+                conversationSameDaySeparatorView.visibility = View.VISIBLE
+                conversationNotSameDaySeparatorView.visibility = View.GONE
+            }
+            else -> {
+                timeSeparator.visibility = View.GONE
+                conversationSameDaySeparatorView.visibility = View.GONE
+                conversationNotSameDaySeparatorView.visibility = View.GONE
+            }
         }
     }
 
     private fun initItemClick() {
         conversationChatItemTextMessageTextView.setOnClickListener {
-            if(conversationChatItemTimeTextView.visibility == View.GONE)
-                conversationChatItemTimeTextView.visibility = View.VISIBLE
-            else
-                conversationChatItemTimeTextView.visibility = View.GONE
+            conversationChatItemTimeTextView.isVisible = !conversationChatItemTimeTextView.isVisible
         }
     }
 }

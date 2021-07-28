@@ -198,7 +198,7 @@ class OffsetDateTimeExtensionTest : UnitTest() {
     fun `given dateWithYear is called, when offsetDateTime is valid, then return date with year`() {
         val result = offsetDateTime.dateWithYear()
 
-        val expected = "Tue, Jul 20, 2021, 10:10 AM"
+        val expected = "July 20, 2021 10:10:59 AM UTC"
         result shouldBeEqualTo expected
     }
 }

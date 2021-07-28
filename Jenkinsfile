@@ -29,7 +29,7 @@ pipeline {
                         else
                             echo "sdk.dir="$ANDROID_HOME >> ${propertiesFile}
                             echo "ndk.dir="$NDK_HOME >> ${propertiesFile}
-                            echo "nexus.url=http://10.10.124.11:8081/nexus/content/groups/public" >> local.properties
+                            echo "nexus.url=http://10.10.124.134:8081/repository/public/" >> ${propertiesFile}
                         fi
                     '''
           }
@@ -38,21 +38,16 @@ pipeline {
         stage('Fetch Signing Files') {
           steps {
             configFileProvider([
-                                                                                                                                            configFile(fileId: 'cdd282d7-f2e6-48fa-a6e0-de974c4d01be', targetLocation: 'app/signing.gradle'),
-                                                                                                                                            configFile(fileId: 'dc6c5bea-7fff-4dab-a8eb-696b5af3cd6c', targetLocation: 'app/zclient-debug-key.keystore.asc'),
-                                                                                                                                            configFile(fileId: 'ad99b3ec-cc04-4897-96b0-864151ac38b8', targetLocation: 'app/zclient-release-key.keystore.asc'),
-                                                                                                                                            configFile(fileId: 'd8c84572-6a63-473b-899c-c160d81b06c9', targetLocation: 'app/zclient-test-key.keystore.asc')
-                                                                                                              ]) {
+                configFile(fileId: '00246e05-bb93-45f5-b1e6-0ff2d4ff9453', targetLocation: 'app/reloaded-debug-key.keystore.asc'),
+                configFile(fileId: '97ce3674-1ed5-42a0-9185-00a93896b364', targetLocation: 'app/reloaded-release-key.keystore.asc'),
+            ]) {
                 sh '''
-		    base64 --decode app/zclient-debug-key.keystore.asc > app/zclient-debug-key.keystore
-                    base64 --decode app/zclient-release-key.keystore.asc > app/zclient-release-key.keystore
-                    base64 --decode app/zclient-test-key.keystore.asc > app/zclient-test-key.keystore
-		'''
+                    base64 --decode app/reloaded-debug-key.keystore.asc > app/reloaded-debug-key.keystore
+                    base64 --decode app/reloaded-release-key.keystore.asc > app/reloaded-release-key.keystore
+                '''
               }
-
             }
           }
-
         }
       }
 
@@ -81,6 +76,12 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
             }
           }
 
+          stage('Spawn Emulator 11.0') {
+              steps {
+                sh '''docker rm ${emulatorPrefix}_11 || true
+  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_11 budtmo/docker-android-x86-11.0'''
+              }
+          }
         }
       }
 
@@ -119,7 +120,6 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           withGradle() {
             sh './gradlew staticCodeAnalysis'
           }
-
         }
       }
 
@@ -133,12 +133,18 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
             sh './gradlew runUnitTests'
           }
 
-          publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}DebugUnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
+          publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}${buildType}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
         }
       }
 
       stage('Connect Emulators') {
         parallel {
+          stage('Emulator 11.0') {
+            steps {
+              sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_11:${adbPort}'
+            }
+          }
+
           stage('Emulator 10.0') {
             steps {
               sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'
@@ -168,7 +174,6 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
             }
           }
-
         }
       }
 
@@ -195,9 +200,8 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
               }
 
               withGradle() {
-                sh './gradlew :app:bundle${variant}'
+                sh './gradlew :app:bundle${flavour}${buildType}'
               }
-
             }
           }
 
@@ -208,12 +212,10 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
               }
 
               withGradle() {
-                sh './gradlew assembleApp'
+                sh './gradlew assemble${flavour}${buildType}'
               }
-
             }
           }
-
         }
       }
 
@@ -221,30 +223,28 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
         parallel {
           stage('AAB') {
             steps {
-              archiveArtifacts(artifacts: "app/build/outputs/bundle/${flavor.toLowerCase()}${variant}/debug/app*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
+              archiveArtifacts(artifacts: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
             }
           }
 
           stage('APK') {
             steps {
-              archiveArtifacts(allowEmptyArchive: true, artifacts: '**/*.apk, **/*.aab, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt')
+              archiveArtifacts(allowEmptyArchive: true, artifacts: 'app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt')
             }
           }
-
         }
       }
 
       stage('Playstore Upload') {
         steps {
-          androidApkUpload(apkFilesPattern: '"app/build/outputs/bundle/${flavor.toLowerCase()}${variant}/debug/app*.aab"', trackName: 'Internal')
+          androidApkUpload(apkFilesPattern: '"app/build/outputs/bundle/${flavor.toLowerCase()}${buildType}/debug/app*.aab"', trackName: 'Internal')
         }
       }
-
     }
     environment {
       propertiesFile = 'local.properties'
       flavor = 'Dev'
-      variant = 'Release'
+      buildType = 'Debug'
       adbPort = '5555'
       emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
     }
@@ -270,9 +270,8 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       }
 
       always {
-        sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
-        sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
+        sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 ${emulatorPrefix}-${BUILD_NUMBER}_11 || true'
+        sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 ${emulatorPrefix}-${BUILD_NUMBER}_11 || true'
       }
-
     }
   }

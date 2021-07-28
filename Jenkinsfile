@@ -266,12 +266,12 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
         parallel {
             stage('S3 Bucket') {
               steps {
-                s3Upload(acl: 'Private', file: "app/build/outputs/apk/com.wire.android-*.aa", bucket: 'z-lohika', path: "megazord/android/reloaded/${params.Flavor.toLowerCase()}/${params.BuildType.toLowerCase()}/")
+                s3Upload(acl: 'Private', file: "app/build/outputs/apk/com.wire.android-*.aab", bucket: 'z-lohika', path: "megazord/android/reloaded/${params.Flavor.toLowerCase()}/${params.BuildType.toLowerCase()}/")
               }
             }
             stage('Playstore') {
               steps {
-                androidApkUpload(apkFilesPattern: 'app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/bcom.wire.android-*.aa', trackName: '${trackName}', rolloutPercent: 100, rolloutPercentage: '100', releaseName: '${trackName} Release')
+                androidApkUpload(apkFilesPattern: 'app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab', trackName: '${trackName}', rolloutPercent: 100, rolloutPercentage: '100', releaseName: '${trackName} Release')
               }
             }
         }

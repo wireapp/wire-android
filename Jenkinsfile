@@ -1,3 +1,31 @@
+def defineFlavour() {
+  //check if the pipeline has the custom flavour env variable set
+  def overwrite = "${env.CUSTOM_FLAVOUR}"
+  if(overwrite != null) {
+    return overwrite
+  }
+
+  def branchName = "${env.BRANCH_NAME}"
+   if (branchName == "main") {
+    return 'Internal'
+  } else if(branchName == "develop") {
+     return 'Dev'
+  } else if(branchName == "release") {
+    return 'Public'
+   } else {
+    return 'Dev'
+  }
+}
+
+def defineBuildType() {
+  //check if the pipeline has the custom flavour env variable set
+  def overwrite = "${env.CUSTOM_BUILD_TYPE}"
+  if(overwrite != null) {
+    return overwrite
+  }
+  return "Release"
+}
+
 pipeline {
   agent {
     docker {
@@ -239,16 +267,17 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
       stage('Playstore Upload') {
         steps {
-          androidApkUpload(apkFilesPattern: '"app/build/outputs/bundle/${flavor.toLowerCase()}${buildType}/debug/app*.aab"', trackName: 'Internal')
+          androidApkUpload(apkFilesPattern: 'app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab', trackName: '${trackName}')
         }
       }
     }
     environment {
       propertiesFile = 'local.properties'
-      flavor = 'Dev'
-      buildType = 'Debug'
+      flavor = defineFlavour()
+      buildType = defineBuildType()
       adbPort = '5555'
       emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
+      trackName = "Alpha"
     }
     post {
       failure {

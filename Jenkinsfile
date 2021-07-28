@@ -54,21 +54,6 @@ pipeline {
 
   }
   stages {
-    stage('load shared library') {
-      steps {
-        library 'megazord-lib'
-      }
-    }
-
-    stage('test step') {
-      steps {
-        script {
-          test "Hello World"
-        }
-
-      }
-    }
-
     stage('Precondition Checks') {
       parallel {
         stage('Check SDK/NDK') {

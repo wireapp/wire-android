@@ -4,8 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="16dp"
-    android:paddingEnd="32dp">
+    android:layout_marginBottom="16dp">
+
+    <include
+        android:id="@+id/timeSeparator"
+        layout="@layout/conversation_chat_time_separator"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/conversationGuideline"
@@ -21,7 +28,7 @@
         android:background="?colorSecondary"
         app:layout_constraintEnd_toStartOf="@id/conversationGuideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timeSeparator"
         app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.Circle"
         tools:src="@tools:sample/avatars" />
 
@@ -45,5 +52,15 @@
         app:layout_constraintStart_toStartOf="@+id/conversationGuideline"
         app:layout_constraintTop_toBottomOf="@+id/conversationChatItemUsernameTextView"
         tools:text="Message" />
+
+    <TextView
+        android:id="@+id/conversationChatItemTimeTextView"
+        style="@style/TextView.Conversation.time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@+id/conversationGuideline"
+        app:layout_constraintTop_toBottomOf="@id/conversationChatItemTextMessageTextView"
+        tools:text="20:00" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

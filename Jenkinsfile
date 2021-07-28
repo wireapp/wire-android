@@ -131,14 +131,6 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
             }
           }
-
-          stage('Spawn Emulator 11.0') {
-            steps {
-              sh '''docker rm ${emulatorPrefix}_11 || true
-  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_11 budtmo/docker-android-x86-11.0'''
-            }
-          }
-
         }
       }
 
@@ -197,12 +189,6 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
       stage('Connect Emulators') {
         parallel {
-          stage('Emulator 11.0') {
-            steps {
-              sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_11:${adbPort}'
-            }
-          }
-
           stage('Emulator 10.0') {
             steps {
               sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'
@@ -339,8 +325,8 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       }
 
       always {
-        sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 ${emulatorPrefix}-${BUILD_NUMBER}_11 || true'
-        sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 ${emulatorPrefix}-${BUILD_NUMBER}_11 || true'
+        sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
+        sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
       }
 
     }

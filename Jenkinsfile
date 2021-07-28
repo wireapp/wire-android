@@ -1,3 +1,49 @@
+def defineFlavour() {
+    //check if the pipeline has the custom flavour env variable set
+    echo "define Flavour"
+    def overwrite = "${env.CUSTOM_FLAVOUR}"
+    echo "overwrite is set to [${overwrite}]"
+    if(overwrite != "") {
+        return overwrite
+    }
+
+    echo "checking branchname. Branchname is set to [${env.BRANCH_NAME}]"
+    def branchName = "${env.BRANCH_NAME}"
+    if (branchName == "main") {
+        return 'Internal'
+    } else if(branchName == "develop") {
+        return 'Dev'
+    } else if(branchName == "release") {
+        return 'Public'
+    }
+    echo "returning Dev"
+    return 'Dev'
+}
+
+def defineBuildType() {
+    echo "checking build type: [${env.CUSTOM_BUILD_TYPE}]"
+    def overwrite = "${env.CUSTOM_BUILD_TYPE}"
+    if(overwrite != "") {
+        return overwrite
+    }
+    echo "returning Release"
+    return "Release"
+}
+
+def defineTrackName() {
+    echo "checking trackname. Branch name is [${env.BRANCH_NAME}]"
+    def branchName = "${env.BRANCH_NAME}"
+    if (branchName == "main") {
+        return 'internal-testing'
+    } else if(branchName == "develop") {
+        return 'Alpha'
+    } else if(branchName == "release") {
+        return 'production'
+    }
+    echo "Returning Alpha"
+    return 'Alpha'
+}
+
 pipeline {
   agent {
     docker {

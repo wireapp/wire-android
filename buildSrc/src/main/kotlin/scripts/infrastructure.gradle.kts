@@ -20,7 +20,7 @@ tasks.register("runUnitTests") {
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
-    dependsOn(":app:connected${Default.BUILD_FLAVOR}DebugAndroidTest")
+    dependsOn(":app:connected${Default.BUILD_FLAVOR.capitalize()}DebugAndroidTest")
 }
 
 tasks.register("assembleApp") {

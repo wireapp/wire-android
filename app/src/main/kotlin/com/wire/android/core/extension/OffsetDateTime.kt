@@ -1,6 +1,7 @@
 package com.wire.android.core.extension
 
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
@@ -23,13 +24,14 @@ fun OffsetDateTime.timeFromOffsetDateTime(): String {
     return fmt.format(this)
 }
 
+//TODO display localized date without year
 fun OffsetDateTime.dateWithoutYear(): String {
     val fmt: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d, HH:mm")
     return fmt.format(this)
 }
 
 fun OffsetDateTime.dateWithYear(): String {
-    val fmt: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d, yyyy, HH:mm")
+    val fmt: DateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.systemDefault())
     return fmt.format(this)
 }
 

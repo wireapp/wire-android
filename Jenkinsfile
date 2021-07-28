@@ -250,34 +250,29 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
         }
       }
 
-      stage('Assemble') {
-        parallel {
-          stage('AAB') {
-            steps {
-              script {
-                last_started = env.STAGE_NAME
-              }
 
-              withGradle() {
-                sh './gradlew :app:bundle${flavour}${buildType}'
-              }
-
-            }
+      stage('Assemble APK') {
+        steps {
+          script {
+            last_started = env.STAGE_NAME
           }
 
-          stage('APK') {
-            steps {
-              script {
-                last_started = env.STAGE_NAME
-              }
-
-              withGradle() {
-                sh './gradlew assemble${flavour}${buildType}'
-              }
-
-            }
+          withGradle() {
+            sh './gradlew assemble${flavour}${buildType}'
           }
 
+        }
+      }
+
+      stage('Bundle AAB') {
+        steps {
+          script {
+            last_started = env.STAGE_NAME
+          }
+
+          withGradle() {
+            sh './gradlew :app:bundle${flavour}${buildType}'
+          }
         }
       }
 

@@ -38,18 +38,20 @@ pipeline {
         stage('Fetch Signing Files') {
           steps {
             configFileProvider([
-                configFile(fileId: '00246e05-bb93-45f5-b1e6-0ff2d4ff9453', targetLocation: 'app/reloaded-debug-key.keystore.asc'),
-                configFile(fileId: '97ce3674-1ed5-42a0-9185-00a93896b364', targetLocation: 'app/reloaded-release-key.keystore.asc'),
-                configFile(fileId: '10414dfa-5450-4c18-84fb-970fc9c6ae90', variable: 'GROOVY_FILE_THAT_SETS_VARIABLES')
-            ]) {
+                                            configFile(fileId: '00246e05-bb93-45f5-b1e6-0ff2d4ff9453', targetLocation: 'app/reloaded-debug-key.keystore.asc'),
+                                            configFile(fileId: '97ce3674-1ed5-42a0-9185-00a93896b364', targetLocation: 'app/reloaded-release-key.keystore.asc'),
+                                            configFile(fileId: '10414dfa-5450-4c18-84fb-970fc9c6ae90', variable: 'GROOVY_FILE_THAT_SETS_VARIABLES')
+                                        ]) {
                 sh '''
                     base64 --decode app/reloaded-debug-key.keystore.asc > app/reloaded-debug-key.keystore
                     base64 --decode app/reloaded-release-key.keystore.asc > app/reloaded-release-key.keystore
                 '''
                 load env.GROOVY_FILE_THAT_SETS_VARIABLES
               }
+
             }
           }
+
         }
       }
 
@@ -79,11 +81,12 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           stage('Spawn Emulator 11.0') {
-              steps {
-                sh '''docker rm ${emulatorPrefix}_11 || true
+            steps {
+              sh '''docker rm ${emulatorPrefix}_11 || true
   docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_11 budtmo/docker-android-x86-11.0'''
-              }
+            }
           }
+
         }
       }
 
@@ -122,6 +125,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           withGradle() {
             sh './gradlew staticCodeAnalysis'
           }
+
         }
       }
 
@@ -176,6 +180,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
             }
           }
+
         }
       }
 
@@ -204,6 +209,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
               withGradle() {
                 sh './gradlew :app:bundle${flavour}${buildType}'
               }
+
             }
           }
 
@@ -216,8 +222,10 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
               withGradle() {
                 sh './gradlew assemble${flavour}${buildType}'
               }
+
             }
           }
+
         }
       }
 
@@ -234,6 +242,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
               archiveArtifacts(allowEmptyArchive: true, artifacts: 'app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt')
             }
           }
+
         }
       }
 
@@ -242,14 +251,15 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           androidApkUpload(apkFilesPattern: 'app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab', trackName: '${trackName}')
         }
       }
+
     }
     environment {
       propertiesFile = 'local.properties'
-      flavor = defineFlavour()
-      buildType = defineBuildType()
+      flavor = com.wire.reloaded.defineFlavour()
+      buildType = com.wire.reloaded.defineBuildType()
       adbPort = '5555'
       emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
-      trackName = "Alpha"
+      trackName = com.wire.reloaded.defineTrackName()
     }
     post {
       failure {
@@ -276,5 +286,6 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
         sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 ${emulatorPrefix}-${BUILD_NUMBER}_11 || true'
         sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 ${emulatorPrefix}-${BUILD_NUMBER}_11 || true'
       }
+
     }
   }

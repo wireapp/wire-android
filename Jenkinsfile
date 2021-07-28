@@ -13,7 +13,7 @@ pipeline {
         stage('Check SDK/NDK') {
           steps {
             script {
-              reloaded.test 'Hello World'
+              test 'Hello World'
               last_started = env.STAGE_NAME
             }
 
@@ -45,10 +45,10 @@ pipeline {
         stage('Fetch Signing Files') {
           steps {
             configFileProvider([
-                                                                                                                                                                                                                                  configFile(fileId: '00246e05-bb93-45f5-b1e6-0ff2d4ff9453', targetLocation: 'app/reloaded-debug-key.keystore.asc'),
-                                                                                                                                                                                                                                  configFile(fileId: '97ce3674-1ed5-42a0-9185-00a93896b364', targetLocation: 'app/reloaded-release-key.keystore.asc'),
-                                                                                                                                                                                                                                  configFile(fileId: '10414dfa-5450-4c18-84fb-970fc9c6ae90', variable: 'GROOVY_FILE_THAT_SETS_VARIABLES')
-                                                                                                                                                                                                                              ]) {
+                                                                                                                                                                                                                                                              configFile(fileId: '00246e05-bb93-45f5-b1e6-0ff2d4ff9453', targetLocation: 'app/reloaded-debug-key.keystore.asc'),
+                                                                                                                                                                                                                                                              configFile(fileId: '97ce3674-1ed5-42a0-9185-00a93896b364', targetLocation: 'app/reloaded-release-key.keystore.asc'),
+                                                                                                                                                                                                                                                              configFile(fileId: '10414dfa-5450-4c18-84fb-970fc9c6ae90', variable: 'GROOVY_FILE_THAT_SETS_VARIABLES')
+                                                                                                                                                                                                                                                          ]) {
                 sh '''
                     base64 --decode app/reloaded-debug-key.keystore.asc > app/reloaded-debug-key.keystore
                     base64 --decode app/reloaded-release-key.keystore.asc > app/reloaded-release-key.keystore

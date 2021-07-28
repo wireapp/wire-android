@@ -295,7 +295,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       buildType = defineBuildType()
       adbPort = '5555'
       emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
-      trackName = "Alpha"
+      trackName = defineTrackName()
     }
     post {
       failure {

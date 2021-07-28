@@ -1,31 +1,3 @@
-def defineFlavour() {
-  //check if the pipeline has the custom flavour env variable set
-  def overwrite = "${env.CUSTOM_FLAVOUR}"
-  if(overwrite != null) {
-    return overwrite
-  }
-
-  def branchName = "${env.BRANCH_NAME}"
-   if (branchName == "main") {
-    return 'Internal'
-  } else if(branchName == "develop") {
-     return 'Dev'
-  } else if(branchName == "release") {
-    return 'Public'
-   } else {
-    return 'Dev'
-  }
-}
-
-def defineBuildType() {
-  //check if the pipeline has the custom flavour env variable set
-  def overwrite = "${env.CUSTOM_BUILD_TYPE}"
-  if(overwrite != null) {
-    return overwrite
-  }
-  return "Release"
-}
-
 pipeline {
   agent {
     docker {

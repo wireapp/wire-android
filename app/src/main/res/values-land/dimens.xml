@@ -17,4 +17,8 @@
     <dimen name="profile_user_picture_margin_top">8dp</dimen>
     <dimen name="profile_user_picture_width">70dp</dimen>
     <dimen name="profile_user_picture_height">70dp</dimen>
+
+    <!-- conversation -->
+    <dimen name="conversation_chat_avatar_guideline_percent" format="float">0.1</dimen>
+
 </resources>

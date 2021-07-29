@@ -35,6 +35,7 @@ object ScriptPlugins {
     const val variants = "scripts.variants"
     const val quality = "scripts.quality"
     const val compilation = "scripts.compilation"
+    const val testing = "scripts.testing"
 }
 
 object Repositories {

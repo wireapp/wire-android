@@ -112,4 +112,14 @@
     <string name="devices_limit_logout_text">logout</string>
     <string name="devices_limit_notice_text">You reached the maximum number of allowed devices. Please use another client to remove your devices.</string>
 
+    <!--    conversation-->
+    <plurals name="conversation_chat_minutes_ago">
+        <item quantity="zero">%1$s minutes ago</item>
+        <item quantity="one">%1$s minute ago</item>
+        <item quantity="two">%1$s minutes ago</item>
+        <item quantity="few">%1$s minutes ago</item>
+        <item quantity="many">%1$s minutes ago</item>
+        <item quantity="other">%1$s minutes ago</item>
+    </plurals>
+    <string name="conversation_chat_just_now">JUST NOW</string>
 </resources>

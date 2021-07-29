@@ -101,4 +101,9 @@
     <!--    device limit-->
     <dimen name="device_limit_notice_message_margin_bottom">24dp</dimen>
 
+    <dimen name="conversation_chat_avatar_size">32dp</dimen>
+    <dimen name="conversation_chat_avatar_guideline_percent" format="float">0.16</dimen>
+    <dimen name="conversation_chat_time_separator_height">48dp</dimen>
+    <dimen name="conversation_chat_time_separator_padding_bottom">8dp</dimen>
+
 </resources>

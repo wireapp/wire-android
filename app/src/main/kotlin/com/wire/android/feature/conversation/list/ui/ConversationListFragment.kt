@@ -20,12 +20,15 @@ import kotlinx.android.synthetic.main.fragment_conversation_list.*
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
 
     private val viewModel by viewModel<ConversationListViewModel>()
 
-    private val conversationListAdapter by inject<ConversationListAdapter>()
+    private val conversationListAdapter by inject<ConversationListAdapter>{
+        parametersOf({ conversationListItem : ConversationListItem -> conversationItemClickListener(conversationListItem) })
+    }
 
     private val navigator by inject<Navigator>()
 
@@ -33,7 +36,6 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
         super.onViewCreated(view, savedInstanceState)
         displayToolbar()
         displayConversationList()
-        subscribeToEvents()
     }
 
     private fun displayToolbar() {
@@ -110,7 +112,16 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
     //TODO: check how we display errors
     private fun showConversationListDisplayError() = toast("Error while loading conversations")
 
-    private fun subscribeToEvents() = viewModel.subscribeToEvents()
+    private fun conversationItemClickListener(conversationListItem: ConversationListItem?) {
+        activity?.let {
+            if (conversationListItem != null && conversationListItem.conversation.name != null)
+                navigator.conversation.openConversationScreen(
+                    it,
+                    conversationListItem.conversation.id,
+                    conversationListItem.conversation.name
+                )
+        }
+    }
 
     companion object {
         fun newInstance() = ConversationListFragment()

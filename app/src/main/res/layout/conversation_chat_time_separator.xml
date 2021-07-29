@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/conversation_chat_time_separator_height"
+    android:paddingBottom="@dimen/conversation_chat_time_separator_padding_bottom">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/conversationGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="@dimen/conversation_chat_avatar_guideline_percent" />
+
+    <View
+        android:id="@+id/conversationNotSameDaySeparatorView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorControlHighlight"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/conversationTimeSeparatorTextTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textAllCaps="true"
+        app:layout_constraintStart_toEndOf="@+id/conversationGuideline"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="JUST NOW" />
+
+    <View
+        android:id="@+id/conversationSameDaySeparatorView"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="?attr/colorControlHighlight"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/conversationTimeSeparatorTextTextView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

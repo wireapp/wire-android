@@ -1,7 +1,7 @@
 def defineFlavour() {
     //check if the pipeline has the custom flavour env variable set
     echo "define Flavour"
-    def overwrite = "${env.CUSTOM_FLAVOUR}"
+    def overwrite = ${env.CUSTOM_FLAVOUR}
     if(overwrite != null) {
         return overwrite
     }
@@ -21,7 +21,7 @@ def defineFlavour() {
 
 def defineBuildType() {
     echo "checking build type: [${env.CUSTOM_BUILD_TYPE}]"
-    def overwrite = "${env.CUSTOM_BUILD_TYPE}"
+    def overwrite = ${env.CUSTOM_BUILD_TYPE}
     if(overwrite != null) {
         return overwrite
     }

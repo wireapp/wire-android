@@ -15,7 +15,8 @@ data class Payload(
     @SerializedName("data") val data: Data?,
     @SerializedName("from") val from: String,
     @SerializedName("qualified_from") val qualifiedFrom: QualifiedFrom,
-    @SerializedName("type") val type: String
+    @SerializedName("type") val type: String,
+    @SerializedName("client") val client: String
 )
 
 data class QualifiedConversation(

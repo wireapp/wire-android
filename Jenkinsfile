@@ -271,7 +271,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
             }
             stage('Playstore') {
               steps {
-                androidApkUpload(apkFilesPattern: 'app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab', trackName: '${trackName}', rolloutPercent: 100, rolloutPercentage: '100', releaseName: '${trackName} Release')
+                androidApkUpload(googleCredentialsId: 'google play access', apkFilesPattern: 'app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab', trackName: '${trackName}', rolloutPercent: 100, rolloutPercentage: '100', releaseName: '${trackName} Release')
               }
             }
         }

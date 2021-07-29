@@ -10,10 +10,13 @@ import com.wire.android.core.events.EventRepository
 import com.wire.android.core.events.WebSocketConfig
 import com.wire.android.core.events.adapter.FlowStreamAdapter
 import com.wire.android.core.events.datasource.EventDataSource
+import com.wire.android.core.events.datasource.remote.NotificationApi
+import com.wire.android.core.events.datasource.remote.NotificationRemoteDataSource
 import com.wire.android.core.events.datasource.remote.WebSocketService
 import com.wire.android.core.events.handler.EventsHandler
 import com.wire.android.core.events.handler.MessageEventsHandler
 import com.wire.android.core.events.usecase.ListenToEventsUseCase
+import com.wire.android.core.network.NetworkClient
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
@@ -37,7 +40,8 @@ val eventModule = module {
             get<WebSocketConfig>().socketUrl
         )
     }
-
+    single { get<NetworkClient>().create(NotificationApi::class.java) }
+    single { NotificationRemoteDataSource(get(), get()) }
     single<EventsHandler<Event.Conversation.MessageEvent>> { MessageEventsHandler(get(), get()) }
     single<EventRepository> { EventDataSource(get()) }
     single { ListenToEventsUseCase(get(), get()) }

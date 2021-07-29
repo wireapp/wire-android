@@ -266,7 +266,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
         parallel {
             stage('S3 Bucket') {
               steps {
-                s3Upload(acl: 'Private', file: "app/build/outputs/apk/com.wire.android-*.aab", bucket: 'z-lohika', path: "megazord/android/reloaded/${params.Flavor.toLowerCase()}/${params.BuildType.toLowerCase()}/")
+                s3Upload(acl: 'Private', file: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.aab", bucket: 'z-lohika', path: "megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/")
               }
             }
             stage('Playstore') {
@@ -297,8 +297,8 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
     }
     environment {
       propertiesFile = 'local.properties'
-      flavor = 'Dev'
-      buildType = 'Release'
+      flavor = defineFlavour()
+      buildType = defineBuildType()
       adbPort = '5555'
       emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
       trackName = defineTrackName()

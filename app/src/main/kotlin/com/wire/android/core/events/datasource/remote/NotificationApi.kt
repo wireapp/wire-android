@@ -7,7 +7,7 @@ import retrofit2.http.Query
 interface NotificationApi {
 
     @GET("$NOTIFICATIONS$LAST")
-    suspend fun lastNotification(@Query(CLIENT_QUERY_KEY) client: String): Response<NotificationEventResponse>
+    suspend fun lastNotification(@Query(CLIENT_QUERY_KEY) client: String): Response<NotificationPageResponse>
 
     @GET(NOTIFICATIONS)
     suspend fun notificationsByBatch(

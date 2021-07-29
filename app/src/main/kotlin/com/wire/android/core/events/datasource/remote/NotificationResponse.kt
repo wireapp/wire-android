@@ -2,7 +2,7 @@ package com.wire.android.core.events.datasource.remote
 
 import com.google.gson.annotations.SerializedName
 
-data class NotificationEventResponse(
+data class NotificationPageResponse(
     @SerializedName("time") val time: String,
     @SerializedName("has_more") val hasMore: String,
     @SerializedName("notifications") val notifications: List<NotificationResponse>

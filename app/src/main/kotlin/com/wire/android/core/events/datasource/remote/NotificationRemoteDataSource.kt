@@ -10,7 +10,7 @@ class NotificationRemoteDataSource(
     override val networkHandler: NetworkHandler
 ) : ApiService() {
 
-    suspend fun lastNotification(client: String): Either<Failure, LastNotificationResponse> = request {
+    suspend fun lastNotification(client: String): Either<Failure, NotificationEventResponse> = request {
         notificationApi.lastNotification(client)
     }
 

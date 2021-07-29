@@ -1,13 +1,11 @@
 def defineFlavour() {
     //check if the pipeline has the custom flavour env variable set
-    echo "define Flavour"
-    def overwrite = ${env.CUSTOM_FLAVOUR}
+    def overwrite = env.CUSTOM_FLAVOUR
     if(overwrite != null) {
         return overwrite
     }
 
-    echo "checking branchname. Branchname is set to [${env.BRANCH_NAME}]"
-    def branchName = "${env.BRANCH_NAME}"
+    def branchName = env.BRANCH_NAME
     if (branchName == "main") {
         return 'Internal'
     } else if(branchName == "develop") {
@@ -15,23 +13,19 @@ def defineFlavour() {
     } else if(branchName == "release") {
         return 'Public'
     }
-    echo "returning Dev"
     return 'Dev'
 }
 
 def defineBuildType() {
-    echo "checking build type: [${env.CUSTOM_BUILD_TYPE}]"
-    def overwrite = ${env.CUSTOM_BUILD_TYPE}
+    def overwrite = env.CUSTOM_BUILD_TYPE
     if(overwrite != null) {
         return overwrite
     }
-    echo "returning Release"
     return "Release"
 }
 
 def defineTrackName() {
-    echo "checking trackname. Branch name is [${env.BRANCH_NAME}]"
-    def branchName = "${env.BRANCH_NAME}"
+    def branchName = env.BRANCH_NAME
     if (branchName == "main") {
         return 'internal-testing'
     } else if(branchName == "develop") {
@@ -39,7 +33,6 @@ def defineTrackName() {
     } else if(branchName == "release") {
         return 'production'
     }
-    echo "Returning Alpha"
     return 'Alpha'
 }
 

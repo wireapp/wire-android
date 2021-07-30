@@ -14,6 +14,7 @@ import com.wire.android.feature.profile.di.profileModule
 import com.wire.android.feature.sync.di.syncModule
 import com.wire.android.feature.welcome.di.welcomeModule
 import com.wire.android.shared.asset.di.assetModule
+import com.wire.android.shared.prekey.di.prekeyModule
 import com.wire.android.shared.session.di.sessionModule
 import com.wire.android.shared.team.di.teamModule
 import com.wire.android.shared.user.di.userModule
@@ -46,7 +47,7 @@ object Injector {
      * Shared modules should contain dependencies that can
      * build up multiple features
      */
-    private val sharedModules: List<Module> = listOf(userModule, sessionModule, teamModule, assetModule)
+    private val sharedModules: List<Module> = listOf(userModule, sessionModule, teamModule, assetModule, prekeyModule)
 
     /**
      * Feature modules should contain dependencies that build up specific

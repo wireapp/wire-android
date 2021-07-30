@@ -6,7 +6,7 @@ import org.amshove.kluent.shouldContainSame
 
 import org.junit.Test
 
-class MapExtKtTest : UnitTest() {
+class MapExtTest : UnitTest() {
 
     @Test
     fun `given a map with values, when spreading true as the intermediate key, then it should only have true as intermediate keys`() {

@@ -166,5 +166,4 @@ class RemotePrekeyListMapperTest : UnitTest() {
         thirdClient.clientId shouldBeEqualTo thirdKeySet.clientId
         thirdClient.preKey shouldBeEqualTo thirdKeySet.mapped
     }
-
 }

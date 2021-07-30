@@ -10,5 +10,5 @@ interface PreKeyRepository {
      * Given a map of qualified user IDs to client IDs, fetches one PreKey for each client.
      * @param qualifiedIdsMap, a map of qualified user IDs to the wanted client IDs
      */
-    suspend fun preKeysOfClientsByUsers(qualifiedIdsMap: Map<QualifiedId, String>): Either<Failure, PreKey>
+    suspend fun preKeysOfClientsByUsers(qualifiedIdsMap: Map<QualifiedId, List<String>>): Either<Failure, PreKey>
 }

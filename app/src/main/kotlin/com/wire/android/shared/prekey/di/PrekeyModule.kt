@@ -5,7 +5,7 @@ import com.wire.android.shared.prekey.data.PreKeyDataSource
 import org.koin.dsl.module
 
 val prekeyModule = module {
-    single<PreKeyRepository> { PreKeyDataSource() }
+    single<PreKeyRepository> { PreKeyDataSource(get()) }
 }
 
 

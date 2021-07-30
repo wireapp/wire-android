@@ -1,6 +1,6 @@
-def defineFlavour() {
-    //check if the pipeline has the custom flavour env variable set
-    def overwrite = env.CUSTOM_FLAVOUR
+def defineFlavor() {
+    //check if the pipeline has the custom flavor env variable set
+    def overwrite = env.CUSTOM_FLAVOR
     if(overwrite != null) {
         return overwrite
     }
@@ -236,7 +236,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           withGradle() {
-            sh './gradlew assemble${flavour}${buildType}'
+            sh './gradlew assemble${flavor}${buildType}'
           }
 
         }
@@ -249,7 +249,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           withGradle() {
-            sh './gradlew :app:bundle${flavour}${buildType}'
+            sh './gradlew :app:bundle${flavor}${buildType}'
           }
         }
       }
@@ -291,7 +291,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
     }
     environment {
       propertiesFile = 'local.properties'
-      flavor = defineFlavour()
+      flavor = defineFlavor()
       buildType = defineBuildType()
       adbPort = '5555'
       emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"

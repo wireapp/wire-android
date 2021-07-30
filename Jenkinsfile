@@ -25,6 +25,11 @@ def defineBuildType() {
 }
 
 def defineTrackName() {
+    def overwrite = env.CUSTOM_TRACK
+    if(overwrite != null) {
+        return overwrite
+    }
+
     def branchName = env.BRANCH_NAME
     if (branchName == "main") {
         return 'internal-testing'

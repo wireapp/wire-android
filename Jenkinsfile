@@ -104,7 +104,7 @@ pipeline {
           stage('Spawn Gradle Wrapper') {
             steps {
               withGradle() {
-                sh './gradlew -Porg.gradle.jvmargs=-Xmx16g wrapper'
+                sh '''./gradlew -Porg.gradle.jvmargs=-Xmx16g wrapper'''
               }
 
             }
@@ -139,7 +139,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           withGradle() {
-            sh './gradlew clean'
+            sh '''./gradlew clean'''
           }
 
         }
@@ -152,7 +152,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           withGradle() {
-            sh './gradlew compileApp'
+            sh '''./gradlew compileApp'''
           }
 
         }
@@ -168,7 +168,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           withGradle() {
-            sh './gradlew staticCodeAnalysis'
+            sh '''./gradlew staticCodeAnalysis'''
           }
 
         }
@@ -184,7 +184,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           withGradle() {
-            sh './gradlew runUnitTests'
+            sh '''./gradlew runUnitTests'''
           }
 
           publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}${buildType}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
@@ -198,7 +198,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
               expression { env.runAcceptanceTests == true }
             }
             steps {
-              sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'
+              sh '''adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'''
             }
           }
 
@@ -207,7 +207,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
               expression { env.runAcceptanceTests == true }
             }
             steps {
-              sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_9:${adbPort}'
+              sh '''adb connect ${emulatorPrefix}-${BUILD_NUMBER}_9:${adbPort}'''
             }
           }
 
@@ -224,7 +224,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           withGradle() {
-            sh './gradlew :app:uninstallAll'
+            sh '''./gradlew :app:uninstallAll'''
           }
 
         }
@@ -240,7 +240,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           withGradle() {
-            sh './gradlew runAcceptanceTests'
+            sh '''./gradlew runAcceptanceTests'''
           }
 
           publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${flavor.toUpperCase()}/", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
@@ -255,7 +255,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           withGradle() {
-            sh './gradlew assemble${flavor}${buildType}'
+            sh '''./gradlew assemble${flavor}${buildType}'''
           }
 
         }
@@ -271,7 +271,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           withGradle() {
-            sh './gradlew :app:bundle${flavor}${buildType}'
+            sh '''./gradlew :app:bundle${flavor}${buildType}'''
           }
         }
       }
@@ -283,14 +283,14 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
                 expression { env.buildType == 'Release' }
               }
               steps {
-                sh 'ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/'
+                sh '''ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/'''
                 archiveArtifacts(artifacts: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
               }
             }
 
             stage('APK') {
               steps {
-                sh 'ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/'
+                sh '''ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/'''
                 archiveArtifacts(artifacts: 'app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt', allowEmptyArchive: true, onlyIfSuccessful: true)
               }
             }
@@ -302,7 +302,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
             stage('S3 Bucket') {
               steps {
                 echo 'Checking folder before S3 Bucket upload'
-                sh 'ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/'
+                sh '''ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/'''
                 echo 'Uploading file to S3 Bucket'
                 s3Upload(acl: 'Private', file: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk", bucket: 'z-lohika', path: "megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/")
               }
@@ -313,7 +313,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
               }
               steps {
                 echo 'Checking folder before playstore upload'
-                sh 'ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/'
+                sh '''ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/'''
                 echo 'Uploading file to Playstore track ${trackName}'
                 androidApkUpload(googleCredentialsId: 'google play access', filesPattern: 'app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab', trackName: '${trackName}', rolloutPercentage: '100', releaseName: '${trackName} Release')
               }
@@ -348,7 +348,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           )
         }
 
-        sh './gradlew jacocoReport'
+        sh '''./gradlew jacocoReport'''
         wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
       }
 
@@ -357,8 +357,8 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       }
 
       always {
-        sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
-        sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
+        sh '''docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'''
+        sh '''docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'''
       }
 
     }

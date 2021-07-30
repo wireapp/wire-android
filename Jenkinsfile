@@ -33,7 +33,7 @@ def defineTrackName() {
     } else if(branchName == "release") {
         return 'production'
     }
-    return 'Alpha'
+    return 'None'
 }
 
 pipeline {
@@ -111,6 +111,9 @@ pipeline {
           }
 
           stage('Spawn Emulator 9.0') {
+            when {
+              expression { env.runAcceptanceTests == true }
+            }
             steps {
               sh '''docker rm ${emulatorPrefix}_9 || true
 docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_9 budtmo/docker-android-x86-9.0'''
@@ -118,6 +121,9 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           }
 
           stage('Spawn Emulator 10.0') {
+            when {
+              expression { env.runAcceptanceTests == true }
+            }
             steps {
               sh '''docker rm ${emulatorPrefix}_10 || true
 docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
@@ -153,6 +159,9 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       }
 
       stage('Static Code Analysis') {
+        when {
+          expression { env.runStaticCodeAnalysis == true }
+        }
         steps {
           script {
             last_started = env.STAGE_NAME
@@ -166,6 +175,9 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       }
 
       stage('Unit Tests') {
+        when {
+          expression { env.runUnitTests == true }
+        }
         steps {
           script {
             last_started = env.STAGE_NAME
@@ -182,12 +194,18 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       stage('Connect Emulators') {
         parallel {
           stage('Emulator 10.0') {
+            when {
+              expression { env.runAcceptanceTests == true }
+            }
             steps {
               sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'
             }
           }
 
           stage('Emulator 9.0') {
+            when {
+              expression { env.runAcceptanceTests == true }
+            }
             steps {
               sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_9:${adbPort}'
             }
@@ -196,25 +214,26 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
         }
       }
 
-      stage('Prepare Emulators') {
-        parallel {
-          stage('Uninstall App') {
-            steps {
-              script {
-                last_started = env.STAGE_NAME
-              }
+      stage('Uninstall App') {
+        when {
+          expression { env.runAcceptanceTests == true }
+        }
+        steps {
+          script {
+            last_started = env.STAGE_NAME
+          }
 
-              withGradle() {
-                sh './gradlew :app:uninstallAll'
-              }
-
-            }
+          withGradle() {
+            sh './gradlew :app:uninstallAll'
           }
 
         }
       }
 
       stage('Acceptance Tests') {
+        when {
+          expression { env.runAcceptanceTests == true }
+        }
         steps {
           script {
             last_started = env.STAGE_NAME
@@ -243,6 +262,9 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       }
 
       stage('Bundle AAB') {
+        when {
+          expression { env.buildType == 'Release' }
+        }
         steps {
           script {
             last_started = env.STAGE_NAME
@@ -257,17 +279,21 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       stage('Archive') {
           parallel {
             stage('AAB') {
+              when {
+                expression { env.buildType == 'Release' }
+              }
               steps {
+                sh 'ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/'
                 archiveArtifacts(artifacts: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
               }
             }
 
             stage('APK') {
               steps {
+                sh 'ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/'
                 archiveArtifacts(artifacts: 'app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt', allowEmptyArchive: true, onlyIfSuccessful: true)
               }
             }
-
           }
         }
 
@@ -275,11 +301,20 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
         parallel {
             stage('S3 Bucket') {
               steps {
+                echo 'Checking folder before S3 Bucket upload'
+                sh 'ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/'
+                echo 'Uploading file to S3 Bucket'
                 s3Upload(acl: 'Private', file: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk", bucket: 'z-lohika', path: "megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/")
               }
             }
             stage('Playstore') {
+              when {
+                expression { env.trackName != 'None' }
+              }
               steps {
+                echo 'Checking folder before playstore upload'
+                sh 'ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/'
+                echo 'Uploading file to Playstore track ${trackName}'
                 androidApkUpload(googleCredentialsId: 'google play access', filesPattern: 'app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab', trackName: '${trackName}', rolloutPercentage: '100', releaseName: '${trackName} Release')
               }
             }
@@ -296,6 +331,9 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       adbPort = '5555'
       emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
       trackName = defineTrackName()
+      runAcceptanceTests = false
+      runUnitTests = false
+      runStaticCodeAnalysis = false
     }
     post {
       failure {

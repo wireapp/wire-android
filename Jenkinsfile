@@ -112,7 +112,7 @@ pipeline {
 
           stage('Spawn Emulator 9.0') {
             when {
-              expression { env.runAcceptanceTests == true }
+              expression { env.runAcceptanceTests.toBoolean() }
             }
             steps {
               sh '''docker rm ${emulatorPrefix}_9 || true
@@ -122,7 +122,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
           stage('Spawn Emulator 10.0') {
             when {
-              expression { env.runAcceptanceTests == true }
+              expression { env.runAcceptanceTests.toBoolean() }
             }
             steps {
               sh '''docker rm ${emulatorPrefix}_10 || true
@@ -160,7 +160,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
       stage('Static Code Analysis') {
         when {
-          expression { env.runStaticCodeAnalysis == true }
+          expression { env.runStaticCodeAnalysis.toBoolean() }
         }
         steps {
           script {
@@ -176,7 +176,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
       stage('Unit Tests') {
         when {
-          expression { env.runUnitTests == true }
+          expression { env.runUnitTests.toBoolean() }
         }
         steps {
           script {
@@ -195,7 +195,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
         parallel {
           stage('Emulator 10.0') {
             when {
-              expression { env.runAcceptanceTests == true }
+              expression { env.runAcceptanceTests.toBoolean() }
             }
             steps {
               sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'
@@ -204,7 +204,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
           stage('Emulator 9.0') {
             when {
-              expression { env.runAcceptanceTests == true }
+              expression { env.runAcceptanceTests.toBoolean() }
             }
             steps {
               sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_9:${adbPort}'
@@ -216,7 +216,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
       stage('Uninstall App') {
         when {
-          expression { env.runAcceptanceTests == true }
+          expression { env.runAcceptanceTests.toBoolean() }
         }
         steps {
           script {
@@ -232,7 +232,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
       stage('Acceptance Tests') {
         when {
-          expression { env.runAcceptanceTests == true }
+          expression { env.runAcceptanceTests.toBoolean() }
         }
         steps {
           script {

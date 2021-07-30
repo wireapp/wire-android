@@ -5,7 +5,6 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
 import com.wire.android.core.network.ApiService
 import com.wire.android.core.network.NetworkHandler
-import com.wire.android.core.util.spread
 import com.wire.android.shared.prekey.data.UserPreKeyInfo
 import com.wire.android.shared.user.QualifiedId
 
@@ -18,7 +17,7 @@ class PreKeyRemoteDataSource(
     suspend fun preKeysForMultipleUsers(qualifiedIdMap: Map<QualifiedId, List<String>>): Either<Failure, List<UserPreKeyInfo>> =
         request {
             val mapOfIds = qualifiedIdMap
-                .spread { qualifiedId, _ -> qualifiedId.id }
+                .mapValues { entry -> mapOf(entry.key.id to entry.value) }
                 .mapKeys { entry -> entry.key.domain }
 
             preKeyAPI.preKeysByClientsOfUsers(mapOfIds)

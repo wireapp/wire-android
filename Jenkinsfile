@@ -254,6 +254,23 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
         }
       }
 
+      stage('Archive') {
+          parallel {
+            stage('AAB') {
+              steps {
+                archiveArtifacts(artifacts: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
+              }
+            }
+
+            stage('APK') {
+              steps {
+                archiveArtifacts(allowEmptyArchive: true, artifacts: 'app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt')
+              }
+            }
+
+          }
+        }
+
       stage("Upload") {
         parallel {
             stage('S3 Bucket') {
@@ -270,22 +287,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       }
 
 
-      stage('Archive') {
-        parallel {
-          stage('AAB') {
-            steps {
-              archiveArtifacts(artifacts: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
-            }
-          }
 
-          stage('APK') {
-            steps {
-              archiveArtifacts(allowEmptyArchive: true, artifacts: 'app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt')
-            }
-          }
-
-        }
-      }
     }
     environment {
       propertiesFile = 'local.properties'

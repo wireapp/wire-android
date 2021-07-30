@@ -264,7 +264,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
 
             stage('APK') {
               steps {
-                archiveArtifacts(allowEmptyArchive: true, artifacts: 'app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt')
+                archiveArtifacts(artifacts: 'app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt', allowEmptyArchive: true, onlyIfSuccessful: true)
               }
             }
 
@@ -280,7 +280,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
             }
             stage('Playstore') {
               steps {
-                androidApkUpload(googleCredentialsId: 'google play access', apkFilesPattern: 'app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab', trackName: '${trackName}', rolloutPercent: 100, rolloutPercentage: '100', releaseName: '${trackName} Release')
+                androidApkUpload(googleCredentialsId: 'google play access', filesPattern: 'app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab', trackName: '${trackName}', rolloutPercentage: '100', releaseName: '${trackName} Release')
               }
             }
         }

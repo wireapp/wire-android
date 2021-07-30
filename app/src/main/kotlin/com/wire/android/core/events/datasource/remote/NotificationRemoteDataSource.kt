@@ -10,7 +10,7 @@ class NotificationRemoteDataSource(
     override val networkHandler: NetworkHandler
 ) : ApiService() {
 
-    suspend fun lastNotification(client: String): Either<Failure, NotificationPageResponse> = request {
+    suspend fun lastNotification(client: String): Either<Failure, NotificationResponse> = request {
         notificationApi.lastNotification(client)
     }
 
@@ -18,7 +18,7 @@ class NotificationRemoteDataSource(
         size: Int,
         client: String,
         since: String
-    ): Either<Failure, NotificationResponse> =
+    ): Either<Failure, NotificationPageResponse> =
         request { notificationApi.notificationsByBatch(size, client, since) }
 
 }

@@ -41,9 +41,9 @@ class NotificationRemoteDataSourceTest : UnitTest() {
 
     @Test
     fun `given lastNotification is called, when notificationApi returns response, then returns LastNotificationResponse`() {
-        every { notificationPageRetrofitResponse.body() } returns notificationPageResponse
-        every { notificationPageRetrofitResponse.isSuccessful } returns true
-        coEvery { notificationApi.lastNotification(any()) } returns notificationPageRetrofitResponse
+        every { notificationRetrofitResponse.body() } returns notificationResponse
+        every { notificationRetrofitResponse.isSuccessful } returns true
+        coEvery { notificationApi.lastNotification(any()) } returns notificationRetrofitResponse
 
         val result = runBlocking {
             notificationRemoteDataSource.lastNotification(CLIENT_ID)
@@ -55,9 +55,9 @@ class NotificationRemoteDataSourceTest : UnitTest() {
 
     @Test
     fun `given lastNotification is called, when notificationApi returns failure, then returns the failure`() {
-        every { notificationPageRetrofitResponse.body() } returns null
-        every { notificationPageRetrofitResponse.isSuccessful } returns false
-        coEvery { notificationApi.lastNotification(any()) } returns notificationPageRetrofitResponse
+        every { notificationRetrofitResponse.body() } returns null
+        every { notificationRetrofitResponse.isSuccessful } returns false
+        coEvery { notificationApi.lastNotification(any()) } returns notificationRetrofitResponse
 
         val result = runBlocking {
             notificationRemoteDataSource.lastNotification(CLIENT_ID)
@@ -71,9 +71,9 @@ class NotificationRemoteDataSourceTest : UnitTest() {
     fun `given notificationsByBatch is called, when notificationApi returns response, then returns NotificationResponse`() {
         val size = 100
         val since = "15"
-        every { notificationRetrofitResponse.body() } returns notificationResponse
-        every { notificationRetrofitResponse.isSuccessful } returns true
-        coEvery { notificationApi.notificationsByBatch(any(), any(), any()) } returns notificationRetrofitResponse
+        every { notificationPageRetrofitResponse.body() } returns notificationPageResponse
+        every { notificationPageRetrofitResponse.isSuccessful } returns true
+        coEvery { notificationApi.notificationsByBatch(any(), any(), any()) } returns notificationPageRetrofitResponse
 
         val result = runBlocking {
             notificationRemoteDataSource.notificationsByBatch(size, CLIENT_ID, since)
@@ -85,9 +85,9 @@ class NotificationRemoteDataSourceTest : UnitTest() {
 
     @Test
     fun `given notificationsByBatch is called, when notificationApi returns failure, then returns the failure`() {
-        every { notificationRetrofitResponse.body() } returns null
-        every { notificationRetrofitResponse.isSuccessful } returns false
-        coEvery { notificationApi.notificationsByBatch(any(), any(), any()) } returns notificationRetrofitResponse
+        every { notificationPageRetrofitResponse.body() } returns null
+        every { notificationPageRetrofitResponse.isSuccessful } returns false
+        coEvery { notificationApi.notificationsByBatch(any(), any(), any()) } returns notificationPageRetrofitResponse
 
         val result = runBlocking { notificationRemoteDataSource.notificationsByBatch(any(), any(), any()) }
 

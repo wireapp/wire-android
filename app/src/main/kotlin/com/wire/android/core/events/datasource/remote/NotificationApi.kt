@@ -7,14 +7,14 @@ import retrofit2.http.Query
 interface NotificationApi {
 
     @GET("$NOTIFICATIONS$LAST")
-    suspend fun lastNotification(@Query(CLIENT_QUERY_KEY) client: String): Response<NotificationPageResponse>
+    suspend fun lastNotification(@Query(CLIENT_QUERY_KEY) client: String): Response<NotificationResponse>
 
     @GET(NOTIFICATIONS)
     suspend fun notificationsByBatch(
         @Query(SIZE_QUERY_KEY) size: Int,
         @Query(CLIENT_QUERY_KEY) client: String,
         @Query(SINCE_QUERY_KEY) since: String
-    ): Response<NotificationResponse>
+    ): Response<NotificationPageResponse>
 
     companion object {
         private const val NOTIFICATIONS = "/notifications"

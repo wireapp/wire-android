@@ -257,7 +257,6 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           withGradle() {
             sh './gradlew assemble${flavor}${buildType}'
           }
-
         }
       }
 
@@ -304,7 +303,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
                 echo 'Checking folder before S3 Bucket upload'
                 sh "ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
                 echo 'Uploading file to S3 Bucket'
-                s3Upload(acl: "Private", file: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk", bucket: 'z-lohika', path: "megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/")
+                s3Upload(acl: "Private", sourceFile: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk", bucket: 'z-lohika', path: "megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/")
               }
             }
             stage('Playstore') {

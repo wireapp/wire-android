@@ -10,11 +10,8 @@ import com.wire.android.feature.conversation.content.MessageRepository
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.ui.CombinedMessageContact
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 class MessageDataSource(
     private val messageLocalDataSource: MessageLocalDataSource,
@@ -31,9 +28,7 @@ class MessageDataSource(
                 val encryptedMessage = messageMapper.encryptedMessageFromDecodedContent(it)
                 cryptoBoxClient.decryptMessage(cryptoSessionId, encryptedMessage) { plainMessage ->
                     val decryptedMessage = messageMapper.toDecryptedMessage(message, plainMessage)
-                    GlobalScope.launch(Dispatchers.IO) {
-                        save(decryptedMessage)
-                    }
+                    save(decryptedMessage)
                     Either.Right(Unit)
                 }
             }

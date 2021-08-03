@@ -5,6 +5,7 @@ import com.wire.android.core.crypto.CryptoBoxClient
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
+import com.wire.android.feature.conversation.content.EncryptedMessageEnvelope
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.MessageRepository
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
@@ -12,6 +13,7 @@ import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.ui.CombinedMessageContact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -23,17 +25,15 @@ class MessageDataSource(
     private val cryptoBoxClient: CryptoBoxClient
 ) : MessageRepository {
 
-    override suspend fun decryptMessage(message: Message) {
+    override suspend fun receiveEncryptedMessage(message: EncryptedMessageEnvelope): Unit = coroutineScope {
         message.clientId?.let { _ ->
             val decodedContent = Base64.decode(message.content, Base64.DEFAULT)
             decodedContent?.let {
-                val cryptoSessionId = messageMapper.cryptoSessionFromMessage(message)
+                val cryptoSessionId = messageMapper.cryptoSessionFromEncryptedEnvelope(message)
                 val encryptedMessage = messageMapper.encryptedMessageFromDecodedContent(it)
                 cryptoBoxClient.decryptMessage(cryptoSessionId, encryptedMessage) { plainMessage ->
                     val decryptedMessage = messageMapper.toDecryptedMessage(message, plainMessage)
-                    GlobalScope.launch(Dispatchers.IO) {
-                        save(decryptedMessage)
-                    }
+                    launch(Dispatchers.IO) { save(decryptedMessage) }
                     Either.Right(Unit)
                 }
             }

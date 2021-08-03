@@ -15,6 +15,7 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
+import com.wire.android.feature.conversation.content.EncryptedMessageEnvelope
 import com.wire.android.feature.conversation.content.datasources.local.CombinedMessageContactEntity
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
@@ -60,11 +61,11 @@ class MessageDataSourceTest : UnitTest() {
 
     @Test
     fun `given decryptMessage is called, when clientId is null, then do not decrypt message`() {
-        val message = mockk<Message>().also {
+        val message = mockk<EncryptedMessageEnvelope>().also {
             every { it.clientId } returns null
         }
 
-        runBlocking { messageDataSource.decryptMessage(message) }
+        runBlocking { messageDataSource.receiveEncryptedMessage(message) }
 
         coVerify(inverse = true) { cryptoBoxClient.decryptMessage(cryptoSession, encryptedMessage){ _ -> Either.Right(Unit) }}
     }
@@ -73,12 +74,12 @@ class MessageDataSourceTest : UnitTest() {
     fun `given decryptMessage is called, when decoded content is null, then do not decrypt message`() {
         mockkStatic(Base64::class)
         every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns null
-        val message = mockk<Message>().also {
+        val message = mockk<EncryptedMessageEnvelope>().also {
             every { it.clientId } returns TEST_CLIENT_ID
             every { it.content } returns TEST_CONTENT
         }
 
-        runBlocking { messageDataSource.decryptMessage(message) }
+        runBlocking { messageDataSource.receiveEncryptedMessage(message) }
 
         coVerify(inverse = true) { cryptoBoxClient.decryptMessage(cryptoSession, encryptedMessage){ _ -> Either.Right(Unit) }}
     }
@@ -88,21 +89,21 @@ class MessageDataSourceTest : UnitTest() {
         val plainMessage = PlainMessage(byteArrayOf())
         mockkStatic(Base64::class)
         every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns byteArrayOf()
-        val message = mockk<Message>().also {
+        val message = mockk<EncryptedMessageEnvelope>().also {
             every { it.clientId } returns TEST_CLIENT_ID
             every { it.senderUserId } returns TEST_USER_ID
             every { it.content } returns TEST_CONTENT
         }
 
-        every { messageMapper.cryptoSessionFromMessage(message) } returns cryptoSession
+        every { messageMapper.cryptoSessionFromEncryptedEnvelope(message) } returns cryptoSession
         every { messageMapper.encryptedMessageFromDecodedContent(byteArrayOf()) } returns encryptedMessage
         val lambdaSlot = slot<((PlainMessage) -> Either<Failure, Unit>)>()
 
-        runBlocking { messageDataSource.decryptMessage(message) }
+        runBlocking { messageDataSource.receiveEncryptedMessage(message) }
 
         coVerify { cryptoBoxClient.decryptMessage(cryptoSession, encryptedMessage, capture(lambdaSlot)) }
         lambdaSlot.captured.invoke(plainMessage)
-        verify(exactly = 1) { messageMapper.cryptoSessionFromMessage(message) }
+        verify(exactly = 1) { messageMapper.cryptoSessionFromEncryptedEnvelope(message) }
         verify(exactly = 1) { messageMapper.encryptedMessageFromDecodedContent(byteArrayOf()) }
         verify(exactly = 1) { messageMapper.toDecryptedMessage(message, plainMessage) }
         coVerify(exactly = 1) { messageLocalDataSource.save(any()) }

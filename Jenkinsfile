@@ -319,7 +319,7 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
                 echo 'Checking folder before playstore upload'
                 sh "ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/"
                 echo 'Uploading file to Playstore track ${trackName}'
-                androidApkUpload(googleCredentialsId: 'google play access', filesPattern: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", trackName: "${trackName}", rolloutPercentage: '100', releaseName: '${trackName} Release')
+                androidApkUpload(googleCredentialsId: 'google play access', filesPattern: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", trackName: "${trackName}", rolloutPercentage: '100', releaseName: "${trackName} Release")
               }
             }
         }

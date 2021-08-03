@@ -74,6 +74,7 @@ class MessageMapperTest : UnitTest() {
         val timeOffset: OffsetDateTime = mockk()
 
         every { messageContentMapper.fromContentToString(TEST_MESSAGE_CONTENT) } returns TEST_MESSAGE_CONTENT_VALUE
+        every { messageContentMapper.fromContentToStringType(TEST_MESSAGE_CONTENT) } returns TEST_MESSAGE_TYPE
         every { messageStateMapper.fromValueToString(Sent) } returns TEST_MESSAGE_STATE
         every { dateStringMapper.fromOffsetDateTimeToString(timeOffset) } returns TEST_MESSAGE_TIME
         val message = Message(

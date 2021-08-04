@@ -11,6 +11,7 @@ import com.wire.android.core.extension.lazyFind
 import com.wire.android.core.extension.timeFromOffsetDateTime
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.feature.contact.Contact
+import com.wire.android.feature.conversation.content.Content
 import com.wire.android.shared.asset.ui.imageloader.UserAvatarProvider
 import com.wire.android.shared.conversation.content.ConversationTimeGenerator
 import kotlinx.android.synthetic.main.conversation_chat_time_separator.view.*
@@ -44,7 +45,7 @@ class ConversationTextMessageViewHolder(
         conversationTimeSeparatorTextTextView.conversationTimeSeparatorTextTextView.text =
             conversationTimeGenerator.separatorTimeLabel(message.time)
         conversationChatItemUsernameTextView.text = combinedMessage.contact.name
-        conversationChatItemTextMessageTextView.text = message.content
+        conversationChatItemTextMessageTextView.text = (message.content as Content.Text).value //TODO Handle multiple content types
         conversationChatItemTimeTextView.text = message.time.timeFromOffsetDateTime()
     }
 

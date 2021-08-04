@@ -6,9 +6,10 @@ import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.date.DateStringMapper
 import com.wire.android.core.events.Event
+import com.wire.android.feature.conversation.content.Content
+import com.wire.android.feature.conversation.content.EncryptedMessageEnvelope
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.Sent
-import com.wire.android.feature.conversation.content.Text
 import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -22,7 +23,7 @@ import java.time.OffsetDateTime
 class MessageMapperTest : UnitTest() {
 
     @MockK
-    private lateinit var messageTypeMapper: MessageTypeMapper
+    private lateinit var messageContentMapper: MessageContentMapper
 
     @MockK
     private lateinit var messageStateMapper: MessageStateMapper
@@ -34,14 +35,14 @@ class MessageMapperTest : UnitTest() {
 
     @Before
     fun setUp() {
-        messageMapper = MessageMapper(messageTypeMapper, messageStateMapper, dateStringMapper)
+        messageMapper = MessageMapper(messageContentMapper, messageStateMapper, dateStringMapper)
     }
 
     @Test
     fun `given fromEntityToMessage is called, then maps the MessageEntity and returns a Message`() {
         val expectedTimeOffset: OffsetDateTime = mockk()
 
-        every { messageTypeMapper.fromStringValue(TEST_MESSAGE_TYPE) } returns Text
+        every { messageContentMapper.fromStringToContent(TEST_MESSAGE_TYPE, TEST_MESSAGE_CONTENT_VALUE) } returns TEST_MESSAGE_CONTENT
         every { messageStateMapper.fromStringValue(TEST_MESSAGE_STATE) } returns Sent
         every { dateStringMapper.fromStringToOffsetDateTime(TEST_MESSAGE_TIME) } returns expectedTimeOffset
 
@@ -50,7 +51,7 @@ class MessageMapperTest : UnitTest() {
             conversationId = TEST_CONVERSATION_ID,
             senderUserId = TEST_SENDER_USER_ID,
             type = TEST_MESSAGE_TYPE,
-            content = TEST_MESSAGE_CONTENT,
+            content = TEST_MESSAGE_CONTENT_VALUE,
             state = TEST_MESSAGE_STATE,
             time = TEST_MESSAGE_TIME
         )
@@ -62,7 +63,6 @@ class MessageMapperTest : UnitTest() {
             it.id shouldBeEqualTo TEST_MESSAGE_ID
             it.conversationId shouldBeEqualTo TEST_CONVERSATION_ID
             it.senderUserId shouldBeEqualTo TEST_SENDER_USER_ID
-            it.type shouldBeEqualTo Text
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
             it.state shouldBeEqualTo Sent
             it.time shouldBeEqualTo expectedTimeOffset
@@ -73,7 +73,8 @@ class MessageMapperTest : UnitTest() {
     fun `given fromMessageToEntity is called, then maps the Message and returns a MessageEntity`() {
         val timeOffset: OffsetDateTime = mockk()
 
-        every { messageTypeMapper.fromValueToString(Text) } returns TEST_MESSAGE_TYPE
+        every { messageContentMapper.fromContentToString(TEST_MESSAGE_CONTENT) } returns TEST_MESSAGE_CONTENT_VALUE
+        every { messageContentMapper.fromContentToStringType(TEST_MESSAGE_CONTENT) } returns TEST_MESSAGE_TYPE
         every { messageStateMapper.fromValueToString(Sent) } returns TEST_MESSAGE_STATE
         every { dateStringMapper.fromOffsetDateTimeToString(timeOffset) } returns TEST_MESSAGE_TIME
         val message = Message(
@@ -81,7 +82,6 @@ class MessageMapperTest : UnitTest() {
             conversationId = TEST_CONVERSATION_ID,
             senderUserId = TEST_SENDER_USER_ID,
             clientId = null,
-            type = Text,
             content = TEST_MESSAGE_CONTENT,
             state = Sent,
             time = timeOffset
@@ -89,20 +89,22 @@ class MessageMapperTest : UnitTest() {
 
         val result = messageMapper.fromMessageToEntity(message)
 
+        // TODO Don't assert for mapped content. Instead, check if the `Content Mapper` was used
+
         result.let {
             it shouldBeInstanceOf MessageEntity::class
             it.id shouldBeEqualTo TEST_MESSAGE_ID
             it.conversationId shouldBeEqualTo TEST_CONVERSATION_ID
             it.senderUserId shouldBeEqualTo TEST_SENDER_USER_ID
             it.type shouldBeEqualTo TEST_MESSAGE_TYPE
-            it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
+            it.content shouldBeEqualTo TEST_MESSAGE_CONTENT_VALUE
             it.state shouldBeEqualTo TEST_MESSAGE_STATE
             it.time shouldBeEqualTo TEST_MESSAGE_TIME
         }
     }
 
     @Test
-    fun `given fromMessageEventToMessage is called, then maps the MessageEvent and returns a Message`() {
+    fun `given fromMessageEventToEncryptedEnvelope is called, then maps the MessageEvent and returns an EncryptedEnvelope`() {
         val expectedTimeOffset: OffsetDateTime = mockk()
         every { dateStringMapper.fromStringToOffsetDateTime(TEST_MESSAGE_TIME) } returns expectedTimeOffset
 
@@ -111,33 +113,31 @@ class MessageMapperTest : UnitTest() {
             conversationId = TEST_CONVERSATION_ID,
             senderClientId = TEST_SENDER_ID,
             senderUserId = TEST_SENDER_USER_ID,
-            content = TEST_MESSAGE_CONTENT,
+            content = TEST_MESSAGE_CONTENT_VALUE,
             time = TEST_MESSAGE_TIME
         )
 
-        val result = messageMapper.fromMessageEventToMessage(messageEvent)
+        val result = messageMapper.fromMessageEventToEncryptedMessageEnvelope(messageEvent)
 
         result.let {
-            it shouldBeInstanceOf Message::class
+            it shouldBeInstanceOf EncryptedMessageEnvelope::class
             it.id shouldBeEqualTo TEST_MESSAGE_ID
             it.conversationId shouldBeEqualTo TEST_CONVERSATION_ID
             it.senderUserId shouldBeEqualTo TEST_SENDER_USER_ID
-            it.type shouldBeEqualTo Text
-            it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
-            it.state shouldBeEqualTo Sent
+            it.content shouldBeEqualTo TEST_MESSAGE_CONTENT_VALUE
             it.time shouldBeEqualTo expectedTimeOffset
         }
     }
 
     @Test
     fun `given cryptoSessionFromMessage is called, then maps the Message and returns a CryptoSessionId`() {
-        val message = mockk<Message>().also {
+        val message = mockk<EncryptedMessageEnvelope>().also {
             every { it.senderUserId } returns TEST_SENDER_USER_ID
             every { it.clientId } returns TEST_SENDER_ID
         }
         val expected = "${TEST_SENDER_USER_ID}_${TEST_SENDER_ID}"
 
-        val result = messageMapper.cryptoSessionFromMessage(message)
+        val result = messageMapper.cryptoSessionFromEncryptedEnvelope(message)
 
         result.let {
             it shouldBeInstanceOf CryptoSessionId::class
@@ -153,7 +153,8 @@ class MessageMapperTest : UnitTest() {
         private const val TEST_SENDER_ID = "sender-id"
         private const val TEST_SENDER_USER_ID = "sender-user-id"
         private const val TEST_MESSAGE_TYPE = "text"
-        private const val TEST_MESSAGE_CONTENT = "Hello!"
+        private const val TEST_MESSAGE_CONTENT_VALUE = "Hello!"
+        private val TEST_MESSAGE_CONTENT = Content.Text(TEST_MESSAGE_CONTENT_VALUE)
         private const val TEST_MESSAGE_STATE = "sent"
         private const val TEST_MESSAGE_TIME = "2019-12-12T21:21:00Z+03:00"
     }

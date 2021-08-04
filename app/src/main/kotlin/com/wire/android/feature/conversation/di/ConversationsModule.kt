@@ -9,7 +9,7 @@ import com.wire.android.feature.conversation.content.datasources.MessageDataSour
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.mapper.MessageStateMapper
-import com.wire.android.feature.conversation.content.mapper.MessageTypeMapper
+import com.wire.android.feature.conversation.content.mapper.MessageContentMapper
 import com.wire.android.feature.conversation.content.navigation.ConversationNavigator
 import com.wire.android.feature.conversation.content.ui.ConversationAdapter
 import com.wire.android.feature.conversation.content.ui.ConversationViewModel
@@ -93,7 +93,7 @@ val conversationMembersModule = module {
 val conversationContentModule = module {
     factory { get<UserDatabase>().messageDao() }
     factory { MessageLocalDataSource(get()) }
-    factory { MessageTypeMapper() }
+    factory { MessageContentMapper() }
     factory { MessageStateMapper() }
     factory { MessageMapper(get(), get(), get()) }
     factory<MessageRepository> { MessageDataSource(get(), get(), get(), get()) }

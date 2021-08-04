@@ -113,9 +113,12 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
 
         val bobSessionID = CryptoSessionId(bob, CryptoClientId("clientB"))
 
-        aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }.shouldSucceed { }
+        runBlocking {
+            aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }
+        }.shouldSucceed { }
 
-        aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }
-            .shouldFail { it shouldBeInstanceOf MessageAlreadyDecrypted::class }
+        runBlocking {
+            aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }
+        }.shouldFail { it shouldBeInstanceOf MessageAlreadyDecrypted::class }
     }
 }

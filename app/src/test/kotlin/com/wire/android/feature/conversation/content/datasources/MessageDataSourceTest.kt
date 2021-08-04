@@ -96,12 +96,12 @@ class MessageDataSourceTest : UnitTest() {
 
         every { messageMapper.cryptoSessionFromMessage(message) } returns cryptoSession
         every { messageMapper.encryptedMessageFromDecodedContent(byteArrayOf()) } returns encryptedMessage
-        val lambdaSlot = slot<((PlainMessage) -> Either<Failure, Unit>)>()
+        val lambdaSlot = slot<(suspend (PlainMessage) -> Either<Failure, Unit>)>()
 
         runBlocking { messageDataSource.decryptMessage(message) }
 
         coVerify { cryptoBoxClient.decryptMessage(cryptoSession, encryptedMessage, capture(lambdaSlot)) }
-        lambdaSlot.captured.invoke(plainMessage)
+        runBlocking { lambdaSlot.captured.invoke(plainMessage) }
         verify(exactly = 1) { messageMapper.cryptoSessionFromMessage(message) }
         verify(exactly = 1) { messageMapper.encryptedMessageFromDecodedContent(byteArrayOf()) }
         verify(exactly = 1) { messageMapper.toDecryptedMessage(message, plainMessage) }

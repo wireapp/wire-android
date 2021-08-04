@@ -239,7 +239,8 @@ class CryptoBoxClientTest : AndroidTest() {
         every { cryptoBox.initSessionFromMessage(any(), any()) } returns sessionMessage
         every { exceptionMapper.fromNativeException(notFoundException) } returns SessionNotFound
 
-        subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) }.shouldSucceed {}
+        runBlocking { subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) } }
+            .shouldSucceed {}
 
         verify(exactly = 1) { cryptoBox.initSessionFromMessage(any(), any()) }
     }
@@ -267,7 +268,9 @@ class CryptoBoxClientTest : AndroidTest() {
         every { session.decrypt(any()) } returns byteArrayOf()
 
         val handlerResult = Either.Left(IOAccessDenied)
-        subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> handlerResult }
+        runBlocking {
+            subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> handlerResult }
+        }
             .shouldFail { it shouldBeEqualTo handlerResult.a }
     }
 
@@ -277,7 +280,9 @@ class CryptoBoxClientTest : AndroidTest() {
         every { cryptoBox.getSession(any()) } returns session
         every { session.decrypt(any()) } returns byteArrayOf()
 
-        subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Left(IOAccessDenied) }
+        runBlocking {
+            subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Left(IOAccessDenied) }
+        }
 
         verify(exactly = 0) { session.save() }
     }
@@ -289,7 +294,9 @@ class CryptoBoxClientTest : AndroidTest() {
         every { session.decrypt(any()) } returns byteArrayOf()
         every { session.save() } returns Unit
 
-        subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) }
+        runBlocking {
+            subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) }
+        }
 
         verify(exactly = 1) { session.save() }
     }

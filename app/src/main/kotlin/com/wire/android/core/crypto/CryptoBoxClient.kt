@@ -92,25 +92,26 @@ class CryptoBoxClient(
      * successfully stored locally, so the session state can be persisted.
      * @see
      */
-    fun decryptMessage(
+    suspend fun decryptMessage(
         cryptoSessionId: CryptoSessionId,
         message: EncryptedMessage,
-        onDecrypt: (PlainMessage) -> Either<Failure, Unit>
-    ): Either<Failure, Unit> = session(cryptoSessionId).fold({ failure ->
-        if (failure !is SessionNotFound)
-            return@fold Either.Left(failure)
-
-        initiateSessionFromReceivedMessage(cryptoSessionId, message)
-    }, { Either.Right(it to null) })!!
-        .flatMap { (session, decryptedData) ->
-            useBox {
-                PlainMessage(decryptedData ?: session.decrypt(message.data))
-            }.flatMap {
-                onDecrypt(it)
-            }.map { session }
-        }.flatMap { session ->
-            useBox { session.save() }
-        }
+        onDecrypt: suspend (PlainMessage) -> Either<Failure, Unit>
+    ): Either<Failure, Unit> = suspending {
+        session(cryptoSessionId).fold({ failure ->
+            if (failure !is SessionNotFound)
+                return@fold Either.Left(failure)
+            initiateSessionFromReceivedMessage(cryptoSessionId, message)
+        }, { Either.Right(it to null) })!!
+            .flatMap { (session, decryptedData) ->
+                useBox {
+                    PlainMessage(decryptedData ?: session.decrypt(message.data))
+                }.flatMap {
+                    onDecrypt(it)
+                }.map { session }
+            }.flatMap { session ->
+                useBox { session.save() }
+            }
+    }
 
     private fun initiateSessionFromReceivedMessage(cryptoSessionId: CryptoSessionId, message: EncryptedMessage) = useBox {
         initSessionFromMessage(cryptoSessionId.value, message.data)

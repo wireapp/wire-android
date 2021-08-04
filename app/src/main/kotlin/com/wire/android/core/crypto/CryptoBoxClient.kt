@@ -2,17 +2,17 @@ package com.wire.android.core.crypto
 
 import android.content.Context
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
-import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
+import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.crypto.model.PreKeyInitialization
 import com.wire.android.core.crypto.model.UserId
+import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.InitializationFailure
 import com.wire.android.core.exception.SessionNotFound
-import com.wire.android.core.exception.Failure
 import com.wire.android.core.extension.plus
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.flatMap
@@ -66,18 +66,20 @@ class CryptoBoxClient(
      * @param onEncrypt action to be performed after the message is encrypted, should return true if the message was
      * successfully sent, so the session state can be persisted.
      */
-    fun encryptMessage(
+    suspend fun encryptMessage(
         cryptoSessionId: CryptoSessionId,
         message: PlainMessage,
-        onEncrypt: (EncryptedMessage) -> Either<Failure, Unit>
-    ): Either<Failure, Unit> = session(cryptoSessionId).flatMap { session ->
-        useBox {
-            EncryptedMessage(session.encrypt(message.data))
-        }.flatMap {
-            onEncrypt(it)
-        }.map { session }
-    }.flatMap { session ->
-        useBox { session.save() }
+        onEncrypt: suspend (EncryptedMessage) -> Either<Failure, Unit>
+    ): Either<Failure, Unit> = suspending {
+        session(cryptoSessionId).flatMap { session ->
+            useBox {
+                EncryptedMessage(session.encrypt(message.data))
+            }.flatMap {
+                onEncrypt(it)
+            }.map { session }
+        }.flatMap { session ->
+            useBox { session.save() }
+        }
     }
 
     /**

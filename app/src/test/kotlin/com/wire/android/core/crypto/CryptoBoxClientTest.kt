@@ -27,6 +27,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
@@ -232,7 +233,8 @@ class CryptoBoxClientTest : AndroidTest() {
         every { cryptoBox.initSessionFromMessage(any(), any()) } returns sessionMessage
         every { exceptionMapper.fromNativeException(notFoundException) } returns SessionNotFound
 
-        subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) }.shouldSucceed {}
+        runBlocking { subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) } }
+            .shouldSucceed {}
 
         verify(exactly = 1) { cryptoBox.initSessionFromMessage(any(), any()) }
     }
@@ -245,8 +247,9 @@ class CryptoBoxClientTest : AndroidTest() {
         val expectedFailure = UnknownCryptoFailure(expectedException)
         every { exceptionMapper.fromNativeException(any()) } returns expectedFailure
 
-        subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) }
-            .shouldFail { it shouldBeEqualTo expectedFailure }
+        runBlocking {
+            subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) }
+        }.shouldFail { it shouldBeEqualTo expectedFailure }
 
         verify(exactly = 0) { cryptoBox.initSessionFromMessage(any(), any()) }
         verify(exactly = 1) { exceptionMapper.fromNativeException(expectedException) }
@@ -259,7 +262,9 @@ class CryptoBoxClientTest : AndroidTest() {
         every { session.decrypt(any()) } returns byteArrayOf()
 
         val handlerResult = Either.Left(IOAccessDenied)
-        subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> handlerResult }
+        runBlocking {
+            subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> handlerResult }
+        }
             .shouldFail { it shouldBeEqualTo handlerResult.a }
     }
 
@@ -269,7 +274,9 @@ class CryptoBoxClientTest : AndroidTest() {
         every { cryptoBox.getSession(any()) } returns session
         every { session.decrypt(any()) } returns byteArrayOf()
 
-        subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Left(IOAccessDenied) }
+        runBlocking {
+            subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Left(IOAccessDenied) }
+        }
 
         verify(exactly = 0) { session.save() }
     }
@@ -281,7 +288,9 @@ class CryptoBoxClientTest : AndroidTest() {
         every { session.decrypt(any()) } returns byteArrayOf()
         every { session.save() } returns Unit
 
-        subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) }
+        runBlocking {
+            subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) }
+        }
 
         verify(exactly = 1) { session.save() }
     }

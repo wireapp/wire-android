@@ -17,6 +17,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MessageDataSource(
     private val messageLocalDataSource: MessageLocalDataSource,
@@ -33,7 +34,7 @@ class MessageDataSource(
                 val encryptedMessage = messageMapper.encryptedMessageFromDecodedContent(it)
                 cryptoBoxClient.decryptMessage(cryptoSessionId, encryptedMessage) { plainMessage ->
                     val decryptedMessage = messageMapper.toDecryptedMessage(message, plainMessage)
-                    launch(Dispatchers.IO) { save(decryptedMessage) }
+                    runBlocking { save(decryptedMessage) }
                     Either.Right(Unit)
                 }
             }

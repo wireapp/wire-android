@@ -27,6 +27,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
@@ -180,8 +181,9 @@ class CryptoBoxClientTest : AndroidTest() {
         val expectedFailure: CryptoBoxFailure = mockk()
         every { exceptionMapper.fromNativeException(any()) } returns expectedFailure
 
-        subject.encryptMessage(CRYPTO_SESSION_ID, PLAIN_MESSAGE) { _ -> Either.Right(Unit) }
-            .shouldFail { it shouldBeEqualTo expectedFailure }
+        runBlocking {
+            subject.encryptMessage(CRYPTO_SESSION_ID, PLAIN_MESSAGE) { _ -> Either.Right(Unit) }
+        }.shouldFail { it shouldBeEqualTo expectedFailure }
 
         verify(exactly = 1) { exceptionMapper.fromNativeException(expectedException) }
     }
@@ -193,8 +195,9 @@ class CryptoBoxClientTest : AndroidTest() {
         every { session.encrypt(any()) } returns byteArrayOf()
 
         val handlerResult = Either.Left(IOAccessDenied)
-        subject.encryptMessage(CRYPTO_SESSION_ID, PLAIN_MESSAGE) { _ -> handlerResult }
-            .shouldFail { it shouldBeEqualTo handlerResult.a }
+        runBlocking {
+            subject.encryptMessage(CRYPTO_SESSION_ID, PLAIN_MESSAGE) { _ -> handlerResult }
+        }.shouldFail { it shouldBeEqualTo handlerResult.a }
     }
 
     @Test
@@ -203,7 +206,9 @@ class CryptoBoxClientTest : AndroidTest() {
         every { cryptoBox.getSession(any()) } returns session
         every { session.encrypt(any()) } returns byteArrayOf()
 
-        subject.encryptMessage(CRYPTO_SESSION_ID, PLAIN_MESSAGE) { _ -> Either.Left(IOAccessDenied) }
+        runBlocking {
+            subject.encryptMessage(CRYPTO_SESSION_ID, PLAIN_MESSAGE) { _ -> Either.Left(IOAccessDenied) }
+        }
 
         verify(exactly = 0) { session.save() }
     }
@@ -215,7 +220,9 @@ class CryptoBoxClientTest : AndroidTest() {
         every { session.encrypt(any()) } returns byteArrayOf()
         every { session.save() } returns Unit
 
-        subject.encryptMessage(CRYPTO_SESSION_ID, PLAIN_MESSAGE) { _ -> Either.Right(Unit) }
+        runBlocking {
+            subject.encryptMessage(CRYPTO_SESSION_ID, PLAIN_MESSAGE) { _ -> Either.Right(Unit) }
+        }
 
         verify(exactly = 1) { session.save() }
     }
@@ -245,8 +252,9 @@ class CryptoBoxClientTest : AndroidTest() {
         val expectedFailure = UnknownCryptoFailure(expectedException)
         every { exceptionMapper.fromNativeException(any()) } returns expectedFailure
 
-        subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) }
-            .shouldFail { it shouldBeEqualTo expectedFailure }
+        runBlocking {
+            subject.decryptMessage(CRYPTO_SESSION_ID, ENCRYPTED_MESSAGE) { _ -> Either.Right(Unit) }
+        }.shouldFail { it shouldBeEqualTo expectedFailure }
 
         verify(exactly = 0) { cryptoBox.initSessionFromMessage(any(), any()) }
         verify(exactly = 1) { exceptionMapper.fromNativeException(expectedException) }

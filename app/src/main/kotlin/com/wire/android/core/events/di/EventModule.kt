@@ -16,6 +16,7 @@ import com.wire.android.core.events.datasource.remote.NotificationRemoteDataSour
 import com.wire.android.core.events.datasource.remote.WebSocketService
 import com.wire.android.core.events.handler.EventsHandler
 import com.wire.android.core.events.handler.MessageEventsHandler
+import com.wire.android.core.events.mapper.EventMapper
 import com.wire.android.core.events.usecase.ListenToEventsUseCase
 import com.wire.android.core.network.NetworkClient
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +26,12 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 
 val eventModule = module {
-    fun provideWebSocketService(client: OkHttpClient, lifecycle: Lifecycle, webSocketUrl: String, externalScope: CoroutineScope): WebSocketService {
+    fun provideWebSocketService(
+        client: OkHttpClient,
+        lifecycle: Lifecycle,
+        webSocketUrl: String,
+        externalScope: CoroutineScope
+    ): WebSocketService {
         val scarlet = Scarlet.Builder()
             .webSocketFactory(client.newWebSocketFactory(webSocketUrl))
             .addMessageAdapterFactory(GsonMessageAdapter.Factory())
@@ -35,12 +41,15 @@ val eventModule = module {
         return scarlet.create()
     }
     //TODO hardcoded client to be replaced with current clientId
-    single { WebSocketConfig("8ccdab56ec2156ad") }
+    single { WebSocketConfig("9be1ea537198cf37") }
     factory { CoroutineScope(Dispatchers.IO) }
     single {
         provideWebSocketService(
             get(),
-            AndroidLifecycle.ofApplicationForeground(androidApplication(), get<WebSocketConfig>().throttleTimeout),
+            AndroidLifecycle.ofApplicationForeground(
+                androidApplication(),
+                get<WebSocketConfig>().throttleTimeout
+            ),
             get<WebSocketConfig>().socketUrl,
             get()
         )
@@ -49,6 +58,16 @@ val eventModule = module {
     single { get<NetworkClient>().create(NotificationApi::class.java) }
     single<EventsHandler<Event.Conversation.MessageEvent>> { MessageEventsHandler(get(), get()) }
     factory { NotificationLocalDataSource(get()) }
-    single<EventRepository> { EventDataSource(get(), get(), get(), get()) }
+    single<EventRepository> {
+        EventDataSource(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            "9be1ea537198cf37"
+        )
+    }
     single { ListenToEventsUseCase(get(), get()) }
+    factory { EventMapper() }
 }

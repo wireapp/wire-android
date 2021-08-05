@@ -5,39 +5,46 @@ import com.wire.android.core.events.Event
 import com.wire.android.core.events.EventRepository
 import com.wire.android.core.events.datasource.local.NotificationLocalDataSource
 import com.wire.android.core.events.datasource.remote.NotificationRemoteDataSource
-import com.wire.android.core.events.datasource.remote.Payload
 import com.wire.android.core.events.datasource.remote.WebSocketService
+import com.wire.android.core.events.mapper.EventMapper
 import com.wire.android.core.extension.EMPTY
-import com.wire.android.core.functional.*
+import com.wire.android.core.functional.map
+import com.wire.android.core.functional.onSuccess
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class EventDataSource(
     private val webSocketService: WebSocketService,
     private val externalScope: CoroutineScope,
     private val notificationLocalDataSource: NotificationLocalDataSource,
-    private val notificationRemoteDataSource: NotificationRemoteDataSource
+    private val notificationRemoteDataSource: NotificationRemoteDataSource,
+    private val eventMapper: EventMapper,
+    private val clientId: String
 ) : EventRepository {
     override fun events(): Flow<Event> = callbackFlow {
+
         externalScope.launch {
             webSocketService.observeWebSocketEvent().collect {
                 if (it is WebSocket.Event.OnConnectionOpened<*>) {
-                    val notificationId = lastNotificationId("8ccdab56ec2156ad")
+                    val notificationId = lastNotificationId(clientId)
                     var hasMore = true
                     while (hasMore) {
-                        notificationRemoteDataSource.notificationsByBatch(100, "8ccdab56ec2156ad", notificationId).map { notificationPageResponse ->
-                            hasMore = notificationPageResponse.hasMore
-                            notificationPageResponse.notifications.forEach { notificationResponse ->
-                                notificationResponse.payload?.let { payloads ->
-                                    payloads.forEach { payload ->
-                                        trySendBlocking(eventFromPayload(payload, notificationResponse.id)
-                                        )
+                        notificationRemoteDataSource.notificationsByBatch(PAGE_SIZE, clientId, notificationId)
+                            .onSuccess { notificationPageResponse ->
+                                hasMore = notificationPageResponse.hasMore
+                                notificationPageResponse.notifications.forEach { notificationResponse ->
+                                    notificationResponse.payload?.let { payloads ->
+                                        payloads.forEach { payload ->
+                                            val event = eventMapper.eventFromPayload(payload, notificationResponse.id)
+                                            trySendBlocking(event)
+                                        }
                                     }
                                 }
-                            }
                         }
                     }
                 }
@@ -48,7 +55,8 @@ class EventDataSource(
             webSocketService.receiveEvent().collect {
                 it.payload?.let { payloads ->
                     payloads.forEach { payload ->
-                        trySendBlocking(eventFromPayload(payload, it.id))
+                        val event = eventMapper.eventFromPayload(payload, it.id)
+                        trySendBlocking(event)
                     }
                 }
             }
@@ -57,25 +65,7 @@ class EventDataSource(
         awaitClose { }
     }
 
-    private fun eventFromPayload(payload: Payload, eventId: String) : Event {
-        when (payload.type) {
-            NEW_MESSAGE_TYPE -> {
-                if(payload.data != null) {
-                    return Event.Conversation.MessageEvent(
-                        eventId,
-                        payload.conversation,
-                        payload.data.sender,
-                        payload.from,
-                        payload.data.text,
-                        payload.time
-                    )
-                }
-            }
-        }
-        return Event.Unknown
-    }
-
-    //TODO this should be called in full state sync
+    //TODO this function should be moved to be called in full state sync
     private suspend fun lastNotificationId(clientId: String) : String {
         notificationLocalDataSource.lastNotificationId()?.let {
             return it
@@ -89,6 +79,6 @@ class EventDataSource(
     }
 
     companion object {
-        const val NEW_MESSAGE_TYPE = "conversation.otr-message-add"
+        const val PAGE_SIZE = 500
     }
 }

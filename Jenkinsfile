@@ -125,7 +125,8 @@ pipeline {
             expression { env.runAcceptanceTests.toBoolean() }
           }
           steps {
-            sh '''docker rm ${emulatorPrefix}_9 || true docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_9 budtmo/docker-android-x86-9.0'''
+            sh '''docker rm ${emulatorPrefix}_9 || true
+                  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
@@ -134,7 +135,8 @@ pipeline {
             expression { env.runAcceptanceTests.toBoolean() }
           }
           steps {
-            sh '''docker rm ${emulatorPrefix}_10 || true docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
+            sh '''docker rm ${emulatorPrefix}_10 || true
+                  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
           }
         }
       }

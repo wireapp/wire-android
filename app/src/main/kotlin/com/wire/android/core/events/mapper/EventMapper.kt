@@ -4,23 +4,18 @@ import com.wire.android.core.events.Event
 import com.wire.android.core.events.datasource.remote.Payload
 
 class EventMapper {
-    fun eventFromPayload(payload: Payload, eventId: String) : Event {
+    fun eventFromPayload(payload: Payload, eventId: String): Event =
         when (payload.type) {
             NEW_MESSAGE_TYPE -> {
-                if(payload.data != null) {
-                    return Event.Conversation.MessageEvent(
-                        eventId,
-                        payload.conversation,
-                        payload.data.sender,
-                        payload.from,
-                        payload.data.text,
-                        payload.time
-                    )
+                with(payload) {
+                    data?.let {
+                        Event.Conversation.MessageEvent(eventId, conversation, it.sender, from, it.text, time)
+                    } ?: Event.Unknown
                 }
             }
+            else -> Event.Unknown
         }
-        return Event.Unknown
-    }
+
     companion object {
         const val NEW_MESSAGE_TYPE = "conversation.otr-message-add"
     }

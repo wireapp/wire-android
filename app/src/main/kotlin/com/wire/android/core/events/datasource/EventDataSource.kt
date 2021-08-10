@@ -22,15 +22,19 @@ class EventDataSource(
 ) : EventRepository {
     override fun events(): Flow<Event> = callbackFlow {
         externalScope.launch {
-            notificationRemoteDataSource.receiveEvents().collect {
-                trySendBlocking(it)
+            notificationRemoteDataSource.receiveEvents().collect { events ->
+                events?.forEach {
+                    trySendBlocking(it)
+                }
             }
         }
 
         externalScope.launch {
             val notificationId = lastNotificationId(clientId)
-            notificationRemoteDataSource.observeWebSocketEvents(clientId, notificationId).collect {
-                trySendBlocking(it)
+            notificationRemoteDataSource.notificationsFlow(clientId, notificationId).collect { events ->
+                events.forEach {
+                    trySendBlocking(it)
+                }
             }
         }
         awaitClose { }

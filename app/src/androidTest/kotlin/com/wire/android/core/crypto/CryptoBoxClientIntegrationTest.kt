@@ -14,7 +14,7 @@ import com.wire.android.core.exception.SessionNotFound
 import com.wire.android.core.functional.Either
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import org.amshove.kluent.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.After
@@ -65,14 +65,16 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
         val aliceKey = (aliceClient.createInitialPreKeys() as Either.Right).b.lastKey
 
         bobClient.assertSession(aliceSessionId, aliceKey)
-        val result = bobClient.encryptMessage(aliceSessionId, PlainMessage("Hello".toByteArray())) { Either.Right(Unit) }
-        result.isRight shouldBe true
+        runBlocking {
+            bobClient.encryptMessage(aliceSessionId, PlainMessage("Hello".toByteArray())) { Either.Right(Unit) }
+        }.shouldSucceed {}
     }
 
     @Test
     fun givenBobWantsToTalkToAlice_whenSendingTheFirstMessageWithoutHavingTheSessionAsserted_itShouldFailWithSessionNotFound() {
-        bobClient.encryptMessage(aliceSessionId, PlainMessage("Hello".toByteArray())) { Either.Right(Unit) }
-            .shouldFail { it shouldBeInstanceOf SessionNotFound::class }
+        runBlocking {
+            bobClient.encryptMessage(aliceSessionId, PlainMessage("Hello".toByteArray())) { Either.Right(Unit) }
+        }.shouldFail { it shouldBeInstanceOf SessionNotFound::class }
     }
 
     @Test
@@ -82,14 +84,16 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
         bobClient.assertSession(aliceSessionId, aliceKey)
 
         val plainMessage = PlainMessage("Hello".toByteArray())
-        bobClient.encryptMessage(aliceSessionId, plainMessage) { encryptedMessage ->
+        runBlocking {
+            bobClient.encryptMessage(aliceSessionId, plainMessage) { encryptedMessage ->
 
-            aliceClient.decryptMessage(CryptoSessionId(bob, CryptoClientId("doesntmatter")), encryptedMessage) { decryptedMessage ->
-                decryptedMessage.data shouldBeEqualTo plainMessage.data
+                aliceClient.decryptMessage(CryptoSessionId(bob, CryptoClientId("doesntmatter")), encryptedMessage) { decryptedMessage ->
+                    decryptedMessage.data shouldBeEqualTo plainMessage.data
+                    Either.Right(Unit)
+                }.shouldSucceed { }
+
                 Either.Right(Unit)
-            }.shouldSucceed { }
-
-            Either.Right(Unit)
+            }
         }.shouldSucceed { }
     }
 
@@ -100,16 +104,21 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
         bobClient.assertSession(aliceSessionId, aliceKey)
 
         var firstMessage: EncryptedMessage? = null
-        bobClient.encryptMessage(aliceSessionId, PlainMessage("Opa, tudo bom guri?".toByteArray())) { encryptedMessage ->
-            firstMessage = encryptedMessage
-            Either.Right(Unit)
+        runBlocking {
+            bobClient.encryptMessage(aliceSessionId, PlainMessage("Opa, tudo bom guri?".toByteArray())) { encryptedMessage ->
+                firstMessage = encryptedMessage
+                Either.Right(Unit)
+            }
         }
 
         val bobSessionID = CryptoSessionId(bob, CryptoClientId("clientB"))
 
-        aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }.shouldSucceed { }
+        runBlocking {
+            aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }
+        }.shouldSucceed { }
 
-        aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }
-            .shouldFail { it shouldBeInstanceOf MessageAlreadyDecrypted::class }
+        runBlocking {
+            aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }
+        }.shouldFail { it shouldBeInstanceOf MessageAlreadyDecrypted::class }
     }
 }

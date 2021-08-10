@@ -9,7 +9,7 @@ class MessageEventsHandler(
     private val messageMapper: MessageMapper
 ) : EventsHandler<Event.Conversation.MessageEvent> {
     override suspend fun subscribe(event: Event.Conversation.MessageEvent) {
-        val message = messageMapper.fromMessageEventToMessage(event)
-        messageRepository.decryptMessage(message)
+        val message = messageMapper.fromMessageEventToEncryptedMessageEnvelope(event)
+        messageRepository.receiveEncryptedMessage(message)
     }
 }

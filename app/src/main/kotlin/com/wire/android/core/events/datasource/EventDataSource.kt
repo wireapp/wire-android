@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+//TODO missing unit test
 class EventDataSource(
     private val externalScope: CoroutineScope,
     private val notificationLocalDataSource: NotificationLocalDataSource,

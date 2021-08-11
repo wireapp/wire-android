@@ -44,7 +44,7 @@ class EventMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given eventFromPayload is called and payload type is new message, when payload data is not null, then return a valid message event`() {
+    fun `given eventFromPayload is called and type is new message, when payload data is not null, then return a valid message event`(){
         val data = mockk<Data>().also {
             every { it.sender } returns SENDER
             every { it.text } returns TEXT
@@ -79,5 +79,4 @@ class EventMapperTest : UnitTest() {
         private const val SENDER = "sender"
         private const val NEW_MESSAGE_TYPE = "conversation.otr-message-add"
     }
-
 }

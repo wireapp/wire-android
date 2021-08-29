@@ -15,6 +15,8 @@ import com.wire.android.feature.conversation.members.datasources.local.Conversat
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 import com.wire.android.shared.asset.datasources.local.AssetDao
 import com.wire.android.shared.asset.datasources.local.AssetEntity
+import com.wire.android.shared.notification.datasources.local.NotificationDao
+import com.wire.android.shared.notification.datasources.local.NotificationEntity
 
 @Database(
     entities = [ConversationEntity::class,
@@ -22,7 +24,9 @@ import com.wire.android.shared.asset.datasources.local.AssetEntity
         ConversationMemberEntity::class,
         AssetEntity::class,
         ClientEntity::class,
-        MessageEntity::class],
+        MessageEntity::class,
+        NotificationEntity::class
+    ],
     version = UserDatabase.VERSION
 )
 abstract class UserDatabase : RoomDatabase() {
@@ -40,6 +44,8 @@ abstract class UserDatabase : RoomDatabase() {
     abstract fun clientDao(): ClientDao
 
     abstract fun messageDao(): MessageDao
+
+    abstract fun notificationDao(): NotificationDao
 
     companion object {
         const val VERSION = 1

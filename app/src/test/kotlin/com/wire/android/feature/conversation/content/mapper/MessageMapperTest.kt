@@ -14,6 +14,7 @@ import com.wire.android.feature.conversation.content.datasources.local.MessageEn
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.Before
@@ -53,7 +54,8 @@ class MessageMapperTest : UnitTest() {
             type = TEST_MESSAGE_TYPE,
             content = TEST_MESSAGE_CONTENT_VALUE,
             state = TEST_MESSAGE_STATE,
-            time = TEST_MESSAGE_TIME
+            time = TEST_MESSAGE_TIME,
+            isRead = TEST_MESSAGE_IS_READ
         )
 
         val result = messageMapper.fromEntityToMessage(messageEntity)
@@ -64,9 +66,14 @@ class MessageMapperTest : UnitTest() {
             it.conversationId shouldBeEqualTo TEST_CONVERSATION_ID
             it.senderUserId shouldBeEqualTo TEST_SENDER_USER_ID
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT
+            it.isRead shouldBeEqualTo TEST_MESSAGE_IS_READ
             it.state shouldBeEqualTo Sent
             it.time shouldBeEqualTo expectedTimeOffset
         }
+        verify(exactly = 1) { messageContentMapper.fromStringToContent(TEST_MESSAGE_TYPE, TEST_MESSAGE_CONTENT_VALUE) }
+        verify(exactly = 1) { messageStateMapper.fromStringValue(TEST_MESSAGE_STATE) }
+        verify(exactly = 1) { dateStringMapper.fromStringToOffsetDateTime(TEST_MESSAGE_TIME) }
+
     }
 
     @Test
@@ -81,15 +88,14 @@ class MessageMapperTest : UnitTest() {
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
             senderUserId = TEST_SENDER_USER_ID,
-            clientId = null,
             content = TEST_MESSAGE_CONTENT,
+            isRead = TEST_MESSAGE_IS_READ,
+            clientId = null,
             state = Sent,
             time = timeOffset
         )
 
         val result = messageMapper.fromMessageToEntity(message)
-
-        // TODO Don't assert for mapped content. Instead, check if the `Content Mapper` was used
 
         result.let {
             it shouldBeInstanceOf MessageEntity::class
@@ -100,7 +106,13 @@ class MessageMapperTest : UnitTest() {
             it.content shouldBeEqualTo TEST_MESSAGE_CONTENT_VALUE
             it.state shouldBeEqualTo TEST_MESSAGE_STATE
             it.time shouldBeEqualTo TEST_MESSAGE_TIME
+            it.isRead shouldBeEqualTo TEST_MESSAGE_IS_READ
         }
+
+        verify(exactly = 1) { messageContentMapper.fromContentToString(TEST_MESSAGE_CONTENT) }
+        verify(exactly = 1) { messageContentMapper.fromContentToStringType(TEST_MESSAGE_CONTENT) }
+        verify(exactly = 1) { messageStateMapper.fromValueToString(Sent) }
+        verify(exactly = 1) { dateStringMapper.fromOffsetDateTimeToString(timeOffset) }
     }
 
     @Test
@@ -157,5 +169,6 @@ class MessageMapperTest : UnitTest() {
         private val TEST_MESSAGE_CONTENT = Content.Text(TEST_MESSAGE_CONTENT_VALUE)
         private const val TEST_MESSAGE_STATE = "sent"
         private const val TEST_MESSAGE_TIME = "2019-12-12T21:21:00Z+03:00"
+        private const val TEST_MESSAGE_IS_READ = true
     }
 }

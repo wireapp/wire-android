@@ -9,10 +9,13 @@ import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCaseParams
+import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationIdUseCase
+import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationUseCaseParams
 
 class ConversationViewModel(
     override val dispatcherProvider: DispatcherProvider,
-    private val getConversationUseCase: GetConversationUseCase
+    private val getConversationUseCase: GetConversationUseCase,
+    private val updateCurrentConversationIdUseCase: UpdateCurrentConversationIdUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _conversationIdLiveData: MutableLiveData<String> = MutableLiveData()
@@ -30,5 +33,10 @@ class ConversationViewModel(
         getConversationUseCase(viewModelScope, params) {
             _conversationMessagesLiveData.value = it
         }
+    }
+
+    fun updateCurrentConversationId(conversationId: String) {
+        val params = UpdateCurrentConversationUseCaseParams(conversationId = conversationId)
+        updateCurrentConversationIdUseCase(viewModelScope, params)
     }
 }

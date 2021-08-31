@@ -14,4 +14,8 @@ interface ConversationRepository {
     suspend fun updateConversations(conversations: List<Conversation>): Either<Failure, Unit>
 
     suspend fun numberOfConversations(): Either<Failure, Int>
+
+    suspend fun currentOpenedConversationId(): Either<Failure, String>
+
+    suspend fun updateCurrentConversationId(conversationId: String): Either<Failure, Unit>
 }

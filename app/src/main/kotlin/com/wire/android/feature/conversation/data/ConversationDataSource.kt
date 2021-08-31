@@ -60,6 +60,12 @@ class ConversationDataSource(
     override suspend fun numberOfConversations(): Either<Failure, Int> =
         conversationLocalDataSource.numberOfConversations()
 
+    override suspend fun currentOpenedConversationId(): Either<Failure, String> =
+        conversationLocalDataSource.currentOpenedConversationId()
+
+    override suspend fun updateCurrentConversationId(conversationId: String): Either<Failure, Unit> =
+        conversationLocalDataSource.updateCurrentConversationId(conversationId)
+
     companion object {
         private const val CONVERSATION_REQUEST_PAGE_SIZE = 100
     }

@@ -1,6 +1,7 @@
 package com.wire.android.feature.conversation.data.local
 
 import com.wire.android.UnitTest
+import com.wire.android.core.storage.cache.InMemoryCache
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 import com.wire.android.framework.functional.shouldFail
@@ -24,11 +25,14 @@ class ConversationLocalDataSourceTest : UnitTest() {
     @MockK
     private lateinit var conversationMembersDao: ConversationMembersDao
 
+    @MockK
+    private lateinit var inMemoryCache: InMemoryCache
+
     private lateinit var conversationLocalDataSource: ConversationLocalDataSource
 
     @Before
     fun setUp() {
-        conversationLocalDataSource = ConversationLocalDataSource(conversationDao, conversationMembersDao)
+        conversationLocalDataSource = ConversationLocalDataSource(conversationDao, conversationMembersDao, inMemoryCache)
     }
 
     @Test
@@ -161,4 +165,49 @@ class ConversationLocalDataSourceTest : UnitTest() {
         result shouldFail { }
         coVerify { conversationDao.count() }
     }
+
+    @Test
+    fun `given updateCurrentConversationId is called, when inMemoryCache returns the conversationId, then propagates the conversationId`() {
+        coEvery { inMemoryCache.currentOpenedConversationId() } returns CONVERSATION_ID
+
+        val result = runBlocking { conversationLocalDataSource.currentOpenedConversationId() }
+
+        result shouldSucceed { it shouldBeEqualTo  CONVERSATION_ID }
+        coVerify { inMemoryCache.currentOpenedConversationId() }
+    }
+
+    @Test
+    fun `given updateCurrentConversationId is called, when inMemoryCache fails, then propagates failure`() {
+        coEvery { inMemoryCache.currentOpenedConversationId() } throws SQLException()
+
+        val result = runBlocking { conversationLocalDataSource.currentOpenedConversationId() }
+
+        result shouldFail { }
+        coVerify { inMemoryCache.currentOpenedConversationId() }
+    }
+
+    @Test
+    fun `given updateCurrentConversationId is called, when inMemoryCache update is successful, then returns success`() {
+        coEvery { inMemoryCache.updateConversationId(CONVERSATION_ID) } returns Unit
+
+        val result = runBlocking { conversationLocalDataSource.updateCurrentConversationId(CONVERSATION_ID) }
+
+        result shouldSucceed { it shouldBe Unit }
+        coVerify { inMemoryCache.updateConversationId(CONVERSATION_ID) }
+    }
+
+    @Test
+    fun `given updateCurrentConversationId is called, when inMemoryCache update fails, then propagates failure`() {
+        coEvery { inMemoryCache.updateConversationId(CONVERSATION_ID)} throws NullPointerException()
+
+        val result = runBlocking { conversationLocalDataSource.updateCurrentConversationId(CONVERSATION_ID) }
+
+        result shouldFail { }
+        coVerify { inMemoryCache.updateConversationId(CONVERSATION_ID) }
+    }
+
+    companion object {
+        private const val CONVERSATION_ID = "2133215644868"
+    }
+
 }

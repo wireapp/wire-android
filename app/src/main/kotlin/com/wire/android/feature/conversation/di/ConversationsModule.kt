@@ -34,6 +34,7 @@ import com.wire.android.feature.conversation.list.ui.icon.ConversationIconProvid
 import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
 import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.feature.conversation.list.usecase.GetConversationMembersUseCase
+import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationIdUseCase
 import com.wire.android.shared.conversation.content.ConversationTimeGenerator
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
@@ -61,7 +62,7 @@ val conversationsModule = module {
     single { get<NetworkClient>().create(ConversationsApi::class.java) }
 
     factory { get<UserDatabase>().conversationDao() }
-    factory { ConversationLocalDataSource(get(), get()) }
+    factory { ConversationLocalDataSource(get(), get(), get()) }
 }
 
 val conversationListModule = module {
@@ -99,7 +100,8 @@ val conversationContentModule = module {
     factory<MessageRepository> { MessageDataSource(get(), get(), get(), get()) }
     single { ConversationNavigator() }
     factory { GetConversationUseCase(get()) }
-    viewModel { ConversationViewModel(get(), get()) }
+    viewModel { ConversationViewModel(get(), get(), get()) }
     factory { ConversationTimeGenerator(androidContext()) }
     factory { ConversationAdapter(get(), get(), get()) }
+    factory { UpdateCurrentConversationIdUseCase(get()) }
 }

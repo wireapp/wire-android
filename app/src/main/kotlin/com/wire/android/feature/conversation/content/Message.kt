@@ -9,9 +9,10 @@ data class Message(
     val clientId: String?,
     val content: Content,
     val state: MessageState,
-    val time: OffsetDateTime
+    val time: OffsetDateTime,
+    val isRead: Boolean
 )
 
-sealed class Content{
-    data class Text(val value: String): Content()
+sealed class Content {
+    data class Text(val value: String) : Content()
 }

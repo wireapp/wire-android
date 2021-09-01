@@ -32,7 +32,11 @@ class ConversationViewModelTest : UnitTest() {
 
     @Before
     fun setup() {
-        conversationViewModel = ConversationViewModel(coroutinesTestRule.dispatcherProvider, getConversationUseCase, updateCurrentConversationIdUseCase)
+        conversationViewModel = ConversationViewModel(
+            coroutinesTestRule.dispatcherProvider,
+            getConversationUseCase,
+            updateCurrentConversationIdUseCase
+        )
     }
 
     @Test

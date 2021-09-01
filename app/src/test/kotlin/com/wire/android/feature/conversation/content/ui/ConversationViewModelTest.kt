@@ -41,7 +41,6 @@ class ConversationViewModelTest : UnitTest() {
 
     @Test
     fun `given cacheConversationId is called, when conversationId is valid, then updates conversationIdLiveData`() {
-
         conversationViewModel.cacheConversationId(TEST_CONVERSATION_ID)
 
         conversationViewModel.conversationIdLiveData.shouldBeUpdated {
@@ -62,11 +61,9 @@ class ConversationViewModelTest : UnitTest() {
 
     @Test
     fun `given updateCurrentConversationId is called, when conversationId is valid, then updates run usecase`() {
-
         conversationViewModel.updateCurrentConversationId(TEST_CONVERSATION_ID)
 
         coVerify(exactly = 1) { updateCurrentConversationIdUseCase.run(any()) }
-
     }
 
     companion object {

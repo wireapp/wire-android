@@ -281,7 +281,7 @@ class ConversationDataSourceTest : UnitTest() {
 
         val result = runBlocking { conversationDataSource.currentOpenedConversationId() }
 
-        result shouldSucceed { it shouldBeEqualTo failure }
+        result shouldFail  { it shouldBeEqualTo failure }
     }
 
     @Test

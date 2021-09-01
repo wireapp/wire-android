@@ -46,7 +46,6 @@ class UpdateCurrentConversationIdUseCaseTest : UnitTest() {
 
         updateCurrentConversationIdUseCase.run(updateCurrentConversationUseCaseParams)
 
-        verify(inverse = true) { updateCurrentConversationUseCaseParams.conversationId }
         coVerify(exactly = 1) { conversationRepository.updateCurrentConversationId(any()) }
     }
 }

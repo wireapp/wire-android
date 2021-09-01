@@ -37,7 +37,8 @@ class MessageDaoTest : InstrumentationTest() {
         contactDao = userDatabase.contactDao()
         conversationDao = userDatabase.conversationDao()
 
-        conversationEntity = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
+        conversationEntity =
+            ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
         messageEntity = MessageEntity(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
@@ -101,6 +102,39 @@ class MessageDaoTest : InstrumentationTest() {
             result.first().size shouldBeEqualTo 0
         }
     }
+
+    @Test
+    fun givenUnreadMessagesByConversationIdAndBatch_messagesExistForGivenBatch_returnsMessagesItems() =
+        databaseTestRule.runTest {
+            val size = 5
+            val contact = ContactEntity(TEST_USER_ID, TEST_CONTACT_NAME, TEST_CONTACT_ASSET_KEY)
+            contactDao.insert(contact)
+            (1..10).map {
+                val message = MessageEntity(
+                    TEST_MESSAGE_ID + it,
+                    TEST_CONVERSATION_ID,
+                    TEST_USER_ID,
+                    TEST_MESSAGE_TYPE,
+                    TEST_MESSAGE_CONTENT,
+                    TEST_MESSAGE_STATE,
+                    TEST_MESSAGE_TIME,
+                    it % 2 == 0
+                )
+                messageDao.insert(message)
+            }
+
+            val items = messageDao.unreadMessagesByConversationIdAndBatch(TEST_CONVERSATION_ID, size)
+
+            items.size shouldBeEqualTo size
+        }
+
+    @Test
+    fun givenUnreadMessagesByConversationIdAndBatch_noMessagesExistForGivenBatch_returnsZeroItems() =
+        databaseTestRule.runTest {
+            val items = messageDao.unreadMessagesByConversationIdAndBatch(TEST_CONVERSATION_ID, 10)
+
+            items.isEmpty() shouldBeEqualTo true
+        }
 
     companion object {
         private const val TEST_CONVERSATION_ID = "conversation-id"

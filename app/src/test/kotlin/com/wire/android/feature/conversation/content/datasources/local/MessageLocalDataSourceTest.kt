@@ -1,6 +1,8 @@
 package com.wire.android.feature.conversation.content.datasources.local
 
 import com.wire.android.UnitTest
+import com.wire.android.feature.conversation.content.Message
+import com.wire.android.feature.conversation.content.ui.CombinedMessageContact
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery
@@ -10,6 +12,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import org.amshove.kluent.any
+import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
@@ -81,4 +85,29 @@ class MessageLocalDataSourceTest : UnitTest() {
             }
         }
     }
+
+    @Test
+    fun `given unreadMessagesByConversationIdAndBatch is called, when dao operation fails, then returns failure`() {
+        coEvery { messageDao.unreadMessagesByConversationIdAndBatch(any(), any()) } throws SQLException()
+
+        val result = runBlocking { messageLocalDataSource.unreadMessagesByConversationIdAndBatch(any(), any()) }
+
+        result shouldFail { }
+        coVerify(exactly = 1) { messageDao.unreadMessagesByConversationIdAndBatch(any(), any()) }
+    }
+
+    @Test
+    fun `given unreadMessagesByConversationIdAndBatch is called, when dao operation returns messages, then returns the list of messages`() {
+        val combinedMessageContactEntity1 = mockk<CombinedMessageContactEntity>()
+        val combinedMessageContactEntity2 = mockk<CombinedMessageContactEntity>()
+        val messages = listOf(combinedMessageContactEntity1, combinedMessageContactEntity2)
+        coEvery { messageDao.unreadMessagesByConversationIdAndBatch(any(), any()) } returns messages
+
+        val result = runBlocking { messageLocalDataSource.unreadMessagesByConversationIdAndBatch(any(), any()) }
+
+        result shouldSucceed {
+            it.size shouldBeEqualTo 2
+        }
+    }
+
 }

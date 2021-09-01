@@ -7,6 +7,7 @@ import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.exception.Failure
+import com.wire.android.core.exception.NoEntityFound
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.contact.datasources.local.ContactEntity
@@ -17,17 +18,14 @@ import com.wire.android.feature.conversation.content.datasources.local.CombinedM
 import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.every
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.slot
-import io.mockk.verify
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import org.amshove.kluent.any
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
@@ -134,6 +132,44 @@ class MessageDataSourceTest : UnitTest() {
             }
         }
     }
+
+    @Test
+    fun `given notificationMessages is called, when localdatasource returns failure, then returns the failure`() {
+        coEvery { messageLocalDataSource.unreadMessagesByConversationIdAndBatch(any(), any()) } returns Either.Left(NoEntityFound)
+
+        val result = runBlocking { messageDataSource.notificationMessages(any()) }
+
+        result shouldFail { }
+        coVerify(exactly = 1) { messageLocalDataSource.unreadMessagesByConversationIdAndBatch(any(), any()) }
+    }
+
+    @Test
+    fun `given notificationMessages is called, when localdatasource returns entities, then maps the return and return the result`() {
+        val contactEntity = mockk<ContactEntity>()
+        val messageEntity = mockk<MessageEntity>()
+        val combinedMessageContactEntity = mockk<CombinedMessageContactEntity>().also {
+            every { it.messageEntity } returns messageEntity
+            every { it.contactEntity } returns contactEntity
+        }
+        val message = mockk<Message>()
+        val contact = mockk<Contact>()
+        every { messageMapper.fromEntityToMessage(messageEntity) } returns message
+        every { contactMapper.fromContactEntity(contactEntity) } returns contact
+        coEvery {
+            messageLocalDataSource.unreadMessagesByConversationIdAndBatch(
+                any(),
+                any()
+            )
+        } returns Either.Right(listOf(combinedMessageContactEntity))
+
+        val result = runBlocking { messageDataSource.notificationMessages(any()) }
+
+        result shouldSucceed {
+            it[0].message shouldBeEqualTo message
+            it[0].contact shouldBeEqualTo contact
+        }
+    }
+
 
     companion object {
         private const val TEST_CLIENT_ID = "client-id"

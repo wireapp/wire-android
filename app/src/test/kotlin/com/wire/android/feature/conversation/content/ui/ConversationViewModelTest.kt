@@ -2,6 +2,7 @@ package com.wire.android.feature.conversation.content.ui
 
 import com.wire.android.UnitTest
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
+import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationIdUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
 import io.mockk.coEvery
@@ -24,11 +25,14 @@ class ConversationViewModelTest : UnitTest() {
     @MockK
     private lateinit var getConversationUseCase: GetConversationUseCase
 
+    @MockK
+    private lateinit var updateCurrentConversationIdUseCase: UpdateCurrentConversationIdUseCase
+
     private lateinit var conversationViewModel: ConversationViewModel
 
     @Before
     fun setup() {
-        conversationViewModel = ConversationViewModel(coroutinesTestRule.dispatcherProvider, getConversationUseCase)
+        conversationViewModel = ConversationViewModel(coroutinesTestRule.dispatcherProvider, getConversationUseCase, updateCurrentConversationIdUseCase)
     }
 
     @Test
@@ -50,6 +54,15 @@ class ConversationViewModelTest : UnitTest() {
 
         conversationViewModel.conversationMessagesLiveData.shouldBeUpdated { it shouldBeEqualTo items }
         coVerify(exactly = 1) { getConversationUseCase.run(any()) }
+    }
+
+    @Test
+    fun `given updateCurrentConversationId is called, when conversationId is valid, then updates run usecase`() {
+
+        conversationViewModel.updateCurrentConversationId(TEST_CONVERSATION_ID)
+
+        coVerify(exactly = 1) { updateCurrentConversationIdUseCase.run(any()) }
+
     }
 
     companion object {

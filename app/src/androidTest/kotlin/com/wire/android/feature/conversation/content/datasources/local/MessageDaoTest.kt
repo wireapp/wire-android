@@ -45,7 +45,8 @@ class MessageDaoTest : InstrumentationTest() {
             type = TEST_MESSAGE_TYPE,
             content = TEST_MESSAGE_CONTENT,
             state = TEST_MESSAGE_STATE,
-            time = TEST_MESSAGE_TIME
+            time = TEST_MESSAGE_TIME,
+            isRead = TEST_IS_READ
         )
         contactEntity = ContactEntity(TEST_USER_ID, TEST_CONTACT_NAME, TEST_CONTACT_ASSET_KEY)
 
@@ -111,6 +112,7 @@ class MessageDaoTest : InstrumentationTest() {
         private const val TEST_MESSAGE_CONTENT = "message-content"
         private const val TEST_MESSAGE_STATE = "message-state"
         private const val TEST_MESSAGE_TIME = "message-time"
+        private const val TEST_IS_READ = true
         private const val TEST_CONTACT_NAME = "contact-name"
         private const val TEST_CONTACT_ASSET_KEY = "contact-asset-key"
     }

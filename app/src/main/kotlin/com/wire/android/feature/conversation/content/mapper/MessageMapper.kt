@@ -28,7 +28,8 @@ class MessageMapper(
             clientId = null,
             content = messageContent,
             state = messageState,
-            time = dateStringMapper.fromStringToOffsetDateTime(time)
+            time = dateStringMapper.fromStringToOffsetDateTime(time),
+            isRead = isRead
         )
     }
 
@@ -43,7 +44,8 @@ class MessageMapper(
             messageType,
             messageContent,
             messageState,
-            dateStringMapper.fromOffsetDateTimeToString(time)
+            dateStringMapper.fromOffsetDateTimeToString(time),
+            isRead
         )
     }
 
@@ -54,7 +56,8 @@ class MessageMapper(
         encryptedEnvelope.clientId,
         messageContentMapper.fromProtobufData(plainMessage.data),
         Sent,
-        encryptedEnvelope.time
+        encryptedEnvelope.time,
+        false
     )
 
     fun fromMessageEventToEncryptedMessageEnvelope(event: Event.Conversation.MessageEvent) =

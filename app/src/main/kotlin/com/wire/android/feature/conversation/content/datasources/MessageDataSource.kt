@@ -64,6 +64,6 @@ class MessageDataSource(
         }
 
     companion object {
-        private const val MESSAGES_SIZE = 15
+        private const val MESSAGES_SIZE = 10
     }
 }

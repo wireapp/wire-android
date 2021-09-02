@@ -20,8 +20,14 @@ import com.wire.android.feature.conversation.content.datasources.local.MessageLo
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import io.mockk.*
 import io.mockk.impl.annotations.MockK
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.coVerify
+import io.mockk.mockkStatic
+import io.mockk.slot
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking

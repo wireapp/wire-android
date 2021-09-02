@@ -97,7 +97,7 @@ class MessageLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given dao operation returns messages, when getting unread message by conversationId and by batch, then returns the list of messages`() {
+    fun `given dao operation returns messages, when getting unread message by conversationId and by batch, then returns messages`() {
         val combinedMessageContactEntity1 = mockk<CombinedMessageContactEntity>()
         val combinedMessageContactEntity2 = mockk<CombinedMessageContactEntity>()
         val messages = listOf(combinedMessageContactEntity1, combinedMessageContactEntity2)

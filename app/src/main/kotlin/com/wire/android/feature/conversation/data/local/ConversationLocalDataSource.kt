@@ -3,7 +3,6 @@ package com.wire.android.feature.conversation.data.local
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.storage.cache.CacheService
-import com.wire.android.core.storage.cache.InMemoryCache
 import com.wire.android.core.storage.db.DatabaseService
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
@@ -11,7 +10,7 @@ import com.wire.android.feature.conversation.members.datasources.local.Conversat
 class ConversationLocalDataSource(
     private val conversationDao: ConversationDao,
     private val conversationMembersDao: ConversationMembersDao,
-    private val inMemoryCache: InMemoryCache
+    private val conversationCache: ConversationCache
 ) : DatabaseService, CacheService {
 
     suspend fun saveConversations(conversations: List<ConversationEntity>): Either<Failure, Unit> = request {
@@ -37,10 +36,10 @@ class ConversationLocalDataSource(
     suspend fun numberOfConversations(): Either<Failure, Int> = request { conversationDao.count() }
 
     suspend fun currentOpenedConversationId(): Either<Failure, String> = requestCache {
-        inMemoryCache.currentOpenedConversationId()
+        conversationCache.currentOpenedConversationId()
     }
 
     suspend fun updateCurrentConversationId(conversationId: String) : Either<Failure, Unit> = requestCache {
-        inMemoryCache.updateConversationId(conversationId)
+        conversationCache.updateConversationId(conversationId)
     }
 }

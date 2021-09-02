@@ -1,8 +1,8 @@
-package com.wire.android.core.storage.cache
+package com.wire.android.feature.conversation.data.local
 
 import com.wire.android.core.extension.EMPTY
 
-class InMemoryCache {
+class ConversationCache {
 
     private var currentOpenedConversationId = String.EMPTY
 

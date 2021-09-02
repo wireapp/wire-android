@@ -1,7 +1,6 @@
 package com.wire.android.feature.conversation.data.local
 
 import com.wire.android.UnitTest
-import com.wire.android.core.storage.cache.InMemoryCache
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 import com.wire.android.framework.functional.shouldFail
@@ -28,13 +27,13 @@ class ConversationLocalDataSourceTest : UnitTest() {
     private lateinit var conversationMembersDao: ConversationMembersDao
 
     @MockK
-    private lateinit var inMemoryCache: InMemoryCache
+    private lateinit var conversationCache: ConversationCache
 
     private lateinit var conversationLocalDataSource: ConversationLocalDataSource
 
     @Before
     fun setUp() {
-        conversationLocalDataSource = ConversationLocalDataSource(conversationDao, conversationMembersDao, inMemoryCache)
+        conversationLocalDataSource = ConversationLocalDataSource(conversationDao, conversationMembersDao, conversationCache)
     }
 
     @Test
@@ -169,23 +168,23 @@ class ConversationLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given currentOpenedConversationId is called, when inMemoryCache returns the conversationId, then propagates the conversationId`() {
-        every { inMemoryCache.currentOpenedConversationId() } returns CONVERSATION_ID
+    fun `given conversationCache returns the conversationId, when getting current conversationId, then propagates the conversationId`() {
+        every { conversationCache.currentOpenedConversationId() } returns CONVERSATION_ID
 
         val result = runBlocking { conversationLocalDataSource.currentOpenedConversationId() }
 
         result shouldSucceed { it shouldBeEqualTo  CONVERSATION_ID }
-        verify { inMemoryCache.currentOpenedConversationId() }
+        verify { conversationCache.currentOpenedConversationId() }
     }
 
     @Test
-    fun `given updateCurrentConversationId is called, when inMemoryCache update is successful, then returns success`() {
-        every { inMemoryCache.updateConversationId(CONVERSATION_ID) } returns Unit
+    fun `given conversationCache update is successful, when updating current conversationId, then returns success`() {
+        every { conversationCache.updateConversationId(CONVERSATION_ID) } returns Unit
 
         val result = runBlocking { conversationLocalDataSource.updateCurrentConversationId(CONVERSATION_ID) }
 
         result shouldSucceed { it shouldBe Unit }
-        verify { inMemoryCache.updateConversationId(CONVERSATION_ID) }
+        verify { conversationCache.updateConversationId(CONVERSATION_ID) }
     }
 
     companion object {

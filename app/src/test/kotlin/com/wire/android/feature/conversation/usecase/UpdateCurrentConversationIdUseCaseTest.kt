@@ -1,7 +1,7 @@
 package com.wire.android.feature.conversation.usecase
 
 import com.wire.android.UnitTest
-import com.wire.android.core.exception.CacheFailure
+import com.wire.android.core.exception.EmptyCacheFailure
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.data.ConversationRepository
 import io.mockk.coEvery
@@ -30,7 +30,7 @@ class UpdateCurrentConversationIdUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when repository succeeds, then update the current conversation id`() = runBlocking {
+    fun `given repository succeeds, when updating current conversationId, then update the current conversation id`() = runBlocking {
         every { updateCurrentConversationUseCaseParams.conversationId } returns "conversation-id"
         coEvery { conversationRepository.updateCurrentConversationId(any()) } returns Either.Right(Unit)
 
@@ -41,8 +41,8 @@ class UpdateCurrentConversationIdUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when repository fails, then do not update the current conversation id`() = runBlocking {
-        coEvery { conversationRepository.updateCurrentConversationId(any()) } returns Either.Left(CacheFailure)
+    fun `given repository fails, when updating current conversationId, then do not update the current conversation id`() = runBlocking {
+        coEvery { conversationRepository.updateCurrentConversationId(any()) } returns Either.Left(EmptyCacheFailure)
 
         updateCurrentConversationIdUseCase.run(updateCurrentConversationUseCaseParams)
 

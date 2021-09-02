@@ -2,6 +2,7 @@ package com.wire.android.feature.conversation.di
 
 import com.wire.android.R
 import com.wire.android.core.network.NetworkClient
+import com.wire.android.feature.conversation.data.local.ConversationCache
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.core.ui.navigation.FragmentContainerProvider
 import com.wire.android.feature.conversation.content.MessageRepository
@@ -104,4 +105,5 @@ val conversationContentModule = module {
     factory { ConversationTimeGenerator(androidContext()) }
     factory { ConversationAdapter(get(), get(), get()) }
     factory { UpdateCurrentConversationIdUseCase(get()) }
+    single { ConversationCache() }
 }

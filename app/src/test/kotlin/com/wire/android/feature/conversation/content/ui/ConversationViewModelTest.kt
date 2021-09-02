@@ -60,7 +60,7 @@ class ConversationViewModelTest : UnitTest() {
     }
 
     @Test
-    fun `given updateCurrentConversationId is called, when conversationId is valid, then updates run usecase`() {
+    fun `given conversationId is valid, when updating current conversationId, then updates run usecase`() {
         conversationViewModel.updateCurrentConversationId(TEST_CONVERSATION_ID)
 
         coVerify(exactly = 1) { updateCurrentConversationIdUseCase.run(any()) }

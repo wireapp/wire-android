@@ -1,7 +1,7 @@
 package com.wire.android.feature.conversation.data
 
 import com.wire.android.UnitTest
-import com.wire.android.core.exception.CacheFailure
+import com.wire.android.core.exception.EmptyCacheFailure
 import com.wire.android.core.exception.DatabaseFailure
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
@@ -266,7 +266,7 @@ class ConversationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given currentOpenedConversationId is called, when localDataSource is successful, then returns the current conversation id`() {
+    fun `given localDataSource is successful, when getting current conversationId, then returns the current conversation id`() {
         coEvery { conversationLocalDataSource.currentOpenedConversationId() } returns Either.Right(TEST_CONVERSATION_ID)
 
         val result = runBlocking { conversationDataSource.currentOpenedConversationId() }
@@ -275,8 +275,8 @@ class ConversationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given currentOpenedConversationId is called, when localDataSource returns failure, then returns failure`() {
-        val failure = CacheFailure
+    fun `given localDataSource returns failure, when getting current conversationId, then returns failure`() {
+        val failure = EmptyCacheFailure
         coEvery { conversationLocalDataSource.currentOpenedConversationId() } returns Either.Left(failure)
 
         val result = runBlocking { conversationDataSource.currentOpenedConversationId() }
@@ -285,7 +285,7 @@ class ConversationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given updateCurrentConversationId is called, when localDataSource updates successfully, then propagates success`() {
+    fun `given localDataSource updates successfully, when updating current conversationId, then propagates success`() {
         coEvery { conversationLocalDataSource.updateConversations(any()) } returns Either.Right(Unit)
 
         val result = runBlocking { conversationDataSource.updateCurrentConversationId(TEST_CONVERSATION_ID) }
@@ -294,7 +294,7 @@ class ConversationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given updateCurrentConversationId is called, when localDataSource fails to update, then propagates failure`() {
+    fun `given localDataSource fails to update, when updating current conversationId, then propagates failure`() {
         val failure = mockk<Failure>()
         coEvery { conversationLocalDataSource.updateConversations(any()) } returns Either.Left(failure)
 

@@ -38,7 +38,7 @@ object MessageAlreadyDecrypted : CryptoBoxFailure()
 class UnknownCryptoFailure(val cause: Throwable? = null) : CryptoBoxFailure()
 
 sealed class CacheRequestFailure : Failure()
-object CacheFailure : CacheRequestFailure()
+object EmptyCacheFailure : CacheRequestFailure()
 
 /** Extend this class for UseCase specific failures.*/
 abstract class FeatureFailure : Failure()

@@ -104,7 +104,7 @@ class MessageDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun givenUnreadMessagesByConversationIdAndBatch_messagesExistForGivenBatch_returnsMessagesItems() =
+    fun givenMessagesExistForGivenBatch_whenGettingUnreadMessagesByConversationIdAndByBatch_returnsMessagesItems() =
         databaseTestRule.runTest {
             val size = 5
             val contact = ContactEntity(TEST_USER_ID, TEST_CONTACT_NAME, TEST_CONTACT_ASSET_KEY)
@@ -129,7 +129,7 @@ class MessageDaoTest : InstrumentationTest() {
         }
 
     @Test
-    fun givenUnreadMessagesByConversationIdAndBatch_noMessagesExistForGivenBatch_returnsZeroItems() =
+    fun givenNoMessagesExistForGivenBatch_whenGettingUnreadMessagesByConversationIdAndByBatch_returnsZeroItems() =
         databaseTestRule.runTest {
             val items = messageDao.unreadMessagesByConversationIdAndBatch(TEST_CONVERSATION_ID, 10)
 

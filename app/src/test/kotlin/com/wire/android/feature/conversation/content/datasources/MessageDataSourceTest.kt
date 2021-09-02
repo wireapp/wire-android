@@ -140,7 +140,7 @@ class MessageDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given notificationMessages is called, when localdatasource returns failure, then returns the failure`() {
+    fun `given localdatasource returns failure, when getting notification messages, then returns the failure`() {
         coEvery { messageLocalDataSource.unreadMessagesByConversationIdAndBatch(any(), any()) } returns Either.Left(NoEntityFound)
 
         val result = runBlocking { messageDataSource.notificationMessages(any()) }
@@ -150,7 +150,7 @@ class MessageDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given notificationMessages is called, when localdatasource returns entities, then maps the return and return the result`() {
+    fun `given localdatasource returns entities, when getting notification messages, then maps the return and return the result`() {
         val contactEntity = mockk<ContactEntity>()
         val messageEntity = mockk<MessageEntity>()
         val combinedMessageContactEntity = mockk<CombinedMessageContactEntity>().also {

@@ -87,7 +87,7 @@ class MessageLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given unreadMessagesByConversationIdAndBatch is called, when dao operation fails, then returns failure`() {
+    fun `given dao operation fails, when when getting unread message by conversationId and by batch, then returns failure`() {
         coEvery { messageDao.unreadMessagesByConversationIdAndBatch(any(), any()) } throws SQLException()
 
         val result = runBlocking { messageLocalDataSource.unreadMessagesByConversationIdAndBatch(any(), any()) }
@@ -97,7 +97,7 @@ class MessageLocalDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given unreadMessagesByConversationIdAndBatch is called, when dao operation returns messages, then returns the list of messages`() {
+    fun `given dao operation returns messages, when getting unread message by conversationId and by batch, then returns the list of messages`() {
         val combinedMessageContactEntity1 = mockk<CombinedMessageContactEntity>()
         val combinedMessageContactEntity2 = mockk<CombinedMessageContactEntity>()
         val messages = listOf(combinedMessageContactEntity1, combinedMessageContactEntity2)

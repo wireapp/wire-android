@@ -38,8 +38,7 @@ class MessageDaoTest : InstrumentationTest() {
         contactDao = userDatabase.contactDao()
         conversationDao = userDatabase.conversationDao()
 
-        conversationEntity =
-            ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
+        conversationEntity = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
         messageEntity = MessageEntity(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,

@@ -140,17 +140,17 @@ class MessageDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given localdatasource returns failure, when getting notification messages, then returns the failure`() {
-        coEvery { messageLocalDataSource.unreadMessagesByConversationIdAndBatch(any(), any()) } returns Either.Left(NoEntityFound)
+    fun `given localdatasource returns failure, when getting latest unread messages, then returns the failure`() {
+        coEvery { messageLocalDataSource.latestUnreadMessagesByConversationId(any(), any()) } returns Either.Left(NoEntityFound)
 
-        val result = runBlocking { messageDataSource.notificationMessages(any()) }
+        val result = runBlocking { messageDataSource.latestUnreadMessages(any()) }
 
         result shouldFail { }
-        coVerify(exactly = 1) { messageLocalDataSource.unreadMessagesByConversationIdAndBatch(any(), any()) }
+        coVerify(exactly = 1) { messageLocalDataSource.latestUnreadMessagesByConversationId(any(), any()) }
     }
 
     @Test
-    fun `given localdatasource returns entities, when getting notification messages, then maps the return and return the result`() {
+    fun `given localdatasource returns entities, when getting latest unread messages, then maps the return and return the result`() {
         val contactEntity = mockk<ContactEntity>()
         val messageEntity = mockk<MessageEntity>()
         val combinedMessageContactEntity = mockk<CombinedMessageContactEntity>().also {
@@ -161,14 +161,10 @@ class MessageDataSourceTest : UnitTest() {
         val contact = mockk<Contact>()
         every { messageMapper.fromEntityToMessage(messageEntity) } returns message
         every { contactMapper.fromContactEntity(contactEntity) } returns contact
-        coEvery {
-            messageLocalDataSource.unreadMessagesByConversationIdAndBatch(
-                any(),
-                any()
-            )
+        coEvery { messageLocalDataSource.latestUnreadMessagesByConversationId(any(), any())
         } returns Either.Right(listOf(combinedMessageContactEntity))
 
-        val result = runBlocking { messageDataSource.notificationMessages(any()) }
+        val result = runBlocking { messageDataSource.latestUnreadMessages(any()) }
 
         result shouldSucceed {
             it[0].message shouldBeEqualTo message

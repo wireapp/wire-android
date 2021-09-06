@@ -53,8 +53,8 @@ class MessageDataSource(
             }
         }
 
-    override suspend fun notificationMessages(conversationId: String): Either<Failure, List<CombinedMessageContact>> =
-        messageLocalDataSource.unreadMessagesByConversationIdAndBatch(conversationId, MESSAGES_SIZE).map { messagesWithContact ->
+    override suspend fun latestUnreadMessages(conversationId: String): Either<Failure, List<CombinedMessageContact>> =
+        messageLocalDataSource.latestUnreadMessagesByConversationId(conversationId, MESSAGES_SIZE).map { messagesWithContact ->
             messagesWithContact.map {
                 CombinedMessageContact(
                     messageMapper.fromEntityToMessage(it.messageEntity),

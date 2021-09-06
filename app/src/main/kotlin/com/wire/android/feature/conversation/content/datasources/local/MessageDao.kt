@@ -15,6 +15,6 @@ interface MessageDao {
     @Query("SELECT * from message where conversation_id = :conversationId")
     fun messagesByConversationId(conversationId: String): Flow<List<CombinedMessageContactEntity>>
 
-    @Query("SELECT * FROM message where conversation_id = :conversationId AND is_read = 0 LIMIT :size")
-    suspend fun unreadMessagesByConversationIdAndBatch(conversationId: String, size: Int): List<CombinedMessageContactEntity>
+    @Query("SELECT * FROM message where conversation_id = :conversationId AND is_read = 0 ORDER BY time DESC LIMIT :size")
+    suspend fun latestUnreadMessagesByConversationId(conversationId: String, size: Int): List<CombinedMessageContactEntity>
 }

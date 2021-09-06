@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wire.android.R
+import com.wire.android.core.extension.EMPTY
 import kotlinx.android.synthetic.main.fragment_conversation.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.sharedViewModel
@@ -25,6 +26,7 @@ class ConversationFragment : Fragment(R.layout.fragment_conversation) {
     private fun observeConversationId() {
         viewModel.conversationIdLiveData.observe(viewLifecycleOwner) {
             viewModel.fetchMessages(it)
+            viewModel.updateCurrentConversationId(it)
         }
     }
 
@@ -39,5 +41,10 @@ class ConversationFragment : Fragment(R.layout.fragment_conversation) {
             conversationRecyclerView.scrollToPosition(it.size - 1)
             conversationAdapter.submitList(it)
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.updateCurrentConversationId(String.EMPTY)
     }
 }

@@ -91,7 +91,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given websocket emits events, when list of payloads is null, then emit null`() {
+    fun `given payloads are null, when the websocket emits events, then emit null`() {
         val eventResponse = mockk<EventResponse>().also {
             every { it.payload } returns null
         }
@@ -106,7 +106,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given websocket emits events, when list of payloads is empty, then emit empty list`() {
+    fun `given the list of empty payloads, when the websocket emits events, then emit null`() {
         val eventResponse = mockk<EventResponse>().also {
             every { it.payload } returns listOf()
         }
@@ -122,7 +122,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given websocket emits events, when payload is not empty, then emit mapped events`() {
+    fun `given a message payload, when the websocket emits events, then emit the mapped message event`() {
         val eventId = "event-id"
         val message = mockk<Event.Conversation.MessageEvent>()
         val data = mockk<Data>()
@@ -146,7 +146,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given notificationsFlow is called, when api response fails, then emit empty list`() {
+    fun `given an API failure response, when collecting notificationsFlow, then an empty list is emitted`() {
         every { webSocketService.observeWebSocketEvent() } returns flowOf(WebSocket.Event.OnConnectionOpened(webSocket))
             .shareIn(testScope, SharingStarted.WhileSubscribed(), 1)
         coEvery { notificationApi.notificationsByBatch(any(), any(), any()) } returns mockErrorResponse(400)
@@ -156,8 +156,9 @@ class NotificationRemoteDataSourceTest : UnitTest() {
             result.first().size shouldBeEqualTo 0
         }
     }
+
     @Test
-    fun `given notificationsFlow is called, when api returns an empty notification list, then emit empty list`() {
+    fun `given an API empty notification list response, when collecting notificationsFlow, then an empty list is emitted`() {
         val response = mockSuccessResponse().also {
             every { it.body()?.notifications } returns listOf()
         }
@@ -171,7 +172,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given notificationsFlow is called, when api returns a null payload, then emit empty list`() {
+    fun `given an API null payload response, when collecting notificationsFlow, then an empty list is emitted`() {
         val response = mockSuccessResponse().also {
             every { it.body()?.notifications } returns listOf(notificationResponse)
         }
@@ -186,7 +187,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given notificationsFlow is called, when api returns returns an empty payload list, then emit empty list`() {
+    fun `given an API empty payload list response, when collecting notificationsFlow, then an empty list is emitted`() {
         val response = mockSuccessResponse().also {
             every { it.body()?.notifications } returns listOf(notificationResponse)
         }
@@ -201,7 +202,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given notificationsFlow is called, when api returns a valid payload, then emit mapped list of events`() {
+    fun `given an API payload response, when collecting notificationsFlow, then a mapped list of events is emitted`() {
         val notificationId = "notification-id"
         val event = mockk<Event.Conversation.MessageEvent>()
         val payload = mockk<Payload>()

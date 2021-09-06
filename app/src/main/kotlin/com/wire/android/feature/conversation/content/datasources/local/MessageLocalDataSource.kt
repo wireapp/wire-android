@@ -10,4 +10,8 @@ class MessageLocalDataSource(private val messageDao: MessageDao) : DatabaseServi
 
     fun messagesByConversationId(conversationId: String): Flow<List<CombinedMessageContactEntity>> =
         messageDao.messagesByConversationId(conversationId)
+
+    suspend fun latestUnreadMessagesByConversationId(conversationId: String, size: Int) = request {
+        messageDao.latestUnreadMessagesByConversationId(conversationId, size)
+    }
 }

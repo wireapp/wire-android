@@ -1,5 +1,6 @@
 package com.wire.android.feature.conversation.content.datasources.local
 
+import android.util.Log
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.feature.contact.datasources.local.ContactDao
@@ -102,6 +103,42 @@ class MessageDaoTest : InstrumentationTest() {
         }
     }
 
+    @Test
+    fun givenMessagesExistForGivenBatch_whenGettingLatestUnreadMessagesByConversationId_returnsOrderedMessagesItems() =
+        databaseTestRule.runTest {
+            val size = 5
+            val contact = ContactEntity(TEST_USER_ID, TEST_CONTACT_NAME, TEST_CONTACT_ASSET_KEY)
+            contactDao.insert(contact)
+            (1..10).map {
+                val message = MessageEntity(
+                    TEST_MESSAGE_ID + it,
+                    TEST_CONVERSATION_ID,
+                    TEST_USER_ID,
+                    TEST_MESSAGE_TYPE,
+                    TEST_MESSAGE_CONTENT,
+                    TEST_MESSAGE_STATE,
+                    TEST_MESSAGE_TIME+it,
+                    it % 2 == 0
+                )
+                messageDao.insert(message)
+            }
+
+            val items = messageDao.latestUnreadMessagesByConversationId(TEST_CONVERSATION_ID, size)
+
+            items.size shouldBeEqualTo size
+            for((i, j) in (9 downTo 1 step 2).withIndex()) {
+                items[i].messageEntity.time shouldBeEqualTo TEST_MESSAGE_TIME+j
+            }
+        }
+
+    @Test
+    fun givenNoMessagesExistForGivenBatch_whenGettingLatestUnreadMessagesByConversationId_returnsZeroItems() =
+        databaseTestRule.runTest {
+            val items = messageDao.latestUnreadMessagesByConversationId(TEST_CONVERSATION_ID, 10)
+
+            items.isEmpty() shouldBeEqualTo true
+        }
+
     companion object {
         private const val TEST_CONVERSATION_ID = "conversation-id"
         private const val TEST_USER_ID = "user-id"
@@ -111,7 +148,7 @@ class MessageDaoTest : InstrumentationTest() {
         private const val TEST_MESSAGE_TYPE = "message-type"
         private const val TEST_MESSAGE_CONTENT = "message-content"
         private const val TEST_MESSAGE_STATE = "message-state"
-        private const val TEST_MESSAGE_TIME = "message-time"
+        private const val TEST_MESSAGE_TIME = "1630939712"
         private const val TEST_IS_READ = true
         private const val TEST_CONTACT_NAME = "contact-name"
         private const val TEST_CONTACT_ASSET_KEY = "contact-asset-key"

@@ -32,7 +32,7 @@ val eventModule = module {
         return scarlet.create()
     }
     //TODO hardcoded client to be replaced with current clientId
-    single { WebSocketConfig("82317e19fdc80b7d") }
+    single { WebSocketConfig("7896ffbb78c95f34") }
     single {
         provideWebSocketService(
             get(),
@@ -42,7 +42,7 @@ val eventModule = module {
     }
     single { get<NetworkClient>().create(NotificationApi::class.java) }
     single { NotificationRemoteDataSource(get(), get()) }
-    single<EventsHandler<Event.Conversation.MessageEvent>> { MessageEventsHandler(get(), get()) }
+    single<EventsHandler<Event.Conversation.MessageEvent>> { MessageEventsHandler(get(), get(), get(), get(), get(), get()) }
     single<EventRepository> { EventDataSource(get()) }
     single { ListenToEventsUseCase(get(), get()) }
 }

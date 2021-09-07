@@ -29,8 +29,8 @@ class SessionDataSource(
     override suspend fun currentSession(): Either<Failure, Session> = localDataSource.currentSession()
         .map { mapper.fromSessionEntity(it) }
 
-    override suspend fun setCurrentClientId(clientId: String): Either<Failure, Unit> = suspending {
-        localDataSource.setCurrentClientId(clientId)
+    override suspend fun setClientIdToUser(userId: String, clientId: String): Either<Failure, Unit> = suspending {
+        localDataSource.setClientIdToUser(userId, clientId)
     }
 
     override suspend fun currentClientId(): Either<Failure, String> {

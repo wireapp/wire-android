@@ -113,7 +113,7 @@ class RegisterClientUseCaseTest : UnitTest() {
     fun `given use case is run, when registerNewClient runs successfully, then return valid Unit`() {
         coEvery { sessionRepository.userSession(USER_ID) } returns Either.Right(session)
         coEvery { authenticationManager.authorizationToken(session) } returns AUTHORIZATION_TOKEN
-        coEvery { sessionRepository.setCurrentClientId(CLIENT_ID) } returns Either.Right(Unit)
+        coEvery { sessionRepository.setClientIdToUser(CLIENT_ID) } returns Either.Right(Unit)
         coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Right(CLIENT_ID)
 
         val response = runBlocking { registerClientUseCase.run(registerClientParams) }

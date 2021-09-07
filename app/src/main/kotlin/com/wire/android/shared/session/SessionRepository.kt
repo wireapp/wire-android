@@ -18,7 +18,7 @@ interface SessionRepository {
 
     suspend fun setSessionCurrent(userId: String): Either<Failure, Unit>
 
-    suspend fun setCurrentClientId(clientId: String): Either<Failure, Unit>
+    suspend fun setClientIdToUser(userId: String, clientId: String): Either<Failure, Unit>
 
     suspend fun currentClientId(): Either<Failure, String>
 }

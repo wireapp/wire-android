@@ -4,6 +4,7 @@ import android.util.Base64
 import com.wire.android.core.crypto.CryptoBoxClient
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.map
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
 import com.wire.android.feature.conversation.content.EncryptedMessageEnvelope
 import com.wire.android.feature.conversation.content.Message
@@ -51,4 +52,18 @@ class MessageDataSource(
                 )
             }
         }
+
+    override suspend fun latestUnreadMessages(conversationId: String): Either<Failure, List<CombinedMessageContact>> =
+        messageLocalDataSource.latestUnreadMessagesByConversationId(conversationId, MESSAGES_SIZE).map { messagesWithContact ->
+            messagesWithContact.map {
+                CombinedMessageContact(
+                    messageMapper.fromEntityToMessage(it.messageEntity),
+                    contactMapper.fromContactEntity(it.contactEntity)
+                )
+            }
+        }
+
+    companion object {
+        private const val MESSAGES_SIZE = 10
+    }
 }

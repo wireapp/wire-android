@@ -1,6 +1,7 @@
 package com.wire.android.core.events.datasource.remote
 
 import com.google.gson.annotations.SerializedName
+import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
 
 data class EventResponse(
     @SerializedName("id") val id: String,
@@ -16,7 +17,7 @@ data class Payload(
     @SerializedName("from") val from: String,
     @SerializedName("qualified_from") val qualifiedFrom: QualifiedFrom,
     @SerializedName("type") val type: String,
-    @SerializedName("client") val client: String
+    @SerializedName("client") val client: ClientResponse
 )
 
 data class QualifiedConversation(

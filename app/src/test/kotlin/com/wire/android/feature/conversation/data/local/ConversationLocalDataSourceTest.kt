@@ -5,9 +5,11 @@ import com.wire.android.feature.conversation.members.datasources.local.Conversat
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.impl.annotations.MockK
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.impl.annotations.MockK
+import io.mockk.every
+import io.mockk.verify
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
@@ -24,11 +26,14 @@ class ConversationLocalDataSourceTest : UnitTest() {
     @MockK
     private lateinit var conversationMembersDao: ConversationMembersDao
 
+    @MockK
+    private lateinit var conversationCache: ConversationCache
+
     private lateinit var conversationLocalDataSource: ConversationLocalDataSource
 
     @Before
     fun setUp() {
-        conversationLocalDataSource = ConversationLocalDataSource(conversationDao, conversationMembersDao)
+        conversationLocalDataSource = ConversationLocalDataSource(conversationDao, conversationMembersDao, conversationCache)
     }
 
     @Test
@@ -161,4 +166,29 @@ class ConversationLocalDataSourceTest : UnitTest() {
         result shouldFail { }
         coVerify { conversationDao.count() }
     }
+
+    @Test
+    fun `given conversationCache returns the conversationId, when getting current conversationId, then propagates the conversationId`() {
+        every { conversationCache.currentOpenedConversationId() } returns CONVERSATION_ID
+
+        val result = runBlocking { conversationLocalDataSource.currentOpenedConversationId() }
+
+        result shouldSucceed { it shouldBeEqualTo  CONVERSATION_ID }
+        verify { conversationCache.currentOpenedConversationId() }
+    }
+
+    @Test
+    fun `given conversationCache update is successful, when updating current conversationId, then returns success`() {
+        every { conversationCache.updateConversationId(CONVERSATION_ID) } returns Unit
+
+        val result = runBlocking { conversationLocalDataSource.updateCurrentConversationId(CONVERSATION_ID) }
+
+        result shouldSucceed { it shouldBe Unit }
+        verify { conversationCache.updateConversationId(CONVERSATION_ID) }
+    }
+
+    companion object {
+        private const val CONVERSATION_ID = "2133215644868"
+    }
+
 }

@@ -10,8 +10,10 @@ import org.junit.Before
 import org.junit.Test
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 class OffsetDateTimeExtensionTest : UnitTest() {
 
@@ -21,7 +23,7 @@ class OffsetDateTimeExtensionTest : UnitTest() {
     @MockK
     private lateinit var offsetDateTime2: OffsetDateTime
 
-    private val offsetDateTime = OffsetDateTime.of(2021,7,20,10,10,59,10, ZoneOffset.UTC)
+    private val offsetDateTime = OffsetDateTime.of(2021, 7, 20, 10, 10, 59, 10, ZoneOffset.UTC)
 
     @Before
     fun setUp() {
@@ -117,7 +119,7 @@ class OffsetDateTimeExtensionTest : UnitTest() {
     }
 
     @Test
-    fun `given isMoreThanSixtyMinutes is called, when the amount of time between 2 dates is greater than 60 minutes, then return false`(){
+    fun `given isMoreThanSixtyMinutes is called, when the amount of time between 2 dates is greater than 60 minutes, then return false`() {
         every { offsetDateTime2.until(offsetDateTime1, ChronoUnit.MINUTES) } returns 10L
         every { offsetDateTime1.until(offsetDateTime2, ChronoUnit.MINUTES) } returns 500L
 
@@ -138,7 +140,7 @@ class OffsetDateTimeExtensionTest : UnitTest() {
 
     @Test
     fun `given isWithinTheLastMinutes is called, when the input date is within the last 2 minutes, then return true`() {
-        val date = OffsetDateTime.of(2021,7,20,10,9,59,10, ZoneOffset.UTC)
+        val date = OffsetDateTime.of(2021, 7, 20, 10, 9, 59, 10, ZoneOffset.UTC)
 
         every { OffsetDateTime.now() } returns offsetDateTime
 
@@ -149,7 +151,7 @@ class OffsetDateTimeExtensionTest : UnitTest() {
 
     @Test
     fun `given isWithinTheLastMinutes is called, when the input date is not within the last 2 minutes, then return false`() {
-        val date = OffsetDateTime.of(2021,7,20,10,5,59,10, ZoneOffset.UTC)
+        val date = OffsetDateTime.of(2021, 7, 20, 10, 5, 59, 10, ZoneOffset.UTC)
         every { OffsetDateTime.now() } returns offsetDateTime
 
         val result = date.isWithinTheLastMinutes(2L)
@@ -159,7 +161,7 @@ class OffsetDateTimeExtensionTest : UnitTest() {
 
     @Test
     fun `given isWithinTheLastMinutes is called, when the input date is within the last 60 minutes, then return true`() {
-        val date = OffsetDateTime.of(2021,7,20,9,11,59,10, ZoneOffset.UTC)
+        val date = OffsetDateTime.of(2021, 7, 20, 9, 11, 59, 10, ZoneOffset.UTC)
         every { OffsetDateTime.now() } returns offsetDateTime
 
         val result = date.isWithinTheLastMinutes(60L)
@@ -170,7 +172,7 @@ class OffsetDateTimeExtensionTest : UnitTest() {
 
     @Test
     fun `given isWithinTheLastMinutes is called, when the input date is not within the last 60 minutes, then return false`() {
-        val date = OffsetDateTime.of(2021,7,20,9,10,59,10, ZoneOffset.UTC)
+        val date = OffsetDateTime.of(2021, 7, 20, 9, 10, 59, 10, ZoneOffset.UTC)
         every { OffsetDateTime.now() } returns offsetDateTime
 
         val result = date.isWithinTheLastMinutes(60L)

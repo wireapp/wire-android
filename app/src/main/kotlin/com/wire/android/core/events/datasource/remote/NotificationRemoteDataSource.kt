@@ -2,6 +2,7 @@ package com.wire.android.core.events.datasource.remote
 
 import com.tinder.scarlet.WebSocket
 import com.wire.android.core.events.Event
+import com.wire.android.core.events.WebSocketConfig
 import com.wire.android.core.events.mapper.EventMapper
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
@@ -13,24 +14,28 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 
 class NotificationRemoteDataSource(
-    private val webSocketService: WebSocketService,
+    private val webSocketServiceProvider: WebSocketServiceProvider,
+    private val webSocketConfig: WebSocketConfig,
     private val notificationApi: NotificationApi,
     private val eventMapper: EventMapper,
     override val networkHandler: NetworkHandler
 ) : ApiService() {
 
-    fun receiveEvents() : Flow<List<Event>?> = webSocketService.receiveEvent().map {
-        it.payload?.let { payloads ->
-            payloads.map { payload -> eventMapper.eventFromPayload(payload, it.id) }
+    fun receiveEvents(clientId: String): Flow<List<Event>?> =
+        webSocketServiceForClient(clientId).receiveEvent().map {
+            it.payload?.let { payloads ->
+                payloads.map { payload -> eventMapper.eventFromPayload(payload, it.id) }
+            }
         }
-    }
 
     suspend fun notificationsFlow(clientId: String, notificationId: String): Flow<List<Event>> =
-        webSocketService.observeWebSocketEvent().filter {
-            it is WebSocket.Event.OnConnectionOpened<*>
-        }.map { allNotifications(clientId, notificationId) }
+        webSocketServiceForClient(clientId)
+            .observeWebSocketEvent().filter {
+                it is WebSocket.Event.OnConnectionOpened<*>
+            }.map { allNotifications(clientId, notificationId) }
 
-
+    private fun webSocketServiceForClient(clientId: String) =
+        webSocketServiceProvider.provideWebSocketService(webSocketConfig.urlForClient(clientId))
 
     private suspend fun notificationsByBatch(size: Int, client: String, since: String): Either<Failure, NotificationPageResponse> =
         request { notificationApi.notificationsByBatch(size, client, since) }
@@ -60,6 +65,7 @@ class NotificationRemoteDataSource(
     suspend fun lastNotification(client: String): Either<Failure, NotificationResponse> = request {
         notificationApi.lastNotification(client)
     }
+
     companion object {
         const val PAGE_SIZE = 500
     }

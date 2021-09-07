@@ -3,6 +3,7 @@ package com.wire.android.core.events.datasource.remote
 import com.tinder.scarlet.WebSocket
 import com.wire.android.UnitTest
 import com.wire.android.core.events.Event
+import com.wire.android.core.events.WebSocketConfig
 import com.wire.android.core.events.mapper.EventMapper
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
@@ -42,6 +43,12 @@ class NotificationRemoteDataSourceTest : UnitTest() {
     private lateinit var webSocketService: WebSocketService
 
     @MockK
+    private lateinit var webSocketServiceProvider: WebSocketServiceProvider
+
+    @MockK
+    private lateinit var webSocketConfig: WebSocketConfig
+
+    @MockK
     private lateinit var eventMapper: EventMapper
 
     @MockK
@@ -54,7 +61,8 @@ class NotificationRemoteDataSourceTest : UnitTest() {
 
     @Before
     fun setUp() {
-        notificationRemoteDataSource = NotificationRemoteDataSource(webSocketService, notificationApi, eventMapper, connectedNetworkHandler)
+        notificationRemoteDataSource =
+            NotificationRemoteDataSource(webSocketServiceProvider, webSocketConfig, notificationApi, eventMapper, connectedNetworkHandler)
 
         val webSocketEvent1 = WebSocket.Event.OnConnectionOpened(webSocket)
         val webSocketEvent2 = WebSocket.Event.OnConnectionClosed(mockk())
@@ -95,10 +103,11 @@ class NotificationRemoteDataSourceTest : UnitTest() {
         val eventResponse = mockk<EventResponse>().also {
             every { it.payload } returns null
         }
+        every { webSocketServiceProvider.provideWebSocketService(any()) } returns webSocketService
         every { webSocketService.receiveEvent() } returns flowOf(eventResponse).shareIn(testScope, SharingStarted.WhileSubscribed(), 1)
 
         runBlocking {
-            val result = notificationRemoteDataSource.receiveEvents()
+            val result = notificationRemoteDataSource.receiveEvents(CLIENT_ID)
 
             result.first() shouldBeEqualTo null
             verify(exactly = 1) { webSocketService.receiveEvent() }
@@ -110,10 +119,12 @@ class NotificationRemoteDataSourceTest : UnitTest() {
         val eventResponse = mockk<EventResponse>().also {
             every { it.payload } returns listOf()
         }
+
+        every { webSocketServiceProvider.provideWebSocketService(any()) } returns webSocketService
         every { webSocketService.receiveEvent() } returns flowOf(eventResponse).shareIn(testScope, SharingStarted.WhileSubscribed(), 1)
 
         runBlocking {
-            val result = notificationRemoteDataSource.receiveEvents()
+            val result = notificationRemoteDataSource.receiveEvents(CLIENT_ID)
 
             result.first() shouldBeEqualTo listOf()
             verify(exactly = 1) { webSocketService.receiveEvent() }
@@ -135,10 +146,11 @@ class NotificationRemoteDataSourceTest : UnitTest() {
             every { it.payload } returns listOf(payload)
         }
         every { eventMapper.eventFromPayload(payload, eventId) } returns message
+        every { webSocketServiceProvider.provideWebSocketService(any()) } returns webSocketService
         every { webSocketService.receiveEvent() } returns flowOf(eventResponse).shareIn(testScope, SharingStarted.WhileSubscribed(), 1)
 
         runBlocking {
-            val result = notificationRemoteDataSource.receiveEvents()
+            val result = notificationRemoteDataSource.receiveEvents(CLIENT_ID)
 
             result.first()?.size shouldBeEqualTo 1
             result.first()?.get(0) shouldBeEqualTo message

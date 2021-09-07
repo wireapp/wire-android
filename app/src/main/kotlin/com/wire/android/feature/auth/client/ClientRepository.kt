@@ -4,6 +4,6 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 
 interface ClientRepository {
-    suspend fun registerNewClient(authorizationToken: String, userId: String, password: String): Either<Failure, Unit>
+    suspend fun registerNewClient(authorizationToken: String, userId: String, password: String): Either<Failure, String>
     suspend fun updatePreKeysIfNeeded(authorizationToken: String, clientId: String): Either<Failure, Unit>
 }

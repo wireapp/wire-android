@@ -14,6 +14,9 @@ interface SessionDao {
     @Query("SELECT * FROM session WHERE is_current = 1 LIMIT 1")
     suspend fun currentSession(): SessionEntity?
 
+    @Query("UPDATE session SET client_id = :clientId WHERE is_current = 1")
+    suspend fun setClientIdToCurrentSession(clientId: String)
+
     @Query("SELECT * FROM session WHERE user_id = :userId")
     suspend fun userSession(userId: String): SessionEntity?
 

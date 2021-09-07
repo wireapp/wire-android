@@ -21,13 +21,14 @@ class ClientDataSource(
     private val preKeyMapper: PreKeyMapper
 ) : ClientRepository {
 
-    override suspend fun registerNewClient(authorizationToken: String, userId: String, password: String): Either<Failure, Unit> =
+    override suspend fun registerNewClient(authorizationToken: String, userId: String, password: String): Either<Failure, String> =
         suspending {
             createNewClient(userId, password).flatMap {
                 clientRemoteDataSource.registerNewClient(authorizationToken, it)
             }.flatMap {
                 val clientEntity = clientMapper.fromClientResponseToClientEntity(it)
                 clientLocalDataSource.save(clientEntity)
+                Either.Right(clientEntity.id)
             }
         }
 

@@ -206,13 +206,13 @@ class SessionDataSourceTest : UnitTest() {
         val accessTokenResponse = mockk<AccessTokenResponse>()
         val refreshToken = "refresh-token-123"
         coEvery { remoteDataSource.accessToken(refreshToken) } returns Either.Right(accessTokenResponse)
-        every { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken) } returns session
+        every { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken, null) } returns session
 
         val result = runBlocking { sessionDataSource.newAccessToken(refreshToken) }
 
         result shouldSucceed { it shouldBe session }
         coVerify(exactly = 1) { remoteDataSource.accessToken(refreshToken) }
-        verify(exactly = 1) { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken) }
+        verify(exactly = 1) { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken, null) }
     }
 
     @Test

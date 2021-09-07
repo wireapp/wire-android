@@ -1,7 +1,9 @@
 package com.wire.android.shared.session.datasources
 
 import com.wire.android.core.exception.Failure
+import com.wire.android.core.exception.NoEntityFound
 import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.flatMap
 import com.wire.android.core.functional.map
 import com.wire.android.core.functional.suspending
 import com.wire.android.shared.session.Session
@@ -27,7 +29,17 @@ class SessionDataSource(
     override suspend fun currentSession(): Either<Failure, Session> = localDataSource.currentSession()
         .map { mapper.fromSessionEntity(it) }
 
-    override suspend fun currentClientId(): Either<Failure, String> = currentSession().map { it.clientId }
+    override suspend fun setCurrentClientId(clientId: String): Either<Failure, Unit> = suspending {
+        localDataSource.setCurrentClientId(clientId)
+    }
+
+    override suspend fun currentClientId(): Either<Failure, String> {
+        return currentSession().map { it.clientId }
+            .flatMap { clientId ->
+                if (clientId == null) Either.Left(NoEntityFound)
+                else Either.Right(clientId)
+            }
+    }
 
     override suspend fun userSession(userId: String): Either<Failure, Session> = localDataSource.userSession(userId)
         .map { mapper.fromSessionEntity(it) }
@@ -38,8 +50,11 @@ class SessionDataSource(
     override suspend fun accessToken(): Either<Failure, String> = currentSession().map { it.accessToken }
 
     override suspend fun newAccessToken(refreshToken: String): Either<Failure, Session> =
-        remoteDataSource.accessToken(refreshToken).map {
-            mapper.fromAccessTokenResponse(it, refreshToken)
+        suspending {
+            remoteDataSource.accessToken(refreshToken).map {
+                val clientId = currentClientId().fold({ null }, { clientId -> clientId })
+                mapper.fromAccessTokenResponse(it, refreshToken, clientId)
+            }
         }
 
     override suspend fun doesCurrentSessionExist(): Either<Failure, Boolean> = localDataSource.doesCurrentSessionExist()

@@ -26,7 +26,7 @@ class RegisterClientUseCase(
                     is BadRequest -> Either.Left(MalformedPreKeys)
                     else -> Either.Left(it)
                 }
-            }) { Either.Right(Unit) }!!
+            }) { sessionRepository.setCurrentClientId(it) }!!
         }
     }
 }

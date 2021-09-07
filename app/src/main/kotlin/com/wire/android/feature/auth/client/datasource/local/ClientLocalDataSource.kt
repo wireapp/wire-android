@@ -9,4 +9,8 @@ class ClientLocalDataSource(private val clientDao: ClientDao) : DatabaseService 
     suspend fun save(clientEntity: ClientEntity) : Either<Failure, Unit> = request {
         clientDao.insert(clientEntity)
     }
+
+    suspend fun client(): Either<Failure, Unit> = request {
+        clientDao.
+    }
 }

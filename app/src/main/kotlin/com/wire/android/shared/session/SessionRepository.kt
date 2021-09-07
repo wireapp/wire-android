@@ -17,4 +17,5 @@ interface SessionRepository {
     suspend fun doesCurrentSessionExist(): Either<Failure, Boolean>
 
     suspend fun setSessionCurrent(userId: String): Either<Failure, Unit>
+    suspend fun currentClientId(): Either<Failure, String>
 }

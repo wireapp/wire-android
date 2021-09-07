@@ -22,15 +22,6 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 
 val eventModule = module {
-    fun provideWebSocketService(client: OkHttpClient, lifecycle: Lifecycle, webSocketUrl: String): WebSocketService {
-        val scarlet = Scarlet.Builder()
-            .webSocketFactory(client.newWebSocketFactory(webSocketUrl))
-            .addMessageAdapterFactory(GsonMessageAdapter.Factory())
-            .addStreamAdapterFactory(FlowStreamAdapter.Factory)
-            .lifecycle(lifecycle)
-            .build()
-        return scarlet.create()
-    }
     //TODO hardcoded client to be replaced with current clientId
     single { WebSocketConfig("82317e19fdc80b7d") }
     single {

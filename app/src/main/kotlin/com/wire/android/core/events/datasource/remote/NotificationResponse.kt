@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class NotificationPageResponse(
     @SerializedName("time") val time: String,
-    @SerializedName("has_more") val hasMore: String,
+    @SerializedName("has_more") val hasMore: Boolean,
     @SerializedName("notifications") val notifications: List<NotificationResponse>
 )
 

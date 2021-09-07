@@ -126,7 +126,7 @@ class ClientDataSourceTest : UnitTest() {
 
         val result = runBlocking { clientDataSource.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
 
-        result shouldSucceed { it shouldBeEqualTo Unit }
+        result shouldSucceed { it shouldBeEqualTo clientResponse.id }
         coVerify(exactly = 1) { clientRemoteDataSource.registerNewClient(AUTHORIZATION_TOKEN, clientRegistrationRequest) }
         coVerify(exactly = 1) { clientLocalDataSource.save(clientEntity) }
     }

@@ -163,6 +163,8 @@ class NotificationRemoteDataSourceTest : UnitTest() {
             .shareIn(testScope, SharingStarted.WhileSubscribed(), 1)
         coEvery { notificationApi.notificationsByBatch(any(), any(), any()) } returns mockErrorResponse(400)
 
+        every { webSocketServiceProvider.provideWebSocketService(any()) } returns webSocketService
+
         runBlocking {
             val result = notificationRemoteDataSource.notificationsFlow(any(), any())
             result.first().size shouldBeEqualTo 0
@@ -175,6 +177,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
             every { it.body()?.notifications } returns listOf()
         }
         coEvery { notificationApi.notificationsByBatch(any(), any(), any()) } returns response
+        every { webSocketServiceProvider.provideWebSocketService(any()) } returns webSocketService
 
         runBlocking {
             val result = notificationRemoteDataSource.notificationsFlow(any(), any())
@@ -189,6 +192,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
             every { it.body()?.notifications } returns listOf(notificationResponse)
         }
         every { notificationResponse.payload } returns null
+        every { webSocketServiceProvider.provideWebSocketService(any()) } returns webSocketService
         coEvery { notificationApi.notificationsByBatch(any(), any(), any()) } returns response
 
         runBlocking {
@@ -204,6 +208,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
             every { it.body()?.notifications } returns listOf(notificationResponse)
         }
         every { notificationResponse.payload } returns listOf()
+        every { webSocketServiceProvider.provideWebSocketService(any()) } returns webSocketService
         coEvery { notificationApi.notificationsByBatch(any(), any(), any()) } returns response
 
         runBlocking {
@@ -223,6 +228,7 @@ class NotificationRemoteDataSourceTest : UnitTest() {
         val response = mockSuccessResponse().also {
             every { it.body()?.notifications } returns listOf(notificationResponse)
         }
+        every { webSocketServiceProvider.provideWebSocketService(any()) } returns webSocketService
         coEvery { notificationApi.notificationsByBatch(any(), any(), any()) } returns response
         every { eventMapper.eventFromPayload(payload, notificationId) } returns event
 

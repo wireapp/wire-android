@@ -1,6 +1,7 @@
 package com.wire.android.feature.auth.client.datasource.local
 
 import com.wire.android.UnitTest
+import com.wire.android.core.functional.Either
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery
@@ -58,7 +59,7 @@ class ClientLocalDataSourceTest : UnitTest() {
 
         val result = runBlocking { clientLocalDataSource.clientById(clientId) }
 
-        result shouldBeEqualTo expected
+        result shouldBeEqualTo Either.Right(expected)
     }
 
     @Test

@@ -27,8 +27,9 @@ class ClientDataSource(
                 clientRemoteDataSource.registerNewClient(authorizationToken, it)
             }.flatMap {
                 val clientEntity = clientMapper.fromClientResponseToClientEntity(it)
-                clientLocalDataSource.save(clientEntity)
-                Either.Right(clientEntity.id)
+                clientLocalDataSource.save(clientEntity).map {
+                    clientEntity.id
+                }
             }
         }
 

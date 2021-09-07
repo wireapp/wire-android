@@ -69,7 +69,7 @@ class SessionMapperTest : UnitTest() {
         val result = sessionMapper.fromLoginResponse(loginWithEmailResponse)
 
         result shouldBeEqualTo Session(
-            userId = TEST_USER_ID, clientId = TEST_CLIENT_ID, accessToken = TEST_ACCESS_TOKEN,
+            userId = TEST_USER_ID, clientId = null, accessToken = TEST_ACCESS_TOKEN,
             tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
         )
     }

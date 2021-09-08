@@ -4,7 +4,6 @@ import android.app.Application
 import com.wire.android.core.di.Injector
 import com.wire.android.shared.notification.builder.NotificationBuilder
 import com.wire.android.shared.notification.builder.NotificationChannelBuilder
-import com.wire.android.shared.notification.builder.NotificationSummaryBuilder
 import org.koin.android.ext.android.inject
 
 class WireApplication : Application() {
@@ -14,17 +13,15 @@ class WireApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         Injector.start(this)
+        createNotificationChannels()
+    }
 
-        notificationChannelBuilder.createChannel(
-            NotificationSummaryBuilder.NOTIFICATIONS_CHANNEL_ID,
-            NotificationSummaryBuilder.NOTIFICATIONS_CHANNEL_NAME,
-            NotificationSummaryBuilder.NOTIFICATIONS_CHANNEL_DESCRIPTION
-        )
+    private fun createNotificationChannels() {
 
         notificationChannelBuilder.createChannel(
             NotificationBuilder.NOTIFICATION_MESSAGE_CHANNEL_ID,
-            NotificationBuilder.NOTIFICATION_MESSAGE_CHANNEL_NAME,
-            NotificationBuilder.NOTIFICATION_MESSAGE_CHANNEL_DESCRIPTION
+            getString(R.string.notification_message_channel_name),
+            getString(R.string.notification_message_channel_description)
         )
     }
 }

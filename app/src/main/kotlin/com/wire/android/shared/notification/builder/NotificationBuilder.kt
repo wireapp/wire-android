@@ -56,8 +56,6 @@ class NotificationBuilder(private val applicationContext: Context, private val m
 
     companion object {
         const val GROUP_KEY_WIRE_NOTIFICATIONS = "wire_notifications_group"
-        const val NOTIFICATION_MESSAGE_CHANNEL_ID = "notifications_id"
-        const val NOTIFICATION_MESSAGE_CHANNEL_NAME = "notifications"
-        const val NOTIFICATION_MESSAGE_CHANNEL_DESCRIPTION = "All notifications"
+        const val NOTIFICATION_MESSAGE_CHANNEL_ID = "notification_message_id"
     }
 }

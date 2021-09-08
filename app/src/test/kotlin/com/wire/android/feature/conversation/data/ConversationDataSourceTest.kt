@@ -303,7 +303,27 @@ class ConversationDataSourceTest : UnitTest() {
         result shouldFail { it shouldBeEqualTo failure }
     }
 
+    @Test
+    fun `given localDataSource fails to get data, when getting conversation name by id, then returns failure`() {
+        val failure = mockk<Failure>()
+        coEvery { conversationLocalDataSource.conversationNameById(any()) } returns Either.Left(failure)
+
+        val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID) }
+
+        result shouldFail { it shouldBeEqualTo failure }
+    }
+
+    @Test
+    fun `given localDataSource succeed to get data, when getting conversation name by id, then return conversation name`() {
+        coEvery { conversationLocalDataSource.conversationNameById(any()) } returns Either.Right(TEST_CONVERSATION_NAME)
+
+        val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID) }
+
+        result shouldSucceed  { it shouldBeEqualTo TEST_CONVERSATION_NAME }
+    }
+
     companion object {
         private const val TEST_CONVERSATION_ID = "conv-id"
+        private const val TEST_CONVERSATION_NAME = "Android Team"
     }
 }

@@ -125,6 +125,22 @@ class ConversationDaoTest : InstrumentationTest() {
         conversationDao.conversations().isEmpty() shouldBe true
     }
 
+    @Test
+    fun givenConversationExistsForGivenId_whenGettingConversationNameById_returnsConversationName() = databaseTestRule.runTest {
+        conversationDao.insert(TEST_CONVERSATION_ENTITY)
+
+        val result  = conversationDao.conversationNameById("id-5")
+
+        result shouldBeEqualTo "Android Team"
+    }
+
+    @Test
+    fun givenNoConversationExistsForGivenId_whenGettingConversationNameById_returnsNull() = databaseTestRule.runTest {
+        val result  = conversationDao.conversationNameById("id")
+
+        result shouldBeEqualTo null
+    }
+
     companion object {
         private val TEST_CONVERSATION_ENTITY = ConversationEntity("id-5", "Android Team", 0)
     }

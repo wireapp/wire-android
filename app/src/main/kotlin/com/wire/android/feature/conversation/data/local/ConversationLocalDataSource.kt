@@ -42,4 +42,9 @@ class ConversationLocalDataSource(
     suspend fun updateCurrentConversationId(conversationId: String) : Either<Failure, Unit> = requestCache {
         conversationCache.updateConversationId(conversationId)
     }
+
+    suspend fun conversationNameById(conversationId: String): Either<Failure, String> = request {
+        conversationDao.conversationNameById(conversationId)
+    }
+
 }

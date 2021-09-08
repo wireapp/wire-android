@@ -8,10 +8,7 @@ import com.wire.android.R
 import com.wire.android.feature.conversation.content.mapper.MessageContentMapper
 import com.wire.android.feature.conversation.content.ui.CombinedMessageContact
 
-class NotificationBuilder(
-    private val applicationContext: Context,
-    private val messageContentMapper: MessageContentMapper
-) {
+class NotificationBuilder(private val applicationContext: Context, private val messageContentMapper: MessageContentMapper) {
 
     fun displayNotification(
         conversationId: String,

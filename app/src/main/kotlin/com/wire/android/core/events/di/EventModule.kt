@@ -7,7 +7,10 @@ import com.wire.android.core.events.EventRepository
 import com.wire.android.core.events.WebSocketConfig
 import com.wire.android.core.events.datasource.EventDataSource
 import com.wire.android.core.events.datasource.local.NotificationLocalDataSource
-import com.wire.android.core.events.datasource.remote.*
+import com.wire.android.core.events.datasource.remote.DefaultWebSocketServiceProvider
+import com.wire.android.core.events.datasource.remote.NotificationApi
+import com.wire.android.core.events.datasource.remote.NotificationRemoteDataSource
+import com.wire.android.core.events.datasource.remote.WebSocketServiceProvider
 import com.wire.android.core.events.handler.EventsHandler
 import com.wire.android.core.events.handler.MessageEventsHandler
 import com.wire.android.core.events.mapper.EventMapper

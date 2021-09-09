@@ -24,6 +24,7 @@ android {
         versionCode = AndroidClient.versionCode
         versionName = AndroidClient.versionName
         testInstrumentationRunner = AndroidClient.testRunner
+        setProperty("archivesBaseName", "${applicationId}-v${versionName}(${versionCode})")
 
         kapt {
             arguments {
@@ -72,12 +73,13 @@ dependencies {
     implementation(Libraries.viewPager2)
     implementation(Libraries.paging)
     implementation(Libraries.glide)
+    implementation(Libraries.fragment)
     kapt(Libraries.glideCompiler)
     implementation(Libraries.workManager)
-    implementation(Libraries.scralet)
-    implementation(Libraries.scraletOkhttp)
-    implementation(Libraries.scraletLifecycle)
-    implementation(Libraries.scraletGson)
+    implementation(Libraries.scarlet)
+    implementation(Libraries.scarletOkhttp)
+    implementation(Libraries.scarletLifecycle)
+    implementation(Libraries.scarletGson)
 
     implementation(Libraries.messageProto)
     implementation(Libraries.Crypto.cryptobox)

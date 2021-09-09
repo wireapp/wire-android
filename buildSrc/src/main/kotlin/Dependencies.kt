@@ -14,7 +14,7 @@ object AndroidNdk {
 object AndroidClient {
     const val appId = "com.wire.android"
     val versionCode = Versionizer().versionCode
-    const val versionName = "1.0"
+    const val versionName = "0.1"
     const val testRunner = "androidx.test.runner.AndroidJUnitRunner"
 }
 
@@ -64,7 +64,8 @@ object Libraries {
         const val paging = "3.0.0"
         const val glide = "4.12.0"
         const val workManager = "2.4.0"
-        const val scralet = "0.1.12"
+        const val scarlet = "0.1.12"
+        const val fragment = "1.2.5"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -82,10 +83,11 @@ object Libraries {
     const val glide            = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideCompiler    = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val workManager      = "androidx.work:work-runtime-ktx:${Versions.workManager}"
-    const val scralet          =  "com.tinder.scarlet:scarlet:${Versions.scralet}"
-    const val scraletOkhttp    =  "com.tinder.scarlet:websocket-okhttp:${Versions.scralet}"
-    const val scraletLifecycle =  "com.tinder.scarlet:lifecycle-android:${Versions.scralet}"
-    const val scraletGson      =  "com.tinder.scarlet:message-adapter-gson:${Versions.scralet}"
+    const val scarlet          =  "com.tinder.scarlet:scarlet:${Versions.scarlet}"
+    const val scarletOkhttp    =  "com.tinder.scarlet:websocket-okhttp:${Versions.scarlet}"
+    const val scarletLifecycle =  "com.tinder.scarlet:lifecycle-android:${Versions.scarlet}"
+    const val scarletGson      =  "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
+    const val fragment         =  "androidx.fragment:fragment:${Versions.fragment}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

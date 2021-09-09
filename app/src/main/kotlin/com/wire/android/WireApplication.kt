@@ -13,10 +13,10 @@ class WireApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         Injector.start(this)
-        createNotificationChannels()
+        createNotificationChannel()
     }
 
-    private fun createNotificationChannels() {
+    private fun createNotificationChannel() {
 
         notificationChannelBuilder.createChannel(
             NotificationBuilder.NOTIFICATION_MESSAGE_CHANNEL_ID,

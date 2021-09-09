@@ -30,9 +30,9 @@ class MessageEventsHandler(
         val shouldDisplayNotificationUseCaseParams = ShouldDisplayNotificationUseCaseParams(conversationId)
         shouldDisplayNotificationUseCase.run(shouldDisplayNotificationUseCaseParams).map { shouldDisplayNotification ->
             if(shouldDisplayNotification) {
-                notificationSummaryBuilder.createSummaryNotification()
                 val messages = messageRepository.latestUnreadMessages(conversationId)
                 messages.map {
+                    notificationSummaryBuilder.createSummaryNotification()
                     //TODO pass conversation name in next PR
                     notificationBuilder.displayNotification(conversationId, "Conversation Name", it)
                 }

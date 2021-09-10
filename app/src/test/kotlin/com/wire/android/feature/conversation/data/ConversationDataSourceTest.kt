@@ -304,7 +304,7 @@ class ConversationDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given localDataSource fails to get data, when getting conversation name by id, then returns failure`() {
+    fun `given localDataSource fails to get data, when getting conversation name by id, then return failure`() {
         val failure = mockk<Failure>()
         coEvery { conversationLocalDataSource.conversationNameById(any()) } returns Either.Left(failure)
 

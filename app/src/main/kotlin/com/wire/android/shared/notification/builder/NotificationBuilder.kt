@@ -40,7 +40,7 @@ class NotificationBuilder(
     private fun messageStyle(messages: List<CombinedMessageContact>): NotificationCompat.MessagingStyle {
         val receiverPerson = Person.Builder().also {
             it.setKey(RECEIVER_PERSON_KEY)
-            it.setName("You")
+            it.setName(applicationContext.getString(R.string.notification_receiver_person_name))
         }.build()
 
         val messagingStyle = NotificationCompat.MessagingStyle(receiverPerson)

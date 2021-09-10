@@ -122,4 +122,7 @@
         <item quantity="other">%1$s minutes ago</item>
     </plurals>
     <string name="conversation_chat_just_now">JUST NOW</string>
+
+    <string name="notification_message_channel_name">Messages</string>
+    <string name="notification_message_channel_description">Notifications for all message types, including text, images, audio and video messages</string>
 </resources>

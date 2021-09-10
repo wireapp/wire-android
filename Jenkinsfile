@@ -36,7 +36,7 @@ def defineTrackName() {
 pipeline {
   agent {
     docker {
-      args '-u 1000:133 --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
+      args '-u ${GUID_AGENT} --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
       label 'android-reloaded-builder'
       image 'android-reloaded-agent:latest'
     }
@@ -56,7 +56,7 @@ pipeline {
                   echo Flavor: $flavor
                   echo BuildType: $buildType
                   echo AdbPort: $adbPort
-                  echo EmulatoPrefix: $emulatorPrefix
+                  echo EmulatorPrefix: $emulatorPrefix
                   echo TrackName: $trackName
                   echo ChangeId: $CHANGE_ID
                '''
@@ -82,7 +82,7 @@ pipeline {
     stage('Load Env Variables') {
       steps {
         configFileProvider([
-          configFile(fileId: '10414dfa-5450-4c18-84fb-970fc9c6ae90', variable: 'GROOVY_FILE_THAT_SETS_VARIABLES')
+          configFile(fileId: env.GROOVY_ENV_VARS_REFERENCE_FILE_NAME, variable: 'GROOVY_FILE_THAT_SETS_VARIABLES')
         ]) {
           load env.GROOVY_FILE_THAT_SETS_VARIABLES
         }

@@ -187,8 +187,29 @@ class ConversationLocalDataSourceTest : UnitTest() {
         verify { conversationCache.updateConversationId(CONVERSATION_ID) }
     }
 
+    @Test
+    fun `given conversation dao fails, when getting conversation name by id, then returns failure`() {
+        coEvery { conversationDao.conversationNameById(any()) } throws SQLException()
+
+        val result = runBlocking { conversationLocalDataSource.conversationNameById(CONVERSATION_ID) }
+
+        result shouldFail{}
+    }
+
+    @Test
+    fun `given conversation dao succeed, when getting conversation name by id, then returns conversation name`() {
+        coEvery { conversationDao.conversationNameById(any()) } returns CONVERSATION_NAME
+
+        val result = runBlocking { conversationLocalDataSource.conversationNameById(CONVERSATION_ID) }
+
+        result shouldSucceed{
+            it shouldBeEqualTo CONVERSATION_NAME
+        }
+    }
+
     companion object {
         private const val CONVERSATION_ID = "2133215644868"
+        private const val CONVERSATION_NAME = "Android Team"
     }
 
 }

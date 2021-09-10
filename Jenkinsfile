@@ -51,13 +51,14 @@ pipeline {
             script {
               last_started = env.STAGE_NAME
             }
-            sh '''echo $ANDROID_HOME
-                  echo $NDK_HOME
-                  echo $flavor
-                  echo $buildType
-                  echo $adbPort
-                  echo $emulatorPrefix
-                  echo $trackName
+            sh '''echo ANDROID_HOME: $ANDROID_HOME
+                  echo NDK_HOME: $NDK_HOME
+                  echo Flavor: $flavor
+                  echo BuildType: $buildType
+                  echo AdbPort: $adbPort
+                  echo EmulatoPrefix: $emulatorPrefix
+                  echo TrackName: $trackName
+                  echo ChangeId: $CHANGE_ID
                '''
           }
         }
@@ -309,7 +310,7 @@ pipeline {
           }
           stage('Playstore') {
             when {
-              expression { env.trackName != 'None' && env.flavor != 'Dev' }
+              expression { env.trackName != 'None' && env.flavor != 'Dev' && env.CHANGE_ID == null }
             }
             steps {
               echo 'Checking folder before playstore upload'

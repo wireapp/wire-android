@@ -30,15 +30,7 @@ def defineTrackName() {
         return overwrite
     }
 
-    def branchName = env.BRANCH_NAME
-    if (branchName == "main") {
-        return 'internal-testing'
-    } else if(branchName == "develop") {
-        return 'Alpha'
-    } else if(branchName == "release") {
-        return 'production'
-    }
-    return 'None'
+    return 'production'
 }
 
 pipeline {
@@ -317,7 +309,7 @@ pipeline {
           }
           stage('Playstore') {
             when {
-              expression { env.trackName != 'None' }
+              expression { env.trackName != 'None' && env.flavor != 'Dev' }
             }
             steps {
               echo 'Checking folder before playstore upload'

@@ -1,12 +1,48 @@
+def defineFlavor() {
+    //check if the pipeline has the custom flavor env variable set
+    def overwrite = env.CUSTOM_FLAVOR
+    if(overwrite != null) {
+        return overwrite
+    }
+
+    def branchName = env.BRANCH_NAME
+    if (branchName == "main") {
+        return 'Internal'
+    } else if(branchName == "develop") {
+        return 'Dev'
+    } else if(branchName == "release") {
+        return 'Public'
+    }
+    return 'Dev'
+}
+
+def defineBuildType() {
+    def overwrite = env.CUSTOM_BUILD_TYPE
+    if(overwrite != null) {
+        return overwrite
+    }
+    return "Release"
+}
+
+def defineTrackName() {
+    def overwrite = env.CUSTOM_TRACK
+    if(overwrite != null) {
+        return overwrite
+    }
+
+    return 'production'
+}
+
 pipeline {
   agent {
     docker {
-      args '-u 1000:133 --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
+      args '-u ${GUID_AGENT} --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
       label 'android-reloaded-builder'
       image 'android-reloaded-agent:latest'
     }
 
   }
+
   stages {
     stage('Precondition Checks') {
       parallel {
@@ -15,9 +51,15 @@ pipeline {
             script {
               last_started = env.STAGE_NAME
             }
-
-            sh '''echo $ANDROID_HOME
-                  echo $NDK_HOME'''
+            sh '''echo ANDROID_HOME: $ANDROID_HOME
+                  echo NDK_HOME: $NDK_HOME
+                  echo Flavor: $flavor
+                  echo BuildType: $buildType
+                  echo AdbPort: $adbPort
+                  echo EmulatorPrefix: $emulatorPrefix
+                  echo TrackName: $trackName
+                  echo ChangeId: $CHANGE_ID
+               '''
           }
         }
 
@@ -29,12 +71,35 @@ pipeline {
                         else
                             echo "sdk.dir="$ANDROID_HOME >> ${propertiesFile}
                             echo "ndk.dir="$NDK_HOME >> ${propertiesFile}
-                            echo "nexus.url=http://10.10.124.11:8081/nexus/content/groups/public" >> local.properties
+                            echo "nexus.url=$NEXUS_URL" >> ${propertiesFile}
                         fi
                     '''
           }
         }
+      }
+    }
 
+    stage('Load Env Variables') {
+      steps {
+        configFileProvider([
+          configFile(fileId: env.GROOVY_ENV_VARS_REFERENCE_FILE_NAME, variable: 'GROOVY_FILE_THAT_SETS_VARIABLES')
+        ]) {
+          load env.GROOVY_FILE_THAT_SETS_VARIABLES
+        }
+      }
+    }
+
+    stage('Fetch Signing Files') {
+      steps {
+        configFileProvider([
+         configFile(fileId: env.DEBUG_KEYSTORE_FILE_ID, targetLocation: env.DEBUG_ENC_TARGET_LOCATION),
+         configFile(fileId: env.RELEASE_KEYSTORE_FILE_ID, targetLocation: env.RELEASE_ENC_TARGET_LOCATION),
+        ]) {
+          sh '''
+            base64 --decode $DEBUG_ENC_TARGET_LOCATION > $DEBUG_DEC_TARGET_LOCATION
+            base64 --decode $RELEASE_ENC_TARGET_LOCATION > $RELEASE_DEC_TARGET_LOCATION
+          '''
+        }
       }
     }
 
@@ -45,22 +110,39 @@ pipeline {
             withGradle() {
               sh './gradlew -Porg.gradle.jvmargs=-Xmx16g wrapper'
             }
-
           }
         }
 
         stage('Spawn Emulator 9.0') {
+          when {
+            expression { env.runAcceptanceTests.toBoolean() }
+          }
           steps {
             sh '''docker rm ${emulatorPrefix}_9 || true
-docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_9 budtmo/docker-android-x86-9.0'''
+                  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
         stage('Spawn Emulator 10.0') {
+          when {
+            expression { env.runAcceptanceTests.toBoolean() }
+          }
           steps {
             sh '''docker rm ${emulatorPrefix}_10 || true
-docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
+                  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
           }
+        }
+      }
+    }
+
+    stage('Clean') {
+      steps {
+        script {
+          last_started = env.STAGE_NAME
+        }
+
+        withGradle() {
+          sh './gradlew clean'
         }
 
       }
@@ -80,6 +162,9 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
     }
 
     stage('Static Code Analysis') {
+      when {
+        expression { env.runStaticCodeAnalysis.toBoolean() }
+      }
       steps {
         script {
           last_started = env.STAGE_NAME
@@ -93,6 +178,9 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
     }
 
     stage('Unit Tests') {
+      when {
+        expression { env.runUnitTests.toBoolean() }
+      }
       steps {
         script {
           last_started = env.STAGE_NAME
@@ -102,46 +190,52 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
           sh './gradlew runUnitTests'
         }
 
-        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}DebugUnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
+        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}${buildType}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
       }
     }
 
     stage('Connect Emulators') {
       parallel {
         stage('Emulator 10.0') {
+          when {
+            expression { env.runAcceptanceTests.toBoolean() }
+          }
           steps {
             sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'
           }
         }
 
         stage('Emulator 9.0') {
+          when {
+            expression { env.runAcceptanceTests.toBoolean() }
+          }
           steps {
             sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_9:${adbPort}'
           }
         }
-
       }
     }
 
-    stage('Prepare Emulators') {
-      parallel {
-        stage('Uninstall App') {
-          steps {
-            script {
-              last_started = env.STAGE_NAME
-            }
+    stage('Uninstall App') {
+      when {
+        expression { env.runAcceptanceTests.toBoolean() }
+      }
+      steps {
+        script {
+          last_started = env.STAGE_NAME
+        }
 
-            withGradle() {
-              sh './gradlew :app:uninstallAll'
-            }
-
-          }
+        withGradle() {
+          sh './gradlew :app:uninstallAll'
         }
 
       }
     }
 
     stage('Acceptance Tests') {
+      when {
+        expression { env.runAcceptanceTests.toBoolean() }
+      }
       steps {
         script {
           last_started = env.STAGE_NAME
@@ -155,32 +249,91 @@ docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${
       }
     }
 
-    stage('Assemble') {
+
+    stage('Assemble APK') {
       steps {
         script {
           last_started = env.STAGE_NAME
         }
 
         withGradle() {
-          sh './gradlew assembleApp'
+          sh './gradlew assemble${flavor}${buildType}'
+        }
+      }
+    }
+
+    stage('Bundle AAB') {
+      when {
+        expression { env.buildType == 'Release' }
+      }
+      steps {
+        script {
+          last_started = env.STAGE_NAME
         }
 
+        withGradle() {
+          sh './gradlew :app:bundle${flavor}${buildType}'
+        }
       }
     }
 
-    stage('Archive APK') {
-      steps {
-        archiveArtifacts(artifacts: "app/build/outputs/apk/${flavor.toLowerCase()}/debug/app*.apk", allowEmptyArchive: true, onlyIfSuccessful: true)
+    stage('Archive') {
+        parallel {
+          stage('AAB') {
+            when {
+              expression { env.buildType == 'Release' }
+            }
+            steps {
+              sh "ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/"
+              archiveArtifacts(artifacts: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
+            }
+          }
+
+          stage('APK') {
+            steps {
+              sh "ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
+              archiveArtifacts(artifacts: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt", allowEmptyArchive: true, onlyIfSuccessful: true)
+            }
+          }
+        }
+      }
+
+    stage("Upload") {
+      parallel {
+          stage('S3 Bucket') {
+            steps {
+              echo 'Checking folder before S3 Bucket upload'
+              sh "ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
+              echo 'Uploading file to S3 Bucket'
+              s3Upload(acl:'Private', workingDir: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/", includePathPattern:'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/")
+            }
+          }
+          stage('Playstore') {
+            when {
+              expression { env.trackName != 'None' && env.flavor != 'Dev' && env.CHANGE_ID == null }
+            }
+            steps {
+              echo 'Checking folder before playstore upload'
+              sh "ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/"
+              echo 'Uploading file to Playstore track ${trackName}'
+              androidApkUpload(googleCredentialsId: 'google play access', filesPattern: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", trackName: "${trackName}", rolloutPercentage: '100', releaseName: "${trackName} Release")
+            }
+          }
       }
     }
-
   }
   environment {
     propertiesFile = 'local.properties'
-    flavor = 'Dev'
+    flavor = defineFlavor()
+    buildType = defineBuildType()
     adbPort = '5555'
     emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
+    trackName = defineTrackName()
+    runAcceptanceTests = true
+    runUnitTests = true
+    runStaticCodeAnalysis = true
   }
+
   post {
     failure {
       wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")

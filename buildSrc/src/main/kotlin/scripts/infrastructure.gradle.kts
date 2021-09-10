@@ -20,7 +20,7 @@ tasks.register("runUnitTests") {
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
-    dependsOn(":app:connected${Default.BUILD_VARIANT}AndroidTest")
+    dependsOn(":app:connected${Default.BUILD_FLAVOR.capitalize()}DebugAndroidTest")
 }
 
 tasks.register("assembleApp") {
@@ -31,6 +31,11 @@ tasks.register("assembleApp") {
 tasks.register("compileApp") {
     description = "compiles the Wire Android Client source."
     dependsOn(":app:compile${Default.BUILD_VARIANT}Sources")
+}
+
+tasks.register("bundleApp") {
+    description = "bundles the Wire Android Client to an Android App Bundle."
+    dependsOn( ":app:bundle${Default.BUILD_VARIANT}")
 }
 
 tasks.register("runApp", Exec::class) {
@@ -48,7 +53,7 @@ tasks.register("runApp", Exec::class) {
         val sdkDir = properties["sdk.dir"]
         val adb = "${sdkDir}/platform-tools/adb"
 
-        val applicationPackage = "com.wire.android.${Default.BUILD_FLAVOR}.${Default.BUILD_TYPE}"
+        val applicationPackage = "com.wire.android.${Default.BUILD_FLAVOR}"
         val launchActivity = "com.wire.android.feature.launch.ui.LauncherActivity"
 
         commandLine(adb, "shell", "am", "start", "-n", "${applicationPackage}/${launchActivity}")

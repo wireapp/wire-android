@@ -7,8 +7,13 @@ import androidx.core.app.Person
 import com.wire.android.R
 import com.wire.android.feature.conversation.content.mapper.MessageContentMapper
 import com.wire.android.feature.conversation.content.ui.CombinedMessageContact
+import com.wire.android.shared.asset.ui.imageloader.IconCompatLoader
 
-class NotificationBuilder(private val applicationContext: Context, private val messageContentMapper: MessageContentMapper) {
+class NotificationBuilder(
+    private val applicationContext: Context,
+    private val messageContentMapper: MessageContentMapper,
+    private val iconCompatLoader: IconCompatLoader,
+) {
 
     fun displayNotification(
         conversationId: String,
@@ -33,18 +38,22 @@ class NotificationBuilder(private val applicationContext: Context, private val m
     }
 
     private fun messageStyle(messages: List<CombinedMessageContact>): NotificationCompat.MessagingStyle {
-        val messageOnePerson = Person.Builder().also {
-            it.setKey(messages.first().contact.id)
-            it.setName(messages.first().contact.name)
+        val receiverPerson = Person.Builder().also {
+            it.setKey(RECEIVER_PERSON_KEY)
+            it.setName(applicationContext.getString(R.string.notification_receiver_person_name))
         }.build()
 
-        val messagingStyle = NotificationCompat.MessagingStyle(messageOnePerson)
+        val messagingStyle = NotificationCompat.MessagingStyle(receiverPerson)
 
         messages.asReversed().forEach { combinedMessageContact ->
+
+            val iconCompat = iconCompatLoader.loadIcon(applicationContext, combinedMessageContact.contact.profilePicture)
             val person = Person.Builder().also {
                 it.setKey(combinedMessageContact.contact.id)
                 it.setName(combinedMessageContact.contact.name)
+                it.setIcon(iconCompat)
             }.build()
+
             val content = messageContentMapper.fromContentToString(combinedMessageContact.message.content)
             val time = combinedMessageContact.message.time.toEpochSecond()
             val notificationMessage = NotificationCompat.MessagingStyle.Message(content, time, person)
@@ -57,5 +66,6 @@ class NotificationBuilder(private val applicationContext: Context, private val m
     companion object {
         const val GROUP_KEY_WIRE_NOTIFICATIONS = "wire_notifications_group"
         const val NOTIFICATION_MESSAGE_CHANNEL_ID = "notification_message_id"
+        const val RECEIVER_PERSON_KEY = "1"
     }
 }

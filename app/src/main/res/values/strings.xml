@@ -125,4 +125,5 @@
 
     <string name="notification_message_channel_name">Messages</string>
     <string name="notification_message_channel_description">Notifications for all message types, including text, images, audio and video messages</string>
+    <string name="notification_receiver_person_name">You</string>
 </resources>

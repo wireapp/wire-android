@@ -9,7 +9,7 @@ import org.koin.dsl.module
 
 val headsUpNotificationModule = module {
     factory { ShouldDisplayNotificationUseCase(get()) }
-    single { NotificationBuilder(androidContext(), get()) }
+    single { NotificationBuilder(androidContext(), get(), get()) }
     single { NotificationChannelBuilder(androidContext()) }
     single { NotificationSummaryBuilder(androidContext()) }
 }

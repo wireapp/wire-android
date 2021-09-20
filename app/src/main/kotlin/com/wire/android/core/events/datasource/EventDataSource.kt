@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 //TODO missing unit test
@@ -26,12 +27,12 @@ class EventDataSource(
     private val sessionRepository: SessionRepository
 ) : EventRepository {
 
-    override fun events(): Flow<Either<Failure, Event>> = callbackFlow {
+    override fun events(): Flow<Either<Failure, Event>> = flow {
         sessionRepository.currentClientId().onSuccess { clientId ->
             externalScope.launch {
                 notificationRemoteDataSource.receiveEvents(clientId).collect { events ->
                     events?.forEach {
-                        trySend(Either.Right(it))
+                        emit(Either.Right(it))
                     }
                 }
             }
@@ -41,16 +42,13 @@ class EventDataSource(
                         notificationRemoteDataSource.notificationsFlow(clientId, notificationId)
                             .collect { events ->
                                 events.forEach {
-                                    trySend(Either.Right(it))
+                                    emit(Either.Right(it))
                                 }
                             }
                     }
                 }
             }
-        }.onFailure {
-            trySend(Either.Left(it))
         }
-        awaitClose {}
     }
 
     //TODO this function should be moved to be called in full state sync

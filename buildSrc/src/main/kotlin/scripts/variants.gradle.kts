@@ -25,18 +25,21 @@ object Default {
 }
 
 android {
-    signingConfigs {
-        maybeCreate(BuildTypes.RELEASE).apply {
-            storeFile = file(System.getenv("KEYSTORE_FILE_PATH_RELEASE"))
-            storePassword = System.getenv("KEYSTOREPWD_RELEASE")
-            keyAlias = System.getenv("KEYSTORE_KEY_NAME_RELEASE")
-            keyPassword = System.getenv("KEYPWD_RELEASE")
-        }
-        maybeCreate(BuildTypes.DEBUG).apply {
-            storeFile = file(System.getenv("KEYSTORE_FILE_PATH_DEBUG"))
-            storePassword = System.getenv("KEYSTOREPWD_DEBUG")
-            keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
-            keyPassword = System.getenv("KEYPWD_DEBUG")
+    val enableSigning = System.getenv("ENABLE_SIGNING") == "TRUE"
+    if (enableSigning) {
+        signingConfigs {
+            maybeCreate(BuildTypes.RELEASE).apply {
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_RELEASE"))
+                storePassword = System.getenv("KEYSTOREPWD_RELEASE")
+                keyAlias = System.getenv("KEYSTORE_KEY_NAME_RELEASE")
+                keyPassword = System.getenv("KEYPWD_RELEASE")
+            }
+            maybeCreate(BuildTypes.DEBUG).apply {
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_DEBUG"))
+                storePassword = System.getenv("KEYSTOREPWD_DEBUG")
+                keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
+                keyPassword = System.getenv("KEYPWD_DEBUG")
+            }
         }
     }
 
@@ -45,13 +48,15 @@ android {
             isMinifyEnabled = false
             applicationIdSuffix = ".${BuildTypes.DEBUG}"
             isDebuggable = true
-            signingConfig = signingConfigs.getByName("debug")
+            if(enableSigning)
+                signingConfig = signingConfigs.getByName("debug")
         }
         getByName(BuildTypes.RELEASE) {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("release")
             isDebuggable = false
+            if(enableSigning)
+                signingConfig = signingConfigs.getByName("release")
         }
     }
 

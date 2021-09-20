@@ -34,11 +34,6 @@ In order to build Wire for Android locally, it is necessary to install the follo
 - Android SDK
 - Android NDK
 
-## Local Development
-
-1. Check out the `wire-android-reloaded` repository.
-2. Browse the `wire-android-reloaded` directory and run: ```./gradlew setupProject```
-
 ## Gradle
 
 These are the available `gradle` tasks via command line:
@@ -48,7 +43,7 @@ These are the available `gradle` tasks via command line:
  - ```./gradlew runApp```: Assembles and runs the Wire Android Client in the connected device.
  - ```./gradlew runUnitTests```: Runs all Unit Tests.
  - ```./gradlew runAcceptanceTests```: Runs all Acceptance Tests in the connected device.
- - ```./gradlew codeCoverage```: Generates a report for test code coverage 
+ - ```./gradlew testCoverage```: Generates a report for test code coverage 
  - ```./gradlew staticCodeAnalysis```: Runs static code analysis on the Wire Android codebase
 
 

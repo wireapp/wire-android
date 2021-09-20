@@ -43,8 +43,6 @@ RUN mkdir /home/${USER}/android-ndk-tmp && \
 ENV ANDROID_HOME /home/${USER}/android-sdk-linux
 ENV ANDROID_SDK=${ANDROID_HOME}
 ENV PATH ${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:$ANDROID_NDK_HOME:$PATH
-ENV ENABLE_SIGNING=TRUE
-
 
 #define the values to install/setup via the sdk manager
 ARG BUILD_TOOLS_VERSION=29.0.3

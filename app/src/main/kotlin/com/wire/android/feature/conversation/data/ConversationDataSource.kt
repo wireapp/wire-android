@@ -66,6 +66,9 @@ class ConversationDataSource(
     override suspend fun updateCurrentConversationId(conversationId: String): Either<Failure, Unit> =
         conversationLocalDataSource.updateCurrentConversationId(conversationId)
 
+    override suspend fun conversationName(conversationId: String): Either<Failure, String> =
+        conversationLocalDataSource.conversationNameById(conversationId)
+
     companion object {
         private const val CONVERSATION_REQUEST_PAGE_SIZE = 100
     }

@@ -30,21 +30,13 @@ def defineTrackName() {
         return overwrite
     }
 
-    def branchName = env.BRANCH_NAME
-    if (branchName == "main") {
-        return 'internal-testing'
-    } else if(branchName == "develop") {
-        return 'Alpha'
-    } else if(branchName == "release") {
-        return 'production'
-    }
-    return 'None'
+    return 'production'
 }
 
 pipeline {
   agent {
     docker {
-      args '-u 1000:133 --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
+      args '-u ${GUID_AGENT} --network build-machine -v /var/run/docker.sock:/var/run/docker.sock -e DOCKER_HOST=unix:///var/run/docker.sock'
       label 'android-reloaded-builder'
       image 'android-reloaded-agent:latest'
     }
@@ -59,13 +51,14 @@ pipeline {
             script {
               last_started = env.STAGE_NAME
             }
-            sh '''echo $ANDROID_HOME
-                  echo $NDK_HOME
-                  echo $flavor
-                  echo $buildType
-                  echo $adbPort
-                  echo $emulatorPrefix
-                  echo $trackName
+            sh '''echo ANDROID_HOME: $ANDROID_HOME
+                  echo NDK_HOME: $NDK_HOME
+                  echo Flavor: $flavor
+                  echo BuildType: $buildType
+                  echo AdbPort: $adbPort
+                  echo EmulatorPrefix: $emulatorPrefix
+                  echo TrackName: $trackName
+                  echo ChangeId: $CHANGE_ID
                '''
           }
         }
@@ -89,7 +82,7 @@ pipeline {
     stage('Load Env Variables') {
       steps {
         configFileProvider([
-          configFile(fileId: '10414dfa-5450-4c18-84fb-970fc9c6ae90', variable: 'GROOVY_FILE_THAT_SETS_VARIABLES')
+          configFile(fileId: env.GROOVY_ENV_VARS_REFERENCE_FILE_NAME, variable: 'GROOVY_FILE_THAT_SETS_VARIABLES')
         ]) {
           load env.GROOVY_FILE_THAT_SETS_VARIABLES
         }
@@ -317,7 +310,7 @@ pipeline {
           }
           stage('Playstore') {
             when {
-              expression { env.trackName != 'None' }
+              expression { env.trackName != 'None' && env.flavor != 'Dev' && env.CHANGE_ID == null }
             }
             steps {
               echo 'Checking folder before playstore upload'

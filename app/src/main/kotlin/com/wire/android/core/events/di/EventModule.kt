@@ -30,7 +30,7 @@ val eventModule = module {
     single { get<NetworkClient>().create(NotificationApi::class.java) }
     single<EventsHandler<Event.Conversation.MessageEvent>> { MessageEventsHandler(get(), get(), get(), get(), get()) }
     factory { NotificationLocalDataSource(get()) }
-    single<EventRepository> { EventDataSource(get(), get(), get(), "e1ef2a84caf1b28f") }
+    single<EventRepository> { EventDataSource(get(), get(), get(), get()) }
     single { ListenToEventsUseCase(get(), get()) }
     factory { EventMapper() }
 }

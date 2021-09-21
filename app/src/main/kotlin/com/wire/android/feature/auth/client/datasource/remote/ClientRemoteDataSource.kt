@@ -2,16 +2,20 @@ package com.wire.android.feature.auth.client.datasource.remote
 
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.map
 import com.wire.android.core.network.ApiService
 import com.wire.android.core.network.NetworkHandler
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientApi
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientRegistrationRequest
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientResponse
+import com.wire.android.feature.auth.client.datasource.remote.api.ClientsOfUsersRequest
 import com.wire.android.feature.auth.client.datasource.remote.api.UpdatePreKeysRequest
+import com.wire.android.shared.user.QualifiedId
 
 class ClientRemoteDataSource(
     override val networkHandler: NetworkHandler,
-    private val clientApi: ClientApi
+    private val clientApi: ClientApi,
+    private val clientRemoteMapper: ClientRemoteMapper
 ) : ApiService() {
 
     suspend fun registerNewClient(
@@ -34,5 +38,22 @@ class ClientRemoteDataSource(
         updatePreKeysRequest: UpdatePreKeysRequest
     ): Either<Failure, Unit> = request {
         clientApi.updatePreKeys(authorizationToken, clientId, updatePreKeysRequest)
+    }
+
+    suspend fun clientIdsOfUsers(
+        authorizationToken: String,
+        userIds: List<QualifiedId>
+    ): Either<Failure, Map<QualifiedId, List<String>>> = request {
+        val dtos = userIds.map(clientRemoteMapper::fromQualifiedIdToQualifiedIdDTO)
+        val request = ClientsOfUsersRequest(dtos)
+        clientApi.clientsOfUsers(authorizationToken, request)
+    }.map {
+        val domainMap = it.qualifiedMap
+        domainMap.entries.flatMap { domainEntry ->
+            domainEntry.value.map { userEntry ->
+                val userClients = userEntry.value.map { simpleClient -> simpleClient.id }
+                QualifiedId(domainEntry.key, userEntry.key) to userClients
+            }
+        }.toMap()
     }
 }

@@ -6,7 +6,11 @@ import com.wire.android.core.storage.db.DatabaseService
 
 class ClientLocalDataSource(private val clientDao: ClientDao) : DatabaseService {
 
-    suspend fun save(clientEntity: ClientEntity) : Either<Failure, Unit> = request {
+    suspend fun save(clientEntity: ClientEntity): Either<Failure, Unit> = request {
         clientDao.insert(clientEntity)
+    }
+
+    suspend fun clientById(clientId: String): Either<Failure, ClientEntity> = request {
+        clientDao.clientById(clientId)
     }
 }

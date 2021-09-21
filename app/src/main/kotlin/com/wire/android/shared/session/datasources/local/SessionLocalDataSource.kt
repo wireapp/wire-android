@@ -14,6 +14,10 @@ class SessionLocalDataSource(private val sessionDao: SessionDao) : DatabaseServi
         sessionDao.currentSession()
     }
 
+    suspend fun setClientIdToUser(userId: String, clientId: String) = request {
+        sessionDao.setClientIdToUserSession(userId, clientId)
+    }
+
     suspend fun userSession(userId: String): Either<Failure, SessionEntity> = request {
         sessionDao.userSession(userId)
     }

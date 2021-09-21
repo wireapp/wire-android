@@ -30,7 +30,7 @@ class SessionMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given fromLoginResponse is called, when response body is empty, then returns empty Session`() {
+    fun `given a response with empty body, when calling fromLoginResponse, then returns empty Session`() {
         every { loginWithEmailResponse.body() } returns null
 
         val result = sessionMapper.fromLoginResponse(loginWithEmailResponse)
@@ -39,7 +39,7 @@ class SessionMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given fromLoginResponse is called, when response header does not contain refresh token key, then returns empty Session`() {
+    fun `given a response with no refresh token header, when fromLoginResponse is called, then returns empty Session`() {
         every { loginWithEmailResponse.body() } returns loginWithEmailResponseBody
         every { loginWithEmailResponse.headers() } returns Headers.headersOf("dummyKey", "dummyValue")
 
@@ -59,21 +59,23 @@ class SessionMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given fromLoginResponse is called, when body exists and refresh token is correct, then returns correct Session mapping`() {
+    fun `given a positive login response body and headers, when mapping to a session, then the mapper returns a Session correctly`() {
         every { loginWithEmailResponse.body() } returns
-            LoginWithEmailResponse(expiresIn = 900, accessToken = TEST_ACCESS_TOKEN, userId = TEST_USER_ID, tokenType = TEST_TOKEN_TYPE)
+                LoginWithEmailResponse(expiresIn = 900, accessToken = TEST_ACCESS_TOKEN, userId = TEST_USER_ID, tokenType = TEST_TOKEN_TYPE)
 
         every { loginWithEmailResponse.headers() } returns
-            Headers.headersOf(AUTH_REFRESH_TOKEN_HEADER_KEY, TEST_REFRESH_TOKEN_HEADER_VALUE)
+                Headers.headersOf(AUTH_REFRESH_TOKEN_HEADER_KEY, TEST_REFRESH_TOKEN_HEADER_VALUE)
 
         val result = sessionMapper.fromLoginResponse(loginWithEmailResponse)
 
-        result shouldBeEqualTo
-            Session(userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN)
+        result shouldBeEqualTo Session(
+            userId = TEST_USER_ID, clientId = null, accessToken = TEST_ACCESS_TOKEN,
+            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
+        )
     }
 
     @Test
-    fun `given extractRefreshToken is called, when header does not contain refresh token key, then returns null`() {
+    fun `given a response without a refresh token header, when calling extractRefreshToken, then returns null`() {
         val headers = Headers.headersOf("dummyKey", "dummyValue")
 
         val result = sessionMapper.extractRefreshToken(headers)
@@ -82,7 +84,7 @@ class SessionMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given extractRefreshToken is called, when refresh token exists but is in incorrect format, then returns null`() {
+    fun `given a refresh token header has an incorrect format, when extracting refresh token, then returns null`() {
         val headers = Headers.headersOf(AUTH_REFRESH_TOKEN_HEADER_KEY, "dummyValue")
 
         val result = sessionMapper.extractRefreshToken(headers)
@@ -103,7 +105,8 @@ class SessionMapperTest : UnitTest() {
     fun `given toSessionEntity is called, then maps the Session and returns a SessionEntity`() {
         val session = Session(
             userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN,
-            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
+            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN,
+            clientId = TEST_CLIENT_ID
         )
 
         val currentSession = sessionMapper.toSessionEntity(session, true)
@@ -119,7 +122,8 @@ class SessionMapperTest : UnitTest() {
 
         val expectedSession = Session(
             userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN,
-            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
+            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN,
+            clientId = TEST_CLIENT_ID
         )
 
         session shouldBeEqualTo expectedSession
@@ -131,7 +135,8 @@ class SessionMapperTest : UnitTest() {
 
         val expectedSession = Session(
             userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN,
-            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN
+            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN,
+            clientId = TEST_CLIENT_ID
         )
 
         session shouldBeEqualTo expectedSession
@@ -145,14 +150,16 @@ class SessionMapperTest : UnitTest() {
             tokenType = TEST_TOKEN_TYPE,
             expiresIn = 900
         )
+        val clientId = "ABC"
 
-        val session = sessionMapper.fromAccessTokenResponse(accessTokenResponse, TEST_REFRESH_TOKEN)
+        val session = sessionMapper.fromAccessTokenResponse(accessTokenResponse, TEST_REFRESH_TOKEN, clientId)
 
         val expectedSession = Session(
             userId = TEST_USER_ID,
             accessToken = TEST_ACCESS_TOKEN,
             tokenType = TEST_TOKEN_TYPE,
-            refreshToken = TEST_REFRESH_TOKEN
+            refreshToken = TEST_REFRESH_TOKEN,
+            clientId = clientId
         )
 
         session shouldBeEqualTo expectedSession
@@ -160,18 +167,20 @@ class SessionMapperTest : UnitTest() {
 
     companion object {
         private const val TEST_USER_ID = "user-id-1"
+        private const val TEST_CLIENT_ID = "client-id-1"
         private const val TEST_ACCESS_TOKEN = "access-token-1"
         private const val TEST_TOKEN_TYPE = "token-type-bearer"
         private const val TEST_REFRESH_TOKEN =
             "kj-BRlhCPgzEomBoWYnOAZRB8DLczUCcUrZtVuWzWTRI3p_gb5Y_nn9Y6vTC7cVcTEztsi2cNFN_aPImyTE3DA==.v=1.k=1.d=1605278429" +
-                ".t=u.l=.u=1c5af167-fd5d-4ee5-a11b-fe93b1882ade.r=73e30faa"
+                    ".t=u.l=.u=1c5af167-fd5d-4ee5-a11b-fe93b1882ade.r=73e30faa"
         private const val TEST_REFRESH_TOKEN_HEADER_VALUE = "zuid=$TEST_REFRESH_TOKEN; Path=/access; HttpOnly; Secure"
 
         private const val AUTH_REFRESH_TOKEN_HEADER_KEY = "Set-Cookie"
 
         private fun testSessionEntity(current: Boolean) = SessionEntity(
             userId = TEST_USER_ID, accessToken = TEST_ACCESS_TOKEN,
-            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN, isCurrent = current
+            tokenType = TEST_TOKEN_TYPE, refreshToken = TEST_REFRESH_TOKEN, isCurrent = current,
+            clientId = TEST_CLIENT_ID
         )
     }
 }

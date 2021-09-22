@@ -62,7 +62,7 @@ class ClientRemoteMapperTest : UnitTest(){
     }
 
     @Test
-    fun `given a client response without clients, when converting to a map of qualified client id list, the result should contain no clients`(){
+    fun `given a client response without clients, when converting to a map of qualified client ids, the result should contain no clients`(){
         // Given Domain 1: First user
         val user11 = "user11" to listOf<SimpleClientResponse>()
 

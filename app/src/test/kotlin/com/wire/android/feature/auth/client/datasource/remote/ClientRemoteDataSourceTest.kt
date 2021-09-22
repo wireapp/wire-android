@@ -1,18 +1,24 @@
 package com.wire.android.feature.auth.client.datasource.remote
 
 import com.wire.android.UnitTest
+import com.wire.android.core.exception.NetworkFailure
+import com.wire.android.core.exception.NotFound
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientApi
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientRegistrationRequest
+import com.wire.android.feature.auth.client.datasource.remote.api.ClientsOfUsersResponse
 import com.wire.android.feature.auth.client.datasource.remote.api.UpdatePreKeysRequest
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
 import com.wire.android.framework.network.mockNetworkError
 import com.wire.android.framework.network.mockNetworkResponse
+import com.wire.android.shared.user.QualifiedId
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
@@ -26,11 +32,14 @@ class ClientRemoteDataSourceTest : UnitTest() {
     @MockK
     private lateinit var clientRegistrationRequest: ClientRegistrationRequest
 
+    @MockK
+    private lateinit var clientRemoteMapper: ClientRemoteMapper
+
     private lateinit var clientRemoteDataSource: ClientRemoteDataSource
 
     @Before
     fun setUp() {
-        clientRemoteDataSource = ClientRemoteDataSource(connectedNetworkHandler, clientApi)
+        clientRemoteDataSource = ClientRemoteDataSource(connectedNetworkHandler, clientApi, clientRemoteMapper)
     }
 
     @Test
@@ -104,6 +113,41 @@ class ClientRemoteDataSourceTest : UnitTest() {
 
         runBlocking { clientRemoteDataSource.saveNewPreKeys(authorizationToken, CLIENT_ID, mockk()) }
             .shouldFail()
+    }
+
+    @Test
+    fun `given clientAPI fails, when getting clients of users, then failure should be forwarded`() {
+        coEvery { clientApi.clientsOfUsers(any(), any()) } returns mockNetworkError(404)
+
+        runBlocking {
+            clientRemoteDataSource.clientIdsOfUsers("", listOf())
+        }.shouldFail { it shouldBeEqualTo NotFound }
+    }
+
+    @Test
+    fun `given clientAPI a returns successfully, when getting clients of users, then the remote mapper should map the response`() {
+        val apiResponse = mockk<ClientsOfUsersResponse>()
+        coEvery { clientApi.clientsOfUsers(any(), any()) } returns mockNetworkResponse(apiResponse)
+
+        runBlocking {
+            clientRemoteDataSource.clientIdsOfUsers("", listOf())
+        }
+
+        verify(exactly = 1) { clientRemoteMapper.fromClientsOfUsersResponseToMapOfQualifiedClientIds(apiResponse) }
+    }
+
+    @Test
+    fun `given clientAPI a returns successfully, when getting clients of users, then the mapped result should be returned`() {
+        val apiResponse = mockk<ClientsOfUsersResponse>()
+        val mappedResult = mockk<Map<QualifiedId, List<String>>>()
+        coEvery { clientApi.clientsOfUsers(any(), any()) } returns mockNetworkResponse(apiResponse)
+        every { clientRemoteMapper.fromClientsOfUsersResponseToMapOfQualifiedClientIds(apiResponse) } returns mappedResult
+
+        val result = runBlocking {
+            clientRemoteDataSource.clientIdsOfUsers("", listOf())
+        }
+
+        result shouldBeEqualTo mappedResult
     }
 
     companion object {

@@ -45,15 +45,7 @@ class ClientRemoteDataSource(
         userIds: List<QualifiedId>
     ): Either<Failure, Map<QualifiedId, List<String>>> = request {
         val dtos = userIds.map(clientRemoteMapper::fromQualifiedIdToQualifiedIdDTO)
-        val request = ClientsOfUsersRequest(dtos)
-        clientApi.clientsOfUsers(authorizationToken, request)
-    }.map {
-        val domainMap = it.qualifiedMap
-        domainMap.entries.flatMap { domainEntry ->
-            domainEntry.value.map { userEntry ->
-                val userClients = userEntry.value.map { simpleClient -> simpleClient.id }
-                QualifiedId(domainEntry.key, userEntry.key) to userClients
-            }
-        }.toMap()
-    }
+        clientApi.clientsOfUsers(authorizationToken, ClientsOfUsersRequest(dtos))
+    }.map { clientRemoteMapper.fromClientsOfUsersResponseToMapOfQualifiedClientIds(it).toMap() }
+
 }

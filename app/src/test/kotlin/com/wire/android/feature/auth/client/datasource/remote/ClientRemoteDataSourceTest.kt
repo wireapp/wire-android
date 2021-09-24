@@ -1,7 +1,6 @@
 package com.wire.android.feature.auth.client.datasource.remote
 
 import com.wire.android.UnitTest
-import com.wire.android.core.exception.NetworkFailure
 import com.wire.android.core.exception.NotFound
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientApi
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientRegistrationRequest
@@ -139,7 +138,7 @@ class ClientRemoteDataSourceTest : UnitTest() {
     @Test
     fun `given clientAPI a returns successfully, when getting clients of users, then the mapped result should be returned`() {
         val apiResponse = mockk<ClientsOfUsersResponse>()
-        val mappedResult = mockk<Map<QualifiedId, List<String>>>()
+        val mappedResult = mapOf(QualifiedId("domain", "id") to listOf("client"))
         coEvery { clientApi.clientsOfUsers(any(), any()) } returns mockNetworkResponse(apiResponse)
         every { clientRemoteMapper.fromClientsOfUsersResponseToMapOfQualifiedClientIds(apiResponse) } returns mappedResult
 
@@ -147,7 +146,7 @@ class ClientRemoteDataSourceTest : UnitTest() {
             clientRemoteDataSource.clientIdsOfUsers("", listOf())
         }
 
-        result shouldBeEqualTo mappedResult
+        result.shouldSucceed { it shouldBeEqualTo mappedResult }
     }
 
     companion object {

@@ -61,10 +61,29 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
     }
 
     @Test
+    fun givenAliceSessionDoesNotExistsForBob_whenCheckingExistence_itShouldReturnFalse() {
+        bobClient.doesSessionExists(aliceSessionId)
+            .shouldSucceed {
+                it shouldBeEqualTo false
+        }
+    }
+
+    @Test
+    fun givenAliceSessionExistsForBob_whenCheckingExistence_itShouldReturnTrue() {
+        val aliceKey = (aliceClient.createInitialPreKeys() as Either.Right).b.lastKey
+        bobClient.createSessionIfNeeded(aliceSessionId, aliceKey)
+
+        bobClient.doesSessionExists(aliceSessionId)
+            .shouldSucceed {
+                it shouldBeEqualTo true
+            }
+    }
+
+    @Test
     fun givenBobWantsToTalkToAlice_whenSendingTheFirstMessageAndTheSessionIsAsserted_itShouldBeEncryptedSuccessfully() {
         val aliceKey = (aliceClient.createInitialPreKeys() as Either.Right).b.lastKey
 
-        bobClient.assertSession(aliceSessionId, aliceKey)
+        bobClient.createSessionIfNeeded(aliceSessionId, aliceKey)
         runBlocking {
             bobClient.encryptMessage(aliceSessionId, PlainMessage("Hello".toByteArray())) { Either.Right(Unit) }
         }.shouldSucceed {}
@@ -81,7 +100,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
     fun givenBobSendsTheFirstMessage_whenAliceReceivesIt_itShouldBeDecryptedSuccessfully() {
         val aliceKey = (aliceClient.createInitialPreKeys() as Either.Right).b.lastKey
 
-        bobClient.assertSession(aliceSessionId, aliceKey)
+        bobClient.createSessionIfNeeded(aliceSessionId, aliceKey)
 
         val plainMessage = PlainMessage("Hello".toByteArray())
         runBlocking {
@@ -104,7 +123,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
     fun givenAliceForgetsTheDecryptedMessageContent_whenAttemptingToDecryptItAgain_itShouldFailWithDuplicatedMessage() {
         val aliceKey = (aliceClient.createInitialPreKeys() as Either.Right).b.lastKey
 
-        bobClient.assertSession(aliceSessionId, aliceKey)
+        bobClient.createSessionIfNeeded(aliceSessionId, aliceKey)
 
         var firstMessage: EncryptedMessage? = null
         runBlocking {

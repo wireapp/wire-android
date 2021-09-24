@@ -123,18 +123,22 @@ class CryptoBoxClient(
         sessionMessage.session to sessionMessage.message
     }
 
-    /**
-     * Verifies if a session exists, or creates one with the provided [preKey].
-     */
-    fun assertSession(cryptoSessionId: CryptoSessionId, preKey: PreKey): Either<Failure, Unit> =
-        session(cryptoSessionId).fold({ failure ->
-            if (failure !is SessionNotFound)
-                return@fold Either.Left(failure)
+    fun createSessionIfNeeded(cryptoSessionId: CryptoSessionId, preKey: PreKey): Either<Failure, Unit> =
+        doesSessionExists(cryptoSessionId).flatMap { exists ->
+            if (!exists) {
+                useBox {
+                    initSessionFromPreKey(cryptoSessionId.value, cryptoPreKeyMapper.toCryptoBoxModel(preKey))
+                }
+            } else Either.Right(Unit)
+        }.map {}
 
-            useBox {
-                initSessionFromPreKey(cryptoSessionId.value, cryptoPreKeyMapper.toCryptoBoxModel(preKey))
-            }
-        }, { Either.Right(it) })!!.map {}
+    fun doesSessionExists(cryptoSessionId: CryptoSessionId): Either<Failure, Boolean> =
+        session(cryptoSessionId).fold({ failure ->
+            return@fold if (failure is SessionNotFound)
+                Either.Right(false)
+            else
+                Either.Left(failure)
+        }, { Either.Right(true) })!!
 
     private fun session(cryptoSessionId: CryptoSessionId): Either<Failure, CryptoSession> {
         return useBox {

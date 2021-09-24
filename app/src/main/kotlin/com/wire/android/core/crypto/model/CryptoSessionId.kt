@@ -1,5 +1,7 @@
 package com.wire.android.core.crypto.model
 
-data class CryptoSessionId(val userId: UserId, val cryptoClientId: CryptoClientId) {
+import com.wire.android.shared.user.QualifiedId
+
+data class CryptoSessionId(val userId: QualifiedId, val cryptoClientId: CryptoClientId) {
     val value: String = "${userId}_${cryptoClientId}"
 }

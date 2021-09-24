@@ -8,12 +8,12 @@ import com.wire.android.core.crypto.model.CryptoClientId
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
-import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.exception.MessageAlreadyDecrypted
 import com.wire.android.core.exception.SessionNotFound
 import com.wire.android.core.functional.Either
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
+import com.wire.android.shared.user.QualifiedId
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -23,11 +23,11 @@ import org.junit.Test
 
 class CryptoBoxClientIntegrationTest : InstrumentationTest() {
 
-    private val alice = UserId("Alice")
+    private val aliceUserId = QualifiedId("domain", "Alice")
     private val aliceClientId = CryptoClientId("clientA")
-    private val aliceSessionId = CryptoSessionId(alice, aliceClientId)
+    private val aliceSessionId = CryptoSessionId(aliceUserId, aliceClientId)
 
-    private val bob = UserId("Bob")
+    private val bobUserId = QualifiedId("domain", "Bob")
 
     private lateinit var aliceClient: CryptoBoxClient
     private lateinit var bobClient: CryptoBoxClient
@@ -38,7 +38,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
             CryptoBoxClient(
                 appContext,
                 CryptoBoxClientPropertyStorage(appContext),
-                alice,
+                aliceUserId,
                 CryptoPreKeyMapper(),
                 CryptoExceptionMapper(),
                 DefaultCryptoBoxProvider
@@ -47,7 +47,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
             CryptoBoxClient(
                 appContext,
                 CryptoBoxClientPropertyStorage(appContext),
-                bob,
+                bobUserId,
                 CryptoPreKeyMapper(),
                 CryptoExceptionMapper(),
                 DefaultCryptoBoxProvider
@@ -87,7 +87,10 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
         runBlocking {
             bobClient.encryptMessage(aliceSessionId, plainMessage) { encryptedMessage ->
 
-                aliceClient.decryptMessage(CryptoSessionId(bob, CryptoClientId("doesntmatter")), encryptedMessage) { decryptedMessage ->
+                aliceClient.decryptMessage(
+                    CryptoSessionId(bobUserId, CryptoClientId("doesntmatter")),
+                    encryptedMessage
+                ) { decryptedMessage ->
                     decryptedMessage.data shouldBeEqualTo plainMessage.data
                     Either.Right(Unit)
                 }.shouldSucceed { }
@@ -111,7 +114,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
             }
         }
 
-        val bobSessionID = CryptoSessionId(bob, CryptoClientId("clientB"))
+        val bobSessionID = CryptoSessionId(bobUserId, CryptoClientId("clientB"))
 
         runBlocking {
             aliceClient.decryptMessage(bobSessionID, firstMessage!!) { Either.Right(Unit) }

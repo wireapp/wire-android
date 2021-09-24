@@ -4,13 +4,13 @@ import com.wire.android.core.crypto.model.CryptoClientId
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
-import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.date.DateStringMapper
 import com.wire.android.core.events.Event
 import com.wire.android.feature.conversation.content.EncryptedMessageEnvelope
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.Sent
 import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
+import com.wire.android.shared.user.QualifiedId
 
 class MessageMapper(
     private val messageContentMapper: MessageContentMapper,
@@ -71,7 +71,12 @@ class MessageMapper(
         )
 
     fun cryptoSessionFromEncryptedEnvelope(message: EncryptedMessageEnvelope) =
-        CryptoSessionId(UserId(message.senderUserId), CryptoClientId(message.clientId!!))
+        CryptoSessionId(QualifiedId(TEMP_HARDCODED_DOMAIN, message.senderUserId), CryptoClientId(message.clientId!!))
 
     fun encryptedMessageFromDecodedContent(decodedContent: ByteArray) = EncryptedMessage(decodedContent)
+
+    companion object {
+        //TODO Remove hardcoded ID
+        private const val TEMP_HARDCODED_DOMAIN = "domain"
+    }
 }

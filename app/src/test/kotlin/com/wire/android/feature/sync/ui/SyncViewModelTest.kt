@@ -3,6 +3,7 @@ package com.wire.android.feature.sync.ui
 import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkInfo
 import com.wire.android.UnitTest
+import com.wire.android.core.events.usecase.ListenToEventsUseCase
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.sync.slow.SlowSyncWorkHandler
 import com.wire.android.feature.sync.slow.usecase.CheckSlowSyncRequiredUseCase
@@ -31,13 +32,16 @@ class SyncViewModelTest : UnitTest() {
     private lateinit var checkSlowSyncRequiredUseCase: CheckSlowSyncRequiredUseCase
 
     @MockK
+    private lateinit var listenToEventsUseCase: ListenToEventsUseCase
+
+    @MockK
     private lateinit var slowSyncWorkHandler: SlowSyncWorkHandler
 
     private lateinit var syncViewModel: SyncViewModel
 
     @Before
     fun setUp() {
-        syncViewModel = SyncViewModel(checkSlowSyncRequiredUseCase, slowSyncWorkHandler, coroutinesTestRule.dispatcherProvider)
+        syncViewModel = SyncViewModel(listenToEventsUseCase, checkSlowSyncRequiredUseCase, slowSyncWorkHandler, coroutinesTestRule.dispatcherProvider)
     }
 
     @Test

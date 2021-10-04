@@ -41,7 +41,12 @@ class SyncViewModelTest : UnitTest() {
 
     @Before
     fun setUp() {
-        syncViewModel = SyncViewModel(listenToEventsUseCase, checkSlowSyncRequiredUseCase, slowSyncWorkHandler, coroutinesTestRule.dispatcherProvider)
+        syncViewModel = SyncViewModel(
+            listenToEventsUseCase,
+            checkSlowSyncRequiredUseCase,
+            slowSyncWorkHandler,
+            coroutinesTestRule.dispatcherProvider
+        )
     }
 
     @Test

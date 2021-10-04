@@ -18,14 +18,18 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.flatMap
 import com.wire.android.core.functional.map
 import com.wire.android.core.functional.suspending
+import com.wire.android.shared.user.QualifiedId
 import com.wire.cryptobox.CryptoBox
 import com.wire.cryptobox.CryptoException
 import com.wire.cryptobox.CryptoSession
 
+/**
+ * TODO: Improve support for multiple accounts (userIds). Maybe don't use CryptoBoxClient directly, and use CryptoBoxProvider instead.
+ */
 class CryptoBoxClient(
     context: Context,
     private val clientPropertyStorage: CryptoBoxClientPropertyStorage,
-    private val userId: UserId,
+    private val userId: QualifiedId,
     private val cryptoPreKeyMapper: CryptoPreKeyMapper,
     private val exceptionMapper: CryptoExceptionMapper,
     private val cryptoBoxProvider: CryptoBoxProvider
@@ -54,7 +58,7 @@ class CryptoBoxClient(
     fun createInitialPreKeys(): Either<Failure, PreKeyInitialization> = useBox {
         val lastKey = cryptoPreKeyMapper.fromCryptoBoxModel(newLastPreKey())
         val keys = newPreKeys(0, PRE_KEYS_COUNT).map(cryptoPreKeyMapper::fromCryptoBoxModel)
-        clientPropertyStorage.updateLastPreKeyId(userId, keys.last().id)
+        clientPropertyStorage.updateLastPreKeyId(UserId(userId.id), keys.last().id)
         PreKeyInitialization(keys, lastKey)
     }
 
@@ -119,18 +123,22 @@ class CryptoBoxClient(
         sessionMessage.session to sessionMessage.message
     }
 
-    /**
-     * Verifies if a session exists, or creates one with the provided [preKey].
-     */
-    fun assertSession(cryptoSessionId: CryptoSessionId, preKey: PreKey): Either<Failure, Unit> =
-        session(cryptoSessionId).fold({ failure ->
-            if (failure !is SessionNotFound)
-                return@fold Either.Left(failure)
+    fun createSessionIfNeeded(cryptoSessionId: CryptoSessionId, preKey: PreKey): Either<Failure, Unit> =
+        doesSessionExists(cryptoSessionId).flatMap { exists ->
+            if (!exists) {
+                useBox {
+                    initSessionFromPreKey(cryptoSessionId.value, cryptoPreKeyMapper.toCryptoBoxModel(preKey))
+                }
+            } else Either.Right(Unit)
+        }.map {}
 
-            useBox {
-                initSessionFromPreKey(cryptoSessionId.value, cryptoPreKeyMapper.toCryptoBoxModel(preKey))
-            }
-        }, { Either.Right(it) })!!.map {}
+    fun doesSessionExists(cryptoSessionId: CryptoSessionId): Either<Failure, Boolean> =
+        session(cryptoSessionId).fold({ failure ->
+            return@fold if (failure is SessionNotFound)
+                Either.Right(false)
+            else
+                Either.Left(failure)
+        }, { Either.Right(true) })!!
 
     private fun session(cryptoSessionId: CryptoSessionId): Either<Failure, CryptoSession> {
         return useBox {

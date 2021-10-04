@@ -13,11 +13,12 @@ class CryptoBoxClientPropertyStorage(private val context: Context) {
         )
         return prefs.apply()
     }
-
+    //TODO Use QualifiedUserId
     fun updateLastPreKeyId(userId: UserId, preKeyId: Int) = sharedPreferencesForUser(userId) {
         edit().putInt(LAST_PRE_KEY_PREF_ID, preKeyId).apply()
     }
 
+    //TODO Use QualifiedUserId
     fun lastPreKeyId(userId: UserId): Int? = sharedPreferencesForUser(userId) {
         getInt(LAST_PRE_KEY_PREF_ID, Int.MIN_VALUE)
             .takeUnless { it == Int.MIN_VALUE }

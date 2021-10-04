@@ -5,6 +5,7 @@ sealed class Event {
         data class MessageEvent(
             val id: String,
             val conversationId: String,
+            // TODO Use QualifiedUserId
             val senderClientId: String,
             val senderUserId: String,
             val content: String,

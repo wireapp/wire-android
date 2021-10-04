@@ -69,6 +69,13 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
     }
 
     @Test
+    fun givenAliceSessionDoesNotExistsForBob_whenSendingTheFirstMessage_itShouldFailWithSessionNotFound() {
+        runBlocking {
+            bobClient.encryptMessage(aliceSessionId, PlainMessage("Hello".toByteArray())) { Either.Right(Unit) }
+        }.shouldFail { it shouldBeInstanceOf SessionNotFound::class }
+    }
+
+    @Test
     fun givenAliceSessionExistsForBob_whenCheckingExistence_itShouldReturnTrue() {
         val aliceKey = (aliceClient.createInitialPreKeys() as Either.Right).b.lastKey
         bobClient.createSessionIfNeeded(aliceSessionId, aliceKey)
@@ -80,7 +87,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
     }
 
     @Test
-    fun givenBobWantsToTalkToAlice_whenSendingTheFirstMessageAndTheSessionIsAsserted_itShouldBeEncryptedSuccessfully() {
+    fun givenAliceSessionExistsForBob_whenSendingTheFirstMessage_itShouldBeEncryptedSuccessfully() {
         val aliceKey = (aliceClient.createInitialPreKeys() as Either.Right).b.lastKey
 
         bobClient.createSessionIfNeeded(aliceSessionId, aliceKey)
@@ -90,14 +97,7 @@ class CryptoBoxClientIntegrationTest : InstrumentationTest() {
     }
 
     @Test
-    fun givenBobWantsToTalkToAlice_whenSendingTheFirstMessageWithoutHavingTheSessionAsserted_itShouldFailWithSessionNotFound() {
-        runBlocking {
-            bobClient.encryptMessage(aliceSessionId, PlainMessage("Hello".toByteArray())) { Either.Right(Unit) }
-        }.shouldFail { it shouldBeInstanceOf SessionNotFound::class }
-    }
-
-    @Test
-    fun givenBobSendsTheFirstMessage_whenAliceReceivesIt_itShouldBeDecryptedSuccessfully() {
+    fun givenBobSentTheFirstMessageToAlice_whenAliceReceivesIt_itShouldBeDecryptedSuccessfully() {
         val aliceKey = (aliceClient.createInitialPreKeys() as Either.Right).b.lastKey
 
         bobClient.createSessionIfNeeded(aliceSessionId, aliceKey)

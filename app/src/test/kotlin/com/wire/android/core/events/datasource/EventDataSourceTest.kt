@@ -30,7 +30,7 @@ class EventDataSourceTest : UnitTest() {
 
     @Before
     fun setUp() {
-        subject = EventDataSource(TestCoroutineScope(), notificationLocalDataSource, notificationRemoteDataSource, sessionRepository)
+        subject = EventDataSource(notificationLocalDataSource, notificationRemoteDataSource, sessionRepository)
     }
 
     @Test

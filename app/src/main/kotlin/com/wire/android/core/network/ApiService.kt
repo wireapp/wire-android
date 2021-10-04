@@ -23,16 +23,12 @@ abstract class ApiService {
     abstract val networkHandler: NetworkHandler
 
     suspend fun <T> rawRequest(
-        onResponseError: (suspend (response: Response<T>) -> Either<Failure, Response<T>>)? = null,
+        onResponseError: (suspend (response: Response<T>) -> Either<Failure, Response<T>>) = { handleRequestError(it) },
         call: suspend () -> Response<T>
     ): Either<Failure, Response<T>> = suspending {
         performRequest(call).flatMap { response ->
-            if (response.isSuccessful) {
-                Either.Right(response)
-            } else {
-                onResponseError?.invoke(response)
-                    ?: handleRequestError(response)
-            }
+            if (response.isSuccessful) Either.Right(response)
+            else onResponseError.invoke(response)
         }
     }
 

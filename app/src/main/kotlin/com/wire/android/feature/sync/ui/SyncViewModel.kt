@@ -7,6 +7,7 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.wire.android.core.async.DispatcherProvider
+import com.wire.android.core.events.usecase.ListenToEventsUseCase
 import com.wire.android.core.functional.onSuccess
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
@@ -14,6 +15,7 @@ import com.wire.android.feature.sync.slow.SlowSyncWorkHandler
 import com.wire.android.feature.sync.slow.usecase.CheckSlowSyncRequiredUseCase
 
 class SyncViewModel(
+    private val listenToEventsUseCase: ListenToEventsUseCase,
     private val checkSlowSyncRequiredUseCase: CheckSlowSyncRequiredUseCase,
     private val slowSyncWorkHandler: SlowSyncWorkHandler,
     override val dispatcherProvider: DispatcherProvider
@@ -21,6 +23,10 @@ class SyncViewModel(
 
     private val _syncStatusLiveData = MutableLiveData<WorkInfo.State>()
     val syncStatusLiveData: LiveData<WorkInfo.State> = _syncStatusLiveData
+
+    fun startListeningToMessages() {
+        listenToEventsUseCase(viewModelScope, Unit) { }
+    }
 
     fun startSync() {
         checkSlowSyncRequiredUseCase(viewModelScope, Unit) {

@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun syncData() {
         syncViewModel.startSync() //TODO: this should normally be triggered by PushService
+        syncViewModel.startListeningToMessages()
         syncViewModel.syncStatusLiveData.observe(this) {
             handleLoadingBarVisibility(it)
         }

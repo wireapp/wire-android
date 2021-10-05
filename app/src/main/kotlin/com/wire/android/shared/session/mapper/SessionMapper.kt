@@ -18,7 +18,8 @@ class SessionMapper {
             userId = body.userId,
             accessToken = body.accessToken,
             tokenType = body.tokenType,
-            refreshToken = refreshToken
+            refreshToken = refreshToken,
+            clientId = null
         )
     }
 
@@ -28,11 +29,12 @@ class SessionMapper {
         }
 
     //TODO: what about expiresIn?
-    fun fromAccessTokenResponse(response: AccessTokenResponse, refreshToken: String) = Session(
+    fun fromAccessTokenResponse(response: AccessTokenResponse, refreshToken: String, clientId: String?) = Session(
         userId = response.userId,
         accessToken = response.accessToken,
         tokenType = response.tokenType,
-        refreshToken = refreshToken
+        refreshToken = refreshToken,
+        clientId = clientId
     )
 
     fun toSessionEntity(session: Session, isCurrent: Boolean) =
@@ -41,14 +43,16 @@ class SessionMapper {
             accessToken = session.accessToken,
             tokenType = session.tokenType,
             refreshToken = session.refreshToken,
-            isCurrent = isCurrent
+            isCurrent = isCurrent,
+            clientId = session.clientId
         )
 
     fun fromSessionEntity(entity: SessionEntity) = Session(
         userId = entity.userId,
         accessToken = entity.accessToken,
         tokenType = entity.tokenType,
-        refreshToken = entity.refreshToken
+        refreshToken = entity.refreshToken,
+        clientId = entity.clientId
     )
 
     companion object {

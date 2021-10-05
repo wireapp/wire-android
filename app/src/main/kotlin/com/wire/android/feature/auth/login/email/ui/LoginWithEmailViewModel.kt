@@ -51,7 +51,7 @@ class LoginWithEmailViewModel(
         isValidPasswordLiveData.value = password.isNotEmpty()
     }
 
-    fun  login(email: String, password: String) {
+    fun login(email: String, password: String) {
         loginWithEmailUseCase(viewModelScope, LoginWithEmailUseCaseParams(email = email, password = password)) { result ->
             result.onSuccess {
                 _loginResultLiveData.success(it)

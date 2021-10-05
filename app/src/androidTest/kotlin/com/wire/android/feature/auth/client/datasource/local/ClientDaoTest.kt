@@ -4,6 +4,7 @@ import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.framework.storage.db.DatabaseTestRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Rule
@@ -17,7 +18,6 @@ class ClientDaoTest : InstrumentationTest() {
 
     private lateinit var clientDao: ClientDao
     private lateinit var userDatabase: UserDatabase
-
 
     @Before
     fun setUp() {
@@ -34,6 +34,16 @@ class ClientDaoTest : InstrumentationTest() {
 
         val result = clientDao.clients()
 
-        result shouldContainSame  arrayOf(client1, client2)
+        result shouldContainSame arrayOf(client1, client2)
+    }
+
+    @Test
+    fun insertClient_readClientById_containsInsertedItem() = databaseTestRule.runTest {
+        val client = ClientEntity("12352-33")
+        clientDao.insert(client)
+
+        val result = clientDao.clientById(client.id)
+
+        result shouldBeEqualTo client
     }
 }

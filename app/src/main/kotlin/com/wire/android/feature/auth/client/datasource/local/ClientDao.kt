@@ -12,4 +12,8 @@ interface ClientDao {
 
     @Query("SELECT * FROM client")
     suspend fun clients(): List<ClientEntity>
+
+    @Query("SELECT * FROM client WHERE client.id = :clientId LIMIT 1")
+    suspend fun clientById(clientId: String): ClientEntity
+
 }

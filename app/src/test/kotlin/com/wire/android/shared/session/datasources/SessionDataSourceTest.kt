@@ -202,17 +202,35 @@ class SessionDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given newAccessToken is called, when remoteDataSource is successful, then maps the response and returns session`() {
+    fun `given a positive response and no current client id, when getting new access token, then maps the response and returns session`() {
         val accessTokenResponse = mockk<AccessTokenResponse>()
         val refreshToken = "refresh-token-123"
+        coEvery { localDataSource.currentSession() } returns Either.Left(mockk())
         coEvery { remoteDataSource.accessToken(refreshToken) } returns Either.Right(accessTokenResponse)
-        every { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken) } returns session
+        every { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken, null) } returns session
 
         val result = runBlocking { sessionDataSource.newAccessToken(refreshToken) }
 
         result shouldSucceed { it shouldBe session }
         coVerify(exactly = 1) { remoteDataSource.accessToken(refreshToken) }
-        verify(exactly = 1) { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken) }
+        verify(exactly = 1) { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken, null) }
+    }
+
+    @Test
+    fun `given a positive response and a current client id, when getting new access token, then maps the response and returns session`() {
+        val accessTokenResponse = mockk<AccessTokenResponse>()
+        val refreshToken = "refresh-token-123"
+        val currentSession = sessionEntity.copy(clientId = "clientId")
+        val currentClientId = currentSession.clientId
+        coEvery { localDataSource.currentSession() } returns Either.Right(currentSession)
+        coEvery { remoteDataSource.accessToken(refreshToken) } returns Either.Right(accessTokenResponse)
+        every { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken, currentClientId) } returns session
+
+        val result = runBlocking { sessionDataSource.newAccessToken(refreshToken) }
+
+        result shouldSucceed { it shouldBe session }
+        coVerify(exactly = 1) { remoteDataSource.accessToken(refreshToken) }
+        verify(exactly = 1) { sessionMapper.fromAccessTokenResponse(accessTokenResponse, refreshToken, currentClientId) }
     }
 
     @Test

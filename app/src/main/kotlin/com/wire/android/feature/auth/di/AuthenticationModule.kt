@@ -114,7 +114,7 @@ private val createProAccountModule = module {
     viewModel { CreateProAccountTeamNameViewModel(get(), get(), get()) }
     factory { GetTeamNameUseCase(get()) }
     factory { UpdateTeamNameUseCase(get()) }
-    single { TeamDataSource() as TeamsRepository }
+    single<TeamsRepository> { TeamDataSource() }
 }
 
 private val loginModule = module {

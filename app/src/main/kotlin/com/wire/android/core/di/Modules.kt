@@ -16,7 +16,6 @@ import com.wire.android.core.crypto.DefaultCryptoBoxProvider
 import com.wire.android.core.crypto.data.CryptoBoxClientPropertyStorage
 import com.wire.android.core.crypto.mapper.CryptoExceptionMapper
 import com.wire.android.core.crypto.mapper.CryptoPreKeyMapper
-import com.wire.android.core.crypto.model.UserId
 import com.wire.android.core.date.DateStringMapper
 import com.wire.android.core.io.FileSystem
 import com.wire.android.core.logger.Logger
@@ -28,6 +27,7 @@ import com.wire.android.core.ui.navigation.UriNavigationHandler
 import com.wire.android.core.ui.recyclerview.ViewHolderInflater
 import com.wire.android.shared.config.DeviceClassMapper
 import com.wire.android.shared.config.DeviceTypeMapper
+import com.wire.android.shared.user.QualifiedId
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -82,7 +82,7 @@ val cryptoBoxModule = module {
     factory { CryptoBoxClientPropertyStorage(androidContext()) }
     single<CryptoBoxProvider> { DefaultCryptoBoxProvider }
     //TODO hardcoded UserId should be replaced with real userId value (AR-711)
-    factory { CryptoBoxClient(androidContext(), get(), UserId("dummy-id"), get(), get(), get()) }
+    factory { CryptoBoxClient(androidContext(), get(), QualifiedId("domain", "dummy-id"), get(), get(), get()) }
 }
 
 val dateModule = module {

@@ -54,9 +54,9 @@ class RegisterClientUseCaseTest : UnitTest() {
         val failure = mockk<Failure>()
         coEvery { sessionRepository.userSession(USER_ID) } returns Either.Left(failure)
 
-        val response = runBlocking { registerClientUseCase.run(registerClientParams)}
+        val response = runBlocking { registerClientUseCase.run(registerClientParams) }
 
-        response shouldFail { it shouldBeEqualTo failure}
+        response shouldFail { it shouldBeEqualTo failure }
         coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
         coVerify(inverse = true) { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
     }
@@ -69,9 +69,9 @@ class RegisterClientUseCaseTest : UnitTest() {
         coEvery { authenticationManager.authorizationToken(session) } returns AUTHORIZATION_TOKEN
         coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Left(failure)
 
-        val response = runBlocking { registerClientUseCase.run(registerClientParams)}
+        val response = runBlocking { registerClientUseCase.run(registerClientParams) }
 
-        response shouldFail { it shouldBeEqualTo failure}
+        response shouldFail { it shouldBeEqualTo failure }
         coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
         coVerify(exactly = 1) { authenticationManager.authorizationToken(session) }
         coVerify(exactly = 1) { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
@@ -85,9 +85,9 @@ class RegisterClientUseCaseTest : UnitTest() {
         coEvery { authenticationManager.authorizationToken(session) } returns AUTHORIZATION_TOKEN
         coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Left(failure)
 
-        val response = runBlocking { registerClientUseCase.run(registerClientParams)}
+        val response = runBlocking { registerClientUseCase.run(registerClientParams) }
 
-        response shouldFail { it shouldBeEqualTo MalformedPreKeys}
+        response shouldFail { it shouldBeEqualTo MalformedPreKeys }
         coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
         coVerify(exactly = 1) { authenticationManager.authorizationToken(session) }
         coVerify(exactly = 1) { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
@@ -101,24 +101,24 @@ class RegisterClientUseCaseTest : UnitTest() {
         coEvery { authenticationManager.authorizationToken(session) } returns AUTHORIZATION_TOKEN
         coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Left(failure)
 
-        val response = runBlocking { registerClientUseCase.run(registerClientParams)}
+        val response = runBlocking { registerClientUseCase.run(registerClientParams) }
 
-        response shouldFail { it shouldBeEqualTo DevicesLimitReached}
+        response shouldFail { it shouldBeEqualTo DevicesLimitReached }
         coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
         coVerify(exactly = 1) { authenticationManager.authorizationToken(session) }
         coVerify(exactly = 1) { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) }
     }
 
-
     @Test
     fun `given use case is run, when registerNewClient runs successfully, then return valid Unit`() {
         coEvery { sessionRepository.userSession(USER_ID) } returns Either.Right(session)
         coEvery { authenticationManager.authorizationToken(session) } returns AUTHORIZATION_TOKEN
-        coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Right(Unit)
+        coEvery { sessionRepository.setClientIdToUser(CLIENT_ID, USER_ID) } returns Either.Right(Unit)
+        coEvery { clientRepository.registerNewClient(AUTHORIZATION_TOKEN, USER_ID, PASSWORD) } returns Either.Right(CLIENT_ID)
 
-        val response = runBlocking { registerClientUseCase.run(registerClientParams)}
+        val response = runBlocking { registerClientUseCase.run(registerClientParams) }
 
-        response shouldSucceed  { it shouldBeEqualTo Unit}
+        response shouldSucceed { it shouldBeEqualTo Unit }
 
         coVerify(exactly = 1) { sessionRepository.userSession(USER_ID) }
         coVerify(exactly = 1) { authenticationManager.authorizationToken(session) }
@@ -128,6 +128,7 @@ class RegisterClientUseCaseTest : UnitTest() {
     companion object {
         private const val AUTHORIZATION_TOKEN = "authorizationToken"
         private const val USER_ID = "user-id"
+        private const val CLIENT_ID = "client-id"
         private const val PASSWORD = "password"
     }
 }

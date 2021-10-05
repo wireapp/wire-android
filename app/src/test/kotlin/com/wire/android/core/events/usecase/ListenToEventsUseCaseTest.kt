@@ -4,6 +4,7 @@ import com.wire.android.UnitTest
 import com.wire.android.core.events.Event
 import com.wire.android.core.events.EventRepository
 import com.wire.android.core.events.handler.EventsHandler
+import com.wire.android.core.functional.Either
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -31,7 +32,7 @@ class ListenToEventsUseCaseTest : UnitTest() {
     @Test
     fun `given eventRepository emits events, when event is Message, then subscribe to messageEventHandler`() {
         val event = mockk<Event.Conversation.MessageEvent>()
-        every { eventRepository.events() } returns flowOf(event)
+        every { eventRepository.events() } returns flowOf(Either.Right(event))
 
         runBlocking {
             listenToEventsUseCase.run(Unit)
@@ -43,7 +44,7 @@ class ListenToEventsUseCaseTest : UnitTest() {
     @Test
     fun `given eventRepository emits events, when event is not Message, then do not subscribe to messageEventHandler`() {
         val event = mockk<Event.Unknown>()
-        every { eventRepository.events() } returns flowOf(event)
+        every { eventRepository.events() } returns flowOf(Either.Right(event))
 
         runBlocking {
             listenToEventsUseCase.run(Unit)

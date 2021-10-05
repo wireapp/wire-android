@@ -18,6 +18,7 @@ import com.wire.android.core.exception.UnknownCryptoFailure
 import com.wire.android.core.functional.Either
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
+import com.wire.android.shared.user.QualifiedId
 import com.wire.cryptobox.CryptoBox
 import com.wire.cryptobox.CryptoException
 import com.wire.cryptobox.CryptoSession
@@ -50,7 +51,7 @@ class CryptoBoxClientTest : AndroidTest() {
 
     lateinit var subject: CryptoBoxClient
 
-    private val userId = UserId("abc")
+    private val userId = QualifiedId("domain", "abc")
 
     @Before
     fun setup() {
@@ -117,7 +118,7 @@ class CryptoBoxClientTest : AndroidTest() {
 
         subject.createInitialPreKeys()
 
-        verify(exactly = 1) { propertyStorage.updateLastPreKeyId(userId, lastRegularKey.id) }
+        verify(exactly = 1) { propertyStorage.updateLastPreKeyId(UserId(userId.id), lastRegularKey.id) }
     }
 
     @Test
@@ -302,7 +303,7 @@ class CryptoBoxClientTest : AndroidTest() {
     }
 
     companion object {
-        private val CRYPTO_SESSION_ID = CryptoSessionId(UserId("a"), CryptoClientId("b"))
+        private val CRYPTO_SESSION_ID = CryptoSessionId(QualifiedId("domain", "a"), CryptoClientId("b"))
         private val ENCRYPTED_MESSAGE = EncryptedMessage(byteArrayOf())
         private val PLAIN_MESSAGE = PlainMessage(byteArrayOf())
     }

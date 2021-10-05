@@ -183,12 +183,25 @@ class SessionDaoTest : InstrumentationTest() {
         sessionDao.userSession(TEST_USER_ID) shouldBeEqualTo null
     }
 
+    @Test
+    fun setClientIdToCurrentSession_currentSessionExists_updatesCurrentSession() = databaseTestRule.runTest {
+        val userId = "user-id"
+        val clientId = "client-id"
+        val session = prepareSession(id = 1, userId = userId, current = true)
+        sessionDao.insert(session)
+
+        sessionDao.setClientIdToUserSession(userId, clientId)
+
+        val result = sessionDao.currentSession()
+        result?.clientId shouldBeEqualTo clientId
+    }
+
     private suspend fun prepareSession(id : Int = 1, userId: String = TEST_USER_ID, current: Boolean = false): SessionEntity {
         globalDatabase.userDao().insert(UserEntity(userId, TEST_USER_NAME))
 
         return SessionEntity(
             id = id, userId = userId, accessToken = TEST_ACCESS_TOKEN, tokenType = TEST_TOKEN_TYPE,
-            refreshToken = TEST_REFRESH_TOKEN, isCurrent = current
+            refreshToken = TEST_REFRESH_TOKEN, isCurrent = current, clientId = null
         )
     }
 

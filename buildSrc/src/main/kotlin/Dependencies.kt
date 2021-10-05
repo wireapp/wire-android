@@ -45,7 +45,7 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.5.20"
+        const val kotlin = "1.5.31"
         const val coroutines = "1.5.0"
         const val cryptobox = "1.1.3"
         const val jetpack = "1.1.0"

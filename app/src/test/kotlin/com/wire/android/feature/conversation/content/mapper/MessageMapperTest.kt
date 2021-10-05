@@ -11,6 +11,7 @@ import com.wire.android.feature.conversation.content.EncryptedMessageEnvelope
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.Sent
 import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
+import com.wire.android.shared.user.QualifiedId
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -142,7 +143,7 @@ class MessageMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given cryptoSessionFromMessage is called, then maps the Message and returns a CryptoSessionId`() {
+    fun `given an EncryptedMessageEnvelope, when mapping to a CryptoSession, then return a CryptoSessionId`() {
         val message = mockk<EncryptedMessageEnvelope>().also {
             every { it.senderUserId } returns TEST_SENDER_USER_ID
             every { it.clientId } returns TEST_SENDER_ID
@@ -153,7 +154,7 @@ class MessageMapperTest : UnitTest() {
 
         result.let {
             it shouldBeInstanceOf CryptoSessionId::class
-            it.userId shouldBeInstanceOf UserId::class
+            it.userId shouldBeInstanceOf QualifiedId::class
             it.cryptoClientId shouldBeInstanceOf CryptoClientId::class
             it.value shouldBeEqualTo expected
         }

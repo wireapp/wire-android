@@ -5,6 +5,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
+import java.util.Locale
 import kotlin.math.absoluteValue
 
 fun OffsetDateTime.isSameDay(offsetDateTime: OffsetDateTime): Boolean =
@@ -19,20 +20,17 @@ fun OffsetDateTime.isMoreThanSixtyMinutesApartOf(anotherOffsetDateTime: OffsetDa
 fun OffsetDateTime.isWithinTheLastMinutes(minutes: Long) =
     ChronoUnit.MINUTES.between(this, OffsetDateTime.now()) < minutes
 
-fun OffsetDateTime.timeFromOffsetDateTime(): String {
-    val fmt: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-    return fmt.format(this)
-}
+fun OffsetDateTime.timeFromOffsetDateTime(): String = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+    .withLocale(Locale.getDefault())
+    .format(this)
 
-//TODO display localized date without year
-fun OffsetDateTime.dateWithoutYear(): String {
-    val fmt: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d, HH:mm")
-    return fmt.format(this)
-}
+fun OffsetDateTime.dateWithoutYear(): String = DateTimeFormatter.ofPattern("EEE, MMM d, HH:mm")
+    .withLocale(Locale.getDefault())
+    .format(this)
 
-fun OffsetDateTime.dateWithYear(): String {
-    val fmt: DateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.systemDefault())
-    return fmt.format(this)
-}
+fun OffsetDateTime.dateWithYear(): String = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
+    .withZone(ZoneId.systemDefault())
+    .withLocale(Locale.getDefault())
+    .format(this)
 
 private const val SIXTY_MINUTES = 60L

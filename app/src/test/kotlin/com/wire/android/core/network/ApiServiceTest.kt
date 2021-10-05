@@ -1,7 +1,16 @@
 package com.wire.android.core.network
 
 import com.wire.android.UnitTest
-import com.wire.android.core.exception.*
+import com.wire.android.core.exception.BadRequest
+import com.wire.android.core.exception.EmptyResponseBody
+import com.wire.android.core.exception.Failure
+import com.wire.android.core.exception.Forbidden
+import com.wire.android.core.exception.InternalServerError
+import com.wire.android.core.exception.NetworkConnection
+import com.wire.android.core.exception.NotFound
+import com.wire.android.core.exception.ServerError
+import com.wire.android.core.exception.TooManyRequests
+import com.wire.android.core.exception.Unauthorized
 import com.wire.android.core.functional.Either
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
@@ -59,7 +68,12 @@ class ApiServiceTest : UnitTest() {
         every { response.isSuccessful } returns true
         every { response.body() } returns TEST_BODY
 
-        val result = runBlocking { apiService.request(handleEmptyBody = TEST_ON_REQUEST_FAILURE, call = ::testCall) }
+        val result = runBlocking {
+            apiService.request(
+                handleEmptyBody = TEST_ON_REQUEST_FAILURE,
+                call = ::testCall
+            )
+        }
 
         result shouldSucceed { it shouldBe TEST_BODY }
     }
@@ -69,7 +83,12 @@ class ApiServiceTest : UnitTest() {
         every { response.isSuccessful } returns true
         every { response.body() } returns null
 
-        val result = runBlocking { apiService.request(handleEmptyBody = TEST_ON_REQUEST_FAILURE, call = ::testCall) }
+        val result = runBlocking {
+            apiService.request(
+                handleEmptyBody = TEST_ON_REQUEST_FAILURE,
+                call = ::testCall
+            )
+        }
 
         result shouldSucceed { it shouldBe TEST_DEFAULT_RESULT }
     }

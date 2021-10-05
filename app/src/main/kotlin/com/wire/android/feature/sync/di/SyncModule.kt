@@ -16,7 +16,7 @@ import org.koin.dsl.module
 
 val syncModule = module {
     single { SlowSyncWorkHandler(androidApplication()) }
-    viewModel { SyncViewModel(get(), get(), get()) }
+    viewModel { SyncViewModel(get(), get(), get(), get()) }
 
     factory { SyncLocalDataSource(get()) }
     factory<SyncRepository> { SyncDataSource(get()) }

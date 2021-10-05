@@ -35,10 +35,10 @@ class MessageRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given sendMessage was called, when calling api sendMessage, then the mapper result should be passed as parameter`() {
+    fun `given the mapper result, when calling sendMessage, then the mapper result should be passed as parameter`() {
         val mappedValue: Otr.NewOtrMessage = mockk()
         every { otrNewMessageMapper.fromMessageEnvelope(any()) } returns mappedValue
-        coEvery { messageApi.sendMessage(any(), any()) } returns mockk()
+        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkResponse()
 
         runBlocking { subject.sendMessage(any(), any()) }
 
@@ -46,10 +46,10 @@ class MessageRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given sendMessage was called, when calling api sendMessage, then conversationId should be forwarded as parameter`() {
+    fun `given a conversationId, when calling sendMessage, then conversationId should be forwarded as parameter`() {
         val conversationId = "Conversation-ID"
         every { otrNewMessageMapper.fromMessageEnvelope(any()) } returns mockk()
-        coEvery { messageApi.sendMessage(any(), any()) } returns mockk()
+        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkResponse()
 
         runBlocking { subject.sendMessage(conversationId, any()) }
 
@@ -57,7 +57,7 @@ class MessageRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given sendMessage was called, when api sendMessage succeeds, then the success is returned`() {
+    fun `given api sendMessage succeeds, when calling sendMessage, then the success is returned`() {
         every { otrNewMessageMapper.fromMessageEnvelope(any()) } returns mockk()
         coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkResponse()
 
@@ -66,7 +66,7 @@ class MessageRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `given sendMessage was called, when api sendMessage fails, then the failure is returned`() {
+    fun `given api sendMessage fails, when calling sendMessage, then the failure is returned`() {
         every { otrNewMessageMapper.fromMessageEnvelope(any()) } returns mockk()
         coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkError()
 

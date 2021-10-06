@@ -29,11 +29,18 @@ interface ClientApi {
         @Path(value = CLIENT_ID) clientId: String
     ): Response<RemainingPreKeysResponse>
 
+    @GET(CLIENTS_OF_USERS)
+    suspend fun clientsOfUsers(
+        @Header(HEADER_KEY_AUTHORIZATION) authorizationHeader: String,
+        @Body body: ClientsOfUsersRequest
+    ): Response<ClientsOfUsersResponse>
+
     companion object {
         private const val CLIENTS = "/clients"
         private const val HEADER_KEY_AUTHORIZATION = "Authorization"
         private const val CLIENT_BY_ID = "/clients/{clientId}"
         private const val CLIENT_ID = "clientId"
         private const val PREKEYS_OF_CLIENT = "$CLIENT_BY_ID/prekeys"
+        private const val CLIENTS_OF_USERS = "/users/list-clients/v2"
     }
 }

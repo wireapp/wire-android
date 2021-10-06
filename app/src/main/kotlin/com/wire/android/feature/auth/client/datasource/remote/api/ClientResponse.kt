@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class ClientResponse(
     @SerializedName("id") val id: String,
-    @SerializedName("cookie") val refreshToken : String,
+    @SerializedName("cookie") val refreshToken: String,
     @SerializedName("time") val registrationTime: String,
     @SerializedName("location") val location: LocationResponse?,
     @SerializedName("address") val ipAddress: String?,
@@ -15,9 +15,18 @@ data class ClientResponse(
 )
 
 data class LocationResponse(
-    @SerializedName("name") val name : String,
+    @SerializedName("name") val name: String,
     @SerializedName("lat") val latitude: String,
     @SerializedName("lon") val longitude: String
+)
+
+data class ClientsOfUsersResponse(
+    @SerializedName("qualified_user_map") val qualifiedMap: Map<String, Map<String, List<SimpleClientResponse>>>
+)
+
+data class SimpleClientResponse(
+    @SerializedName("id") val id: String,
+    @SerializedName("class") val deviceClass: String
 )
 
 typealias RemainingPreKeysResponse = List<Int>

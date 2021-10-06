@@ -13,6 +13,7 @@ import com.wire.android.feature.auth.client.ClientRepository
 import com.wire.android.feature.auth.client.datasource.ClientDataSource
 import com.wire.android.feature.auth.client.datasource.local.ClientLocalDataSource
 import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteDataSource
+import com.wire.android.feature.auth.client.datasource.remote.ClientRemoteMapper
 import com.wire.android.feature.auth.client.datasource.remote.api.ClientApi
 import com.wire.android.feature.auth.client.mapper.ClientMapper
 import com.wire.android.feature.auth.client.mapper.PreKeyMapper
@@ -132,7 +133,8 @@ private val clientModule = module {
         FragmentContainerProvider.fixedProvider(R.id.deviceLimitFragmentContainer)
     }
     factory { get<NetworkClient>().create(ClientApi::class.java) }
-    single { ClientRemoteDataSource(get(), get()) }
+    factory { ClientRemoteMapper() }
+    single { ClientRemoteDataSource(get(), get(), get()) }
     single<ClientRepository> { ClientDataSource(get(), get(), get(), get(), get()) }
     factory { RegisterClientUseCase(get(), get(), get()) }
     factory { PreKeyMapper() }

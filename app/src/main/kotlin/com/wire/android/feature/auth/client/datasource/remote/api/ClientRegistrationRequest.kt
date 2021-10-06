@@ -28,3 +28,12 @@ data class SignalingKeyRequest(
 data class UpdatePreKeysRequest(
     @SerializedName("prekeys") val preKeys: List<PreKeyRequest>
 )
+
+data class ClientsOfUsersRequest(
+    @SerializedName("qualified_users") val users: List<QualifiedIdDTO>
+)
+
+data class QualifiedIdDTO(
+    @SerializedName("domain") val domain: String,
+    @SerializedName("id") val id: String
+)

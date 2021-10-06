@@ -12,6 +12,7 @@ import com.wire.android.core.network.NetworkHandler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
 
 class NotificationRemoteDataSource(
     private val webSocketServiceProvider: WebSocketServiceProvider,
@@ -20,6 +21,8 @@ class NotificationRemoteDataSource(
     private val eventMapper: EventMapper,
     override val networkHandler: NetworkHandler
 ) : ApiService() {
+
+    private val webSocketClientMap: MutableMap<String, WebSocketService> = mutableMapOf()
 
     fun receiveEvents(clientId: String): Flow<List<Event>?> =
         webSocketServiceForClient(clientId).receiveEvent().map {
@@ -32,10 +35,11 @@ class NotificationRemoteDataSource(
         webSocketServiceForClient(clientId)
             .observeWebSocketEvent().filter {
                 it is WebSocket.Event.OnConnectionOpened<*>
-            }.map { allNotifications(clientId, notificationId) }
+            }.take(1).map { allNotifications(clientId, notificationId) }
 
-    private fun webSocketServiceForClient(clientId: String) =
+    private fun webSocketServiceForClient(clientId: String): WebSocketService = webSocketClientMap[clientId] ?: run {
         webSocketServiceProvider.provideWebSocketService(webSocketConfig.urlForClient(clientId))
+    }.also { webSocketClientMap[clientId] = it }
 
     private suspend fun notificationsByBatch(size: Int, client: String, since: String): Either<Failure, NotificationPageResponse> =
         request { notificationApi.notificationsByBatch(size, client, since) }

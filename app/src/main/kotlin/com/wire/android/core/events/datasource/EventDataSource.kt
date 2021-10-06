@@ -7,48 +7,41 @@ import com.wire.android.core.events.datasource.remote.NotificationRemoteDataSour
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
-import com.wire.android.core.functional.onFailure
-import com.wire.android.core.functional.onSuccess
-import com.wire.android.core.functional.suspending
 import com.wire.android.shared.session.SessionRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 
-//TODO missing unit test
 class EventDataSource(
-    private val externalScope: CoroutineScope,
     private val notificationLocalDataSource: NotificationLocalDataSource,
     private val notificationRemoteDataSource: NotificationRemoteDataSource,
     private val sessionRepository: SessionRepository
 ) : EventRepository {
 
-    override fun events(): Flow<Either<Failure, Event>> = flow {
-        sessionRepository.currentClientId().onSuccess { clientId ->
-            externalScope.launch {
-                notificationRemoteDataSource.receiveEvents(clientId).collect { events ->
-                    events?.forEach {
-                        emit(Either.Right(it))
-                    }
-                }
-            }
-            externalScope.launch {
-                suspending {
-                    lastNotificationId(clientId).map { notificationId ->
-                        notificationRemoteDataSource.notificationsFlow(clientId, notificationId)
-                            .collect { events ->
-                                events.forEach {
-                                    emit(Either.Right(it))
-                                }
-                            }
-                    }
-                }
-            }
+    override suspend fun events(): Flow<Either<Failure, Event>> {
+        val currentClientIdFlow = flowOf(sessionRepository.currentClientId()).mapNotNull { currentId ->
+            currentId.fold({ null }, { it })
         }
+
+        val pendingEventsFlow = currentClientIdFlow.mapNotNull { clientId ->
+            val notificationId = lastNotificationId(clientId).fold({ null }, { it })
+            notificationId?.let { clientId to it }
+        }.flatMapMerge {
+            notificationRemoteDataSource.notificationsFlow(it.first, it.second)
+        }.flatMapMerge { it.asFlow() }
+
+        val liveEventsFlow = currentClientIdFlow.flatMapMerge { clientId ->
+            notificationRemoteDataSource.receiveEvents(clientId)
+        }.filterNotNull().flatMapMerge {
+            it.asFlow()
+        }
+
+        return flowOf(pendingEventsFlow, liveEventsFlow).flattenConcat().map { Either.Right(it) }
     }
 
     //TODO this function should be moved to be called in full state sync

@@ -5,5 +5,5 @@ import com.wire.android.core.functional.Either
 import kotlinx.coroutines.flow.Flow
 
 interface EventRepository {
-    fun events(): Flow<Either<Failure, Event>>
+    suspend fun events(): Flow<Either<Failure, Event>>
 }

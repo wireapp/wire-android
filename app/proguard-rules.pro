@@ -31,3 +31,6 @@
 -keepclassmembers,allowobfuscation class * {
     @com.google.gson.annotations.SerializedName <fields>;
 }
+
+# protobuf
+-keep class * extends com.google.protobuf.GeneratedMessageLite { *; }

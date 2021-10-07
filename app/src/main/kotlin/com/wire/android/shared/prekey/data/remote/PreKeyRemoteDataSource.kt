@@ -15,14 +15,14 @@ class PreKeyRemoteDataSource(
         private val remotePreKeyListMapper: RemotePreKeyListMapper
 ) : ApiService() {
 
-    suspend fun preKeysForMultipleQualifiedUsers(qualifiedIdMap: Map<QualifiedId, List<String>>): Either<Failure, List<QualifiedUserPreKeyInfo>> =
-            request {
-                val mapOfIds = qualifiedIdMap
-                        .mapValues { entry -> mapOf(entry.key.id to entry.value) }
-                        .mapKeys { entry -> entry.key.domain }
+    suspend fun preKeysForMultipleQualifiedUsers(qualifiedIdMap: Map<QualifiedId, List<String>>):
+            Either<Failure, List<QualifiedUserPreKeyInfo>> = request {
+        val mapOfIds = qualifiedIdMap
+                .mapValues { entry -> mapOf(entry.key.id to entry.value) }
+                .mapKeys { entry -> entry.key.domain }
 
-                preKeyAPI.preKeysByClientsOfQualifiedUsers(mapOfIds)
-            }.map(remotePreKeyListMapper::fromRemoteQualifiedPreKeyInfoMap)
+        preKeyAPI.preKeysByClientsOfQualifiedUsers(mapOfIds)
+    }.map(remotePreKeyListMapper::fromRemoteQualifiedPreKeyInfoMap)
 
     @Deprecated(
             "This function does not consider domain, needed for Federation",

@@ -175,7 +175,7 @@ class RemotePrekeyListMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given an unqualified PreKeyMap, when mapping to a list of UserPreKeyInfo, the PreKeyMapper should receive the correct arguments`() {
+    fun `given an unqualified PreKeyMap, when mapping to a list of UserPreKeyInfo, the PreKeyMapper should get the correct arguments`() {
         val firstKey = PreKeyResponse("keyA", 1)
         val secondKey = PreKeyResponse("keyB", 4)
         val preKeyResponse = mapOf(

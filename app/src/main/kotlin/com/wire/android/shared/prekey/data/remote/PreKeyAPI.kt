@@ -6,11 +6,12 @@ import retrofit2.http.POST
 interface PreKeyAPI {
 
     @POST(LIST_PRE_KEYS_QUALIFIED_ENDPOINT)
-    suspend fun preKeysByClientsOfQualifiedUsers(preKeyListParameter: Map<String, Map<String, List<String>>>): Response<QualifiedPreKeyListResponse>
+    suspend fun preKeysByClientsOfQualifiedUsers(preKeyListParameter: Map<String, Map<String, List<String>>>):
+            Response<QualifiedPreKeyListResponse>
 
     @Deprecated(
-        "This endpoint does not consider domain, needed for Federation",
-        ReplaceWith("preKeysByClientsOfQualifiedUsers")
+            "This endpoint does not consider domain, needed for Federation",
+            ReplaceWith("preKeysByClientsOfQualifiedUsers")
     )
     @POST(LIST_PRE_KEYS_ENDPOINT)
     suspend fun preKeysByClientsOfUsers(preKeyListParameter: Map<String, List<String>>): Response<PreKeyListResponse>

@@ -17,11 +17,13 @@ class ContactDaoTest : InstrumentationTest() {
     val databaseTestRule = DatabaseTestRule.create<UserDatabase>(appContext)
 
     private lateinit var contactDao: ContactDao
+    private lateinit var contactClientDao: ContactClientDao
 
     @Before
     fun setUp() {
         val userDatabase = databaseTestRule.database
         contactDao = userDatabase.contactDao()
+        contactClientDao = userDatabase.contactClientDao()
     }
 
     @Test
@@ -71,6 +73,45 @@ class ContactDaoTest : InstrumentationTest() {
         val contactsById = contactDao.contactsById(setOf("someId", "someOtherId"))
 
         contactsById.isEmpty() shouldBeEqualTo true
+    }
+
+    @Test
+    fun contactsWithClients_contactClientPresent_returnsClientsOfAllContacts() = databaseTestRule.runTest {
+        val entity1 = ContactEntity(id = "id-1", name = "Contact #1", assetKey = "asset-key-1")
+        val entity2 = ContactEntity(id = "id-2", name = "Contact #2", assetKey = null)
+        contactDao.insertAll(listOf(entity1, entity2))
+
+        val contactClientEntity1 = ContactClientEntity(entity1.id, "first client")
+        val contactClientEntity2 = ContactClientEntity(entity1.id, "second client")
+        val contactClientEntity3 = ContactClientEntity(entity2.id, "third client")
+        contactClientDao.insertAll(listOf(contactClientEntity1, contactClientEntity2, contactClientEntity3))
+
+        val result = contactDao.contactsWithClients()
+
+        result shouldContainSame listOf(
+                ContactWithClients(entity1, listOf(contactClientEntity1, contactClientEntity2)),
+                ContactWithClients(entity2, listOf(contactClientEntity3))
+        )
+    }
+
+    @Test
+    fun contactsByIdWithClients_contactClientPresent_returnsClientsOfSpecificContact() = databaseTestRule.runTest {
+        val entity1 = ContactEntity(id = "id-1", name = "Contact #1", assetKey = "asset-key-1")
+        val entity2 = ContactEntity(id = "id-2", name = "Contact #2", assetKey = null)
+        val entity3 = ContactEntity(id = "id-3", name = "Contact #3", assetKey = null)
+        contactDao.insertAll(listOf(entity1, entity2, entity3))
+
+        val contactClientEntity1 = ContactClientEntity(entity1.id, "first client")
+        val contactClientEntity2 = ContactClientEntity(entity1.id, "second client")
+        val contactClientEntity3 = ContactClientEntity(entity2.id, "third client")
+        contactClientDao.insertAll(listOf(contactClientEntity1, contactClientEntity2, contactClientEntity3))
+
+        val result = contactDao.contactsByIdWithClients(setOf(entity1.id, entity3.id))
+
+        result shouldContainSame listOf(
+                ContactWithClients(entity1, listOf(contactClientEntity1, contactClientEntity2)),
+                ContactWithClients(entity3, listOf())
+        )
     }
 
     companion object {

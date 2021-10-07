@@ -2,13 +2,12 @@ package com.wire.android.feature.contact.datasources.mapper
 
 import com.wire.android.UnitTest
 import com.wire.android.feature.contact.Contact
+import com.wire.android.feature.contact.ContactClient
+import com.wire.android.feature.contact.DetailedContact
+import com.wire.android.feature.contact.datasources.local.ContactClientEntity
 import com.wire.android.feature.contact.datasources.local.ContactEntity
+import com.wire.android.feature.contact.datasources.local.ContactWithClients
 import com.wire.android.feature.contact.datasources.remote.ContactResponse
-import com.wire.android.feature.conversation.content.Message
-import com.wire.android.feature.conversation.content.Sent
-import com.wire.android.feature.conversation.content.Text
-import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
-import com.wire.android.feature.conversation.content.mapper.MessageMapperTest
 import com.wire.android.framework.collections.second
 import com.wire.android.shared.asset.Asset
 import com.wire.android.shared.asset.PublicAsset
@@ -19,9 +18,9 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Test
-import java.time.OffsetDateTime
 
 class ContactMapperTest : UnitTest() {
 
@@ -54,7 +53,7 @@ class ContactMapperTest : UnitTest() {
         every { assetMapper.profilePictureAssetKey(contactResponse.assets) } returns null
 
         val result = contactMapper.fromContactResponseListToEntityList(
-            listOf(contactResponseWithAsset, contactResponse)
+                listOf(contactResponseWithAsset, contactResponse)
         )
 
         result.first().let {
@@ -84,7 +83,7 @@ class ContactMapperTest : UnitTest() {
         every { contactEntity.assetKey } returns null
 
         val result = contactMapper.fromContactEntityList(
-            listOf(contactEntityWithAsset, contactEntity)
+                listOf(contactEntityWithAsset, contactEntity)
         )
 
         result.first().let {
@@ -102,9 +101,9 @@ class ContactMapperTest : UnitTest() {
     @Test
     fun `given fromContactEntity is called, then maps the ContactEntity and returns a Contact`() {
         val contactEntity = ContactEntity(
-            id = TEST_CONTACT_ID_1,
-            name = TEST_CONTACT_NAME_1,
-            assetKey = TEST_ASSET_KEY
+                id = TEST_CONTACT_ID_1,
+                name = TEST_CONTACT_NAME_1,
+                assetKey = TEST_ASSET_KEY
         )
 
         val result = contactMapper.fromContactEntity(contactEntity)
@@ -114,6 +113,48 @@ class ContactMapperTest : UnitTest() {
             it.id shouldBeEqualTo TEST_CONTACT_ID_1
             it.name shouldBeEqualTo TEST_CONTACT_NAME_1
             it.profilePicture shouldBeInstanceOf Asset::class
+        }
+    }
+
+    @Test
+    fun `given a clientContactEntity, when calling fromContactClientEntityToContactClient, then return the correct client`() {
+        val contactClientEntity = ContactClientEntity("user-id", "client-id")
+
+        val result = contactMapper.fromContactClientEntityToContactClient(contactClientEntity)
+
+        result.let {
+            it shouldBeInstanceOf ContactClient::class
+            it.id shouldBeEqualTo contactClientEntity.id
+        }
+    }
+
+    @Test
+    fun `given a contact, when calling fromContactToEntity, then return the correct contact entity`() {
+        val contact = Contact("user-id", "user-name", PublicAsset("a key"))
+
+        val result = contactMapper.fromContactToEntity(contact)
+
+        result.let {
+            it shouldBeInstanceOf ContactEntity::class
+            it.id shouldBeEqualTo contact.id
+            it.name shouldBeEqualTo contact.name
+            it.assetKey shouldBeEqualTo (contact.profilePicture as PublicAsset).key
+        }
+    }
+
+    @Test
+    fun `given a contact with clients, when calling fromContactWithClients, then return the correct detailed contact`() {
+        val contact = ContactEntity("user-id", "user-name", "a key")
+        val client1 = ContactClientEntity(contact.id, "client-id")
+        val client2 = ContactClientEntity(contact.id, "client-id2")
+        val contactWithClients = ContactWithClients(contact, listOf(client1, client2))
+
+        val result = contactMapper.fromContactWithClients(contactWithClients)
+
+        result.let {
+            it shouldBeInstanceOf DetailedContact::class
+            it.contact shouldBeEqualTo Contact(contact.id, contact.name, PublicAsset(contact.assetKey!!))
+            it.clients shouldContainSame listOf(ContactClient(client1.id), ContactClient(client2.id))
         }
     }
 

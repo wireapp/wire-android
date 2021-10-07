@@ -4,6 +4,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.wire.android.feature.auth.client.datasource.local.ClientDao
 import com.wire.android.feature.auth.client.datasource.local.ClientEntity
+import com.wire.android.feature.contact.datasources.local.ContactClientDao
+import com.wire.android.feature.contact.datasources.local.ContactClientEntity
 import com.wire.android.feature.contact.datasources.local.ContactDao
 import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageDao
@@ -19,6 +21,7 @@ import com.wire.android.shared.asset.datasources.local.AssetEntity
 @Database(
     entities = [ConversationEntity::class,
         ContactEntity::class,
+        ContactClientEntity::class,
         ConversationMemberEntity::class,
         AssetEntity::class,
         ClientEntity::class,
@@ -30,6 +33,8 @@ abstract class UserDatabase : RoomDatabase() {
     abstract fun conversationDao(): ConversationDao
 
     abstract fun contactDao(): ContactDao
+
+    abstract fun contactClientDao(): ContactClientDao
 
     abstract fun conversationMembersDao(): ConversationMembersDao
 

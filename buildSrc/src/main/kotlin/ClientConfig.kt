@@ -26,7 +26,7 @@ object ClientConfig {
         BuildTypes.RELEASE to mapOf(
             ConfigFields.API_BASE_URL to """"https://prod-nginz-https.wire.com"""",
             ConfigFields.ACCOUNTS_URL to """"https://account.wire.com"""",
-            ConfigFields.WEB_SOCKET_URL to """"https://prod-nginz-ssl.wire.com""""
+            ConfigFields.WEB_SOCKET_URL to """"https://prod-nginz-ssl.wire.com/await?client=""""
         )
     )
 }

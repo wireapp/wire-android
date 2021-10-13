@@ -6,8 +6,8 @@ import com.wire.android.feature.messaging.datasource.remote.mapper.OtrNewMessage
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
-import com.wire.android.framework.network.mockNetworkError
-import com.wire.android.framework.network.mockNetworkResponse
+import com.wire.android.framework.network.mockNetworkEitherThrowableFailure
+import com.wire.android.framework.network.mockNetworkEitherResponse
 import com.wire.messages.Otr
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -38,7 +38,7 @@ class MessageRemoteDataSourceTest : UnitTest() {
     fun `given the mapper result, when calling sendMessage, then the mapper result should be passed as parameter`() {
         val mappedValue: Otr.NewOtrMessage = mockk()
         every { otrNewMessageMapper.fromMessageEnvelope(any()) } returns mappedValue
-        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkResponse()
+        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkEitherResponse()
 
         runBlocking { subject.sendMessage(any(), any()) }
 
@@ -49,7 +49,7 @@ class MessageRemoteDataSourceTest : UnitTest() {
     fun `given a conversationId, when calling sendMessage, then conversationId should be forwarded as parameter`() {
         val conversationId = "Conversation-ID"
         every { otrNewMessageMapper.fromMessageEnvelope(any()) } returns mockk()
-        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkResponse()
+        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkEitherResponse()
 
         runBlocking { subject.sendMessage(conversationId, any()) }
 
@@ -59,7 +59,7 @@ class MessageRemoteDataSourceTest : UnitTest() {
     @Test
     fun `given api sendMessage succeeds, when calling sendMessage, then the success is returned`() {
         every { otrNewMessageMapper.fromMessageEnvelope(any()) } returns mockk()
-        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkResponse()
+        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkEitherResponse()
 
         runBlocking { subject.sendMessage(any(), any()) }
             .shouldSucceed { }
@@ -68,7 +68,7 @@ class MessageRemoteDataSourceTest : UnitTest() {
     @Test
     fun `given api sendMessage fails, when calling sendMessage, then the failure is returned`() {
         every { otrNewMessageMapper.fromMessageEnvelope(any()) } returns mockk()
-        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkError()
+        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkEitherThrowableFailure()
 
         runBlocking { subject.sendMessage(any(), any()) }
             .shouldFail()

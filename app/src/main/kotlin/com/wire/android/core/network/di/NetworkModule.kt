@@ -5,6 +5,7 @@ package com.wire.android.core.network.di
 import android.content.Context
 import android.net.ConnectivityManager
 import com.wire.android.BuildConfig
+import com.wire.android.core.network.either.EitherResponseAdapterFactory
 import com.wire.android.core.network.NetworkConfig
 import com.wire.android.core.network.HttpRequestParams
 import com.wire.android.core.network.NetworkClient
@@ -36,8 +37,9 @@ object NetworkDependencyProvider {
         Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(ProtoConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(EitherResponseAdapterFactory())
             .build()
 
     fun createHttpClientWithAuth(httpsRequestParams: HttpRequestParams,

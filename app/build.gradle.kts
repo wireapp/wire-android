@@ -22,7 +22,7 @@ android {
         minSdkVersion(AndroidSdk.min)
         targetSdkVersion(AndroidSdk.target)
         versionCode = AndroidClient.versionCode
-        versionName = AndroidClient.versionName
+        versionName = "v${AndroidClient.versionName}(${versionCode})"
         testInstrumentationRunner = AndroidClient.testRunner
         setProperty("archivesBaseName", "${applicationId}-v${versionName}(${versionCode})")
 

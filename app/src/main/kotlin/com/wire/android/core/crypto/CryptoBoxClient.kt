@@ -46,7 +46,25 @@ class CryptoBoxClient(
         }
 
     fun createNewPreKeysIfNeeded(remainingPreKeysIds: List<Int>): Either<Failure, List<PreKey>> = useBox {
-        TODO("Handled in another PR")
+        val remainingIds = remainingPreKeysIds.filter { it <= CryptoBox.MAX_PREKEY_ID }
+
+        if (remainingIds.size <= LOW_PREKEYS_THRESHOLD) {
+            val maxId = remainingIds.maxOrNull() ?: -1
+            val lastPreKeyId = clientPropertyStorage.lastPreKeyId(UserId(userId.id)) ?: -1
+            val startId = startPreKeyId(lastPreKeyId, maxId)
+            val count = PRE_KEYS_COUNT - remainingIds.size
+
+            return@useBox newPreKeys(startId, count).map(cryptoPreKeyMapper::fromCryptoBoxModel)
+        } else listOf()
+    }
+
+    private fun startPreKeyId(lastId: Int, maxId: Int): Int {
+        val shouldResetLastIdPref = maxId > lastId && maxId < LOCAL_PREKEYS_LIMIT / 2
+        return when {
+            lastId > LOCAL_PREKEYS_LIMIT -> 0
+            shouldResetLastIdPref -> maxId + 1
+            else -> lastId + 1
+        }
     }
 
     fun delete() = useBox {
@@ -173,5 +191,7 @@ class CryptoBoxClient(
     companion object {
         private const val CRYPTOBOX_PARENT_FOLDER_NAME = "otr"
         private const val PRE_KEYS_COUNT = 100
+        private const val LOW_PREKEYS_THRESHOLD =  50
+        private const val LOCAL_PREKEYS_LIMIT =  16 * 1024
     }
 }

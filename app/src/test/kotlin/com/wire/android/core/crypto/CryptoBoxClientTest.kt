@@ -29,6 +29,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
@@ -300,6 +301,36 @@ class CryptoBoxClientTest : AndroidTest() {
         }
 
         verify(exactly = 1) { session.save() }
+    }
+
+    @Test
+    fun `given remaining ids are more than the threshold, when createNewPreKeysIfNeeded is called, then return an empty list`() {
+        val preKeys = listOf(1, 2, 3, 4, 5 , 6, 7, 8, 9, 65535, 1, 2, 3, 4 , 5, 65535, 7, 8, 9, 0, 1, 2, 3, 4 , 5, 6, 7, 8, 9,
+            5, 1, 4, 3, 65635, 7, 8, 65735, 0, 1, 2, 3, 65535, 5, 6, 7, 8, 9, 4, 8, 9, 65535, 1, 2, 3, 4, 5, 6)
+
+        val result = subject.createNewPreKeysIfNeeded(preKeys)
+
+        result shouldSucceed {
+            it.`should be empty`()
+        }
+        verify(inverse = true) { cryptoBox.newPreKeys(any(), any()) }
+    }
+
+    @Test
+    fun `given remaining ids are less than the threshold, when createNewPreKeysIfNeeded is called, then return new created preKeys`() {
+        val preKeys = listOf(1, 2 , 3, 10)
+
+        val regularCryptoKey = mockk<CryptoPreKey>()
+        every { propertyStorage.lastPreKeyId(UserId(userId.id)) } returns 2
+        every { cryptoBox.newPreKeys(11, 96) } returns arrayOf(regularCryptoKey)
+
+        val result = subject.createNewPreKeysIfNeeded(preKeys)
+
+        result shouldSucceed {
+            it.size shouldBeEqualTo 1
+        }
+        verify(exactly = 1) { propertyStorage.lastPreKeyId(UserId(userId.id)) }
+        verify(exactly = 1) { cryptoBox.newPreKeys(11, 96) }
     }
 
     companion object {

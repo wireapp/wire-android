@@ -6,9 +6,10 @@ import io.mockk.mockk
 import retrofit2.Response
 import java.io.IOException
 
-inline fun <reified T> mockNetworkResponse(responseBody: T = mockk()): Response<T> =
+inline fun <reified T> mockNetworkResponse(responseBody: T = mockk(), code: Int = 200): Response<T> =
     mockk<Response<T>>().also {
         every { it.isSuccessful } returns true
+        every { it.code() } returns code
         every { it.body() } returns responseBody
     }
 
@@ -37,7 +38,8 @@ inline fun <reified E : Any, reified T : Any> mockNetworkEitherNoBodyFailure(err
         every { it.responseCode } returns errorCode
     }
 
-inline fun <reified E : Any, reified T : Any> mockNetworkEitherThrowableFailure(throwable: Throwable = IOException()): EitherResponse<E, T> =
-    mockk<EitherResponse.Failure.Exception<E>>().also {
-        every { it.throwable } returns throwable
-    }
+inline fun <reified E : Any, reified T : Any> mockNetworkEitherThrowableFailure(
+    throwable: Throwable = IOException()
+): EitherResponse<E, T> = mockk<EitherResponse.Failure.Exception<E>>().also {
+    every { it.throwable } returns throwable
+}

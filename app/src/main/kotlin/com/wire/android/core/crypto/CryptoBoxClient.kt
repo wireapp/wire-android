@@ -47,10 +47,10 @@ class CryptoBoxClient(
 
     fun createNewPreKeysIfNeeded(remainingPreKeysIds: List<Int>): Either<Failure, List<PreKey>> = useBox {
         val remainingIds = remainingPreKeysIds.filter { it <= CryptoBox.MAX_PREKEY_ID }
-        val maxId = remainingIds.maxOrNull() ?: -1
-        val lastPreKeyId = clientPropertyStorage.lastPreKeyId(UserId(userId.id)) ?: -1
 
         if (remainingIds.size <= LOW_PREKEYS_THRESHOLD) {
+            val maxId = remainingIds.maxOrNull() ?: -1
+            val lastPreKeyId = clientPropertyStorage.lastPreKeyId(UserId(userId.id)) ?: -1
             val startId = startPreKeyId(lastPreKeyId, maxId)
             val count = PRE_KEYS_COUNT - remainingIds.size
 

@@ -6,6 +6,7 @@ import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.framework.network.connectedNetworkHandler
 import com.wire.android.framework.network.mockNetworkError
 import com.wire.android.framework.network.mockNetworkResponse
+import com.wire.android.shared.prekey.data.QualifiedUserPreKeyInfo
 import com.wire.android.shared.prekey.data.UserPreKeyInfo
 import com.wire.android.shared.user.QualifiedId
 import io.mockk.coEvery
@@ -34,10 +35,67 @@ class PreKeyRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
+    fun `given the API is failing, when fetching pre keys of qualified users, the fail should be propagated`() {
+        coEvery { preKeyAPI.preKeysByClientsOfQualifiedUsers(any()) } returns mockNetworkError()
+
+        val result = runBlocking { subject.preKeysForMultipleQualifiedUsers(mapOf()) }
+
+        result.shouldFail {}
+    }
+
+    @Test
+    fun `given the API is failing, when fetching pre keys of qualified users, the API should be called only once`() {
+        coEvery { preKeyAPI.preKeysByClientsOfQualifiedUsers(any()) } returns mockNetworkError()
+
+        runBlocking { subject.preKeysForMultipleQualifiedUsers(mapOf()) }
+
+        coVerify(exactly = 1) { preKeyAPI.preKeysByClientsOfQualifiedUsers(any()) }
+    }
+
+    @Test
+    fun `given the API is returning successfully, when fetching pre keys of qualified users, the result should be passed to the mapper`() {
+        val response = mockk<QualifiedPreKeyListResponse>()
+        val mappedResult = mockk<List<QualifiedUserPreKeyInfo>>()
+
+        coEvery { preKeyAPI.preKeysByClientsOfQualifiedUsers(any()) } returns mockNetworkResponse(response)
+        every { remotePreKeyListMapper.fromRemoteQualifiedPreKeyInfoMap(any()) } returns mappedResult
+
+        runBlocking { subject.preKeysForMultipleQualifiedUsers(mapOf()) }
+
+        coVerify(exactly = 1) { remotePreKeyListMapper.fromRemoteQualifiedPreKeyInfoMap(response) }
+    }
+
+    @Test
+    fun `given the API is returning successfully, when fetching pre keys of qualified users, the mapped result should be returned`() {
+        val response = mockk<QualifiedPreKeyListResponse>()
+        val mappedResult = mockk<List<QualifiedUserPreKeyInfo>>()
+
+        coEvery { preKeyAPI.preKeysByClientsOfQualifiedUsers(any()) } returns mockNetworkResponse(response)
+        every { remotePreKeyListMapper.fromRemoteQualifiedPreKeyInfoMap(any()) } returns mappedResult
+
+        val result = runBlocking { subject.preKeysForMultipleQualifiedUsers(mapOf()) }
+
+        result.shouldSucceed { it shouldBeEqualTo mappedResult }
+    }
+
+    @Test
+    fun `given a map of IDs, when fetching pre keys of qualified users, the correct parameters should be used`() {
+        val idMap = mapOf(QualifiedId("a", "A") to listOf("1", "2"))
+        val mappedId = mapOf("a" to mapOf("A" to listOf("1", "2")))
+
+        coEvery { preKeyAPI.preKeysByClientsOfQualifiedUsers(any()) } returns mockNetworkResponse()
+        every { remotePreKeyListMapper.fromRemoteQualifiedPreKeyInfoMap(any()) } returns mockk()
+
+        runBlocking { subject.preKeysForMultipleQualifiedUsers(idMap) }
+
+        coVerify(exactly = 1) { preKeyAPI.preKeysByClientsOfQualifiedUsers(mappedId) }
+    }
+
+    @Test
     fun `given the API is failing, when fetching pre keys of users, the fail should be propagated`() {
         coEvery { preKeyAPI.preKeysByClientsOfUsers(any()) } returns mockNetworkError()
 
-        val result = runBlocking { subject.preKeysForMultipleUsers(mapOf()) }
+        val result = runBlocking { subject.preKeysForMultipleQualifiedUsers(mapOf()) }
 
         result.shouldFail {}
     }
@@ -79,8 +137,8 @@ class PreKeyRemoteDataSourceTest : UnitTest() {
 
     @Test
     fun `given a map of IDs, when fetching pre keys of users, the correct parameters should be used`() {
-        val idMap = mapOf(QualifiedId("a", "A") to listOf("1", "2"))
-        val mappedId = mapOf("a" to mapOf("A" to listOf("1", "2")))
+        val idMap = mapOf("A" to listOf("1", "2"))
+        val mappedId = mapOf("A" to listOf("1", "2"))
 
         coEvery { preKeyAPI.preKeysByClientsOfUsers(any()) } returns mockNetworkResponse()
         every { remotePreKeyListMapper.fromRemotePreKeyInfoMap(any()) } returns mockk()

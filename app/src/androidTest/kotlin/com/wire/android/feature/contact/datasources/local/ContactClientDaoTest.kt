@@ -5,12 +5,12 @@ import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.framework.storage.db.DatabaseTestRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertFailsWith
 
 @ExperimentalCoroutinesApi
 class ContactClientDaoTest : InstrumentationTest() {

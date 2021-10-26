@@ -7,6 +7,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import java.sql.SQLException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -15,7 +16,6 @@ import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
-import java.sql.SQLException
 
 class MessageLocalDataSourceTest : UnitTest() {
 
@@ -75,7 +75,7 @@ class MessageLocalDataSourceTest : UnitTest() {
         runBlocking {
             val result = messageLocalDataSource.messagesByConversationId(conversationId)
 
-            with(result.first()){
+            with(result.first()) {
                 size shouldBeEqualTo 2
                 get(0) shouldBeEqualTo combinedMessageContactEntity1
                 get(1) shouldBeEqualTo combinedMessageContactEntity2

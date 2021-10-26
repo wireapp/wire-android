@@ -20,14 +20,14 @@ import com.wire.android.feature.conversation.content.datasources.local.MessageLo
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import io.mockk.impl.annotations.MockK
 import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
 import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -161,7 +161,8 @@ class MessageDataSourceTest : UnitTest() {
         val contact = mockk<Contact>()
         every { messageMapper.fromEntityToMessage(messageEntity) } returns message
         every { contactMapper.fromContactEntity(contactEntity) } returns contact
-        coEvery { messageLocalDataSource.latestUnreadMessagesByConversationId(any(), any())
+        coEvery {
+            messageLocalDataSource.latestUnreadMessagesByConversationId(any(), any())
         } returns Either.Right(listOf(combinedMessageContactEntity))
 
         val result = runBlocking { messageDataSource.latestUnreadMessages(any()) }
@@ -169,6 +170,50 @@ class MessageDataSourceTest : UnitTest() {
         result shouldSucceed {
             it[0].message shouldBeEqualTo message
             it[0].contact shouldBeEqualTo contact
+        }
+    }
+
+    @Test
+    fun `given localDataSource returns an entity, when getting message by id, then return the mapped result`() {
+        val messageId = "someID2"
+        val messageEntity = mockk<MessageEntity>()
+        val message = mockk<Message>()
+        every { messageMapper.fromEntityToMessage(messageEntity) } returns message
+        coEvery { messageLocalDataSource.messageById(messageId) } returns Either.Right(messageEntity)
+
+        val result = runBlocking { messageDataSource.messageById(messageId) }
+
+        result shouldSucceed {
+            it shouldBeEqualTo message
+        }
+    }
+
+    @Test
+    fun `given localDataSource returns an entity, when getting message by id, then the local data should be mapped`() {
+        val messageId = "someID2"
+        val messageEntity = mockk<MessageEntity>()
+        val message = mockk<Message>()
+        every { messageMapper.fromEntityToMessage(messageEntity) } returns message
+        coEvery { messageLocalDataSource.messageById(messageId) } returns Either.Right(messageEntity)
+
+        runBlocking { messageDataSource.messageById(messageId) }
+
+        verify(exactly = 1) { messageMapper.fromEntityToMessage(messageEntity) }
+    }
+
+    @Test
+    fun `given localDataSource returns a failure, when getting message by id, then the failure should be forwarded`() {
+        val messageId = "someID2"
+        val messageEntity = mockk<MessageEntity>()
+        val message = mockk<Message>()
+        val failure: Failure = mockk()
+        every { messageMapper.fromEntityToMessage(messageEntity) } returns message
+        coEvery { messageLocalDataSource.messageById(messageId) } returns Either.Left(failure)
+
+        val result = runBlocking { messageDataSource.messageById(messageId) }
+
+        result.shouldFail {
+            it shouldBeEqualTo failure
         }
     }
 

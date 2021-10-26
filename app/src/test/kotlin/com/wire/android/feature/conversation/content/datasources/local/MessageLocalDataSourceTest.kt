@@ -7,6 +7,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import java.sql.SQLException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -15,7 +16,6 @@ import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
-import java.sql.SQLException
 
 class MessageLocalDataSourceTest : UnitTest() {
 
@@ -75,7 +75,7 @@ class MessageLocalDataSourceTest : UnitTest() {
         runBlocking {
             val result = messageLocalDataSource.messagesByConversationId(conversationId)
 
-            with(result.first()){
+            with(result.first()) {
                 size shouldBeEqualTo 2
                 get(0) shouldBeEqualTo combinedMessageContactEntity1
                 get(1) shouldBeEqualTo combinedMessageContactEntity2
@@ -105,6 +105,46 @@ class MessageLocalDataSourceTest : UnitTest() {
         result shouldSucceed {
             it.size shouldBeEqualTo 2
         }
+    }
+
+    @Test
+    fun `given dao returns a message, when getting message by id, then return said message`() {
+        val messageId = "i123"
+        val messageEntity = MessageEntity(
+            messageId, "conv", "send", "type",
+            "content", "state", "time", false
+        )
+        coEvery { messageDao.messageById(messageId) } returns messageEntity
+
+        val result = runBlocking { messageLocalDataSource.messageById(messageId) }
+
+        result shouldSucceed {
+            it shouldBeEqualTo messageEntity
+        }
+    }
+
+    @Test
+    fun `given dao returns a message, when getting message by id, then the dao should be called once`() {
+        val messageId = "i123"
+        val messageEntity = MessageEntity(
+            messageId, "conv", "send", "type",
+            "content", "state", "time", false
+        )
+        coEvery { messageDao.messageById(messageId) } returns messageEntity
+
+        runBlocking { messageLocalDataSource.messageById(messageId) }
+
+        coVerify(exactly = 1) { messageDao.messageById(messageId) }
+    }
+
+    @Test
+    fun `given dao returns a failure, when getting message by id, then forward the failure`() {
+        val messageId = "i123"
+        coEvery { messageDao.messageById(messageId) } throws SQLException()
+
+        val result = runBlocking { messageLocalDataSource.messageById(messageId) }
+
+        result shouldFail {}
     }
 
 }

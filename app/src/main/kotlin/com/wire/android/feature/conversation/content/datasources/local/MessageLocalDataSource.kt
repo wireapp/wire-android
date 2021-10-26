@@ -14,4 +14,8 @@ class MessageLocalDataSource(private val messageDao: MessageDao) : DatabaseServi
     suspend fun latestUnreadMessagesByConversationId(conversationId: String, size: Int) = request {
         messageDao.latestUnreadMessagesByConversationId(conversationId, size)
     }
+
+    suspend fun messageById(messageId: String) = request {
+        messageDao.messageById(messageId)
+    }
 }

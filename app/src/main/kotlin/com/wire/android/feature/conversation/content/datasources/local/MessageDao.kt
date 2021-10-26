@@ -12,9 +12,12 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(message: MessageEntity)
 
-    @Query("SELECT * from message where conversation_id = :conversationId")
+    @Query("SELECT * FROM message WHERE conversation_id = :conversationId")
     fun messagesByConversationId(conversationId: String): Flow<List<CombinedMessageContactEntity>>
 
-    @Query("SELECT * FROM message where conversation_id = :conversationId AND is_read = 0 ORDER BY time DESC LIMIT :size")
+    @Query("SELECT * FROM message WHERE conversation_id = :conversationId AND is_read = 0 ORDER BY time DESC LIMIT :size")
     suspend fun latestUnreadMessagesByConversationId(conversationId: String, size: Int): List<CombinedMessageContactEntity>
+
+    @Query("SELECT * FROM message WHERE id = :id")
+    suspend fun messageById(id: String): MessageEntity
 }

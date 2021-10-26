@@ -1,6 +1,5 @@
 package com.wire.android.feature.conversation.content.datasources.local
 
-import android.util.Log
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.feature.contact.datasources.local.ContactDao
@@ -117,7 +116,7 @@ class MessageDaoTest : InstrumentationTest() {
                     TEST_MESSAGE_TYPE,
                     TEST_MESSAGE_CONTENT,
                     TEST_MESSAGE_STATE,
-                    TEST_MESSAGE_TIME+it,
+                    TEST_MESSAGE_TIME + it,
                     it % 2 == 0
                 )
                 messageDao.insert(message)
@@ -126,8 +125,8 @@ class MessageDaoTest : InstrumentationTest() {
             val items = messageDao.latestUnreadMessagesByConversationId(TEST_CONVERSATION_ID, size)
 
             items.size shouldBeEqualTo size
-            for((i, j) in (9 downTo 1 step 2).withIndex()) {
-                items[i].messageEntity.time shouldBeEqualTo TEST_MESSAGE_TIME+j
+            for ((i, j) in (9 downTo 1 step 2).withIndex()) {
+                items[i].messageEntity.time shouldBeEqualTo TEST_MESSAGE_TIME + j
             }
         }
 
@@ -137,6 +136,26 @@ class MessageDaoTest : InstrumentationTest() {
             val items = messageDao.latestUnreadMessagesByConversationId(TEST_CONVERSATION_ID, 10)
 
             items.isEmpty() shouldBeEqualTo true
+        }
+
+    @Test
+    fun givenMessageWasInserted_whenGettingMessageById_returnInsertedMessage() =
+        databaseTestRule.runTest {
+            val message = MessageEntity(
+                TEST_MESSAGE_ID,
+                TEST_CONVERSATION_ID,
+                TEST_USER_ID,
+                TEST_MESSAGE_TYPE,
+                TEST_MESSAGE_CONTENT,
+                TEST_MESSAGE_STATE,
+                TEST_MESSAGE_TIME,
+                true
+            )
+            messageDao.insert(message)
+
+            val result = messageDao.messageById(message.id)
+
+            result shouldBeEqualTo message
         }
 
     companion object {

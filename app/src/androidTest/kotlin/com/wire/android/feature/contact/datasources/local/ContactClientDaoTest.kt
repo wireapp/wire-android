@@ -5,9 +5,10 @@ import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.framework.storage.db.DatabaseTestRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.amshove.kluent.internal.assertFailsWith
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
+import org.amshove.kluent.shouldThrow
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -32,18 +33,17 @@ class ContactClientDaoTest : InstrumentationTest() {
     fun insertAll_noContactExistsWithUserId_throwException() = databaseTestRule.runTest {
         val entity1 = ContactClientEntity(userId = "id-1", id = "abc")
 
-        assertFailsWith<SQLiteConstraintException> {
-            contactClientDao.insertAll(listOf(entity1))
-        }
+        val func = { runBlocking { contactClientDao.insertAll(listOf(entity1)) } }
+
+        func shouldThrow SQLiteConstraintException::class
     }
 
     @Test
     fun insert_noContactExistsWithUserId_throwException() = databaseTestRule.runTest {
         val entity1 = ContactClientEntity(userId = "id-1", id = "abc")
 
-        assertFailsWith<SQLiteConstraintException> {
-            contactClientDao.insert(entity1)
-        }
+        val func = { runBlocking { contactClientDao.insert(entity1) } }
+        func shouldThrow SQLiteConstraintException::class
     }
 
     @Test

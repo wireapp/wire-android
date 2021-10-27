@@ -1,7 +1,8 @@
 package com.wire.android.feature.messaging.datasource.remote
 
 import com.wire.android.UnitTest
-import com.wire.android.core.network.either.EitherResponse
+import com.wire.android.feature.conversation.content.SendMessageFailure
+import com.wire.android.feature.conversation.content.mapper.MessageFailureMapper
 import com.wire.android.feature.messaging.datasource.remote.api.MessageApi
 import com.wire.android.feature.messaging.datasource.remote.api.MessageSendingErrorBody
 import com.wire.android.feature.messaging.datasource.remote.mapper.OtrNewMessageMapper
@@ -17,6 +18,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.any
 import org.amshove.kluent.shouldBeEqualTo
@@ -32,11 +34,14 @@ class MessageRemoteDataSourceTest : UnitTest() {
     @MockK
     private lateinit var messageApi: MessageApi
 
+    @MockK
+    private lateinit var messageFailureMapper: MessageFailureMapper
+
     private lateinit var subject: MessageRemoteDataSource
 
     @Before
     fun setup() {
-        subject = MessageRemoteDataSource(connectedNetworkHandler, otrNewMessageMapper, messageApi)
+        subject = MessageRemoteDataSource(connectedNetworkHandler, otrNewMessageMapper, messageFailureMapper, messageApi)
     }
 
     @Test
@@ -77,21 +82,32 @@ class MessageRemoteDataSourceTest : UnitTest() {
 
         runBlocking { subject.sendMessage(any(), any()) }
             .shouldFail {
-                it shouldBeInstanceOf EitherResponse.Failure.Exception::class
+                it shouldBeInstanceOf SendMessageFailure.NetworkFailure::class
             }
     }
 
     @Test
-    fun `given api sendMessage returns client mismatch, when calling sendMessage, then the client info is returned`() {
-        val sendingErrorBody = mockk<MessageSendingErrorBody>()
+    fun `given api sendMessage returns client mismatch, when calling sendMessage, then the failure body should be mapped`() {
+        val errorBody = mockk<MessageSendingErrorBody>()
         every { otrNewMessageMapper.fromMessageEnvelope(any()) } returns mockk()
-        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkEitherErrorBodyFailure(sendingErrorBody)
+        every { messageFailureMapper.fromMessageSendingErrorBody(any()) } returns mockk()
+        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkEitherErrorBodyFailure(errorBody)
+
+        runBlocking { subject.sendMessage(any(), any()) }
+
+        verify(exactly = 1) { messageFailureMapper.fromMessageSendingErrorBody(errorBody) }
+    }
+
+    @Test
+    fun `given api sendMessage returns client mismatch, when calling sendMessage, then the mapped client info should be returned`() {
+        val changedInfoFailure = mockk<SendMessageFailure.ClientsHaveChanged>()
+        every { otrNewMessageMapper.fromMessageEnvelope(any()) } returns mockk()
+        every { messageFailureMapper.fromMessageSendingErrorBody(any()) } returns changedInfoFailure
+        coEvery { messageApi.sendMessage(any(), any()) } returns mockNetworkEitherErrorBodyFailure()
 
         runBlocking { subject.sendMessage(any(), any()) }
             .shouldFail {
-                it shouldBeInstanceOf EitherResponse.Failure.ErrorBody::class
-                val failure = it as EitherResponse.Failure.ErrorBody<MessageSendingErrorBody>
-                failure.errorBody shouldBeEqualTo sendingErrorBody
+                it shouldBeEqualTo changedInfoFailure
             }
     }
 }

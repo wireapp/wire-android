@@ -39,6 +39,13 @@ import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
 import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.feature.conversation.list.usecase.GetConversationMembersUseCase
 import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationIdUseCase
+import com.wire.android.feature.messaging.datasource.remote.MessageRemoteDataSource
+import com.wire.android.feature.messaging.datasource.remote.api.MessageApi
+import com.wire.android.feature.messaging.datasource.remote.mapper.OtrClientEntryMapper
+import com.wire.android.feature.messaging.datasource.remote.mapper.OtrClientIdMapper
+import com.wire.android.feature.messaging.datasource.remote.mapper.OtrNewMessageMapper
+import com.wire.android.feature.messaging.datasource.remote.mapper.OtrUserEntryMapper
+import com.wire.android.feature.messaging.datasource.remote.mapper.OtrUserIdMapper
 import com.wire.android.shared.conversation.content.ConversationTimeGenerator
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
@@ -97,12 +104,19 @@ val conversationMembersModule = module {
 
 val conversationContentModule = module {
     factory { get<UserDatabase>().messageDao() }
-    factory { MessageLocalDataSource(get()) }
-    factory { MessageContentMapper() }
+    factory { MessageLocalDataSource(get(), get()) }
+    single { get<NetworkClient>().create(MessageApi::class.java) }
+    factory { MessageRemoteDataSource(get(), get(), get(), get()) }
     factory<SendMessageWorkerScheduler> { AndroidSendMessageWorkerScheduler(get()) }
     factory { MessageStateMapper() }
+    factory { OtrUserIdMapper() }
+    factory { OtrClientIdMapper() }
+    factory { OtrClientEntryMapper(get()) }
+    factory { OtrUserEntryMapper(get(), get()) }
+    factory { OtrNewMessageMapper(get(), get()) }
+    factory { MessageContentMapper() }
     factory { MessageMapper(get(), get(), get()) }
-    factory<MessageRepository> { MessageDataSource(get(), get(), get(), get(), get()) }
+    factory<MessageRepository> { MessageDataSource(get(), get(), get(), get(), get(), get()) }
     single { ConversationNavigator() }
     factory { GetConversationUseCase(get()) }
     viewModel { ConversationViewModel(get(), get(), get()) }

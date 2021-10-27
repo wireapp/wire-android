@@ -16,7 +16,6 @@
         android:theme="@style/AppTheme.Light">
 
         <activity
-            android:exported="true"
             android:name=".feature.launch.ui.LauncherActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Launch">

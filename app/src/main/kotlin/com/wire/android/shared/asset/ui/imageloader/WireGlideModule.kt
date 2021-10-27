@@ -7,8 +7,8 @@ import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.module.AppGlideModule
 import com.wire.android.shared.asset.ui.imageloader.publicasset.PublicAssetLoaderFactory
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 @GlideModule
 class WireGlideModule : AppGlideModule(), KoinComponent {

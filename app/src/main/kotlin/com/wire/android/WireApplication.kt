@@ -5,6 +5,7 @@ import com.wire.android.core.di.Injector
 import com.wire.android.shared.notification.builder.NotificationBuilder
 import com.wire.android.shared.notification.builder.NotificationChannelBuilder
 import org.koin.android.ext.android.inject
+import org.koin.core.context.stopKoin
 
 class WireApplication : Application() {
 

@@ -2,7 +2,6 @@ package com.wire.android.core.functional
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
-import org.amshove.kluent.any
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test

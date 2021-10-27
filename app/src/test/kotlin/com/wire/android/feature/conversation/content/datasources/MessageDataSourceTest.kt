@@ -3,9 +3,11 @@ package com.wire.android.feature.conversation.content.datasources
 import android.util.Base64
 import com.wire.android.UnitTest
 import com.wire.android.core.crypto.CryptoBoxClient
+import com.wire.android.core.crypto.model.CryptoClientId
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PlainMessage
+import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NoEntityFound
 import com.wire.android.core.functional.Either
@@ -22,6 +24,7 @@ import com.wire.android.feature.conversation.content.datasources.local.MessageLo
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
+import com.wire.android.shared.user.QualifiedId
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -221,6 +224,96 @@ class MessageDataSourceTest : UnitTest() {
     }
 
     @Test
+    fun `given a crypto session, when checking if session exists, then pass session to CryptoBoxClient`() {
+        every { cryptoBoxClient.doesSessionExists(any()) } returns mockk()
+
+        runBlocking {
+            messageDataSource.doesCryptoSessionExists(
+                "self-user-id", TEST_CRYPTO_SESSION.userId.id, TEST_CRYPTO_SESSION.cryptoClientId.value
+            )
+        }
+
+        coVerify(exactly = 1) { cryptoBoxClient.doesSessionExists(TEST_CRYPTO_SESSION) }
+    }
+
+    @Test
+    fun `given cryptoBoxClient fails, when checking if session exists, then return failure`() {
+        val failure = mockk<Failure>()
+        every { cryptoBoxClient.doesSessionExists(any()) } returns Either.Left(failure)
+
+        runBlocking {
+            messageDataSource.doesCryptoSessionExists(
+                "self-user-id", TEST_CRYPTO_SESSION.userId.id, TEST_CRYPTO_SESSION.cryptoClientId.value
+            )
+        } shouldFail {
+            it shouldBeEqualTo failure
+        }
+    }
+
+    @Test
+    fun `given session does not exist, when checking if session exists, then return false`() {
+        every { cryptoBoxClient.doesSessionExists(any()) } returns Either.Right(false)
+
+        runBlocking {
+            messageDataSource.doesCryptoSessionExists(
+                "self-user-id", TEST_CRYPTO_SESSION.userId.id, TEST_CRYPTO_SESSION.cryptoClientId.value
+            )
+        } shouldSucceed {
+            it shouldBeEqualTo false
+        }
+    }
+
+    @Test
+    fun `given session exist, when checking if session exists, then return true`() {
+        every { cryptoBoxClient.doesSessionExists(any()) } returns Either.Right(true)
+
+        runBlocking {
+            messageDataSource.doesCryptoSessionExists(
+                "self-user-id", TEST_CRYPTO_SESSION.userId.id, TEST_CRYPTO_SESSION.cryptoClientId.value
+            )
+        } shouldSucceed {
+            it shouldBeEqualTo true
+        }
+    }
+
+    @Test
+    fun `given a cryptoSession and a preKey, when establishing a session, then pass them to cryptoBoxClient`() {
+        every { cryptoBoxClient.createSessionIfNeeded(any(), any()) } returns Either.Right(Unit)
+
+        runBlocking {
+            messageDataSource.establishCryptoSession(
+                "self-user-id", TEST_CRYPTO_SESSION.userId.id, TEST_CRYPTO_SESSION.cryptoClientId.value, TEST_PRE_KEY
+            )
+        }
+
+        coVerify(exactly = 1) { cryptoBoxClient.createSessionIfNeeded(TEST_CRYPTO_SESSION, TEST_PRE_KEY) }
+    }
+
+    @Test
+    fun `given cryptoBox succeeds, when establishing a session, then return right`() {
+        every { cryptoBoxClient.createSessionIfNeeded(any(), any()) } returns Either.Right(Unit)
+
+        runBlocking {
+            messageDataSource.establishCryptoSession(
+                "self-user-id", TEST_CRYPTO_SESSION.userId.id, TEST_CRYPTO_SESSION.cryptoClientId.value, TEST_PRE_KEY
+            )
+        } shouldSucceed {}
+    }
+
+    @Test
+    fun `given cryptoBox fails, when establishing a session, then forward failure`() {
+        val failure = mockk<Failure>()
+        every { cryptoBoxClient.createSessionIfNeeded(any(), any()) } returns Either.Left(failure)
+
+        runBlocking {
+            messageDataSource.establishCryptoSession(
+                "self-user-id", TEST_CRYPTO_SESSION.userId.id, TEST_CRYPTO_SESSION.cryptoClientId.value, TEST_PRE_KEY
+            )
+        } shouldFail {
+            it shouldBeEqualTo failure
+        }
+    }
+
     fun `given an outgoing message, when storing it, then it should be mapped into entity`() {
         every { messageMapper.fromMessageToEntity(any()) } returns mockk()
         coEvery { messageLocalDataSource.save(any()) } returns mockk()
@@ -271,8 +364,11 @@ class MessageDataSourceTest : UnitTest() {
     companion object {
         private const val TEST_CLIENT_ID = "client-id"
         private const val TEST_USER_ID = "user-id"
+        private const val TEST_DOMAIN = "domain"
         private const val TEST_RAW_CONTENT = "This-is-a-content"
         private val TEST_CONTENT = Content.Text("Servus")
+        private val TEST_CRYPTO_SESSION = CryptoSessionId(QualifiedId(TEST_DOMAIN, TEST_USER_ID), CryptoClientId(TEST_CLIENT_ID))
+        private val TEST_PRE_KEY = PreKey(42, "key-data")
         private val TEST_MESSAGE = Message(
             "id", "convId", "userId", "clientId",
             TEST_CONTENT, Pending, OffsetDateTime.now(), false

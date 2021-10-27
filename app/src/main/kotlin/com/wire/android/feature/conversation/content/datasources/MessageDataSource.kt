@@ -2,6 +2,9 @@ package com.wire.android.feature.conversation.content.datasources
 
 import android.util.Base64
 import com.wire.android.core.crypto.CryptoBoxClient
+import com.wire.android.core.crypto.model.CryptoClientId
+import com.wire.android.core.crypto.model.CryptoSessionId
+import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
@@ -12,6 +15,7 @@ import com.wire.android.feature.conversation.content.MessageRepository
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.ui.CombinedMessageContact
+import com.wire.android.shared.user.QualifiedId
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -63,6 +67,28 @@ class MessageDataSource(
             }
         }
 
+    override suspend fun doesCryptoSessionExists(
+        selfUserId: String,
+        contactUserId: String,
+        contactClientId: String
+    ): Either<Failure, Boolean> {
+        //TODO Use selfUserId to fetch the correct CryptoBoxClient (support multi-session)
+        //TODO Use actual qualified id when handling federation
+        val cryptoSession = CryptoSessionId(QualifiedId(FIXED_DOMAIN, contactUserId), CryptoClientId(contactClientId))
+        return cryptoBoxClient.doesSessionExists(cryptoSession)
+    }
+
+    override suspend fun establishCryptoSession(
+        selfUserId: String,
+        contactUserId: String,
+        contactClientId: String,
+        preKey: PreKey
+    ): Either<Failure, Unit> {
+        //TODO Use selfUserId to fetch the correct CryptoBoxClient (support multi-session)
+        //TODO Use actual qualified id when handling federation
+        val cryptoSession = CryptoSessionId(QualifiedId(FIXED_DOMAIN, contactUserId), CryptoClientId(contactClientId))
+        return cryptoBoxClient.createSessionIfNeeded(cryptoSession, preKey)
+    }
 
     override suspend fun messageById(id: String): Either<Failure, Message> =
         messageLocalDataSource.messageById(id)
@@ -75,5 +101,6 @@ class MessageDataSource(
 
     companion object {
         private const val MESSAGES_SIZE = 10
+        private const val FIXED_DOMAIN = "domain"
     }
 }

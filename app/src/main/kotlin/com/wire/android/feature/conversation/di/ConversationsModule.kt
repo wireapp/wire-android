@@ -102,7 +102,7 @@ val conversationContentModule = module {
     factory<SendMessageWorkerScheduler> { AndroidSendMessageWorkerScheduler(get()) }
     factory { MessageStateMapper() }
     factory { MessageMapper(get(), get(), get()) }
-    factory<MessageRepository> { MessageDataSource(get(), get(), get(), get()) }
+    factory<MessageRepository> { MessageDataSource(get(), get(), get(), get(), get()) }
     single { ConversationNavigator() }
     factory { GetConversationUseCase(get()) }
     viewModel { ConversationViewModel(get(), get(), get()) }

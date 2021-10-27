@@ -1,6 +1,7 @@
 package com.wire.android.feature.conversation.content.mapper
 
 import com.waz.model.Messages
+import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.feature.conversation.content.Content
 
 class MessageContentMapper {
@@ -14,6 +15,21 @@ class MessageContentMapper {
         } else {
             Content.Text("This message content is UNKNOWN")
         }
+    }
+
+    fun fromContentToPlainMessage(messageUid: String, content: Content): PlainMessage {
+        val builder = Messages.GenericMessage.newBuilder()
+            .setMessageId(messageUid)
+
+        when (content) {
+            is Content.Text -> {
+                val text = Messages.Text.newBuilder()
+                    .setContent(content.value)
+                    .build()
+                builder.text = text
+            }
+        }
+        return PlainMessage(builder.build().toByteArray())
     }
 
     fun fromStringToContent(type: String, rawContent: String): Content = when (type) {

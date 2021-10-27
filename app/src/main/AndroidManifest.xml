@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.wire.android">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -54,6 +55,11 @@
         <activity
             android:name=".feature.conversation.content.ui.ConversationActivity"
             android:theme="@style/AppTheme.Conversation" />
+
+<!--        <provider-->
+<!--            android:name="androidx.work.impl.WorkManagerInitializer"-->
+<!--            android:authorities="${applicationId}.workmanager-init"-->
+<!--            tools:node="remove" />-->
 
     </application>
 

@@ -52,7 +52,7 @@ object Libraries {
         const val constraintLayout = "1.1.3"
         const val ktx = "1.6.0"
         const val material = "1.3.0"
-        const val koin = "2.1.6"
+        const val koin = "2.2.3"
         const val lifecycleKtx = "2.2.0"
         const val messageProto = "1.28.2"
         const val retrofit = "2.9.0"
@@ -63,7 +63,7 @@ object Libraries {
         const val desugaring = "1.0.10"
         const val paging = "3.0.0"
         const val glide = "4.12.0"
-        const val workManager = "2.4.0"
+        const val workManager = "2.6.0"
         const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
     }
@@ -94,8 +94,9 @@ object Libraries {
     }
 
     object Koin {
-        const val androidCore  = "org.koin:koin-android:${Versions.koin}"
-        const val viewModel    = "org.koin:koin-android-viewmodel:${Versions.koin}"
+        const val androidCore  = "io.insert-koin:koin-android:${Versions.koin}"
+        const val viewModel    = "io.insert-koin:koin-android-viewmodel:${Versions.koin}"
+        const val workManager  = "io.insert-koin:koin-androidx-workmanager:${Versions.koin}"
     }
 
     object Kotlin {
@@ -122,7 +123,7 @@ object TestLibraries {
         const val androidCore = "1.3.0"
         const val junit4 = "4.13"
         const val mockk = "1.12.0"
-        const val kluent = "1.60"
+        const val kluent = "1.64"
         const val robolectric = "4.5.1"
         const val testRunner = "1.2.0"
         const val espresso = "3.2.0"
@@ -148,17 +149,18 @@ object TestLibraries {
     const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libraries.Versions.coroutines}"
     const val testCore       = "androidx.arch.core:core-testing:${Versions.testCore}"
     const val androidCore    = "androidx.test:core:${Versions.androidCore}"
-    const val koinTest       = "org.koin:koin-test:${Libraries.Versions.koin}"
+    const val koinTest       = "io.insert-koin:koin-test:${Libraries.Versions.koin}"
     const val mockk          = "io.mockk:mockk:${Versions.mockk}"
     const val mockkAndroid   = "io.mockk:mockk-android:${Versions.mockk}"
     const val kluent         = "org.amshove.kluent:kluent:${Versions.kluent}"
     const val kluentAndroid  = "org.amshove.kluent:kluent-android:${Versions.kluent}"
+    const val workManager    = "androidx.work:work-testing:${Libraries.Versions.workManager}"
 }
 
 
 object DevLibraries {
     private object Versions {
-        const val leakCanary = "2.3"
+        const val leakCanary = "2.7"
         const val fragment = "1.2.5"
     }
     const val fragmentTesting = "androidx.fragment:fragment-testing:${Versions.fragment}"

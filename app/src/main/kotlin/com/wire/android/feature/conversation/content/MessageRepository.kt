@@ -19,6 +19,7 @@ interface MessageRepository {
         preKey: PreKey
     ): Either<Failure, Unit>
 
+    suspend fun storeOutgoingMessage(message: Message): Either<Failure, Unit>
 
     suspend fun conversationMessages(conversationId: String): Flow<List<CombinedMessageContact>>
     suspend fun latestUnreadMessages(conversationId: String): Either<Failure, List<CombinedMessageContact>>

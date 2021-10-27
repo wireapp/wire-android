@@ -16,8 +16,12 @@
 package com.wire.android
 
 import android.content.Context
+import android.util.Log
 import androidx.test.core.app.ApplicationProvider
+import androidx.work.Configuration
+import androidx.work.impl.utils.SynchronousExecutor
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin

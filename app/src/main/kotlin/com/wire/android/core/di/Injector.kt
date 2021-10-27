@@ -68,6 +68,7 @@ object Injector {
         startKoin {
             androidContext(context)
             modules(listOf(appModules, sharedModules, featureModules).flatten())
+//            workManagerFactory()
         }
     }
 }

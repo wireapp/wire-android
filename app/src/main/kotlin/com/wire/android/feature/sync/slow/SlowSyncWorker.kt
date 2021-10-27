@@ -14,8 +14,8 @@ import com.wire.android.feature.sync.conversation.usecase.SyncAllConversationMem
 import com.wire.android.feature.sync.conversation.usecase.SyncConversationsUseCase
 import com.wire.android.feature.sync.slow.usecase.SetSlowSyncCompletedUseCase
 import kotlinx.coroutines.withContext
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 //https://wearezeta.atlassian.net/wiki/spaces/ENGINEERIN/pages/15566946/Full+state+synchronization
 class SlowSyncWorker(appContext: Context, params: WorkerParameters) : CoroutineWorker(appContext, params), KoinComponent {

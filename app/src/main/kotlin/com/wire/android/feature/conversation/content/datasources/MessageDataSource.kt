@@ -94,6 +94,11 @@ class MessageDataSource(
         messageLocalDataSource.messageById(id)
             .map(messageMapper::fromEntityToMessage)
 
+    override suspend fun storeOutgoingMessage(message: Message): Either<Failure, Unit> {
+        val entity = messageMapper.fromMessageToEntity(message)
+        return messageLocalDataSource.save(entity)
+    }
+
     companion object {
         private const val MESSAGES_SIZE = 10
         private const val FIXED_DOMAIN = "domain"

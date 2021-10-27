@@ -63,6 +63,11 @@ class MessageDataSource(
             }
         }
 
+
+    override suspend fun messageById(id: String): Either<Failure, Message> =
+        messageLocalDataSource.messageById(id)
+            .map(messageMapper::fromEntityToMessage)
+
     companion object {
         private const val MESSAGES_SIZE = 10
     }

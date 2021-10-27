@@ -12,8 +12,10 @@ import com.wire.android.core.functional.Either
 import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.contact.datasources.local.ContactEntity
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
+import com.wire.android.feature.conversation.content.Content
 import com.wire.android.feature.conversation.content.EncryptedMessageEnvelope
 import com.wire.android.feature.conversation.content.Message
+import com.wire.android.feature.conversation.content.Pending
 import com.wire.android.feature.conversation.content.datasources.local.CombinedMessageContactEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
@@ -28,6 +30,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
+import java.time.OffsetDateTime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -77,10 +80,10 @@ class MessageDataSourceTest : UnitTest() {
     @Test
     fun `given decryptMessage is called, when decoded content is null, then do not decrypt message`() {
         mockkStatic(Base64::class)
-        every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns null
+        every { Base64.decode(TEST_RAW_CONTENT, Base64.DEFAULT) } returns null
         val message = mockk<EncryptedMessageEnvelope>().also {
             every { it.clientId } returns TEST_CLIENT_ID
-            every { it.content } returns TEST_CONTENT
+            every { it.content } returns TEST_RAW_CONTENT
         }
 
         runBlocking { messageDataSource.receiveEncryptedMessage(message) }
@@ -92,11 +95,11 @@ class MessageDataSourceTest : UnitTest() {
     fun `given decryptMessage is called, when message is valid, then it should be decrypted`() {
         val plainMessage = PlainMessage(byteArrayOf())
         mockkStatic(Base64::class)
-        every { Base64.decode(TEST_CONTENT, Base64.DEFAULT) } returns byteArrayOf()
+        every { Base64.decode(TEST_RAW_CONTENT, Base64.DEFAULT) } returns byteArrayOf()
         val message = mockk<EncryptedMessageEnvelope>().also {
             every { it.clientId } returns TEST_CLIENT_ID
             every { it.senderUserId } returns TEST_USER_ID
-            every { it.content } returns TEST_CONTENT
+            every { it.content } returns TEST_RAW_CONTENT
         }
 
         every { messageMapper.cryptoSessionFromEncryptedEnvelope(message) } returns cryptoSession
@@ -217,10 +220,62 @@ class MessageDataSourceTest : UnitTest() {
         }
     }
 
+    @Test
+    fun `given an outgoing message, when storing it, then it should be mapped into entity`() {
+        every { messageMapper.fromMessageToEntity(any()) } returns mockk()
+        coEvery { messageLocalDataSource.save(any()) } returns mockk()
+
+        runBlocking {
+            messageDataSource.storeOutgoingMessage(TEST_MESSAGE)
+        }
+
+        verify(exactly = 1) { messageMapper.fromMessageToEntity(TEST_MESSAGE) }
+    }
+
+    @Test
+    fun `given an outgoing message, when storing it, then the mapped value should be passed to the local data source`() {
+        val mappedValue = mockk<MessageEntity>()
+        every { messageMapper.fromMessageToEntity(any()) } returns mappedValue
+        coEvery { messageLocalDataSource.save(any()) } returns mockk()
+
+        runBlocking {
+            messageDataSource.storeOutgoingMessage(TEST_MESSAGE)
+        }
+
+        coVerify(exactly = 1) { messageLocalDataSource.save(mappedValue) }
+    }
+
+    @Test
+    fun `given local data source fails, when storing a new outgoing message, then failure should be forwarded`() {
+        val failure = mockk<Failure>()
+        every { messageMapper.fromMessageToEntity(any()) } returns mockk()
+        coEvery { messageLocalDataSource.save(any()) } returns Either.Left(failure)
+
+        runBlocking {
+            messageDataSource.storeOutgoingMessage(TEST_MESSAGE)
+        } shouldFail {
+            it shouldBeEqualTo failure
+        }
+    }
+
+    @Test
+    fun `given local data source succeeds, when storing a new outgoing message, then success should be forwarded`() {
+        every { messageMapper.fromMessageToEntity(any()) } returns mockk()
+        coEvery { messageLocalDataSource.save(any()) } returns Either.Right(Unit)
+
+        runBlocking {
+            messageDataSource.storeOutgoingMessage(TEST_MESSAGE)
+        } shouldSucceed {}
+    }
 
     companion object {
         private const val TEST_CLIENT_ID = "client-id"
         private const val TEST_USER_ID = "user-id"
-        private const val TEST_CONTENT = "This-is-a-content"
+        private const val TEST_RAW_CONTENT = "This-is-a-content"
+        private val TEST_CONTENT = Content.Text("Servus")
+        private val TEST_MESSAGE = Message(
+            "id", "convId", "userId", "clientId",
+            TEST_CONTENT, Pending, OffsetDateTime.now(), false
+        )
     }
 }

@@ -383,13 +383,14 @@ class ConversationDataSourceTest : UnitTest() {
         val mappedDetailedContact = mockk<DetailedContact>()
         val contactsWithClientsList = listOf<ContactWithClients>(mockk(), mockk())
         coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(contactsWithClientsList)
-        every { contactMapper.fromContactWithClients(any()) } returns mockk()
+        every { contactMapper.fromContactWithClients(any()) } returns mappedDetailedContact
 
         runBlockingTest {
             conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
                 .shouldSucceed {
                     it.size shouldBeEqualTo 2
-                    it shouldContain mappedDetailedContact
+                    it[0] shouldBeEqualTo mappedDetailedContact
+                    it[1] shouldBeEqualTo mappedDetailedContact
                 }
         }
     }

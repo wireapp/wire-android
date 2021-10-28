@@ -1,5 +1,6 @@
 package com.wire.android.feature.conversation.content
 
+import com.wire.android.core.crypto.model.EncryptedMessage
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
@@ -18,6 +19,14 @@ interface MessageRepository {
         contactClientId: String,
         preKey: PreKey
     ): Either<Failure, Unit>
+
+    suspend fun encryptMessageContent(
+        senderUserId: String,
+        receiverUserId: String,
+        receiverClientId: String,
+        messageId: String,
+        content: Content
+    ): Either<Failure, EncryptedMessage>
 
     suspend fun storeOutgoingMessage(message: Message): Either<Failure, Unit>
 

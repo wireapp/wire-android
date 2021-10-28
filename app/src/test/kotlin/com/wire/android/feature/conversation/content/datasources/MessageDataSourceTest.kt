@@ -21,6 +21,7 @@ import com.wire.android.feature.conversation.content.Pending
 import com.wire.android.feature.conversation.content.datasources.local.CombinedMessageContactEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
+import com.wire.android.feature.conversation.content.mapper.MessageContentMapper
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
@@ -37,6 +38,7 @@ import java.time.OffsetDateTime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.amshove.kluent.any
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
@@ -53,6 +55,9 @@ class MessageDataSourceTest : UnitTest() {
     private lateinit var messageMapper: MessageMapper
 
     @MockK
+    private lateinit var contentMapper: MessageContentMapper
+
+    @MockK
     private lateinit var contactMapper: ContactMapper
 
     @MockK
@@ -66,7 +71,8 @@ class MessageDataSourceTest : UnitTest() {
 
     @Before
     fun setUp() {
-        messageDataSource = MessageDataSource(messageLocalDataSource, messageMapper, contactMapper, cryptoBoxClient)
+        messageDataSource =
+            MessageDataSource(messageLocalDataSource, messageMapper, contentMapper, contactMapper, cryptoBoxClient)
     }
 
     @Test
@@ -314,6 +320,7 @@ class MessageDataSourceTest : UnitTest() {
         }
     }
 
+    @Test
     fun `given an outgoing message, when storing it, then it should be mapped into entity`() {
         every { messageMapper.fromMessageToEntity(any()) } returns mockk()
         coEvery { messageLocalDataSource.save(any()) } returns mockk()
@@ -359,6 +366,114 @@ class MessageDataSourceTest : UnitTest() {
         runBlocking {
             messageDataSource.storeOutgoingMessage(TEST_MESSAGE)
         } shouldSucceed {}
+    }
+
+    @Test
+    fun `given receiverUserId and clientId, when encrypting a message content, then pass the correct Session to CryptoBoxClient`() {
+        coEvery { cryptoBoxClient.encryptMessage(any(), any(), any()) } returns Either.Right(Unit)
+        coEvery { cryptoBoxClient.encryptMessage(any(), any(), any()) } coAnswers {
+            (thirdArg() as (suspend (EncryptedMessage) -> Either<Failure, Unit>)).invoke(mockk())
+            Either.Right(Unit)
+        }
+
+        runBlocking {
+            messageDataSource.encryptMessageContent(
+                "sender-id",
+                TEST_USER_ID,
+                TEST_CLIENT_ID,
+                TEST_MESSAGE.id,
+                TEST_MESSAGE.content
+            )
+        }
+
+        coVerify(exactly = 1) { cryptoBoxClient.encryptMessage(TEST_CRYPTO_SESSION, any(), any()) }
+    }
+
+    @Test
+    fun `given a message content and id, when encrypting a message content, then pass them to the content mapper`() {
+        coEvery { cryptoBoxClient.encryptMessage(any(), any(), any()) } returns Either.Right(Unit)
+        coEvery { cryptoBoxClient.encryptMessage(any(), any(), any()) } coAnswers {
+            (thirdArg() as (suspend (EncryptedMessage) -> Either<Failure, Unit>)).invoke(mockk())
+            Either.Right(Unit)
+        }
+
+        runBlocking {
+            messageDataSource.encryptMessageContent(
+                "sender-id",
+                TEST_USER_ID,
+                TEST_CLIENT_ID,
+                TEST_MESSAGE.id,
+                TEST_MESSAGE.content
+            )
+        }
+
+        coVerify(exactly = 1) { contentMapper.fromContentToPlainMessage(TEST_MESSAGE.id, TEST_MESSAGE.content) }
+    }
+
+    @Test
+    fun `given the content and messageId, when encrypting a message content, then encrypt with the mapped result`() {
+        val mappedPlainMessage = mockk<PlainMessage>()
+        coEvery { cryptoBoxClient.encryptMessage(any(), any(), any()) } coAnswers {
+            (thirdArg() as (suspend (EncryptedMessage) -> Either<Failure, Unit>)).invoke(mockk())
+            Either.Right(Unit)
+        }
+        every { contentMapper.fromContentToPlainMessage(any(), any()) } returns mappedPlainMessage
+
+        runBlockingTest {
+            messageDataSource.encryptMessageContent(
+                "sender-id",
+                TEST_USER_ID,
+                TEST_CLIENT_ID,
+                TEST_MESSAGE.id,
+                TEST_MESSAGE.content
+            )
+        }
+
+        coVerify(exactly = 1) { cryptoBoxClient.encryptMessage(any(), mappedPlainMessage, any()) }
+    }
+
+    @Test
+    fun `given cryptoBoxClient fails, when encrypting a message content, then return the failure`() {
+        val failure = mockk<Failure>()
+        coEvery { cryptoBoxClient.encryptMessage(any(), any(), any()) } coAnswers {
+            (thirdArg() as (suspend (EncryptedMessage) -> Either<Failure, Unit>)).invoke(mockk())
+            Either.Left(failure)
+        }
+        every { contentMapper.fromContentToPlainMessage(any(), any()) } returns mockk()
+
+        runBlockingTest {
+            messageDataSource.encryptMessageContent(
+                "sender-id",
+                TEST_USER_ID,
+                TEST_CLIENT_ID,
+                TEST_MESSAGE.id,
+                TEST_MESSAGE.content
+            ) shouldFail {
+                it shouldBeEqualTo failure
+            }
+        }
+    }
+
+    @Test
+    fun `given cryptoBoxClient succeeds, when encrypting a message content, then return the encrypted message`() {
+        val encryptedMessage = mockk<EncryptedMessage>()
+        coEvery { cryptoBoxClient.encryptMessage(any(), any(), any()) } coAnswers {
+            (thirdArg() as (suspend (EncryptedMessage) -> Either<Failure, Unit>)).invoke(encryptedMessage)
+            Either.Right(Unit)
+        }
+        every { contentMapper.fromContentToPlainMessage(any(), any()) } returns mockk()
+
+        runBlockingTest {
+            messageDataSource.encryptMessageContent(
+                "sender-id",
+                TEST_USER_ID,
+                TEST_CLIENT_ID,
+                TEST_MESSAGE.id,
+                TEST_MESSAGE.content
+            ) shouldSucceed {
+                it shouldBeEqualTo encryptedMessage
+            }
+        }
     }
 
     companion object {

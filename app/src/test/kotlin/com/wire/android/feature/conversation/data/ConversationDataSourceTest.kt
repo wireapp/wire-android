@@ -1,10 +1,13 @@
 package com.wire.android.feature.conversation.data
 
 import com.wire.android.UnitTest
-import com.wire.android.core.exception.EmptyCacheFailure
 import com.wire.android.core.exception.DatabaseFailure
+import com.wire.android.core.exception.EmptyCacheFailure
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
+import com.wire.android.feature.contact.DetailedContact
+import com.wire.android.feature.contact.datasources.local.ContactWithClients
+import com.wire.android.feature.contact.datasources.mapper.ContactMapper
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
@@ -21,9 +24,12 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.verifySequence
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldContain
 import org.junit.Before
 import org.junit.Test
 
@@ -31,6 +37,9 @@ class ConversationDataSourceTest : UnitTest() {
 
     @MockK
     private lateinit var conversationMapper: ConversationMapper
+
+    @MockK
+    private lateinit var contactMapper: ContactMapper
 
     @MockK
     private lateinit var conversationRemoteDataSource: ConversationsRemoteDataSource
@@ -42,7 +51,8 @@ class ConversationDataSourceTest : UnitTest() {
 
     @Before
     fun setUp() {
-        conversationDataSource = ConversationDataSource(conversationMapper, conversationRemoteDataSource, conversationLocalDataSource)
+        conversationDataSource =
+            ConversationDataSource(conversationMapper, contactMapper, conversationRemoteDataSource, conversationLocalDataSource)
     }
 
     @Test
@@ -160,7 +170,7 @@ class ConversationDataSourceTest : UnitTest() {
         every { currentPageResponse.hasMore } returns true
 
         coEvery { conversationRemoteDataSource.conversationsByBatch(any(), any()) } returnsMany
-            listOf(Either.Right(currentPageResponse), Either.Left(mockk()))
+                listOf(Either.Right(currentPageResponse), Either.Left(mockk()))
 
         every { conversationMapper.fromConversationResponseListToEntityList(any()) } returns mockk()
 
@@ -281,7 +291,7 @@ class ConversationDataSourceTest : UnitTest() {
 
         val result = runBlocking { conversationDataSource.currentOpenedConversationId() }
 
-        result shouldFail  { it shouldBeEqualTo failure }
+        result shouldFail { it shouldBeEqualTo failure }
     }
 
     @Test
@@ -319,7 +329,70 @@ class ConversationDataSourceTest : UnitTest() {
 
         val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID) }
 
-        result shouldSucceed  { it shouldBeEqualTo TEST_CONVERSATION_NAME }
+        result shouldSucceed { it shouldBeEqualTo TEST_CONVERSATION_NAME }
+    }
+
+    @Test
+    fun `given a conversationId, when fetching detailed members of conversation, then the correct ID should be passed to the DAO`() {
+        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(listOf(mockk()))
+
+        runBlockingTest {
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+        }
+
+        coVerify(exactly = 1) { conversationLocalDataSource.detailedMembersOfConversation(TEST_CONVERSATION_ID) }
+    }
+
+    @Test
+    fun `given localDataSource succeeds, when fetching detailed members of conversation, then the result should be mapped`() {
+        val firstContact = mockk<ContactWithClients>()
+        val secondContact = mockk<ContactWithClients>()
+        val result = listOf(firstContact, secondContact)
+        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(result)
+        every { contactMapper.fromContactWithClients(any()) } returns mockk()
+
+        runBlockingTest {
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+        }
+
+        verifySequence {
+            contactMapper.fromContactWithClients(firstContact)
+            contactMapper.fromContactWithClients(secondContact)
+        }
+    }
+
+    @Test
+    fun `given mapped detailed contacts, when fetching detailed members of conversation, then the mapped contacts should be returned`() {
+        val mappedDetailedContact = mockk<DetailedContact>()
+        val contactsWithClientsList = listOf<ContactWithClients>(mockk(), mockk())
+        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(contactsWithClientsList)
+        every { contactMapper.fromContactWithClients(any()) } returns mappedDetailedContact
+
+        runBlockingTest {
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+                .shouldSucceed {
+                    it.size shouldBeEqualTo 2
+                    it[0] shouldBeEqualTo mappedDetailedContact
+                    it[1] shouldBeEqualTo mappedDetailedContact
+                }
+        }
+    }
+
+    @Test
+    fun `given localDataStore fails, when fetching detailed members of conversation, then the mapped contacts should be returned`() {
+        val mappedDetailedContact = mockk<DetailedContact>()
+        val contactsWithClientsList = listOf<ContactWithClients>(mockk(), mockk())
+        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(contactsWithClientsList)
+        every { contactMapper.fromContactWithClients(any()) } returns mappedDetailedContact
+
+        runBlockingTest {
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+                .shouldSucceed {
+                    it.size shouldBeEqualTo 2
+                    it[0] shouldBeEqualTo mappedDetailedContact
+                    it[1] shouldBeEqualTo mappedDetailedContact
+                }
+        }
     }
 
     companion object {

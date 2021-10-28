@@ -2,7 +2,10 @@ package com.wire.android.feature.conversation.data
 
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.map
 import com.wire.android.core.functional.suspending
+import com.wire.android.feature.contact.DetailedContact
+import com.wire.android.feature.contact.datasources.mapper.ContactMapper
 import com.wire.android.feature.conversation.Conversation
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationResponse
@@ -11,6 +14,7 @@ import com.wire.android.feature.conversation.data.remote.ConversationsResponse
 
 class ConversationDataSource(
     private val conversationMapper: ConversationMapper,
+    private val contactMapper: ContactMapper,
     private val conversationRemoteDataSource: ConversationsRemoteDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : ConversationRepository {
@@ -51,6 +55,10 @@ class ConversationDataSource(
 
     override suspend fun allConversationMemberIds(): Either<Failure, List<String>> =
         conversationLocalDataSource.allConversationMemberIds()
+
+    override suspend fun detailedConversationMembers(conversationId: String): Either<Failure, List<DetailedContact>> =
+        conversationLocalDataSource.detailedMembersOfConversation(conversationId)
+            .map { contacts -> contacts.map(contactMapper::fromContactWithClients) }
 
     override suspend fun updateConversations(conversations: List<Conversation>): Either<Failure, Unit> {
         val entities = conversationMapper.toEntityList(conversations)

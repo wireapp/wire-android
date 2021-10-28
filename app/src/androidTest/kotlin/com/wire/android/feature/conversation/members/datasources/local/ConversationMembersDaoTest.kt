@@ -2,6 +2,11 @@ package com.wire.android.feature.conversation.members.datasources.local
 
 import com.wire.android.InstrumentationTest
 import com.wire.android.core.storage.db.user.UserDatabase
+import com.wire.android.feature.contact.datasources.local.ContactClientDao
+import com.wire.android.feature.contact.datasources.local.ContactClientEntity
+import com.wire.android.feature.contact.datasources.local.ContactDao
+import com.wire.android.feature.contact.datasources.local.ContactEntity
+import com.wire.android.feature.contact.datasources.local.ContactWithClients
 import com.wire.android.feature.conversation.data.local.ConversationDao
 import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.framework.storage.db.DatabaseTestRule
@@ -20,12 +25,18 @@ class ConversationMembersDaoTest : InstrumentationTest() {
 
     private lateinit var conversationDao: ConversationDao
 
+    private lateinit var contactClientDao: ContactClientDao
+
+    private lateinit var contactDao: ContactDao
+
     private lateinit var conversationMembersDao: ConversationMembersDao
 
     @Before
     fun setUp() {
         val userDatabase = databaseTestRule.database
         conversationDao = userDatabase.conversationDao()
+        contactClientDao = userDatabase.contactClientDao()
+        contactDao = userDatabase.contactDao()
         conversationMembersDao = userDatabase.conversationMembersDao()
     }
 
@@ -69,6 +80,13 @@ class ConversationMembersDaoTest : InstrumentationTest() {
 
             remainingEntities shouldContainSame listOf(entity2)
         }
+
+    private suspend fun prepareConversationMemberEntity(conversationId: String, contactId: String): ConversationMemberEntity {
+        conversationDao.insert(
+            ConversationEntity(id = conversationId, name = "Conversation $conversationId", type = TEST_CONVERSATION_TYPE)
+        )
+        return ConversationMemberEntity(conversationId = conversationId, contactId = contactId)
+    }
 
     @Test
     fun conversationMembers_entitiesForConversationIdExists_returnsMemberIds() = databaseTestRule.runTest {
@@ -122,11 +140,27 @@ class ConversationMembersDaoTest : InstrumentationTest() {
         memberIds.isEmpty() shouldBeEqualTo true
     }
 
-    private suspend fun prepareConversationMemberEntity(conversationId: String, contactId: String): ConversationMemberEntity {
-        conversationDao.insert(
-            ConversationEntity(id = conversationId, name = "Conversation $conversationId", type = TEST_CONVERSATION_TYPE)
+    @Test
+    fun detailedConversationMembers_contactWithClientExists_returnsEntities() = databaseTestRule.runTest {
+        val contact = ContactEntity(TEST_CONTACT_ID, "John Doe", null)
+        val contactClient = ContactClientEntity(TEST_CONTACT_ID, "client-ID")
+        contactDao.insert(contact)
+        contactClientDao.insert(contactClient)
+        conversationDao.insert(ConversationEntity(TEST_CONVERSATION_ID, "name", TEST_CONVERSATION_TYPE))
+        conversationMembersDao.insert(ConversationMemberEntity(TEST_CONVERSATION_ID, TEST_CONTACT_ID))
+
+        val contacts = conversationMembersDao.detailedConversationMembers(TEST_CONVERSATION_ID)
+
+        contacts shouldContainSame listOf(
+            ContactWithClients(contact, listOf(contactClient))
         )
-        return ConversationMemberEntity(conversationId = conversationId, contactId = contactId)
+    }
+
+    @Test
+    fun detailedConversationMembers_noEntitiesExist_returnsEmptyList() = databaseTestRule.runTest {
+        val contacts = conversationMembersDao.detailedConversationMembers(TEST_CONVERSATION_ID)
+
+        contacts.isEmpty() shouldBeEqualTo true
     }
 
     companion object {

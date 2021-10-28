@@ -5,7 +5,6 @@ import com.wire.android.core.crypto.CryptoBoxClient
 import com.wire.android.core.crypto.model.CryptoClientId
 import com.wire.android.core.crypto.model.CryptoSessionId
 import com.wire.android.core.crypto.model.EncryptedMessage
-import com.wire.android.core.crypto.model.PlainMessage
 import com.wire.android.core.crypto.model.PreKey
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
@@ -16,10 +15,13 @@ import com.wire.android.feature.conversation.content.Content
 import com.wire.android.feature.conversation.content.EncryptedMessageEnvelope
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.MessageRepository
+import com.wire.android.feature.conversation.content.SendMessageFailure
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageContentMapper
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.ui.CombinedMessageContact
+import com.wire.android.feature.messaging.ChatMessageEnvelope
+import com.wire.android.feature.messaging.datasource.remote.MessageRemoteDataSource
 import com.wire.android.shared.user.QualifiedId
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.coroutineScope
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.map
 
 class MessageDataSource(
     private val messageLocalDataSource: MessageLocalDataSource,
+    private val messageRemoteDataSource: MessageRemoteDataSource,
     private val messageMapper: MessageMapper,
     private val contentMapper: MessageContentMapper,
     private val contactMapper: ContactMapper,
@@ -73,6 +76,13 @@ class MessageDataSource(
                 )
             }
         }
+
+    override suspend fun sendMessageEnvelope(
+        conversationId: String,
+        envelope: ChatMessageEnvelope
+    ): Either<SendMessageFailure, Unit> = messageRemoteDataSource.sendMessage(conversationId, envelope)
+
+    override suspend fun markMessageAsSent(messageId: String): Either<Failure, Unit> = messageLocalDataSource.markMessageAsSent(messageId)
 
     override suspend fun doesCryptoSessionExists(
         selfUserId: String,

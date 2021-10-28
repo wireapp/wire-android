@@ -18,11 +18,14 @@ import com.wire.android.feature.conversation.content.Content
 import com.wire.android.feature.conversation.content.EncryptedMessageEnvelope
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.Pending
+import com.wire.android.feature.conversation.content.SendMessageFailure
 import com.wire.android.feature.conversation.content.datasources.local.CombinedMessageContactEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageEntity
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
 import com.wire.android.feature.conversation.content.mapper.MessageContentMapper
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
+import com.wire.android.feature.messaging.ChatMessageEnvelope
+import com.wire.android.feature.messaging.datasource.remote.MessageRemoteDataSource
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import com.wire.android.shared.user.QualifiedId
@@ -52,6 +55,9 @@ class MessageDataSourceTest : UnitTest() {
     private lateinit var messageLocalDataSource: MessageLocalDataSource
 
     @MockK
+    private lateinit var messageRemoteDataSource: MessageRemoteDataSource
+
+    @MockK
     private lateinit var messageMapper: MessageMapper
 
     @MockK
@@ -72,7 +78,7 @@ class MessageDataSourceTest : UnitTest() {
     @Before
     fun setUp() {
         messageDataSource =
-            MessageDataSource(messageLocalDataSource, messageMapper, contentMapper, contactMapper, cryptoBoxClient)
+            MessageDataSource(messageLocalDataSource, messageRemoteDataSource, messageMapper, contentMapper, contactMapper, cryptoBoxClient)
     }
 
     @Test
@@ -476,7 +482,76 @@ class MessageDataSourceTest : UnitTest() {
         }
     }
 
+    @Test
+    fun `given a conversationId and an envelope, when sending an envelope, then remote data source should take the correct parameters`() {
+        val convId = TEST_CLIENT_ID
+        val envelope = mockk<ChatMessageEnvelope>()
+        coEvery { messageRemoteDataSource.sendMessage(any(), any()) } returns Either.Right(Unit)
+
+        runBlockingTest {
+            messageDataSource.sendMessageEnvelope(convId, envelope)
+        }
+
+        coVerify { messageRemoteDataSource.sendMessage(convId, envelope) }
+    }
+
+    @Test
+    fun `given remoteDataSource succeeds, when sending an envelope, then forward right`() {
+        coEvery { messageRemoteDataSource.sendMessage(any(), any()) } returns Either.Right(Unit)
+
+        runBlockingTest {
+            messageDataSource.sendMessageEnvelope(TEST_CONVERSATION_ID, mockk())
+                .shouldSucceed { }
+        }
+    }
+
+    @Test
+    fun `given remoteDataSource fails, when sending an envelope, then forward failure`() {
+        val failure = mockk<SendMessageFailure>()
+        coEvery { messageRemoteDataSource.sendMessage(any(), any()) } returns Either.Left(failure)
+
+        runBlockingTest {
+            messageDataSource.sendMessageEnvelope(TEST_CONVERSATION_ID, mockk())
+                .shouldFail { it shouldBeEqualTo failure }
+        }
+    }
+
+    @Test
+    fun `given a messageId, when marking a message as sent, then correctId should be passed to localDataSource`() {
+        coEvery { messageLocalDataSource.markMessageAsSent(any()) } returns Either.Right(Unit)
+
+        runBlockingTest {
+            messageDataSource.markMessageAsSent(TEST_MESSAGE.id)
+        }
+
+        coVerify(exactly = 1) { messageLocalDataSource.markMessageAsSent(TEST_MESSAGE.id) }
+    }
+
+    @Test
+    fun `given localDataSource fails, when marking a message as sent, then failure should be forwarded`() {
+        val failure = mockk<Failure>()
+        coEvery { messageLocalDataSource.markMessageAsSent(any()) } returns Either.Left(failure)
+
+        runBlockingTest {
+            messageDataSource.markMessageAsSent(TEST_MESSAGE.id)
+                .shouldFail {
+                    it shouldBeEqualTo failure
+                }
+        }
+    }
+
+    @Test
+    fun `given localDataSource succeeds, when marking a message as sent, then it returns right`() {
+        coEvery { messageLocalDataSource.markMessageAsSent(any()) } returns Either.Right(Unit)
+
+        runBlockingTest {
+            messageDataSource.markMessageAsSent(TEST_MESSAGE.id)
+                .shouldSucceed {}
+        }
+    }
+
     companion object {
+        private const val TEST_CONVERSATION_ID = "conver-id"
         private const val TEST_CLIENT_ID = "client-id"
         private const val TEST_USER_ID = "user-id"
         private const val TEST_DOMAIN = "domain"

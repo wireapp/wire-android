@@ -1,6 +1,8 @@
 package com.wire.android.feature.conversation.content.datasources.local
 
 import com.wire.android.UnitTest
+import com.wire.android.feature.conversation.content.Sent
+import com.wire.android.feature.conversation.content.mapper.MessageStateMapper
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery
@@ -11,6 +13,7 @@ import java.sql.SQLException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.amshove.kluent.any
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,9 +27,12 @@ class MessageLocalDataSourceTest : UnitTest() {
     @MockK
     private lateinit var messageDao: MessageDao
 
+    @MockK
+    private lateinit var messageStateMapper: MessageStateMapper
+
     @Before
     fun setUp() {
-        messageLocalDataSource = MessageLocalDataSource(messageDao)
+        messageLocalDataSource = MessageLocalDataSource(messageDao, messageStateMapper)
     }
 
     @Test
@@ -109,42 +115,77 @@ class MessageLocalDataSourceTest : UnitTest() {
 
     @Test
     fun `given dao returns a message, when getting message by id, then return said message`() {
-        val messageId = "i123"
-        val messageEntity = MessageEntity(
-            messageId, "conv", "send", "type",
-            "content", "state", "time", false
-        )
-        coEvery { messageDao.messageById(messageId) } returns messageEntity
+        coEvery { messageDao.messageById(TEST_MESSAGE_ID) } returns TEST_MESSAGE_ENTITY
 
-        val result = runBlocking { messageLocalDataSource.messageById(messageId) }
+        val result = runBlocking { messageLocalDataSource.messageById(TEST_MESSAGE_ID) }
 
         result shouldSucceed {
-            it shouldBeEqualTo messageEntity
+            it shouldBeEqualTo TEST_MESSAGE_ENTITY
         }
     }
 
     @Test
     fun `given dao returns a message, when getting message by id, then the dao should be called once`() {
-        val messageId = "i123"
-        val messageEntity = MessageEntity(
-            messageId, "conv", "send", "type",
-            "content", "state", "time", false
-        )
-        coEvery { messageDao.messageById(messageId) } returns messageEntity
+        coEvery { messageDao.messageById(TEST_MESSAGE_ID) } returns TEST_MESSAGE_ENTITY
 
-        runBlocking { messageLocalDataSource.messageById(messageId) }
+        runBlocking { messageLocalDataSource.messageById(TEST_MESSAGE_ID) }
 
-        coVerify(exactly = 1) { messageDao.messageById(messageId) }
+        coVerify(exactly = 1) { messageDao.messageById(TEST_MESSAGE_ID) }
     }
 
     @Test
     fun `given dao returns a failure, when getting message by id, then forward the failure`() {
-        val messageId = "i123"
-        coEvery { messageDao.messageById(messageId) } throws SQLException()
+        coEvery { messageDao.messageById(TEST_MESSAGE_ID) } throws SQLException()
 
-        val result = runBlocking { messageLocalDataSource.messageById(messageId) }
+        val result = runBlocking { messageLocalDataSource.messageById(TEST_MESSAGE_ID) }
 
         result shouldFail {}
     }
 
+    @Test
+    fun `given a messageId, when marking message as sent, then the correct ID should be passed to the dao`() {
+        coEvery { messageDao.messageById(any()) } returns TEST_MESSAGE_ENTITY
+
+        runBlockingTest { messageLocalDataSource.markMessageAsSent(TEST_MESSAGE_ID) }
+
+        coVerify(exactly = 1) { messageDao.messageById(TEST_MESSAGE_ID) }
+    }
+
+    @Test
+    fun `given the dao returns successfully, when marking message as sent, then the fetched entity should be updated with mapped state`() {
+        val sentState = "sentState"
+        coEvery { messageDao.messageById(any()) } returns TEST_MESSAGE_ENTITY
+        coEvery { messageStateMapper.fromValueToString(Sent) } returns sentState
+
+        runBlockingTest { messageLocalDataSource.markMessageAsSent(TEST_MESSAGE_ID) }
+
+        coVerify(exactly = 1) { messageDao.insert(TEST_MESSAGE_ENTITY.copy(state = sentState)) }
+    }
+
+    @Test
+    fun `given dao fails during fetching, when marking message as sent, then forward failure`() {
+        coEvery { messageDao.messageById(any()) } throws SQLException()
+
+        val result = runBlocking { messageLocalDataSource.markMessageAsSent(TEST_MESSAGE_ID) }
+
+        result shouldFail {}
+    }
+
+    @Test
+    fun `given dao fails during update, when marking message as sent, then forward failure`() {
+        coEvery { messageDao.messageById(any()) } returns TEST_MESSAGE_ENTITY
+        coEvery { messageDao.insert(any()) } throws SQLException()
+
+        val result = runBlocking { messageLocalDataSource.markMessageAsSent(TEST_MESSAGE_ID) }
+
+        result shouldFail {}
+    }
+
+    companion object {
+        private const val TEST_MESSAGE_ID = "i312"
+        private val TEST_MESSAGE_ENTITY = MessageEntity(
+            TEST_MESSAGE_ID, "conv", "send", "type",
+            "content", "state", "time", false
+        )
+    }
 }

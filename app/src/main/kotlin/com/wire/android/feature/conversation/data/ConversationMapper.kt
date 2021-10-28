@@ -14,7 +14,8 @@ class ConversationMapper(private val conversationTypeMapper: ConversationTypeMap
 
     fun fromConversationResponseListToConversationMembers(responseList: List<ConversationResponse>): List<ConversationMemberEntity> =
         responseList.flatMap { conversation ->
-            val memberIds = conversation.members.otherMembers.map { it.userId }.filter { it.isNotEmpty() }
+            val memberIds = (conversation.members.otherMembers + conversation.members.self)
+                .map { it.userId }.filter { it.isNotEmpty() }
             memberIds.map {
                 ConversationMemberEntity(conversationId = conversation.id, contactId = it)
             }

@@ -19,7 +19,7 @@ import org.junit.Test
 
 //TODO Improve testing. It's flaky and failing on some emulators
 @Ignore
-class AndroidMessageSenderSchedulerTest : InstrumentationTest() {
+class AndroidSendMessageWorkerSchedulerTest : InstrumentationTest() {
 
     private lateinit var subject: AndroidSendMessageWorkerScheduler
 

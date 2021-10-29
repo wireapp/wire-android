@@ -56,6 +56,8 @@ class MessageSender(
                     createOutgoingEnvelope(detailedContacts, clientId, senderUserId, message)
                 }.flatMap { envelope ->
                     sendEnvelopeRetryingIfPossible(message, envelope, senderUserId, clientId)
+                }.flatMap {
+                    messageRepository.markMessageAsSent(message.id)
                 }
         }
 

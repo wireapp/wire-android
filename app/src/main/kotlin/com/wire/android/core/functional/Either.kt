@@ -116,3 +116,14 @@ fun <L, R> Either<L, R>.getOrElse(value: R): R =
         is Either.Left -> value
         is Either.Right -> b
     }
+
+/**
+ * Folds a list into an Either while it doesn't go Left.
+ * Allows for accumulation of value through iterations.
+ * @return the final accumulated value if there are NO Left results, or the first Left result otherwise.
+ */
+fun <T, L, R> Iterable<T>.foldToEitherWhileRight(initialValue: R, fn: (item: T, accumulated: R) -> Either<L, R>): Either<L, R> {
+    return this.fold<T, Either<L, R>>(Either.Right(initialValue)) { acc, item ->
+        acc.flatMap { accumulatedValue -> fn(item, accumulatedValue) }
+    }
+}

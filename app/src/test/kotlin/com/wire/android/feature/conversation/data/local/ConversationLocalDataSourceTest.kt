@@ -1,22 +1,25 @@
 package com.wire.android.feature.conversation.data.local
 
+import android.database.sqlite.SQLiteException
 import com.wire.android.UnitTest
+import com.wire.android.feature.contact.datasources.local.ContactWithClients
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
-import io.mockk.impl.annotations.MockK
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.verify
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
+import java.sql.SQLException
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
-import java.sql.SQLException
 
 class ConversationLocalDataSourceTest : UnitTest() {
 
@@ -153,7 +156,7 @@ class ConversationLocalDataSourceTest : UnitTest() {
 
         val result = runBlocking { conversationLocalDataSource.numberOfConversations() }
 
-        result shouldSucceed { it shouldBeEqualTo  count }
+        result shouldSucceed { it shouldBeEqualTo count }
         coVerify { conversationDao.count() }
     }
 
@@ -173,7 +176,7 @@ class ConversationLocalDataSourceTest : UnitTest() {
 
         val result = runBlocking { conversationLocalDataSource.currentOpenedConversationId() }
 
-        result shouldSucceed { it shouldBeEqualTo  CONVERSATION_ID }
+        result shouldSucceed { it shouldBeEqualTo CONVERSATION_ID }
         verify { conversationCache.currentOpenedConversationId() }
     }
 
@@ -193,7 +196,7 @@ class ConversationLocalDataSourceTest : UnitTest() {
 
         val result = runBlocking { conversationLocalDataSource.conversationNameById(CONVERSATION_ID) }
 
-        result shouldFail{}
+        result shouldFail {}
     }
 
     @Test
@@ -202,8 +205,38 @@ class ConversationLocalDataSourceTest : UnitTest() {
 
         val result = runBlocking { conversationLocalDataSource.conversationNameById(CONVERSATION_ID) }
 
-        result shouldSucceed{
+        result shouldSucceed {
             it shouldBeEqualTo CONVERSATION_NAME
+        }
+    }
+
+    @Test
+    fun `given a conversation id, when getting detailed members of a conversation, then pass the correct ID to the DAO`() {
+        coEvery { conversationMembersDao.detailedConversationMembers(any()) } returns mockk()
+
+        runBlockingTest { conversationLocalDataSource.detailedMembersOfConversation(CONVERSATION_ID) }
+
+        coVerify(exactly = 1) { conversationMembersDao.detailedConversationMembers(CONVERSATION_ID) }
+    }
+
+    @Test
+    fun `given conversationMembersDao succeeds, when getting detailed members of a conversation, then forward the result`() {
+        val result = mockk<List<ContactWithClients>>()
+        coEvery { conversationMembersDao.detailedConversationMembers(any()) } returns result
+
+        runBlockingTest {
+            conversationLocalDataSource.detailedMembersOfConversation(CONVERSATION_ID)
+                .shouldSucceed { it shouldBeEqualTo result }
+        }
+    }
+
+    @Test
+    fun `given conversationMembersDao fails, when getting detailed members of a conversation, then forward the failure`() {
+        coEvery { conversationMembersDao.detailedConversationMembers(any()) } throws SQLiteException()
+
+        runBlockingTest {
+            conversationLocalDataSource.detailedMembersOfConversation(CONVERSATION_ID)
+                .shouldFail { }
         }
     }
 

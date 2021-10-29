@@ -70,7 +70,7 @@ val conversationsModule = module {
     factory(qualifier<MainActivity>()) {
         FragmentContainerProvider.fixedProvider(R.id.mainFragmentContainer)
     }
-    single<ConversationRepository> { ConversationDataSource(get(), get(), get()) }
+    single<ConversationRepository> { ConversationDataSource(get(), get(), get(), get()) }
     factory { ConversationMapper(get()) }
     factory { ConversationTypeMapper() }
 

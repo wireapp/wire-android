@@ -4,6 +4,7 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.core.storage.cache.CacheService
 import com.wire.android.core.storage.db.DatabaseService
+import com.wire.android.feature.contact.datasources.local.ContactWithClients
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 
@@ -27,6 +28,10 @@ class ConversationLocalDataSource(
 
     suspend fun conversationMemberIds(conversationId: String): Either<Failure, List<String>> = request {
         conversationMembersDao.conversationMembers(conversationId)
+    }
+
+    suspend fun detailedMembersOfConversation(conversationId: String): Either<Failure, List<ContactWithClients>> = request {
+        conversationMembersDao.detailedConversationMembers(conversationId)
     }
 
     suspend fun allConversationMemberIds(): Either<Failure, List<String>> = request {

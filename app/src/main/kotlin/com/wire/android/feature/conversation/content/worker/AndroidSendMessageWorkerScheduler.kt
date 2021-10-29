@@ -22,7 +22,6 @@ class AndroidSendMessageWorkerScheduler(
             .setInputData(AndroidSendMessageWorker.workParameters(senderUserId, messageId))
             .build()
 
-
         WorkManager.getInstance(context).enqueueUniqueWork(
             "$senderUserId-$messageId",
             ExistingWorkPolicy.KEEP,

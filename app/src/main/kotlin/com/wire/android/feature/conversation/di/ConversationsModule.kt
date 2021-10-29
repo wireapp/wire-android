@@ -1,6 +1,7 @@
 package com.wire.android.feature.conversation.di
 
 import com.wire.android.R
+
 import com.wire.android.core.network.NetworkClient
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.core.ui.navigation.FragmentContainerProvider
@@ -14,8 +15,12 @@ import com.wire.android.feature.conversation.content.navigation.ConversationNavi
 import com.wire.android.feature.conversation.content.ui.ConversationAdapter
 import com.wire.android.feature.conversation.content.ui.ConversationViewModel
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
+import com.wire.android.feature.conversation.content.usecase.MessageSendFailureHandler
+import com.wire.android.feature.conversation.content.usecase.SendMessageService
+import com.wire.android.feature.conversation.content.usecase.MessageSender
+import com.wire.android.feature.conversation.content.usecase.OutgoingMessageRecipientsRetriever
 import com.wire.android.feature.conversation.content.usecase.SendMessageWorkerScheduler
-import com.wire.android.feature.conversation.content.worker.AndroidSendMessageWorker
+import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCase
 import com.wire.android.feature.conversation.content.worker.AndroidSendMessageWorkerScheduler
 import com.wire.android.feature.conversation.data.ConversationDataSource
 import com.wire.android.feature.conversation.data.ConversationMapper
@@ -103,11 +108,14 @@ val conversationMembersModule = module {
 }
 
 val conversationContentModule = module {
+    // Storage
     factory { get<UserDatabase>().messageDao() }
-    factory { MessageLocalDataSource(get(), get()) }
+    single { ConversationCache() }
+
+    // API
     single { get<NetworkClient>().create(MessageApi::class.java) }
-    factory { MessageRemoteDataSource(get(), get(), get(), get()) }
-    factory<SendMessageWorkerScheduler> { AndroidSendMessageWorkerScheduler(get()) }
+
+    // Mapper
     factory { MessageStateMapper() }
     factory { OtrUserIdMapper() }
     factory { OtrClientIdMapper() }
@@ -116,12 +124,25 @@ val conversationContentModule = module {
     factory { OtrNewMessageMapper(get(), get()) }
     factory { MessageContentMapper() }
     factory { MessageMapper(get(), get(), get()) }
+
+    // DataSource - Repository
+    factory { MessageLocalDataSource(get(), get()) }
+    factory { MessageRemoteDataSource(get(), get(), get(), get()) }
     factory<MessageRepository> { MessageDataSource(get(), get(), get(), get(), get(), get()) }
-    single { ConversationNavigator() }
+
+    // Domain
+    single { MessageSender(get(), get(), get(), get(), get()) }
+    factory { OutgoingMessageRecipientsRetriever(get(), get(), get()) }
+    factory { MessageSendFailureHandler(get()) }
+    factory<SendMessageWorkerScheduler> { AndroidSendMessageWorkerScheduler(get()) }
+    factory { SendMessageService(get(), get(), get()) }
+    factory { SendTextMessageUseCase(get(), get()) }
     factory { GetConversationUseCase(get()) }
+    factory { UpdateCurrentConversationIdUseCase(get()) }
+
+    // UI
+    single { ConversationNavigator() }
     viewModel { ConversationViewModel(get(), get(), get()) }
     factory { ConversationTimeGenerator(androidContext()) }
     factory { ConversationAdapter(get(), get(), get()) }
-    factory { UpdateCurrentConversationIdUseCase(get()) }
-    single { ConversationCache() }
 }

@@ -2,6 +2,10 @@ package com.wire.android.core.functional
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.ServerError
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
+import io.mockk.mockk
+import io.mockk.verify
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
@@ -128,5 +132,46 @@ class EitherTest : UnitTest() {
 
         result.isLeft shouldBe true
         result shouldBeEqualTo either
+    }
+
+    @Test
+    fun `given a list and a mapper to either that succeeds, when folding to either until left, then accumulate values until the end`() {
+        val items = listOf(1, 1, 1)
+
+        val result = items.foldToEitherWhileRight(0) { item, acc ->
+            Either.Right(acc + item)
+        }
+
+        result shouldSucceed {
+            it shouldBeEqualTo 3
+        }
+    }
+
+    @Test
+    fun `given a list and a mapper to either that fails, when folding to either until left, then return first Left`() {
+        val items = listOf(1, 2, 3)
+
+        val result = items.foldToEitherWhileRight(0) { item, _ ->
+            Either.Left(item)
+        }
+
+        result shouldFail {
+            it shouldBeEqualTo 1
+        }
+    }
+
+    @Test
+    fun `given a list and a mapper to either that fails, when folding to either until left, mappers after left should not be called`() {
+        val mockk = mockk<() -> Either<Int, Int>>()
+        val expectedFailure = -1
+        val items = listOf(1 to { Either.Left(expectedFailure) }, 2 to mockk, 3 to mockk)
+
+        items.foldToEitherWhileRight(0) { item, _ ->
+            item.second()
+        }
+
+        verify(inverse = true) {
+            mockk()
+        }
     }
 }

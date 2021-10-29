@@ -36,7 +36,7 @@ class SyncAllConversationMembersUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when convRepo fails to retrieve all member ids, then directly propagates failure`() {
+    fun `given convRepo fails to retrieve all member ids, when run is called, then directly propagates failure`() {
         val failure = mockk<Failure>()
         coEvery { conversationRepository.allConversationMemberIds() } returns Either.Left(failure)
 
@@ -48,7 +48,7 @@ class SyncAllConversationMembersUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called, when convRepo retrieves all member ids, then calls contactRepo to fetch contact info`() {
+    fun `given convRepo retrieves all member ids, when run is called, then calls contactRepo to fetch contact info`() {
         coEvery { conversationRepository.allConversationMemberIds() } returns Either.Right(TEST_MEMBER_IDS)
         coEvery { contactRepository.fetchContactsById(any()) } returns Either.Left(mockk())
 
@@ -61,7 +61,7 @@ class SyncAllConversationMembersUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called and convRepo retrieved all member ids, when contactRepo fails to fetch contacts, then propagates failure`() {
+    fun `given contactRepo fails to fetch contacts and convRepo retrieved all member ids, when run is called , then propagates failure`() {
         coEvery { conversationRepository.allConversationMemberIds() } returns Either.Right(TEST_MEMBER_IDS)
         val failure = mockk<Failure>()
         coEvery { contactRepository.fetchContactsById(any()) } returns Either.Left(failure)
@@ -72,7 +72,7 @@ class SyncAllConversationMembersUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `given run is called and convRepo retrieved all member ids, when contactRepo fetches contacts, then propagates success`() {
+    fun `given contactRepo fetches contacts and convRepo retrieved all member ids, when run is called, then propagates success`() {
         coEvery { conversationRepository.allConversationMemberIds() } returns Either.Right(TEST_MEMBER_IDS)
         coEvery { contactRepository.fetchContactsById(any()) } returns Either.Right(mockk())
 

@@ -9,6 +9,7 @@ import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.data.remote.ConversationMembersResponse
 import com.wire.android.feature.conversation.data.remote.ConversationOtherMembersResponse
 import com.wire.android.feature.conversation.data.remote.ConversationResponse
+import com.wire.android.feature.conversation.data.remote.ConversationSelfMemberResponse
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -60,8 +61,7 @@ class ConversationMapperTest : UnitTest() {
     }
 
     @Test
-    fun `given a list of ConvResponse, when fromConversationResponseListToConversationMembers is called, then returns list of members`() {
-
+    fun `given a list of ConvResponse, when mapping conversation response, then returns list of members including self user ID`() {
         val conversation1 = mockConversationResponseWithMembers("conv-1", "member-1-1", "member-1-2", "member-1-3")
         val conversation2 = mockConversationResponseWithMembers("conv-2", "member-2-1", "")
         val conversation3 = mockConversationResponseWithMembers("conv-3")
@@ -77,7 +77,11 @@ class ConversationMapperTest : UnitTest() {
             ConversationMemberEntity("conv-1", "member-1-2"),
             ConversationMemberEntity("conv-1", "member-1-3"),
             ConversationMemberEntity("conv-2", "member-2-1"),
-            ConversationMemberEntity("conv-4", "member-4-1")
+            ConversationMemberEntity("conv-4", "member-4-1"),
+            ConversationMemberEntity("conv-1", SELF_USER_ID),
+            ConversationMemberEntity("conv-2", SELF_USER_ID),
+            ConversationMemberEntity("conv-3", SELF_USER_ID),
+            ConversationMemberEntity("conv-4", SELF_USER_ID)
         )
     }
 
@@ -126,10 +130,12 @@ class ConversationMapperTest : UnitTest() {
     companion object {
         private const val TEST_CONVERSATION_ID = "test-id-123"
         private const val TEST_CONVERSATION_NAME = "test-name"
+        private const val SELF_USER_ID = "self_user_id"
 
         private fun mockConversationResponseWithMembers(conversationId: String, vararg memberIds: String): ConversationResponse =
             mockk<ConversationResponse>().also {
                 every { it.id } returns conversationId
+
 
                 val membersResponse = mockk<ConversationMembersResponse>()
                 every { it.members } returns membersResponse
@@ -138,6 +144,11 @@ class ConversationMapperTest : UnitTest() {
                     mockk<ConversationOtherMembersResponse>().also { every { it.userId } returns memberId }
                 }
                 every { membersResponse.otherMembers } returns otherMembers
+
+                val selfResponse = mockk<ConversationSelfMemberResponse>()
+                every { selfResponse.userId } returns SELF_USER_ID
+
+                every { membersResponse.self } returns selfResponse
             }
     }
 }

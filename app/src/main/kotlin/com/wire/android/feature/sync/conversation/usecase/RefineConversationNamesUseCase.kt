@@ -10,10 +10,12 @@ import com.wire.android.feature.conversation.OneToOne
 import com.wire.android.feature.conversation.data.ConversationRepository
 import com.wire.android.feature.conversation.list.ConversationListRepository
 import com.wire.android.feature.conversation.list.ui.ConversationListItem
+import com.wire.android.shared.session.SessionRepository
 
 class RefineConversationNamesUseCase(
     private val conversationListRepository: ConversationListRepository,
-    private val conversationRepository: ConversationRepository
+    private val conversationRepository: ConversationRepository,
+    private val sessionRepository: SessionRepository
 ) : UseCase<Unit, Unit> {
 
     override suspend fun run(params: Unit): Either<Failure, Unit> = suspending {
@@ -34,8 +36,11 @@ class RefineConversationNamesUseCase(
     }
 
     private suspend fun updateConversationNamesIfNecessary(items: List<ConversationListItem>): Either<Failure, Unit> {
+        val currentUserId = sessionRepository.currentSession().fold({ null }, { it.userId })
+
         val conversationsToUpdate = items.mapNotNull { item ->
-            newConversationName(item.conversation, item.members)?.let {
+            val filteredMembers = filterCurrentUserIdFromConversationMembers(currentUserId, item)
+            newConversationName(item.conversation, filteredMembers)?.let {
                 item.conversation.copy(name = it)
             }
         }
@@ -43,6 +48,11 @@ class RefineConversationNamesUseCase(
         return if (conversationsToUpdate.isEmpty()) Either.Right(Unit)
         else conversationRepository.updateConversations(conversationsToUpdate)
     }
+
+    private fun filterCurrentUserIdFromConversationMembers(
+        currentUserId: String?,
+        item: ConversationListItem
+    ) = currentUserId?.let { item.members.filter { member -> member.id != currentUserId } } ?: item.members
 
     private fun newConversationName(conversation: Conversation, members: List<Contact>): String? =
         if (!conversation.name.isNullOrBlank() && conversation.type != OneToOne) {

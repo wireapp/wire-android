@@ -52,7 +52,7 @@ data class ConversationSelfMemberResponse(
     val hidden: Boolean?,
 
     @SerializedName("id")
-    val userId: String,
+    override val userId: String,
 
     @SerializedName("otr_archived")
     val otrArchived: Boolean?,
@@ -62,15 +62,19 @@ data class ConversationSelfMemberResponse(
 
     @SerializedName("otr_archived_ref")
     val otrArchiveReference: String?
-)
+) : ConversationMemberResponse
 
 data class ConversationOtherMembersResponse(
     @SerializedName("service")
     val service: ServiceReferenceResponse?,
 
     @SerializedName("id")
-    val userId: String,
-)
+    override val userId: String,
+) : ConversationMemberResponse
+
+interface ConversationMemberResponse {
+    val userId: String
+}
 
 data class ServiceReferenceResponse(
     @SerializedName("id")

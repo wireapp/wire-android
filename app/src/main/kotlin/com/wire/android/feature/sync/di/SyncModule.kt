@@ -26,5 +26,5 @@ val syncModule = module {
 
     factory { SyncConversationsUseCase(get()) }
     factory { SyncAllConversationMembersUseCase(get(), get()) }
-    factory { RefineConversationNamesUseCase(get(), get()) }
+    factory { RefineConversationNamesUseCase(get(), get(), get()) }
 }

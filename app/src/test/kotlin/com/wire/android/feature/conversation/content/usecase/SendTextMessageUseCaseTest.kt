@@ -43,14 +43,15 @@ class SendTextMessageUseCaseTest : UnitTest() {
             every { it.userId } returns TEST_USER_ID
             every { it.clientId } returns TEST_CLIENT_ID
         }
+        val messageSlot = slot<Message>()
         coEvery { sessionRepository.currentSession() } returns Either.Right(currentSession)
+        coEvery { sendMessageService.sendOrScheduleNewMessage(capture(messageSlot)) } returns Either.Right(mockk())
 
         runBlockingTest {
-            sendTextMessageUseCase.run(TEST_SEND_PARAMETERS)
+            sendTextMessageUseCase.run(TEST_SEND_PARAMETERS).collect()
         }
 
-        val messageSlot = slot<Message>()
-        coVerify { sendMessageService.sendOrScheduleNewMessage(capture(messageSlot)) }
+        coVerify(exactly = 1) { sendMessageService.sendOrScheduleNewMessage(any()) }
 
         messageSlot.captured.let {
             it.senderUserId shouldBeEqualTo currentSession.userId

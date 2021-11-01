@@ -1,5 +1,6 @@
 package com.wire.android.feature.conversation.content.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,13 +10,16 @@ import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCaseParams
+import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCase
+import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCaseParams
 import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationIdUseCase
 import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationUseCaseParams
 
 class ConversationViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val getConversationUseCase: GetConversationUseCase,
-    private val updateCurrentConversationIdUseCase: UpdateCurrentConversationIdUseCase
+    private val updateCurrentConversationIdUseCase: UpdateCurrentConversationIdUseCase,
+    private val sendTextMessageUseCase: SendTextMessageUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
     private val _conversationIdLiveData: MutableLiveData<String> = MutableLiveData()
@@ -32,6 +36,12 @@ class ConversationViewModel(
         val params = GetConversationUseCaseParams(conversationId = conversationId)
         getConversationUseCase(viewModelScope, params) {
             _conversationMessagesLiveData.value = it
+        }
+    }
+
+    fun sendTextMessage(textMessage: String) {
+        sendTextMessageUseCase(viewModelScope, SendTextMessageUseCaseParams(_conversationIdLiveData.value!!, textMessage)) { result ->
+            Log.e("HUEA", "result $result")
         }
     }
 

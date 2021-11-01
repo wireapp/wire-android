@@ -12,6 +12,7 @@ import com.wire.android.feature.conversation.content.domain.MessageSender
 import com.wire.android.feature.conversation.content.domain.OutgoingMessageRecipientsRetriever
 import com.wire.android.feature.conversation.content.domain.SendMessageService
 import com.wire.android.feature.conversation.content.mapper.MessageContentMapper
+import com.wire.android.feature.conversation.content.mapper.MessageFailureMapper
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.mapper.MessageStateMapper
 import com.wire.android.feature.conversation.content.navigation.ConversationNavigator
@@ -115,6 +116,7 @@ val conversationContentModule = module {
     single { get<NetworkClient>().create(MessageApi::class.java) }
 
     // Mapper
+    factory { MessageFailureMapper() }
     factory { MessageStateMapper() }
     factory { OtrUserIdMapper() }
     factory { OtrClientIdMapper() }
@@ -141,7 +143,7 @@ val conversationContentModule = module {
 
     // UI
     single { ConversationNavigator() }
-    viewModel { ConversationViewModel(get(), get(), get()) }
+    viewModel { ConversationViewModel(get(), get(), get(), get()) }
     factory { ConversationTimeGenerator(androidContext()) }
     factory { ConversationAdapter(get(), get(), get()) }
 }

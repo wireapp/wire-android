@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.content.usecase
+package com.wire.android.feature.conversation.content.domain
 
 import com.wire.android.UnitTest
 import com.wire.android.core.crypto.model.PreKey
@@ -8,6 +8,7 @@ import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.contact.ContactClient
 import com.wire.android.feature.contact.DetailedContact
 import com.wire.android.feature.conversation.content.MessageRepository
+import com.wire.android.feature.conversation.content.domain.OutgoingMessageRecipientsRetriever
 import com.wire.android.feature.conversation.data.ConversationRepository
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed

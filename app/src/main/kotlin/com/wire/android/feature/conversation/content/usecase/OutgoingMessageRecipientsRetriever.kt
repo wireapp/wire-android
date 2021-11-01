@@ -42,6 +42,9 @@ class OutgoingMessageRecipientsRetriever(
     private suspend fun establishMissingSessions(
         senderUserId: String, missingContactClients: MutableMap<String, List<String>>
     ): Either<Failure, Unit> = suspending {
+        if (missingContactClients.isEmpty()) {
+            return@suspending Either.Right(Unit)
+        }
         preKeyRepository.preKeysOfClientsByUsers(missingContactClients).map { preKeyInfoList: List<UserPreKeyInfo> ->
             preKeyInfoList.forEach { userPreKeyInfo ->
                 userPreKeyInfo.clientsInfo.foldToEitherWhileRight(Unit) { clientPreKeyInfo, _ ->
@@ -69,6 +72,7 @@ class OutgoingMessageRecipientsRetriever(
         }
 
     private suspend fun missingClientsForContact(detailedContact: DetailedContact, senderUserId: String) =
+
         suspending {
             detailedContact.clients.foldToEitherWhileRight(mutableListOf<String>()) { contact, accumulated ->
                 messageRepository.doesCryptoSessionExists(senderUserId, detailedContact.contact.id, contact.id)

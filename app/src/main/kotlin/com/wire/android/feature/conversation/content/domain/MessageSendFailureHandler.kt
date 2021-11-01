@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.content.usecase
+package com.wire.android.feature.conversation.content.domain
 
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either

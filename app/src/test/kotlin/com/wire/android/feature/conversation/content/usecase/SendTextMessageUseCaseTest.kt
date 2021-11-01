@@ -6,6 +6,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.content.Content
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.Pending
+import com.wire.android.feature.conversation.content.domain.SendMessageService
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.shared.session.Session
 import com.wire.android.shared.session.SessionRepository

@@ -1,4 +1,4 @@
-package com.wire.android.feature.conversation.content.usecase
+package com.wire.android.feature.conversation.content.domain
 
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.Failure
@@ -7,6 +7,7 @@ import com.wire.android.core.exception.NoEntityFound
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.MessageRepository
+import com.wire.android.feature.conversation.content.usecase.SendMessageWorkerScheduler
 import com.wire.android.framework.functional.shouldFail
 import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery

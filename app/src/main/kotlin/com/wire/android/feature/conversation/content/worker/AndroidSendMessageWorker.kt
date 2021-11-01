@@ -9,7 +9,7 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.wire.android.core.exception.NetworkFailure
-import com.wire.android.feature.conversation.content.usecase.MessageSender
+import com.wire.android.feature.conversation.content.domain.MessageSender
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

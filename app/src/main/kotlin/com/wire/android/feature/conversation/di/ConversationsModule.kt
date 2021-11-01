@@ -1,13 +1,16 @@
 package com.wire.android.feature.conversation.di
 
 import com.wire.android.R
-
 import com.wire.android.core.network.NetworkClient
 import com.wire.android.core.storage.db.user.UserDatabase
 import com.wire.android.core.ui.navigation.FragmentContainerProvider
 import com.wire.android.feature.conversation.content.MessageRepository
 import com.wire.android.feature.conversation.content.datasources.MessageDataSource
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
+import com.wire.android.feature.conversation.content.domain.MessageSendFailureHandler
+import com.wire.android.feature.conversation.content.domain.MessageSender
+import com.wire.android.feature.conversation.content.domain.OutgoingMessageRecipientsRetriever
+import com.wire.android.feature.conversation.content.domain.SendMessageService
 import com.wire.android.feature.conversation.content.mapper.MessageContentMapper
 import com.wire.android.feature.conversation.content.mapper.MessageMapper
 import com.wire.android.feature.conversation.content.mapper.MessageStateMapper
@@ -15,10 +18,6 @@ import com.wire.android.feature.conversation.content.navigation.ConversationNavi
 import com.wire.android.feature.conversation.content.ui.ConversationAdapter
 import com.wire.android.feature.conversation.content.ui.ConversationViewModel
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
-import com.wire.android.feature.conversation.content.usecase.MessageSendFailureHandler
-import com.wire.android.feature.conversation.content.usecase.SendMessageService
-import com.wire.android.feature.conversation.content.usecase.MessageSender
-import com.wire.android.feature.conversation.content.usecase.OutgoingMessageRecipientsRetriever
 import com.wire.android.feature.conversation.content.usecase.SendMessageWorkerScheduler
 import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCase
 import com.wire.android.feature.conversation.content.worker.AndroidSendMessageWorkerScheduler

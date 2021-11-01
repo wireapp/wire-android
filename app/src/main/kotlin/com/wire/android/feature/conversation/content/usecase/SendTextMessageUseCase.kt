@@ -7,6 +7,7 @@ import com.wire.android.core.usecase.ObservableUseCase
 import com.wire.android.feature.conversation.content.Content
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.Pending
+import com.wire.android.feature.conversation.content.domain.SendMessageService
 import com.wire.android.shared.session.SessionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

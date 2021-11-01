@@ -1,6 +1,8 @@
 package com.wire.android.feature.conversation.content
 
-sealed class SendMessageFailure {
+import com.wire.android.core.exception.FeatureFailure
+
+sealed class SendMessageFailure: FeatureFailure() {
     object NetworkFailure : SendMessageFailure()
     class ClientsHaveChanged(
         val missingClientsOfUsers: Map<String, List<String>>,

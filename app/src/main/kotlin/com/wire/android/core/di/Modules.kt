@@ -81,8 +81,8 @@ val cryptoBoxModule = module {
     factory { CryptoExceptionMapper() }
     factory { CryptoBoxClientPropertyStorage(androidContext()) }
     single<CryptoBoxProvider> { DefaultCryptoBoxProvider }
-    //TODO hardcoded UserId should be replaced with real userId value (AR-711)
-    factory { CryptoBoxClient(androidContext(), get(), QualifiedId("domain", "dummy-id"), get(), get(), get()) }
+    // TODO hardcoded UserId should be replaced with real userId value (AR-711)
+    single { CryptoBoxClient(androidContext(), get(), QualifiedId("domain", "dummy-id"), get(), get(), get()) }
 }
 
 val dateModule = module {

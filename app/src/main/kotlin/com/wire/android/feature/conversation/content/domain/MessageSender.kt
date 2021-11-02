@@ -4,6 +4,7 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.exception.NetworkConnection
 import com.wire.android.core.exception.Unauthorized
 import com.wire.android.core.functional.Either
+import com.wire.android.core.functional.map
 import com.wire.android.core.functional.suspending
 import com.wire.android.core.network.NetworkHandler
 import com.wire.android.feature.contact.DetailedContact
@@ -52,7 +53,7 @@ class MessageSender(
     private suspend fun getRecipientsAndAttemptSend(senderUserId: String, clientId: String, message: Message): Either<Failure, Unit> =
         suspending {
             outgoingMessageRecipientsRetriever.prepareRecipientsForNewOutgoingMessage(senderUserId, message.conversationId)
-                .map { detailedContacts ->
+                .flatMap { detailedContacts ->
                     createOutgoingEnvelope(detailedContacts, clientId, senderUserId, message)
                 }.flatMap { envelope ->
                     sendEnvelopeRetryingIfPossible(message, envelope, senderUserId, clientId)
@@ -85,27 +86,26 @@ class MessageSender(
         senderClientId: String,
         senderUserId: String,
         message: Message
-    ): ChatMessageEnvelope {
-        val entries = detailedContacts.fold(mutableListOf<RecipientEntry>()) { acc, detailedContact ->
-            val clientEntries = detailedContact.clients.mapNotNull { contactClient ->
+    ): Either<Failure, ChatMessageEnvelope> = suspending {
+        detailedContacts.foldToEitherWhileRight(mutableListOf<RecipientEntry>()) { detailedContact, recipientAccumulator ->
+            detailedContact.clients.foldToEitherWhileRight(mutableListOf<ClientPayload>()) { client, clientAccumulator ->
                 messageRepository.encryptMessageContent(
-                    senderUserId, detailedContact.contact.id,
-                    contactClient.id, message.id, message.content
-                ).fold({
-                    //This encryption failure handling can be improved
-                    //It is not breaking, nor needs special attention, as it will fail later as a "missing client" anyway.
-                    //TODO: Mark message as unable to send due to encryption issues
-                    null
-                }, { it })?.let { encryptedMessage ->
-                    ClientPayload(contactClient.id, encryptedMessage.data)
+                    senderUserId, detailedContact.contact.id, client.id, message.id, message.content
+                ).map { encryptedMessage ->
+                    clientAccumulator.also {
+                        it.add(ClientPayload(client.id, encryptedMessage.data))
+                    }
+                }
+            }.map { clientEntries ->
+                recipientAccumulator.also {
+                    it.add(RecipientEntry(detailedContact.contact.id, clientEntries))
                 }
             }
-
-            acc.also { it.add(RecipientEntry(detailedContact.contact.id, clientEntries)) }
         }
-
-        return ChatMessageEnvelope(senderClientId, entries)
+    }.map { recipientEntries ->
+        ChatMessageEnvelope(senderClientId, recipientEntries)
     }
+
 
     companion object {
         private const val WORK_POOL_NAME = "message-sending-worker"

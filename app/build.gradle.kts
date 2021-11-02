@@ -90,6 +90,7 @@ dependencies {
     implementation(Libraries.Retrofit.protoConverter)
     implementation(Libraries.okHttpLogging)
 
+    kapt(Libraries.Room.sqlLiteJdbc)
     implementation(Libraries.Room.runtime)
     implementation(Libraries.Room.ktx)
     kapt(Libraries.Room.compiler)

@@ -122,7 +122,6 @@ class OutgoingMessageRecipientsRetrieverTest : UnitTest() {
 
         runBlockingTest {
             recipientsRetriever.prepareRecipientsForNewOutgoingMessage(TEST_USER_ID, TEST_CONVERSATION_ID)
-
                 .shouldSucceed { }
         }
     }

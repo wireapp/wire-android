@@ -59,6 +59,7 @@ object Libraries {
         const val okHttpLogging = "4.7.2"
         const val pinEditText = "1.2.3"
         const val viewPager2 = "1.0.0"
+        const val sqlLiteJdbc = "3.36.0"
         const val room = "2.3.0"
         const val desugaring = "1.0.10"
         const val paging = "3.0.0"
@@ -112,9 +113,15 @@ object Libraries {
     }
 
     object Room {
-        const val runtime  = "androidx.room:room-runtime:${Versions.room}"
-        const val ktx      = "androidx.room:room-ktx:${Versions.room}"
-        const val compiler = "androidx.room:room-compiler:${Versions.room}"
+        // TODO remove the sqlLiteJdbc dependency once room version 2.4.0 is released
+        /*
+        fix to force room to use the latest sqlLiteJdbc (the one compatible with m1 macs)
+        https://issuetracker.google.com/issues/174695268#comment9
+         */
+        const val sqlLiteJdbc       = "org.xerial:sqlite-jdbc:${Versions.sqlLiteJdbc}"
+        const val runtime           = "androidx.room:room-runtime:${Versions.room}"
+        const val ktx               = "androidx.room:room-ktx:${Versions.room}"
+        const val compiler          = "androidx.room:room-compiler:${Versions.room}"
     }
 }
 

@@ -2,6 +2,8 @@ package com.wire.android.feature.conversation.content.ui
 
 import com.wire.android.UnitTest
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
+import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCase
+import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCaseParams
 import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationIdUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
@@ -28,6 +30,9 @@ class ConversationViewModelTest : UnitTest() {
     @MockK
     private lateinit var updateCurrentConversationIdUseCase: UpdateCurrentConversationIdUseCase
 
+    @MockK
+    private lateinit var sendTextMessageUseCase: SendTextMessageUseCase
+
     private lateinit var conversationViewModel: ConversationViewModel
 
     @Before
@@ -35,7 +40,8 @@ class ConversationViewModelTest : UnitTest() {
         conversationViewModel = ConversationViewModel(
             coroutinesTestRule.dispatcherProvider,
             getConversationUseCase,
-            updateCurrentConversationIdUseCase
+            updateCurrentConversationIdUseCase,
+            sendTextMessageUseCase
         )
     }
 
@@ -64,6 +70,25 @@ class ConversationViewModelTest : UnitTest() {
         conversationViewModel.updateCurrentConversationId(TEST_CONVERSATION_ID)
 
         coVerify(exactly = 1) { updateCurrentConversationIdUseCase.run(any()) }
+    }
+
+    @Test
+    fun `given a new text input, when calling sendTextMessage, then the use case is called`() {
+        conversationViewModel.cacheConversationId(TEST_CONVERSATION_ID)
+
+        conversationViewModel.sendTextMessage("Text")
+
+        coVerify(exactly = 1) { sendTextMessageUseCase.run(any()) }
+    }
+
+    @Test
+    fun `given a new text input and conversation Id, when calling sendTextMessage, then the use case is called with right parameters`() {
+        val textMessage = "Text"
+        conversationViewModel.cacheConversationId(TEST_CONVERSATION_ID)
+
+        conversationViewModel.sendTextMessage(textMessage)
+
+        coVerify(exactly = 1) { sendTextMessageUseCase.run(SendTextMessageUseCaseParams(TEST_CONVERSATION_ID, textMessage)) }
     }
 
     companion object {

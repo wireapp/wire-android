@@ -1,6 +1,5 @@
 package com.wire.android.feature.conversation.content.ui
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -40,9 +39,7 @@ class ConversationViewModel(
     }
 
     fun sendTextMessage(textMessage: String) {
-        sendTextMessageUseCase(viewModelScope, SendTextMessageUseCaseParams(_conversationIdLiveData.value!!, textMessage)) { result ->
-            Log.e("HUEA", "result $result")
-        }
+        sendTextMessageUseCase(viewModelScope, SendTextMessageUseCaseParams(_conversationIdLiveData.value!!, textMessage)) { }
     }
 
     fun updateCurrentConversationId(conversationId: String) {

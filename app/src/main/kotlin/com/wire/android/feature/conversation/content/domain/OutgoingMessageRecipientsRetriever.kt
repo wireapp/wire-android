@@ -61,12 +61,12 @@ class OutgoingMessageRecipientsRetriever(
 
     private suspend fun missingContactClients(detailedContacts: List<DetailedContact>, senderUserId: String) =
         suspending {
-            detailedContacts.foldToEitherWhileRight(mutableMapOf<String, List<String>>()) { detailedContact, userAcc ->
+            detailedContacts.foldToEitherWhileRight(mutableMapOf<String, List<String>>()) { detailedContact, userAccumulator ->
                 missingClientsForContact(detailedContact, senderUserId).map { missingClients ->
                     if (missingClients.isNotEmpty()) {
-                        userAcc[detailedContact.contact.id] = missingClients
+                        userAccumulator[detailedContact.contact.id] = missingClients
                     }
-                    userAcc
+                    userAccumulator
                 }
             }
         }
@@ -74,13 +74,13 @@ class OutgoingMessageRecipientsRetriever(
     private suspend fun missingClientsForContact(detailedContact: DetailedContact, senderUserId: String) =
 
         suspending {
-            detailedContact.clients.foldToEitherWhileRight(mutableListOf<String>()) { contact, accumulated ->
+            detailedContact.clients.foldToEitherWhileRight(mutableListOf<String>()) { contact, clientIdAccumulator ->
                 messageRepository.doesCryptoSessionExists(senderUserId, detailedContact.contact.id, contact.id)
                     .map { exists ->
                         if (!exists) {
-                            accumulated += contact.id
+                            clientIdAccumulator += contact.id
                         }
-                        accumulated
+                        clientIdAccumulator
                     }
             }
         }

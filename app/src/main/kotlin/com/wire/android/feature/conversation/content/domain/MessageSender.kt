@@ -6,7 +6,6 @@ import com.wire.android.core.exception.Unauthorized
 import com.wire.android.core.functional.Either
 import com.wire.android.core.functional.map
 import com.wire.android.core.functional.suspending
-import com.wire.android.core.network.NetworkHandler
 import com.wire.android.feature.contact.DetailedContact
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.MessageRepository
@@ -20,7 +19,6 @@ import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 
 class MessageSender(
-    private val networkHandler: NetworkHandler,
     private val messageRepository: MessageRepository,
     private val sessionRepository: SessionRepository,
     private val messageSendFailureHandler: MessageSendFailureHandler,
@@ -33,11 +31,6 @@ class MessageSender(
 
     suspend fun trySendingOutgoingMessage(senderUserId: String, messageId: String): Either<Failure, Unit> =
         suspending {
-            if (!networkHandler.isConnected()) {
-                //No connection!
-                return@suspending Either.Left(NetworkConnection)
-            }
-
             val clientId = sessionRepository.userSession(senderUserId).coFold({ null }, { it.clientId })
                 ?: return@suspending Either.Left(Unauthorized)
 

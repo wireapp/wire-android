@@ -7,6 +7,7 @@ import com.wire.android.core.ui.navigation.FragmentContainerProvider
 import com.wire.android.feature.conversation.content.MessageRepository
 import com.wire.android.feature.conversation.content.datasources.MessageDataSource
 import com.wire.android.feature.conversation.content.datasources.local.MessageLocalDataSource
+import com.wire.android.feature.conversation.content.domain.MessageEnvelopeCreator
 import com.wire.android.feature.conversation.content.domain.MessageSendFailureHandler
 import com.wire.android.feature.conversation.content.domain.MessageSender
 import com.wire.android.feature.conversation.content.domain.OutgoingMessageRecipientsRetriever
@@ -132,9 +133,10 @@ val conversationContentModule = module {
     factory<MessageRepository> { MessageDataSource(get(), get(), get(), get(), get(), get()) }
 
     // Domain
-    single { MessageSender(get(), get(), get(), get(), get()) }
+    factory { MessageEnvelopeCreator(get()) }
     factory { OutgoingMessageRecipientsRetriever(get(), get(), get()) }
     factory { MessageSendFailureHandler(get()) }
+    single { MessageSender(get(), get(), get(), get(), get(), get()) }
     factory<SendMessageWorkerScheduler> { AndroidSendMessageWorkerScheduler(get()) }
     factory { SendMessageService(get(), get(), get()) }
     factory { SendTextMessageUseCase(get(), get()) }

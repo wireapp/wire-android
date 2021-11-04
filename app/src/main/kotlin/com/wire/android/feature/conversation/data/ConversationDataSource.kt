@@ -44,14 +44,14 @@ class ConversationDataSource(
 
     private suspend fun fetchConversationsNextPageIfExists(response: ConversationsResponse) =
         if (response.hasMore) {
-            val nextPageStartId = response.conversations.last().id
+            val nextPageStartId = response.conversations.last().id.value
             fetchRemoteConversations(nextPageStartId)
         } else {
             Either.Right(Unit)
         }
 
     override suspend fun conversationMemberIds(conversation: Conversation): Either<Failure, List<String>> =
-        conversationLocalDataSource.conversationMemberIds(conversation.id)
+        conversationLocalDataSource.conversationMemberIds(conversation.id.value)
 
     override suspend fun allConversationMemberIds(): Either<Failure, List<String>> =
         conversationLocalDataSource.allConversationMemberIds()

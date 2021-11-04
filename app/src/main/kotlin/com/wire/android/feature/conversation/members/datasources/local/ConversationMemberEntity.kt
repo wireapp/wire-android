@@ -21,5 +21,6 @@ import com.wire.android.feature.conversation.data.local.ConversationEntity
 )
 data class ConversationMemberEntity(
     @ColumnInfo(name = "conversation_id") val conversationId: String,
+    @ColumnInfo(name = "conversation_domain") val conversationDomain: String,
     @ColumnInfo(name = "contact_id") val contactId: String
 )

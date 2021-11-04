@@ -117,7 +117,7 @@ class ConversationListFragment : Fragment(R.layout.fragment_conversation_list) {
             if (conversationListItem != null && conversationListItem.conversation.name != null)
                 navigator.conversation.openConversationScreen(
                     it,
-                    conversationListItem.conversation.id,
+                    conversationListItem.conversation.id.value,
                     conversationListItem.conversation.name
                 )
         }

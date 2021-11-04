@@ -20,14 +20,22 @@ data class ConversationResponse(
     @SerializedName("name")
     val name: String?,
 
-    @SerializedName("id")
-    val id: String,
+    @SerializedName("qualified_id")
+    val id: ConversationIdResponse,
 
     @SerializedName("type")
     val type: Int,
 
     @SerializedName("message_timer")
     val messageTimer: Int
+)
+
+data class ConversationIdResponse(
+    @SerializedName("id")
+    val value: String,
+
+    @SerializedName("domain")
+    val domain: String
 )
 
 data class ConversationMembersResponse(

@@ -8,6 +8,8 @@
         <item name="colorError">#fb0807</item>
         <item name="colorOnError">@color/white</item>
 
+        <item name="colorOnPrimary">@color/white</item>
+
         <!--Material type attributes-->
         <item name="android:textDirection">locale</item>
         <item name="homeAsUpIndicator">@drawable/ic_arrow_back</item>
@@ -36,6 +38,8 @@
         <item name="colorSecondaryVariant">#0065a1</item>
         <item name="colorError">#fb0807</item>
         <item name="colorOnError">@color/white</item>
+
+        <item name="colorOnPrimary">@color/white</item>
 
         <!--Material type attributes-->
         <item name="android:textDirection">locale</item>

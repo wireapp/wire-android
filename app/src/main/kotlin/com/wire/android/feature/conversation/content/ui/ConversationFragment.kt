@@ -2,12 +2,14 @@ package com.wire.android.feature.conversation.content.ui
 
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.wire.android.R
 import com.wire.android.core.extension.EMPTY
-import kotlinx.android.synthetic.main.fragment_conversation.*
+import kotlinx.android.synthetic.main.fragment_conversation.conversationRecyclerView
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 
@@ -19,8 +21,20 @@ class ConversationFragment : Fragment(R.layout.fragment_conversation) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpRecycler(view)
+        observeInput(view)
         observeConversationId()
         observeMessages()
+    }
+
+    private fun observeInput(view: View) {
+        val messageInput = view.findViewById<EditText>(R.id.conversationNewMessageEditText)
+        view.findViewById<FloatingActionButton>(R.id.conversationSendFab).setOnClickListener {
+            val inputText = messageInput.text.toString()
+            if (inputText.isNotBlank()) {
+                viewModel.sendTextMessage(inputText)
+                messageInput.text = null
+            }
+        }
     }
 
     private fun observeConversationId() {

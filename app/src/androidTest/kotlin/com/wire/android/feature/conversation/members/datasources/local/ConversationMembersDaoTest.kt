@@ -43,7 +43,11 @@ class ConversationMembersDaoTest : InstrumentationTest() {
     @Test
     fun insertEntity_readAll_returnsInsertedItem() = databaseTestRule.runTest {
         val entity =
-            prepareConversationMemberEntity(conversationId = TEST_CONVERSATION_ID, contactId = TEST_CONTACT_ID)
+            prepareConversationMemberEntity(
+                conversationId = TEST_CONVERSATION_ID,
+                conversationDomain = TEST_CONVERSATION_DOMAIN,
+                contactId = TEST_CONTACT_ID
+            )
         conversationMembersDao.insert(entity)
 
         val entities = conversationMembersDao.allConversationMembers()
@@ -55,9 +59,17 @@ class ConversationMembersDaoTest : InstrumentationTest() {
     @Test
     fun insertAll_readAll_returnsInsertedItems() = databaseTestRule.runTest {
         val entity1 =
-            prepareConversationMemberEntity(conversationId = "$TEST_CONVERSATION_ID-1", contactId = "$TEST_CONTACT_ID-1")
+            prepareConversationMemberEntity(
+                conversationId = "$TEST_CONVERSATION_ID-1",
+                conversationDomain = TEST_CONVERSATION_DOMAIN,
+                contactId = "$TEST_CONTACT_ID-1"
+            )
         val entity2 =
-            prepareConversationMemberEntity(conversationId = "$TEST_CONVERSATION_ID-2", contactId = "$TEST_CONTACT_ID-2")
+            prepareConversationMemberEntity(
+                conversationId = "$TEST_CONVERSATION_ID-2",
+                conversationDomain = TEST_CONVERSATION_DOMAIN,
+                contactId = "$TEST_CONTACT_ID-2"
+            )
 
         conversationMembersDao.insertAll(listOf(entity1, entity2))
 
@@ -70,9 +82,17 @@ class ConversationMembersDaoTest : InstrumentationTest() {
     fun entitiesForConversationIdExists_whenConversationRemovedFromDatabase_deletesEntriesWithConversationId() =
         databaseTestRule.runTest {
             val entity1 =
-                prepareConversationMemberEntity(conversationId = "$TEST_CONVERSATION_ID-1", contactId = "$TEST_CONTACT_ID-1")
+                prepareConversationMemberEntity(
+                    conversationId = "$TEST_CONVERSATION_ID-1",
+                    conversationDomain = TEST_CONVERSATION_DOMAIN,
+                    contactId = "$TEST_CONTACT_ID-1"
+                )
             val entity2 =
-                prepareConversationMemberEntity(conversationId = "$TEST_CONVERSATION_ID-2", contactId = "$TEST_CONTACT_ID-2")
+                prepareConversationMemberEntity(
+                    conversationId = "$TEST_CONVERSATION_ID-2",
+                    conversationDomain = TEST_CONVERSATION_DOMAIN,
+                    contactId = "$TEST_CONTACT_ID-2"
+                )
             conversationMembersDao.insertAll(listOf(entity1, entity2))
 
             conversationDao.deleteConversationById(entity1.conversationId)
@@ -81,57 +101,124 @@ class ConversationMembersDaoTest : InstrumentationTest() {
             remainingEntities shouldContainSame listOf(entity2)
         }
 
-    private suspend fun prepareConversationMemberEntity(conversationId: String, contactId: String): ConversationMemberEntity {
+    private suspend fun prepareConversationMemberEntity(
+        conversationId: String,
+        conversationDomain: String,
+        contactId: String
+    ): ConversationMemberEntity {
         conversationDao.insert(
-            ConversationEntity(id = conversationId, name = "Conversation $conversationId", type = TEST_CONVERSATION_TYPE)
+            ConversationEntity(
+                id = conversationId,
+                domain = conversationDomain,
+                name = "Conversation $conversationId",
+                type = TEST_CONVERSATION_TYPE
+            )
         )
-        return ConversationMemberEntity(conversationId = conversationId, contactId = contactId)
+        return ConversationMemberEntity(
+            conversationId = conversationId,
+            conversationDomain = conversationDomain,
+            contactId = contactId
+        )
     }
 
     @Test
-    fun conversationMembers_entitiesForConversationIdExists_returnsMemberIds() = databaseTestRule.runTest {
-        conversationDao.insert(ConversationEntity(id = TEST_CONVERSATION_ID, name = "Android Chapter", type = TEST_CONVERSATION_TYPE))
+    fun conversationMembers_entitiesForConversationIdExists_returnsMemberIds() =
+        databaseTestRule.runTest {
+            conversationDao.insert(
+                ConversationEntity(
+                    id = TEST_CONVERSATION_ID,
+                    domain = TEST_CONVERSATION_DOMAIN,
+                    name = "Android Chapter",
+                    type = TEST_CONVERSATION_TYPE
+                )
+            )
 
-        val entity1 = ConversationMemberEntity(TEST_CONVERSATION_ID, "contact-1")
-        val entity2 = ConversationMemberEntity(TEST_CONVERSATION_ID, "contact-2")
-        val entity3 = ConversationMemberEntity(TEST_CONVERSATION_ID, "contact-3")
+            val entity1 = ConversationMemberEntity(
+                conversationId = TEST_CONVERSATION_ID,
+                conversationDomain = TEST_CONVERSATION_DOMAIN,
+                contactId = "contact-1"
+            )
+            val entity2 = ConversationMemberEntity(
+                conversationId = TEST_CONVERSATION_ID,
+                conversationDomain = TEST_CONVERSATION_DOMAIN,
+                contactId = "contact-2"
+            )
+            val entity3 = ConversationMemberEntity(
+                conversationId = TEST_CONVERSATION_ID,
+                conversationDomain = TEST_CONVERSATION_DOMAIN,
+                contactId = "contact-3"
+            )
 
-        conversationMembersDao.insertAll(listOf(entity1, entity2, entity3))
+            conversationMembersDao.insertAll(listOf(entity1, entity2, entity3))
 
-        val memberIds = conversationMembersDao.conversationMembers(TEST_CONVERSATION_ID)
+            val memberIds = conversationMembersDao.conversationMembers(TEST_CONVERSATION_ID)
 
-        memberIds shouldContainSame listOf("contact-1", "contact-2", "contact-3")
-    }
+            memberIds shouldContainSame listOf("contact-1", "contact-2", "contact-3")
+        }
 
     @Test
-    fun conversationMembers_noEntitiesForConversationIdExists_returnsEmptyList() = databaseTestRule.runTest {
-        val memberIds = conversationMembersDao.conversationMembers(TEST_CONVERSATION_ID)
+    fun conversationMembers_noEntitiesForConversationIdExists_returnsEmptyList() =
+        databaseTestRule.runTest {
+            val memberIds = conversationMembersDao.conversationMembers(TEST_CONVERSATION_ID)
 
-        memberIds.isEmpty() shouldBeEqualTo true
-    }
+            memberIds.isEmpty() shouldBeEqualTo true
+        }
 
     @Test
-    fun allConversationMembers_entitiesExists_returnsMemberIdsWithoutRepetition() = databaseTestRule.runTest {
-        val conversationId1 = "conv-id-1"
-        val conversationId2 = "conv-id-2"
-        conversationDao.insert(ConversationEntity(id = conversationId1, name = "Android Chapter", type = TEST_CONVERSATION_TYPE))
-        conversationDao.insert(ConversationEntity(id = conversationId2, name = "IOS Chapter", type = TEST_CONVERSATION_TYPE))
+    fun allConversationMembers_entitiesExists_returnsMemberIdsWithoutRepetition() =
+        databaseTestRule.runTest {
+            val conversationId1 = "conv-id-1"
+            val conversationId2 = "conv-id-2"
 
-        val contactId1 = "contact-id-1"
-        val contactId2 = "contact-id-2"
-        val contactId3 = "contact-id-3"
+            val converationdomain = "conv-domain"
+            conversationDao.insert(
+                ConversationEntity(
+                    id = conversationId1,
+                    domain = TEST_CONVERSATION_DOMAIN,
+                    name = "Android Chapter",
+                    type = TEST_CONVERSATION_TYPE
+                )
+            )
+            conversationDao.insert(
+                ConversationEntity(
+                    id = conversationId2,
+                    domain = TEST_CONVERSATION_DOMAIN,
+                    name = "IOS Chapter",
+                    type = TEST_CONVERSATION_TYPE
+                )
+            )
 
-        val entity1 = ConversationMemberEntity(conversationId1, contactId1)
-        val entity2 = ConversationMemberEntity(conversationId1, contactId2)
-        val entity3 = ConversationMemberEntity(conversationId2, contactId2)
-        val entity4 = ConversationMemberEntity(conversationId2, contactId3)
+            val contactId1 = "contact-id-1"
+            val contactId2 = "contact-id-2"
+            val contactId3 = "contact-id-3"
 
-        conversationMembersDao.insertAll(listOf(entity1, entity2, entity3, entity4))
+            val entity1 = ConversationMemberEntity(
+                conversationId = conversationId1,
+                conversationDomain = converationdomain,
+                contactId = contactId1
+            )
+            val entity2 = ConversationMemberEntity(
+                conversationId = conversationId1,
+                conversationDomain = converationdomain,
+                contactId = contactId2
+            )
+            val entity3 = ConversationMemberEntity(
+                conversationId = conversationId2,
+                conversationDomain = converationdomain,
+                contactId = contactId2
+            )
+            val entity4 = ConversationMemberEntity(
+                conversationId = conversationId2,
+                conversationDomain = converationdomain,
+                contactId = contactId3
+            )
 
-        val memberIds = conversationMembersDao.allConversationMemberIds()
+            conversationMembersDao.insertAll(listOf(entity1, entity2, entity3, entity4))
 
-        memberIds shouldContainSame listOf(contactId1, contactId2, contactId3)
-    }
+            val memberIds = conversationMembersDao.allConversationMemberIds()
+
+            memberIds shouldContainSame listOf(contactId1, contactId2, contactId3)
+        }
 
     @Test
     fun allConversationMembers_noEntitiesForExists_returnsEmptyList() = databaseTestRule.runTest {
@@ -141,20 +228,35 @@ class ConversationMembersDaoTest : InstrumentationTest() {
     }
 
     @Test
-    fun detailedConversationMembers_contactWithClientExists_returnsEntities() = databaseTestRule.runTest {
-        val contact = ContactEntity(TEST_CONTACT_ID, "John Doe", null)
-        val contactClient = ContactClientEntity(TEST_CONTACT_ID, "client-ID")
-        contactDao.insert(contact)
-        contactClientDao.insert(contactClient)
-        conversationDao.insert(ConversationEntity(TEST_CONVERSATION_ID, "name", TEST_CONVERSATION_TYPE))
-        conversationMembersDao.insert(ConversationMemberEntity(TEST_CONVERSATION_ID, TEST_CONTACT_ID))
+    fun detailedConversationMembers_contactWithClientExists_returnsEntities() =
+        databaseTestRule.runTest {
+            val contact = ContactEntity(TEST_CONTACT_ID, "John Doe", null)
+            val contactClient = ContactClientEntity(TEST_CONTACT_ID, "client-ID")
+            contactDao.insert(contact)
+            contactClientDao.insert(contactClient)
+            conversationDao.insert(
+                ConversationEntity(
+                    id = TEST_CONVERSATION_ID,
+                    domain = TEST_CONVERSATION_DOMAIN,
+                    name = "name",
+                    type = TEST_CONVERSATION_TYPE
+                )
+            )
+            conversationMembersDao.insert(
+                ConversationMemberEntity(
+                    conversationId = TEST_CONVERSATION_ID,
+                    conversationDomain = TEST_CONVERSATION_DOMAIN,
+                    contactId = TEST_CONTACT_ID
+                )
+            )
 
-        val contacts = conversationMembersDao.detailedConversationMembers(TEST_CONVERSATION_ID)
+            val contacts =
+                conversationMembersDao.detailedConversationMembers(conversationId = TEST_CONVERSATION_ID)
 
-        contacts shouldContainSame listOf(
-            ContactWithClients(contact, listOf(contactClient))
-        )
-    }
+            contacts shouldContainSame listOf(
+                ContactWithClients(contact, listOf(contactClient))
+            )
+        }
 
     @Test
     fun detailedConversationMembers_noEntitiesExist_returnsEmptyList() = databaseTestRule.runTest {
@@ -165,6 +267,7 @@ class ConversationMembersDaoTest : InstrumentationTest() {
 
     companion object {
         private const val TEST_CONVERSATION_ID = "conv-id"
+        private const val TEST_CONVERSATION_DOMAIN = "conv-domain"
         private const val TEST_CONTACT_ID = "contact-id"
         private const val TEST_CONVERSATION_TYPE = 0
     }

@@ -37,7 +37,12 @@ class MessageDaoTest : InstrumentationTest() {
         contactDao = userDatabase.contactDao()
         conversationDao = userDatabase.conversationDao()
 
-        conversationEntity = ConversationEntity(TEST_CONVERSATION_ID, TEST_CONVERSATION_NAME, TEST_CONVERSATION_TYPE)
+        conversationEntity = ConversationEntity(
+            id = TEST_CONVERSATION_ID,
+            domain = TEST_CONVERSATION_DOMAIN,
+            name = TEST_CONVERSATION_NAME,
+            type = TEST_CONVERSATION_TYPE
+        )
         messageEntity = MessageEntity(
             id = TEST_MESSAGE_ID,
             conversationId = TEST_CONVERSATION_ID,
@@ -163,6 +168,7 @@ class MessageDaoTest : InstrumentationTest() {
         private const val TEST_USER_ID = "user-id"
         private const val TEST_CONVERSATION_TYPE = 0
         private const val TEST_CONVERSATION_NAME = "conversation-name"
+        private const val TEST_CONVERSATION_DOMAIN = "conversation-domain"
         private const val TEST_MESSAGE_ID = "message-id"
         private const val TEST_MESSAGE_TYPE = "message-type"
         private const val TEST_MESSAGE_CONTENT = "message-content"

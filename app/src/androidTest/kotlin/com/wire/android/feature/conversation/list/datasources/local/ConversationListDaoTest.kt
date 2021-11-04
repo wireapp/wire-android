@@ -51,8 +51,18 @@ class ConversationListDaoTest : InstrumentationTest() {
     @Test
     fun givenConversationsExist_whenAllItemsAreCalled_thenReturnsListItemsWithConversation() =
         databaseTestRule.runTest {
-            val conversationEntity1 = ConversationEntity("1", "Conversation 1", type = TEST_CONVERSATION_TYPE)
-            val conversationEntity2 = ConversationEntity("2", "Conversation 2", type = TEST_CONVERSATION_TYPE)
+            val conversationEntity1 = ConversationEntity(
+                id = "1",
+                domain = "domain-1",
+                name = "Conversation 1",
+                type = TEST_CONVERSATION_TYPE
+            )
+            val conversationEntity2 = ConversationEntity(
+                id = "2",
+                domain = "domain-1",
+                name = "Conversation 2",
+                type = TEST_CONVERSATION_TYPE
+            )
             conversationDao.insert(conversationEntity1)
             conversationDao.insert(conversationEntity2)
 
@@ -85,7 +95,8 @@ class ConversationListDaoTest : InstrumentationTest() {
         databaseTestRule.runTest {
             conversationDao.insert(TEST_CONVERSATION_ENTITY)
 
-            val contact1 = ContactEntity(id = "contact-1", name = "Contact A", assetKey = "asset-key-A")
+            val contact1 =
+                ContactEntity(id = "contact-1", name = "Contact A", assetKey = "asset-key-A")
             val contact2 = ContactEntity(id = "contact-2", name = "Contact B", assetKey = null)
             insertMemberForConversation(TEST_CONVERSATION_ENTITY, contact1)
             insertMemberForConversation(TEST_CONVERSATION_ENTITY, contact2)
@@ -106,8 +117,17 @@ class ConversationListDaoTest : InstrumentationTest() {
             val count = 3
 
             val conversationAndMemberPairs = (1..10).map {
-                val conversation = ConversationEntity(id = "id_$it", name = "Conversation #$it", type = it%5)
-                val member = ContactEntity(id = "contact-$it", name = "Contact $it", assetKey = "asset-key-$it")
+                val conversation = ConversationEntity(
+                    id = "id_$it",
+                    domain = "domain-1",
+                    name = "Conversation #$it",
+                    type = it % 5
+                )
+                val member = ContactEntity(
+                    id = "contact-$it",
+                    name = "Contact $it",
+                    assetKey = "asset-key-$it"
+                )
                 conversationDao.insert(conversation)
                 insertMemberForConversation(conversation, member)
                 conversation to member
@@ -131,9 +151,13 @@ class ConversationListDaoTest : InstrumentationTest() {
             items.isEmpty() shouldBeEqualTo true
         }
 
-    private suspend fun insertMemberForConversation(conversationEntity: ConversationEntity, contactEntity: ContactEntity) {
+    private suspend fun insertMemberForConversation(
+        conversationEntity: ConversationEntity,
+        contactEntity: ContactEntity
+    ) {
         val conversationMemberEntity = ConversationMemberEntity(
             conversationId = conversationEntity.id,
+            conversationDomain = conversationEntity.domain,
             contactId = contactEntity.id
         )
         conversationMembersDao.insert(conversationMemberEntity)
@@ -142,11 +166,13 @@ class ConversationListDaoTest : InstrumentationTest() {
 
     companion object {
         private const val TEST_CONVERSATION_ID = "conv-id-1"
+        private const val TEST_CONVERSATION_DOMAIN = "conv-domain-1"
         private const val TEST_CONVERSATION_NAME = "Android Chapter"
         private const val TEST_CONVERSATION_TYPE = 2
 
         private val TEST_CONVERSATION_ENTITY = ConversationEntity(
             id = TEST_CONVERSATION_ID,
+            domain = TEST_CONVERSATION_DOMAIN,
             name = TEST_CONVERSATION_NAME,
             type = TEST_CONVERSATION_TYPE
         )
@@ -155,6 +181,7 @@ class ConversationListDaoTest : InstrumentationTest() {
 
         private val TEST_CONVERSATION_MEMBER_ENTITY = ConversationMemberEntity(
             conversationId = TEST_CONVERSATION_ID,
+            conversationDomain = TEST_CONVERSATION_DOMAIN,
             contactId = TEST_CONTACT_ID
         )
     }

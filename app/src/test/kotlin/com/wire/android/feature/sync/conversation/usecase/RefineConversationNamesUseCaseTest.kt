@@ -5,6 +5,7 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.contact.Contact
 import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.Group
 import com.wire.android.feature.conversation.OneToOne
 import com.wire.android.feature.conversation.data.ConversationRepository
@@ -85,7 +86,7 @@ class RefineConversationNamesUseCaseTest : UnitTest() {
     fun `given a conversation is 1-1, when run is called, then updates conversation name as member's name`() {
         coEvery { conversationRepository.numberOfConversations() } returns Either.Right(1)
         coEvery { sessionRepository.currentSession() } returns Either.Right(TEST_CURRENT_SESSION)
-        val conversation = Conversation(id = "id", name = "corrupt name", type = OneToOne)
+        val conversation = Conversation(id = TEST_CONVERSATION_ID, name = "corrupt name", type = OneToOne)
         val member = TEST_MEMBER_1
 
         val conversationListItem = mockConversationListItem(conversation, member)
@@ -104,7 +105,7 @@ class RefineConversationNamesUseCaseTest : UnitTest() {
     fun `given conversation name is not empty and the conversation is not 1-1, when run is called, then does not update name`() {
         coEvery { conversationRepository.numberOfConversations() } returns Either.Right(1)
         coEvery { sessionRepository.currentSession() } returns Either.Right(TEST_CURRENT_SESSION)
-        val conversation = Conversation(id = "id", name = "This conversation already has a name", type = Group)
+        val conversation = Conversation(id = TEST_CONVERSATION_ID, name = "This conversation already has a name", type = Group)
         val conversationListItem = mockConversationListItem(conversation, TEST_MEMBER_1)
         coEvery { conversationListRepository.conversationListInBatch(any(), any<Int>()) } returns Either.Right(listOf(conversationListItem))
 
@@ -118,7 +119,7 @@ class RefineConversationNamesUseCaseTest : UnitTest() {
         coEvery { conversationRepository.numberOfConversations() } returns Either.Right(1)
         coEvery { sessionRepository.currentSession() } returns Either.Right(TEST_CURRENT_SESSION)
 
-        val conversation = Conversation(id = "id", name = "", type = Group)
+        val conversation = Conversation(id = TEST_CONVERSATION_ID, name = "", type = Group)
 
         val conversationListItem = mockConversationListItem(conversation, TEST_MEMBER_1, TEST_MEMBER_2)
         coEvery { conversationListRepository.conversationListInBatch(any(), any<Int>()) } returns Either.Right(listOf(conversationListItem))
@@ -137,7 +138,7 @@ class RefineConversationNamesUseCaseTest : UnitTest() {
         coEvery { conversationRepository.numberOfConversations() } returns Either.Right(1)
         coEvery { sessionRepository.currentSession() } returns Either.Right(TEST_CURRENT_SESSION)
 
-        val conversation = Conversation(id = "id", name = "", type = Group)
+        val conversation = Conversation(id = TEST_CONVERSATION_ID, name = "", type = Group)
 
         val conversationListItem = mockConversationListItem(conversation, TEST_MEMBER_1, TEST_MEMBER_2, TEST_MEMBER_SELF)
         coEvery { conversationListRepository.conversationListInBatch(any(), any<Int>()) } returns Either.Right(listOf(conversationListItem))
@@ -155,7 +156,7 @@ class RefineConversationNamesUseCaseTest : UnitTest() {
     fun `given a conversation has no members, when run is called, then does not update name`() {
         coEvery { sessionRepository.currentSession() } returns Either.Right(TEST_CURRENT_SESSION)
         coEvery { conversationRepository.numberOfConversations() } returns Either.Right(1)
-        val conversation = Conversation(id = "id", name = "Name", type = Group)
+        val conversation = Conversation(id = TEST_CONVERSATION_ID, name = "Name", type = Group)
         val conversationListItem = mockConversationListItem(conversation)
         coEvery { conversationListRepository.conversationListInBatch(any(), any<Int>()) } returns Either.Right(listOf(conversationListItem))
 
@@ -168,7 +169,7 @@ class RefineConversationNamesUseCaseTest : UnitTest() {
     fun `given a conversationRepo fails to update conversation names, when run is called, then propagates failure`() {
         coEvery { sessionRepository.currentSession() } returns Either.Right(TEST_CURRENT_SESSION)
         coEvery { conversationRepository.numberOfConversations() } returns Either.Right(1)
-        val conversation = Conversation(id = "id", name = "corrupt name", type = OneToOne)
+        val conversation = Conversation(id = TEST_CONVERSATION_ID, name = "corrupt name", type = OneToOne)
         val conversationListItem = mockConversationListItem(conversation, TEST_MEMBER_1)
         coEvery { conversationListRepository.conversationListInBatch(any(), any<Int>()) } returns Either.Right(listOf(conversationListItem))
 
@@ -186,7 +187,7 @@ class RefineConversationNamesUseCaseTest : UnitTest() {
         coEvery { sessionRepository.currentSession() } returns Either.Right(TEST_CURRENT_SESSION)
         coEvery { conversationRepository.numberOfConversations() } returns Either.Right(EXPECTED_BATCH_SIZE * 2)
 
-        val conversation = Conversation(id = "id", name = "corrupt name", type = OneToOne)
+        val conversation = Conversation(id = TEST_CONVERSATION_ID, name = "corrupt name", type = OneToOne)
         val conversationListItem = mockConversationListItem(conversation, TEST_MEMBER_1)
 
         coEvery { conversationListRepository.conversationListInBatch(any(), any<Int>()) } returnsMany listOf(
@@ -207,10 +208,12 @@ class RefineConversationNamesUseCaseTest : UnitTest() {
         coEvery { sessionRepository.currentSession() } returns Either.Right(TEST_CURRENT_SESSION)
         coEvery { conversationRepository.numberOfConversations() } returns Either.Right(30)
 
-        val conversation1 = Conversation(id = "id", name = "corrupt name", type = OneToOne)
+        val conversationID1 = ConversationID(value = "id", domain = "domain")
+        val conversation1 = Conversation(id = conversationID1, name = "corrupt name", type = OneToOne)
         val conversationListItem1 = mockConversationListItem(conversation1, TEST_MEMBER_1)
 
-        val conversation2 = Conversation(id = "id_2", name = "", type = Group)
+        val conversationID2 = ConversationID(value = "id_2", domain = "domain")
+        val conversation2 = Conversation(id = conversationID2, name = "", type = Group)
         val conversationListItem2 = mockConversationListItem(conversation2, TEST_MEMBER_2)
 
         coEvery { conversationListRepository.conversationListInBatch(any(), any<Int>()) } returnsMany listOf(
@@ -228,6 +231,7 @@ class RefineConversationNamesUseCaseTest : UnitTest() {
     }
 
     companion object {
+        private val TEST_CONVERSATION_ID = ConversationID(value = "id", domain = "domain")
         private const val EXPECTED_BATCH_SIZE = 20
         private const val TEST_MEMBER_NAME_1 = "Alice Aaa"
         private const val TEST_MEMBER_ID_1 = "Alice-D"

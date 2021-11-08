@@ -3,6 +3,7 @@ package com.wire.android.feature.conversation.data.local
 import android.database.sqlite.SQLiteException
 import com.wire.android.UnitTest
 import com.wire.android.feature.contact.datasources.local.ContactWithClients
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 import com.wire.android.framework.functional.shouldFail
@@ -172,29 +173,29 @@ class ConversationLocalDataSourceTest : UnitTest() {
 
     @Test
     fun `given conversationCache returns the conversationId, when getting current conversationId, then propagates the conversationId`() {
-        every { conversationCache.currentOpenedConversationId() } returns CONVERSATION_ID
+        every { conversationCache.currentOpenedConversationId() } returns TEST_CONVERSATION_ID
 
         val result = runBlocking { conversationLocalDataSource.currentOpenedConversationId() }
 
-        result shouldSucceed { it shouldBeEqualTo CONVERSATION_ID }
+        result shouldSucceed { it shouldBeEqualTo TEST_CONVERSATION_ID }
         verify { conversationCache.currentOpenedConversationId() }
     }
 
     @Test
     fun `given conversationCache update is successful, when updating current conversationId, then returns success`() {
-        every { conversationCache.updateConversationId(CONVERSATION_ID) } returns Unit
+        every { conversationCache.updateConversationId(TEST_CONVERSATION_ID) } returns Unit
 
-        val result = runBlocking { conversationLocalDataSource.updateCurrentConversationId(CONVERSATION_ID) }
+        val result = runBlocking { conversationLocalDataSource.updateCurrentConversationId(TEST_CONVERSATION_ID) }
 
         result shouldSucceed { it shouldBe Unit }
-        verify { conversationCache.updateConversationId(CONVERSATION_ID) }
+        verify { conversationCache.updateConversationId(TEST_CONVERSATION_ID) }
     }
 
     @Test
     fun `given conversation dao fails, when getting conversation name by id, then returns failure`() {
         coEvery { conversationDao.conversationNameById(any()) } throws SQLException()
 
-        val result = runBlocking { conversationLocalDataSource.conversationNameById(CONVERSATION_ID) }
+        val result = runBlocking { conversationLocalDataSource.conversationNameById(CONVERSATION_ID_VALUE) }
 
         result shouldFail {}
     }
@@ -203,7 +204,7 @@ class ConversationLocalDataSourceTest : UnitTest() {
     fun `given conversation dao succeed, when getting conversation name by id, then returns conversation name`() {
         coEvery { conversationDao.conversationNameById(any()) } returns CONVERSATION_NAME
 
-        val result = runBlocking { conversationLocalDataSource.conversationNameById(CONVERSATION_ID) }
+        val result = runBlocking { conversationLocalDataSource.conversationNameById(CONVERSATION_ID_VALUE) }
 
         result shouldSucceed {
             it shouldBeEqualTo CONVERSATION_NAME
@@ -214,9 +215,9 @@ class ConversationLocalDataSourceTest : UnitTest() {
     fun `given a conversation id, when getting detailed members of a conversation, then pass the correct ID to the DAO`() {
         coEvery { conversationMembersDao.detailedConversationMembers(any()) } returns mockk()
 
-        runBlockingTest { conversationLocalDataSource.detailedMembersOfConversation(CONVERSATION_ID) }
+        runBlockingTest { conversationLocalDataSource.detailedMembersOfConversation(CONVERSATION_ID_VALUE) }
 
-        coVerify(exactly = 1) { conversationMembersDao.detailedConversationMembers(CONVERSATION_ID) }
+        coVerify(exactly = 1) { conversationMembersDao.detailedConversationMembers(CONVERSATION_ID_VALUE) }
     }
 
     @Test
@@ -225,7 +226,7 @@ class ConversationLocalDataSourceTest : UnitTest() {
         coEvery { conversationMembersDao.detailedConversationMembers(any()) } returns result
 
         runBlockingTest {
-            conversationLocalDataSource.detailedMembersOfConversation(CONVERSATION_ID)
+            conversationLocalDataSource.detailedMembersOfConversation(CONVERSATION_ID_VALUE)
                 .shouldSucceed { it shouldBeEqualTo result }
         }
     }
@@ -235,13 +236,15 @@ class ConversationLocalDataSourceTest : UnitTest() {
         coEvery { conversationMembersDao.detailedConversationMembers(any()) } throws SQLiteException()
 
         runBlockingTest {
-            conversationLocalDataSource.detailedMembersOfConversation(CONVERSATION_ID)
+            conversationLocalDataSource.detailedMembersOfConversation(CONVERSATION_ID_VALUE)
                 .shouldFail { }
         }
     }
 
     companion object {
-        private const val CONVERSATION_ID = "2133215644868"
+        private const val CONVERSATION_ID_VALUE = "2133215644868"
+        private const val CONVERSATION_DOMAIN = "conv-domain"
+        private val TEST_CONVERSATION_ID = ConversationID(CONVERSATION_ID_VALUE, CONVERSATION_DOMAIN)
         private const val CONVERSATION_NAME = "Android Team"
     }
 

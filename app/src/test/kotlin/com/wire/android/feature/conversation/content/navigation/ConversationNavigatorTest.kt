@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import com.wire.android.AndroidTest
 import com.wire.android.core.extension.EMPTY
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.content.ui.ConversationActivity
 import io.mockk.mockk
 import io.mockk.slot
@@ -25,7 +26,7 @@ class ConversationNavigatorTest : AndroidTest() {
     fun `given openConversationScreen is called, then opens ConversationActivity`() {
         val activity = mockk<Activity>(relaxed = true)
 
-        conversationNavigator.openConversationScreen(activity, String.EMPTY, String.EMPTY)
+        conversationNavigator.openConversationScreen(activity, ConversationID.blankID(), String.EMPTY)
 
         val intentSlot = slot<Intent>()
         verify(exactly = 1) { activity.startActivity(capture(intentSlot)) }

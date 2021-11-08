@@ -1,6 +1,7 @@
 package com.wire.android.feature.conversation.content.ui
 
 import com.wire.android.UnitTest
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
 import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCase
 import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCaseParams
@@ -92,6 +93,8 @@ class ConversationViewModelTest : UnitTest() {
     }
 
     companion object {
-        private const val TEST_CONVERSATION_ID = "conversation-id"
+        private const val TEST_CONVERSATION_ID_VALUE = "conversation-id"
+        private const val TEST_CONVERSATION_ID_DOMAIN = "conversation-id-domain"
+        private val TEST_CONVERSATION_ID = ConversationID(TEST_CONVERSATION_ID_VALUE, TEST_CONVERSATION_ID_DOMAIN)
     }
 }

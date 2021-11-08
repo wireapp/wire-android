@@ -31,7 +31,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
 import org.junit.Before
 import org.junit.Test
 
@@ -224,10 +223,7 @@ class ConversationDataSourceTest : UnitTest() {
     fun `given fetchConversations is called and local data source saved members, when there are more pages, then proceeds to fetch them`() {
         val currentPageResponse = mockk<ConversationsResponse>()
         val lastConversation = mockk<ConversationResponse>()
-        every { lastConversation.id } returns ConversationIdResponse(
-            value = TEST_CONVERSATION_ID,
-            domain = TEST_CONVERSATION_DOMAIN
-        )
+        every { lastConversation.id } returns TEST_CONVERSATION_RESPONSE_ID
         every { currentPageResponse.conversations } returns listOf(lastConversation)
         every { currentPageResponse.hasMore } returns true
 
@@ -249,7 +245,7 @@ class ConversationDataSourceTest : UnitTest() {
         coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(null, any()) }
         coVerify(exactly = 1) {
             conversationRemoteDataSource.conversationsByBatch(
-                TEST_CONVERSATION_ID,
+                TEST_CONVERSATION_ID_VALUE,
                 any()
             )
         }
@@ -259,9 +255,9 @@ class ConversationDataSourceTest : UnitTest() {
     @Test
     fun `given conversationMemberIds is called, when localDataSource returns success with member ids, then propagates result`() {
         val conversation = mockk<Conversation>()
-        every { conversation.id } returns ConversationID(value = TEST_CONVERSATION_ID, domain = TEST_CONVERSATION_DOMAIN)
+        every { conversation.id } returns TEST_CONVERSATION_ID
         val memberIds = mockk<List<String>>()
-        coEvery { conversationLocalDataSource.conversationMemberIds(TEST_CONVERSATION_ID) } returns Either.Right(
+        coEvery { conversationLocalDataSource.conversationMemberIds(TEST_CONVERSATION_ID_VALUE) } returns Either.Right(
             memberIds
         )
 
@@ -273,9 +269,9 @@ class ConversationDataSourceTest : UnitTest() {
     @Test
     fun `given conversationMemberIds is called, when localDataSource fails to get member ids, then propagates failure`() {
         val conversation = mockk<Conversation>()
-        every { conversation.id } returns ConversationID(value = TEST_CONVERSATION_ID, domain = TEST_CONVERSATION_DOMAIN)
+        every { conversation.id } returns TEST_CONVERSATION_ID
         val failure = mockk<Failure>()
-        coEvery { conversationLocalDataSource.conversationMemberIds(TEST_CONVERSATION_ID) } returns Either.Left(
+        coEvery { conversationLocalDataSource.conversationMemberIds(TEST_CONVERSATION_ID_VALUE) } returns Either.Left(
             failure
         )
 
@@ -407,7 +403,7 @@ class ConversationDataSourceTest : UnitTest() {
             failure
         )
 
-        val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID) }
+        val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID_VALUE) }
 
         result shouldFail { it shouldBeEqualTo failure }
     }
@@ -418,7 +414,7 @@ class ConversationDataSourceTest : UnitTest() {
             TEST_CONVERSATION_NAME
         )
 
-        val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID) }
+        val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID_VALUE) }
 
         result shouldSucceed { it shouldBeEqualTo TEST_CONVERSATION_NAME }
     }
@@ -430,12 +426,12 @@ class ConversationDataSourceTest : UnitTest() {
         )
 
         runBlockingTest {
-            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID_VALUE)
         }
 
         coVerify(exactly = 1) {
             conversationLocalDataSource.detailedMembersOfConversation(
-                TEST_CONVERSATION_ID
+                TEST_CONVERSATION_ID_VALUE
             )
         }
     }
@@ -451,7 +447,7 @@ class ConversationDataSourceTest : UnitTest() {
         every { contactMapper.fromContactWithClients(any()) } returns mockk()
 
         runBlockingTest {
-            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID_VALUE)
         }
 
         verifySequence {
@@ -470,7 +466,7 @@ class ConversationDataSourceTest : UnitTest() {
         every { contactMapper.fromContactWithClients(any()) } returns mappedDetailedContact
 
         runBlockingTest {
-            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID_VALUE)
                 .shouldSucceed {
                     it.size shouldBeEqualTo 2
                     it[0] shouldBeEqualTo mappedDetailedContact
@@ -489,7 +485,7 @@ class ConversationDataSourceTest : UnitTest() {
         every { contactMapper.fromContactWithClients(any()) } returns mappedDetailedContact
 
         runBlockingTest {
-            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID_VALUE)
                 .shouldSucceed {
                     it.size shouldBeEqualTo 2
                     it[0] shouldBeEqualTo mappedDetailedContact
@@ -499,8 +495,10 @@ class ConversationDataSourceTest : UnitTest() {
     }
 
     companion object {
-        private const val TEST_CONVERSATION_ID = "conv-id"
+        private const val TEST_CONVERSATION_ID_VALUE = "conv-id"
         private const val TEST_CONVERSATION_DOMAIN = "conv-domain"
+        private val TEST_CONVERSATION_ID = ConversationID(TEST_CONVERSATION_ID_VALUE, TEST_CONVERSATION_DOMAIN)
+        private val TEST_CONVERSATION_RESPONSE_ID = ConversationIdResponse(TEST_CONVERSATION_ID_VALUE, TEST_CONVERSATION_DOMAIN)
         private const val TEST_CONVERSATION_NAME = "Android Team"
     }
 }

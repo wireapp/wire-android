@@ -5,6 +5,6 @@ import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.content.ui.ConversationActivity
 
 class ConversationNavigator {
-    fun openConversationScreen(context: Context, conversationId: ConversationID, conversationTitle: String) =
-        context.startActivity(ConversationActivity.newIntent(context, conversationId, conversationTitle))
+    fun openConversationScreen(context: Context, conversationIdValue: String, conversationDomain: String, conversationTitle: String) =
+        context.startActivity(ConversationActivity.newIntent(context, conversationIdValue, conversationDomain, conversationTitle))
 }

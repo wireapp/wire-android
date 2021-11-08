@@ -7,6 +7,7 @@ import com.wire.android.core.functional.suspending
 import com.wire.android.feature.contact.DetailedContact
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
 import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationResponse
 import com.wire.android.feature.conversation.data.remote.ConversationsRemoteDataSource
@@ -68,10 +69,10 @@ class ConversationDataSource(
     override suspend fun numberOfConversations(): Either<Failure, Int> =
         conversationLocalDataSource.numberOfConversations()
 
-    override suspend fun currentOpenedConversationId(): Either<Failure, String> =
+    override suspend fun currentOpenedConversationId(): Either<Failure, ConversationID> =
         conversationLocalDataSource.currentOpenedConversationId()
 
-    override suspend fun updateCurrentConversationId(conversationId: String): Either<Failure, Unit> =
+    override suspend fun updateCurrentConversationId(conversationId: ConversationID): Either<Failure, Unit> =
         conversationLocalDataSource.updateCurrentConversationId(conversationId)
 
     override suspend fun conversationName(conversationId: String): Either<Failure, String> =

@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.wire.android.R
-import com.wire.android.core.extension.EMPTY
+import com.wire.android.feature.conversation.ConversationID
 import kotlinx.android.synthetic.main.fragment_conversation.conversationRecyclerView
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.sharedViewModel
@@ -59,6 +59,6 @@ class ConversationFragment : Fragment(R.layout.fragment_conversation) {
 
     override fun onPause() {
         super.onPause()
-        viewModel.updateCurrentConversationId(String.EMPTY)
+        viewModel.updateCurrentConversationId(ConversationID.blankID())
     }
 }

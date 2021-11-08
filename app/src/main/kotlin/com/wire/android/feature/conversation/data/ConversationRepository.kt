@@ -4,6 +4,7 @@ import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.contact.DetailedContact
 import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.ConversationID
 
 interface ConversationRepository {
     suspend fun fetchConversations(): Either<Failure, Unit>
@@ -18,9 +19,9 @@ interface ConversationRepository {
 
     suspend fun numberOfConversations(): Either<Failure, Int>
 
-    suspend fun currentOpenedConversationId(): Either<Failure, String>
+    suspend fun currentOpenedConversationId(): Either<Failure, ConversationID>
 
-    suspend fun updateCurrentConversationId(conversationId: String): Either<Failure, Unit>
+    suspend fun updateCurrentConversationId(conversationId: ConversationID): Either<Failure, Unit>
 
     suspend fun conversationName(conversationId: String): Either<Failure, String>
 }

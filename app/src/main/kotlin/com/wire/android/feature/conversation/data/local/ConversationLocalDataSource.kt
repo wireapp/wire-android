@@ -5,6 +5,7 @@ import com.wire.android.core.functional.Either
 import com.wire.android.core.storage.cache.CacheService
 import com.wire.android.core.storage.db.DatabaseService
 import com.wire.android.feature.contact.datasources.local.ContactWithClients
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMemberEntity
 import com.wire.android.feature.conversation.members.datasources.local.ConversationMembersDao
 
@@ -13,6 +14,7 @@ class ConversationLocalDataSource(
     private val conversationMembersDao: ConversationMembersDao,
     private val conversationCache: ConversationCache
 ) : DatabaseService, CacheService {
+    // TODO: use the qualified ConversationID
 
     suspend fun saveConversations(conversations: List<ConversationEntity>): Either<Failure, Unit> = request {
         conversationDao.insertAll(conversations)
@@ -40,11 +42,11 @@ class ConversationLocalDataSource(
 
     suspend fun numberOfConversations(): Either<Failure, Int> = request { conversationDao.count() }
 
-    suspend fun currentOpenedConversationId(): Either<Failure, String> = requestCache {
+    suspend fun currentOpenedConversationId(): Either<Failure, ConversationID> = requestCache {
         conversationCache.currentOpenedConversationId()
     }
 
-    suspend fun updateCurrentConversationId(conversationId: String) : Either<Failure, Unit> = requestCache {
+    suspend fun updateCurrentConversationId(conversationId: ConversationID) : Either<Failure, Unit> = requestCache {
         conversationCache.updateConversationId(conversationId)
     }
 

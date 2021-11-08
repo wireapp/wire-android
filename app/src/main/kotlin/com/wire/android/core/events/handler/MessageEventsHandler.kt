@@ -24,7 +24,7 @@ class MessageEventsHandler(
 
     private suspend fun displayNotification(conversationId: String) = suspending {
         conversationRepository.currentOpenedConversationId().map { currentOpenedConversationId ->
-            if(currentOpenedConversationId != conversationId) {
+            if(currentOpenedConversationId.value != conversationId) {
                 notificationSummaryBuilder.createSummaryNotification()
                 val messages = messageRepository.latestUnreadMessages(conversationId)
                 messages.map {

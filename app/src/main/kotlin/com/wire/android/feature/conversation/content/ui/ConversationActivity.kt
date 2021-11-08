@@ -5,12 +5,13 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.wire.android.R
+import com.wire.android.feature.conversation.ConversationID
 import kotlinx.android.synthetic.main.activity_conversation.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class ConversationActivity : AppCompatActivity(R.layout.activity_conversation) {
 
-    private val conversationId get() = intent.getStringExtra(ARG_CONVERSATION_ID)
+    private val conversationId get() = intent.getParcelableExtra<ConversationID>(ARG_CONVERSATION_ID)
     private val conversationTitle get() = intent.getStringExtra(ARG_CONVERSATION_TITLE)
     private val viewModel by viewModel<ConversationViewModel>()
 
@@ -36,7 +37,7 @@ class ConversationActivity : AppCompatActivity(R.layout.activity_conversation) {
     }
 
     companion object {
-        fun newIntent(context: Context, conversationId: String, conversationTitle: String) =
+        fun newIntent(context: Context, conversationId: ConversationID, conversationTitle: String) =
             Intent(context, ConversationActivity::class.java).apply {
                 putExtra(ARG_CONVERSATION_ID, conversationId)
                 putExtra(ARG_CONVERSATION_TITLE, conversationTitle)

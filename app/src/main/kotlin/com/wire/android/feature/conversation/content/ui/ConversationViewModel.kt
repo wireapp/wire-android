@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.core.async.DispatcherProvider
 import com.wire.android.core.usecase.DefaultUseCaseExecutor
 import com.wire.android.core.usecase.UseCaseExecutor
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCaseParams
 import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCase
@@ -21,17 +22,17 @@ class ConversationViewModel(
     private val sendTextMessageUseCase: SendTextMessageUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
-    private val _conversationIdLiveData: MutableLiveData<String> = MutableLiveData()
-    val conversationIdLiveData: LiveData<String> = _conversationIdLiveData
+    private val _conversationIdLiveData: MutableLiveData<ConversationID> = MutableLiveData()
+    val conversationIdLiveData: LiveData<ConversationID> = _conversationIdLiveData
 
     private val _conversationMessagesLiveData = MutableLiveData<List<CombinedMessageContact>>()
     val conversationMessagesLiveData: LiveData<List<CombinedMessageContact>> = _conversationMessagesLiveData
 
-    fun cacheConversationId(conversationId: String) {
+    fun cacheConversationId(conversationId: ConversationID) {
         _conversationIdLiveData.value = conversationId
     }
 
-    fun fetchMessages(conversationId: String) {
+    fun fetchMessages(conversationId: ConversationID) {
         val params = GetConversationUseCaseParams(conversationId = conversationId)
         getConversationUseCase(viewModelScope, params) {
             _conversationMessagesLiveData.value = it
@@ -42,7 +43,7 @@ class ConversationViewModel(
         sendTextMessageUseCase(viewModelScope, SendTextMessageUseCaseParams(_conversationIdLiveData.value!!, textMessage)) { }
     }
 
-    fun updateCurrentConversationId(conversationId: String) {
+    fun updateCurrentConversationId(conversationId: ConversationID) {
         val params = UpdateCurrentConversationUseCaseParams(conversationId = conversationId)
         updateCurrentConversationIdUseCase(viewModelScope, params)
     }

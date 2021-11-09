@@ -46,12 +46,12 @@ class ConversationLocalDataSource(
         conversationCache.currentOpenedConversationId()
     }
 
-    suspend fun updateCurrentConversationId(conversationId: ConversationID) : Either<Failure, Unit> = requestCache {
+    suspend fun updateCurrentConversationId(conversationId: ConversationID): Either<Failure, Unit> = requestCache {
         conversationCache.updateConversationId(conversationId)
     }
 
     suspend fun conversationNameById(conversationId: String): Either<Failure, String> = request {
         conversationDao.conversationNameById(conversationId)
     }
-
+    suspend fun resetCurrentConversationId(): Either<Failure, Unit> = requestCache { conversationCache.resetCurrentConversationID() }
 }

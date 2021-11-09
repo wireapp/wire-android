@@ -59,6 +59,6 @@ class ConversationFragment : Fragment(R.layout.fragment_conversation) {
 
     override fun onPause() {
         super.onPause()
-        viewModel.updateCurrentConversationId(ConversationID.blankID())
+        viewModel.resetCurrentConversationId()
     }
 }

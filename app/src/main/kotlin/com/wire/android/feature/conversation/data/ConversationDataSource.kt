@@ -13,6 +13,7 @@ import com.wire.android.feature.conversation.data.remote.ConversationResponse
 import com.wire.android.feature.conversation.data.remote.ConversationsRemoteDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationsResponse
 
+@Suppress("TooManyFunctions")
 class ConversationDataSource(
     private val conversationMapper: ConversationMapper,
     private val contactMapper: ContactMapper,
@@ -77,6 +78,9 @@ class ConversationDataSource(
 
     override suspend fun conversationName(conversationId: String): Either<Failure, String> =
         conversationLocalDataSource.conversationNameById(conversationId)
+
+    override suspend fun restCurrentConversationId(): Either<Failure, Unit> =
+        conversationLocalDataSource.resetCurrentConversationId()
 
     companion object {
         private const val CONVERSATION_REQUEST_PAGE_SIZE = 100

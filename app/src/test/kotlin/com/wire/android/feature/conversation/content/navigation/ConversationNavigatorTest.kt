@@ -26,10 +26,13 @@ class ConversationNavigatorTest : AndroidTest() {
     fun `given openConversationScreen is called, then opens ConversationActivity`() {
         val activity = mockk<Activity>(relaxed = true)
 
-        conversationNavigator.openConversationScreen(activity, ConversationID.blankID(), String.EMPTY)
+        conversationNavigator.openConversationScreen(activity, TEST_CONVERSATION_ID.value, TEST_CONVERSATION_ID.domain, String.EMPTY)
 
         val intentSlot = slot<Intent>()
         verify(exactly = 1) { activity.startActivity(capture(intentSlot)) }
         intentSlot.captured.component?.className shouldBeEqualTo ConversationActivity::class.java.canonicalName
+    }
+    companion object {
+        private val TEST_CONVERSATION_ID = ConversationID("conv-id", "conv-domain")
     }
 }

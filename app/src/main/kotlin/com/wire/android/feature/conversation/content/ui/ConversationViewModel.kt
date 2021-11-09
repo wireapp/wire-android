@@ -12,6 +12,7 @@ import com.wire.android.feature.conversation.content.usecase.GetConversationUseC
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCaseParams
 import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCase
 import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCaseParams
+import com.wire.android.feature.conversation.usecase.ResetCurrentConversationIdUseCase
 import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationIdUseCase
 import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationUseCaseParams
 
@@ -19,6 +20,7 @@ class ConversationViewModel(
     override val dispatcherProvider: DispatcherProvider,
     private val getConversationUseCase: GetConversationUseCase,
     private val updateCurrentConversationIdUseCase: UpdateCurrentConversationIdUseCase,
+    private val resetCurrentConversationIdUseCase: ResetCurrentConversationIdUseCase,
     private val sendTextMessageUseCase: SendTextMessageUseCase
 ) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor(dispatcherProvider) {
 
@@ -46,5 +48,9 @@ class ConversationViewModel(
     fun updateCurrentConversationId(conversationId: ConversationID) {
         val params = UpdateCurrentConversationUseCaseParams(conversationId = conversationId)
         updateCurrentConversationIdUseCase(viewModelScope, params)
+    }
+
+    fun resetCurrentConversationId() {
+        resetCurrentConversationIdUseCase(viewModelScope, Unit)
     }
 }

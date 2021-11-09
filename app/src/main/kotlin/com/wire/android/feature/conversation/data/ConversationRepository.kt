@@ -24,4 +24,6 @@ interface ConversationRepository {
     suspend fun updateCurrentConversationId(conversationId: ConversationID): Either<Failure, Unit>
 
     suspend fun conversationName(conversationId: String): Either<Failure, String>
+
+    suspend fun restCurrentConversationId(): Either<Failure, Unit>
 }

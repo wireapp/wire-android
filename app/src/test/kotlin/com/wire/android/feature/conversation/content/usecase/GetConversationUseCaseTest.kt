@@ -1,6 +1,7 @@
 package com.wire.android.feature.conversation.content.usecase
 
 import com.wire.android.UnitTest
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.content.MessageRepository
 import com.wire.android.feature.conversation.content.ui.CombinedMessageContact
 import io.mockk.coEvery
@@ -37,6 +38,9 @@ class GetConversationUseCaseTest : UnitTest() {
     }
 
     companion object {
-        private const val TEST_CONVERSATION_ID = "conversation-id"
+        private const val TEST_CONVERSATION_ID_VALUE = "conversation-id"
+        private const val TEST_CONVERSATION_DOMAIN = "conversation-domain"
+        private val TEST_CONVERSATION_ID = ConversationID(TEST_CONVERSATION_ID_VALUE, TEST_CONVERSATION_DOMAIN)
+
     }
 }

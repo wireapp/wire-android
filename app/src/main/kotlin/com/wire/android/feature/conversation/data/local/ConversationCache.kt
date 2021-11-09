@@ -1,14 +1,18 @@
 package com.wire.android.feature.conversation.data.local
 
-import com.wire.android.core.extension.EMPTY
+import com.wire.android.feature.conversation.ConversationID
 
 class ConversationCache {
 
-    private var currentOpenedConversationId = String.EMPTY
+    private var currentOpenedConversationId: ConversationID? = null
 
     fun currentOpenedConversationId() = currentOpenedConversationId
 
-    fun updateConversationId(conversationId: String) {
+    fun resetCurrentConversationID() {
+        currentOpenedConversationId = null
+    }
+
+    fun updateConversationId(conversationId: ConversationID) {
         currentOpenedConversationId = conversationId
     }
 }

@@ -1,9 +1,11 @@
 package com.wire.android.feature.conversation.content.ui
 
 import com.wire.android.UnitTest
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.content.usecase.GetConversationUseCase
 import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCase
 import com.wire.android.feature.conversation.content.usecase.SendTextMessageUseCaseParams
+import com.wire.android.feature.conversation.usecase.ResetCurrentConversationIdUseCase
 import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationIdUseCase
 import com.wire.android.framework.coroutines.CoroutinesTestRule
 import com.wire.android.framework.livedata.shouldBeUpdated
@@ -31,6 +33,9 @@ class ConversationViewModelTest : UnitTest() {
     private lateinit var updateCurrentConversationIdUseCase: UpdateCurrentConversationIdUseCase
 
     @MockK
+    private lateinit var resetCurrentConversationIdUseCase: ResetCurrentConversationIdUseCase
+
+    @MockK
     private lateinit var sendTextMessageUseCase: SendTextMessageUseCase
 
     private lateinit var conversationViewModel: ConversationViewModel
@@ -41,6 +46,7 @@ class ConversationViewModelTest : UnitTest() {
             coroutinesTestRule.dispatcherProvider,
             getConversationUseCase,
             updateCurrentConversationIdUseCase,
+            resetCurrentConversationIdUseCase,
             sendTextMessageUseCase
         )
     }
@@ -91,7 +97,18 @@ class ConversationViewModelTest : UnitTest() {
         coVerify(exactly = 1) { sendTextMessageUseCase.run(SendTextMessageUseCaseParams(TEST_CONVERSATION_ID, textMessage)) }
     }
 
+    @Test
+    fun `given is current conversation id rested, when calling resetCurrentConversationId, then the use case is called`() {
+        conversationViewModel.cacheConversationId(TEST_CONVERSATION_ID)
+
+        conversationViewModel.resetCurrentConversationId()
+
+        coVerify(exactly = 1) { resetCurrentConversationIdUseCase.run(Unit) }
+    }
+
     companion object {
-        private const val TEST_CONVERSATION_ID = "conversation-id"
+        private const val TEST_CONVERSATION_ID_VALUE = "conversation-id"
+        private const val TEST_CONVERSATION_ID_DOMAIN = "conversation-id-domain"
+        private val TEST_CONVERSATION_ID = ConversationID(TEST_CONVERSATION_ID_VALUE, TEST_CONVERSATION_ID_DOMAIN)
     }
 }

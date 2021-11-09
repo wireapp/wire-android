@@ -44,6 +44,7 @@ import com.wire.android.feature.conversation.list.ui.icon.ConversationIconProvid
 import com.wire.android.feature.conversation.list.ui.navigation.MainNavigator
 import com.wire.android.feature.conversation.list.usecase.GetConversationListUseCase
 import com.wire.android.feature.conversation.list.usecase.GetConversationMembersUseCase
+import com.wire.android.feature.conversation.usecase.ResetCurrentConversationIdUseCase
 import com.wire.android.feature.conversation.usecase.UpdateCurrentConversationIdUseCase
 import com.wire.android.feature.messaging.datasource.remote.MessageRemoteDataSource
 import com.wire.android.feature.messaging.datasource.remote.api.MessageApi
@@ -142,10 +143,11 @@ val conversationContentModule = module {
     factory { SendTextMessageUseCase(get(), get()) }
     factory { GetConversationUseCase(get()) }
     factory { UpdateCurrentConversationIdUseCase(get()) }
+    factory { ResetCurrentConversationIdUseCase(get()) }
 
     // UI
     single { ConversationNavigator() }
-    viewModel { ConversationViewModel(get(), get(), get(), get()) }
+    viewModel { ConversationViewModel(get(), get(), get(), get(), get()) }
     factory { ConversationTimeGenerator(androidContext()) }
     factory { ConversationAdapter(get(), get(), get()) }
 }

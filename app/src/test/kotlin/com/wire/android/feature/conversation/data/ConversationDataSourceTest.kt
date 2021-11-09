@@ -9,8 +9,10 @@ import com.wire.android.feature.contact.DetailedContact
 import com.wire.android.feature.contact.datasources.local.ContactWithClients
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
 import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.data.local.ConversationEntity
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
+import com.wire.android.feature.conversation.data.remote.ConversationIdResponse
 import com.wire.android.feature.conversation.data.remote.ConversationResponse
 import com.wire.android.feature.conversation.data.remote.ConversationsRemoteDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationsResponse
@@ -29,7 +31,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
 import org.junit.Before
 import org.junit.Test
 
@@ -52,13 +53,23 @@ class ConversationDataSourceTest : UnitTest() {
     @Before
     fun setUp() {
         conversationDataSource =
-            ConversationDataSource(conversationMapper, contactMapper, conversationRemoteDataSource, conversationLocalDataSource)
+            ConversationDataSource(
+                conversationMapper,
+                contactMapper,
+                conversationRemoteDataSource,
+                conversationLocalDataSource
+            )
     }
 
     @Test
     fun `given fetchConversations is called, when remote data source cannot fetch next batch of conversations, then propagates failure`() {
         val failure = mockk<Failure>()
-        coEvery { conversationRemoteDataSource.conversationsByBatch(any(), any()) } returns Either.Left(failure)
+        coEvery {
+            conversationRemoteDataSource.conversationsByBatch(
+                any(),
+                any()
+            )
+        } returns Either.Left(failure)
 
         val result = runBlocking { conversationDataSource.fetchConversations() }
 
@@ -75,15 +86,26 @@ class ConversationDataSourceTest : UnitTest() {
         every { response.conversations } returns remoteConvList
         every { response.hasMore } returns false
 
-        coEvery { conversationRemoteDataSource.conversationsByBatch(any(), any()) } returns Either.Right(response)
+        coEvery {
+            conversationRemoteDataSource.conversationsByBatch(
+                any(),
+                any()
+            )
+        } returns Either.Right(response)
         val entities = mockk<List<ConversationEntity>>()
         every { conversationMapper.fromConversationResponseListToEntityList(remoteConvList) } returns entities
-        coEvery { conversationLocalDataSource.saveConversations(entities) } returns Either.Left(DatabaseFailure())
+        coEvery { conversationLocalDataSource.saveConversations(entities) } returns Either.Left(
+            DatabaseFailure()
+        )
 
         runBlocking { conversationDataSource.fetchConversations() }
 
         coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(any(), any()) }
-        verify(exactly = 1) { conversationMapper.fromConversationResponseListToEntityList(remoteConvList) }
+        verify(exactly = 1) {
+            conversationMapper.fromConversationResponseListToEntityList(
+                remoteConvList
+            )
+        }
         coVerify(exactly = 1) { conversationLocalDataSource.saveConversations(entities) }
     }
 
@@ -92,7 +114,12 @@ class ConversationDataSourceTest : UnitTest() {
         val response = mockk<ConversationsResponse>()
         every { response.conversations } returns mockk()
         every { response.hasMore } returns false
-        coEvery { conversationRemoteDataSource.conversationsByBatch(any(), any()) } returns Either.Right(response)
+        coEvery {
+            conversationRemoteDataSource.conversationsByBatch(
+                any(),
+                any()
+            )
+        } returns Either.Right(response)
         every { conversationMapper.fromConversationResponseListToEntityList(any()) } returns mockk()
         val failure = mockk<Failure>()
         coEvery { conversationLocalDataSource.saveConversations(any()) } returns Either.Left(failure)
@@ -109,18 +136,35 @@ class ConversationDataSourceTest : UnitTest() {
         every { response.conversations } returns remoteConvList
         every { response.hasMore } returns false
 
-        coEvery { conversationRemoteDataSource.conversationsByBatch(any(), any()) } returns Either.Right(response)
+        coEvery {
+            conversationRemoteDataSource.conversationsByBatch(
+                any(),
+                any()
+            )
+        } returns Either.Right(response)
         every { conversationMapper.fromConversationResponseListToEntityList(any()) } returns mockk()
         coEvery { conversationLocalDataSource.saveConversations(any()) } returns Either.Right(Unit)
 
         val conversationMemberEntities = mockk<List<ConversationMemberEntity>>()
         every { conversationMapper.fromConversationResponseListToConversationMembers(any()) } returns conversationMemberEntities
-        coEvery { conversationLocalDataSource.saveMemberIdsForConversations(conversationMemberEntities) } returns Either.Left(mockk())
+        coEvery {
+            conversationLocalDataSource.saveMemberIdsForConversations(
+                conversationMemberEntities
+            )
+        } returns Either.Left(mockk())
 
         runBlocking { conversationDataSource.fetchConversations() }
 
-        verify(exactly = 1) { conversationMapper.fromConversationResponseListToConversationMembers(remoteConvList) }
-        coVerify(exactly = 1) { conversationLocalDataSource.saveMemberIdsForConversations(conversationMemberEntities) }
+        verify(exactly = 1) {
+            conversationMapper.fromConversationResponseListToConversationMembers(
+                remoteConvList
+            )
+        }
+        coVerify(exactly = 1) {
+            conversationLocalDataSource.saveMemberIdsForConversations(
+                conversationMemberEntities
+            )
+        }
     }
 
     @Test
@@ -128,13 +172,20 @@ class ConversationDataSourceTest : UnitTest() {
         val response = mockk<ConversationsResponse>()
         every { response.conversations } returns mockk()
         every { response.hasMore } returns false
-        coEvery { conversationRemoteDataSource.conversationsByBatch(any(), any()) } returns Either.Right(response)
+        coEvery {
+            conversationRemoteDataSource.conversationsByBatch(
+                any(),
+                any()
+            )
+        } returns Either.Right(response)
         every { conversationMapper.fromConversationResponseListToEntityList(any()) } returns mockk()
         coEvery { conversationLocalDataSource.saveConversations(any()) } returns Either.Right(Unit)
         every { conversationMapper.fromConversationResponseListToConversationMembers(any()) } returns mockk()
 
         val failure = mockk<Failure>()
-        coEvery { conversationLocalDataSource.saveMemberIdsForConversations(any()) } returns Either.Left(failure)
+        coEvery { conversationLocalDataSource.saveMemberIdsForConversations(any()) } returns Either.Left(
+            failure
+        )
 
         val result = runBlocking { conversationDataSource.fetchConversations() }
 
@@ -146,13 +197,20 @@ class ConversationDataSourceTest : UnitTest() {
         val response = mockk<ConversationsResponse>()
         every { response.conversations } returns mockk()
         every { response.hasMore } returns false
-        coEvery { conversationRemoteDataSource.conversationsByBatch(any(), any()) } returns Either.Right(response)
+        coEvery {
+            conversationRemoteDataSource.conversationsByBatch(
+                any(),
+                any()
+            )
+        } returns Either.Right(response)
 
         every { conversationMapper.fromConversationResponseListToEntityList(any()) } returns mockk()
 
         coEvery { conversationLocalDataSource.saveConversations(any()) } returns Either.Right(Unit)
         every { conversationMapper.fromConversationResponseListToConversationMembers(any()) } returns mockk()
-        coEvery { conversationLocalDataSource.saveMemberIdsForConversations(any()) } returns Either.Right(Unit)
+        coEvery { conversationLocalDataSource.saveMemberIdsForConversations(any()) } returns Either.Right(
+            Unit
+        )
 
         every { conversationMapper.fromEntity(any()) } returns mockk()
 
@@ -165,7 +223,7 @@ class ConversationDataSourceTest : UnitTest() {
     fun `given fetchConversations is called and local data source saved members, when there are more pages, then proceeds to fetch them`() {
         val currentPageResponse = mockk<ConversationsResponse>()
         val lastConversation = mockk<ConversationResponse>()
-        every { lastConversation.id } returns TEST_CONVERSATION_ID
+        every { lastConversation.id } returns TEST_CONVERSATION_RESPONSE_ID
         every { currentPageResponse.conversations } returns listOf(lastConversation)
         every { currentPageResponse.hasMore } returns true
 
@@ -176,14 +234,21 @@ class ConversationDataSourceTest : UnitTest() {
 
         coEvery { conversationLocalDataSource.saveConversations(any()) } returns Either.Right(Unit)
         every { conversationMapper.fromConversationResponseListToConversationMembers(any()) } returns mockk()
-        coEvery { conversationLocalDataSource.saveMemberIdsForConversations(any()) } returns Either.Right(Unit)
+        coEvery { conversationLocalDataSource.saveMemberIdsForConversations(any()) } returns Either.Right(
+            Unit
+        )
 
         every { conversationMapper.fromEntity(any()) } returns mockk()
 
         runBlocking { conversationDataSource.fetchConversations() }
 
         coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(null, any()) }
-        coVerify(exactly = 1) { conversationRemoteDataSource.conversationsByBatch(TEST_CONVERSATION_ID, any()) }
+        coVerify(exactly = 1) {
+            conversationRemoteDataSource.conversationsByBatch(
+                TEST_CONVERSATION_ID_VALUE,
+                any()
+            )
+        }
     }
 
 
@@ -192,7 +257,9 @@ class ConversationDataSourceTest : UnitTest() {
         val conversation = mockk<Conversation>()
         every { conversation.id } returns TEST_CONVERSATION_ID
         val memberIds = mockk<List<String>>()
-        coEvery { conversationLocalDataSource.conversationMemberIds(TEST_CONVERSATION_ID) } returns Either.Right(memberIds)
+        coEvery { conversationLocalDataSource.conversationMemberIds(TEST_CONVERSATION_ID_VALUE) } returns Either.Right(
+            memberIds
+        )
 
         val result = runBlocking { conversationDataSource.conversationMemberIds(conversation) }
 
@@ -204,7 +271,9 @@ class ConversationDataSourceTest : UnitTest() {
         val conversation = mockk<Conversation>()
         every { conversation.id } returns TEST_CONVERSATION_ID
         val failure = mockk<Failure>()
-        coEvery { conversationLocalDataSource.conversationMemberIds(TEST_CONVERSATION_ID) } returns Either.Left(failure)
+        coEvery { conversationLocalDataSource.conversationMemberIds(TEST_CONVERSATION_ID_VALUE) } returns Either.Left(
+            failure
+        )
 
         val result = runBlocking { conversationDataSource.conversationMemberIds(conversation) }
 
@@ -214,7 +283,9 @@ class ConversationDataSourceTest : UnitTest() {
     @Test
     fun `given allConversationMemberIds is called, when localDataSource returns member ids, then propagates result`() {
         val memberIds = mockk<List<String>>()
-        coEvery { conversationLocalDataSource.allConversationMemberIds() } returns Either.Right(memberIds)
+        coEvery { conversationLocalDataSource.allConversationMemberIds() } returns Either.Right(
+            memberIds
+        )
 
         val result = runBlocking { conversationDataSource.allConversationMemberIds() }
 
@@ -224,7 +295,9 @@ class ConversationDataSourceTest : UnitTest() {
     @Test
     fun `given allConversationMemberIds is called, when localDataSource fails to return member ids, then propagates failure`() {
         val failure = mockk<Failure>()
-        coEvery { conversationLocalDataSource.allConversationMemberIds() } returns Either.Left(failure)
+        coEvery { conversationLocalDataSource.allConversationMemberIds() } returns Either.Left(
+            failure
+        )
 
         val result = runBlocking { conversationDataSource.allConversationMemberIds() }
 
@@ -248,7 +321,9 @@ class ConversationDataSourceTest : UnitTest() {
         every { conversationMapper.toEntityList(conversations) } returns mockk()
 
         val failure = mockk<Failure>()
-        coEvery { conversationLocalDataSource.updateConversations(any()) } returns Either.Left(failure)
+        coEvery { conversationLocalDataSource.updateConversations(any()) } returns Either.Left(
+            failure
+        )
 
         val result = runBlocking { conversationDataSource.updateConversations(conversations) }
 
@@ -277,7 +352,9 @@ class ConversationDataSourceTest : UnitTest() {
 
     @Test
     fun `given localDataSource is successful, when getting current conversationId, then returns the current conversation id`() {
-        coEvery { conversationLocalDataSource.currentOpenedConversationId() } returns Either.Right(TEST_CONVERSATION_ID)
+        coEvery { conversationLocalDataSource.currentOpenedConversationId() } returns Either.Right(
+            TEST_CONVERSATION_ID
+        )
 
         val result = runBlocking { conversationDataSource.currentOpenedConversationId() }
 
@@ -287,7 +364,9 @@ class ConversationDataSourceTest : UnitTest() {
     @Test
     fun `given localDataSource returns failure, when getting current conversationId, then returns failure`() {
         val failure = EmptyCacheFailure
-        coEvery { conversationLocalDataSource.currentOpenedConversationId() } returns Either.Left(failure)
+        coEvery { conversationLocalDataSource.currentOpenedConversationId() } returns Either.Left(
+            failure
+        )
 
         val result = runBlocking { conversationDataSource.currentOpenedConversationId() }
 
@@ -298,7 +377,8 @@ class ConversationDataSourceTest : UnitTest() {
     fun `given localDataSource updates successfully, when updating current conversationId, then propagates success`() {
         coEvery { conversationLocalDataSource.updateConversations(any()) } returns Either.Right(Unit)
 
-        val result = runBlocking { conversationDataSource.updateCurrentConversationId(TEST_CONVERSATION_ID) }
+        val result =
+            runBlocking { conversationDataSource.updateCurrentConversationId(TEST_CONVERSATION_ID) }
 
         result shouldSucceed { }
     }
@@ -306,9 +386,12 @@ class ConversationDataSourceTest : UnitTest() {
     @Test
     fun `given localDataSource fails to update, when updating current conversationId, then propagates failure`() {
         val failure = mockk<Failure>()
-        coEvery { conversationLocalDataSource.updateConversations(any()) } returns Either.Left(failure)
+        coEvery { conversationLocalDataSource.updateConversations(any()) } returns Either.Left(
+            failure
+        )
 
-        val result = runBlocking { conversationDataSource.updateCurrentConversationId(TEST_CONVERSATION_ID) }
+        val result =
+            runBlocking { conversationDataSource.updateCurrentConversationId(TEST_CONVERSATION_ID) }
 
         result shouldFail { it shouldBeEqualTo failure }
     }
@@ -316,31 +399,41 @@ class ConversationDataSourceTest : UnitTest() {
     @Test
     fun `given localDataSource fails to get data, when getting conversation name by id, then return failure`() {
         val failure = mockk<Failure>()
-        coEvery { conversationLocalDataSource.conversationNameById(any()) } returns Either.Left(failure)
+        coEvery { conversationLocalDataSource.conversationNameById(any()) } returns Either.Left(
+            failure
+        )
 
-        val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID) }
+        val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID_VALUE) }
 
         result shouldFail { it shouldBeEqualTo failure }
     }
 
     @Test
     fun `given localDataSource succeed to get data, when getting conversation name by id, then return conversation name`() {
-        coEvery { conversationLocalDataSource.conversationNameById(any()) } returns Either.Right(TEST_CONVERSATION_NAME)
+        coEvery { conversationLocalDataSource.conversationNameById(any()) } returns Either.Right(
+            TEST_CONVERSATION_NAME
+        )
 
-        val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID) }
+        val result = runBlocking { conversationDataSource.conversationName(TEST_CONVERSATION_ID_VALUE) }
 
         result shouldSucceed { it shouldBeEqualTo TEST_CONVERSATION_NAME }
     }
 
     @Test
     fun `given a conversationId, when fetching detailed members of conversation, then the correct ID should be passed to the DAO`() {
-        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(listOf(mockk()))
+        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(
+            listOf(mockk())
+        )
 
         runBlockingTest {
-            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID_VALUE)
         }
 
-        coVerify(exactly = 1) { conversationLocalDataSource.detailedMembersOfConversation(TEST_CONVERSATION_ID) }
+        coVerify(exactly = 1) {
+            conversationLocalDataSource.detailedMembersOfConversation(
+                TEST_CONVERSATION_ID_VALUE
+            )
+        }
     }
 
     @Test
@@ -348,11 +441,13 @@ class ConversationDataSourceTest : UnitTest() {
         val firstContact = mockk<ContactWithClients>()
         val secondContact = mockk<ContactWithClients>()
         val result = listOf(firstContact, secondContact)
-        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(result)
+        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(
+            result
+        )
         every { contactMapper.fromContactWithClients(any()) } returns mockk()
 
         runBlockingTest {
-            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID_VALUE)
         }
 
         verifySequence {
@@ -365,11 +460,13 @@ class ConversationDataSourceTest : UnitTest() {
     fun `given mapped detailed contacts, when fetching detailed members of conversation, then the mapped contacts should be returned`() {
         val mappedDetailedContact = mockk<DetailedContact>()
         val contactsWithClientsList = listOf<ContactWithClients>(mockk(), mockk())
-        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(contactsWithClientsList)
+        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(
+            contactsWithClientsList
+        )
         every { contactMapper.fromContactWithClients(any()) } returns mappedDetailedContact
 
         runBlockingTest {
-            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID_VALUE)
                 .shouldSucceed {
                     it.size shouldBeEqualTo 2
                     it[0] shouldBeEqualTo mappedDetailedContact
@@ -382,11 +479,13 @@ class ConversationDataSourceTest : UnitTest() {
     fun `given localDataStore fails, when fetching detailed members of conversation, then the mapped contacts should be returned`() {
         val mappedDetailedContact = mockk<DetailedContact>()
         val contactsWithClientsList = listOf<ContactWithClients>(mockk(), mockk())
-        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(contactsWithClientsList)
+        coEvery { conversationLocalDataSource.detailedMembersOfConversation(any()) } returns Either.Right(
+            contactsWithClientsList
+        )
         every { contactMapper.fromContactWithClients(any()) } returns mappedDetailedContact
 
         runBlockingTest {
-            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID)
+            conversationDataSource.detailedConversationMembers(TEST_CONVERSATION_ID_VALUE)
                 .shouldSucceed {
                     it.size shouldBeEqualTo 2
                     it[0] shouldBeEqualTo mappedDetailedContact
@@ -396,7 +495,10 @@ class ConversationDataSourceTest : UnitTest() {
     }
 
     companion object {
-        private const val TEST_CONVERSATION_ID = "conv-id"
+        private const val TEST_CONVERSATION_ID_VALUE = "conv-id"
+        private const val TEST_CONVERSATION_DOMAIN = "conv-domain"
+        private val TEST_CONVERSATION_ID = ConversationID(TEST_CONVERSATION_ID_VALUE, TEST_CONVERSATION_DOMAIN)
+        private val TEST_CONVERSATION_RESPONSE_ID = ConversationIdResponse(TEST_CONVERSATION_ID_VALUE, TEST_CONVERSATION_DOMAIN)
         private const val TEST_CONVERSATION_NAME = "Android Team"
     }
 }

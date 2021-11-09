@@ -7,11 +7,13 @@ import com.wire.android.core.functional.suspending
 import com.wire.android.feature.contact.DetailedContact
 import com.wire.android.feature.contact.datasources.mapper.ContactMapper
 import com.wire.android.feature.conversation.Conversation
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.data.local.ConversationLocalDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationResponse
 import com.wire.android.feature.conversation.data.remote.ConversationsRemoteDataSource
 import com.wire.android.feature.conversation.data.remote.ConversationsResponse
 
+@Suppress("TooManyFunctions")
 class ConversationDataSource(
     private val conversationMapper: ConversationMapper,
     private val contactMapper: ContactMapper,
@@ -44,14 +46,14 @@ class ConversationDataSource(
 
     private suspend fun fetchConversationsNextPageIfExists(response: ConversationsResponse) =
         if (response.hasMore) {
-            val nextPageStartId = response.conversations.last().id
+            val nextPageStartId = response.conversations.last().id.value
             fetchRemoteConversations(nextPageStartId)
         } else {
             Either.Right(Unit)
         }
 
     override suspend fun conversationMemberIds(conversation: Conversation): Either<Failure, List<String>> =
-        conversationLocalDataSource.conversationMemberIds(conversation.id)
+        conversationLocalDataSource.conversationMemberIds(conversation.id.value)
 
     override suspend fun allConversationMemberIds(): Either<Failure, List<String>> =
         conversationLocalDataSource.allConversationMemberIds()
@@ -68,14 +70,17 @@ class ConversationDataSource(
     override suspend fun numberOfConversations(): Either<Failure, Int> =
         conversationLocalDataSource.numberOfConversations()
 
-    override suspend fun currentOpenedConversationId(): Either<Failure, String> =
+    override suspend fun currentOpenedConversationId(): Either<Failure, ConversationID> =
         conversationLocalDataSource.currentOpenedConversationId()
 
-    override suspend fun updateCurrentConversationId(conversationId: String): Either<Failure, Unit> =
+    override suspend fun updateCurrentConversationId(conversationId: ConversationID): Either<Failure, Unit> =
         conversationLocalDataSource.updateCurrentConversationId(conversationId)
 
     override suspend fun conversationName(conversationId: String): Either<Failure, String> =
         conversationLocalDataSource.conversationNameById(conversationId)
+
+    override suspend fun restCurrentConversationId(): Either<Failure, Unit> =
+        conversationLocalDataSource.resetCurrentConversationId()
 
     companion object {
         private const val CONVERSATION_REQUEST_PAGE_SIZE = 100

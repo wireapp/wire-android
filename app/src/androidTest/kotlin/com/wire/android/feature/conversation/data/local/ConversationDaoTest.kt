@@ -35,9 +35,9 @@ class ConversationDaoTest : InstrumentationTest() {
 
     @Test
     fun insertAll_readConversations_containsInsertedItems() = databaseTestRule.runTest {
-        val entity1 = ConversationEntity(id = "id-1", name = "Conversation #1", type = 1)
-        val entity2 = ConversationEntity(id = "id-2", name = "Conversation #2", type = 2)
-        val entity3 = ConversationEntity(id = "id-3", name = "Conversation #3", type = 3)
+        val entity1 = ConversationEntity(id = "id-1", domain = "domain-1", name = "Conversation #1", type = 1)
+        val entity2 = ConversationEntity(id = "id-2", domain = "domain-1", name = "Conversation #2", type = 2)
+        val entity3 = ConversationEntity(id = "id-3", domain = "domain-1", name = "Conversation #3", type = 3)
         val entities = listOf(entity1, entity2, entity3)
 
         conversationDao.insertAll(entities)
@@ -48,8 +48,8 @@ class ConversationDaoTest : InstrumentationTest() {
 
     @Test
     fun updateConversations_conversationExists_updatesItems() = databaseTestRule.runTest {
-        val entity1 = ConversationEntity(id = "id-1", name = "Conversation #1", type = 1)
-        val entity2 = ConversationEntity(id = "id-2", name = "Conversation #2", type = 2)
+        val entity1 = ConversationEntity(id = "id-1", domain = "domain-1", name = "Conversation #1", type = 1)
+        val entity2 = ConversationEntity(id = "id-2", domain = "domain-1", name = "Conversation #2", type = 2)
         conversationDao.insertAll(listOf(entity1, entity2))
 
         val newName = "New Conversation Name"
@@ -65,10 +65,10 @@ class ConversationDaoTest : InstrumentationTest() {
 
     @Test
     fun updateConversations_conversationDoesNotExist_doesNothing() = databaseTestRule.runTest {
-        val entity = ConversationEntity(id = "id-1", name = "Conversation #1", type = 1)
+        val entity = ConversationEntity(id = "id-1", domain = "domain-1", name = "Conversation #1", type = 1)
         conversationDao.insert(entity)
 
-        val updatedEntity = ConversationEntity(id = "id-2", name = "Conversation #2", type = 2)
+        val updatedEntity = ConversationEntity(id = "id-2", domain = "domain-1", name = "Conversation #2", type = 2)
         conversationDao.updateConversations(listOf(updatedEntity))
 
         val conversations = conversationDao.conversations()
@@ -100,7 +100,7 @@ class ConversationDaoTest : InstrumentationTest() {
     fun count_conversationsExistInDatabase_returnsNumberOfConversations() = databaseTestRule.runTest {
         val count = 125
         val conversations = (1..count).map {
-            ConversationEntity(id = "id_$it", name = "Conversation #$it", type = it % 5)
+            ConversationEntity(id = "id_$it", domain = "domain-1", name = "Conversation #$it", type = it % 5)
         }
         conversationDao.insertAll(conversations)
 
@@ -142,6 +142,6 @@ class ConversationDaoTest : InstrumentationTest() {
     }
 
     companion object {
-        private val TEST_CONVERSATION_ENTITY = ConversationEntity("id-5", "Android Team", 0)
+        private val TEST_CONVERSATION_ENTITY = ConversationEntity(id = "id-5", domain = "domain-1", name = "Android Team", type = 0)
     }
 }

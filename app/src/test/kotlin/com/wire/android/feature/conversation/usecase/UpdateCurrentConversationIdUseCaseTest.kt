@@ -3,6 +3,7 @@ package com.wire.android.feature.conversation.usecase
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.EmptyCacheFailure
 import com.wire.android.core.functional.Either
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.data.ConversationRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -31,7 +32,7 @@ class UpdateCurrentConversationIdUseCaseTest : UnitTest() {
 
     @Test
     fun `given repository succeeds, when updating current conversationId, then update the current conversation id`() = runBlocking {
-        every { updateCurrentConversationUseCaseParams.conversationId } returns "conversation-id"
+        every { updateCurrentConversationUseCaseParams.conversationId } returns TEST_CONVERSATION_ID
         coEvery { conversationRepository.updateCurrentConversationId(any()) } returns Either.Right(Unit)
 
         updateCurrentConversationIdUseCase.run(updateCurrentConversationUseCaseParams)
@@ -47,5 +48,9 @@ class UpdateCurrentConversationIdUseCaseTest : UnitTest() {
         updateCurrentConversationIdUseCase.run(updateCurrentConversationUseCaseParams)
 
         coVerify(exactly = 1) { conversationRepository.updateCurrentConversationId(any()) }
+    }
+
+    companion object {
+        private val TEST_CONVERSATION_ID = ConversationID("conversation-id", "conversation-domain")
     }
 }

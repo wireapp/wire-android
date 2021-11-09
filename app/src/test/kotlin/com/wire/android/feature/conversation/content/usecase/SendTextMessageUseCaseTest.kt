@@ -3,6 +3,7 @@ package com.wire.android.feature.conversation.content.usecase
 import com.wire.android.UnitTest
 import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
+import com.wire.android.feature.conversation.ConversationID
 import com.wire.android.feature.conversation.content.Content
 import com.wire.android.feature.conversation.content.Message
 import com.wire.android.feature.conversation.content.Pending
@@ -56,7 +57,7 @@ class SendTextMessageUseCaseTest : UnitTest() {
         messageSlot.captured.let {
             it.senderUserId shouldBeEqualTo currentSession.userId
             it.clientId shouldBeEqualTo currentSession.clientId
-            it.conversationId shouldBeEqualTo TEST_SEND_PARAMETERS.conversationId
+            it.conversationId shouldBeEqualTo TEST_SEND_PARAMETERS.conversationId.value
             it.content shouldBeEqualTo Content.Text(TEST_SEND_PARAMETERS.text)
             it.state shouldBeEqualTo Pending
         }
@@ -96,7 +97,9 @@ class SendTextMessageUseCaseTest : UnitTest() {
     }
 
     companion object {
-        private const val TEST_CONVERSATION_ID = "convId"
+        private const val TEST_CONVERSATION_ID_VALUE = "convId"
+        private const val TEST_CONVERSATION_DOMAIN = "convDomain"
+        private val TEST_CONVERSATION_ID = ConversationID(TEST_CONVERSATION_ID_VALUE, TEST_CONVERSATION_DOMAIN)
         private const val TEST_MESSAGE_TEXT = "Servus"
         private const val TEST_USER_ID = "testUserId"
         private const val TEST_CLIENT_ID = "testClientId"

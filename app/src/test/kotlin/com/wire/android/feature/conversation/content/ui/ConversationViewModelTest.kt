@@ -103,6 +103,7 @@ class ConversationViewModelTest : UnitTest() {
 
         conversationViewModel.resetCurrentConversationId()
 
+        coVerify(exactly = 1) { resetCurrentConversationIdUseCase.run(Unit) }
     }
 
     companion object {

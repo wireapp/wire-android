@@ -1,13 +1,17 @@
 package com.wire.android.feature.conversation.usecase
 
 import com.wire.android.UnitTest
-import com.wire.android.core.exception.EmptyCacheFailure
+import com.wire.android.core.exception.Failure
 import com.wire.android.core.functional.Either
 import com.wire.android.feature.conversation.data.ConversationRepository
+import com.wire.android.framework.functional.shouldFail
+import com.wire.android.framework.functional.shouldSucceed
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.any

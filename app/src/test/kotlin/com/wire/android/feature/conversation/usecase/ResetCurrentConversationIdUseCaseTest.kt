@@ -29,8 +29,7 @@ class ResetCurrentConversationIdUseCaseTest : UnitTest() {
         coEvery { conversationRepository.restCurrentConversationId() } returns Either.Right(Unit)
 
         val result = resetCurrentConversationIdUseCase.run(Unit)
-        assert(true) {result == Either.Right(Unit)}
-
+        result.shouldSucceed {}
         coVerify(exactly = 1) { conversationRepository.restCurrentConversationId() }
     }
 

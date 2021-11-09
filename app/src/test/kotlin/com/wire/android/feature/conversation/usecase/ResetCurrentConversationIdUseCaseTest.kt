@@ -36,11 +36,14 @@ class ResetCurrentConversationIdUseCaseTest : UnitTest() {
 
     @Test
     fun `given the repository fails, when resetting the current conversation id, then the failure is propagate`() = runBlocking {
-        coEvery { conversationRepository.restCurrentConversationId() } returns Either.Left(EmptyCacheFailure)
+        val failure = mockk<Failure>()
+        coEvery { conversationRepository.restCurrentConversationId() } returns Either.Left(failure)
 
         val result = resetCurrentConversationIdUseCase.run(Unit)
-        assert(true) {result == Either.Left(EmptyCacheFailure)}
 
+        result.shouldFail {
+            it shouldBeEqualTo failure
+        }
         coVerify(exactly = 1) { conversationRepository.restCurrentConversationId() }
     }
 

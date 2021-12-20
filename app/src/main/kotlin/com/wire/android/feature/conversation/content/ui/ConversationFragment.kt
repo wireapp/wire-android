@@ -8,9 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.wire.android.R
-import com.wire.kalium.network.utils.NetworkResponse
-import com.wire.kalium.network.api.conversation.ConversationApi
-import kotlinx.android.synthetic.main.fragment_conversation.conversationRecyclerView
+import kotlinx.android.synthetic.main.fragment_conversation.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 

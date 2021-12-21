@@ -107,6 +107,7 @@ pipeline {
       parallel {
         stage('Spawn Gradle Wrapper') {
           steps {
+            sh './git submodule update --init --recursive'
             withGradle() {
               sh './gradlew -Porg.gradle.jvmargs=-Xmx16g wrapper'
             }

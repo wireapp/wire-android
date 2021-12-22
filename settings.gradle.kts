@@ -3,9 +3,16 @@ rootDir
     .walk()
     .maxDepth(1)
     .filter {
-        it.name != "buildSrc" && it.isDirectory &&
+        it.name != "buildSrc" && it.name != "kalium" && it.isDirectory &&
                 file("${it.absolutePath}/build.gradle.kts").exists()
     }
     .forEach {
         include(":${it.name}")
-    } 
+    }
+
+includeBuild("kalium") {
+    // This dependency substitution should not be done on release mode once the Kalium library has been published to Maven repo
+    dependencySubstitution {
+        substitute(module("com.wire.kalium:kalium-network")).using(project(":network"))
+    }
+}

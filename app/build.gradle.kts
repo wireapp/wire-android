@@ -43,7 +43,9 @@ android {
         }
     }
 
-    sourceSets { map { it.java.srcDir("src/${it.name}/kotlin") } }
+    sourceSets {
+        map { it.java.srcDir("src/${it.name}/kotlin") }
+    }
     fun AndroidSourceSet.includeCommonTestSourceDir() = java {
         srcDir("src/commonTest/kotlin")
     }
@@ -56,6 +58,7 @@ android {
 }
 
 dependencies {
+    implementation("com.wire.kalium:kalium-network")
 
     // Application dependencies
     implementation(Libraries.Kotlin.stdLib)

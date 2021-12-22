@@ -326,6 +326,7 @@ pipeline {
       }
     }
   }
+
   environment {
     propertiesFile = 'local.properties'
     flavor = defineFlavor()
@@ -336,6 +337,7 @@ pipeline {
     runAcceptanceTests = true
     runUnitTests = true
     runStaticCodeAnalysis = true
+    ENABLE_SIGNING = true
   }
 
   post {

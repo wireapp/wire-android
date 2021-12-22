@@ -105,9 +105,14 @@ pipeline {
 
     stage('Spawn Wrapper and Emulators') {
       parallel {
+        stage('Fetch submodules') {
+          steps {
+            sh 'git submodule update --init --recursive'
+          }
+        }
+
         stage('Spawn Gradle Wrapper') {
           steps {
-            sh './git submodule update --init --recursive'
             withGradle() {
               sh './gradlew -Porg.gradle.jvmargs=-Xmx16g wrapper'
             }
@@ -141,11 +146,9 @@ pipeline {
         script {
           last_started = env.STAGE_NAME
         }
-
         withGradle() {
           sh './gradlew clean'
         }
-
       }
     }
 

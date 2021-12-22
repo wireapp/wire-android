@@ -56,7 +56,7 @@ Import the project as a gradle project by browsing the ```build.gradle.kt``` fil
 
 It might be that after cloning the Android Reloaded project, some build issues appear on your IDE (IntelliJ or Android studio). To avoid most of these, make sure that:
 - After cloning the Android Reloaded project, you have run `git submodule update --init --recursive` (to init any needed configuration within the embedded Kalium submodule project)
-- There is a valid SDK path on your `local.properties` file pointing to the Android SDK folder. In Mac, that folder can be usually found under `sdk.dir=/Users/YOUR_USER_FOLDER/Library/Android/sdk`
+- There is a valid SDK path on your `local.properties` AND `kalium/local.properties` files pointing to the Android SDK folder. In Mac, that folder can be usually found under `sdk.dir=/Users/YOUR_USER_FOLDER/Library/Android/sdk`. The IDE **will not** create `kalium/local.properties` automatically, so you might want to copy/paste the one in the project root.
 
 ## Happy coding!!!
 

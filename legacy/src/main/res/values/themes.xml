@@ -12,16 +12,16 @@
 
         <!--Material type attributes-->
         <item name="android:textDirection">locale</item>
-<!--        <item name="homeAsUpIndicator">@drawable/ic_arrow_back</item>-->
+        <item name="homeAsUpIndicator">@drawable/ic_arrow_back</item>
 
         <!--Component styles-->
-<!--        <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>-->
-<!--        <item name="toolbarStyle">@style/Toolbar.Transparent</item>-->
+        <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>
+        <item name="toolbarStyle">@style/Toolbar.Transparent</item>
 
         <!--Widget styles-->
-<!--        <item name="materialButtonOutlinedStyle">@style/Button.Outlined</item>-->
-<!--        <item name="tabStyle">@style/TabLayout.Transparent</item>-->
-<!--        <item name="textInputStyle">@style/TextInputLayout.NoBorder</item>-->
+        <item name="materialButtonOutlinedStyle">@style/Button.Outlined</item>
+        <item name="tabStyle">@style/TabLayout.Transparent</item>
+        <item name="textInputStyle">@style/TextInputLayout.NoBorder</item>
 
         <item name="android:statusBarColor">?android:attr/colorBackground</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -43,16 +43,16 @@
 
         <!--Material type attributes-->
         <item name="android:textDirection">locale</item>
-<!--        <item name="homeAsUpIndicator">@drawable/ic_arrow_back</item>-->
+        <item name="homeAsUpIndicator">@drawable/ic_arrow_back</item>
 
         <!--Component styles-->
-<!--        <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>-->
-<!--        <item name="toolbarStyle">@style/Toolbar.Transparent</item>-->
+        <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>
+        <item name="toolbarStyle">@style/Toolbar.Transparent</item>
 
         <!--Widget styles-->
-<!--        <item name="materialButtonOutlinedStyle">@style/Button.Outlined</item>-->
-<!--        <item name="tabStyle">@style/TabLayout.Transparent</item>-->
-<!--        <item name="textInputStyle">@style/TextInputLayout.NoBorder</item>-->
+        <item name="materialButtonOutlinedStyle">@style/Button.Outlined</item>
+        <item name="tabStyle">@style/TabLayout.Transparent</item>
+        <item name="textInputStyle">@style/TextInputLayout.NoBorder</item>
 
         <item name="android:statusBarColor">?android:attr/colorBackground</item>
         <item name="android:windowLightStatusBar">false</item>

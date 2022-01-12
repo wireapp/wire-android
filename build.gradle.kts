@@ -2,7 +2,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter() //TODO Remove by February 1, 2022
+        jcenter() //TODO Remove
     }
 }
 
@@ -10,7 +10,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter() //TODO Remove by February 1, 2022
+        jcenter() //TODO Remove
     }
 }
 

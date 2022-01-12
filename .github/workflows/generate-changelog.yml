@@ -1,0 +1,45 @@
+name: 'Generate Changelog'
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  Changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout Git repository with history for all branches and tags'
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+
+      - name: 'Set current Git tag'
+        run: echo "CURRENT_TAG=$(git tag --points-at ${{github.sha}})" >> "$GITHUB_ENV"
+
+      - name: 'Set previous Git tag'
+        run: echo "PREVIOUS_TAG=$(git describe --tags --abbrev=0 --exclude ${{env.CURRENT_TAG}})" >> "$GITHUB_ENV"
+
+      - name: 'Print environment variables'
+        run: |
+          echo -e "PREVIOUS_TAG = ${{env.PREVIOUS_TAG}}"
+          echo -e "CURRENT_TAG = ${{env.CURRENT_TAG}}"
+          echo -e "Node.js version = $(node --version)"
+
+      - name: 'Generate changelog'
+        run: |
+          echo "{}" > ./package.json
+          npx generate-changelog@1.8.0 -t ${{env.PREVIOUS_TAG}}...${{env.CURRENT_TAG}}
+
+      - name: 'Attach changelog to tag'
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{github.token}}
+        with:
+          tag_name: ${{env.CURRENT_TAG}}
+          name: ${{env.CURRENT_TAG}}
+          body_path: ./CHANGELOG.md
+          draft: false
+          prerelease: false

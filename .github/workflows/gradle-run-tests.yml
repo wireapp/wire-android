@@ -1,4 +1,4 @@
-name: "Gradle Run Tests"
+name: "Run Tests"
 
 on:
   pull_request:

@@ -22,12 +22,12 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Test with Gradle
-        run: ./gradlew test
+        run: ./gradlew runUnitTests
       - name: Android Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: ./gradlew cryptography:connectedAndroidTest
+          script: ./gradlew runAcceptanceTests
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v1.25
         if: always()

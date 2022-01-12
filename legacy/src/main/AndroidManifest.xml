@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.wire.android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name=".WireApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme.Light">
+
+        <activity
+            android:name=".feature.launch.ui.LauncherActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Launch">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- TODO Theme shouldn't resolve to Dark one. -->
+        <activity
+            android:name=".feature.welcome.ui.WelcomeActivity"
+            android:theme="@style/AppTheme.Authentication" />
+
+        <activity
+            android:name=".feature.auth.registration.CreateAccountActivity"
+            android:theme="@style/AppTheme.Authentication"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".feature.auth.login.LoginActivity"
+            android:theme="@style/AppTheme.Authentication" />
+
+        <activity
+            android:name=".feature.conversation.list.MainActivity"
+            android:theme="@style/AppTheme.Dark" />
+
+        <activity
+            android:name=".feature.profile.ui.ProfileActivity"
+            android:theme="@style/AppTheme.Dark" />
+
+        <activity
+            android:name=".feature.auth.client.ui.DeviceLimitActivity"
+            android:theme="@style/AppTheme.Authentication" />
+
+        <activity
+            android:name=".feature.conversation.content.ui.ConversationActivity"
+            android:theme="@style/AppTheme.Conversation" />
+
+<!--        <provider-->
+<!--            android:name="androidx.work.impl.WorkManagerInitializer"-->
+<!--            android:authorities="${applicationId}.workmanager-init"-->
+<!--            tools:node="remove" />-->
+
+    </application>
+
+</manifest>

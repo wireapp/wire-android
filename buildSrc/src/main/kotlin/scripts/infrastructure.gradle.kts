@@ -15,32 +15,32 @@ tasks.named<Wrapper>("wrapper") {
 
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
-    dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
+    dependsOn("test${Default.BUILD_VARIANT}UnitTest")
 }
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
-    dependsOn(":app:connected${Default.BUILD_FLAVOR.capitalize()}DebugAndroidTest")
+    dependsOn("connected${Default.BUILD_FLAVOR.capitalize()}DebugAndroidTest")
 }
 
 tasks.register("assembleApp") {
     description = "assemble the Wire Android Client."
-    dependsOn(":app:assemble${Default.BUILD_VARIANT}")
+    dependsOn("assemble${Default.BUILD_VARIANT}")
 }
 
 tasks.register("compileApp") {
     description = "compiles the Wire Android Client source."
-    dependsOn(":app:compile${Default.BUILD_VARIANT}Sources")
+    dependsOn("compile${Default.BUILD_VARIANT}Sources")
 }
 
 tasks.register("bundleApp") {
     description = "bundles the Wire Android Client to an Android App Bundle."
-    dependsOn( ":app:bundle${Default.BUILD_VARIANT}")
+    dependsOn( "bundle${Default.BUILD_VARIANT}")
 }
 
 tasks.register("runApp", Exec::class) {
     val assembleAppTask = "assembleApp"
-    val installAppTask = ":app:install${Default.BUILD_VARIANT}"
+    val installAppTask = "install${Default.BUILD_VARIANT}"
 
     description = "assembles and runs the Wire Android Client in the connected device."
     dependsOn(assembleAppTask, installAppTask)

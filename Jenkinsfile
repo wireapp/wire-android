@@ -230,7 +230,7 @@ pipeline {
         }
 
         withGradle() {
-          sh './gradlew :app:uninstallAll'
+          sh './gradlew uninstallAll'
         }
 
       }
@@ -276,7 +276,7 @@ pipeline {
         }
 
         withGradle() {
-          sh './gradlew :app:bundle${flavor}${buildType}'
+          sh './gradlew bundle${flavor}${buildType}'
         }
       }
     }

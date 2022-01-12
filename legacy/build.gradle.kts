@@ -58,8 +58,6 @@ android {
 }
 
 dependencies {
-    implementation("com.wire.kalium:kalium-network")
-
     // Application dependencies
     implementation(Libraries.Kotlin.stdLib)
     implementation(Libraries.appCompat)

@@ -2,7 +2,7 @@ const val appId = "com.wire.android"
 
 object AndroidSdk {
     const val min = 24
-    const val compile = 30
+    const val compile = 31
     const val target = compile
 }
 
@@ -67,6 +67,7 @@ object Libraries {
         const val workManager = "2.6.0"
         const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
+        const val compose = "1.0.5"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -89,6 +90,12 @@ object Libraries {
     const val scarletLifecycle =  "com.tinder.scarlet:lifecycle-android:${Versions.scarlet}"
     const val scarletGson      =  "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
     const val fragment         =  "androidx.fragment:fragment:${Versions.fragment}"
+    const val composeUi        =  "androidx.compose.ui:ui:${Versions.compose}"
+    const val composeMaterial  =  "androidx.compose.material:material:${Versions.compose}"
+    const val composeTooling   =  "androidx.compose.ui:ui-tooling:${Versions.compose}"
+    const val composeActivity  =  "androidx.activity:activity-compose:1.4.0"
+    const val composeNavigation=  "androidx.navigation:navigation-compose:2.4.0-beta02"
+
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

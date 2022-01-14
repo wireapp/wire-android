@@ -8,19 +8,31 @@ import androidx.compose.ui.graphics.Color
 val WireLightColors = lightColors(
     secondary = WireColor.LightBlue,
     onSecondary = Color.White,
-    background =  WireColor.LightGray
+    background = WireColor.LightGray
 )
 
 val WireDarkColors = darkColors(
 
 )
 
-class WireColor {
-    companion object {
-        @Stable
-        val LightBlue = Color(0xFF0772DE)
+object WireColor {
 
-        @Stable
-        val LightGray = Color(0xFFEDEFF0)
-    }
+    @Stable
+    val LightBlue = Color(0xFF0772DE)
+
+    @Stable
+    val LightGray = Color(0xFFEDEFF0)
+
+    @Stable
+    val Alpha10LightBlue = Color(0x1A0667C8)
+
+    @Stable
+    val DarkBlue = Color(0xFF0667C8)
+
+    @Stable
+    val LightRed = Color(0xFFC20013)
+
+
+    @Stable
+    val Alpha20LightRed = Color(0x33D70015)
 }

@@ -15,12 +15,11 @@ val WireDarkColors = darkColors(
 
 )
 
-class WireColor {
-    companion object {
-        @Stable
-        val LightBlue = Color(0xFF0772DE)
 
-        @Stable
-        val LightGray = Color(0xFFEDEFF0)
-    }
+object WireColor {
+    @Stable
+    val LightBlue = Color(0xFF0772DE)
+
+    @Stable
+    val LightGray = Color(0xFFEDEFF0)
 }

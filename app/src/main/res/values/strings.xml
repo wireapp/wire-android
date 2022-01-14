@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
+    <string name="label_new">New</string>
 
     <string name="conversations_screen_title">Conversations</string>
 

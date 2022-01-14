@@ -2,4 +2,11 @@
 <resources>
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
+    <color name="light_blue">#0772DE</color>
+
+    <color name="background_grey">#EDEFF0</color>
+    <color name="drawer_background_white">#FFFFFF</color>
+
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_black">#17181A</color>
 </resources>

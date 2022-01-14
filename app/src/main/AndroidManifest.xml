@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme.Light">
 
         <activity
-            android:name=".LauncherActivity"
+            android:name=".ui.main.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Dark"
             android:exported="true">

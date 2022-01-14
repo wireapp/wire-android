@@ -39,7 +39,6 @@ fun ConversationScreen(viewModel: ConversationViewModel = ConversationViewModel(
 @Composable
 private fun ConversationContent(uiState: ConversationState) {
     Scaffold(
-        backgroundColor = WireColor.LightGray,
         floatingActionButton = { ConversationListFloatingActionButton() },
         content = { ConversationList(uiState.conversations) }
     )

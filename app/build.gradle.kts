@@ -15,12 +15,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion(AndroidSdk.compile)
+    compileSdk = AndroidSdk.compile
 
     defaultConfig {
         applicationId = AndroidClient.appId
-        minSdkVersion(AndroidSdk.min)
-        targetSdkVersion(AndroidSdk.target)
+        minSdk = AndroidSdk.min
+        targetSdk = AndroidSdk.target
         versionCode = AndroidClient.versionCode
         versionName = "v${AndroidClient.versionName}(${versionCode})"
         testInstrumentationRunner = AndroidClient.testRunner
@@ -56,6 +56,14 @@ android {
     configurations.implementation.configure {
         exclude(module = "protobuf-java")
     }
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = Libraries.Versions.compose
+    }
 }
 
 dependencies {
@@ -81,6 +89,13 @@ dependencies {
     implementation(Libraries.composeTooling)
     implementation(Libraries.accompanistPager)
     implementation(Libraries.accompanistSystemUI)
+
+    //Compose
+    implementation(Libraries.composeUi)
+    implementation(Libraries.composeMaterial)
+    implementation(Libraries.composeTooling)
+    implementation(Libraries.composeActivity)
+    implementation(Libraries.composeNavigation)
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)

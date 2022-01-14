@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
+    <string name="label_new">New</string>
 
     <string name="welcome_wire_logo_content_description">Wire</string>
     <string name="welcome_carousel_item_content_description">Welcome image</string>

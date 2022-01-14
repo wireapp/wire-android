@@ -18,6 +18,7 @@
         <activity
             android:name=".feature.launch.ui.LauncherActivity"
             android:screenOrientation="portrait"
+            android:exported="true"
             android:theme="@style/AppTheme.Launch">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,11 +56,6 @@
         <activity
             android:name=".feature.conversation.content.ui.ConversationActivity"
             android:theme="@style/AppTheme.Conversation" />
-
-<!--        <provider-->
-<!--            android:name="androidx.work.impl.WorkManagerInitializer"-->
-<!--            android:authorities="${applicationId}.workmanager-init"-->
-<!--            tools:node="remove" />-->
 
     </application>
 

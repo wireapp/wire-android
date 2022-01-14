@@ -18,7 +18,8 @@
         <activity
             android:name=".LauncherActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Dark">
+            android:theme="@style/AppTheme.Dark"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

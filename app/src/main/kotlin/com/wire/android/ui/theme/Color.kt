@@ -16,7 +16,7 @@ val WireDarkColors = darkColors(
 
 )
 
-
+@Suppress("MagicNumber")
 object WireColor {
     @Stable
     val Blue = Color(0xFF0667C8)

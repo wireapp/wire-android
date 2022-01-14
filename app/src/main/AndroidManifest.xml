@@ -17,6 +17,7 @@
 
         <activity
             android:name=".LauncherActivity"
+            android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Dark">
             <intent-filter>
@@ -25,6 +26,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+                android:name=".login.LoginActivity"
+                android:theme="@style/AppTheme.Light"
+                />
 
     </application>
 

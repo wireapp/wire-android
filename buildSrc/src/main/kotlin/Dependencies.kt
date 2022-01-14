@@ -2,7 +2,7 @@ const val appId = "com.wire.android"
 
 object AndroidSdk {
     const val min = 24
-    const val compile = 30
+    const val compile = 31
     const val target = compile
 }
 
@@ -67,28 +67,38 @@ object Libraries {
         const val workManager = "2.6.0"
         const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
+        const val activityCompose = "1.3.1"
+        const val compose = "1.0.5"
+        const val accompanist = "0.22.0-rc"
     }
 
-    const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
-    const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
-    const val ktxCore          = "androidx.core:core-ktx:${Versions.ktx}"
-    const val material         = "com.google.android.material:material:${Versions.material}"
-    const val livedataKtx      = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycleKtx}"
-    const val messageProto     = "com.wire:generic-message-proto:${Versions.messageProto}"
-    const val viewModelKtx     = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycleKtx}"
-    const val okHttpLogging    = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"
-    const val pinEditText      = "com.poovam:pin-edittext-field:${Versions.pinEditText}"
-    const val viewPager2       = "androidx.viewpager2:viewpager2:${Versions.viewPager2}"
-    const val desugaring       = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
-    const val paging           = "androidx.paging:paging-runtime-ktx:${Versions.paging}"
-    const val glide            = "com.github.bumptech.glide:glide:${Versions.glide}"
-    const val glideCompiler    = "com.github.bumptech.glide:compiler:${Versions.glide}"
-    const val workManager      = "androidx.work:work-runtime-ktx:${Versions.workManager}"
-    const val scarlet          =  "com.tinder.scarlet:scarlet:${Versions.scarlet}"
-    const val scarletOkhttp    =  "com.tinder.scarlet:websocket-okhttp:${Versions.scarlet}"
-    const val scarletLifecycle =  "com.tinder.scarlet:lifecycle-android:${Versions.scarlet}"
-    const val scarletGson      =  "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
-    const val fragment         =  "androidx.fragment:fragment:${Versions.fragment}"
+    const val appCompat            = "androidx.appcompat:appcompat:${Versions.jetpack}"
+    const val constraintLayout     = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
+    const val ktxCore              = "androidx.core:core-ktx:${Versions.ktx}"
+    const val material             = "com.google.android.material:material:${Versions.material}"
+    const val livedataKtx          = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycleKtx}"
+    const val messageProto         = "com.wire:generic-message-proto:${Versions.messageProto}"
+    const val viewModelKtx         = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycleKtx}"
+    const val okHttpLogging        = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"
+    const val pinEditText          = "com.poovam:pin-edittext-field:${Versions.pinEditText}"
+    const val viewPager2           = "androidx.viewpager2:viewpager2:${Versions.viewPager2}"
+    const val desugaring           = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
+    const val paging               = "androidx.paging:paging-runtime-ktx:${Versions.paging}"
+    const val glide                = "com.github.bumptech.glide:glide:${Versions.glide}"
+    const val glideCompiler        = "com.github.bumptech.glide:compiler:${Versions.glide}"
+    const val workManager          = "androidx.work:work-runtime-ktx:${Versions.workManager}"
+    const val scarlet              =  "com.tinder.scarlet:scarlet:${Versions.scarlet}"
+    const val scarletOkhttp        =  "com.tinder.scarlet:websocket-okhttp:${Versions.scarlet}"
+    const val scarletLifecycle     =  "com.tinder.scarlet:lifecycle-android:${Versions.scarlet}"
+    const val scarletGson          =  "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
+    const val fragment             =  "androidx.fragment:fragment:${Versions.fragment}"
+    const val activityCompose      = "androidx.activity:activity-compose:${Versions.activityCompose}"
+    const val composeMaterial      = "androidx.compose.material:material:${Versions.compose}"
+    const val composeLiveData      = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
+    const val composeIcons         = "androidx.compose.material:material-icons-extended:${Versions.compose}"
+    const val composeTooling       = "androidx.compose.ui:ui-tooling:${Versions.compose}"
+    const val accompanistPager     = "com.google.accompanist:accompanist-pager:${Versions.accompanist}"
+    const val accompanistSystemUI  = "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"
@@ -127,15 +137,15 @@ object Libraries {
 
 object TestLibraries {
     private object Versions {
-        const val androidCore = "1.3.0"
+        const val androidCore = "1.4.0"
         const val junit4 = "4.13"
         const val mockk = "1.12.0"
         const val kluent = "1.64"
         const val robolectric = "4.5.1"
-        const val testRunner = "1.2.0"
-        const val espresso = "3.2.0"
+        const val testRunner = "1.4.0"
+        const val espresso = "3.4.0"
         const val testExtensions = "1.1.1"
-        const val testRules = "1.2.0"
+        const val testRules = "1.4.0"
         const val uiAutomator = "2.2.0"
         const val testCore = "2.1.0"
     }
@@ -168,7 +178,7 @@ object TestLibraries {
 object DevLibraries {
     private object Versions {
         const val leakCanary = "2.7"
-        const val fragment = "1.2.5"
+        const val fragment = "1.4.0"
     }
     const val fragmentTesting = "androidx.fragment:fragment-testing:${Versions.fragment}"
     const val leakCanary      = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"

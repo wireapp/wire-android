@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
+    <string name="app_logo_description">App Logo</string>
 
     <string name="conversations_screen_title">Conversations</string>
 

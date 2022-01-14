@@ -5,17 +5,19 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.wire.android.R
+import com.wire.android.ui.theme.WireLightColors
+import kotlinx.coroutines.CoroutineScope
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,10 +33,19 @@ fun MainScreen() {
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
+    testing(scaffoldState, scope, navController)
+}
+
+@Composable
+private fun testing(
+    scaffoldState: ScaffoldState,
+    scope: CoroutineScope,
+    navController: NavHostController
+) {
+    val topBar : @Composable () -> Unit = { MainTopBar(scope = scope, scaffoldState = scaffoldState, navController = navController) }
     Scaffold(
         scaffoldState = scaffoldState,
-        topBar = { MainTopBar(scope = scope, scaffoldState = scaffoldState, navController = navController) },
-        drawerBackgroundColor = colorResource(id = R.color.drawer_background_white),
+        topBar = topBar,
         drawerContent = {
             Drawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
         },

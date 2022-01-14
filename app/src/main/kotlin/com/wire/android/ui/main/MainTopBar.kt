@@ -13,7 +13,6 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
@@ -21,6 +20,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
+import com.wire.android.ui.theme.WireLightColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -40,12 +40,12 @@ fun MainTopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
                 Icon(
                     imageVector = Icons.Filled.Menu,
                     contentDescription = "",
-                    tint = colorResource(id = R.color.text_black)
+                    tint = WireLightColors.onBackground
                 )
             }
         },
-        backgroundColor = colorResource(id = R.color.background_grey),
-        contentColor = colorResource(id = R.color.text_black)
+        backgroundColor = WireLightColors.background,
+        contentColor = WireLightColors.onBackground
     )
 }
 

@@ -68,6 +68,8 @@ object Libraries {
         const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
         const val compose = "1.0.5"
+        const val composeActivity = "1.4.0"
+        const val composeNavigation = "2.4.0-beta02"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -93,8 +95,8 @@ object Libraries {
     const val composeUi        =  "androidx.compose.ui:ui:${Versions.compose}"
     const val composeMaterial  =  "androidx.compose.material:material:${Versions.compose}"
     const val composeTooling   =  "androidx.compose.ui:ui-tooling:${Versions.compose}"
-    const val composeActivity  =  "androidx.activity:activity-compose:1.4.0"
-    const val composeNavigation=  "androidx.navigation:navigation-compose:2.4.0-beta02"
+    const val composeActivity  =  "androidx.activity:activity-compose:${Versions.composeActivity}"
+    const val composeNavigation=  "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
 
 
     object Crypto {
@@ -139,10 +141,10 @@ object TestLibraries {
         const val mockk = "1.12.0"
         const val kluent = "1.64"
         const val robolectric = "4.5.1"
-        const val testRunner = "1.2.0"
-        const val espresso = "3.2.0"
+        const val testRunner = "1.4.0"
+        const val espresso = "3.4.0"
         const val testExtensions = "1.1.1"
-        const val testRules = "1.2.0"
+        const val testRules = "1.4.0"
         const val uiAutomator = "2.2.0"
         const val testCore = "2.1.0"
     }
@@ -175,7 +177,7 @@ object TestLibraries {
 object DevLibraries {
     private object Versions {
         const val leakCanary = "2.7"
-        const val fragment = "1.2.5"
+        const val fragment = "1.4.0"
     }
     const val fragmentTesting = "androidx.fragment:fragment-testing:${Versions.fragment}"
     const val leakCanary      = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"

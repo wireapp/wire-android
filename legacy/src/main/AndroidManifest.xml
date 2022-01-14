@@ -57,23 +57,6 @@
             android:name=".feature.conversation.content.ui.ConversationActivity"
             android:theme="@style/AppTheme.Conversation" />
 
-        <activity
-            android:name = "androidx.test.core.app.InstrumentationActivityInvoker$EmptyFloatingActivity"
-            android:exported="true" />
-
-        <activity
-            android:name = "androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity"
-            android:exported="true" />
-
-        <activity
-            android:name = "androidx.test.core.app.InstrumentationActivityInvoker$BootstrapActivity"
-            android:exported="true" />
-
-<!--        <provider-->
-<!--            android:name="androidx.work.impl.WorkManagerInitializer"-->
-<!--            android:authorities="${applicationId}.workmanager-init"-->
-<!--            tools:node="remove" />-->
-
     </application>
 
 </manifest>

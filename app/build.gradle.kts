@@ -82,13 +82,6 @@ dependencies {
     implementation(Libraries.Kotlin.coroutinesCore)
     implementation(Libraries.Kotlin.coroutinesAndroid)
     implementation(Libraries.viewPager2)
-    implementation(Libraries.activityCompose)
-    implementation(Libraries.composeMaterial)
-    implementation(Libraries.composeLiveData)
-    implementation(Libraries.composeIcons)
-    implementation(Libraries.composeTooling)
-    implementation(Libraries.accompanistPager)
-    implementation(Libraries.accompanistSystemUI)
 
     //Compose
     implementation(Libraries.composeUi)
@@ -96,6 +89,8 @@ dependencies {
     implementation(Libraries.composeTooling)
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
+    implementation(Libraries.accompanistPager)
+    implementation(Libraries.accompanistSystemUI)
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)

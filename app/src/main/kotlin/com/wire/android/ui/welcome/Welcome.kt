@@ -1,8 +1,5 @@
-package com.wire.android.login
+package com.wire.android.ui.welcome
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
@@ -40,12 +37,10 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
-import androidx.compose.material.lightColors
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -58,63 +53,52 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-
-class LoginActivity : ComponentActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setContent {
-            MaterialTheme(
-                colors = lightColors(
-                    primary = Color(0xFF0667C8), //TODO
-                    background = Color(0xFFE6E6E6) //TODO
-                )
-            ) {
-                val systemUiController = rememberSystemUiController()
-                val useDarkIcons = MaterialTheme.colors.isLight
-                val backgroundColor = MaterialTheme.colors.background
-
-                SideEffect {
-                    systemUiController.setSystemBarsColor(
-                        color = backgroundColor,
-                        darkIcons = useDarkIcons
-                    )
-                }
-
-                Scaffold { WelcomeLayout() }
-            }
-        }
-    }
+@Preview
+@Composable
+fun WelcomeScreen() {
+    WelcomeContent()
 }
 
 @Composable
-fun WelcomeLayout() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-            tint = MaterialTheme.colors.onBackground,
-            contentDescription = stringResource(id = R.string.welcome_wire_logo_content_description),
-            modifier = Modifier.padding(48.dp)
+private fun WelcomeContent() {
+    val systemUiController = rememberSystemUiController()
+    val useDarkIcons = MaterialTheme.colors.isLight
+    val backgroundColor = MaterialTheme.colors.background
+
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = backgroundColor,
+            darkIcons = useDarkIcons
         )
+    }
+
+    Scaffold {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.weight(1f, true)
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            WelcomeCarouselLayout()
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
+                tint = MaterialTheme.colors.onBackground,
+                contentDescription = stringResource(id = R.string.welcome_wire_logo_content_description),
+                modifier = Modifier.padding(48.dp)
+            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(1f, true)
+            ) {
+                WelcomeCarousel()
+            }
+            WelcomeButtons(modifier = Modifier.padding(top = 40.dp, bottom = 52.dp, start = 16.dp, end = 16.dp))
+            WelcomeFooter(modifier = Modifier.padding(bottom = 56.dp, start = 16.dp, end = 16.dp))
         }
-        WelcomeButtons(modifier = Modifier.padding(top = 40.dp, bottom = 52.dp, start = 16.dp, end = 16.dp))
-        WelcomeFooter(modifier = Modifier.padding(bottom = 56.dp, start = 16.dp, end = 16.dp))
     }
 }
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
-private fun WelcomeCarouselLayout() {
+private fun WelcomeCarousel() {
     val delay = integerResource(id = R.integer.welcome_carousel_item_time_ms)
     val icons: List<Int> = typedArrayResource(id = R.array.welcome_carousel_icons).drawableResIdList()
     val texts: List<String> = stringArrayResource(id = R.array.welcome_carousel_texts).toList()
@@ -131,9 +115,7 @@ private fun WelcomeCarouselLayout() {
         }
     }
 
-    CompositionLocalProvider(
-        LocalOverScrollConfiguration provides null,
-    ) {
+    CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
         HorizontalPager(
             state = pageState,
             count = circularItemsList.size,
@@ -148,7 +130,7 @@ private fun WelcomeCarouselLayout() {
 }
 
 @Composable
-fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
+private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -172,7 +154,7 @@ fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
 }
 
 @Composable
-fun WelcomeButtons(modifier: Modifier) {
+private fun WelcomeButtons(modifier: Modifier) {
     Column(modifier = modifier) {
         val context = LocalContext.current
 
@@ -201,16 +183,14 @@ fun WelcomeButtons(modifier: Modifier) {
         ) {
             Text(
                 text = stringResource(R.string.welcome_button_create_enterprise_account),
-                style = MaterialTheme.typography.button.copy(
-                    color = MaterialTheme.colors.onSurface
-                )
+                style = MaterialTheme.typography.button.copy(color = MaterialTheme.colors.onSurface)
             )
         }
     }
 }
 
 @Composable
-fun WelcomeFooter(modifier: Modifier) {
+private fun WelcomeFooter(modifier: Modifier) {
     Column(modifier = modifier) {
         val context = LocalContext.current
 
@@ -239,16 +219,12 @@ fun WelcomeFooter(modifier: Modifier) {
     }
 }
 
-@Preview
-@Composable
-fun WelcomeLayoutPreview() { WelcomeLayout() }
-
 @Composable
 @ReadOnlyComposable
-fun typedArrayResource(@ArrayRes id: Int): TypedArray = LocalContext.current.resources.obtainTypedArray(id)
+private fun typedArrayResource(@ArrayRes id: Int): TypedArray = LocalContext.current.resources.obtainTypedArray(id)
 
-fun TypedArray.drawableResIdList(): List<Int> = (0 until this.length()).map { this.getResourceId(it, 0) }
+private fun TypedArray.drawableResIdList(): List<Int> = (0 until this.length()).map { this.getResourceId(it, 0) }
 
-fun Modifier.disablePointerInputScroll() = this.nestedScroll(object : NestedScrollConnection {
+private fun Modifier.disablePointerInputScroll() = this.nestedScroll(object : NestedScrollConnection {
     override fun onPreScroll(available: Offset, source: NestedScrollSource) = available
 })

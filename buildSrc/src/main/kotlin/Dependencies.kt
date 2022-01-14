@@ -2,7 +2,7 @@ const val appId = "com.wire.android"
 
 object AndroidSdk {
     const val min = 24
-    const val compile = 30
+    const val compile = 31
     const val target = compile
 }
 
@@ -67,6 +67,9 @@ object Libraries {
         const val workManager = "2.6.0"
         const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
+        const val compose = "1.0.5"
+        const val composeActivity = "1.4.0"
+        const val composeNavigation = "2.4.0-beta02"
     }
 
     const val appCompat        = "androidx.appcompat:appcompat:${Versions.jetpack}"
@@ -89,6 +92,12 @@ object Libraries {
     const val scarletLifecycle =  "com.tinder.scarlet:lifecycle-android:${Versions.scarlet}"
     const val scarletGson      =  "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
     const val fragment         =  "androidx.fragment:fragment:${Versions.fragment}"
+    const val composeUi        =  "androidx.compose.ui:ui:${Versions.compose}"
+    const val composeMaterial  =  "androidx.compose.material:material:${Versions.compose}"
+    const val composeTooling   =  "androidx.compose.ui:ui-tooling:${Versions.compose}"
+    const val composeActivity  =  "androidx.activity:activity-compose:${Versions.composeActivity}"
+    const val composeNavigation=  "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
+
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"
@@ -132,10 +141,10 @@ object TestLibraries {
         const val mockk = "1.12.0"
         const val kluent = "1.64"
         const val robolectric = "4.5.1"
-        const val testRunner = "1.2.0"
-        const val espresso = "3.2.0"
+        const val testRunner = "1.4.0"
+        const val espresso = "3.4.0"
         const val testExtensions = "1.1.1"
-        const val testRules = "1.2.0"
+        const val testRules = "1.4.0"
         const val uiAutomator = "2.2.0"
         const val testCore = "2.1.0"
     }
@@ -168,7 +177,7 @@ object TestLibraries {
 object DevLibraries {
     private object Versions {
         const val leakCanary = "2.7"
-        const val fragment = "1.2.5"
+        const val fragment = "1.4.0"
     }
     const val fragmentTesting = "androidx.fragment:fragment-testing:${Versions.fragment}"
     const val leakCanary      = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"

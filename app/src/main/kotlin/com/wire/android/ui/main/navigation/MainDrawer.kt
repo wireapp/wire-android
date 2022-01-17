@@ -1,4 +1,4 @@
-package com.wire.android.ui.main
+package com.wire.android.ui.main.navigation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,7 +35,6 @@ import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.theme.WireLightColors
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController) {
@@ -78,25 +77,6 @@ fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
         }
 
     }
-}
-
-private fun itemClickActions(
-    navController: NavController,
-    item: MainNavigationScreenItem,
-    scope: CoroutineScope,
-    scaffoldState: ScaffoldState
-) {
-    navController.navigate(item.route) {
-        navController.graph.startDestinationRoute?.let { route ->
-            popUpTo(route) {
-                saveState = true
-            }
-        }
-        launchSingleTop = true
-        restoreState = true
-    }
-
-    scope.launch { scaffoldState.drawerState.close() }
 }
 
 @Composable

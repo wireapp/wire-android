@@ -1,4 +1,4 @@
-package com.wire.android.ui.main
+package com.wire.android.ui.main.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -10,6 +10,7 @@ import com.wire.android.ui.main.convesations.ConversationsScreen
 import com.wire.android.ui.main.settings.SettingsScreen
 import com.wire.android.ui.main.support.SupportScreen
 import com.wire.android.ui.main.vault.VaultScreen
+import com.wire.android.ui.main.userprofile.UserProfileScreen
 
 enum class MainNavigationScreenItem(
     @DrawableRes val icon: Int,
@@ -36,6 +37,12 @@ enum class MainNavigationScreenItem(
         "archive",
         { ArchiveScreen() }),
 
+    UserProfile(
+        R.drawable.ic_archive,
+        R.string.user_profile_screen_title,
+        "user_profile",
+        { UserProfileScreen() }),
+
     Settings(
         R.drawable.ic_settings,
         R.string.settings_screen_title,
@@ -53,5 +60,4 @@ enum class MainNavigationScreenItem(
         private val map = values().associateBy(MainNavigationScreenItem::route)
         fun fromRoute(route: String?): MainNavigationScreenItem? = map[route]
     }
-
 }

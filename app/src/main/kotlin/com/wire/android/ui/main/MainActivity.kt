@@ -15,6 +15,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.wire.android.ui.main.navigation.MainDrawer
+import com.wire.android.ui.main.navigation.MainNavigationScreenItem
+import com.wire.android.ui.main.navigation.MainTopBar
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

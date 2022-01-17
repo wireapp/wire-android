@@ -32,7 +32,10 @@ object WireColor {
     @Stable
     val LightRed = Color(0xFFC20013)
 
-
     @Stable
     val Alpha20LightRed = Color(0x33D70015)
+
+    @Stable
+    val Dark80Gray = Color(0xFF54585F)
+
 }

@@ -38,7 +38,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun Drawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController) {
+fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController) {
 
     val topItems = listOf(MainScreen.Conversations, MainScreen.Archive, MainScreen.Vault)
     val bottomItems = listOf(MainScreen.Settings, MainScreen.Support)
@@ -147,5 +147,5 @@ fun DrawerPreview() {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
     val navController = rememberNavController()
-    Drawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
+    MainDrawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
 }

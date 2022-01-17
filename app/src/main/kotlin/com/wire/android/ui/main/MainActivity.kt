@@ -32,7 +32,7 @@ fun MainScreen() {
     val navController = rememberNavController()
     val topBar: @Composable () -> Unit = { MainTopBar(scope = scope, scaffoldState = scaffoldState, navController = navController) }
     val drawerContent: @Composable (ColumnScope.() -> Unit) = {
-        Drawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
+        MainDrawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
     }
 
     Scaffold(
@@ -40,12 +40,12 @@ fun MainScreen() {
         topBar = topBar,
         drawerContent = drawerContent,
     ) {
-        Navigation(navController = navController)
+        MainNavigationGraph(navController = navController)
     }
 }
 
 @Composable
-fun Navigation(navController: NavHostController) {
+fun MainNavigationGraph(navController: NavHostController) {
     NavHost(navController, startDestination = MainScreen.Conversations.route) {
         MainScreen.values().forEach { item ->
             composable(route = item.route, content = item.content)

@@ -48,29 +48,31 @@ fun UnreadReplyBadge(modifier: Modifier = Modifier) {
 
 @Composable
 fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier = Modifier) {
-    Text(
-        text = unReadMessageCountStringify(unreadMessageCount),
-        color = Color.White,
-        style = TextStyle(
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.W700,
-            letterSpacing = 0.25.sp,
-            fontStyle = FontStyle.Normal,
-            lineHeight = 14.sp
-        ),
-        modifier = modifier
-            .wrapContentWidth()
-            .background(
-                color = WireColor.Dark90Gray,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(
-                start = 8.dp,
-                top = 2.dp,
-                bottom = 2.dp,
-                end = 8.dp
-            )
-    )
+    if (unreadMessageCount > 0) {
+        Text(
+            text = unReadMessageCountStringify(unreadMessageCount),
+            color = Color.White,
+            style = TextStyle(
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.W700,
+                letterSpacing = 0.25.sp,
+                fontStyle = FontStyle.Normal,
+                lineHeight = 14.sp
+            ),
+            modifier = modifier
+                .wrapContentWidth()
+                .background(
+                    color = WireColor.Dark90Gray,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(
+                    start = 8.dp,
+                    top = 2.dp,
+                    bottom = 2.dp,
+                    end = 8.dp
+                )
+        )
+    }
 }
 
 private fun unReadMessageCountStringify(unreadMessageCount: Int) =

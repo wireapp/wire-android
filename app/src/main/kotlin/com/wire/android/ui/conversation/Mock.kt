@@ -78,5 +78,16 @@ val mockConversation = Conversation(
     )
 )
 
-val newActivitiesMockData = listOf(NewActivity(EventType.MissedCall, mockConversation))
+val newActivitiesMockData = listOf(
+    NewActivity(EventType.MissedCall, mockConversation),
+    NewActivity(EventType.UnreadMention, mockConversation),
+    NewActivity(EventType.UnreadReply, mockConversation),
+    NewActivity(EventType.UnreadMessage(2), mockConversation),
+    NewActivity(EventType.UnreadMessage(1000000), mockConversation),
+    NewActivity(EventType.UnreadMessage(0), mockConversation),
+    NewActivity(EventType.UnreadMessage(50), mockConversation),
+    NewActivity(EventType.UnreadMessage(99), mockConversation),
+    NewActivity(EventType.UnreadMention, mockConversation),
+    NewActivity(EventType.UnreadReply, mockConversation)
+)
 

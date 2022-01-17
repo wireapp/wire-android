@@ -15,7 +15,7 @@
             android:theme="@style/AppTheme.Light">
 
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name=".ui.WireActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Light"
             android:exported="true">

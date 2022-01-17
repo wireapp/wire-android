@@ -8,7 +8,8 @@ import androidx.compose.ui.graphics.Color
 val WireLightColors = lightColors(
     secondary = WireColor.LightBlue,
     onSecondary = Color.White,
-    background =  WireColor.LightGray
+    background =  WireColor.LightGray,
+    onBackground = WireColor.LightBlack
 )
 
 val WireDarkColors = darkColors(
@@ -22,4 +23,7 @@ object WireColor {
 
     @Stable
     val LightGray = Color(0xFFEDEFF0)
+
+    @Stable
+    val LightBlack = Color(0xFF000000)
 }

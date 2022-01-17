@@ -2,4 +2,16 @@
 <resources>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
+    <string name="app_logo_description">App Logo</string>
+
+    <string name="conversations_screen_title">Conversations</string>
+
+    <string name="vault_screen_title">Vault</string>
+
+    <string name="archive_screen_title">Archive</string>
+
+    <string name="settings_screen_title">Settings</string>
+
+    <string name="support_screen_title">Support</string>
+
 </resources>

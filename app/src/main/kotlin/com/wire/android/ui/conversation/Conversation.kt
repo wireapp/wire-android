@@ -3,7 +3,6 @@ package com.wire.android.ui.conversation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,7 +32,7 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifier
 import com.wire.android.ui.common.UnreadMessageEventBadge
 import com.wire.android.ui.conversation.model.Conversation
-import com.wire.android.ui.conversation.model.ConversationFolder
+import com.wire.android.ui.conversation.model.ConversationInfo
 import com.wire.android.ui.conversation.model.Membership
 import com.wire.android.ui.conversation.model.NewActivity
 
@@ -60,33 +59,18 @@ private fun ConversationContent(uiState: ConversationState) {
         LazyColumn {
             if (newActivities.isNotEmpty()) {
                 item { ConversationFolderHeader(name = stringResource(R.string.conversation_label_new_activity)) }
-                items(newActivities) { newActivity -> NewConversationActivityItem(newActivity = newActivity) }
+                items(newActivities) { newActivity ->
+                    NewConversationActivityRowItem(newActivity = newActivity)
+                }
             }
 
             if (conversations.isNotEmpty()) {
                 conversations.forEach { (conversationFolder, conversationList) ->
                     item { ConversationFolderHeader(name = conversationFolder.folderName) }
                     items(conversationList) { conversation ->
-                        Box(modifier = Modifier.padding(0.5.dp)) {
-                            ConversationItem(conversation = conversation)
-                        }
+                        ConversationRowItem(conversation = conversation)
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun NewConversationActivityItem(newActivity: NewActivity) {
-    with(newActivity) {
-        ConversationRowHolder {
-            ConversationItem(conversation = conversation)
-            Box(modifier = Modifier.fillMaxWidth()) {
-                UnreadMessageEventBadge(
-                    unreadMessageCount = 2,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
             }
         }
     }
@@ -113,6 +97,52 @@ private fun ConversationFolderHeader(name: String) {
 }
 
 @Composable
+private fun NewConversationActivityRowItem(newActivity: NewActivity) {
+    ConversationRowHolder {
+        with(newActivity) {
+            ConversationInfoLabel(conversationInfo = conversation.conversationInfo)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                UnreadMessageEventBadge(
+                    unreadMessageCount = 2,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ConversationRowItem(conversation: Conversation) {
+    Box(modifier = Modifier.padding(0.5.dp)) {
+        ConversationRowHolder {
+            ConversationInfoLabel(conversationInfo = conversation.conversationInfo)
+        }
+    }
+}
+
+@Composable
+private fun ConversationInfoLabel(conversationInfo: ConversationInfo) {
+    with(conversationInfo) {
+        ConversationName(name)
+
+        if (memberShip != Membership.None) {
+            Spacer(Modifier.width(6.dp))
+            MembershipQualifier(memberShip.label)
+        }
+
+        if (isLegalHold) {
+            Spacer(Modifier.width(6.dp))
+            LegalHoldIndicator()
+        }
+    }
+}
+
+@Composable
+private fun ConversationName(name: String) {
+    Text(text = name, fontWeight = FontWeight.W500)
+}
+
+@Composable
 private fun ConversationRowHolder(content: @Composable () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -123,29 +153,5 @@ private fun ConversationRowHolder(content: @Composable () -> Unit) {
     ) {
         content()
     }
-}
-
-@Composable
-private fun ConversationItem(conversation: Conversation) {
-    ConversationRowHolder {
-        with(conversation.conversationInfo) {
-            ConversationName(name)
-
-            if (memberShip != Membership.None) {
-                Spacer(Modifier.width(6.dp))
-                MembershipQualifier(memberShip.label)
-            }
-
-            if (isLegalHold) {
-                Spacer(Modifier.width(6.dp))
-                LegalHoldIndicator()
-            }
-        }
-    }
-}
-
-@Composable
-private fun ConversationName(name: String) {
-    Text(text = name, fontWeight = FontWeight.W500)
 }
 

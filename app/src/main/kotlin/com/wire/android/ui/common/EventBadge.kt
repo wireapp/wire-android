@@ -19,30 +19,30 @@ import com.wire.android.ui.theme.WireColor
 
 
 @Composable
-fun EventBadge(eventType: EventType) {
+fun EventBadge(eventType: EventType, modifier: Modifier = Modifier) {
     when (eventType) {
-        EventType.MissedCall -> MissedCallBadge()
-        EventType.UnreadMention -> UnreadMentionBadge()
-        is EventType.UnreadMessage -> UnreadMessageEventBadge(unreadMessageCount = eventType.unreadMessageCount)
-        EventType.UnreadReply -> UnreadReplyBadge()
+        EventType.MissedCall -> MissedCallBadge(modifier)
+        EventType.UnreadMention -> UnreadMentionBadge(modifier)
+        is EventType.UnreadMessage -> UnreadMessageEventBadge(unreadMessageCount = eventType.unreadMessageCount, modifier)
+        EventType.UnreadReply -> UnreadReplyBadge(modifier)
     }
 }
 
 @Composable
-fun MissedCallBadge() {
-    Text("MissedCallBadge")
+fun MissedCallBadge(modifier: Modifier = Modifier) {
+    Text("MissedCallBadge", modifier = modifier)
 }
 
 
 @Composable
-fun UnreadMentionBadge() {
-    Text("UnreadMentionBadge")
+fun UnreadMentionBadge(modifier: Modifier = Modifier) {
+    Text("UnreadMentionBadge", modifier = modifier)
 }
 
 
 @Composable
-fun UnreadReplyBadge() {
-    Text("UnreadReplyBadge")
+fun UnreadReplyBadge(modifier: Modifier = Modifier) {
+    Text("UnreadReplyBadge", modifier = modifier)
 }
 
 

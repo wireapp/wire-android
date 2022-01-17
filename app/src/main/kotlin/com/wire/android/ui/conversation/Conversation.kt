@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.ExtendedFloatingActionButton
@@ -31,8 +32,8 @@ import com.wire.android.R
 import com.wire.android.ui.common.EventBadge
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifier
-import com.wire.android.ui.common.UnreadMessageEventBadge
 import com.wire.android.ui.conversation.model.Conversation
+import com.wire.android.ui.conversation.model.ConversationFolder
 import com.wire.android.ui.conversation.model.ConversationInfo
 import com.wire.android.ui.conversation.model.Membership
 import com.wire.android.ui.conversation.model.NewActivity
@@ -58,20 +59,27 @@ private fun ConversationScreen(uiState: ConversationState) {
 private fun ConversationContent(uiState: ConversationState) {
     with(uiState) {
         LazyColumn {
-            if (newActivities.isNotEmpty()) {
-                item { ConversationFolderHeader(name = stringResource(R.string.conversation_label_new_activity)) }
-                items(newActivities) { newActivity ->
-                    NewConversationActivityRowItem(newActivity = newActivity)
-                }
-            }
+            newConservationActivitiesItems(newConservationActivities)
+            conversationItems(conversations)
+        }
+    }
+}
 
-            if (conversations.isNotEmpty()) {
-                conversations.forEach { (conversationFolder, conversationList) ->
-                    item { ConversationFolderHeader(name = conversationFolder.folderName) }
-                    items(conversationList) { conversation ->
-                        ConversationRowItem(conversation = conversation)
-                    }
-                }
+private fun LazyListScope.newConservationActivitiesItems(newActivities: List<NewActivity>) {
+    if (newActivities.isNotEmpty()) {
+        item { ConversationFolderHeader(name = stringResource(R.string.conversation_label_new_activity)) }
+        items(newActivities) { newActivity ->
+            NewConversationActivityRowItem(newActivity = newActivity)
+        }
+    }
+}
+
+private fun LazyListScope.conversationItems(conversations: Map<ConversationFolder, List<Conversation>>) {
+    if (conversations.isNotEmpty()) {
+        conversations.forEach { (conversationFolder, conversationList) ->
+            item { ConversationFolderHeader(name = conversationFolder.folderName) }
+            items(conversationList) { conversation ->
+                ConversationRowItem(conversation = conversation)
             }
         }
     }

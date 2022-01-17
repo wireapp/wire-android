@@ -46,8 +46,8 @@ fun MainScreen() {
 
 @Composable
 fun MainNavigationGraph(navController: NavHostController) {
-    NavHost(navController, startDestination = MainScreen.Conversations.route) {
-        MainScreen.values().forEach { item ->
+    NavHost(navController, startDestination = MainNavigationScreenItem.Conversations.route) {
+        MainNavigationScreenItem.values().forEach { item ->
             composable(route = item.route, content = item.content)
         }
     }

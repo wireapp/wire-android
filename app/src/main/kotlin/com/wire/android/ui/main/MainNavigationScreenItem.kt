@@ -11,7 +11,7 @@ import com.wire.android.ui.main.settings.SettingsScreen
 import com.wire.android.ui.main.support.SupportScreen
 import com.wire.android.ui.main.vault.VaultScreen
 
-enum class MainScreen(
+enum class MainNavigationScreenItem(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
     val route: String,
@@ -50,8 +50,8 @@ enum class MainScreen(
     );
 
     companion object {
-        private val map = values().associateBy(MainScreen::route)
-        fun fromRout(rout: String?): MainScreen? = map[rout]
+        private val map = values().associateBy(MainNavigationScreenItem::route)
+        fun fromRoute(route: String?): MainNavigationScreenItem? = map[route]
     }
 
 }

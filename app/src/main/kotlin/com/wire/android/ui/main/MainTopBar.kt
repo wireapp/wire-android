@@ -29,7 +29,7 @@ fun MainTopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val title = stringResource(MainScreen.fromRout(currentRoute)?.title ?: R.string.app_name)
+    val title = stringResource(MainNavigationScreenItem.fromRoute(currentRoute)?.title ?: R.string.app_name)
 
     TopAppBar(
         title = { Text(text = title, fontSize = 18.sp) },

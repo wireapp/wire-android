@@ -40,8 +40,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController) {
 
-    val topItems = listOf(MainScreen.Conversations, MainScreen.Archive, MainScreen.Vault)
-    val bottomItems = listOf(MainScreen.Settings, MainScreen.Support)
+    val topItems = listOf(MainNavigationScreenItem.Conversations, MainNavigationScreenItem.Archive, MainNavigationScreenItem.Vault)
+    val bottomItems = listOf(MainNavigationScreenItem.Settings, MainNavigationScreenItem.Support)
 
     Column(
         modifier = Modifier
@@ -82,7 +82,7 @@ fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
 
 private fun itemClickActions(
     navController: NavController,
-    item: MainScreen,
+    item: MainNavigationScreenItem,
     scope: CoroutineScope,
     scaffoldState: ScaffoldState
 ) {
@@ -100,7 +100,7 @@ private fun itemClickActions(
 }
 
 @Composable
-fun DrawerItem(item: MainScreen, selected: Boolean, onItemClick: (MainScreen) -> Unit) {
+fun DrawerItem(item: MainNavigationScreenItem, selected: Boolean, onItemClick: (MainNavigationScreenItem) -> Unit) {
     val backgroundColor = if (selected) WireLightColors.secondary else Color.Transparent
     val contentColor = if (selected) WireLightColors.onSecondary else WireLightColors.onBackground
     Row(
@@ -132,13 +132,13 @@ fun DrawerItem(item: MainScreen, selected: Boolean, onItemClick: (MainScreen) ->
 @Preview(showBackground = false)
 @Composable
 fun DrawerItemPreview() {
-    DrawerItem(item = MainScreen.Conversations, selected = false, onItemClick = {})
+    DrawerItem(item = MainNavigationScreenItem.Conversations, selected = false, onItemClick = {})
 }
 
 @Preview(showBackground = false)
 @Composable
 fun DrawerItemSelectedPreview() {
-    DrawerItem(item = MainScreen.Conversations, selected = true, onItemClick = {})
+    DrawerItem(item = MainNavigationScreenItem.Conversations, selected = true, onItemClick = {})
 }
 
 @Preview(showBackground = true)

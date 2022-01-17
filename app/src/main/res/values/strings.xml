@@ -14,4 +14,11 @@
 
     <string name="support_screen_title">Support</string>
 
+
+    <string name="welcome_wire_logo_content_description">Wire</string>
+    <string name="welcome_carousel_item_content_description">Welcome image</string>
+    <string name="welcome_footer_text">Want to chat with friends and family?</string>
+    <string name="welcome_footer_link">Create a private account for free</string>
+    <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
+    <string name="welcome_button_login">Login</string>
 </resources>

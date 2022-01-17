@@ -4,7 +4,9 @@ import com.wire.android.ui.conversation.model.AvailabilityStatus
 import com.wire.android.ui.conversation.model.Conversation
 import com.wire.android.ui.conversation.model.ConversationFolder
 import com.wire.android.ui.conversation.model.ConversationInfo
+import com.wire.android.ui.conversation.model.EventType
 import com.wire.android.ui.conversation.model.Membership
+import com.wire.android.ui.conversation.model.NewActivity
 import com.wire.android.ui.conversation.model.UserInfo
 
 val mockConversations = listOf(
@@ -59,7 +61,7 @@ val mockConversations = listOf(
     ),
 )
 
-val mockData = mapOf(
+val conversationMockData = mapOf(
     ConversationFolder("NEW ACTIVITY") to mockConversations,
     ConversationFolder("FOLDER NAME1") to mockConversations,
     ConversationFolder("SOME OTHER FOLDER") to mockConversations,
@@ -68,5 +70,13 @@ val mockData = mapOf(
     ConversationFolder("THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY LONG NAME") to mockConversations
 )
 
+val mockConversation = Conversation(
+    userInfo = UserInfo(),
+    conversationInfo = ConversationInfo(
+        name = "and once more 4",
+        memberShip = Membership.External
+    )
+)
 
+val newActivitiesMockData = listOf(NewActivity(EventType.MissedCall, mockConversation))
 

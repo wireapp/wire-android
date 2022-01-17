@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
+    <string name="conversation_label_new_activity">NEW ACTIVITY</string>
 </resources>

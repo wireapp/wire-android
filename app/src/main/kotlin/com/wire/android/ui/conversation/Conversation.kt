@@ -98,14 +98,16 @@ private fun ConversationFolderHeader(name: String) {
 
 @Composable
 private fun NewConversationActivityRowItem(newActivity: NewActivity) {
-    ConversationRowHolder {
-        with(newActivity) {
-            ConversationInfoLabel(conversationInfo = conversation.conversationInfo)
-            Box(modifier = Modifier.fillMaxWidth()) {
-                UnreadMessageEventBadge(
-                    unreadMessageCount = 2,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
+    Box(modifier = Modifier.padding(0.5.dp)) {
+        ConversationRowHolder {
+            with(newActivity) {
+                ConversationInfoLabel(conversationInfo = conversation.conversationInfo)
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    UnreadMessageEventBadge(
+                        unreadMessageCount = 2,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    )
+                }
             }
         }
     }

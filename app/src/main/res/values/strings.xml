@@ -2,4 +2,23 @@
 <resources>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
+    <string name="app_logo_description">App Logo</string>
+
+    <string name="conversations_screen_title">Conversations</string>
+
+    <string name="vault_screen_title">Vault</string>
+
+    <string name="archive_screen_title">Archive</string>
+
+    <string name="settings_screen_title">Settings</string>
+
+    <string name="support_screen_title">Support</string>
+
+
+    <string name="welcome_wire_logo_content_description">Wire</string>
+    <string name="welcome_carousel_item_content_description">Welcome image</string>
+    <string name="welcome_footer_text">Want to chat with friends and family?</string>
+    <string name="welcome_footer_link">Create a private account for free</string>
+    <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
+    <string name="welcome_button_login">Login</string>
 </resources>

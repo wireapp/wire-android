@@ -126,7 +126,7 @@ fun SearchBarCollapsed(hintText: String, modifier: Modifier = Modifier) {
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Search,
-                tint = WireColor.DarkGray,
+                tint = WireColor.Dark80Gray,
                 contentDescription = stringResource(R.string.clear_content_content_description)
             )
         },

@@ -24,17 +24,6 @@ import com.wire.android.ui.main.navigation.isCurrentNavigationItemSearchable
 
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MainScreen()
-        }
-    }
-}
-
-@ExperimentalAnimationApi
-@ExperimentalComposeUiApi
 @Composable
 fun MainScreen() {
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))

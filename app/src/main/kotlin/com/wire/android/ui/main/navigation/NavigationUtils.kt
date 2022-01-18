@@ -20,6 +20,5 @@ internal fun itemClickActions(
         launchSingleTop = true
         restoreState = true
     }
-
     scope.launch { scaffoldState.drawerState.close() }
 }

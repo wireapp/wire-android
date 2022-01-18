@@ -15,5 +15,9 @@
     <string name="settings_screen_title">Settings</string>
 
     <string name="support_screen_title">Support</string>
+    <string name="search_bar_hint">Search %s</string>
+    <string name="search_no_results">No matches found</string>
+    <string name="search_back_content_description">Search back icon</string>
+    <string name="clear_content_content_description">Clear content</string>
 
 </resources>

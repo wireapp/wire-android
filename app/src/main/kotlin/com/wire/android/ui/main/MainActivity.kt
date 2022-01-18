@@ -3,6 +3,7 @@ package com.wire.android.ui.main
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.Scaffold
@@ -10,6 +11,7 @@ import androidx.compose.material.rememberDrawerState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -19,6 +21,8 @@ import com.wire.android.ui.main.navigation.MainDrawer
 import com.wire.android.ui.main.navigation.MainNavigationScreenItem
 import com.wire.android.ui.main.navigation.MainTopBar
 
+@ExperimentalAnimationApi
+@ExperimentalComposeUiApi
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+@ExperimentalAnimationApi
+@ExperimentalComposeUiApi
 @Composable
 fun MainScreen() {
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -56,6 +62,8 @@ fun MainNavigationGraph(navController: NavHostController) {
     }
 }
 
+@ExperimentalAnimationApi
+@ExperimentalComposeUiApi
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {

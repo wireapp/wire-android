@@ -1,4 +1,4 @@
-package com.wire.android.ui.conversation.calls
+package com.wire.android.ui.conversation.call
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +13,8 @@ class CallViewModel : ViewModel() {
 
     init {
         _state.value = CallState(
-
+            mockMissedCalls,
+            mockCallHistory
         )
     }
 

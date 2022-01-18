@@ -1,6 +1,7 @@
 package com.wire.android.ui.theme
 
 import androidx.compose.material.Typography
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -15,6 +16,13 @@ val typography = typographyFromDefaults(
         fontSize = 12.sp,
         lineHeight = 14.sp,
         letterSpacing = 0.5.sp
+    ), body2 = TextStyle(
+        color = Color.Black,
+        fontWeight = FontWeight.W500,
+        fontStyle = FontStyle.Normal,
+        fontSize = 15.sp,
+        lineHeight = 19.sp,
+        letterSpacing = 0.05.sp
     )
 )
 

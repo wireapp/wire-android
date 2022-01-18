@@ -3,6 +3,7 @@ package com.wire.android.ui.conversation.common
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,6 +37,9 @@ fun UserLabel(conversationInfo: ConversationInfo, modifier: Modifier = Modifier)
 
 @Composable
 private fun ConversationName(name: String) {
-    Text(text = name, fontWeight = FontWeight.W500)
+    Text(
+        text = name,
+        style = MaterialTheme.typography.body2
+    )
 }
 

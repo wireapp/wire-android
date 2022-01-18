@@ -3,4 +3,6 @@
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
     <string name="conversation_label_new_activity">NEW ACTIVITY</string>
+    <string name="calls_label_missed_calls">MISSED CALLS</string>
+    <string name="calls_label_calls_history">CALLS HISTORY</string>
 </resources>

@@ -18,6 +18,7 @@ val typography = typographyFromDefaults(
     )
 )
 
+@Suppress("LongParameterList")
 fun typographyFromDefaults(
     h1: TextStyle? = null,
     h2: TextStyle? = null,

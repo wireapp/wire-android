@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -30,11 +31,10 @@ fun UserProfileAvatar(avatarUrl: String, size: Dp = USER_AVATAR_DEFAULT_SIZE, mo
         val (avatarImg, statusImg) = createRefs()
         Image(
             painter = painterResource(getAvatarAsDrawable(avatarUrl)),
-            contentDescription = "user profile avatar",
+            contentDescription = stringResource(R.string.content_description_user_avatar),
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .clip(CircleShape)
-                .background(Color.Black)
+                .background(Color.Black, CircleShape)
                 .clickable { onClick.invoke() }
                 .constrainAs(avatarImg) {
                     top.linkTo(parent.top)

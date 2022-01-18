@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -28,7 +29,6 @@ import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.SearchBarCollapsed
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.theme.WireLightColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -40,7 +40,7 @@ fun MainTopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
     val currentNavigationScreenItem: MainNavigationScreenItem? = navController.getCurrentNavigationItem()
     val title = stringResource(currentNavigationScreenItem?.title ?: R.string.app_name)
 
-    ConstraintLayout(Modifier.background(WireLightColors.background)) {
+    ConstraintLayout(Modifier.background(MaterialTheme.colors.background)) {
         val (topBar, searchBar) = createRefs()
         TopAppBar(
             modifier = Modifier.fillMaxWidth().constrainAs(topBar) {
@@ -49,8 +49,8 @@ fun MainTopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
                 end.linkTo(parent.end)
             },
             elevation = 0.dp,
-            backgroundColor = WireLightColors.background,
-            contentColor = WireLightColors.onBackground,
+            backgroundColor = MaterialTheme.colors.background,
+            contentColor = MaterialTheme.colors.onBackground,
             content = {
                 ConstraintLayout(Modifier.fillMaxSize()) {
                     val (menu, barTitle, avatar) = createRefs()
@@ -66,7 +66,7 @@ fun MainTopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
                         Icon(
                             imageVector = Icons.Filled.Menu,
                             contentDescription = "",
-                            tint = WireLightColors.onBackground
+                            tint = MaterialTheme.colors.onBackground
                         )
                     }
                     Text(

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DrawerValue
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberDrawerState
@@ -33,12 +34,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.common.Logo
-import com.wire.android.ui.theme.WireLightColors
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController) {
-
     val topItems = listOf(MainNavigationScreenItem.Conversations, MainNavigationScreenItem.Archive, MainNavigationScreenItem.Vault)
     val bottomItems = listOf(MainNavigationScreenItem.Settings, MainNavigationScreenItem.Support)
 
@@ -75,14 +74,13 @@ fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
                     navigateToItem(navController, item, scope, scaffoldState)
                 })
         }
-
     }
 }
 
 @Composable
 fun DrawerItem(item: MainNavigationScreenItem, selected: Boolean, onItemClick: (MainNavigationScreenItem) -> Unit) {
-    val backgroundColor = if (selected) WireLightColors.secondary else Color.Transparent
-    val contentColor = if (selected) WireLightColors.onSecondary else WireLightColors.onBackground
+    val backgroundColor = if (selected) MaterialTheme.colors.secondary else Color.Transparent
+    val contentColor = if (selected) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onBackground
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier

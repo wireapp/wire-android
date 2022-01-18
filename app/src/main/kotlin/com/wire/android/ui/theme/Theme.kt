@@ -2,7 +2,10 @@ package com.wire.android.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun WireTheme(
@@ -15,3 +18,15 @@ fun WireTheme(
         content = content
     )
 }
+
+private val WireLightColors = lightColors(
+    primary = WireColor.Blue,
+    secondary = WireColor.LightBlue,
+    onSecondary = Color.White,
+    background = WireColor.LightGray,
+    onBackground = WireColor.LightBlack
+)
+
+private val WireDarkColors = darkColors(
+
+)

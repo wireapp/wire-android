@@ -1,25 +1,32 @@
 package com.wire.android.ui.common
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wire.android.R
 import com.wire.android.ui.conversation.model.EventType
 import com.wire.android.ui.theme.WireColor
 
 
 @Composable
-fun EventBadge(eventType: EventType, modifier: Modifier = Modifier) {
+fun EventBadgeFactory(eventType: EventType, modifier: Modifier = Modifier) {
     when (eventType) {
         EventType.MissedCall -> MissedCallBadge(modifier)
         EventType.UnreadMention -> UnreadMentionBadge(modifier)
@@ -30,18 +37,29 @@ fun EventBadge(eventType: EventType, modifier: Modifier = Modifier) {
 
 @Composable
 fun MissedCallBadge(modifier: Modifier = Modifier) {
-    Text("MissedCallBadge", modifier = modifier)
+    Image(
+        painter = painterResource(id = R.drawable.ic_missed_call),
+        contentDescription = null,
+        modifier = modifier
+    )
 }
 
 @Composable
 fun UnreadMentionBadge(modifier: Modifier = Modifier) {
-    Text("UnreadMentionBadge", modifier = modifier)
+    Image(
+        painter = painterResource(id = R.drawable.ic_unread_mention),
+        contentDescription = null,
+        modifier = modifier
+    )
 }
-
 
 @Composable
 fun UnreadReplyBadge(modifier: Modifier = Modifier) {
-    Text("UnreadReplyBadge", modifier = modifier)
+    Image(
+        painter = painterResource(id = R.drawable.ic_unread_reply),
+        contentDescription = null,
+        modifier = modifier
+    )
 }
 
 @Composable

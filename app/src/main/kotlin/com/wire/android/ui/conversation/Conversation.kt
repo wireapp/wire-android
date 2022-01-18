@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.EventBadge
+import com.wire.android.ui.common.EventBadgeFactory
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifier
 import com.wire.android.ui.common.WhiteBackgroundWrapper
@@ -121,7 +121,7 @@ private fun NewActivityRowItem(newActivity: NewActivity) {
                 }
 
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    EventBadge(
+                    EventBadgeFactory(
                         eventType = newActivity.eventType,
                         modifier = Modifier.align(Alignment.CenterEnd)
                     )

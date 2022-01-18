@@ -23,17 +23,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.EventBadgeFactory
-import com.wire.android.ui.common.LegalHoldIndicator
-import com.wire.android.ui.common.MembershipQualifier
-import com.wire.android.ui.common.WhiteBackgroundWrapper
+import com.wire.android.ui.conversation.common.EventBadgeFactory
+import com.wire.android.ui.conversation.common.LegalHoldIndicator
+import com.wire.android.ui.conversation.common.MembershipQualifier
+import com.wire.android.ui.conversation.common.WhiteBackgroundWrapper
 import com.wire.android.ui.conversation.all.model.Conversation
 import com.wire.android.ui.conversation.all.model.Membership
 import com.wire.android.ui.conversation.all.model.NewActivity
+import com.wire.android.ui.conversation.common.FolderHeader
+import com.wire.android.ui.conversation.common.UserLabel
 
 @Preview
 @Composable
@@ -56,7 +57,7 @@ private fun ConversationContent(uiState: ConversationState) {
     with(uiState) {
         LazyColumn {
             if (newActivities.isNotEmpty()) {
-                item { ConversationFolderHeader(name = stringResource(R.string.conversation_label_new_activity)) }
+                item { FolderHeader(name = stringResource(R.string.conversation_label_new_activity)) }
                 items(newActivities) { newActivity ->
                     NewActivityRowItem(
                         newActivity = newActivity
@@ -66,7 +67,7 @@ private fun ConversationContent(uiState: ConversationState) {
 
             if (conversations.isNotEmpty()) {
                 conversations.forEach { (conversationFolder, conversationList) ->
-                    item { ConversationFolderHeader(name = conversationFolder.folderName) }
+                    item { FolderHeader(name = conversationFolder.folderName) }
                     items(conversationList) { conversation ->
                         ConversationRowItem(
                             conversation = conversation
@@ -88,45 +89,19 @@ private fun ConversationListFloatingActionButton() {
 }
 
 @Composable
-private fun ConversationFolderHeader(name: String) {
-    Text(
-        text = name,
-        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        style = MaterialTheme.typography.overline
-    )
-}
-
-@Composable
 private fun NewActivityRowItem(newActivity: NewActivity) {
     WhiteBackgroundWrapper(
         content = {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                with(newActivity.conversation.conversationInfo) {
-                    ConversationName(name)
-
-                    if (memberShip != Membership.None) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        MembershipQualifier(label = memberShip.label)
-                    }
-
-                    if (isLegalHold) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        LegalHoldIndicator()
-                    }
-                }
-
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                UserLabel(conversationInfo = newActivity.conversation.conversationInfo, Modifier.padding(16.dp))
                 Box(modifier = Modifier.fillMaxWidth()) {
                     EventBadgeFactory(
                         eventType = newActivity.eventType,
-                        modifier = Modifier.align(Alignment.CenterEnd)
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 8.dp)
                     )
                 }
-
             }
         }, modifier = Modifier.padding(0.5.dp)
     )
@@ -136,31 +111,10 @@ private fun NewActivityRowItem(newActivity: NewActivity) {
 private fun ConversationRowItem(conversation: Conversation) {
     WhiteBackgroundWrapper(
         content = {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                with(conversation.conversationInfo) {
-                    ConversationName(name)
-
-                    if (memberShip != Membership.None) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        MembershipQualifier(label = memberShip.label)
-                    }
-
-                    if (isLegalHold) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        LegalHoldIndicator()
-                    }
-                }
-            }
+            UserLabel(conversationInfo = conversation.conversationInfo, Modifier.padding(16.dp))
         }, modifier = Modifier.padding(0.5.dp)
     )
 }
 
-@Composable
-private fun ConversationName(name: String) {
-    Text(text = name, fontWeight = FontWeight.W500)
-}
 
 

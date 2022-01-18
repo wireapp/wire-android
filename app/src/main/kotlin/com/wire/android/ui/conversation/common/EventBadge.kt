@@ -1,4 +1,4 @@
-package com.wire.android.ui.common
+package com.wire.android.ui.conversation.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

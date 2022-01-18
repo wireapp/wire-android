@@ -1,13 +1,13 @@
 package com.wire.android.ui.conversation
 
-import com.wire.android.ui.conversation.model.AvailabilityStatus
-import com.wire.android.ui.conversation.model.Conversation
-import com.wire.android.ui.conversation.model.ConversationFolder
-import com.wire.android.ui.conversation.model.ConversationInfo
-import com.wire.android.ui.conversation.model.EventType
-import com.wire.android.ui.conversation.model.Membership
-import com.wire.android.ui.conversation.model.NewActivity
-import com.wire.android.ui.conversation.model.UserInfo
+import com.wire.android.ui.conversation.all.model.AvailabilityStatus
+import com.wire.android.ui.conversation.all.model.Conversation
+import com.wire.android.ui.conversation.all.model.ConversationFolder
+import com.wire.android.ui.conversation.all.model.ConversationInfo
+import com.wire.android.ui.conversation.all.model.EventType
+import com.wire.android.ui.conversation.all.model.Membership
+import com.wire.android.ui.conversation.all.model.NewActivity
+import com.wire.android.ui.conversation.all.model.UserInfo
 
 val mockConversations = listOf(
     Conversation(

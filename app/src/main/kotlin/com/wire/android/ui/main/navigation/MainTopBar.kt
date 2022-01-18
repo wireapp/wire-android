@@ -41,9 +41,9 @@ import kotlinx.coroutines.launch
 @ExperimentalComposeUiApi
 @Composable
 fun MainTopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController, hasSearchBar: Boolean = false) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-    val title = stringResource(MainNavigationScreenItem.fromRoute(currentRoute)?.title ?: R.string.app_name)
+
+    val currentNavigationScreenItem: MainNavigationScreenItem? = navController.getCurrentNavigationItem()
+    val title = stringResource(currentNavigationScreenItem?.title ?: R.string.app_name)
 
     ConstraintLayout(Modifier.background(WireLightColors.background)) {
         val (topBar, searchBar) = createRefs()

@@ -16,44 +16,51 @@ enum class MainNavigationScreenItem(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
     val route: String,
+    val hasSearchableTopBar: Boolean,
     val content: @Composable (NavBackStackEntry) -> Unit
 ) {
     Conversations(
-        R.drawable.ic_conversation,
-        R.string.conversations_screen_title,
-        "conversations",
-        { ConversationsScreen() }
+        icon = R.drawable.ic_conversation,
+        title = R.string.conversations_screen_title,
+        route = "conversations",
+        hasSearchableTopBar = true,
+        content = { ConversationsScreen() }
     ),
 
     Vault(
-        R.drawable.ic_vault,
-        R.string.vault_screen_title,
-        "vault",
-        { VaultScreen() }),
+        icon = R.drawable.ic_vault,
+        title = R.string.vault_screen_title,
+        route = "vault",
+        hasSearchableTopBar = true,
+        content = { VaultScreen() }),
 
     Archive(
-        R.drawable.ic_archive,
-        R.string.archive_screen_title,
-        "archive",
-        { ArchiveScreen() }),
+        icon = R.drawable.ic_archive,
+        title = R.string.archive_screen_title,
+        route = "archive",
+        hasSearchableTopBar = true,
+        content = { ArchiveScreen() }),
 
     UserProfile(
-        R.drawable.ic_archive,
-        R.string.user_profile_screen_title,
-        "user_profile",
-        { UserProfileScreen() }),
+        icon = R.drawable.ic_launcher_foreground,
+        title = R.string.user_profile_screen_title,
+        route = "user_profile",
+        hasSearchableTopBar = false,
+        content = { UserProfileScreen() }),
 
     Settings(
-        R.drawable.ic_settings,
-        R.string.settings_screen_title,
-        "settings",
-        { SettingsScreen() }),
+        icon = R.drawable.ic_settings,
+        title = R.string.settings_screen_title,
+        route = "settings",
+        hasSearchableTopBar = false,
+        content = { SettingsScreen() }),
 
     Support(
-        R.drawable.ic_support,
-        R.string.support_screen_title,
-        "support",
-        { SupportScreen() }
+        icon = R.drawable.ic_support,
+        title = R.string.support_screen_title,
+        route = "support",
+        hasSearchableTopBar = false,
+        content = { SupportScreen() }
     );
 
     companion object {

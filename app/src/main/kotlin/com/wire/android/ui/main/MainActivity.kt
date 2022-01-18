@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.main.navigation.MainDrawer
 import com.wire.android.ui.main.navigation.MainNavigationScreenItem
 import com.wire.android.ui.main.navigation.MainTopBar
+import com.wire.android.ui.main.navigation.isCurrentNavigationItemSearchable
 
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
@@ -39,7 +40,14 @@ fun MainScreen() {
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
-    val topBar: @Composable () -> Unit = { MainTopBar(scope = scope, scaffoldState = scaffoldState, navController = navController) }
+    val topBar: @Composable () -> Unit = {
+        MainTopBar(
+            scope = scope,
+            scaffoldState = scaffoldState,
+            navController = navController,
+            hasSearchBar = navController.isCurrentNavigationItemSearchable()
+        )
+    }
     val drawerContent: @Composable (ColumnScope.() -> Unit) = {
         MainDrawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
     }

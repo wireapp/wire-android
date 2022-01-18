@@ -2,11 +2,13 @@ package com.wire.android.ui.conversation
 
 import com.wire.android.ui.conversation.model.AvailabilityStatus
 import com.wire.android.ui.conversation.model.Conversation
+import com.wire.android.ui.conversation.model.ConversationFolder
 import com.wire.android.ui.conversation.model.ConversationInfo
 import com.wire.android.ui.conversation.model.Membership
 import com.wire.android.ui.conversation.model.UserInfo
 
 val mockData = listOf(
+val mockConversations = listOf(
     Conversation(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
@@ -57,3 +59,14 @@ val mockData = listOf(
         )
     ),
 )
+
+val mockData = mapOf(
+    ConversationFolder("NEW ACTIVITY") to mockConversations,
+    ConversationFolder("FOLDER NAME1") to mockConversations,
+    ConversationFolder("SOME OTHER FOLDER") to mockConversations,
+    ConversationFolder("SOME OTHER Folder1") to mockConversations,
+    ConversationFolder("THIS IS A TEST FOLDER") to mockConversations,
+    ConversationFolder("THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY LONG NAME") to mockConversations
+)
+
+

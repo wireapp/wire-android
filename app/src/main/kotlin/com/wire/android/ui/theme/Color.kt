@@ -6,16 +6,23 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 
 val WireLightColors = lightColors(
+    primary = WireColor.Blue,
     secondary = WireColor.LightBlue,
     onSecondary = Color.White,
-    background = WireColor.LightGray
+    background =  WireColor.LightGray,
+    onBackground = WireColor.LightBlack
 )
 
 val WireDarkColors = darkColors(
 
 )
 
+
+@Suppress("MagicNumber")
 object WireColor {
+
+    @Stable
+    val Blue = Color(0xFF0667C8)
 
     @Stable
     val LightBlue = Color(0xFF0772DE)
@@ -32,7 +39,14 @@ object WireColor {
     @Stable
     val LightRed = Color(0xFFC20013)
 
+    @Stable
+    val Alpha20LightRed = Color(0x33D70015)
 
     @Stable
     val Alpha20LightRed = Color(0x33D70015)
+
+    @Stable
+    val Dark80Gray = Color(0xFF54585F)
+
+    val LightBlack = Color(0xFF000000)
 }

@@ -2,6 +2,10 @@ package com.wire.android.ui.conversation.model
 
 import com.wire.android.R
 
+data class ConversationFolder(
+    val folderName: String,
+)
+
 data class Conversation(
     val userInfo: UserInfo,
     val conversationInfo: ConversationInfo

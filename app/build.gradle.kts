@@ -33,6 +33,14 @@ android {
         }
     }
 
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = Libraries.Versions.compose
+    }
+
     sourceSets {
         map { it.java.srcDir("src/${it.name}/kotlin") }
     }
@@ -81,6 +89,8 @@ dependencies {
     implementation(Libraries.composeTooling)
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
+    implementation(Libraries.accompanistPager)
+    implementation(Libraries.accompanistSystemUI)
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)

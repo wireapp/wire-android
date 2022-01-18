@@ -13,7 +13,7 @@ class ConversationViewModel : ViewModel() {
 
     init {
         _state.value = ConversationState(
-            newConservationActivities = newActivitiesMockData,
+            newActivities = newActivitiesMockData,
             conversations = conversationMockData
         )
     }

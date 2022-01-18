@@ -5,7 +5,7 @@ import com.wire.android.ui.conversation.model.ConversationFolder
 import com.wire.android.ui.conversation.model.NewActivity
 
 data class ConversationState(
-    val newConservationActivities: List<NewActivity> = emptyList(),
+    val newActivities: List<NewActivity> = emptyList(),
     val conversations: Map<ConversationFolder, List<Conversation>> = emptyMap()
 )
 

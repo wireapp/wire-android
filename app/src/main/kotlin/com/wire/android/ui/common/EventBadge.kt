@@ -33,7 +33,6 @@ fun MissedCallBadge(modifier: Modifier = Modifier) {
     Text("MissedCallBadge", modifier = modifier)
 }
 
-
 @Composable
 fun UnreadMentionBadge(modifier: Modifier = Modifier) {
     Text("UnreadMentionBadge", modifier = modifier)
@@ -44,7 +43,6 @@ fun UnreadMentionBadge(modifier: Modifier = Modifier) {
 fun UnreadReplyBadge(modifier: Modifier = Modifier) {
     Text("UnreadReplyBadge", modifier = modifier)
 }
-
 
 @Composable
 fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier = Modifier) {

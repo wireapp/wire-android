@@ -66,7 +66,11 @@ val mockData = mapOf(
     ConversationFolder("SOME OTHER FOLDER") to mockConversations,
     ConversationFolder("SOME OTHER Folder1") to mockConversations,
     ConversationFolder("THIS IS A TEST FOLDER") to mockConversations,
-    ConversationFolder("THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY LONG NAME") to mockConversations
+    ConversationFolder(
+        "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +
+                " VERY VERY VERY VERY VERY VERY VERY " +
+                "VERY VERY VERY VERY VERY LONG NAME"
+    ) to mockConversations
 )
 
 

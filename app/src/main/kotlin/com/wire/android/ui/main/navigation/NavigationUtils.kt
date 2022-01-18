@@ -8,7 +8,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal fun itemClickActions(
+internal fun navigateToItem(
     navController: NavController,
     item: MainNavigationScreenItem,
     scope: CoroutineScope,

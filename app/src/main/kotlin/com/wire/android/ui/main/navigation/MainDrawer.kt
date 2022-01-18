@@ -62,7 +62,7 @@ fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
             DrawerItem(item = item,
                 selected = currentRoute == item.route,
                 onItemClick = {
-                    itemClickActions(navController, item, scope, scaffoldState)
+                    navigateToItem(navController, item, scope, scaffoldState)
                 })
         }
 
@@ -72,7 +72,7 @@ fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
             DrawerItem(item = item,
                 selected = currentRoute == item.route,
                 onItemClick = {
-                    itemClickActions(navController, item, scope, scaffoldState)
+                    navigateToItem(navController, item, scope, scaffoldState)
                 })
         }
 

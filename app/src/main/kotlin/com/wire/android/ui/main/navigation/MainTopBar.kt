@@ -2,8 +2,6 @@ package com.wire.android.ui.main.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.DrawerValue
@@ -17,7 +15,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -27,11 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.SearchBarCollapsed
-import com.wire.android.ui.common.SearchBarFullScreen
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.theme.WireLightColors
 import kotlinx.coroutines.CoroutineScope
@@ -91,7 +86,7 @@ fun MainTopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
                         },
                         avatarUrl = ""
                     ) {
-                        itemClickActions(navController, MainNavigationScreenItem.UserProfile, scope, scaffoldState)
+                        navigateToItem(navController, MainNavigationScreenItem.UserProfile, scope, scaffoldState)
                     }
                 }
             },

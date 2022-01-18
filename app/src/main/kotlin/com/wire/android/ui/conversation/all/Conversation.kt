@@ -1,4 +1,4 @@
-package com.wire.android.ui.conversation
+package com.wire.android.ui.conversation.all
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -31,9 +31,9 @@ import com.wire.android.ui.common.EventBadgeFactory
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifier
 import com.wire.android.ui.common.WhiteBackgroundWrapper
-import com.wire.android.ui.conversation.model.Conversation
-import com.wire.android.ui.conversation.model.Membership
-import com.wire.android.ui.conversation.model.NewActivity
+import com.wire.android.ui.conversation.all.model.Conversation
+import com.wire.android.ui.conversation.all.model.Membership
+import com.wire.android.ui.conversation.all.model.NewActivity
 
 @Preview
 @Composable

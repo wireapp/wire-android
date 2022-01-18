@@ -1,4 +1,4 @@
-package com.wire.android.ui.conversation.model
+package com.wire.android.ui.conversation.all.model
 
 
 data class ConversationFolder(

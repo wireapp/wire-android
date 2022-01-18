@@ -47,7 +47,7 @@ fun UserProfileAvatar(avatarUrl: String, size: Dp = USER_AVATAR_DEFAULT_SIZE, mo
             modifier = Modifier
                 .size(10.dp)
                 .clip(CircleShape)
-                .background(Color.Green) // TODO: Map the UserStatus availability to the right icon shape/color once this logic exists in Kalium
+                .background(Color.Green) // TODO: Map UserStatus availability to the right icon shape/color once this logic exists in Kalium
                 .constrainAs(statusImg) {
                     bottom.linkTo(avatarImg.bottom)
                     end.linkTo(avatarImg.end)

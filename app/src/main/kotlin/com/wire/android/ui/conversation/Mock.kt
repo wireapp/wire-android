@@ -11,7 +11,7 @@ val mockData = listOf(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "some test value",
-            memberShip = Membership.Quest,
+            memberShip = Membership.Guest,
             isLegalHold = true
         )
     ),

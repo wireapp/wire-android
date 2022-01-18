@@ -1,5 +1,7 @@
 package com.wire.android.ui.conversation.model
 
+import com.wire.android.R
+
 data class Conversation(
     val userInfo: UserInfo,
     val conversationInfo: ConversationInfo
@@ -20,8 +22,8 @@ enum class AvailabilityStatus {
     Available, Busy, Away, None
 }
 
-enum class Membership(val label: String) {
-    Quest("Quest"), External("External"), None("")
+enum class Membership(val stringResource: Int) {
+    Guest(R.string.label_membership_guest), External(R.string.label_memebership_external), None(-1)
 }
 
 

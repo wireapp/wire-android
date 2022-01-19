@@ -83,6 +83,7 @@ val mockData = mapOf(
 )
 
 
+@Suppress("MagicNumber")
 val newActivitiesMockData = listOf(
     NewActivity(EventType.MissedCall, mockConversation),
     NewActivity(EventType.UnreadMention, mockConversation),

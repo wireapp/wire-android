@@ -14,7 +14,7 @@ import com.wire.android.ui.conversation.all.model.ConversationInfo
 import com.wire.android.ui.conversation.all.model.Membership
 
 @Composable
-fun UserLabel(conversationInfo: ConversationInfo, modifier: Modifier = Modifier) {
+fun UserInfoLabel(conversationInfo: ConversationInfo, modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier

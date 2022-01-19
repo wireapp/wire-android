@@ -34,7 +34,7 @@ fun EventBadgeFactory(eventType: EventType, modifier: Modifier = Modifier) {
 @Composable
 fun MissedCallBadge(modifier: Modifier = Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.ic_missed_call),
+        painter = painterResource(id = R.drawable.ic_event_badge_missed_call),
         contentDescription = null,
         modifier = modifier
     )
@@ -43,7 +43,7 @@ fun MissedCallBadge(modifier: Modifier = Modifier) {
 @Composable
 fun UnreadMentionBadge(modifier: Modifier = Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.ic_unread_mention),
+        painter = painterResource(id = R.drawable.ic_event_badge_unread_mention),
         contentDescription = null,
         modifier = modifier
     )
@@ -52,7 +52,7 @@ fun UnreadMentionBadge(modifier: Modifier = Modifier) {
 @Composable
 fun UnreadReplyBadge(modifier: Modifier = Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.ic_unread_reply),
+        painter = painterResource(id = R.drawable.ic_event_badge_unread_reply),
         contentDescription = null,
         modifier = modifier
     )

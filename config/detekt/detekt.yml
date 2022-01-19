@@ -521,7 +521,7 @@ style:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
     ignoreNumbers: ['-1', '0', '1', '2']
-    ignoreAnnotated: ['Compose', 'Stable']
+    ignoreAnnotated: ['Compose', 'Stable', 'Composable']
     ignoreHashCodeFunction: true
     ignorePropertyDeclaration: false
     ignoreLocalVariableDeclaration: false

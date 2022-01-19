@@ -9,7 +9,7 @@ import com.wire.android.ui.common.WireBottomNavigationBar
 @Composable
 fun ConversationsScreen() {
     val navController = rememberNavController()
-    val items = ConversationsWireBottomNavigationItemData.values()
+    val items = ConversationsNavigationItem.values()
         .map { it.intoBottomNavigationItemData(12) }
 
     Scaffold(

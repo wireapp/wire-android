@@ -13,7 +13,7 @@ import com.wire.android.ui.main.convesations.all.AllConversationsTab
 import com.wire.android.ui.main.convesations.calls.CallConversationsTab
 import com.wire.android.ui.main.convesations.mentions.MentionsConversationsTab
 
-enum class ConversationsWireBottomNavigationItemData(
+enum class ConversationsNavigationItem(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
     val route: String,
@@ -43,9 +43,9 @@ enum class ConversationsWireBottomNavigationItemData(
 
 @Composable
 fun ConversationsNavigationGraph(navController: NavHostController) {
-    NavHost(navController, startDestination = ConversationsWireBottomNavigationItemData.All.route) {
+    NavHost(navController, startDestination = ConversationsNavigationItem.All.route) {
 
-        ConversationsWireBottomNavigationItemData.values().forEach { item ->
+        ConversationsNavigationItem.values().forEach { item ->
             composable(route = item.route, content = item.content)
         }
     }

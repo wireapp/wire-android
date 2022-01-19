@@ -36,7 +36,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.wire.android.ui.main.convesations.ConversationsWireBottomNavigationItemData
+import com.wire.android.ui.main.convesations.ConversationsNavigationItem
 import com.wire.android.ui.theme.WireColor
 import com.wire.android.ui.theme.WireLightColors
 
@@ -56,6 +56,7 @@ fun WireBottomNavigationBar(items: List<WireBottomNavigationItemData>, navContro
             modifier = Modifier
                 .padding(4.dp)
                 .fillMaxWidth()
+                .background(WireColor.LightBackgroundWhite)
                 .height(58.dp)
         ) {
             items.forEachIndexed { index, item ->
@@ -155,7 +156,7 @@ data class WireBottomNavigationItemData(
 @Composable
 fun WireBottomNavigationBarPreview() {
     val navController = rememberNavController()
-    val items = ConversationsWireBottomNavigationItemData.values()
+    val items = ConversationsNavigationItem.values()
         .map { it.intoBottomNavigationItemData(12) }
     WireBottomNavigationBar(items, navController)
 }

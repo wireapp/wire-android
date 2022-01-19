@@ -12,6 +12,7 @@ fun WireTheme(
 ) {
     MaterialTheme(
         colors = if (useDarkColors) WireDarkColors else WireLightColors,
+        typography = typography,
         content = content
     )
 }

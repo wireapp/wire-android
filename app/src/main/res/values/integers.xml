@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="welcome_carousel_item_time_ms">3000</integer>
+</resources>

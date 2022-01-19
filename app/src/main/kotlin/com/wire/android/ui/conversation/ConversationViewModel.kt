@@ -13,11 +13,7 @@ class ConversationViewModel : ViewModel() {
 
     init {
         _state.value = ConversationState(
-            conversations = listOf(
-                Conversation("some test value"),
-                Conversation("some other test value"),
-                Conversation("and once more")
-            )
+            conversations = mockData
         )
     }
 

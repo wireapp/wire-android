@@ -85,7 +85,7 @@ fun wireTextFieldColors(
                 focused -> focusColor
                 else -> borderColor
             }
-            return if (state !is WireTextFieldState.Disabled) animateColorAsState(targetValue, tween(AnimationDuration))
+            return if (state !is WireTextFieldState.Disabled) animateColorAsState(targetValue, tween(ANIMATION_DURATION))
             else rememberUpdatedState(targetValue)
         }
 
@@ -125,4 +125,4 @@ interface WireTextFieldColors {
     fun cursorColor(state: WireTextFieldState): State<Color>
 }
 
-private const val AnimationDuration = 150
+private const val ANIMATION_DURATION = 150

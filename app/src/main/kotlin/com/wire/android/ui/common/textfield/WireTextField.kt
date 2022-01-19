@@ -48,19 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
 
-sealed class WireTextFieldState {
-    object Default : WireTextFieldState()
-    data class Error(val errorText: String) : WireTextFieldState()
-    object Success : WireTextFieldState()
-    object Disabled : WireTextFieldState()
-
-    fun icon(): ImageVector? = when (this) {
-        is Error -> Icons.Filled.ErrorOutline
-        is Success -> Icons.Filled.Check
-        else -> null
-    }
-}
-
 @Composable
 internal fun WireTextField(
     value: TextFieldValue,
@@ -284,4 +271,17 @@ fun WireTextFieldSuccessPreview() {
         state = WireTextFieldState.Success,
         modifier = Modifier.padding(16.dp)
     )
+}
+
+sealed class WireTextFieldState {
+    object Default : WireTextFieldState()
+    data class Error(val errorText: String) : WireTextFieldState()
+    object Success : WireTextFieldState()
+    object Disabled : WireTextFieldState()
+
+    fun icon(): ImageVector? = when (this) {
+        is Error -> Icons.Filled.ErrorOutline
+        is Success -> Icons.Filled.Check
+        else -> null
+    }
 }

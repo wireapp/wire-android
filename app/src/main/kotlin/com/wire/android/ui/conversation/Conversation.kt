@@ -111,7 +111,7 @@ private fun NewActivityRowItem(newActivity: NewActivity) {
 
                     if (memberShip != Membership.None) {
                         Spacer(modifier = Modifier.width(6.dp))
-                        MembershipQualifier(label = memberShip.label)
+                        MembershipQualifier(label = stringResource(id = memberShip.stringResource))
                     }
 
                     if (isLegalHold) {
@@ -144,8 +144,8 @@ private fun ConversationRowItem(conversation: Conversation) {
                     ConversationName(name)
 
                     if (memberShip != Membership.None) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        MembershipQualifier(label = memberShip.label)
+                        Spacer(Modifier.width(6.dp))
+                        MembershipQualifier(stringResource(id = memberShip.stringResource))
                     }
 
                     if (isLegalHold) {

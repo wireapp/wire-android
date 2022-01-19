@@ -26,4 +26,13 @@ object WireColor {
 
     @Stable
     val LightBlack = Color(0xFF000000)
+
+    @Stable
+    val LightRed = Color(0xFFE41734)
+
+    @Stable
+    val LightTextWhite = Color(0xFFFFFFFF)
+
+    @Stable
+    val LightShadow = Color(0x20000000)
 }

@@ -2,7 +2,6 @@ package com.wire.android.ui.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +32,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.common.Logo
+import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.WireLightColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -87,11 +87,6 @@ private fun itemClickActions(
     scaffoldState: ScaffoldState
 ) {
     navController.navigate(item.route) {
-        navController.graph.startDestinationRoute?.let { route ->
-            popUpTo(route) {
-                saveState = true
-            }
-        }
         launchSingleTop = true
         restoreState = true
     }
@@ -108,9 +103,9 @@ fun DrawerItem(item: MainNavigationScreenItem, selected: Boolean, onItemClick: (
         modifier = Modifier
             .clip(RoundedCornerShape(6.dp))
             .fillMaxWidth()
-            .clickable(onClick = { onItemClick(item) })
             .height(40.dp)
             .background(backgroundColor)
+            .selectableBackground(selected) { onItemClick(item) }
     ) {
         Image(
             painter = painterResource(id = item.icon),

@@ -5,6 +5,9 @@
     <string name="app_logo_description">App Logo</string>
 
     <string name="conversations_screen_title">Conversations</string>
+    <string name="conversations_all_tab_title">All</string>
+    <string name="conversations_calls_tab_title">Calls</string>
+    <string name="conversations_mentions_tab_title">Mentions</string>
 
     <string name="vault_screen_title">Vault</string>
 

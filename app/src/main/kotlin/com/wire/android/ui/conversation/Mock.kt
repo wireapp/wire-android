@@ -12,7 +12,7 @@ val mockConversations = listOf(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "some test value",
-            memberShip = Membership.Quest,
+            memberShip = Membership.Guest,
             isLegalHold = true
         )
     ),
@@ -71,6 +71,5 @@ val mockData = mapOf(
                 "VERY VERY VERY VERY VERY LONG NAME"
     ) to mockConversations
 )
-
 
 

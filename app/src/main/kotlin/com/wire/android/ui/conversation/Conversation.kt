@@ -100,7 +100,7 @@ private fun ConversationRow(conversation: Conversation) {
 
             if (memberShip != Membership.None) {
                 Spacer(Modifier.width(6.dp))
-                MembershipQualifier(memberShip.label)
+                MembershipQualifier(stringResource(id = memberShip.stringResource))
             }
 
             if (isLegalHold) {

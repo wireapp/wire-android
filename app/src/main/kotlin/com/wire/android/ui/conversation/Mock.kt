@@ -4,7 +4,9 @@ import com.wire.android.ui.conversation.model.AvailabilityStatus
 import com.wire.android.ui.conversation.model.Conversation
 import com.wire.android.ui.conversation.model.ConversationFolder
 import com.wire.android.ui.conversation.model.ConversationInfo
+import com.wire.android.ui.conversation.model.EventType
 import com.wire.android.ui.conversation.model.Membership
+import com.wire.android.ui.conversation.model.NewActivity
 import com.wire.android.ui.conversation.model.UserInfo
 
 val mockConversations = listOf(
@@ -12,7 +14,7 @@ val mockConversations = listOf(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "some test value",
-            memberShip = Membership.Quest,
+            memberShip = Membership.Guest,
             isLegalHold = true
         )
     ),
@@ -59,6 +61,14 @@ val mockConversations = listOf(
     ),
 )
 
+val mockConversation = Conversation(
+    userInfo = UserInfo(),
+    conversationInfo = ConversationInfo(
+        name = "and once more 4",
+        memberShip = Membership.External
+    )
+)
+
 val mockData = mapOf(
     ConversationFolder("NEW ACTIVITY") to mockConversations,
     ConversationFolder("FOLDER NAME1") to mockConversations,
@@ -73,4 +83,16 @@ val mockData = mapOf(
 )
 
 
-
+@Suppress("MagicNumber")
+val newActivitiesMockData = listOf(
+    NewActivity(EventType.MissedCall, mockConversation),
+    NewActivity(EventType.UnreadMention, mockConversation),
+    NewActivity(EventType.UnreadReply, mockConversation),
+    NewActivity(EventType.UnreadMessage(2), mockConversation),
+    NewActivity(EventType.UnreadMessage(1000000), mockConversation),
+    NewActivity(EventType.UnreadMessage(0), mockConversation),
+    NewActivity(EventType.UnreadMessage(50), mockConversation),
+    NewActivity(EventType.UnreadMessage(99), mockConversation),
+    NewActivity(EventType.UnreadMention, mockConversation),
+    NewActivity(EventType.UnreadReply, mockConversation)
+)

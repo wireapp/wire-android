@@ -2,6 +2,10 @@
 <resources>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
+    <string name="conversation_label_new_activity">NEW ACTIVITY</string>
+
+    <string name="label_membership_guest">Guest</string>
+    <string name="label_memebership_external">External</string>
     <string name="app_logo_description">App Logo</string>
 
     <string name="conversations_screen_title">Conversations</string>

@@ -95,4 +95,3 @@ val newActivitiesMockData = listOf(
     NewActivity(EventType.UnreadMention, mockConversation),
     NewActivity(EventType.UnreadReply, mockConversation)
 )
-

@@ -7,7 +7,6 @@ import com.wire.android.ui.conversation.model.ConversationInfo
 import com.wire.android.ui.conversation.model.Membership
 import com.wire.android.ui.conversation.model.UserInfo
 
-val mockData = listOf(
 val mockConversations = listOf(
     Conversation(
         userInfo = UserInfo(),

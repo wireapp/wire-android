@@ -98,7 +98,7 @@ fun MainTopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
-                hintText = stringResource(R.string.search_bar_hint, title)
+                placeholderText = stringResource(R.string.search_bar_hint, title)
             )
         }
     }

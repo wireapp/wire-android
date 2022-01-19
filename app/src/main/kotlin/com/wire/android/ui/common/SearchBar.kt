@@ -63,6 +63,7 @@ fun SearchBarFullScreen(
     var showClearButton by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
+    var text by remember { mutableStateOf("") }
 
     TopAppBar(title = { Text("") },
         backgroundColor = MaterialTheme.colors.background,
@@ -82,8 +83,11 @@ fun SearchBarFullScreen(
                         showClearButton = (focusState.isFocused)
                     }
                     .focusRequester(focusRequester),
-                value = searchText,
-                onValueChange = onSearchTextChanged,
+                value = text,
+                onValueChange = {
+                    text = it
+                    onSearchTextChanged(it)
+                },
                 placeholder = { Text(text = placeholderText) },
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Transparent,
@@ -115,12 +119,14 @@ fun SearchBarFullScreen(
 }
 
 @Composable
-fun SearchBarCollapsed(hintText: String, modifier: Modifier = Modifier) {
+fun SearchBarCollapsed(placeholderText: String, modifier: Modifier = Modifier) {
+    var text by remember { mutableStateOf("") }
+
     OutlinedTextField(
         modifier = modifier.padding(horizontal = 10.dp, vertical = 16.dp).fillMaxWidth()
             .background(MaterialTheme.colors.onSecondary, RoundedCornerShape(20.dp)),
-        value = "",
-        onValueChange = {},
+        value = text,
+        onValueChange = { text = it },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Search,
@@ -128,7 +134,7 @@ fun SearchBarCollapsed(hintText: String, modifier: Modifier = Modifier) {
                 contentDescription = stringResource(R.string.content_description_clear_content)
             )
         },
-        placeholder = { Text(text = hintText) },
+        placeholder = { Text(text = placeholderText) },
         colors = TextFieldDefaults.textFieldColors(
             focusedIndicatorColor = Transparent,
             unfocusedIndicatorColor = Transparent,

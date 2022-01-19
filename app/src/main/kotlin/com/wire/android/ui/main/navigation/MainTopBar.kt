@@ -2,7 +2,7 @@ package com.wire.android.ui.main.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.Icon
@@ -20,14 +20,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
-import com.wire.android.ui.common.SearchBarCollapsed
+import com.wire.android.ui.common.SearchBarUI
 import com.wire.android.ui.common.UserProfileAvatar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -40,66 +40,31 @@ fun MainTopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
     val currentNavigationScreenItem: MainNavigationScreenItem? = navController.getCurrentNavigationItem()
     val title = stringResource(currentNavigationScreenItem?.title ?: R.string.app_name)
 
-    ConstraintLayout(Modifier.background(MaterialTheme.colors.background)) {
-        val (topBar, searchBar) = createRefs()
+    Column(Modifier.fillMaxWidth().background(MaterialTheme.colors.background)) {
         TopAppBar(
-            modifier = Modifier.fillMaxWidth().constrainAs(topBar) {
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            },
+            modifier = Modifier.fillMaxWidth(),
             elevation = 0.dp,
             backgroundColor = MaterialTheme.colors.background,
             contentColor = MaterialTheme.colors.onBackground,
             content = {
-                ConstraintLayout(Modifier.fillMaxSize()) {
-                    val (menu, barTitle, avatar) = createRefs()
-                    IconButton(
-                        modifier = Modifier.constrainAs(menu) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                        },
-                        onClick = {
-                            scope.launch { scaffoldState.drawerState.open() }
-                        }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "",
-                            tint = MaterialTheme.colors.onBackground
-                        )
-                    }
-                    Text(
-                        modifier = Modifier.constrainAs(barTitle) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(menu.end)
-                            end.linkTo(avatar.start)
-                        },
-                        text = title, fontSize = 18.sp
+                IconButton(
+                    onClick = {
+                        scope.launch { scaffoldState.drawerState.open() }
+                    }) {
+                    Icon(
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = "",
+                        tint = MaterialTheme.colors.onBackground
                     )
-                    UserProfileAvatar(
-                        modifier = Modifier.constrainAs(avatar) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            end.linkTo(parent.end)
-                        },
-                        avatarUrl = ""
-                    ) {
-                        navigateToItem(navController, MainNavigationScreenItem.UserProfile, scope, scaffoldState)
-                    }
+                }
+                Text(modifier = Modifier.weight(weight = 1f), textAlign = TextAlign.Center, text = title, fontSize = 18.sp)
+                UserProfileAvatar(avatarUrl = "") {
+                    navigateToItem(navController, MainNavigationScreenItem.UserProfile, scope, scaffoldState)
                 }
             },
         )
         if (hasSearchBar) {
-            SearchBarCollapsed(
-                modifier = Modifier.constrainAs(searchBar) {
-                    top.linkTo(topBar.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                },
-                placeholderText = stringResource(R.string.search_bar_hint, title)
-            )
+            SearchBarUI(placeholderText = stringResource(R.string.search_bar_hint, title))
         }
     }
 }

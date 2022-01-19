@@ -13,6 +13,5 @@ fun UserProfileScreen() {
 @Preview(showBackground = false)
 @Composable
 fun UserProfileScreenPreview() {
-    val a: CoreLogic
     UserProfileScreen()
 }

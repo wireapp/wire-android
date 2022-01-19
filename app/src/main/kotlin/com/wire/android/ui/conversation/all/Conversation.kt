@@ -30,7 +30,7 @@ import com.wire.android.ui.conversation.all.model.NewActivity
 import com.wire.android.ui.conversation.common.FolderHeader
 import com.wire.android.ui.conversation.common.UserInfoLabel
 
-@Preview
+
 @Composable
 fun Conversation(viewModel: ConversationViewModel = ConversationViewModel()) {
     val uiState by viewModel.state.collectAsState()
@@ -86,8 +86,11 @@ private fun ConversationListFloatingActionButton() {
 private fun NewActivityRowItem(newActivity: NewActivity) {
     WhiteBackgroundWrapper(
         content = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                UserInfoLabel(conversationInfo = newActivity.conversation.conversationInfo, Modifier.padding(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                UserInfoLabel(conversationInfo = newActivity.conversation.conversationInfo)
                 Box(modifier = Modifier.fillMaxWidth()) {
                     EventBadgeFactory(
                         eventType = newActivity.eventType,

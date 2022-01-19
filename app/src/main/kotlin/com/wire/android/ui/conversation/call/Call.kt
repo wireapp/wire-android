@@ -26,14 +26,13 @@ import com.wire.android.R
 import com.wire.android.ui.conversation.call.model.CallTime
 import com.wire.android.ui.conversation.call.model.Call
 import com.wire.android.ui.conversation.call.model.CallEvent
-import com.wire.android.ui.conversation.call.model.CallInfo
 import com.wire.android.ui.conversation.common.FolderHeader
 import com.wire.android.ui.conversation.common.MissedCallBadge
 import com.wire.android.ui.conversation.common.UserInfoLabel
 import com.wire.android.ui.conversation.common.WhiteBackgroundWrapper
 import com.wire.android.ui.theme.subLine1
 
-@Preview
+
 @Composable
 fun Call(viewModel: CallViewModel = CallViewModel()) {
     val uiState by viewModel.state.collectAsState()

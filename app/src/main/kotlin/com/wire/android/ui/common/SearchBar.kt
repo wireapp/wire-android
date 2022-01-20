@@ -3,23 +3,15 @@ package com.wire.android.ui.common
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -30,38 +22,34 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.wire.android.R
-import com.wire.android.ui.theme.WireColor
+import com.wire.android.ui.common.textfield.WireTextField
 
 @Composable
 fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTyped: (String) -> Unit = {}) {
     var showClearButton by remember { mutableStateOf(false) }
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(TextFieldValue()) }
 
-    OutlinedTextField(
-        modifier = modifier
-            .padding(horizontal = 10.dp, vertical = 12.dp)
-            .fillMaxWidth()
-            .background(MaterialTheme.colors.onSecondary, RoundedCornerShape(40.dp))
-            .border(1.dp, Color(0xFFDCE0E3), RoundedCornerShape(40.dp)),
+    WireTextField(
+        modifier = modifier.padding(16.dp),
         value = text,
         onValueChange = {
             text = it
-            onTextTyped(it)
-            showClearButton = it.isNotEmpty()
+            onTextTyped(it.text)
+            showClearButton = it.text.isNotEmpty()
         },
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Search,
-                tint = WireColor.Dark80Gray,
-                contentDescription = stringResource(R.string.content_description_clear_content)
-            )
+            IconButton(modifier = Modifier.height(40.dp), onClick = {}) {
+                Icon(
+                    Icons.Filled.Search,
+                    stringResource(R.string.content_description_clear_content)
+                )
+            }
         },
         trailingIcon = {
             AnimatedVisibility(
@@ -70,7 +58,7 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
                 exit = fadeOut()
             ) {
                 IconButton(onClick = {
-                    text = ""
+                    text = TextFieldValue()
                     showClearButton = false
                 }) {
                     Icon(
@@ -80,20 +68,8 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
                 }
             }
         },
-
-        placeholder = {
-            Text(
-                text = placeholderText,
-                modifier = Modifier.fillMaxWidth(),
-                style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
-            )
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Transparent,
-            unfocusedIndicatorColor = Transparent,
-            backgroundColor = MaterialTheme.colors.onSecondary,
-            cursorColor = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-        ),
+        inputMinHeight = 40.dp,
+        placeholderText = placeholderText,
         maxLines = 1,
         singleLine = true,
     )

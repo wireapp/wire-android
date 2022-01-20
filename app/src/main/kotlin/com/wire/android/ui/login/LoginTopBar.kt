@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -18,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
-import com.wire.android.ui.theme.WireLightColors
 
 @Composable
 fun LoginTopBar() {
@@ -40,12 +40,12 @@ fun LoginTopBar() {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = "",
-                    tint = WireLightColors.onBackground
+                    tint = MaterialTheme.colors.onBackground
                 )
             }
         },
-        backgroundColor = WireLightColors.background,
-        contentColor = WireLightColors.onBackground
+        backgroundColor = MaterialTheme.colors.background,
+        contentColor = MaterialTheme.colors.onBackground
     )
 }
 

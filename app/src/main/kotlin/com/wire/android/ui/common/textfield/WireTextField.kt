@@ -67,6 +67,7 @@ internal fun WireTextField(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     visualTransformation: VisualTransformation = VisualTransformation.None,
     textStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 14.sp, textAlign = TextAlign.Start),
+    placeHolderTextStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 14.sp, textAlign = TextAlign.Center),
     inputMinHeight: Dp = 48.dp,
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireTextFieldColors = wireTextFieldColors(),
@@ -95,7 +96,7 @@ internal fun WireTextField(
                 .background(color = colors.backgroundColor(state).value, shape = shape)
                 .border(width = 1.dp, color = colors.borderColor(state, interactionSource).value, shape = shape),
             decorationBox = { innerTextField ->
-                InnerText(innerTextField, value, leadingIcon, trailingIcon, placeholderText, state, textStyle, inputMinHeight)
+                InnerText(innerTextField, value, leadingIcon, trailingIcon, placeholderText, state, placeHolderTextStyle, inputMinHeight)
             },
         )
         val bottomText = when {
@@ -235,7 +236,6 @@ fun WireTextFieldDenseSearchPreview() {
         trailingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Close,"") } },
         onValueChange = {},
         inputMinHeight = 40.dp,
-        textStyle = LocalTextStyle.current.copy(fontSize = 14.sp, textAlign = TextAlign.Center),
         modifier = Modifier.padding(16.dp)
     )
 }

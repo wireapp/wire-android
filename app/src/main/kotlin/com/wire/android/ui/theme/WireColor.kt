@@ -1,22 +1,7 @@
 package com.wire.android.ui.theme
 
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
-
-val WireLightColors = lightColors(
-    primary = WireColor.Blue,
-    secondary = WireColor.LightBlue,
-    onSecondary = Color.White,
-    background = WireColor.LightGray,
-    onBackground = WireColor.LightBlack
-)
-
-val WireDarkColors = darkColors(
-
-)
-
 
 @Suppress("MagicNumber")
 object WireColor {
@@ -41,6 +26,9 @@ object WireColor {
 
     @Stable
     val LightGray = Color(0xFFEDEFF0)
+
+    @Stable
+    val Light40Gray = Color(0xFFDCE0E3)
 
     @Stable
     val Dark70Gray = Color(0xFF676B71)

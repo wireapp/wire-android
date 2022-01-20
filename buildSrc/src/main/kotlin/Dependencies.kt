@@ -147,7 +147,7 @@ object TestLibraries {
         const val androidCore = "1.4.0"
         const val junit4 = "4.13"
         const val mockk = "1.12.0"
-        const val kluent = "1.64"
+        const val kluent = "1.68"
         const val robolectric = "4.5.1"
         const val testRunner = "1.4.0"
         const val espresso = "3.4.0"

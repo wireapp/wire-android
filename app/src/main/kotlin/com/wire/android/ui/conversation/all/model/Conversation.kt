@@ -1,5 +1,6 @@
 package com.wire.android.ui.conversation.all.model
 
+import androidx.annotation.StringRes
 import com.wire.android.R
 
 
@@ -27,7 +28,7 @@ enum class AvailabilityStatus {
     Available, Busy, Away, None
 }
 
-enum class Membership(val stringResourceId: Int) {
+enum class Membership(@StringRes val stringResourceId: Int) {
     Guest(R.string.label_membership_guest), External(R.string.label_memebership_external), None(-1)
 }
 

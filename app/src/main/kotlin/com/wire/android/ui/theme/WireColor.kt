@@ -31,6 +31,9 @@ object WireColor {
     val Light40Gray = Color(0xFFDCE0E3)
 
     @Stable
+    val Dark70Gray = Color(0xFF676B71)
+
+    @Stable
     val Dark80Gray = Color(0xFF54585F)
 
     @Stable

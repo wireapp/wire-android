@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
-    <string name="conversation_label_new_activity">NEW ACTIVITY</string>
 
     <string name="label_membership_guest">Guest</string>
     <string name="label_memebership_external">External</string>
@@ -30,4 +29,7 @@
     <string name="welcome_footer_link">Create a private account for free</string>
     <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
     <string name="welcome_button_login">Login</string>
+    <string name="conversation_label_new_activity">NEW ACTIVITY</string>
+    <string name="calls_label_missed_calls">MISSED CALLS</string>
+    <string name="calls_label_calls_history">CALLS HISTORY</string>
 </resources>

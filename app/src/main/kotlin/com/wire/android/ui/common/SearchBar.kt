@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,8 +43,11 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
     var text by remember { mutableStateOf("") }
 
     OutlinedTextField(
-        modifier = modifier.padding(horizontal = 10.dp, vertical = 16.dp).fillMaxWidth()
-            .background(MaterialTheme.colors.onSecondary, RoundedCornerShape(20.dp)),
+        modifier = modifier
+            .padding(horizontal = 10.dp, vertical = 12.dp)
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.onSecondary, RoundedCornerShape(40.dp))
+            .border(1.dp, Color(0xFFDCE0E3), RoundedCornerShape(40.dp)),
         value = text,
         onValueChange = {
             text = it

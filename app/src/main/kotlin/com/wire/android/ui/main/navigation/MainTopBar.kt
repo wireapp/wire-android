@@ -64,7 +64,7 @@ fun MainTopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
             },
         )
         if (hasSearchBar) {
-            SearchBarUI(placeholderText = stringResource(R.string.search_bar_hint, title))
+            SearchBarUI(placeholderText = stringResource(R.string.search_bar_hint, title.lowercase()))
         }
     }
 }

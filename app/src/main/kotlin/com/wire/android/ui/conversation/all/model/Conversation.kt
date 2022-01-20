@@ -1,6 +1,8 @@
-package com.wire.android.ui.conversation.model
+package com.wire.android.ui.conversation.all.model
 
+import androidx.annotation.StringRes
 import com.wire.android.R
+
 
 data class ConversationFolder(
     val folderName: String,
@@ -26,7 +28,7 @@ enum class AvailabilityStatus {
     Available, Busy, Away, None
 }
 
-enum class Membership(val stringResource: Int) {
+enum class Membership(@StringRes val stringResourceId: Int) {
     Guest(R.string.label_membership_guest), External(R.string.label_memebership_external), None(-1)
 }
 

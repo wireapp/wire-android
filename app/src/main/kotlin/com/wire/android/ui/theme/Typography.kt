@@ -1,20 +1,49 @@
 package com.wire.android.ui.theme
 
 import androidx.compose.material.Typography
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 
-val typography = typographyFromDefaults(
-    overline = TextStyle(
+val Typography.subLine1: TextStyle
+    get() = TextStyle(
+        color = WireColor.Dark70Gray,
+        fontWeight = FontWeight.Normal,
+        fontStyle = FontStyle.Normal,
+        fontSize = 12.sp,
+        lineHeight = 14.sp,
+    )
+
+val Typography.label3: TextStyle
+    get() = TextStyle(
+        color = WireColor.Dark70Gray,
+        fontWeight = FontWeight.W500,
+        fontStyle = FontStyle.Normal,
+        fontSize = 11.sp,
+        lineHeight = 12.sp,
+    )
+
+val Typography.title3: TextStyle
+    get() = TextStyle(
         color = WireColor.Dark80Gray,
         fontWeight = FontWeight.W500,
         fontStyle = FontStyle.Normal,
         fontSize = 12.sp,
         lineHeight = 14.sp,
         letterSpacing = 0.5.sp
+    )
+
+val typography = typographyFromDefaults(
+    body2 = TextStyle(
+        color = Color.Black,
+        fontWeight = FontWeight.W500,
+        fontStyle = FontStyle.Normal,
+        fontSize = 15.sp,
+        lineHeight = 19.sp,
+        letterSpacing = 0.05.sp
     )
 )
 

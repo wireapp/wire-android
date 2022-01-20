@@ -14,6 +14,10 @@ plugins {
     id(ScriptPlugins.testing)
 }
 
+repositories {
+    google()
+}
+
 android {
     compileSdk = AndroidSdk.compile
 
@@ -87,8 +91,10 @@ dependencies {
     implementation(Libraries.composeUi)
     implementation(Libraries.composeMaterial)
     implementation(Libraries.composeTooling)
+    implementation(Libraries.composeIcons)
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
+    implementation(Libraries.composeConstraintLayout)
     implementation(Libraries.accompanistPager)
     implementation(Libraries.accompanistSystemUI)
 

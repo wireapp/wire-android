@@ -91,6 +91,7 @@ dependencies {
     implementation(Libraries.composeUi)
     implementation(Libraries.composeMaterial)
     implementation(Libraries.composeTooling)
+    implementation(Libraries.composeIcons)
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
     implementation(Libraries.composeConstraintLayout)

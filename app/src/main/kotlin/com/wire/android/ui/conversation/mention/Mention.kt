@@ -58,7 +58,7 @@ private fun MentionContent(uiState: MentionState) {
                 }
             }
 
-            if (unreadMentions.isNotEmpty()) {
+            if (allMentions.isNotEmpty()) {
                 item { FolderHeader(name = stringResource(R.string.mention_label_all_mentions)) }
                 items(allMentions) { mention ->
                     AllMentionRowItem(mention)

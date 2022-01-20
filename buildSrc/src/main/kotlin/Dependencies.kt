@@ -96,6 +96,7 @@ object Libraries {
     const val composeUi           =  "androidx.compose.ui:ui:${Versions.compose}"
     const val composeMaterial     =  "androidx.compose.material:material:${Versions.compose}"
     const val composeTooling      =  "androidx.compose.ui:ui-tooling:${Versions.compose}"
+    const val composeIcons        = "androidx.compose.material:material-icons-extended:${Versions.compose}"
     const val composeActivity     =  "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeNavigation   =  "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val accompanistPager    = "com.google.accompanist:accompanist-pager:${Versions.accompanist}"

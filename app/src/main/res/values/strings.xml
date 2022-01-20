@@ -2,32 +2,35 @@
 <resources>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
-    <string name="conversation_label_new_activity">NEW ACTIVITY</string>
-
+    <string name="label_login">Login</string>
+    <string name="label_logging_in">Logging in...</string>
     <string name="label_membership_guest">Guest</string>
     <string name="label_memebership_external">External</string>
     <string name="app_logo_description">App Logo</string>
 
+    <!-- Content descriptions -->
+    <string name="content_description_search_back">Search back icon</string>
+    <string name="content_description_clear_content">Clear content</string>
+    <string name="content_description_user_avatar">User avatar</string>
     <string name="conversations_screen_title">Conversations</string>
 
+    <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
-
     <string name="archive_screen_title">Archive</string>
-
+    <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Settings</string>
-
     <string name="support_screen_title">Support</string>
+    <string name="search_bar_hint">Search %s</string>
+    <string name="search_no_results">No matches found</string>
 
-
+    <!-- Welcome -->
     <string name="welcome_wire_logo_content_description">Wire</string>
     <string name="welcome_carousel_item_content_description">Welcome image</string>
     <string name="welcome_footer_text">Want to chat with friends and family?</string>
     <string name="welcome_footer_link">Create a private account for free</string>
     <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
 
-    <string name="label_login">Login</string>
-    <string name="label_logging_in">Logging in...</string>
-
+    <!-- Login -->
     <string name="login_title">Login</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_email_placeholder">jane@example.com or jane.doe</string>
@@ -35,4 +38,8 @@
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
 
+    <!-- Conversations -->
+    <string name="conversation_label_new_activity">NEW ACTIVITY</string>
+    <string name="calls_label_missed_calls">MISSED CALLS</string>
+    <string name="calls_label_calls_history">CALLS HISTORY</string>
 </resources>

@@ -36,6 +36,8 @@ val Typography.title3: TextStyle
         letterSpacing = 0.5.sp
     )
 
+@Suppress("LongParameterList")
+
 val typography = typographyFromDefaults(
     body2 = TextStyle(
         color = Color.Black,

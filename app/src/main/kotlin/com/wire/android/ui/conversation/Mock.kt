@@ -14,7 +14,7 @@ val mockConversations = listOf(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "some test value",
-            memberShip = Membership.Quest,
+            memberShip = Membership.Guest,
             isLegalHold = true
         )
     ),
@@ -61,15 +61,6 @@ val mockConversations = listOf(
     ),
 )
 
-val conversationMockData = mapOf(
-    ConversationFolder("NEW ACTIVITY") to mockConversations,
-    ConversationFolder("FOLDER NAME1") to mockConversations,
-    ConversationFolder("SOME OTHER FOLDER") to mockConversations,
-    ConversationFolder("SOME OTHER Folder1") to mockConversations,
-    ConversationFolder("THIS IS A TEST FOLDER") to mockConversations,
-    ConversationFolder("THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY LONG NAME") to mockConversations
-)
-
 val mockConversation = Conversation(
     userInfo = UserInfo(),
     conversationInfo = ConversationInfo(
@@ -78,6 +69,21 @@ val mockConversation = Conversation(
     )
 )
 
+val conversationMockData = mapOf(
+    ConversationFolder("NEW ACTIVITY") to mockConversations,
+    ConversationFolder("FOLDER NAME1") to mockConversations,
+    ConversationFolder("SOME OTHER FOLDER") to mockConversations,
+    ConversationFolder("SOME OTHER Folder1") to mockConversations,
+    ConversationFolder("THIS IS A TEST FOLDER") to mockConversations,
+    ConversationFolder(
+        "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +
+                " VERY VERY VERY VERY VERY VERY VERY " +
+                "VERY VERY VERY VERY VERY LONG NAME"
+    ) to mockConversations
+)
+
+
+@Suppress("MagicNumber")
 val newActivitiesMockData = listOf(
     NewActivity(EventType.MissedCall, mockConversation),
     NewActivity(EventType.UnreadMention, mockConversation),

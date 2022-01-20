@@ -8,7 +8,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.conversation.all.model.ConversationInfo
 import com.wire.android.ui.conversation.all.model.Membership
@@ -24,7 +24,7 @@ fun UserInfoLabel(conversationInfo: ConversationInfo, modifier: Modifier = Modif
 
             if (memberShip != Membership.None) {
                 Spacer(modifier = Modifier.width(6.dp))
-                MembershipQualifier(label = memberShip.label)
+                MembershipQualifier(label = stringResource(id = memberShip.stringResourceId))
             }
 
             if (isLegalHold) {

@@ -87,7 +87,9 @@ fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier = Modifi
     }
 }
 
+private const val MAX_UNREAD_MESSAGE_COUNT = 99
+
 private fun unReadMessageCountStringify(unreadMessageCount: Int) =
-    if (unreadMessageCount > 99) "99+" else unreadMessageCount.toString()
+    if (unreadMessageCount > MAX_UNREAD_MESSAGE_COUNT) "99+" else unreadMessageCount.toString()
 
 

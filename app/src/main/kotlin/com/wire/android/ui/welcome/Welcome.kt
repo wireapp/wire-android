@@ -167,7 +167,7 @@ private fun WelcomeButtons(modifier: Modifier) {
                 .height(48.dp)
         ) {
             Text(
-                text = stringResource(R.string.welcome_button_login),
+                text = stringResource(R.string.label_login),
                 style = MaterialTheme.typography.button
             )
         }

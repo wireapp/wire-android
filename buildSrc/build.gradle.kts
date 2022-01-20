@@ -3,7 +3,7 @@ private object Dependencies {
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31"
     const val detektGradlePlugin = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.19.0"
     const val junit = "junit:junit:4.13"
-    const val kluent = "org.amshove.kluent:kluent:1.60"
+    const val kluent = "org.amshove.kluent:kluent:1.68"
 }
 
 plugins {
@@ -12,8 +12,8 @@ plugins {
 }
 
 repositories {
-    jcenter()
     google()
+    mavenCentral()
 }
 dependencies {
     implementation(Dependencies.androidBuildTools)

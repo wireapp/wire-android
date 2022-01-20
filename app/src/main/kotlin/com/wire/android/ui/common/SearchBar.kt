@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +39,7 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
     WireTextField(
         modifier = modifier.padding(16.dp),
         value = text,
+
         onValueChange = {
             text = it
             onTextTyped(it.text)
@@ -62,27 +64,18 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
                     showClearButton = false
                 }) {
                     Icon(
+                        modifier = Modifier.height(35.dp),
                         imageVector = Icons.Filled.Close,
                         contentDescription = stringResource(R.string.content_description_clear_content)
                     )
                 }
             }
         },
-        inputMinHeight = 40.dp,
+        textStyle = LocalTextStyle.current.copy(fontSize = 14.sp, textAlign = TextAlign.Start),
         placeholderText = placeholderText,
         maxLines = 1,
         singleLine = true,
     )
-}
-
-@Composable
-fun NoSearchResults() {
-    Column(
-        modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center,
-        horizontalAlignment = CenterHorizontally
-    ) {
-        Text(stringResource(R.string.search_no_results))
-    }
 }
 
 @Preview(showBackground = true)

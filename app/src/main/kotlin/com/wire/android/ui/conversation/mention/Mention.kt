@@ -96,7 +96,6 @@ fun AllMentionRowItem(mention: Mention) {
                 modifier = Modifier.padding(end = 42.dp)
             )
         }
-
     }
 }
 

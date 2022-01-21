@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -66,8 +65,8 @@ internal fun WireTextField(
     state: WireTextFieldState = WireTextFieldState.Default,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    textStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 14.sp, textAlign = TextAlign.Start),
-    placeHolderTextStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 14.sp, textAlign = TextAlign.Center),
+    textStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 15.sp, textAlign = TextAlign.Start),
+    placeholderTextStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 15.sp, textAlign = TextAlign.Start),
     inputMinHeight: Dp = 48.dp,
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireTextFieldColors = wireTextFieldColors(),
@@ -96,7 +95,7 @@ internal fun WireTextField(
                 .background(color = colors.backgroundColor(state).value, shape = shape)
                 .border(width = 1.dp, color = colors.borderColor(state, interactionSource).value, shape = shape),
             decorationBox = { innerTextField ->
-                InnerText(innerTextField, value, leadingIcon, trailingIcon, placeholderText, state, placeHolderTextStyle, inputMinHeight)
+                InnerText(innerTextField, value, leadingIcon, trailingIcon, placeholderText, state, placeholderTextStyle, inputMinHeight)
             },
         )
         val bottomText = when {

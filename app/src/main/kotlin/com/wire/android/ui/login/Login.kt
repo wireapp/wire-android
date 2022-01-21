@@ -22,16 +22,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -46,9 +39,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.R
 import com.wire.android.ui.common.AnimatedButtonColors
+import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 
 
@@ -101,10 +93,7 @@ private fun EmailInput(modifier: Modifier, email: TextFieldValue, onEmailChange:
         onValueChange = onEmailChange,
         placeholderText = stringResource(R.string.login_email_placeholder),
         labelText = stringResource(R.string.login_email_label),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Next
-        ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         modifier = modifier,
     )
 }
@@ -113,24 +102,11 @@ private fun EmailInput(modifier: Modifier, email: TextFieldValue, onEmailChange:
 @Composable
 private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswordChange: (TextFieldValue) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var passwordVisibility by remember { mutableStateOf(false) }
-    WireTextField(
+    WirePasswordTextField(
         value = password,
         onValueChange = onPasswordChange,
-        placeholderText = stringResource(R.string.login_password_placeholder),
-        labelText = stringResource(R.string.login_password_label),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Done
-        ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-        visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-        trailingIcon = {
-            val image = if (passwordVisibility) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-            IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
-                Icon(imageVector = image, "", modifier = Modifier.size(20.dp))
-            }
-        },
         modifier = modifier,
     )
 }
@@ -163,11 +139,12 @@ private fun LoginButton(modifier: Modifier, email: String, password: String) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
         val enabled = validInput(email, password) && !isLoading
+        val buttonColors = AnimatedButtonColors(enabled = enabled)
         Button(
             interactionSource = interactionSource,
             shape = RoundedCornerShape(16.dp),
             elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
-            colors = AnimatedButtonColors(enabled = enabled),
+            colors = buttonColors,
             onClick = { isLoading = true }, //TODO
             enabled = validInput(email, password) && !isLoading,
             modifier = Modifier
@@ -191,8 +168,10 @@ private fun LoginButton(modifier: Modifier, email: String, password: String) {
                     exit =  fadeOut() + scaleOut()
                 ) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp).align(Alignment.CenterEnd),
-                            color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
+                            modifier = Modifier
+                                .size(16.dp)
+                                .align(Alignment.CenterEnd),
+                            color = buttonColors.contentColor(enabled).value,
                             strokeWidth = 2.dp)
                 }
             }

@@ -19,10 +19,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.conversation.common.FolderHeader
 import com.wire.android.ui.conversation.common.UnreadMentionBadge
 import com.wire.android.ui.conversation.common.UserInfoLabel
-import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.conversation.mention.model.Mention
 import com.wire.android.ui.theme.subLine1
 
@@ -64,45 +64,40 @@ private fun MentionContent(uiState: MentionState) {
 
 @Composable
 fun UnreadMentionRowItem(unreadMention: Mention) {
-    SurfaceBackgroundWrapper(
-        content = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(16.dp)
-            ) {
-                MentionLabel(
-                    mention = unreadMention,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 16.dp)
-                )
-                UnreadMentionBadge(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(start = 4.dp)
-                )
-            }
-        },
-        modifier = Modifier.padding(0.5.dp)
-    )
+    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            MentionLabel(
+                mention = unreadMention,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 16.dp)
+            )
+            UnreadMentionBadge(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(start = 4.dp)
+            )
+        }
+    }
 }
 
 @Composable
 fun AllMentionRowItem(mention: Mention) {
-    SurfaceBackgroundWrapper(
-        content = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(16.dp)
-            ) {
-                MentionLabel(
-                    mention = mention,
-                    modifier = Modifier.padding(end = 42.dp)
-                )
-            }
-        },
-        modifier = Modifier.padding(0.5.dp)
-    )
+    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            MentionLabel(
+                mention = mention,
+                modifier = Modifier.padding(end = 42.dp)
+            )
+        }
+
+    }
 }
 
 @Composable

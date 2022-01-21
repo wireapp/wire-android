@@ -23,10 +23,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.conversation.common.EventBadgeFactory
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.conversation.all.model.Conversation
 import com.wire.android.ui.conversation.all.model.NewActivity
+import com.wire.android.ui.conversation.common.EventBadgeFactory
 import com.wire.android.ui.conversation.common.FolderHeader
 import com.wire.android.ui.conversation.common.UserInfoLabel
 
@@ -84,30 +84,26 @@ private fun ConversationListFloatingActionButton() {
 
 @Composable
 private fun NewActivityRowItem(newActivity: NewActivity) {
-    SurfaceBackgroundWrapper(
-        content = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                UserInfoLabel(conversationInfo = newActivity.conversation.conversationInfo, Modifier.padding(16.dp))
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    EventBadgeFactory(
-                        eventType = newActivity.eventType,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 8.dp)
-                    )
-                }
+    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            UserInfoLabel(conversationInfo = newActivity.conversation.conversationInfo, Modifier.padding(16.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                EventBadgeFactory(
+                    eventType = newActivity.eventType,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 8.dp)
+                )
             }
-        }, modifier = Modifier.padding(0.5.dp)
-    )
+        }
+    }
 }
 
 @Composable
 private fun ConversationRowItem(conversation: Conversation) {
-    SurfaceBackgroundWrapper(
-        content = {
-            UserInfoLabel(conversationInfo = conversation.conversationInfo, Modifier.padding(16.dp))
-        }, modifier = Modifier.padding(0.5.dp)
-    )
+    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
+        UserInfoLabel(conversationInfo = conversation.conversationInfo, Modifier.padding(16.dp))
+    }
 }
 
 

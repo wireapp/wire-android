@@ -26,9 +26,10 @@ import com.wire.android.R
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.conversation.all.model.Conversation
 import com.wire.android.ui.conversation.all.model.NewActivity
+import com.wire.android.ui.conversation.all.model.toUserInfoLabel
 import com.wire.android.ui.conversation.common.EventBadgeFactory
 import com.wire.android.ui.conversation.common.FolderHeader
-import com.wire.android.ui.conversation.common.UserInfoLabel
+import com.wire.android.ui.conversation.common.UserLabel
 import com.wire.android.ui.theme.Dimensions
 
 @Preview
@@ -88,7 +89,7 @@ private fun NewActivityRowItem(newActivity: NewActivity) {
     SurfaceBackgroundWrapper(
         content = {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(Dimensions.CONVERSATION_ITEM_ROW_PADDING)) {
-                UserInfoLabel(conversationInfo = newActivity.conversation.conversationInfo)
+                UserLabel(newActivity.conversation.toUserInfoLabel())
                 Box(modifier = Modifier.fillMaxWidth()) {
                     EventBadgeFactory(
                         eventType = newActivity.eventType,
@@ -106,7 +107,7 @@ private fun NewActivityRowItem(newActivity: NewActivity) {
 private fun ConversationRowItem(conversation: Conversation) {
     SurfaceBackgroundWrapper(
         content = {
-            UserInfoLabel(conversationInfo = conversation.conversationInfo)
+            UserLabel(conversation.toUserInfoLabel())
         }, modifier = Modifier.padding(0.5.dp)
     )
 }

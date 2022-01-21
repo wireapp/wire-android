@@ -11,23 +11,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.conversation.all.model.ConversationInfo
 import com.wire.android.ui.conversation.all.model.Membership
 
 @Composable
-fun UserInfoLabel(conversationInfo: ConversationInfo, modifier: Modifier = Modifier) {
+fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        with(conversationInfo) {
-            UserProfileAvatar(avatarUrl = "", onClick = {})
+        with(userInfoLabel) {
+            UserProfileAvatar(avatarUrl = avatarUrl, onClick = {})
             Spacer(modifier = Modifier.width(12.dp))
-            ConversationName(name)
+            ConversationName(labelName)
 
-            if (memberShip != Membership.None) {
+            if (membership != Membership.None) {
                 Spacer(modifier = Modifier.width(6.dp))
-                MembershipQualifier(label = stringResource(id = memberShip.stringResourceId))
+                MembershipQualifier(label = stringResource(id = membership.stringResourceId))
             }
 
             if (isLegalHold) {
@@ -46,3 +45,9 @@ private fun ConversationName(name: String) {
     )
 }
 
+data class UserInfoLabel(
+    val avatarUrl: String,
+    val labelName: String,
+    val isLegalHold: Boolean,
+    val membership: Membership,
+)

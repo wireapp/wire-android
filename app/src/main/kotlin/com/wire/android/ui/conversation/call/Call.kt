@@ -24,12 +24,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
+import com.wire.android.ui.conversation.all.model.toUserInfoLabel
 import com.wire.android.ui.conversation.call.model.Call
 import com.wire.android.ui.conversation.call.model.CallEvent
 import com.wire.android.ui.conversation.call.model.CallTime
 import com.wire.android.ui.conversation.common.FolderHeader
 import com.wire.android.ui.conversation.common.MissedCallBadge
 import com.wire.android.ui.conversation.common.UserInfoLabel
+import com.wire.android.ui.conversation.common.UserLabel
 import com.wire.android.ui.theme.Dimensions
 import com.wire.android.ui.theme.subLine1
 
@@ -107,7 +109,7 @@ private fun CallHistoryRowItem(callHistory: Call) {
 @Composable
 private fun CallLabel(call: Call) {
     Column {
-        UserInfoLabel(conversationInfo = call.conversation.conversationInfo)
+        UserLabel(call.conversation.toUserInfoLabel())
         with(call.callInfo) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TimeLabel(callTime = callTime)

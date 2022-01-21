@@ -3,15 +3,13 @@ package com.wire.android.ui.common
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -20,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -54,24 +51,27 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
             }
         },
         trailingIcon = {
-            AnimatedVisibility(
-                visible = showClearButton,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                IconButton(onClick = {
-                    text = TextFieldValue()
-                    showClearButton = false
-                }) {
-                    Icon(
-                        modifier = Modifier.height(35.dp),
-                        imageVector = Icons.Filled.Close,
-                        contentDescription = stringResource(R.string.content_description_clear_content)
-                    )
+            Box(modifier = Modifier.size(40.dp)) {
+                AnimatedVisibility(
+                    visible = showClearButton,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    IconButton(onClick = {
+                        text = TextFieldValue()
+                        showClearButton = false
+                    }) {
+                        Icon(
+                            modifier = Modifier.height(35.dp),
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = stringResource(R.string.content_description_clear_content)
+                        )
+                    }
                 }
             }
         },
         textStyle = LocalTextStyle.current.copy(fontSize = 14.sp, textAlign = TextAlign.Start),
+        placeholderTextStyle = LocalTextStyle.current.copy(fontSize = 14.sp, textAlign = TextAlign.Center),
         placeholderText = placeholderText,
         maxLines = 1,
         singleLine = true,

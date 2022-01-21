@@ -16,7 +16,6 @@ data class Conversation(
 
 fun Conversation.toUserInfoLabel() =
     UserInfoLabel(
-        avatarUrl = userInfo.avatarUrl,
         labelName = conversationInfo.name,
         isLegalHold = conversationInfo.isLegalHold,
         membership = conversationInfo.memberShip,

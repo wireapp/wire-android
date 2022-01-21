@@ -20,8 +20,6 @@ fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         with(userInfoLabel) {
-            UserProfileAvatar(avatarUrl = avatarUrl, onClick = {})
-            Spacer(modifier = Modifier.width(12.dp))
             ConversationName(labelName)
 
             if (membership != Membership.None) {
@@ -46,7 +44,6 @@ private fun ConversationName(name: String) {
 }
 
 data class UserInfoLabel(
-    val avatarUrl: String,
     val labelName: String,
     val isLegalHold: Boolean,
     val membership: Membership,

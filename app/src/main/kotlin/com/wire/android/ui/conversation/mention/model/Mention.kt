@@ -10,7 +10,5 @@ data class Mention(
 data class MentionInfo(val mentionMessage: MentionMessage)
 
 data class MentionMessage(val message: String) {
-    fun toQuote(): String {
-        return "\"$message\""
-    }
+    fun toQuote() = "\"$message"\""
 }

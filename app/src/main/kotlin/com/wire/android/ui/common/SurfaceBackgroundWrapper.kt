@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun SurfaceBackgroundWrapper(content: @Composable () -> Unit, modifier: Modifier = Modifier) {
+fun SurfaceBackgroundWrapper(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Box(
         modifier = modifier
             .fillMaxWidth()

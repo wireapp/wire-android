@@ -30,9 +30,7 @@ import com.wire.android.ui.conversation.call.model.CallEvent
 import com.wire.android.ui.conversation.call.model.CallTime
 import com.wire.android.ui.conversation.common.FolderHeader
 import com.wire.android.ui.conversation.common.MissedCallBadge
-import com.wire.android.ui.conversation.common.UserInfoLabel
 import com.wire.android.ui.conversation.common.UserLabel
-import com.wire.android.ui.theme.Dimensions
 import com.wire.android.ui.theme.subLine1
 
 @Preview
@@ -73,37 +71,33 @@ fun CallContent(uiState: CallState) {
 
 @Composable
 fun MissedCallRowItem(missedCall: Call) {
-    SurfaceBackgroundWrapper(
-        content = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(Dimensions.CONVERSATION_ITEM_ROW_PADDING)
-            ) {
-                CallLabel(missedCall)
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    MissedCallBadge(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 8.dp)
-                    )
-                }
+    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            CallLabel(missedCall)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                MissedCallBadge(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 8.dp)
+                )
             }
-        }, modifier = Modifier.padding(0.5.dp)
-    )
+        }
+    }
 }
 
 @Composable
 private fun CallHistoryRowItem(callHistory: Call) {
-    SurfaceBackgroundWrapper(
-        content = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                CallLabel(callHistory)
-            }
-        }, modifier = Modifier.padding(0.5.dp)
-    )
+    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            CallLabel(callHistory)
+        }
+    }
 }
 
 @Composable

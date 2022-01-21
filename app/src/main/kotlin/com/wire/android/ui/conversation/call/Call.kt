@@ -23,10 +23,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.conversation.call.model.CallTime
 import com.wire.android.ui.conversation.call.model.Call
 import com.wire.android.ui.conversation.call.model.CallEvent
-import com.wire.android.ui.conversation.call.model.CallInfo
+import com.wire.android.ui.conversation.call.model.CallTime
 import com.wire.android.ui.conversation.common.FolderHeader
 import com.wire.android.ui.conversation.common.MissedCallBadge
 import com.wire.android.ui.conversation.common.UserInfoLabel

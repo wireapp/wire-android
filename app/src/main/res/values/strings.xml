@@ -39,7 +39,9 @@
     <string name="login_password_label">PASSWORD</string>
 
     <!-- Conversations -->
-    <string name="conversation_label_new_activity">NEW ACTIVITY</string>
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALLS HISTORY</string>
+    <string name="conversation_label_new_activity">NEW ACTIVITY</string>
+    <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
+    <string name="mention_label_all_mentions">ALL MENTIONS</string>
 </resources>

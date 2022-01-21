@@ -8,6 +8,9 @@ import com.wire.android.ui.conversation.all.model.EventType
 import com.wire.android.ui.conversation.all.model.Membership
 import com.wire.android.ui.conversation.all.model.NewActivity
 import com.wire.android.ui.conversation.all.model.UserInfo
+import com.wire.android.ui.conversation.mention.model.Mention
+import com.wire.android.ui.conversation.mention.model.MentionInfo
+import com.wire.android.ui.conversation.mention.model.MentionMessage
 
 val mockConversations = listOf(
     Conversation(
@@ -97,3 +100,38 @@ val newActivitiesMockData = listOf(
     NewActivity(EventType.UnreadReply, mockConversation)
 )
 
+
+val mockShortMentionInfo = MentionInfo(mentionMessage = MentionMessage("Short message"))
+
+val mockLongMentionInfo = MentionInfo(
+    mentionMessage = MentionMessage(
+        "THis is a very very very very very very very " +
+                "very very very very very very very" +
+                " very very very very very very very " +
+                "very very very very very very very mention message"
+    )
+)
+
+val mockUnreadMentionList = listOf(
+    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
+    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
+)
+
+val mockAllMentionList = listOf(
+    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
+    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
+    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
+    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
+    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
+    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
+    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
+    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
+    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
+    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
+    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
+    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
+    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
+    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
+    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
+    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
+)

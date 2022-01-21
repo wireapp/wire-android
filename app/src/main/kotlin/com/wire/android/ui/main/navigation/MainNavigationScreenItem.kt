@@ -6,11 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.R
 import com.wire.android.ui.main.archive.ArchiveScreen
-import com.wire.android.ui.main.convesations.ConversationsScreen
 import com.wire.android.ui.main.settings.SettingsScreen
 import com.wire.android.ui.main.support.SupportScreen
 import com.wire.android.ui.main.vault.VaultScreen
 import com.wire.android.ui.main.userprofile.UserProfileScreen
+import com.wire.android.ui.conversation.all.Conversation
+
 
 enum class MainNavigationScreenItem(
     @DrawableRes val icon: Int,
@@ -24,7 +25,7 @@ enum class MainNavigationScreenItem(
         title = R.string.conversations_screen_title,
         route = "conversations",
         hasSearchableTopBar = true,
-        content = { ConversationsScreen() }
+        content = { Conversation() }
     ),
 
     Vault(

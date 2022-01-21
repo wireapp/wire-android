@@ -1,8 +1,9 @@
-package com.wire.android.ui.common
+package com.wire.android.ui.theme
 
 import androidx.compose.ui.unit.dp
 
 @Suppress("MagicNumber")
 object Dimensions {
     val USER_AVATAR_DEFAULT_SIZE = 24.dp
+    val CONVERSATION_ITEM_ROW_PADDING = 8.dp
 }

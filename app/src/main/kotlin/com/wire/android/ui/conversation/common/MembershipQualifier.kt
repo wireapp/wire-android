@@ -8,8 +8,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.WireColor
@@ -29,10 +27,8 @@ fun MembershipQualifier(label: String) {
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(
-                start = 4.dp,
-                top = 2.dp,
-                bottom = 2.dp,
-                end = 4.dp
+                horizontal = 4.dp,
+                vertical = 2.dp
             )
     )
 }

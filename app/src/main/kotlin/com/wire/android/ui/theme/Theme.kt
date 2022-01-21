@@ -24,7 +24,8 @@ private val WireLightColors = lightColors(
     secondary = WireColor.LightBlue,
     onSecondary = Color.White,
     background = WireColor.LightGray,
-    onBackground = WireColor.LightBlack
+    onBackground = WireColor.LightBlack,
+    error = WireColor.LightRed
 )
 
 private val WireDarkColors = darkColors(

@@ -19,10 +19,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.conversation.common.FolderHeader
-import com.wire.android.ui.conversation.common.UnreadMentionBadge
-import com.wire.android.ui.conversation.common.UserInfoLabel
-import com.wire.android.ui.conversation.common.WhiteBackgroundWrapper
+import com.wire.android.ui.conversation.widget.FolderHeader
+import com.wire.android.ui.conversation.widget.UnreadMentionBadge
+import com.wire.android.ui.conversation.widget.UserInfoLabel
+import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.conversation.mention.model.Mention
 import com.wire.android.ui.theme.subLine1
 
@@ -64,7 +64,7 @@ private fun MentionContent(uiState: MentionState) {
 
 @Composable
 fun UnreadMentionRowItem(unreadMention: Mention) {
-    WhiteBackgroundWrapper(
+    SurfaceBackgroundWrapper(
         content = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -89,7 +89,7 @@ fun UnreadMentionRowItem(unreadMention: Mention) {
 
 @Composable
 fun AllMentionRowItem(mention: Mention) {
-    WhiteBackgroundWrapper(
+    SurfaceBackgroundWrapper(
         content = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

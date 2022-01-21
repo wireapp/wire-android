@@ -23,12 +23,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.conversation.common.EventBadgeFactory
-import com.wire.android.ui.conversation.common.WhiteBackgroundWrapper
+import com.wire.android.ui.conversation.widget.EventBadgeFactory
+import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.conversation.all.model.Conversation
 import com.wire.android.ui.conversation.all.model.NewActivity
-import com.wire.android.ui.conversation.common.FolderHeader
-import com.wire.android.ui.conversation.common.UserInfoLabel
+import com.wire.android.ui.conversation.widget.FolderHeader
+import com.wire.android.ui.conversation.widget.UserInfoLabel
 
 @Preview
 @Composable
@@ -84,7 +84,7 @@ private fun ConversationListFloatingActionButton() {
 
 @Composable
 private fun NewActivityRowItem(newActivity: NewActivity) {
-    WhiteBackgroundWrapper(
+    SurfaceBackgroundWrapper(
         content = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 UserInfoLabel(conversationInfo = newActivity.conversation.conversationInfo, Modifier.padding(16.dp))
@@ -103,7 +103,7 @@ private fun NewActivityRowItem(newActivity: NewActivity) {
 
 @Composable
 private fun ConversationRowItem(conversation: Conversation) {
-    WhiteBackgroundWrapper(
+    SurfaceBackgroundWrapper(
         content = {
             UserInfoLabel(conversationInfo = conversation.conversationInfo, Modifier.padding(16.dp))
         }, modifier = Modifier.padding(0.5.dp)

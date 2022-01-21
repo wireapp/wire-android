@@ -26,10 +26,10 @@ import com.wire.android.R
 import com.wire.android.ui.conversation.call.model.Call
 import com.wire.android.ui.conversation.call.model.CallEvent
 import com.wire.android.ui.conversation.call.model.CallTime
-import com.wire.android.ui.conversation.common.FolderHeader
-import com.wire.android.ui.conversation.common.MissedCallBadge
-import com.wire.android.ui.conversation.common.UserInfoLabel
-import com.wire.android.ui.conversation.common.WhiteBackgroundWrapper
+import com.wire.android.ui.conversation.widget.FolderHeader
+import com.wire.android.ui.conversation.widget.MissedCallBadge
+import com.wire.android.ui.conversation.widget.UserInfoLabel
+import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.theme.subLine1
 
 @Preview
@@ -70,7 +70,7 @@ fun CallContent(uiState: CallState) {
 
 @Composable
 fun MissedCallRowItem(missedCall: Call) {
-    WhiteBackgroundWrapper(
+    SurfaceBackgroundWrapper(
         content = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -91,7 +91,7 @@ fun MissedCallRowItem(missedCall: Call) {
 
 @Composable
 private fun CallHistoryRowItem(callHistory: Call) {
-    WhiteBackgroundWrapper(
+    SurfaceBackgroundWrapper(
         content = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

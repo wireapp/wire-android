@@ -13,9 +13,7 @@ fun ConversationsScreen() {
         .map { it.intoBottomNavigationItemData(12) }
 
     Scaffold(
-        bottomBar = {
-            WireBottomNavigationBar(navController = navController, items = items)
-        }
+        bottomBar = { WireBottomNavigationBar(items, navController) }
     ) {
         ConversationsNavigationGraph(navController = navController)
     }

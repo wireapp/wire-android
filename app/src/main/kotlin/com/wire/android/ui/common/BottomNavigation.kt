@@ -6,16 +6,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,55 +27,50 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.wire.android.ui.main.convesations.ConversationsNavigationItem
-import com.wire.android.ui.theme.WireColor
-import com.wire.android.ui.theme.WireLightColors
+import com.wire.android.ui.theme.button5
 
 @Composable
-fun WireBottomNavigationBar(items: List<WireBottomNavigationItemData>, navController: NavController, spaceBetweenItems: Dp = 18.dp) {
+fun WireBottomNavigationBar(
+    items: List<WireBottomNavigationItemData>,
+    navController: NavController,
+    spaceBetweenItems: Dp = 16.dp
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    Column {
-        Spacer(
-            Modifier
-                .background(WireColor.LightShadow)
-                .fillMaxWidth()
-                .height(1.dp)
-        )
+    BottomNavigation(backgroundColor = MaterialTheme.colors.surface) {
+        items.forEachIndexed { index, item ->
+            val modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .background(MaterialTheme.colors.surface)
+                .padding(
+                    top = Dimensions.bottomNavigationPadding,
+                    bottom = Dimensions.bottomNavigationPadding,
+                    start = Dimensions.bottomNavigationPadding + if (index == 0) 0.dp else spaceBetweenItems / 2,
+                    end = Dimensions.bottomNavigationPadding + if (index == items.lastIndex) 0.dp else spaceBetweenItems / 2
+                )
 
-        Row(
-            modifier = Modifier
-                .padding(4.dp)
-                .fillMaxWidth()
-                .background(WireColor.LightBackgroundWhite)
-                .height(58.dp)
-        ) {
-            items.forEachIndexed { index, item ->
-                WireBottomNavigationItem(item, currentRoute == item.route) {
-                    navController.navigate(item.route) {
-                        popUpTo(0) {
-                            saveState = true
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
+            WireBottomNavigationItem(
+                data = item,
+                selected = currentRoute == item.route,
+                modifier = modifier
+            ) {
+                navController.navigate(item.route) {
+                    popUpTo(0) {
+                        saveState = true
+                        inclusive = true
                     }
-                }
-
-                if (index < items.size - 1) {
-                    Spacer(modifier = Modifier.width(spaceBetweenItems))
+                    launchSingleTop = true
+                    restoreState = true
                 }
             }
         }
-
     }
 }
 
@@ -84,18 +78,17 @@ fun WireBottomNavigationBar(items: List<WireBottomNavigationItemData>, navContro
 fun RowScope.WireBottomNavigationItem(
     data: WireBottomNavigationItemData,
     selected: Boolean,
+    modifier: Modifier = Modifier,
     onItemClick: (WireBottomNavigationItemData) -> Unit
 ) {
-    val backgroundColor = if (selected) WireLightColors.secondary.copy(0.12f) else Color.Transparent
-    val contentColor = if (selected) WireLightColors.secondary else WireLightColors.onBackground
+    val backgroundColor = if (selected) MaterialTheme.colors.secondary.copy(0.12f) else Color.Transparent
+    val contentColor = if (selected) MaterialTheme.colors.secondary else MaterialTheme.colors.onBackground
     Box(
-        Modifier
-            .weight(1f)
-            .fillMaxHeight()
+        modifier
             .selectableBackground(selected) { onItemClick(data) }
             .clip(RoundedCornerShape(6.dp))
             .background(backgroundColor)
-            .padding(6.dp)
+            .padding(Dimensions.bottomNavigationItemPadding)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -112,7 +105,7 @@ fun RowScope.WireBottomNavigationItem(
             )
             Text(
                 text = stringResource(id = data.title),
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.button5,
                 color = contentColor,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -130,11 +123,11 @@ fun RowScope.WireBottomNavigationItem(
                 Text(
                     text = data.notificationAmount.toString(),
                     fontSize = 10.sp,
-                    color = WireColor.LightTextWhite,
+                    color = MaterialTheme.colors.onSecondary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))
-                        .background(WireColor.LightRed)
+                        .background(MaterialTheme.colors.error)
                         .align(Alignment.Center)
                         .padding(top = 2.dp, bottom = 2.dp, start = 4.dp, end = 4.dp)
                         .defaultMinSize(minWidth = 12.dp)
@@ -151,12 +144,3 @@ data class WireBottomNavigationItemData(
     val route: String,
     val content: @Composable (NavBackStackEntry) -> Unit
 )
-
-@Preview(showBackground = false)
-@Composable
-fun WireBottomNavigationBarPreview() {
-    val navController = rememberNavController()
-    val items = ConversationsNavigationItem.values()
-        .map { it.intoBottomNavigationItemData(12) }
-    WireBottomNavigationBar(items, navController)
-}

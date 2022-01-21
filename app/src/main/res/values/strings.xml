@@ -12,6 +12,9 @@
     <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_user_avatar">User avatar</string>
     <string name="conversations_screen_title">Conversations</string>
+    <string name="conversations_all_tab_title">All</string>
+    <string name="conversations_calls_tab_title">Calls</string>
+    <string name="conversations_mentions_tab_title">Mentions</string>
 
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>

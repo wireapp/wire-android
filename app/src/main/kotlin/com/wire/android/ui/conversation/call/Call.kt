@@ -29,7 +29,7 @@ import com.wire.android.ui.conversation.call.model.CallTime
 import com.wire.android.ui.conversation.common.FolderHeader
 import com.wire.android.ui.conversation.common.MissedCallBadge
 import com.wire.android.ui.conversation.common.UserInfoLabel
-import com.wire.android.ui.conversation.common.WhiteBackgroundWrapper
+import com.wire.android.ui.common.WhiteBackgroundWrapper
 import com.wire.android.ui.theme.subLine1
 
 @Preview

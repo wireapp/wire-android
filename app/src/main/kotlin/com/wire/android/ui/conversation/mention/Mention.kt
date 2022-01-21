@@ -22,7 +22,7 @@ import com.wire.android.R
 import com.wire.android.ui.conversation.common.FolderHeader
 import com.wire.android.ui.conversation.common.UnreadMentionBadge
 import com.wire.android.ui.conversation.common.UserInfoLabel
-import com.wire.android.ui.conversation.common.WhiteBackgroundWrapper
+import com.wire.android.ui.common.WhiteBackgroundWrapper
 import com.wire.android.ui.conversation.mention.model.Mention
 import com.wire.android.ui.theme.subLine1
 

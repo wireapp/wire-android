@@ -36,6 +36,16 @@ val Typography.title3: TextStyle
         letterSpacing = 0.5.sp
     )
 
+val Typography.button5: TextStyle
+    get() = TextStyle(
+        color = WireColor.Dark80Gray,
+        fontWeight = FontWeight.W500,
+        fontStyle = FontStyle.Normal,
+        fontSize = 12.sp,
+        lineHeight = 14.sp,
+        letterSpacing = 0.3.sp
+    )
+
 val typography = typographyFromDefaults(
     body2 = TextStyle(
         color = Color.Black,

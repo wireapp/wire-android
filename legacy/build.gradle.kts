@@ -96,6 +96,8 @@ dependencies {
     implementation(Libraries.Room.ktx)
     kapt(Libraries.Room.compiler)
 
+    implementation("com.github.poovamraj:PinEditTextField:1.2.6")
+
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)
     testImplementation(TestLibraries.junit4)

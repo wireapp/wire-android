@@ -97,15 +97,15 @@ dependencies {
 
     // lifecycle
     // ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+    implementation(Libraries.Lifecycle.viewModel)
     // ViewModel utilities for Compose
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
+    implementation(Libraries.Lifecycle.viewModelCompose)
     // LiveData
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.0")
+    implementation(Libraries.Lifecycle.liveData)
     // Lifecycles only (without ViewModel or LiveData)
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
+    implementation(Libraries.Lifecycle.runtime)
     // Saved state module for ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.4.0")
+    implementation(Libraries.Lifecycle.viewModelSavedState)
 
     //Compose
     implementation(Libraries.composeUi)

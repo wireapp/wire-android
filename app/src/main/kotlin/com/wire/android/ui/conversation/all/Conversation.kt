@@ -1,7 +1,6 @@
 package com.wire.android.ui.conversation.all
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,12 +22,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.SurfaceBackgroundWrapper
+import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.conversation.all.model.Conversation
 import com.wire.android.ui.conversation.all.model.NewActivity
+import com.wire.android.ui.conversation.all.model.toUserInfoLabel
 import com.wire.android.ui.conversation.common.EventBadgeFactory
 import com.wire.android.ui.conversation.common.FolderHeader
-import com.wire.android.ui.conversation.common.UserInfoLabel
+import com.wire.android.ui.conversation.common.RowItem
+import com.wire.android.ui.conversation.common.UserLabel
 
 @Preview
 @Composable
@@ -84,26 +85,30 @@ private fun ConversationListFloatingActionButton() {
 
 @Composable
 private fun NewActivityRowItem(newActivity: NewActivity) {
-    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            UserInfoLabel(conversationInfo = newActivity.conversation.conversationInfo, Modifier.padding(16.dp))
-            Box(modifier = Modifier.fillMaxWidth()) {
-                EventBadgeFactory(
-                    eventType = newActivity.eventType,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 8.dp)
-                )
-            }
+    RowItem {
+        ConversationLabel(newActivity.conversation)
+        Box(modifier = Modifier.fillMaxWidth()) {
+            EventBadgeFactory(
+                eventType = newActivity.eventType,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 8.dp)
+            )
         }
     }
 }
 
 @Composable
 private fun ConversationRowItem(conversation: Conversation) {
-    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
-        UserInfoLabel(conversationInfo = conversation.conversationInfo, Modifier.padding(16.dp))
+    RowItem {
+        ConversationLabel(conversation)
     }
+}
+
+@Composable
+private fun ConversationLabel(conversation: Conversation) {
+    UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
+    UserLabel(conversation.toUserInfoLabel())
 }
 
 

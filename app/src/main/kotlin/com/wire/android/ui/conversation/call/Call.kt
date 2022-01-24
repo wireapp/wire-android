@@ -23,13 +23,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.SurfaceBackgroundWrapper
+import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.conversation.all.model.toUserInfoLabel
 import com.wire.android.ui.conversation.call.model.Call
 import com.wire.android.ui.conversation.call.model.CallEvent
 import com.wire.android.ui.conversation.call.model.CallTime
 import com.wire.android.ui.conversation.common.FolderHeader
 import com.wire.android.ui.conversation.common.MissedCallBadge
-import com.wire.android.ui.conversation.common.UserInfoLabel
+import com.wire.android.ui.conversation.common.RowItem
+import com.wire.android.ui.conversation.common.UserLabel
 import com.wire.android.ui.theme.subLine1
 
 @Preview
@@ -70,44 +72,37 @@ fun CallContent(uiState: CallState) {
 
 @Composable
 fun MissedCallRowItem(missedCall: Call) {
-    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            CallLabel(missedCall)
-            Box(modifier = Modifier.fillMaxWidth()) {
-                MissedCallBadge(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 8.dp)
-                )
-            }
+    RowItem {
+        CallLabel(missedCall)
+        Box(modifier = Modifier.fillMaxWidth()) {
+            MissedCallBadge(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 8.dp)
+            )
         }
     }
 }
 
 @Composable
 private fun CallHistoryRowItem(callHistory: Call) {
-    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            CallLabel(callHistory)
-        }
+    RowItem {
+        CallLabel(callHistory)
     }
 }
 
 @Composable
 private fun CallLabel(call: Call) {
-    Column {
-        UserInfoLabel(conversationInfo = call.conversation.conversationInfo)
-        with(call.callInfo) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TimeLabel(callTime = callTime)
-                Spacer(modifier = Modifier.width(6.dp))
-                CallEventIcon(callEvent = callEvent)
+    with(call) {
+        UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
+        Column {
+            UserLabel(conversation.toUserInfoLabel())
+            with(callInfo) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TimeLabel(callTime = callTime)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    CallEventIcon(callEvent = callEvent)
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ package com.wire.android.ui.conversation.all.model
 
 import androidx.annotation.StringRes
 import com.wire.android.R
+import com.wire.android.ui.conversation.common.UserInfoLabel
 
 
 data class ConversationFolder(
@@ -13,9 +14,16 @@ data class Conversation(
     val conversationInfo: ConversationInfo
 )
 
+fun Conversation.toUserInfoLabel() =
+    UserInfoLabel(
+        labelName = conversationInfo.name,
+        isLegalHold = conversationInfo.isLegalHold,
+        membership = conversationInfo.membership,
+    )
+
 data class ConversationInfo(
     val name: String,
-    val memberShip: Membership = Membership.None,
+    val membership: Membership = Membership.None,
     val isLegalHold: Boolean = false
 )
 

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.wire.android.ui.theme.Dimensions
 import com.wire.android.ui.theme.button5
 
 @Composable

@@ -12,17 +12,18 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.SurfaceBackgroundWrapper
+import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.conversation.all.model.toUserInfoLabel
 import com.wire.android.ui.conversation.common.FolderHeader
+import com.wire.android.ui.conversation.common.RowItem
 import com.wire.android.ui.conversation.common.UnreadMentionBadge
-import com.wire.android.ui.conversation.common.UserInfoLabel
+import com.wire.android.ui.conversation.common.UserLabel
 import com.wire.android.ui.conversation.mention.model.Mention
 import com.wire.android.ui.theme.subLine1
 
@@ -64,52 +65,45 @@ private fun MentionContent(uiState: MentionState) {
 
 @Composable
 fun UnreadMentionRowItem(unreadMention: Mention) {
-    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            MentionLabel(
-                mention = unreadMention,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 16.dp)
-            )
-            UnreadMentionBadge(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(start = 4.dp)
-            )
-        }
+    RowItem {
+        MentionLabel(
+            mention = unreadMention,
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 16.dp)
+        )
+        UnreadMentionBadge(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(start = 4.dp)
+        )
     }
 }
 
 @Composable
 fun AllMentionRowItem(mention: Mention) {
-    SurfaceBackgroundWrapper(modifier = Modifier.padding(0.5.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            MentionLabel(
-                mention = mention,
-                modifier = Modifier.padding(end = 42.dp)
-            )
-        }
+    RowItem {
+        MentionLabel(
+            mention = mention,
+            modifier = Modifier.padding(end = 42.dp)
+        )
     }
 }
 
 @Composable
 fun MentionLabel(mention: Mention, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
+    Row(modifier = modifier) {
         with(mention) {
-            UserInfoLabel(conversationInfo = conversation.conversationInfo)
-            Text(
-                text = mentionInfo.mentionMessage.toQuote(),
-                style = MaterialTheme.typography.subLine1,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
+            Column {
+                UserLabel(conversation.toUserInfoLabel())
+                Text(
+                    text = mentionInfo.mentionMessage.toQuote(),
+                    style = MaterialTheme.typography.subLine1,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }

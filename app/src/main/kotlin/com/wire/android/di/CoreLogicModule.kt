@@ -26,5 +26,5 @@ class CoreLogicModule {
 
     @Singleton
     @Provides
-    fun loginUserCaseProvider(coreLogic: CoreLogic): LoginUseCase = coreLogic.getAuthenticationScope().loginUsingEmail
+    fun loginUseCaseProvider(coreLogic: CoreLogic): LoginUseCase = coreLogic.getAuthenticationScope().loginUsingEmail
 }

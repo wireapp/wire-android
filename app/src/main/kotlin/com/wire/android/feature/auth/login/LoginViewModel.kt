@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.util.EMPTY
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.wire.kalium.logic.feature.auth.LoginUseCase
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -28,7 +29,7 @@ class LoginViewModel @Inject constructor(
 
     fun login() {
         viewModelScope.launch {
-            when (val loginResult = loginUseCase(userIdentifier.value, password.value)) {
+            when (val loginResult = loginUseCase(userIdentifier.value, password.value, true)) {
                 is AuthenticationResult.Failure.Generic -> TODO()
                 is AuthenticationResult.Failure.InvalidCredentials -> TODO()
                 is AuthenticationResult.Failure.InvalidUserIdentifier -> TODO()

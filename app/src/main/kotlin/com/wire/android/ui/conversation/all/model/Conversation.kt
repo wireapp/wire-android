@@ -18,12 +18,12 @@ fun Conversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
         isLegalHold = conversationInfo.isLegalHold,
-        membership = conversationInfo.memberShip,
+        membership = conversationInfo.membership,
     )
 
 data class ConversationInfo(
     val name: String,
-    val memberShip: Membership = Membership.None,
+    val membership: Membership = Membership.None,
     val isLegalHold: Boolean = false
 )
 

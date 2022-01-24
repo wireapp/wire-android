@@ -3,6 +3,10 @@ buildscript {
         google()
         mavenCentral()
     }
+    dependencies {
+        classpath(Libraries.Hilt.gradlePlugin)
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
+    }
 }
 
 allprojects {

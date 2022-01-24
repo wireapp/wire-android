@@ -4,8 +4,10 @@ plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
     id(BuildPlugins.kotlinAndroid)
-    id(BuildPlugins.kotlinAndroidExtensions)
+    //id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinKapt)
+    id(BuildPlugins.hilt)
+    kotlin(BuildPlugins.kapt)
 
     // Internal Script plugins
     id(ScriptPlugins.variants)
@@ -29,12 +31,13 @@ android {
         versionName = "v${AndroidClient.versionName}(${versionCode})"
         testInstrumentationRunner = AndroidClient.testRunner
         setProperty("archivesBaseName", "${applicationId}-v${versionName}(${versionCode})")
-
+        /*
         kapt {
             arguments {
                 arg("room.schemaLocation", "$projectDir/schemas")
             }
         }
+         */
     }
 
     buildFeatures {
@@ -70,6 +73,11 @@ android {
     }
 }
 
+kapt {
+    correctErrorTypes = true
+}
+
+
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
 
@@ -81,11 +89,23 @@ dependencies {
     implementation(Libraries.material)
     implementation(Libraries.livedataKtx)
     implementation(Libraries.viewModelKtx)
-    implementation(Libraries.Koin.androidCore)
-    implementation(Libraries.Koin.viewModel)
+    //implementation(Libraries.Koin.androidCore)
+    //implementation(Libraries.Koin.viewModel)
     implementation(Libraries.Kotlin.coroutinesCore)
     implementation(Libraries.Kotlin.coroutinesAndroid)
     implementation(Libraries.viewPager2)
+
+    // lifecycle
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+    // ViewModel utilities for Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
+    // LiveData
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.0")
+    // Lifecycles only (without ViewModel or LiveData)
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
+    // Saved state module for ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.4.0")
 
     //Compose
     implementation(Libraries.composeUi)
@@ -98,13 +118,20 @@ dependencies {
     implementation(Libraries.accompanistPager)
     implementation(Libraries.accompanistSystemUI)
 
+    // dagger/hilt
+    implementation(Libraries.Hilt.android)
+    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("com.google.android.material:material:1.4.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
+    kapt(Libraries.Hilt.compiler)
+
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)
     testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.coroutinesTest)
     testImplementation(TestLibraries.testCore)
-    testImplementation(TestLibraries.koinTest)
+    //testImplementation(TestLibraries.koinTest)
     testImplementation(TestLibraries.mockk)
     testImplementation(TestLibraries.kluent)
 

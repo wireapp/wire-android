@@ -97,6 +97,7 @@ dependencies {
     implementation(Libraries.composeConstraintLayout)
     implementation(Libraries.accompanistPager)
     implementation(Libraries.accompanistSystemUI)
+    implementation(Libraries.composeHiltNavigation)
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)

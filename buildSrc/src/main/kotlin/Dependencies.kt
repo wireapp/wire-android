@@ -72,6 +72,7 @@ object Libraries {
         const val composeNavigation = "2.4.0-beta02"
         const val accompanist = "0.22.0-rc"
         const val composeConstraint = "1.0.0-rc02"
+        const val composeHiltNavigation = "1.0.0-alpha03"
     }
 
     // AndroidX Dependencies
@@ -91,6 +92,7 @@ object Libraries {
     const val composeIcons              = "androidx.compose.material:material-icons-extended:${Versions.compose}"
     const val composeNavigation         = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
+    const val composeHiltNavigation     = "androidx.hilt:hilt-navigation-compose:${Versions.composeHiltNavigation}"
 
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"

@@ -3,21 +3,23 @@ package com.wire.android.ui.main.navigation
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.R
 import com.wire.android.ui.main.archive.ArchiveScreen
 import com.wire.android.ui.main.convesations.ConversationsScreen
 import com.wire.android.ui.main.settings.SettingsScreen
 import com.wire.android.ui.main.support.SupportScreen
-import com.wire.android.ui.main.vault.VaultScreen
 import com.wire.android.ui.main.userprofile.UserProfileScreen
+import com.wire.android.ui.main.vault.VaultScreen
 
 enum class MainNavigationScreenItem(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
     val route: String,
     val hasSearchableTopBar: Boolean,
-    val content: @Composable (NavBackStackEntry) -> Unit
+    val content: @Composable (NavBackStackEntry) -> Unit,
+    val arguments: List<NamedNavArgument> = emptyList()
 ) {
     Conversations(
         icon = R.drawable.ic_conversation,
@@ -66,5 +68,30 @@ enum class MainNavigationScreenItem(
     companion object {
         private val map = values().associateBy(MainNavigationScreenItem::route)
         fun fromRoute(route: String?): MainNavigationScreenItem? = map[route]
+    }
+}
+
+interface NavigationCommand {
+
+    val arguments: List<NamedNavArgument>
+
+    val destination: String
+}
+
+object NavigationDirections {
+
+    val authentication = object : NavigationCommand {
+
+        override val arguments = emptyList<NamedNavArgument>()
+
+        override val destination = "authentication"
+
+    }
+
+    val support = object : NavigationCommand {
+
+        override val arguments = emptyList<NamedNavArgument>()
+
+        override val destination = "support"
     }
 }

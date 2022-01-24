@@ -18,6 +18,7 @@
             android:name=".ui.WireActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Light"
+            android:windowSoftInputMode="adjustResize|stateHidden"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

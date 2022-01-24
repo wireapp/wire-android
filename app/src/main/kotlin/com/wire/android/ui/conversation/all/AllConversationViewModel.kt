@@ -6,15 +6,15 @@ import com.wire.android.ui.conversation.newActivitiesMockData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class ConversationViewModel : ViewModel() {
+class AllConversationViewModel : ViewModel() {
 
-    private val _state = MutableStateFlow(ConversationState())
+    private val _state = MutableStateFlow(AllConversationState())
 
-    val state: StateFlow<ConversationState>
+    val stateAll: StateFlow<AllConversationState>
         get() = _state
 
     init {
-        _state.value = ConversationState(
+        _state.value = AllConversationState(
             newActivities = newActivitiesMockData,
             conversations = conversationMockData
         )

@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.convesations
+package com.wire.android.ui.conversation.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -9,9 +9,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.wire.android.R
 import com.wire.android.ui.common.WireBottomNavigationItemData
-import com.wire.android.ui.main.convesations.all.AllConversationsTab
-import com.wire.android.ui.main.convesations.calls.CallConversationsTab
-import com.wire.android.ui.main.convesations.mentions.MentionsConversationsTab
+import com.wire.android.ui.conversation.all.AllConversation
+import com.wire.android.ui.conversation.call.Call
+import com.wire.android.ui.conversation.mention.Mention
 
 enum class ConversationsNavigationItem(
     @DrawableRes val icon: Int,
@@ -23,19 +23,20 @@ enum class ConversationsNavigationItem(
         R.drawable.ic_conversation,
         R.string.conversations_all_tab_title,
         "conversations_all",
-        { AllConversationsTab() }),
+        { AllConversation() }),
 
     Calls(
         R.drawable.ic_call,
         R.string.conversations_calls_tab_title,
         "conversations_calls",
-        { CallConversationsTab() }),
+        { Call() }),
 
     Mentions(
         R.drawable.ic_mention,
         R.string.conversations_mentions_tab_title,
         "conversations_mentions",
-        { MentionsConversationsTab() });
+        { Mention() });
+
 
     fun intoBottomNavigationItemData(notificationAmount: Int): WireBottomNavigationItemData =
         WireBottomNavigationItemData(icon, title, notificationAmount, route, content)
@@ -44,7 +45,6 @@ enum class ConversationsNavigationItem(
 @Composable
 fun ConversationsNavigationGraph(navController: NavHostController) {
     NavHost(navController, startDestination = ConversationsNavigationItem.All.route) {
-
         ConversationsNavigationItem.values().forEach { item ->
             composable(route = item.route, content = item.content)
         }

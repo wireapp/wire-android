@@ -5,14 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.ExtendedFloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,23 +25,20 @@ import com.wire.android.ui.conversation.common.UserLabel
 
 @Preview
 @Composable
-fun Conversation(viewModel: ConversationViewModel = ConversationViewModel()) {
-    val uiState by viewModel.state.collectAsState()
+fun AllConversation(viewModelAll: AllConversationViewModel = AllConversationViewModel()) {
+    val uiState by viewModelAll.stateAll.collectAsState()
 
-    ConversationScreen(uiState = uiState)
+    ConversationScreen(uiStateAll = uiState)
 }
 
 @Composable
-private fun ConversationScreen(uiState: ConversationState) {
-    Scaffold(
-        floatingActionButton = { ConversationListFloatingActionButton() },
-        content = { ConversationContent(uiState) }
-    )
+private fun ConversationScreen(uiStateAll: AllConversationState) {
+    ConversationContent(uiStateAll)
 }
 
 @Composable
-private fun ConversationContent(uiState: ConversationState) {
-    with(uiState) {
+private fun ConversationContent(uiStateAll: AllConversationState) {
+    with(uiStateAll) {
         LazyColumn {
             if (newActivities.isNotEmpty()) {
                 item { FolderHeader(name = stringResource(R.string.conversation_label_new_activity)) }
@@ -74,14 +63,6 @@ private fun ConversationContent(uiState: ConversationState) {
     }
 }
 
-@Composable
-private fun ConversationListFloatingActionButton() {
-    ExtendedFloatingActionButton(
-        shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 30)),
-        icon = { Icon(Icons.Filled.Add, "") },
-        text = { Text(text = stringResource(R.string.label_new)) },
-        onClick = { })
-}
 
 @Composable
 private fun NewActivityRowItem(newActivity: NewActivity) {

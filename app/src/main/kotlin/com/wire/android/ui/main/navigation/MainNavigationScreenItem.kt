@@ -5,12 +5,12 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.R
+import com.wire.android.ui.conversation.Conversation
 import com.wire.android.ui.main.archive.ArchiveScreen
 import com.wire.android.ui.main.settings.SettingsScreen
 import com.wire.android.ui.main.support.SupportScreen
-import com.wire.android.ui.main.vault.VaultScreen
 import com.wire.android.ui.main.userprofile.UserProfileScreen
-import com.wire.android.ui.conversation.all.Conversation
+import com.wire.android.ui.main.vault.VaultScreen
 
 
 enum class MainNavigationScreenItem(

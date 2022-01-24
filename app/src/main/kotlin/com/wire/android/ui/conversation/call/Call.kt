@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -44,9 +43,7 @@ fun Call(viewModel: CallViewModel = CallViewModel()) {
 
 @Composable
 private fun CallsScreen(uiState: CallState) {
-    Scaffold(
-        content = { CallContent(uiState) }
-    )
+    CallContent(uiState)
 }
 
 @Composable

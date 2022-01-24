@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,9 +36,7 @@ fun Mention(viewModel: MentionViewModel = MentionViewModel()) {
 
 @Composable
 private fun MentionScreen(uiState: MentionState) {
-    Scaffold(
-        content = { MentionContent(uiState) }
-    )
+    MentionContent(uiState)
 }
 
 @Composable

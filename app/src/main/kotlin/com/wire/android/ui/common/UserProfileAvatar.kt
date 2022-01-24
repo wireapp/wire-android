@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
-import com.wire.android.ui.common.Dimensions.USER_AVATAR_DEFAULT_SIZE
+import com.wire.android.ui.theme.Dimensions.USER_AVATAR_DEFAULT_SIZE
 
 @Composable
 fun UserProfileAvatar(avatarUrl: String, size: Dp = USER_AVATAR_DEFAULT_SIZE, modifier: Modifier = Modifier, onClick: () -> Unit) {

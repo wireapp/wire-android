@@ -17,7 +17,7 @@ val mockConversations = listOf(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "some test value",
-            memberShip = Membership.Guest,
+            membership = Membership.Guest,
             isLegalHold = true
         )
     ),
@@ -36,7 +36,7 @@ val mockConversations = listOf(
         ),
         conversationInfo = ConversationInfo(
             name = "and once more 1",
-            memberShip = Membership.External
+            membership = Membership.External
         )
     ),
     Conversation(
@@ -52,14 +52,14 @@ val mockConversations = listOf(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "and once more 3",
-            memberShip = Membership.External
+            membership = Membership.External
         )
     ),
     Conversation(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "and once more 4",
-            memberShip = Membership.External
+            membership = Membership.External
         )
     ),
 )
@@ -68,7 +68,7 @@ val mockConversation = Conversation(
     userInfo = UserInfo(),
     conversationInfo = ConversationInfo(
         name = "and once more 4",
-        memberShip = Membership.External
+        membership = Membership.External
     )
 )
 

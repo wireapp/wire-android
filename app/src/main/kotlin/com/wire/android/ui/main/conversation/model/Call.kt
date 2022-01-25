@@ -1,8 +1,8 @@
-package com.wire.android.ui.conversation.call.model
+package com.wire.android.ui.main.conversation.call.model
 
 import androidx.annotation.DrawableRes
 import com.wire.android.R
-import com.wire.android.ui.conversation.all.model.Conversation
+import com.wire.android.ui.main.conversation.all.model.Conversation
 
 data class Call(val callInfo: CallInfo, val conversation: Conversation)
 

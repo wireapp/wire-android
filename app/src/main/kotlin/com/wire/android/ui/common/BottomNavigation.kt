@@ -148,5 +148,4 @@ data class WireBottomNavigationItemData(
     @StringRes val title: Int,
     val notificationAmount: Int,
     val route: String,
-    val content: @Composable (NavBackStackEntry) -> Unit
 )

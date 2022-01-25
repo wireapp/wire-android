@@ -1,4 +1,4 @@
-package com.wire.android.ui.conversation.common
+package com.wire.android.ui.main.conversation.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,7 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
-import com.wire.android.ui.conversation.all.model.EventType
+import com.wire.android.ui.main.conversation.all.model.EventType
 import com.wire.android.ui.theme.wireColorScheme
 
 

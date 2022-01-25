@@ -1,4 +1,4 @@
-package com.wire.android.ui.conversation.call
+package com.wire.android.ui.main.conversation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -9,65 +9,47 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.conversation.all.model.toUserInfoLabel
-import com.wire.android.ui.conversation.call.model.Call
-import com.wire.android.ui.conversation.call.model.CallEvent
-import com.wire.android.ui.conversation.call.model.CallTime
-import com.wire.android.ui.conversation.common.FolderHeader
-import com.wire.android.ui.conversation.common.MissedCallBadge
-import com.wire.android.ui.conversation.common.RowItem
-import com.wire.android.ui.conversation.common.UserLabel
-import com.wire.android.ui.theme.subline01
+import com.wire.android.ui.main.conversation.all.model.toUserInfoLabel
+import com.wire.android.ui.main.conversation.call.model.Call
+import com.wire.android.ui.main.conversation.call.model.CallEvent
+import com.wire.android.ui.main.conversation.call.model.CallTime
+import com.wire.android.ui.main.conversation.common.MissedCallBadge
+import com.wire.android.ui.main.conversation.common.RowItem
+import com.wire.android.ui.main.conversation.common.UserLabel
+import com.wire.android.ui.main.conversation.common.folderWithElements
+import com.wire.android.ui.theme.subLine01
 
-@Preview
 @Composable
-fun Call(viewModel: CallViewModel = CallViewModel()) {
-    val uiState by viewModel.state.collectAsState()
-
-    CallsScreen(uiState = uiState)
+fun CallScreen(missedCalls: List<Call> = emptyList(), callHistory: List<Call> = emptyList()) {
+    CallContent(missedCalls, callHistory)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CallsScreen(uiState: CallState) {
-    Scaffold(
-        content = { CallContent(uiState) }
-    )
-}
+fun CallContent(missedCalls: List<Call>, callHistory: List<Call>) {
+    LazyColumn {
+        folderWithElements(
+            header = { stringResource(id = R.string.calls_label_missed_calls) },
+            items = missedCalls
+        ) { missedCall ->
+            MissedCallRowItem(missedCall = missedCall)
+        }
 
-@Composable
-fun CallContent(uiState: CallState) {
-    with(uiState) {
-        LazyColumn {
-            if (missedCalls.isNotEmpty()) {
-                item { FolderHeader(name = stringResource(R.string.calls_label_missed_calls)) }
-                items(missedCalls) { missedCall ->
-                    MissedCallRowItem(missedCall)
-                }
-            }
-
-            if (callHistory.isNotEmpty()) {
-                item { FolderHeader(name = stringResource(R.string.calls_label_calls_history)) }
-                items(callHistory) { callHistory ->
-                    CallHistoryRowItem(callHistory)
-                }
-            }
+        folderWithElements(
+            header = { stringResource(id = R.string.calls_label_calls_history) },
+            items = callHistory
+        ) { callHistory ->
+            CallHistoryRowItem(callHistory = callHistory)
         }
     }
 }

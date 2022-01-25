@@ -1,4 +1,4 @@
-package com.wire.android.ui.conversation
+package com.wire.android.ui.main.conversation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -20,14 +20,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.conversation.all.model.toUserInfoLabel
-import com.wire.android.ui.conversation.call.model.Call
-import com.wire.android.ui.conversation.call.model.CallEvent
-import com.wire.android.ui.conversation.call.model.CallTime
-import com.wire.android.ui.conversation.common.FolderHeader
-import com.wire.android.ui.conversation.common.MissedCallBadge
-import com.wire.android.ui.conversation.common.RowItem
-import com.wire.android.ui.conversation.common.UserLabel
+import com.wire.android.ui.main.conversation.all.model.toUserInfoLabel
+import com.wire.android.ui.main.conversation.call.model.Call
+import com.wire.android.ui.main.conversation.call.model.CallEvent
+import com.wire.android.ui.main.conversation.call.model.CallTime
+import com.wire.android.ui.main.conversation.common.FolderHeader
+import com.wire.android.ui.main.conversation.common.MissedCallBadge
+import com.wire.android.ui.main.conversation.common.RowItem
+import com.wire.android.ui.main.conversation.common.UserLabel
 import com.wire.android.ui.theme.subLine1
 
 @Composable

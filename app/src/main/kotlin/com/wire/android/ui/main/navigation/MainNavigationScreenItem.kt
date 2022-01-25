@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.R
-import com.wire.android.ui.conversation.Conversation
+import com.wire.android.ui.main.conversation.Conversation
 import com.wire.android.ui.main.archive.ArchiveScreen
 import com.wire.android.ui.main.settings.SettingsScreen
 import com.wire.android.ui.main.support.SupportScreen

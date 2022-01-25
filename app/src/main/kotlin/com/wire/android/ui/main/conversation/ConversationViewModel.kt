@@ -1,4 +1,4 @@
-package com.wire.android.ui.conversation
+package com.wire.android.ui.main.conversation
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -41,7 +41,7 @@ class ConversationViewModel : ViewModel() {
             delay(6000)
             _state.update {
                 Log.d("TEST", "updating after 6000")
-                it.copy(conversations = com.wire.android.ui.conversation.conversationMockData1,unreadMentionsCount = 50)
+                it.copy(conversations = com.wire.android.ui.main.conversation.conversationMockData1,unreadMentionsCount = 50)
             }
         }
     }

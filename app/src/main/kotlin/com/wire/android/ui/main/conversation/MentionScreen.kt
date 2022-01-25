@@ -1,6 +1,5 @@
-package com.wire.android.ui.conversation
+package com.wire.android.ui.main.conversation
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -16,12 +15,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.conversation.all.model.toUserInfoLabel
-import com.wire.android.ui.conversation.common.FolderHeader
-import com.wire.android.ui.conversation.common.RowItem
-import com.wire.android.ui.conversation.common.UnreadMentionBadge
-import com.wire.android.ui.conversation.common.UserLabel
-import com.wire.android.ui.conversation.mention.model.Mention
+import com.wire.android.ui.main.conversation.all.model.toUserInfoLabel
+import com.wire.android.ui.main.conversation.common.FolderHeader
+import com.wire.android.ui.main.conversation.common.RowItem
+import com.wire.android.ui.main.conversation.common.UnreadMentionBadge
+import com.wire.android.ui.main.conversation.common.UserLabel
+import com.wire.android.ui.main.conversation.mention.model.Mention
 import com.wire.android.ui.theme.subLine1
 
 

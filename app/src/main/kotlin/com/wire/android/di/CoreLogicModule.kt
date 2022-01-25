@@ -9,14 +9,16 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.auth.LoginUseCase
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Singleton
 
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 class CoreLogicModule {
 
-    @Singleton
+    @ViewModelScoped
     @Provides
     fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
         val proteusPath = context.getDir("proteus", Context.MODE_PRIVATE).path
@@ -24,7 +26,7 @@ class CoreLogicModule {
         return CoreLogic(applicationContext = context, rootProteusDirectoryPath = proteusPath, clientLabel = deviceLabel)
     }
 
-    @Singleton
+    @ViewModelScoped
     @Provides
     fun loginUseCaseProvider(coreLogic: CoreLogic): LoginUseCase = coreLogic.getAuthenticationScope().loginUsingEmail
 }

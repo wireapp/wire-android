@@ -26,7 +26,7 @@ import com.wire.android.ui.main.conversation.call.model.CallTime
 import com.wire.android.ui.main.conversation.common.MissedCallBadge
 import com.wire.android.ui.main.conversation.common.RowItem
 import com.wire.android.ui.main.conversation.common.UserLabel
-import com.wire.android.ui.main.conversation.common.folderWithElements
+import com.wire.android.ui.main.conversation.common.extension.folderWithElements
 import com.wire.android.ui.theme.subLine1
 
 @Composable

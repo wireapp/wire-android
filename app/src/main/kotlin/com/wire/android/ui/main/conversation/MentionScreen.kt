@@ -18,7 +18,7 @@ import com.wire.android.ui.main.conversation.all.model.toUserInfoLabel
 import com.wire.android.ui.main.conversation.common.RowItem
 import com.wire.android.ui.main.conversation.common.UnreadMentionBadge
 import com.wire.android.ui.main.conversation.common.UserLabel
-import com.wire.android.ui.main.conversation.common.folderWithElements
+import com.wire.android.ui.main.conversation.common.extension.folderWithElements
 import com.wire.android.ui.main.conversation.mention.model.Mention
 import com.wire.android.ui.theme.subLine1
 

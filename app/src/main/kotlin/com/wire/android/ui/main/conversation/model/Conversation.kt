@@ -1,8 +1,8 @@
-package com.wire.android.ui.conversation.all.model
+package com.wire.android.ui.main.conversation.all.model
 
 import androidx.annotation.StringRes
 import com.wire.android.R
-import com.wire.android.ui.conversation.common.UserInfoLabel
+import com.wire.android.ui.main.conversation.common.UserInfoLabel
 
 
 data class ConversationFolder(

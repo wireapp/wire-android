@@ -1,4 +1,4 @@
-package com.wire.android.ui.conversation.all.model
+package com.wire.android.ui.main.conversation.all.model
 
 data class NewActivity(
     val eventType: EventType,

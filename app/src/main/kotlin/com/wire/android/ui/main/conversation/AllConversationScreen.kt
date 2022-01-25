@@ -17,7 +17,7 @@ import com.wire.android.ui.main.conversation.all.model.NewActivity
 import com.wire.android.ui.main.conversation.all.model.toUserInfoLabel
 import com.wire.android.ui.main.conversation.common.EventBadgeFactory
 import com.wire.android.ui.main.conversation.common.RowItem
-import com.wire.android.ui.main.conversation.common.UserLabel
+import com.wire.android.ui.main.conversation.common.components.UserLabel
 import com.wire.android.ui.main.conversation.common.extension.folderWithElements
 
 

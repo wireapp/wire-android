@@ -1,5 +1,6 @@
-package com.wire.android.ui.conversation.mention
+package com.wire.android.ui.conversation
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -9,12 +10,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
@@ -26,35 +24,29 @@ import com.wire.android.ui.conversation.common.UserLabel
 import com.wire.android.ui.conversation.mention.model.Mention
 import com.wire.android.ui.theme.subLine1
 
-@Preview
-@Composable
-fun Mention(viewModel: MentionViewModel = MentionViewModel()) {
-    val uiState by viewModel.state.collectAsState()
 
-    MentionScreen(uiState = uiState)
+@Composable
+fun MentionScreen(
+    unreadMentions: List<Mention> = emptyList(),
+    allMentions: List<Mention> = emptyList()
+) {
+    MentionContent(unreadMentions, allMentions)
 }
 
 @Composable
-private fun MentionScreen(uiState: MentionState) {
-    MentionContent(uiState)
-}
-
-@Composable
-private fun MentionContent(uiState: MentionState) {
-    with(uiState) {
-        LazyColumn {
-            if (unreadMentions.isNotEmpty()) {
-                item { FolderHeader(name = stringResource(R.string.mention_label_unread_mentions)) }
-                items(unreadMentions) { unreadMention ->
-                    UnreadMentionRowItem(unreadMention)
-                }
+private fun MentionContent(unreadMentions: List<Mention>, allMentions: List<Mention>) {
+    LazyColumn {
+        if (unreadMentions.isNotEmpty()) {
+            item { FolderHeader(name = stringResource(R.string.mention_label_unread_mentions)) }
+            items(unreadMentions) { unreadMention ->
+                UnreadMentionRowItem(unreadMention)
             }
+        }
 
-            if (allMentions.isNotEmpty()) {
-                item { FolderHeader(name = stringResource(R.string.mention_label_all_mentions)) }
-                items(allMentions) { mention ->
-                    AllMentionRowItem(mention)
-                }
+        if (allMentions.isNotEmpty()) {
+            item { FolderHeader(name = stringResource(R.string.mention_label_all_mentions)) }
+            items(allMentions) { mention ->
+                AllMentionRowItem(mention)
             }
         }
     }

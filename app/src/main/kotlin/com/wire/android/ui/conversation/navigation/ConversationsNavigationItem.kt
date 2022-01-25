@@ -9,7 +9,7 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 enum class ConversationsNavigationItem(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
-    private val route: String,
+    val route: String,
 ) {
     All(
         R.drawable.ic_conversation,

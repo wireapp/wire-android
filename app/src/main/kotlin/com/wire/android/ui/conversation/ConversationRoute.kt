@@ -1,13 +1,6 @@
 package com.wire.android.ui.conversation
 
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.ExtendedFloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
+import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.conversation.navigation.ConversationsNavigationItem
@@ -27,14 +21,14 @@ fun Conversation(viewModel: ConversationViewModel = ConversationViewModel()) {
     val navController = rememberNavController()
 
     Scaffold(
-        floatingActionButton = { ConversationListFloatingActionButton() },
+        floatingActionButton = { FloatingActionButton(stringResource(R.string.label_new), {}) },
         bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), navController) }
     ) {
         with(uiState) {
-            NavHost(navController, startDestination = "conversations_all") {
-                composable(route = "conversations_all", content = { AllConversationScreen(newActivities, conversations) })
-                composable(route = "conversations_calls", content = { CallScreen(missedCalls, callHistory) })
-                composable(route = "conversations_mentions", content = { MentionScreen(unreadMentions, allMentions) })
+            NavHost(navController, startDestination = ConversationsNavigationItem.All.route) {
+                composable(route = ConversationsNavigationItem.All.route, content = { AllConversationScreen(newActivities, conversations) })
+                composable(route = ConversationsNavigationItem.Calls.route, content = { CallScreen(missedCalls, callHistory) })
+                composable(route = ConversationsNavigationItem.Mentions.route, content = { MentionScreen(unreadMentions, allMentions) })
             }
         }
     }
@@ -53,11 +47,3 @@ private fun ConversationNavigationItems(
     }
 }
 
-@Composable
-private fun ConversationListFloatingActionButton() {
-    ExtendedFloatingActionButton(
-        shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 30)),
-        icon = { Icon(Icons.Filled.Add, "") },
-        text = { Text(text = stringResource(R.string.label_new)) },
-        onClick = { })
-}

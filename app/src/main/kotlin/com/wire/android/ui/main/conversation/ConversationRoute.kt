@@ -17,7 +17,7 @@ import com.wire.android.ui.main.conversation.navigation.ConversationsNavigationI
 
 
 @Composable
-fun ConversationRoute(viewModel: ConversationViewModel, onSearchInputChanged: (String) -> Unit) {
+fun ConversationRoute(viewModel: ConversationViewModel) {
     val uiState by viewModel.state.collectAsState()
     val navController = rememberNavController()
 
@@ -50,11 +50,11 @@ fun ConversationRoute(viewModel: ConversationViewModel, onSearchInputChanged: (S
 private fun ConversationNavigationItems(
     uiState: ConversationState
 ): List<WireBottomNavigationItemData> {
-    return ConversationsNavigationItem.values().map {
-        when (it) {
-            ConversationsNavigationItem.All -> it.toBottomNavigationItemData(uiState.newActivityCount)
-            ConversationsNavigationItem.Calls -> it.toBottomNavigationItemData(uiState.missedCallsCount)
-            ConversationsNavigationItem.Mentions -> it.toBottomNavigationItemData(uiState.unreadMentionsCount)
+    return ConversationsNavigationItem.values().map { conversationItemNavigationItem ->
+        when (conversationItemNavigationItem) {
+            ConversationsNavigationItem.All -> conversationItemNavigationItem.toBottomNavigationItemData(uiState.newActivityCount)
+            ConversationsNavigationItem.Calls -> conversationItemNavigationItem.toBottomNavigationItemData(uiState.missedCallsCount)
+            ConversationsNavigationItem.Mentions -> conversationItemNavigationItem.toBottomNavigationItemData(uiState.unreadMentionsCount)
         }
     }
 }

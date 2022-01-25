@@ -5,13 +5,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.common.UnderConstructionScreen
 
 @Composable
-fun VaultScreen(onSearchTextChanged : (String) -> Unit) {
-
+fun VaultScreen() {
     UnderConstructionScreen(screenName = "VaultScreen")
 }
 
 @Preview(showBackground = false)
 @Composable
 fun VaultScreenPreview() {
-    //VaultScreen()
+    VaultScreen()
 }

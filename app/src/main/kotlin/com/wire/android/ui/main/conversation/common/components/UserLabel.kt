@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversation.common
+package com.wire.android.ui.main.conversation.common.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.main.conversation.all.model.Membership
+import com.wire.android.ui.main.conversation.model.Membership
 
 @Composable
 fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {

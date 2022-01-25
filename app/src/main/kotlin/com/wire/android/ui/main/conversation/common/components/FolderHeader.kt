@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversation.common
+package com.wire.android.ui.main.conversation.common.components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme

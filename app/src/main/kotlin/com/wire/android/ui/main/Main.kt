@@ -5,6 +5,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -12,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.main.archive.ArchiveScreen
 import com.wire.android.ui.main.conversation.ConversationRoute
@@ -36,8 +38,7 @@ fun MainScreen() {
         scaffoldState = wireAppState.scaffoldState,
         topBar = {
             MainTopBar(
-                wireAppState,
-                onTextChanged
+                wireAppState
             )
         },
         drawerContent = {
@@ -49,8 +50,7 @@ fun MainScreen() {
                 val conversationViewModel = ConversationViewModel()
 
                 ConversationRoute(
-                    viewModel = conversationViewModel,
-                    onSearchInputChanged = { conversationViewModel.search(it) }
+                    viewModel = conversationViewModel
                 )
             })
             composable(route = MainNavigationScreenItem.Vault.route, content = { VaultScreen() })
@@ -61,7 +61,6 @@ fun MainScreen() {
         }
     }
 }
-
 
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi

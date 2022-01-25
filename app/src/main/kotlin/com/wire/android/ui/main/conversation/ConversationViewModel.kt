@@ -11,9 +11,6 @@ import kotlinx.coroutines.launch
 
 @Suppress("MagicNumber")
 class ConversationViewModel : ViewModel() {
-    fun search(it: String) {
-
-    }
 
     private val _state = MutableStateFlow(ConversationState())
 

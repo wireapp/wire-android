@@ -1,16 +1,20 @@
-package com.wire.android.ui.conversation
+package com.wire.android.ui.main.conversation
 
-import com.wire.android.ui.conversation.all.model.AvailabilityStatus
-import com.wire.android.ui.conversation.all.model.Conversation
-import com.wire.android.ui.conversation.all.model.ConversationFolder
-import com.wire.android.ui.conversation.all.model.ConversationInfo
-import com.wire.android.ui.conversation.all.model.EventType
-import com.wire.android.ui.conversation.all.model.Membership
-import com.wire.android.ui.conversation.all.model.NewActivity
-import com.wire.android.ui.conversation.all.model.UserInfo
-import com.wire.android.ui.conversation.mention.model.Mention
-import com.wire.android.ui.conversation.mention.model.MentionInfo
-import com.wire.android.ui.conversation.mention.model.MentionMessage
+import com.wire.android.ui.main.conversation.all.model.AvailabilityStatus
+import com.wire.android.ui.main.conversation.all.model.Conversation
+import com.wire.android.ui.main.conversation.all.model.ConversationFolder
+import com.wire.android.ui.main.conversation.all.model.ConversationInfo
+import com.wire.android.ui.main.conversation.all.model.EventType
+import com.wire.android.ui.main.conversation.all.model.Membership
+import com.wire.android.ui.main.conversation.all.model.NewActivity
+import com.wire.android.ui.main.conversation.all.model.UserInfo
+import com.wire.android.ui.main.conversation.call.model.Call
+import com.wire.android.ui.main.conversation.call.model.CallEvent
+import com.wire.android.ui.main.conversation.call.model.CallInfo
+import com.wire.android.ui.main.conversation.call.model.CallTime
+import com.wire.android.ui.main.conversation.mention.model.Mention
+import com.wire.android.ui.main.conversation.mention.model.MentionInfo
+import com.wire.android.ui.main.conversation.mention.model.MentionMessage
 
 val mockConversations = listOf(
     Conversation(
@@ -73,7 +77,7 @@ val mockConversation = Conversation(
 )
 
 val conversationMockData = mapOf(
-    ConversationFolder("NEW ACTIVITY") to mockConversations,
+    ConversationFolder("SOME TEST FOLDER") to mockConversations,
     ConversationFolder("FOLDER NAME1") to mockConversations,
     ConversationFolder("SOME OTHER FOLDER") to mockConversations,
     ConversationFolder("SOME OTHER Folder1") to mockConversations,
@@ -84,6 +88,17 @@ val conversationMockData = mapOf(
                 "VERY VERY VERY VERY VERY LONG NAME"
     ) to mockConversations
 )
+
+val conversationMockData1 = mapOf(
+    ConversationFolder("THIS IS A TEST FOLDER after deletin the first one") to mockConversations,
+    ConversationFolder(
+        "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +
+                " VERY VERY VERY VERY VERY VERY VERY " +
+                "VERY VERY VERY VERY VERY LONG NAME"
+    ) to mockConversations
+)
+
+
 
 
 @Suppress("MagicNumber")
@@ -135,3 +150,38 @@ val mockAllMentionList = listOf(
     Mention(mentionInfo = mockShortMentionInfo, mockConversation),
     Mention(mentionInfo = mockLongMentionInfo, mockConversation),
 )
+
+val mockCallInfo1 = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
+val mockCallInfo2 = CallInfo(CallTime("Yesterday", "1:00 PM"), CallEvent.OutgoingCall)
+val mockCallInfo3 = CallInfo(CallTime("Today", "2:34 PM"), CallEvent.MissedCall)
+val mockCallInfo4 = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
+val mockCallInfo5 = CallInfo(CallTime("Today", "6:59 PM"), CallEvent.NoAnswerCall)
+
+val mockMissedCalls = listOf(
+    Call(mockCallInfo1, mockConversation),
+    Call(mockCallInfo2, mockConversation),
+    Call(mockCallInfo3, mockConversation),
+)
+
+val mockCallHistory = listOf(
+    Call(mockCallInfo1, mockConversation),
+    Call(mockCallInfo2, mockConversation),
+    Call(mockCallInfo3, mockConversation),
+    Call(mockCallInfo1, mockConversation),
+    Call(mockCallInfo2, mockConversation),
+    Call(mockCallInfo3, mockConversation),
+    Call(mockCallInfo4, mockConversation),
+    Call(mockCallInfo2, mockConversation),
+    Call(mockCallInfo3, mockConversation),
+    Call(mockCallInfo1, mockConversation),
+    Call(mockCallInfo5, mockConversation),
+    Call(mockCallInfo3, mockConversation),
+    Call(mockCallInfo1, mockConversation),
+    Call(mockCallInfo2, mockConversation),
+    Call(mockCallInfo3, mockConversation),
+    Call(mockCallInfo4, mockConversation),
+    Call(mockCallInfo2, mockConversation),
+    Call(mockCallInfo5, mockConversation),
+)
+
+

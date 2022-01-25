@@ -20,10 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
+import com.wire.android.ui.WireAppState
 import com.wire.android.ui.common.SearchBar
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.main.WireAppState
-import com.wire.android.ui.main.rememberWireAppState
+import com.wire.android.ui.rememberWireAppState
 import kotlinx.coroutines.launch
 
 @ExperimentalAnimationApi
@@ -83,5 +83,5 @@ fun MainTopBar(
 @Preview(showBackground = false)
 @Composable
 fun MainTopBarPreview() {
-     MainTopBar(rememberWireAppState())
+    MainTopBar(rememberWireAppState())
 }

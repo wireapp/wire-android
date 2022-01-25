@@ -4,18 +4,20 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,11 +29,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.ui.theme.Dimensions
@@ -46,35 +45,41 @@ fun WireBottomNavigationBar(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    NavigationBar(
-        modifier = Modifier.height(60.dp),
-        containerColor = MaterialTheme.colorScheme.surface) {
-        items.forEachIndexed { index, item ->
-            val modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(
-                    top = Dimensions.bottomNavigationPadding,
-                    bottom = Dimensions.bottomNavigationPadding,
-                    start = Dimensions.bottomNavigationPadding
-                            + if (index == 0) Dimensions.bottomNavigationPadding else spaceBetweenItems / 2,
-                    end = Dimensions.bottomNavigationPadding
-                            + if (index == items.lastIndex) Dimensions.bottomNavigationPadding else spaceBetweenItems / 2
-                )
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 8.dp,
+    ) {
+        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+            items.forEachIndexed { index, item ->
+                val modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(
+                        top = Dimensions.bottomNavigationPadding,
+                        bottom = Dimensions.bottomNavigationPadding,
+                        start = Dimensions.bottomNavigationPadding
+                                + if (index == 0) Dimensions.bottomNavigationPadding else spaceBetweenItems / 2,
+                        end = Dimensions.bottomNavigationPadding
+                                + if (index == items.lastIndex) Dimensions.bottomNavigationPadding else spaceBetweenItems / 2
+                    )
 
-            WireBottomNavigationItem(
-                data = item,
-                selected = currentRoute == item.route,
-                modifier = modifier
-            ) {
-                navController.navigate(item.route) {
-                    popUpTo(0) {
-                        saveState = true
-                        inclusive = true
+                WireBottomNavigationItem(
+                    data = item,
+                    selected = currentRoute == item.route,
+                    modifier = modifier
+                ) {
+                    navController.navigate(item.route) {
+                        popUpTo(0) {
+                            saveState = true
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
                     }
-                    launchSingleTop = true
-                    restoreState = true
                 }
             }
         }

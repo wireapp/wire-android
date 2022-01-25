@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +28,7 @@ import com.wire.android.ui.main.conversation.common.MissedCallBadge
 import com.wire.android.ui.main.conversation.common.RowItem
 import com.wire.android.ui.main.conversation.common.UserLabel
 import com.wire.android.ui.main.conversation.common.folderWithElements
-import com.wire.android.ui.theme.subLine01
+import com.wire.android.ui.theme.subline01
 
 @Composable
 fun CallScreen(missedCalls: List<Call> = emptyList(), callHistory: List<Call> = emptyList()) {

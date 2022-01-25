@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +21,7 @@ import com.wire.android.ui.main.conversation.common.UnreadMentionBadge
 import com.wire.android.ui.main.conversation.common.UserLabel
 import com.wire.android.ui.main.conversation.common.folderWithElements
 import com.wire.android.ui.main.conversation.mention.model.Mention
-import com.wire.android.ui.theme.subLine01
+import com.wire.android.ui.theme.subline01
 
 
 @Composable

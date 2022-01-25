@@ -1,6 +1,7 @@
 package com.wire.android.ui.main.conversation
 
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -15,6 +16,7 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.main.conversation.navigation.ConversationsNavigationItem
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Conversation(viewModel: ConversationViewModel = ConversationViewModel()) {
     val uiState by viewModel.state.collectAsState()

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -24,10 +23,10 @@ import com.wire.android.ui.main.conversation.all.model.toUserInfoLabel
 import com.wire.android.ui.main.conversation.call.model.Call
 import com.wire.android.ui.main.conversation.call.model.CallEvent
 import com.wire.android.ui.main.conversation.call.model.CallTime
-import com.wire.android.ui.main.conversation.common.FolderHeader
 import com.wire.android.ui.main.conversation.common.MissedCallBadge
 import com.wire.android.ui.main.conversation.common.RowItem
 import com.wire.android.ui.main.conversation.common.UserLabel
+import com.wire.android.ui.main.conversation.common.folderWithElements
 import com.wire.android.ui.theme.subLine1
 
 @Composable
@@ -38,18 +37,18 @@ fun CallScreen(missedCalls: List<Call> = emptyList(), callHistory: List<Call> = 
 @Composable
 fun CallContent(missedCalls: List<Call>, callHistory: List<Call>) {
     LazyColumn {
-        if (missedCalls.isNotEmpty()) {
-            item { FolderHeader(name = stringResource(R.string.calls_label_missed_calls)) }
-            items(missedCalls) { missedCall ->
-                MissedCallRowItem(missedCall)
-            }
+        folderWithElements(
+            header = { stringResource(id = R.string.calls_label_missed_calls) },
+            items = missedCalls
+        ) { missedCall ->
+            MissedCallRowItem(missedCall = missedCall)
         }
 
-        if (callHistory.isNotEmpty()) {
-            item { FolderHeader(name = stringResource(R.string.calls_label_calls_history)) }
-            items(callHistory) { callHistory ->
-                CallHistoryRowItem(callHistory)
-            }
+        folderWithElements(
+            header = { stringResource(id = R.string.calls_label_calls_history) },
+            items = callHistory
+        ) { callHistory ->
+            CallHistoryRowItem(callHistory = callHistory)
         }
     }
 }

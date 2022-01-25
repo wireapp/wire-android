@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -16,10 +15,10 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.main.conversation.all.model.toUserInfoLabel
-import com.wire.android.ui.main.conversation.common.FolderHeader
 import com.wire.android.ui.main.conversation.common.RowItem
 import com.wire.android.ui.main.conversation.common.UnreadMentionBadge
 import com.wire.android.ui.main.conversation.common.UserLabel
+import com.wire.android.ui.main.conversation.common.folderWithElements
 import com.wire.android.ui.main.conversation.mention.model.Mention
 import com.wire.android.ui.theme.subLine1
 
@@ -35,18 +34,18 @@ fun MentionScreen(
 @Composable
 private fun MentionContent(unreadMentions: List<Mention>, allMentions: List<Mention>) {
     LazyColumn {
-        if (unreadMentions.isNotEmpty()) {
-            item { FolderHeader(name = stringResource(R.string.mention_label_unread_mentions)) }
-            items(unreadMentions) { unreadMention ->
-                UnreadMentionRowItem(unreadMention)
-            }
+        folderWithElements(
+            header = { stringResource(id = R.string.mention_label_unread_mentions) },
+            items = unreadMentions
+        ) { unreadMention ->
+            UnreadMentionRowItem(unreadMention)
         }
 
-        if (allMentions.isNotEmpty()) {
-            item { FolderHeader(name = stringResource(R.string.mention_label_all_mentions)) }
-            items(allMentions) { mention ->
-                AllMentionRowItem(mention)
-            }
+        folderWithElements(
+            header = { stringResource(R.string.mention_label_all_mentions) },
+            items = allMentions
+        ) { mention ->
+            AllMentionRowItem(mention)
         }
     }
 }

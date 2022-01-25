@@ -17,15 +17,15 @@ import com.wire.android.ui.theme.wireColorScheme
 fun wireTextFieldColors(
     focusColor: Color = MaterialTheme.colorScheme.primary,
     errorColor: Color = MaterialTheme.colorScheme.error,
-    successColor: Color = MaterialTheme.wireColorScheme.green,
+    successColor: Color = MaterialTheme.wireColorScheme.positive,
     borderColor: Color = MaterialTheme.colorScheme.outline,
-    placeholderColor: Color = MaterialTheme.wireColorScheme.gray70,
+    placeholderColor: Color = MaterialTheme.wireColorScheme.secondaryText,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
-    disabledTextColor: Color = MaterialTheme.wireColorScheme.gray70,
+    disabledTextColor: Color = MaterialTheme.wireColorScheme.secondaryText,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    disabledBackgroundColor: Color = MaterialTheme.wireColorScheme.gray20,
-    labelColor: Color = MaterialTheme.wireColorScheme.gray70,
-    descriptionColor: Color = MaterialTheme.wireColorScheme.gray70,
+    disabledBackgroundColor: Color = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
+    labelColor: Color = MaterialTheme.wireColorScheme.labelText,
+    descriptionColor: Color = MaterialTheme.wireColorScheme.secondaryText,
 ): WireTextFieldColors {
     return object : WireTextFieldColors {
 

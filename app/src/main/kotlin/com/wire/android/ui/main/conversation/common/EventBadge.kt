@@ -75,7 +75,7 @@ fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier = Modifi
             modifier = modifier
                 .wrapContentWidth()
                 .background(
-                    color = MaterialTheme.wireColorScheme.gray90,
+                    color = MaterialTheme.wireColorScheme.badge,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(

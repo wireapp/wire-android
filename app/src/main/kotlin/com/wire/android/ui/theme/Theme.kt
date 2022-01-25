@@ -3,13 +3,11 @@ package com.wire.android.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
@@ -30,12 +28,15 @@ fun WireTheme(
     }
 }
 
+internal val LocalWireColors = staticCompositionLocalOf { LightWireColors }
+
 val MaterialTheme.wireColorScheme
     @Composable
     get() = LocalWireColors.current
 
+
 // Default MaterialTheme Typography mapping
-val Typography = Typography(
+private val Typography = Typography(
     titleLarge = WireTypography.Title01,
     titleMedium = WireTypography.Title02,
     titleSmall = WireTypography.Title03,
@@ -47,103 +48,74 @@ val Typography = Typography(
     bodySmall = WireTypography.SubLine01
 )
 
-// Default MaterialTheme light ColorScheme mapping
-private val LightColors = lightColorScheme(
-    primary = WireColor.LightUIBlue,
-    onPrimary = Color.White,
-    primaryContainer = WireColor.LightUIBlue.copy(alpha = 0.1f),
-    onPrimaryContainer = WireColor.LightUIBlue,
-    inversePrimary = WireColor.DarkUIBlue,
-    secondary = WireColor.Gray90,
-    onSecondary = Color.White,
-    secondaryContainer = WireColor.Gray20,
-    onSecondaryContainer = WireColor.Gray90,
-    tertiary = WireColor.LightUIGreen,
-    onTertiary = Color.White,
-    tertiaryContainer = WireColor.LightUIGreen.copy(alpha = 0.1f),
-    onTertiaryContainer = WireColor.LightUIGreen,
-    background = WireColor.Gray20,
-    onBackground = Color.Black,
-    surface = Color.White,
-    onSurface = Color.Black,
-    surfaceVariant = WireColor.Gray20,
-    onSurfaceVariant = WireColor.Gray90,
-    inverseSurface = WireColor.Gray90,
-    inverseOnSurface = WireColor.Gray20,
-    error = WireColor.LightUIRed,
-    onError = Color.White,
-    errorContainer = WireColor.LightUIRed.copy(alpha = 0.1f),
-    onErrorContainer = WireColor.LightUIRed,
-    outline = WireColor.Gray30
-)
 
 // Dark WireColorScheme
 private val LightWireColors = WireColorScheme(
-    blue = WireColor.LightUIBlue,
-    green = WireColor.LightUIGreen,
-    petrol = WireColor.LightUIPetrol,
-    purple = WireColor.LightUIPurple,
-    red = WireColor.LightUIRed,
-    yellow = WireColor.LightUIYellow,
-    gray10 = WireColor.Gray10,
-    gray20 = WireColor.Gray20,
-    gray30 = WireColor.Gray30,
-    gray40 = WireColor.Gray40,
-    gray50 = WireColor.Gray50,
-    gray60 = WireColor.Gray60,
-    gray70 = WireColor.Gray70,
-    gray80 = WireColor.Gray80,
-    gray90 = WireColor.Gray90,
-    gray100 = WireColor.Gray100
+    primary = WireColor.LightBlue500,                       onPrimary = Color.White,
+    error = WireColor.LightRed500,                          onError = Color.White,
+    errorOutline = WireColor.LightRed200,
+    warning = WireColor.LightYellow500,                     onWarning = Color.White,
+    positive = WireColor.LightGreen500,                     onPositive = Color.White,
+    background = WireColor.Gray20,                          onBackground = Color.Black,
+    backgroundVariant = WireColor.Gray10,                   onBackgroundVariant = Color.Black,
+    surface = Color.White,                                  onSurface = Color.Black,
+    primaryButtonEnabled = WireColor.LightBlue500,          onPrimaryButtonEnabled = Color.White,
+    primaryButtonDisabled = WireColor.Gray50,               onPrimaryButtonDisabled = WireColor.Gray80,
+    primaryButtonFocus = WireColor.LightBlue700,            onPrimaryButtonFocus = Color.White,
+    primaryButtonSelected = WireColor.LightBlue700,         onPrimaryButtonSelected = Color.White,
+    secondaryButtonEnabled = Color.White,                   onSecondaryButtonEnabled = Color.Black,
+    secondaryButtonEnabledOutline = WireColor.Gray40,
+    secondaryButtonDisabled = WireColor.Gray20,             onSecondaryButtonDisabled = WireColor.Gray70,
+    secondaryButtonDisabledOutline = WireColor.Gray40,
+    secondaryButtonFocus = WireColor.Gray30,                onSecondaryButtonFocus = Color.Black,
+    secondaryButtonFocusOutline = WireColor.Gray50,
+    secondaryButtonSelected = WireColor.LightBlue50,        onSecondaryButtonSelected = WireColor.LightBlue500,
+    secondaryButtonSelectedOutline = WireColor.LightBlue300,
+    tertiaryButtonEnabled = Color.Transparent,              onTertiaryButtonEnabled = Color.Black,
+    tertiaryButtonDisabled = Color.Transparent,             onTertiaryButtonDisabled = WireColor.Gray60,
+    tertiaryButtonFocus = WireColor.Gray30,                 onTertiaryButtonFocus = Color.Black,
+    tertiaryButtonSelected = WireColor.LightBlue50,         onTertiaryButtonSelected = WireColor.LightBlue500,
+    tertiaryButtonSelectedOutline = WireColor.LightBlue300,
+    divider = WireColor.Gray40,
+    secondaryText = WireColor.Gray70,
+    labelText = WireColor.Gray80,
+    badge = WireColor.Gray90,                               onBadge = Color.White
 )
+// Default MaterialTheme light ColorScheme mapping
+private val LightColors = LightWireColors.toColorScheme()
 
 
-// Default MaterialTheme dark ColorScheme mapping
-private val DarkColors = darkColorScheme(
-    primary = WireColor.DarkUIBlue,
-    onPrimary = Color.Black,
-    primaryContainer = WireColor.DarkUIBlue.copy(alpha = 0.1f),
-    onPrimaryContainer = WireColor.DarkUIBlue,
-    inversePrimary = WireColor.LightUIBlue,
-    secondary = WireColor.Gray20,
-    onSecondary = Color.Black,
-    secondaryContainer = WireColor.Gray90,
-    onSecondaryContainer = WireColor.Gray20,
-    tertiary = WireColor.DarkUIGreen,
-    onTertiary = Color.Black,
-    tertiaryContainer = WireColor.DarkUIGreen.copy(alpha = 0.1f),
-    onTertiaryContainer = WireColor.DarkUIGreen,
-    background = WireColor.Gray90,
-    onBackground = Color.White,
-    surface = Color.Black,
-    onSurface = Color.White,
-    surfaceVariant = WireColor.Gray90,
-    onSurfaceVariant = WireColor.Gray20,
-    inverseSurface = WireColor.Gray20,
-    inverseOnSurface = WireColor.Gray90,
-    error = WireColor.DarkUIRed,
-    onError = Color.Black,
-    errorContainer = WireColor.DarkUIRed.copy(alpha = 0.1f),
-    onErrorContainer = WireColor.DarkUIRed,
-    outline = WireColor.Gray80
-)
-
-// Light WireColorScheme
+// Dark WireColorScheme
 private val DarkWireColors = WireColorScheme(
-    blue = WireColor.DarkUIBlue,
-    green = WireColor.DarkUIGreen,
-    petrol = WireColor.DarkUIPetrol,
-    purple = WireColor.DarkUIPurple,
-    red = WireColor.DarkUIRed,
-    yellow = WireColor.DarkUIYellow,
-    gray10 = WireColor.Gray100,
-    gray20 = WireColor.Gray90,
-    gray30 = WireColor.Gray80,
-    gray40 = WireColor.Gray70,
-    gray50 = WireColor.Gray60,
-    gray60 = WireColor.Gray50,
-    gray70 = WireColor.Gray40,
-    gray80 = WireColor.Gray30,
-    gray90 = WireColor.Gray20,
-    gray100 = WireColor.Gray10
+    primary = WireColor.DarkBlue500,                        onPrimary = Color.Black,
+    error = WireColor.DarkRed500,                           onError = Color.Black,
+    errorOutline = WireColor.DarkRed200,
+    warning = WireColor.DarkYellow500,                      onWarning = Color.Black,
+    positive = WireColor.DarkGreen500,                      onPositive = Color.Black,
+    background = WireColor.Gray90,                          onBackground = Color.White,
+    backgroundVariant = WireColor.Gray100,                  onBackgroundVariant = Color.White,
+    surface = Color.Black,                                  onSurface = Color.White,
+    primaryButtonEnabled = WireColor.DarkBlue500,           onPrimaryButtonEnabled = Color.Black,
+    primaryButtonDisabled = WireColor.Gray60,               onPrimaryButtonDisabled = WireColor.Gray30,
+    primaryButtonFocus = WireColor.DarkBlue700,             onPrimaryButtonFocus = Color.Black,
+    primaryButtonSelected = WireColor.DarkBlue700,          onPrimaryButtonSelected = Color.Black,
+    secondaryButtonEnabled = Color.Black,                   onSecondaryButtonEnabled = Color.White,
+    secondaryButtonEnabledOutline = WireColor.Gray40,
+    secondaryButtonDisabled = WireColor.Gray20,             onSecondaryButtonDisabled = WireColor.Gray70,
+    secondaryButtonDisabledOutline = WireColor.Gray70,
+    secondaryButtonFocus = WireColor.Gray80,                onSecondaryButtonFocus = Color.White,
+    secondaryButtonFocusOutline = WireColor.Gray70,
+    secondaryButtonSelected = WireColor.DarkBlue50,         onSecondaryButtonSelected = WireColor.DarkBlue500,
+    secondaryButtonSelectedOutline = WireColor.DarkBlue300,
+    tertiaryButtonEnabled = Color.Transparent,              onTertiaryButtonEnabled = Color.White,
+    tertiaryButtonDisabled = Color.Transparent,             onTertiaryButtonDisabled = WireColor.Gray60,
+    tertiaryButtonFocus = WireColor.Gray80,                 onTertiaryButtonFocus = Color.White,
+    tertiaryButtonSelected = WireColor.DarkBlue50,          onTertiaryButtonSelected = WireColor.DarkBlue500,
+    tertiaryButtonSelectedOutline = WireColor.DarkBlue300,
+    divider = WireColor.Gray70,
+    secondaryText = WireColor.Gray40,
+    labelText = WireColor.Gray30,
+    badge = WireColor.Gray10,                               onBadge = Color.Black
 )
+// Default MaterialTheme dark ColorScheme mapping
+private val DarkColors = DarkWireColors.toColorScheme()

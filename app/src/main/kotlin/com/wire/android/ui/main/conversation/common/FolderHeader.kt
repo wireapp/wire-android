@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.title03
+import com.wire.android.ui.theme.wireColorScheme
 
 
 @Composable
@@ -17,6 +18,7 @@ fun FolderHeader(name: String) {
         modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        style = MaterialTheme.typography.title03
+        style = MaterialTheme.typography.title03,
+        color = MaterialTheme.wireColorScheme.labelText
     )
 }

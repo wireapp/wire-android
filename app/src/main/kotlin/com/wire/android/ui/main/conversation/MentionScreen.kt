@@ -22,6 +22,7 @@ import com.wire.android.ui.main.conversation.common.UserLabel
 import com.wire.android.ui.main.conversation.common.folderWithElements
 import com.wire.android.ui.main.conversation.mention.model.Mention
 import com.wire.android.ui.theme.subline01
+import com.wire.android.ui.theme.wireColorScheme
 
 
 @Composable
@@ -89,6 +90,7 @@ fun MentionLabel(mention: Mention, modifier: Modifier = Modifier) {
                 Text(
                     text = mentionInfo.mentionMessage.toQuote(),
                     style = MaterialTheme.typography.subline01,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

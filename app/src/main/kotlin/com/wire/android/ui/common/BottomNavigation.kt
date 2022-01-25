@@ -11,11 +11,12 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -34,27 +35,32 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.ui.theme.Dimensions
-import com.wire.android.ui.theme.button5
+import com.wire.android.ui.theme.badge01
+import com.wire.android.ui.theme.button05
 
 @Composable
 fun WireBottomNavigationBar(
     items: List<WireBottomNavigationItemData>,
     navController: NavController,
-    spaceBetweenItems: Dp = 16.dp
+    spaceBetweenItems: Dp = 24.dp
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    BottomNavigation(backgroundColor = MaterialTheme.colors.surface) {
+    NavigationBar(
+        modifier = Modifier.height(60.dp),
+        containerColor = MaterialTheme.colorScheme.surface) {
         items.forEachIndexed { index, item ->
             val modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .background(MaterialTheme.colors.surface)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(
                     top = Dimensions.bottomNavigationPadding,
                     bottom = Dimensions.bottomNavigationPadding,
-                    start = Dimensions.bottomNavigationPadding + if (index == 0) 0.dp else spaceBetweenItems / 2,
-                    end = Dimensions.bottomNavigationPadding + if (index == items.lastIndex) 0.dp else spaceBetweenItems / 2
+                    start = Dimensions.bottomNavigationPadding
+                            + if (index == 0) Dimensions.bottomNavigationPadding else spaceBetweenItems / 2,
+                    end = Dimensions.bottomNavigationPadding
+                            + if (index == items.lastIndex) Dimensions.bottomNavigationPadding else spaceBetweenItems / 2
                 )
 
             WireBottomNavigationItem(
@@ -82,12 +88,12 @@ fun RowScope.WireBottomNavigationItem(
     modifier: Modifier = Modifier,
     onItemClick: (WireBottomNavigationItemData) -> Unit
 ) {
-    val backgroundColor = if (selected) MaterialTheme.colors.secondary.copy(0.12f) else Color.Transparent
-    val contentColor = if (selected) MaterialTheme.colors.secondary else MaterialTheme.colors.onBackground
+    val backgroundColor = if(selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+    val contentColor = if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onBackground
     Box(
         modifier
-            .selectableBackground(selected) { onItemClick(data) }
             .clip(RoundedCornerShape(6.dp))
+            .selectableBackground(selected) { onItemClick(data) }
             .background(backgroundColor)
             .padding(Dimensions.bottomNavigationItemPadding)
     ) {
@@ -106,7 +112,7 @@ fun RowScope.WireBottomNavigationItem(
             )
             Text(
                 text = stringResource(id = data.title),
-                style = MaterialTheme.typography.button5,
+                style = MaterialTheme.typography.button05,
                 color = contentColor,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -123,12 +129,11 @@ fun RowScope.WireBottomNavigationItem(
 
                 Text(
                     text = data.notificationAmount.toString(),
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colors.onSecondary,
-                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onError,
+                    style = MaterialTheme.typography.badge01,
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colors.error)
+                        .background(MaterialTheme.colorScheme.error)
                         .align(Alignment.Center)
                         .padding(top = 2.dp, bottom = 2.dp, start = 4.dp, end = 4.dp)
                         .defaultMinSize(minWidth = 12.dp)

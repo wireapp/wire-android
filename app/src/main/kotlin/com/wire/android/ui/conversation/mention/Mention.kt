@@ -6,9 +6,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,7 +26,7 @@ import com.wire.android.ui.conversation.common.RowItem
 import com.wire.android.ui.conversation.common.UnreadMentionBadge
 import com.wire.android.ui.conversation.common.UserLabel
 import com.wire.android.ui.conversation.mention.model.Mention
-import com.wire.android.ui.theme.subLine1
+import com.wire.android.ui.theme.subline01
 
 @Preview
 @Composable
@@ -35,6 +36,7 @@ fun Mention(viewModel: MentionViewModel = MentionViewModel()) {
     MentionScreen(uiState = uiState)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MentionScreen(uiState: MentionState) {
     Scaffold(
@@ -99,7 +101,7 @@ fun MentionLabel(mention: Mention, modifier: Modifier = Modifier) {
                 UserLabel(conversation.toUserInfoLabel())
                 Text(
                     text = mentionInfo.mentionMessage.toQuote(),
-                    style = MaterialTheme.typography.subLine1,
+                    style = MaterialTheme.typography.subline01,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

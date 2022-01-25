@@ -5,9 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.ButtonColors
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
@@ -17,7 +17,7 @@ fun SurfaceBackgroundWrapper(modifier: Modifier = Modifier, content: @Composable
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(color = MaterialTheme.colors.surface)
+            .background(color = MaterialTheme.colorScheme.surface)
     ) {
         content()
     }
@@ -25,11 +25,11 @@ fun SurfaceBackgroundWrapper(modifier: Modifier = Modifier, content: @Composable
 
 @Composable
 fun AnimatedButtonColors(enabled: Boolean): ButtonColors {
-    val animatedBackgroundColor = animateColorAsState(ButtonDefaults.buttonColors().backgroundColor(enabled).value)
+    val animatedBackgroundColor = animateColorAsState(ButtonDefaults.buttonColors().containerColor(enabled).value)
     val animatedContentColor = animateColorAsState(ButtonDefaults.buttonColors().contentColor(enabled).value)
     return ButtonDefaults.buttonColors(
-        backgroundColor = animatedBackgroundColor.value,
-        disabledBackgroundColor = animatedBackgroundColor.value,
+        containerColor = animatedBackgroundColor.value,
+        disabledContainerColor = animatedBackgroundColor.value,
         contentColor = animatedContentColor.value,
         disabledContentColor = animatedContentColor.value)
 }

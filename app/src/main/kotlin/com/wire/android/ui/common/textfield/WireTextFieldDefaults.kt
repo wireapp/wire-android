@@ -4,30 +4,28 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun wireTextFieldColors(
-    focusColor: Color = MaterialTheme.colors.primary,
-    errorColor: Color = MaterialTheme.colors.error,
-    successColor: Color = Color.Green, //TODO
-    borderColor: Color = MaterialTheme.colors.onSurface.copy(ContentAlpha.disabled),
-    placeholderColor: Color = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
-    textColor: Color = LocalContentColor.current.copy(LocalContentAlpha.current),
-    disabledTextColor: Color = textColor.copy(ContentAlpha.disabled),
-    backgroundColor: Color = Color.White,
-    disabledBackgroundColor: Color = Color.LightGray,
-    labelColor: Color = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
-    descriptionColor: Color = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
+    focusColor: Color = MaterialTheme.colorScheme.primary,
+    errorColor: Color = MaterialTheme.colorScheme.error,
+    successColor: Color = MaterialTheme.wireColorScheme.green,
+    borderColor: Color = MaterialTheme.colorScheme.outline,
+    placeholderColor: Color = MaterialTheme.wireColorScheme.gray70,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    disabledTextColor: Color = MaterialTheme.wireColorScheme.gray70,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    disabledBackgroundColor: Color = MaterialTheme.wireColorScheme.gray20,
+    labelColor: Color = MaterialTheme.wireColorScheme.gray70,
+    descriptionColor: Color = MaterialTheme.wireColorScheme.gray70,
 ): WireTextFieldColors {
     return object : WireTextFieldColors {
 

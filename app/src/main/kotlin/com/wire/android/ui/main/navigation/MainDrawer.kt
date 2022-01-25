@@ -9,12 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DrawerValue
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.Text
-import androidx.compose.material.rememberDrawerState
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,8 +36,9 @@ import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
 import kotlinx.coroutines.CoroutineScope
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController) {
+fun MainDrawer(scope: CoroutineScope, drawerState: DrawerState, navController: NavController) {
     val topItems = listOf(MainNavigationScreenItem.Conversations, MainNavigationScreenItem.Archive, MainNavigationScreenItem.Vault)
     val bottomItems = listOf(MainNavigationScreenItem.Settings, MainNavigationScreenItem.Support)
 
@@ -61,7 +62,7 @@ fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
             DrawerItem(item = item,
                 selected = currentRoute == item.route,
                 onItemClick = {
-                    navigateToItem(navController, item, scope, scaffoldState)
+                    navigateToItem(navController, item, scope, drawerState)
                 })
         }
 
@@ -71,7 +72,7 @@ fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
             DrawerItem(item = item,
                 selected = currentRoute == item.route,
                 onItemClick = {
-                    navigateToItem(navController, item, scope, scaffoldState)
+                    navigateToItem(navController, item, scope, drawerState)
                 })
         }
     }
@@ -79,12 +80,12 @@ fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
 
 @Composable
 fun DrawerItem(item: MainNavigationScreenItem, selected: Boolean, onItemClick: (MainNavigationScreenItem) -> Unit) {
-    val backgroundColor = if (selected) MaterialTheme.colors.secondary else Color.Transparent
-    val contentColor = if (selected) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onBackground
+    val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
+    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(12.dp))
             .fillMaxWidth()
             .height(40.dp)
             .background(backgroundColor)
@@ -119,11 +120,12 @@ fun DrawerItemSelectedPreview() {
     DrawerItem(item = MainNavigationScreenItem.Conversations, selected = true, onItemClick = {})
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun DrawerPreview() {
     val scope = rememberCoroutineScope()
-    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val navController = rememberNavController()
-    MainDrawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
+    MainDrawer(scope = scope, drawerState = drawerState, navController = navController)
 }

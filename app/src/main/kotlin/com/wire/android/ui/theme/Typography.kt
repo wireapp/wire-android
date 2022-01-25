@@ -9,6 +9,45 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 
+val Typography.title01: TextStyle
+    get() = WireTypography.Title01
+val Typography.title02: TextStyle
+    get() = WireTypography.Title02
+val Typography.title03: TextStyle
+    get() = WireTypography.Title03
+val Typography.title04: TextStyle
+    get() = WireTypography.Title04
+val Typography.body01: TextStyle
+    get() = WireTypography.Body01
+val Typography.body02: TextStyle
+    get() = WireTypography.Body02
+val Typography.body03: TextStyle
+    get() = WireTypography.Body03
+val Typography.body04: TextStyle
+    get() = WireTypography.Body04
+val Typography.subline01: TextStyle
+    get() = WireTypography.SubLine01
+val Typography.button01: TextStyle
+    get() = WireTypography.Button01
+val Typography.button02: TextStyle
+    get() = WireTypography.Button02
+val Typography.button03: TextStyle
+    get() = WireTypography.Button03
+val Typography.button04: TextStyle
+    get() = WireTypography.Button04
+val Typography.button05: TextStyle
+    get() = WireTypography.Button05
+val Typography.label01: TextStyle
+    get() = WireTypography.Label01
+val Typography.label02: TextStyle
+    get() = WireTypography.Label02
+val Typography.label03: TextStyle
+    get() = WireTypography.Label03
+val Typography.label04: TextStyle
+    get() = WireTypography.Label04
+val Typography.badge01: TextStyle
+    get() = WireTypography.Badge01
+
 object WireTypography {
     private val Roboto = FontFamily.Default
     val Title01 = TextStyle(
@@ -139,42 +178,3 @@ object WireTypography {
         textAlign = TextAlign.Center
     )
 }
-
-val Typography.title01: TextStyle
-    get() = WireTypography.Title01
-val Typography.title02: TextStyle
-    get() = WireTypography.Title02
-val Typography.title03: TextStyle
-    get() = WireTypography.Title03
-val Typography.title04: TextStyle
-    get() = WireTypography.Title04
-val Typography.body01: TextStyle
-    get() = WireTypography.Body01
-val Typography.body02: TextStyle
-    get() = WireTypography.Body02
-val Typography.body03: TextStyle
-    get() = WireTypography.Body03
-val Typography.body04: TextStyle
-    get() = WireTypography.Body04
-val Typography.subline01: TextStyle
-    get() = WireTypography.SubLine01
-val Typography.button01: TextStyle
-    get() = WireTypography.Button01
-val Typography.button02: TextStyle
-    get() = WireTypography.Button02
-val Typography.button03: TextStyle
-    get() = WireTypography.Button03
-val Typography.button04: TextStyle
-    get() = WireTypography.Button04
-val Typography.button05: TextStyle
-    get() = WireTypography.Button05
-val Typography.label01: TextStyle
-    get() = WireTypography.Label01
-val Typography.label02: TextStyle
-    get() = WireTypography.Label02
-val Typography.label03: TextStyle
-    get() = WireTypography.Label03
-val Typography.label04: TextStyle
-    get() = WireTypography.Label04
-val Typography.badge01: TextStyle
-    get() = WireTypography.Badge01

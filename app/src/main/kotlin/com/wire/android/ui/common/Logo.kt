@@ -15,7 +15,7 @@ import com.wire.android.R
 @Composable
 fun Logo() {
     Image(
-        painter = painterResource(id = R.drawable.ic_big_logo),
+        painter = painterResource(id = R.drawable.ic_wire_logo),
         contentDescription = stringResource(id = R.string.app_logo_description),
         contentScale = ContentScale.Fit,
         modifier = Modifier

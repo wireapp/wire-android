@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#000000</color>
-    <color name="white">#ffffff</color>
-    <color name="light_blue">#0772DE</color>
 
+    <color name="background">#EDEFF0</color>
     <color name="default_icon_color">#34373D</color>
+
+    <!-- Color palette for Composable Themes is available in com.wire.android.ui.theme.Color.kt -->
+
 </resources>

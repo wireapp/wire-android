@@ -25,7 +25,7 @@ object Default {
 }
 
 android {
-    val enableSigning = System.getenv("ENABLE_SIGNING") == "TRUE"
+    val enableSigning = System.getenv("ENABLE_SIGNING").equals("TRUE", true)
     if (enableSigning) {
         signingConfigs {
             maybeCreate(BuildTypes.RELEASE).apply {

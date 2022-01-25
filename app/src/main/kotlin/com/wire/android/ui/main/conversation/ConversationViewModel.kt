@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Suppress("MagicNumber")
 class ConversationViewModel : ViewModel() {
 
     private val _state = MutableStateFlow(ConversationState())

@@ -10,9 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.main.conversation.all.model.Membership
-import com.wire.android.ui.main.conversation.common.LegalHoldIndicator
-import com.wire.android.ui.main.conversation.common.MembershipQualifier
+import com.wire.android.ui.main.conversation.model.Membership
 
 @Composable
 fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {

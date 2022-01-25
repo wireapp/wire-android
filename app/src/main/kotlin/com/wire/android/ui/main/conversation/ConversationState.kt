@@ -1,7 +1,7 @@
 package com.wire.android.ui.main.conversation
 
-import com.wire.android.ui.main.conversation.all.model.Conversation
-import com.wire.android.ui.main.conversation.all.model.ConversationFolder
+import com.wire.android.ui.main.conversation.model.Conversation
+import com.wire.android.ui.main.conversation.model.ConversationFolder
 import com.wire.android.ui.main.conversation.all.model.NewActivity
 import com.wire.android.ui.main.conversation.call.model.Call
 import com.wire.android.ui.main.conversation.mention.model.Mention

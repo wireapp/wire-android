@@ -3,7 +3,7 @@ package com.wire.android.ui.main.conversation.common.extension
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import com.wire.android.ui.main.conversation.common.FolderHeader
+import com.wire.android.ui.main.conversation.common.components.FolderHeader
 
 
 inline fun <T> LazyListScope.folderWithElements(

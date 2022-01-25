@@ -11,12 +11,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.main.conversation.all.model.Conversation
-import com.wire.android.ui.main.conversation.all.model.ConversationFolder
+import com.wire.android.ui.main.conversation.model.Conversation
+import com.wire.android.ui.main.conversation.model.ConversationFolder
 import com.wire.android.ui.main.conversation.all.model.NewActivity
-import com.wire.android.ui.main.conversation.all.model.toUserInfoLabel
-import com.wire.android.ui.main.conversation.common.EventBadgeFactory
-import com.wire.android.ui.main.conversation.common.RowItem
+import com.wire.android.ui.main.conversation.model.toUserInfoLabel
+import com.wire.android.ui.main.conversation.common.components.EventBadgeFactory
+import com.wire.android.ui.main.conversation.common.components.RowItem
 import com.wire.android.ui.main.conversation.common.components.UserLabel
 import com.wire.android.ui.main.conversation.common.extension.folderWithElements
 

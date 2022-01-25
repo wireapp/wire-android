@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
+import com.wire.android.ui.common.SearchBar
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.main.conversation.navigation.ConversationsNavigationItem
@@ -26,6 +27,7 @@ fun ConversationRoute(viewModel: ConversationViewModel, onSearchInputChanged: (S
         bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), navController) }
     ) {
         Column {
+            SearchBar(placeholderText = "Search a conversation", onSearchInputChanged)
             with(uiState) {
                 NavHost(navController, startDestination = ConversationsNavigationItem.All.route) {
                     composable(

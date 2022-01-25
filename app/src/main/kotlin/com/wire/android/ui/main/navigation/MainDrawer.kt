@@ -9,14 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DrawerValue
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.rememberDrawerState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,10 +25,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import com.wire.android.ui.WireAppState
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
-import com.wire.android.ui.main.WireAppState
+import com.wire.android.ui.rememberWireAppState
+
 
 @Composable
 fun MainDrawer(wireAppState: WireAppState) {
@@ -60,7 +57,7 @@ fun MainDrawer(wireAppState: WireAppState) {
                 DrawerItem(item = item,
                     selected = currentRoute == item.route,
                     onItemClick = {
-                        navigateToItem(navController, item, coroutineScope, scaffoldState)
+                        navigateToItem(item)
                     })
             }
 
@@ -70,7 +67,7 @@ fun MainDrawer(wireAppState: WireAppState) {
                 DrawerItem(item = item,
                     selected = currentRoute == item.route,
                     onItemClick = {
-                        navigateToItem(navController, item, coroutineScope, scaffoldState)
+                        navigateToItem(item)
                     })
             }
         }
@@ -122,8 +119,5 @@ fun DrawerItemSelectedPreview() {
 @Preview(showBackground = true)
 @Composable
 fun DrawerPreview() {
-    val scope = rememberCoroutineScope()
-    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
-    val navController = rememberNavController()
-  //  MainDrawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
+     MainDrawer(rememberWireAppState())
 }

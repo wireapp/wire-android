@@ -27,7 +27,7 @@ fun ConversationRoute(viewModel: ConversationViewModel, onSearchInputChanged: (S
         bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), navController) }
     ) {
         Column {
-            SearchBar(placeholderText = "Search a conversation", onSearchInputChanged)
+            SearchBar(placeholderText = stringResource(R.string.hint_search_bar_conversation), onSearchInputChanged)
             with(uiState) {
                 NavHost(navController, startDestination = ConversationsNavigationItem.All.route) {
                     composable(
@@ -52,11 +52,11 @@ fun ConversationRoute(viewModel: ConversationViewModel, onSearchInputChanged: (S
 private fun ConversationNavigationItems(
     uiState: ConversationState
 ): List<WireBottomNavigationItemData> {
-    return ConversationsNavigationItem.values().map {
-        when (it) {
-            ConversationsNavigationItem.All -> it.toBottomNavigationItemData(uiState.newActivityCount)
-            ConversationsNavigationItem.Calls -> it.toBottomNavigationItemData(uiState.missedCallsCount)
-            ConversationsNavigationItem.Mentions -> it.toBottomNavigationItemData(uiState.unreadMentionsCount)
+    return ConversationsNavigationItem.values().map { conversationsNavigationItem ->
+        when (conversationsNavigationItem) {
+            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiState.newActivityCount)
+            ConversationsNavigationItem.Calls -> conversationsNavigationItem.toBottomNavigationItemData(uiState.missedCallsCount)
+            ConversationsNavigationItem.Mentions -> conversationsNavigationItem.toBottomNavigationItemData(uiState.unreadMentionsCount)
         }
     }
 }

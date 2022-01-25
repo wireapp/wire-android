@@ -47,4 +47,7 @@
     <string name="conversation_label_new_activity">NEW ACTIVITY</string>
     <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
+    <string name="hint_search_bar_vault">Search a vault</string>
+    <string name="hint_search_bar_archive">Search an archive</string>
+    <string name="hint_search_bar_conversation">Search a conversation</string>
 </resources>

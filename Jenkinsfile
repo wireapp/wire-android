@@ -30,7 +30,7 @@ def defineTrackName() {
         return overwrite
     }
 
-    return 'production'
+    return 'internal'
 }
 
 pipeline {

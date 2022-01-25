@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.material.rememberScaffoldState
@@ -29,50 +28,51 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
-import kotlinx.coroutines.CoroutineScope
+import com.wire.android.ui.main.WireAppState
 
 @Composable
-fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController) {
-    val topItems = listOf(MainNavigationScreenItem.Conversations, MainNavigationScreenItem.Archive, MainNavigationScreenItem.Vault)
-    val bottomItems = listOf(MainNavigationScreenItem.Settings, MainNavigationScreenItem.Support)
+fun MainDrawer(wireAppState: WireAppState) {
+    with(wireAppState) {
+        val topItems = listOf(MainNavigationScreenItem.Conversations, MainNavigationScreenItem.Archive, MainNavigationScreenItem.Vault)
+        val bottomItems = listOf(MainNavigationScreenItem.Settings, MainNavigationScreenItem.Support)
 
-    Column(
-        modifier = Modifier
-            .padding(top = 40.dp, start = 8.dp, end = 8.dp, bottom = 16.dp)
-
-    ) {
-        Logo()
-
-        Spacer(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(16.dp)
-        )
+                .padding(top = 40.dp, start = 8.dp, end = 8.dp, bottom = 16.dp)
 
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
+        ) {
+            Logo()
 
-        topItems.forEach { item ->
-            DrawerItem(item = item,
-                selected = currentRoute == item.route,
-                onItemClick = {
-                    navigateToItem(navController, item, scope, scaffoldState)
-                })
-        }
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(16.dp)
+            )
 
-        Spacer(modifier = Modifier.weight(1f))
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
 
-        bottomItems.forEach { item ->
-            DrawerItem(item = item,
-                selected = currentRoute == item.route,
-                onItemClick = {
-                    navigateToItem(navController, item, scope, scaffoldState)
-                })
+            topItems.forEach { item ->
+                DrawerItem(item = item,
+                    selected = currentRoute == item.route,
+                    onItemClick = {
+                        navigateToItem(navController, item, coroutineScope, scaffoldState)
+                    })
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            bottomItems.forEach { item ->
+                DrawerItem(item = item,
+                    selected = currentRoute == item.route,
+                    onItemClick = {
+                        navigateToItem(navController, item, coroutineScope, scaffoldState)
+                    })
+            }
         }
     }
 }
@@ -125,5 +125,5 @@ fun DrawerPreview() {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
     val navController = rememberNavController()
-    MainDrawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
+  //  MainDrawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
 }

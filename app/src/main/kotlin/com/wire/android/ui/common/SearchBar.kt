@@ -29,7 +29,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.textfield.WireTextField
 
 @Composable
-fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTyped: (String) -> Unit = {}) {
+fun SearchBar(placeholderText: String, modifier: Modifier = Modifier, onTextTyped: (String) -> Unit = {}) {
     var showClearButton by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf(TextFieldValue()) }
 
@@ -81,5 +81,5 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
 @Preview(showBackground = true)
 @Composable
 fun SearchBarCollapsedPreview() {
-    SearchBarUI("Search text")
+    SearchBar("Search text")
 }

@@ -30,7 +30,7 @@ def defineTrackName() {
         return overwrite
     }
 
-    return 'production'
+    return 'internal'
 }
 
 pipeline {
@@ -337,7 +337,7 @@ pipeline {
     runAcceptanceTests = true
     runUnitTests = true
     runStaticCodeAnalysis = true
-    ENABLE_SIGNING = true
+    ENABLE_SIGNING = "TRUE"
   }
 
   post {

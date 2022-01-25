@@ -1,6 +1,6 @@
-package com.wire.android.ui.conversation.mention.model
+package com.wire.android.ui.main.conversation.mention.model
 
-import com.wire.android.ui.conversation.all.model.Conversation
+import com.wire.android.ui.main.conversation.all.model.Conversation
 
 data class Mention(
     val mentionInfo: MentionInfo,

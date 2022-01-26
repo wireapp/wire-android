@@ -3,14 +3,15 @@ package com.wire.android.ui.main.conversation.common
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.main.conversation.all.model.Membership
+import com.wire.android.ui.theme.body02
 
 @Composable
 fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
@@ -38,7 +39,7 @@ fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
 private fun ConversationName(name: String) {
     Text(
         text = name,
-        style = MaterialTheme.typography.body2
+        style = MaterialTheme.typography.body02
     )
 }
 

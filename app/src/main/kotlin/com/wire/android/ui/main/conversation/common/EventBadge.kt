@@ -5,7 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.ui.main.conversation.all.model.EventType
-import com.wire.android.ui.theme.WireColor
+import com.wire.android.ui.theme.wireColorScheme
 
 
 @Composable
@@ -74,7 +75,7 @@ fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier = Modifi
             modifier = modifier
                 .wrapContentWidth()
                 .background(
-                    color = WireColor.Dark90Gray,
+                    color = MaterialTheme.wireColorScheme.badge,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(

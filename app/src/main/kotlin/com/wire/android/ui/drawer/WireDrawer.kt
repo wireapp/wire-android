@@ -12,8 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -29,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.navigation.NavigationElements
 import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationType
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
 import kotlinx.coroutines.launch
@@ -38,15 +39,16 @@ import kotlinx.coroutines.launch
 @Composable
 fun WireDrawer(
     currentRoute: String?,
-    navigationType: NavigationType?,
+    navigationElements: NavigationElements?,
     viewModel: DrawerViewModel = hiltViewModel()
-): @Composable (ColumnScope.() -> Unit)? =
-    if (navigationType != null && navigationType is NavigationType.WithTopBar.WithDrawer) {
+): @Composable ColumnScope.() -> Unit =
+    if (navigationElements != null && navigationElements is NavigationElements.TopBar.WithDrawer) {
         { HomeDrawerCompose(currentRoute, viewModel) }
     } else {
-        null
+        { }
     }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeDrawerCompose(
     currentRoute: String?,
@@ -91,12 +93,12 @@ private fun HomeDrawerCompose(
 
 @Composable
 fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit) {
-    val backgroundColor = if (selected) MaterialTheme.colors.secondary else Color.Transparent
-    val contentColor = if (selected) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onBackground
+    val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
+    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(12.dp))
             .fillMaxWidth()
             .height(40.dp)
             .background(backgroundColor)
@@ -143,15 +145,16 @@ fun DrawerItemSelectedPreview() {
     DrawerItem(data = NavigationItem.Conversations.getDrawerData(), selected = true, onItemClick = {})
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun DrawerPreview() {
     WireDrawer(
         currentRoute = "scope",
-        navigationType = NavigationType.WithTopBar.WithDrawer(
+        navigationElements = NavigationElements.TopBar.WithDrawer(
             title = R.string.conversations_screen_title,
             isSearchable = true,
             hasUserAvatar = true
-        ) as NavigationType
+        ) as NavigationElements
     )
 }

@@ -7,7 +7,7 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.R
 import com.wire.android.ui.main.archive.ArchiveScreen
-import com.wire.android.ui.main.convesations.ConversationsScreen
+import com.wire.android.ui.main.conversations.ConversationsScreen
 import com.wire.android.ui.main.settings.SettingsScreen
 import com.wire.android.ui.main.support.SupportScreen
 import com.wire.android.ui.main.userprofile.UserProfileScreen
@@ -18,7 +18,7 @@ sealed class NavigationItem(
     val arguments: List<NamedNavArgument> = emptyList(),
     val addingToBackStack: Boolean = false,
     val content: @Composable (NavBackStackEntry) -> Unit,
-    val type: NavigationType = NavigationType.None,
+    val navigationElements: NavigationElements = NavigationElements.None,
 ) {
 
 //    object Splash  //TODO
@@ -27,56 +27,56 @@ sealed class NavigationItem(
     object Conversations : NavigationItem(
         route = "conversations",
         content = { ConversationsScreen(hiltViewModel()) },
-        type = NavigationType.WithTopBar.WithDrawer(
+        navigationElements = NavigationElements.TopBar.WithDrawer(
             title = R.string.conversations_screen_title,
             isSearchable = true,
             hasUserAvatar = true
-        ) as NavigationType
+        ) as NavigationElements
     )
 
     object Vault : NavigationItem(
         route = "vault",
         content = { VaultScreen() },
-        type = NavigationType.WithTopBar.WithDrawer(
+        navigationElements = NavigationElements.TopBar.WithDrawer(
             title = R.string.vault_screen_title,
             hasUserAvatar = true
-        ) as NavigationType
+        ) as NavigationElements
     )
 
     object Archive : NavigationItem(
         route = "archive",
         content = { ArchiveScreen() },
-        type = NavigationType.WithTopBar.WithDrawer(
+        navigationElements = NavigationElements.TopBar.WithDrawer(
             title = R.string.archive_screen_title,
             hasUserAvatar = true
-        ) as NavigationType
+        ) as NavigationElements
     )
 
     object Settings : NavigationItem(
         route = "settings",
         content = { SettingsScreen() },
         addingToBackStack = true,
-        type = NavigationType.WithTopBar(
+        navigationElements = NavigationElements.TopBar(
             title = R.string.settings_screen_title,
             btnType = TopBarBtn.BACK
-        ) as NavigationType
+        ) as NavigationElements
     )
 
     object Support : NavigationItem(
         route = "support",
         content = { SupportScreen() },
         addingToBackStack = true,
-        type = NavigationType.WithTopBar(
+        navigationElements = NavigationElements.TopBar(
             title = R.string.support_screen_title,
             btnType = TopBarBtn.BACK
-        ) as NavigationType
+        ) as NavigationElements
     )
 
     object UserProfile : NavigationItem(
         route = "user_profile",
         content = { UserProfileScreen() },
         addingToBackStack = true,
-        type = NavigationType.None //TODO
+        navigationElements = NavigationElements.None //TODO
     )
 
     companion object {
@@ -96,22 +96,22 @@ sealed class NavigationItem(
 
 }
 
-sealed class NavigationType {
+sealed class NavigationElements {
 
-    object None : NavigationType()
+    object None : NavigationElements()
 
-    open class WithTopBar(
+    open class TopBar(
         @StringRes open val title: Int,
         open val btnType: TopBarBtn,
         open val isSearchable: Boolean = false,
         open val hasUserAvatar: Boolean = false
-    ) : NavigationType() {
+    ) : NavigationElements() {
 
         data class WithDrawer(
             @StringRes override val title: Int,
             override val isSearchable: Boolean = false,
             override val hasUserAvatar: Boolean = false
-        ) : WithTopBar(title, TopBarBtn.MENU, isSearchable, hasUserAvatar)
+        ) : TopBar(title, TopBarBtn.MENU, isSearchable, hasUserAvatar)
     }
 
 }

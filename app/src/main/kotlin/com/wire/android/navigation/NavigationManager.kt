@@ -1,9 +1,6 @@
 package com.wire.android.navigation
 
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 
 class NavigationManager {
 

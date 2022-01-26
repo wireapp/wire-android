@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -26,17 +25,20 @@ import android.widget.Toast
 import androidx.annotation.ArrayRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
@@ -52,6 +54,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.wire.android.ui.theme.body02
+import com.wire.android.ui.theme.button02
+import com.wire.android.ui.theme.title01
 
 @Preview
 @Composable
@@ -59,19 +64,9 @@ fun WelcomeScreen() {
     WelcomeContent()
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WelcomeContent() {
-    val systemUiController = rememberSystemUiController()
-    val useDarkIcons = MaterialTheme.colors.isLight
-    val backgroundColor = MaterialTheme.colors.background
-
-    SideEffect {
-        systemUiController.setSystemBarsColor(
-            color = backgroundColor,
-            darkIcons = useDarkIcons
-        )
-    }
-
     Scaffold {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -79,7 +74,7 @@ private fun WelcomeContent() {
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-                tint = MaterialTheme.colors.onBackground,
+                tint = MaterialTheme.colorScheme.onBackground,
                 contentDescription = stringResource(id = R.string.welcome_wire_logo_content_description),
                 modifier = Modifier.padding(48.dp)
             )
@@ -145,7 +140,7 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
         )
         Text(
             text = pageText,
-            style = MaterialTheme.typography.h6,
+            style = MaterialTheme.typography.title01,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 24.dp)
@@ -160,7 +155,6 @@ private fun WelcomeButtons(modifier: Modifier) {
 
         Button(
             shape = RoundedCornerShape(16.dp),
-            elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
             onClick = { Toast.makeText(context, "Login click 💥", Toast.LENGTH_SHORT).show() }, //TODO
             modifier = Modifier
                 .fillMaxWidth()
@@ -168,13 +162,13 @@ private fun WelcomeButtons(modifier: Modifier) {
         ) {
             Text(
                 text = stringResource(R.string.label_login),
-                style = MaterialTheme.typography.button
+                style = MaterialTheme.typography.button02
             )
         }
 
         OutlinedButton(
             shape = RoundedCornerShape(16.dp),
-            elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.surface),
             onClick = { Toast.makeText(context, "Create account click 💥", Toast.LENGTH_SHORT).show() }, //TODO
             modifier = Modifier
                 .fillMaxWidth()
@@ -183,7 +177,7 @@ private fun WelcomeButtons(modifier: Modifier) {
         ) {
             Text(
                 text = stringResource(R.string.welcome_button_create_enterprise_account),
-                style = MaterialTheme.typography.button.copy(color = MaterialTheme.colors.onSurface)
+                style = MaterialTheme.typography.button02.copy(color = MaterialTheme.colorScheme.onSurface)
             )
         }
     }
@@ -196,16 +190,16 @@ private fun WelcomeFooter(modifier: Modifier) {
 
         Text(
             text = stringResource(R.string.welcome_footer_text),
-            style = MaterialTheme.typography.body1,
+            style = MaterialTheme.typography.body02,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
 
         Text(
             text = stringResource(R.string.welcome_footer_link),
-            style = MaterialTheme.typography.body1.copy(
+            style = MaterialTheme.typography.body02.copy(
                 textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colors.primary
+                color = MaterialTheme.colorScheme.primary
             ),
             textAlign = TextAlign.Center,
             modifier = Modifier

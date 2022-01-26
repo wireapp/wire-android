@@ -3,16 +3,16 @@ package com.wire.android.ui.topbar
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -21,11 +21,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.navigation.NavigationType
+import com.wire.android.navigation.NavigationElements
 import com.wire.android.navigation.TopBarBtn
 import com.wire.android.ui.common.SearchBarUI
 import com.wire.android.ui.common.UserProfileAvatar
@@ -36,17 +35,17 @@ import kotlinx.coroutines.launch
 @ExperimentalComposeUiApi
 @Composable
 fun WireTopBar(
-    navigationType: NavigationType?,
+    navigationElements: NavigationElements?,
     viewModel: TopBarViewModel = hiltViewModel()
 ) {
-    if (navigationType is NavigationType.WithTopBar) {
-        ToolBarWithBtn(navigationType, viewModel)
+    if (navigationElements is NavigationElements.TopBar) {
+        ToolBarWithBtn(navigationElements, viewModel)
     }
 }
 
 @Composable
 private fun ToolBarWithBtn(
-    data: NavigationType.WithTopBar,
+    data: NavigationElements.TopBar,
     viewModel: TopBarViewModel
 ) {
     val title = stringResource(id = data.title)
@@ -55,13 +54,10 @@ private fun ToolBarWithBtn(
     Column(
         Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colors.background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        TopAppBar(
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            elevation = 0.dp,
-            backgroundColor = MaterialTheme.colors.background,
-            contentColor = MaterialTheme.colors.onBackground,
             content = {
                 ToolbarIconBtn(data, viewModel, scope)
                 Text(modifier = Modifier.weight(weight = 1f), textAlign = TextAlign.Center, text = title, fontSize = 18.sp)
@@ -82,7 +78,7 @@ private fun ToolBarWithBtn(
 
 @Composable
 private fun ToolbarIconBtn(
-    navigationType: NavigationType.WithTopBar,
+    navigationType: NavigationElements.TopBar,
     viewModel: TopBarViewModel,
     scope: CoroutineScope
 ) {
@@ -112,7 +108,7 @@ private fun ToolbarIconBtn(
         Icon(
             imageVector = imageVector,
             contentDescription = contentDescription,
-            tint = MaterialTheme.colors.onBackground
+            tint = MaterialTheme.colorScheme.onBackground
         )
     }
 }
@@ -123,10 +119,10 @@ private fun ToolbarIconBtn(
 @Composable
 fun WireTopBarWithBurgerPreview() {
     WireTopBar(
-        navigationType = NavigationType.WithTopBar.WithDrawer(
+        navigationElements = NavigationElements.TopBar.WithDrawer(
             title = R.string.conversations_screen_title,
             isSearchable = true,
             hasUserAvatar = true
-        ) as NavigationType
+        ) as NavigationElements
     )
 }

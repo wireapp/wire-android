@@ -3,31 +3,29 @@ package com.wire.android.ui.main.navigation
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.R
+import com.wire.android.ui.main.conversations.ConversationsScreen
 import com.wire.android.ui.main.archive.ArchiveScreen
-import com.wire.android.ui.main.convesations.ConversationsScreen
 import com.wire.android.ui.main.settings.SettingsScreen
 import com.wire.android.ui.main.support.SupportScreen
 import com.wire.android.ui.main.userprofile.UserProfileScreen
 import com.wire.android.ui.main.vault.VaultScreen
+
 
 enum class MainNavigationScreenItem(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
     val route: String,
     val hasSearchableTopBar: Boolean,
-    val content: @Composable (NavBackStackEntry) -> Unit,
-    val arguments: List<NamedNavArgument> = emptyList()
+    val content: @Composable (NavBackStackEntry) -> Unit
 ) {
     Conversations(
         icon = R.drawable.ic_conversation,
         title = R.string.conversations_screen_title,
         route = "conversations",
         hasSearchableTopBar = true,
-        content = { ConversationsScreen(hiltViewModel()) }
+        content = { ConversationsScreen() }
     ),
 
     Vault(

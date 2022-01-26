@@ -1,38 +1,31 @@
 package com.wire.android.ui.login
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.wire.android.R
+import com.wire.android.ui.theme.title01
 
 @Composable
 fun LoginTopBar() {
     val context = LocalContext.current
-    TopAppBar(
+    CenterAlignedTopAppBar(
         title = {
             Text(
                 text = stringResource(R.string.login_title),
-                textAlign = TextAlign.Center,
-                fontSize = 18.sp,
-                modifier = Modifier.fillMaxWidth().padding(end = 68.dp) // same as AppBar TitleIconModifier width
+                style = MaterialTheme.typography.title01
             )
         },
-        elevation = 0.dp,
         navigationIcon = {
             IconButton(
                 onClick = { Toast.makeText(context, "Back click 💥", Toast.LENGTH_SHORT).show() }, //TODO
@@ -40,12 +33,16 @@ fun LoginTopBar() {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = "",
-                    tint = MaterialTheme.colors.onBackground
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
         },
-        backgroundColor = MaterialTheme.colors.background,
-        contentColor = MaterialTheme.colors.onBackground
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            titleContentColor = MaterialTheme.colorScheme.onBackground,
+            actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+            navigationIconContentColor = MaterialTheme.colorScheme.onBackground
+        )
     )
 }
 

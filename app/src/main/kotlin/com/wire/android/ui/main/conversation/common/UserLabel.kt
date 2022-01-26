@@ -2,16 +2,15 @@ package com.wire.android.ui.main.conversation.common
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.common.Label
+import com.wire.android.ui.common.LegalHoldIndicator
+import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.main.conversation.model.Membership
 import com.wire.android.ui.theme.body02
 
@@ -26,10 +25,7 @@ fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
 
             if (membership != Membership.None) {
                 Spacer(modifier = Modifier.width(6.dp))
-                Label(
-                    label = stringResource(id = membership.stringResourceId),
-                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-                )
+                MembershipQualifierLabel(membership)
             }
 
             if (isLegalHold) {

@@ -9,7 +9,6 @@ class NavigationManager {
     var drawerState = MutableSharedFlow<Boolean>()
 
     suspend fun navigate(directions: NavigationItem) {
-        println("cyka 1")
         navigateState.emit(directions)
     }
 

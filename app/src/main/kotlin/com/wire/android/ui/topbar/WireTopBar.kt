@@ -37,9 +37,11 @@ import kotlinx.coroutines.launch
 fun WireTopBar(
     navigationElements: NavigationElements?,
     viewModel: TopBarViewModel = hiltViewModel()
-) {
-    if (navigationElements is NavigationElements.TopBar) {
-        ToolBarWithBtn(navigationElements, viewModel)
+): @Composable () -> Unit {
+    return if (navigationElements is NavigationElements.TopBar) {
+        { ToolBarWithBtn(navigationElements, viewModel) }
+    } else {
+        {}
     }
 }
 
@@ -64,7 +66,6 @@ private fun ToolBarWithBtn(
 
                 if (data.hasUserAvatar) {
                     UserProfileAvatar(avatarUrl = "") {
-                        println("cyka 0")
                         scope.launch { viewModel.openUserProfile() }
                     }
                 }

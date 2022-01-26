@@ -22,7 +22,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.navigation.*
 import com.wire.android.ui.drawer.WireDrawer
-import com.wire.android.ui.main.MainNavigationGraph
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.topbar.WireTopBar
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,39 +46,36 @@ class WireActivity : AppCompatActivity() {
             WireTheme {
 
                 val navController = rememberNavController()
-//                val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
                 val drawerState = rememberDrawerState(DrawerValue.Closed)
                 val currentItem = navController.getCurrentNavigationItem()
                 val scope = rememberCoroutineScope()
 
-                println("cyka setting up 0 ")
-
                 setUpNavigation(drawerState, navController, scope)
 
-                val topBar: @Composable () -> Unit = { WireTopBar(navigationElements = currentItem?.navigationElements) }
+                val topBar = WireTopBar(navigationElements = currentItem?.navigationElements)
                 val drawerContent = WireDrawer(currentItem?.route, currentItem?.navigationElements)
 
-                NavigationDrawer(
-                    drawerContainerColor = Color.White,
-                    drawerTonalElevation = 0.dp,
-                    drawerShape = RectangleShape,
-                    drawerState = drawerState,
-                    drawerContent = drawerContent
-                ) {
+                if (drawerContent == null) {
                     Scaffold(
                         topBar = topBar,
                     ) {
                         NavigationGraph(navController = navController)
                     }
+                } else {
+                    NavigationDrawer(
+                        drawerContainerColor = Color.White,
+                        drawerTonalElevation = 0.dp,
+                        drawerShape = RectangleShape,
+                        drawerState = drawerState,
+                        drawerContent = drawerContent
+                    ) {
+                        Scaffold(
+                            topBar = topBar,
+                        ) {
+                            NavigationGraph(navController = navController)
+                        }
+                    }
                 }
-
-//                Scaffold(
-//                    scaffoldState = scaffoldState,
-//                    topBar = topBar,
-//                    drawerContent = drawerContent
-//                ) {
-//                    NavigationGraph(navController = navController)
-//                }
             }
         }
     }
@@ -91,12 +87,9 @@ class WireActivity : AppCompatActivity() {
         scope: CoroutineScope
     ) {
         LaunchedEffect(drawerState) {
-            println("cyka setting up 1")
 
             navigationManager.navigateState
                 .onEach { command ->
-                    println("cyka to ${command?.route} ")
-
                     if (command == null) return@onEach
 
                     navigateToItem(navController, command)
@@ -104,15 +97,11 @@ class WireActivity : AppCompatActivity() {
                 .launchIn(scope)
 
             navigationManager.navigateBack
-                .onEach {
-                    println("cyka popBackStack")
-                    navController.popBackStack()
-                }
+                .onEach { navController.popBackStack() }
                 .launchIn(scope)
 
             navigationManager.drawerState
                 .onEach { isOpened ->
-                    println("cyka open: $isOpened")
                     scope.launch {
                         if (isOpened) drawerState.open()
                         else drawerState.close()

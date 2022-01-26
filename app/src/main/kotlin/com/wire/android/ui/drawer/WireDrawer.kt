@@ -41,11 +41,11 @@ fun WireDrawer(
     currentRoute: String?,
     navigationElements: NavigationElements?,
     viewModel: DrawerViewModel = hiltViewModel()
-): @Composable ColumnScope.() -> Unit =
+): @Composable (ColumnScope.() -> Unit)? =
     if (navigationElements != null && navigationElements is NavigationElements.TopBar.WithDrawer) {
         { HomeDrawerCompose(currentRoute, viewModel) }
     } else {
-        { }
+        null
     }
 
 @OptIn(ExperimentalMaterial3Api::class)

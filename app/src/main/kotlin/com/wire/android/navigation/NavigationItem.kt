@@ -6,12 +6,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.R
-import com.wire.android.ui.main.archive.ArchiveScreen
-import com.wire.android.ui.main.conversations.ConversationsScreen
-import com.wire.android.ui.main.settings.SettingsScreen
-import com.wire.android.ui.main.support.SupportScreen
-import com.wire.android.ui.main.userprofile.UserProfileScreen
-import com.wire.android.ui.main.vault.VaultScreen
+import com.wire.android.ui.home.archive.ArchiveScreen
+import com.wire.android.ui.home.conversations.ConversationsScreen
+import com.wire.android.ui.home.settings.SettingsScreen
+import com.wire.android.ui.home.support.SupportScreen
+import com.wire.android.ui.home.userprofile.UserProfileScreen
+import com.wire.android.ui.home.vault.VaultScreen
 
 sealed class NavigationItem(
     val route: String,

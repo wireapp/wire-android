@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
-import com.wire.android.ui.main.conversation.all.model.EventType
+import com.wire.android.ui.main.conversation.model.EventType
 import com.wire.android.ui.theme.WireColor
 
 

@@ -1,22 +1,20 @@
-package com.wire.android.ui.main.navigation
+package com.wire.android.ui.drawer
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DrawerValue
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
-import androidx.compose.material.rememberDrawerState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,17 +27,34 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.R
+import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationType
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController) {
-    val topItems = listOf(MainNavigationScreenItem.Conversations, MainNavigationScreenItem.Archive, MainNavigationScreenItem.Vault)
-    val bottomItems = listOf(MainNavigationScreenItem.Settings, MainNavigationScreenItem.Support)
+fun WireDrawer(
+    currentRoute: String?,
+    navigationType: NavigationType?,
+    viewModel: DrawerViewModel = hiltViewModel()
+): @Composable (ColumnScope.() -> Unit)? =
+    if (navigationType != null && navigationType is NavigationType.WithTopBar.WithDrawer) {
+        { HomeDrawerCompose(currentRoute, viewModel) }
+    } else {
+        null
+    }
+
+@Composable
+private fun HomeDrawerCompose(
+    currentRoute: String?,
+    viewModel: DrawerViewModel
+) {
+    val scope = rememberCoroutineScope()
+    val topItems = listOf(NavigationItem.Conversations, NavigationItem.Archive, NavigationItem.Vault)
+    val bottomItems = listOf(NavigationItem.Settings, NavigationItem.Support)
 
     Column(
         modifier = Modifier
@@ -54,31 +69,28 @@ fun MainDrawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navControlle
                 .height(16.dp)
         )
 
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
-
         topItems.forEach { item ->
-            DrawerItem(item = item,
+            DrawerItem(data = item.getDrawerData(),
                 selected = currentRoute == item.route,
                 onItemClick = {
-                    navigateToItem(navController, item, scope, scaffoldState)
+                    scope.launch { viewModel.navigateTo(item) }
                 })
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
         bottomItems.forEach { item ->
-            DrawerItem(item = item,
+            DrawerItem(data = item.getDrawerData(),
                 selected = currentRoute == item.route,
                 onItemClick = {
-                    navigateToItem(navController, item, scope, scaffoldState)
+                    scope.launch { viewModel.navigateTo(item) }
                 })
         }
     }
 }
 
 @Composable
-fun DrawerItem(item: MainNavigationScreenItem, selected: Boolean, onItemClick: (MainNavigationScreenItem) -> Unit) {
+fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit) {
     val backgroundColor = if (selected) MaterialTheme.colors.secondary else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onBackground
     Row(
@@ -88,17 +100,17 @@ fun DrawerItem(item: MainNavigationScreenItem, selected: Boolean, onItemClick: (
             .fillMaxWidth()
             .height(40.dp)
             .background(backgroundColor)
-            .selectableBackground(selected) { onItemClick(item) }
+            .selectableBackground(selected) { onItemClick() }
     ) {
         Image(
-            painter = painterResource(id = item.icon),
-            contentDescription = stringResource(item.title),
+            painter = painterResource(id = data.icon!!),
+            contentDescription = stringResource(data.title!!),
             colorFilter = ColorFilter.tint(contentColor),
             contentScale = ContentScale.Fit,
             modifier = Modifier.padding(16.dp)
         )
         Text(
-            text = stringResource(id = item.title),
+            text = stringResource(id = data.title!!),
             fontSize = 14.sp,
             color = contentColor,
             modifier = Modifier
@@ -107,23 +119,39 @@ fun DrawerItem(item: MainNavigationScreenItem, selected: Boolean, onItemClick: (
     }
 }
 
+data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int?)
+
+private fun NavigationItem.getDrawerData(): DrawerItemData =
+    when (this) {
+        is NavigationItem.Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
+        is NavigationItem.Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
+        is NavigationItem.Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
+        is NavigationItem.Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
+        is NavigationItem.Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
+        else -> DrawerItemData(null, null)
+    }
+
 @Preview(showBackground = false)
 @Composable
 fun DrawerItemPreview() {
-    DrawerItem(item = MainNavigationScreenItem.Conversations, selected = false, onItemClick = {})
+    DrawerItem(data = NavigationItem.Conversations.getDrawerData(), selected = false, onItemClick = {})
 }
 
 @Preview(showBackground = false)
 @Composable
 fun DrawerItemSelectedPreview() {
-    DrawerItem(item = MainNavigationScreenItem.Conversations, selected = true, onItemClick = {})
+    DrawerItem(data = NavigationItem.Conversations.getDrawerData(), selected = true, onItemClick = {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DrawerPreview() {
-    val scope = rememberCoroutineScope()
-    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
-    val navController = rememberNavController()
-    MainDrawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
+    WireDrawer(
+        currentRoute = "scope",
+        navigationType = NavigationType.WithTopBar.WithDrawer(
+            title = R.string.conversations_screen_title,
+            isSearchable = true,
+            hasUserAvatar = true
+        ) as NavigationType
+    )
 }

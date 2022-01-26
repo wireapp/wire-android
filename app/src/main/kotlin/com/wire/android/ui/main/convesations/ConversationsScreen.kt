@@ -8,7 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.common.WireBottomNavigationBar
 
 @Composable
-fun ConversationsScreen() {
+fun ConversationsScreen(viewModel: ConversationsViewModel) {
     val navController = rememberNavController()
     val items = ConversationsNavigationItem.values()
         .map { it.intoBottomNavigationItemData(12) }
@@ -23,5 +23,5 @@ fun ConversationsScreen() {
 @Preview(showBackground = false)
 @Composable
 fun ConversationsScreenPreview() {
-    ConversationsScreen()
+    ConversationsScreen(ConversationsViewModel())
 }

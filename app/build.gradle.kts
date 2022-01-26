@@ -6,6 +6,7 @@ plugins {
     id(BuildPlugins.kotlinAndroid)
     id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinKapt)
+    id(BuildPlugins.hilt)
 
     // Internal Script plugins
     id(ScriptPlugins.variants)
@@ -97,7 +98,11 @@ dependencies {
     implementation(Libraries.composeConstraintLayout)
     implementation(Libraries.accompanistPager)
     implementation(Libraries.accompanistSystemUI)
-    implementation(Libraries.composeHiltNavigation)
+
+    //Hilt
+    implementation(Libraries.hilt)
+    kapt(Libraries.hiltCompiler)
+    implementation(Libraries.hiltNavigationCompose)
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)

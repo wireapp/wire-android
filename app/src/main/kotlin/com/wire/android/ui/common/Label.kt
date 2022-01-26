@@ -3,15 +3,15 @@ package com.wire.android.ui.common
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.WireColor
-import com.wire.android.ui.theme.label3
+import com.wire.android.ui.theme.label03
 
 
 @Composable
@@ -22,12 +22,12 @@ fun Label(
 ) {
     Text(
         text = label,
-        color = WireColor.DarkBlue,
-        style = MaterialTheme.typography.label3.copy(textAlign = TextAlign.Center),
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.label03.copy(textAlign = TextAlign.Center),
         modifier = Modifier
             .wrapContentWidth()
             .background(
-                color = WireColor.Alpha10LightBlue,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 shape = backgroundShape
             )
             .then(modifier)

@@ -1,6 +1,7 @@
 package com.wire.android.ui.main.navigation
 
-import androidx.compose.material.ScaffoldState
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
@@ -8,11 +9,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 internal fun navigateToItem(
     navController: NavController,
     item: MainNavigationScreenItem,
     scope: CoroutineScope,
-    scaffoldState: ScaffoldState
+    drawerState: DrawerState,
 ) {
     navController.navigate(item.route) {
         navController.graph.startDestinationRoute?.let { route ->
@@ -23,7 +25,7 @@ internal fun navigateToItem(
         launchSingleTop = true
         restoreState = true
     }
-    scope.launch { scaffoldState.drawerState.close() }
+    scope.launch { drawerState.close() }
 }
 
 @Composable

@@ -9,8 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,13 +28,15 @@ import com.wire.android.ui.main.conversation.common.MissedCallBadge
 import com.wire.android.ui.main.conversation.common.RowItem
 import com.wire.android.ui.main.conversation.common.UserLabel
 import com.wire.android.ui.main.conversation.common.folderWithElements
-import com.wire.android.ui.theme.subLine1
+import com.wire.android.ui.theme.subline01
+import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun CallScreen(missedCalls: List<Call> = emptyList(), callHistory: List<Call> = emptyList()) {
     CallContent(missedCalls, callHistory)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CallContent(missedCalls: List<Call>, callHistory: List<Call>) {
     LazyColumn {
@@ -102,6 +105,6 @@ private fun CallEventIcon(callEvent: CallEvent, modifier: Modifier = Modifier) {
 
 @Composable
 private fun TimeLabel(callTime: CallTime) {
-    Text(text = callTime.toLabel(), style = MaterialTheme.typography.subLine1)
+    Text(text = callTime.toLabel(), style = MaterialTheme.typography.subline01, color = MaterialTheme.wireColorScheme.secondaryText)
 }
 

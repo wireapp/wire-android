@@ -101,7 +101,7 @@ private fun MessageTimeLabel(time: String, modifier: Modifier) {
 }
 
 @Composable
-private fun UserName(userName: String) {
+private fun Username(username: String) {
     Text(
         text = userName,
         style = MaterialTheme.typography.body02

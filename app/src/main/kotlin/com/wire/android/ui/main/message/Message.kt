@@ -33,8 +33,13 @@ import com.wire.android.R
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.main.conversation.model.AvailabilityStatus
 import com.wire.android.ui.main.conversation.model.Membership
+import com.wire.android.ui.main.message.mock.mockMessages
+import com.wire.android.ui.main.message.model.Message
+import com.wire.android.ui.main.message.model.MessageBody
+import com.wire.android.ui.main.message.model.MessageContent
+import com.wire.android.ui.main.message.model.MessageHeader
+import com.wire.android.ui.main.message.model.MessageStatus
 import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.wireColorScheme
 
@@ -178,163 +183,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
 @Preview
 @Composable
 fun PreviewMessage() {
-    val mockMessages = listOf(
-        Message(
-            user = User("", AvailabilityStatus.Available),
-            messageHeader = MessageHeader(
-                userName = "Mateusz Pachulski",
-                membership = Membership.Guest,
-                isLegalHold = true,
-                time = "12.23pm",
-                messageStatus = MessageStatus.Untouched
-            ),
-            messageContent = MessageContent.TextMessage(
-                messageBody = MessageBody(
-                    "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long"
-                )
-            ),
-        ),
-        Message(
-            user = User("", AvailabilityStatus.Available),
-            messageHeader = MessageHeader(
-                userName = "Mateusz Pachulski",
-                membership = Membership.Guest,
-                isLegalHold = true,
-                time = "12.23pm",
-                messageStatus = MessageStatus.Deleted
-            ),
-            messageContent = MessageContent.ImageMessage("someUrl"),
-        ),
-        Message(
-            user = User("", AvailabilityStatus.Available),
-            messageHeader = MessageHeader(
-                userName = "Mateusz Pachulski",
-                membership = Membership.External,
-                isLegalHold = false,
-                time = "12.23pm",
-                messageStatus = MessageStatus.Edited
-            ),
-            messageContent = MessageContent.ImageMessage("someUrl"),
-        ),
-        Message(
-            user = User("", AvailabilityStatus.Available),
-            messageHeader = MessageHeader(
-                userName = "Mateusz Pachulski",
-                membership = Membership.External,
-                isLegalHold = false,
-                time = "12.23pm",
-                messageStatus = MessageStatus.Edited
-            ),
-            messageContent = MessageContent.ImageMessage("someUrl"),
-        ),
-        Message(
-            user = User("", AvailabilityStatus.Available),
-            messageHeader = MessageHeader(
-                userName = "Mateusz Pachulski",
-                membership = Membership.External,
-                isLegalHold = false,
-                time = "12.23pm",
-                messageStatus = MessageStatus.Deleted
-            ),
-            messageContent = MessageContent.TextMessage(
-                messageBody = MessageBody(
-                    "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long"
-                )
-            ),
-        ),
-        Message(
-            user = User("", AvailabilityStatus.Available),
-            messageHeader = MessageHeader(
-                userName = "Mateusz Pachulski",
-                membership = Membership.External,
-                isLegalHold = false,
-                time = "12.23pm",
-                messageStatus = MessageStatus.Edited
-            ),
-            messageContent = MessageContent.ImageMessage("someUrl"),
-        ),
-        Message(
-            user = User("", AvailabilityStatus.Available),
-            messageHeader = MessageHeader(
-                userName = "Mateusz Pachulski",
-                membership = Membership.External,
-                isLegalHold = false,
-                time = "12.23pm",
-                messageStatus = MessageStatus.Edited
-            ),
-            messageContent = MessageContent.TextMessage(
-                messageBody = MessageBody(
-                    "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long"
-                )
-            ),
-        ),
-    )
-
     Message(
         mockMessages
     )
 }
-
-data class MessageHeader(
-    val userName: String,
-    val membership: Membership,
-    val isLegalHold: Boolean,
-    val time: String,
-    val messageStatus: MessageStatus
-)
-
-enum class MessageStatus(val stringResourceId: Int) {
-    Untouched(-1), Deleted(R.string.label_message_status_deleted), Edited(R.string.label_message_status_edited)
-}
-
-data class Message(
-    val user: User,
-    val messageHeader: MessageHeader,
-    val messageContent: MessageContent,
-) {
-    val isDeleted = messageHeader.messageStatus == MessageStatus.Deleted
-}
-
-sealed class MessageContent {
-    data class TextMessage(val messageBody: MessageBody) : MessageContent()
-    data class ImageMessage(val imageUrl: String) : MessageContent()
-}
-
-data class MessageBody(
-    val message: String
-)
-
-data class User(
-    val avatarUrl: String = "",
-    val availabilityStatus: AvailabilityStatus,
-)
-
-
-
-
-

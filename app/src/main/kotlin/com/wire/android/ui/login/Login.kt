@@ -11,22 +11,20 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,11 +42,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.R
 import com.wire.android.ui.common.AnimatedButtonColors
+import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.theme.body02
+import com.wire.android.ui.theme.button02
 
 
 @Preview
@@ -57,17 +57,12 @@ fun LoginScreen() {
     LoginContent()
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun LoginContent() {
-    val systemUiController = rememberSystemUiController()
-    val useDarkIcons = MaterialTheme.colors.isLight
-    val backgroundColor = MaterialTheme.colors.background
 
     var email by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
-
-    SideEffect { systemUiController.setSystemBarsColor(color = backgroundColor, darkIcons = useDarkIcons) }
 
     Scaffold(topBar = { LoginTopBar() }) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -117,9 +112,9 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
         val context = LocalContext.current
         Text(
             text = stringResource(R.string.login_forgot_password),
-            style = MaterialTheme.typography.body1.copy(
+            style = MaterialTheme.typography.body02.copy(
                 textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colors.primary
+                color = MaterialTheme.colorScheme.primary
             ),
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -143,20 +138,20 @@ private fun LoginButton(modifier: Modifier, email: String, password: String) {
         Button(
             interactionSource = interactionSource,
             shape = RoundedCornerShape(16.dp),
-            elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
             colors = buttonColors,
             onClick = { isLoading = true }, //TODO
             enabled = validInput(email, password) && !isLoading,
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                val text = if(isLoading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
+                val text = if (isLoading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
                 Text(
                     text = text,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.button,
+                    style = MaterialTheme.typography.button02,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp),
@@ -164,15 +159,14 @@ private fun LoginButton(modifier: Modifier, email: String, password: String) {
                 androidx.compose.animation.AnimatedVisibility(
                     modifier = Modifier.align(Alignment.CenterEnd),
                     visible = isLoading,
-                    enter =  fadeIn() + scaleIn(),
-                    exit =  fadeOut() + scaleOut()
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut()
                 ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .size(16.dp)
-                                .align(Alignment.CenterEnd),
-                            color = buttonColors.contentColor(enabled).value,
-                            strokeWidth = 2.dp)
+                    val progressColor = buttonColors.contentColor(enabled).value
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        progressColor = progressColor
+                    )
                 }
             }
         }

@@ -15,18 +15,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -46,6 +45,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
+import com.wire.android.ui.theme.label01
+import com.wire.android.ui.theme.label04
 
 @Composable
 internal fun WireTextField(
@@ -87,7 +88,7 @@ internal fun WireTextField(
             maxLines = maxLines,
             readOnly = readOnly,
             enabled = enabled,
-            cursorBrush = SolidColor(MaterialTheme.colors.primary),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             visualTransformation = visualTransformation,
             interactionSource = interactionSource,
             modifier = Modifier
@@ -106,7 +107,7 @@ internal fun WireTextField(
         if (bottomText != null)
             Text(
                 text = bottomText,
-                fontSize = MaterialTheme.typography.caption.fontSize,
+                style = MaterialTheme.typography.label04,
                 color = colors.descriptionColor(state).value,
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -124,7 +125,7 @@ private fun Label(
     Row {
         Text(
             text = labelText,
-            style = MaterialTheme.typography.caption,
+            style = MaterialTheme.typography.label01,
             color = colors.labelColor(state, interactionSource).value,
             modifier = Modifier.padding(bottom = 4.dp, end = 4.dp)
         )
@@ -197,9 +198,7 @@ private fun ImageVector.Icon(): @Composable (() -> Unit) =
 
 @Composable
 private fun Tint(contentColor: Color, content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalContentColor provides contentColor) {
-        CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha, content = content)
-    }
+    CompositionLocalProvider(LocalContentColor provides contentColor, content = content)
 }
 
 @Preview(name = "Default WireTextField")

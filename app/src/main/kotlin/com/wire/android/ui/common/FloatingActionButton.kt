@@ -1,10 +1,9 @@
 package com.wire.android.ui.common
 
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.ExtendedFloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
@@ -17,7 +16,8 @@ fun FloatingActionButton(
     modifier: Modifier = Modifier
 ) {
     ExtendedFloatingActionButton(
-        shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 30)),
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
         icon = { Icon(Icons.Filled.Add, "") },
         text = { Text(text = text) },
         onClick = onClick,

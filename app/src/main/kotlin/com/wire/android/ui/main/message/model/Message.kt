@@ -6,7 +6,7 @@ import com.wire.android.ui.main.conversation.model.Membership
 
 
 data class MessageHeader(
-    val userName: String,
+    val username: String,
     val membership: Membership,
     val isLegalHold: Boolean,
     val time: String,

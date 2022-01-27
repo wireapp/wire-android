@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,7 +31,7 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.main.conversation.model.Membership
-import com.wire.android.ui.main.message.mock.mockMessages
+import com.wire.android.ui.main.message.mock.mockMessageWithText
 import com.wire.android.ui.main.message.model.Message
 import com.wire.android.ui.main.message.model.MessageBody
 import com.wire.android.ui.main.message.model.MessageContent
@@ -44,19 +41,17 @@ import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun Message(
-    messages: List<Message>
+fun MessageItem(
+    message: Message
 ) {
-    LazyColumn(contentPadding = PaddingValues(8.dp)) {
-        items(messages) { message ->
-            Row {
-                UserProfileAvatar()
-                Column {
-                    MessageHeader(message.messageHeader)
-                    Spacer(modifier = Modifier.height(6.dp))
-                    if (!message.isDeleted) {
-                        MessageContent(message.messageContent)
-                    }
+    with(message) {
+        Row {
+            UserProfileAvatar()
+            Column {
+                MessageHeader(messageHeader)
+                Spacer(modifier = Modifier.height(6.dp))
+                if (!isDeleted) {
+                    MessageContent(messageContent)
                 }
             }
         }
@@ -68,7 +63,7 @@ private fun MessageHeader(messageHeader: MessageHeader) {
     with(messageHeader) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                UserName(userName)
+                Username(username)
 
                 if (membership != Membership.None) {
                     Spacer(modifier = Modifier.width(6.dp))
@@ -106,9 +101,9 @@ private fun MessageTimeLabel(time: String, modifier: Modifier) {
 }
 
 @Composable
-private fun UserName(userName: String) {
+private fun Username(username: String) {
     Text(
-        text = userName,
+        text = username,
         style = MaterialTheme.typography.body02
     )
 }
@@ -183,7 +178,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
 @Preview
 @Composable
 fun PreviewMessage() {
-    Message(
-        mockMessages
+    MessageItem(
+        mockMessageWithText
     )
 }

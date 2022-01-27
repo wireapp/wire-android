@@ -39,7 +39,7 @@ import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun Message(
+fun MessageItem(
     messages: List<Message>
 ) {
     LazyColumn(contentPadding = PaddingValues(8.dp)) {

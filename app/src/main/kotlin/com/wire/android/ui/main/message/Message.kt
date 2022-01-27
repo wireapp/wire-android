@@ -37,6 +37,7 @@ import com.wire.android.ui.main.message.model.MessageBody
 import com.wire.android.ui.main.message.model.MessageContent
 import com.wire.android.ui.main.message.model.MessageHeader
 import com.wire.android.ui.main.message.model.MessageStatus
+import com.wire.android.ui.theme.Dimensions
 import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.wireColorScheme
 
@@ -111,7 +112,7 @@ private fun Username(username: String) {
 @Composable
 private fun MessageContent(messageContent: MessageContent) {
     when (messageContent) {
-        is MessageContent.ImageMessage -> MessageImage(messageContent.imageUrl)
+        is MessageContent.ImageMessage -> MessageImage(imageUrl = messageContent.imageUrl)
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
     }
 }
@@ -123,7 +124,7 @@ fun MessageImage(imageUrl: String = "") {
         painter = painterResource(R.drawable.mock_message_image), "",
         alignment = Alignment.CenterStart,
         modifier = Modifier
-            .width(200.dp)
+            .width(Dimensions.messageImagePortraitModeWidth)
     )
 }
 
@@ -133,8 +134,8 @@ fun MessageImage(imageUrl: String = "") {
 private fun MessageBody(messageBody: MessageBody) {
     Text(
         buildAnnotatedString {
-            appendMentionLabel("@Mateusz Pachulski")
-            appendBody(messageBody)
+            appendMentionLabel(label = "@Mateusz Pachulski")
+            appendBody(messageBody = messageBody)
         }
     )
 }
@@ -162,7 +163,13 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     Box(
         modifier = Modifier
             .wrapContentSize()
-            .border(BorderStroke(1.dp, MaterialTheme.wireColorScheme.tertiaryButtonFocus), shape = RoundedCornerShape(4.dp))
+            .border(
+                BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.wireColorScheme.tertiaryButtonFocus
+                ),
+                shape = RoundedCornerShape(size = 4.dp)
+            )
             .padding(
                 horizontal = 4.dp,
                 vertical = 2.dp

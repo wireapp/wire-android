@@ -8,25 +8,34 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.auth.LoginUseCase
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class KaliumCoreLogic
+
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 class CoreLogicModule {
 
-    @ViewModelScoped
+    @com.wire.android.di.KaliumCoreLogic
+    @Singleton
     @Provides
     fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
         val proteusPath = context.getDir("proteus", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
         return CoreLogic(applicationContext = context, rootProteusDirectoryPath = proteusPath, clientLabel = deviceLabel)
     }
+}
 
+@Module
+@InstallIn(ViewModelComponent::class)
+class UseCaseModule {
     @ViewModelScoped
     @Provides
-    fun loginUseCaseProvider(coreLogic: CoreLogic): LoginUseCase = coreLogic.getAuthenticationScope().loginUsingEmail
+    fun loginUseCaseProvider(@com.wire.android.di.KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().loginUsingEmail
 }

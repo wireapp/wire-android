@@ -50,5 +50,4 @@ class LoginViewModel @Inject constructor(
     private companion object {
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
     }
-
 }

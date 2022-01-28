@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,13 +14,17 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.main.conversationlist.common.EventBadgeFactory
+import com.wire.android.ui.main.conversationlist.common.GroupConversationAvatar
 import com.wire.android.ui.main.conversationlist.common.RowItem
 import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.main.conversationlist.common.folderWithElements
 import com.wire.android.ui.main.conversationlist.model.Conversation
+import com.wire.android.ui.main.conversationlist.model.Conversation.GroupConversation
+import com.wire.android.ui.main.conversationlist.model.Conversation.PrivateConversation
 import com.wire.android.ui.main.conversationlist.model.ConversationFolder
 import com.wire.android.ui.main.conversationlist.model.NewActivity
 import com.wire.android.ui.main.conversationlist.model.toUserInfoLabel
+import com.wire.android.ui.theme.body02
 
 
 @Composable
@@ -57,7 +63,7 @@ private fun AllConversationContent(
                 header = { conversationFolder.folderName },
                 items = conversationList
             ) { conversation ->
-                ConversationRowItem(
+                ConversationItem(
                     conversation = conversation,
                     onConversationItemClick
                 )
@@ -72,7 +78,7 @@ private fun NewActivityRowItem(
     onConversationItemClick: () -> Unit
 ) {
     RowItem(onRowItemClick = onConversationItemClick) {
-        ConversationLabel(conversation = newActivity.conversation)
+        createConversationLabel(conversation = newActivity.conversation)
         Box(modifier = Modifier.fillMaxWidth()) {
             EventBadgeFactory(
                 eventType = newActivity.eventType,
@@ -85,17 +91,36 @@ private fun NewActivityRowItem(
 }
 
 @Composable
-private fun ConversationRowItem(conversation: Conversation, onConversationItemClick: () -> Unit) {
-    RowItem(onRowItemClick = onConversationItemClick) {
-        ConversationLabel(conversation)
+private fun createConversationLabel(conversation: Conversation) {
+    when (conversation) {
+        is GroupConversation -> {
+            with(conversation) {
+                GroupConversationAvatar(groupColorValue)
+                GroupName(groupName)
+            }
+        }
+        is PrivateConversation -> {
+            with(conversation) {
+                UserProfileAvatar(avatarUrl = userInfo.avatarUrl, onClick = {})
+                UserLabel(toUserInfoLabel())
+            }
+        }
     }
 }
 
 @Composable
-private fun ConversationLabel(conversation: Conversation) {
-    UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
-    UserLabel(conversation.toUserInfoLabel())
+private fun ConversationItem(conversation: Conversation, onConversationItemClick: () -> Unit) {
+    RowItem(onRowItemClick = onConversationItemClick) {
+        createConversationLabel(conversation = conversation)
+    }
 }
 
+@Composable
+ fun GroupName(name: String) {
+    Text(
+        text = name,
+        style = MaterialTheme.typography.body02
+    )
+}
 
 

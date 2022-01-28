@@ -9,17 +9,17 @@ data class ConversationFolder(
     val folderName: String,
 )
 
-data class Conversation(
-    val userInfo: UserInfo,
-    val conversationInfo: ConversationInfo
-)
+sealed class Conversation {
+    data class GroupConversation(
+        val groupColorValue: ULong,
+        val groupName: String
+    ) : Conversation()
 
-fun Conversation.toUserInfoLabel() =
-    UserInfoLabel(
-        labelName = conversationInfo.name,
-        isLegalHold = conversationInfo.isLegalHold,
-        membership = conversationInfo.membership,
-    )
+    data class PrivateConversation(
+        val userInfo: UserInfo,
+        val conversationInfo: ConversationInfo
+    ) : Conversation()
+}
 
 data class ConversationInfo(
     val name: String,
@@ -39,5 +39,12 @@ enum class AvailabilityStatus {
 enum class Membership(@StringRes val stringResourceId: Int) {
     Guest(R.string.label_membership_guest), External(R.string.label_memebership_external), None(-1)
 }
+
+fun Conversation.PrivateConversation.toUserInfoLabel() =
+    UserInfoLabel(
+        labelName = conversationInfo.name,
+        isLegalHold = conversationInfo.isLegalHold,
+        membership = conversationInfo.membership,
+    )
 
 

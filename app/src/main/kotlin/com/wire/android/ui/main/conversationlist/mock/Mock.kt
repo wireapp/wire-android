@@ -1,23 +1,25 @@
 package com.wire.android.ui.main.conversationlist.mock
 
 import com.wire.android.ui.main.conversationlist.model.AvailabilityStatus
-import com.wire.android.ui.main.conversationlist.model.Conversation
-import com.wire.android.ui.main.conversationlist.model.ConversationFolder
-import com.wire.android.ui.main.conversationlist.model.ConversationInfo
-import com.wire.android.ui.main.conversationlist.model.EventType
-import com.wire.android.ui.main.conversationlist.model.Membership
-import com.wire.android.ui.main.conversationlist.model.NewActivity
-import com.wire.android.ui.main.conversationlist.model.UserInfo
 import com.wire.android.ui.main.conversationlist.model.Call
 import com.wire.android.ui.main.conversationlist.model.CallEvent
 import com.wire.android.ui.main.conversationlist.model.CallInfo
 import com.wire.android.ui.main.conversationlist.model.CallTime
+import com.wire.android.ui.main.conversationlist.model.Conversation
+import com.wire.android.ui.main.conversationlist.model.Conversation.GroupConversation
+import com.wire.android.ui.main.conversationlist.model.Conversation.PrivateConversation
+import com.wire.android.ui.main.conversationlist.model.ConversationFolder
+import com.wire.android.ui.main.conversationlist.model.ConversationInfo
+import com.wire.android.ui.main.conversationlist.model.EventType
+import com.wire.android.ui.main.conversationlist.model.Membership
 import com.wire.android.ui.main.conversationlist.model.Mention
 import com.wire.android.ui.main.conversationlist.model.MentionInfo
 import com.wire.android.ui.main.conversationlist.model.MentionMessage
+import com.wire.android.ui.main.conversationlist.model.NewActivity
+import com.wire.android.ui.main.conversationlist.model.UserInfo
 
-val mockConversations = listOf(
-    Conversation(
+val mockConversations = listOf<Conversation>(
+    PrivateConversation(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "some test value",
@@ -25,7 +27,7 @@ val mockConversations = listOf(
             isLegalHold = true
         )
     ),
-    Conversation(
+    PrivateConversation(
         userInfo = UserInfo(
             availabilityStatus = AvailabilityStatus.Available
         ),
@@ -34,7 +36,7 @@ val mockConversations = listOf(
             isLegalHold = true
         )
     ),
-    Conversation(
+    PrivateConversation(
         userInfo = UserInfo(
             availabilityStatus = AvailabilityStatus.Busy
         ),
@@ -43,7 +45,7 @@ val mockConversations = listOf(
             membership = Membership.External
         )
     ),
-    Conversation(
+    PrivateConversation(
         userInfo = UserInfo(
             availabilityStatus = AvailabilityStatus.Away
         ),
@@ -52,14 +54,17 @@ val mockConversations = listOf(
             isLegalHold = true
         )
     ),
-    Conversation(
+    GroupConversation(
+        123456u, "Some group"
+    ),
+    PrivateConversation(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "and once more 3",
             membership = Membership.External
         )
     ),
-    Conversation(
+    PrivateConversation(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "and once more 4",
@@ -68,7 +73,7 @@ val mockConversations = listOf(
     ),
 )
 
-val mockConversation = Conversation(
+val mockConversation = PrivateConversation(
     userInfo = UserInfo(),
     conversationInfo = ConversationInfo(
         name = "and once more 4",
@@ -99,7 +104,9 @@ val conversationMockData1 = mapOf(
 )
 
 
-
+val mockGroupConversation = GroupConversation(
+    123456u, "Some group"
+)
 
 @Suppress("MagicNumber")
 val newActivitiesMockData = listOf(
@@ -160,20 +167,24 @@ val mockCallInfo5 = CallInfo(CallTime("Today", "6:59 PM"), CallEvent.NoAnswerCal
 val mockMissedCalls = listOf(
     Call(mockCallInfo1, mockConversation),
     Call(mockCallInfo2, mockConversation),
+    Call(mockCallInfo4, mockGroupConversation),
     Call(mockCallInfo3, mockConversation),
 )
 
 val mockCallHistory = listOf(
+    Call(mockCallInfo4, mockGroupConversation),
     Call(mockCallInfo1, mockConversation),
     Call(mockCallInfo2, mockConversation),
     Call(mockCallInfo3, mockConversation),
     Call(mockCallInfo1, mockConversation),
+    Call(mockCallInfo4, mockGroupConversation),
     Call(mockCallInfo2, mockConversation),
     Call(mockCallInfo3, mockConversation),
     Call(mockCallInfo4, mockConversation),
     Call(mockCallInfo2, mockConversation),
     Call(mockCallInfo3, mockConversation),
     Call(mockCallInfo1, mockConversation),
+    Call(mockCallInfo4, mockGroupConversation),
     Call(mockCallInfo5, mockConversation),
     Call(mockCallInfo3, mockConversation),
     Call(mockCallInfo1, mockConversation),

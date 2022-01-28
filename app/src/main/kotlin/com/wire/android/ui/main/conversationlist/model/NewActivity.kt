@@ -2,7 +2,7 @@ package com.wire.android.ui.main.conversationlist.model
 
 data class NewActivity(
     val eventType: EventType,
-    val conversation: Conversation,
+    val conversation: Conversation
 )
 
 sealed class EventType {

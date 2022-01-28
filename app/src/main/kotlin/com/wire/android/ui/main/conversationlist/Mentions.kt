@@ -97,21 +97,21 @@ fun AllMentionRowItem(mention: Mention, onMentionItemClick: () -> Unit) {
 
 @Composable
 fun MentionLabel(mention: Mention, modifier: Modifier = Modifier) {
-    Row(modifier = modifier) {
-        with(mention) {
-            UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
-            Column {
-                UserLabel(conversation.toUserInfoLabel())
-                Text(
-                    text = mentionInfo.mentionMessage.toQuote(),
-                    style = MaterialTheme.typography.subline01,
-                    color = MaterialTheme.wireColorScheme.secondaryText,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-    }
+//    Row(modifier = modifier) {
+//        with(mention) {
+//            UserProfileAvatar(avatarUrl = converstaion.userInfo.avatarUrl, onClick = {})
+//            Column {
+//                UserLabel(privateConversation.toUserInfoLabel())
+//                Text(
+//                    text = mentionInfo.mentionMessage.toQuote(),
+//                    style = MaterialTheme.typography.subline01,
+//                    color = MaterialTheme.wireColorScheme.secondaryText,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis,
+//                )
+//            }
+//        }
+//    }
 }
 
 

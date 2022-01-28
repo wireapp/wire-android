@@ -3,11 +3,8 @@ package com.wire.android.ui.main.conversationlist
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.main.conversationlist.common.EventBadgeFactory
+import com.wire.android.ui.main.conversationlist.common.GroupConversationAvatar
 import com.wire.android.ui.main.conversationlist.common.MissedCallBadge
 import com.wire.android.ui.main.conversationlist.common.RowItem
 import com.wire.android.ui.main.conversationlist.common.UserLabel
@@ -27,6 +26,8 @@ import com.wire.android.ui.main.conversationlist.common.folderWithElements
 import com.wire.android.ui.main.conversationlist.model.Call
 import com.wire.android.ui.main.conversationlist.model.CallEvent
 import com.wire.android.ui.main.conversationlist.model.CallTime
+import com.wire.android.ui.main.conversationlist.model.Conversation
+import com.wire.android.ui.main.conversationlist.model.EventType
 import com.wire.android.ui.main.conversationlist.model.toUserInfoLabel
 import com.wire.android.ui.theme.subline01
 import com.wire.android.ui.theme.wireColorScheme
@@ -37,11 +38,11 @@ fun CallScreen(
     callHistory: List<Call> = emptyList(),
     onCallItemClick: () -> Unit
 ) {
-    CallContent(
-        missedCalls = missedCalls,
-        callHistory = callHistory,
-        onCallItemClick = onCallItemClick
-    )
+//    CallContent(
+//        missedCalls = missedCalls,
+//        callHistory = callHistory,
+//        onCallItemClick = onCallItemClick
+//    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,19 +101,19 @@ private fun CallHistoryRowItem(callHistory: Call, onCallItemClick: () -> Unit) {
 
 @Composable
 private fun CallLabel(call: Call) {
-    with(call) {
-        UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
-        Column {
-            UserLabel(conversation.toUserInfoLabel())
-            with(callInfo) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TimeLabel(callTime = callTime)
-                    Spacer(modifier = Modifier.width(6.dp))
-                    CallEventIcon(callEvent = callEvent)
-                }
-            }
-        }
-    }
+//    with(call) {
+//        UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
+//        Column {
+//            UserLabel(privateConversation.toUserInfoLabel())
+//            with(callInfo) {
+//                Row(verticalAlignment = Alignment.CenterVertically) {
+//                    TimeLabel(callTime = callTime)
+//                    Spacer(modifier = Modifier.width(6.dp))
+//                    CallEventIcon(callEvent = callEvent)
+//                }
+//            }
+//        }
+//    }
 }
 
 @Composable
@@ -129,3 +130,52 @@ private fun TimeLabel(callTime: CallTime) {
     Text(text = callTime.toLabel(), style = MaterialTheme.typography.subline01, color = MaterialTheme.wireColorScheme.secondaryText)
 }
 
+
+@Composable
+fun ConversationItem(
+    avatar: @Composable () -> Unit,
+    title: @Composable () -> Unit,
+    subTitle: @Composable () -> Unit = {},
+    event: @Composable () -> Unit = {}
+) {
+    RowItem(onRowItemClick = {}) {
+        avatar()
+        Column {
+            title()
+            subTitle()
+        }
+        event()
+    }
+}
+
+@Composable
+fun AllConversationItem(conversation: Conversation, eventType: EventType? = null) {
+    when (conversation) {
+        is Conversation.GroupConversation -> {
+            ConversationItem(
+                avatar = {
+                    GroupConversationAvatar(colorValue = conversation.groupColorValue)
+                },
+                title = { GroupName(conversation.groupName) },
+                event = {
+                    if (eventType != null) {
+                        EventBadgeFactory(eventType = eventType)
+                    }
+                }
+            )
+        }
+        is Conversation.PrivateConversation -> {
+            ConversationItem(
+                avatar = {
+                    UserProfileAvatar()
+                },
+                title = { UserLabel(conversation.toUserInfoLabel()) },
+                event = {
+                    if (eventType != null) {
+                        EventBadgeFactory(eventType = eventType)
+                    }
+                }
+            )
+        }
+    }
+}

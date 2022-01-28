@@ -1,6 +1,5 @@
 package com.wire.android.ui.main.conversationlist
 
-
 import com.wire.android.ui.main.conversationlist.model.Call
 import com.wire.android.ui.main.conversationlist.model.Conversation
 import com.wire.android.ui.main.conversationlist.model.ConversationFolder

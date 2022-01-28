@@ -90,5 +90,3 @@ private fun AllConversationItem(conversation: Conversation, eventType: EventType
         }
     }
 }
-
-

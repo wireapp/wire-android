@@ -77,6 +77,15 @@ fun CallItem(call: Call, eventType: EventType? = null) {
                         GroupConversationAvatar(colorValue = conversation.groupColorValue)
                     },
                     title = { GroupName(conversation.groupName) },
+                    subTitle = {
+                        with(callInfo) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                TimeLabel(callTime = callTime)
+                                Spacer(modifier = Modifier.width(6.dp))
+                                CallEventIcon(callEvent = callEvent)
+                            }
+                        }
+                    },
                     eventType = eventType
                 )
             }

@@ -13,6 +13,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
+import com.wire.android.ui.main.conversationlist.mock.conversationMockData
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 
 
@@ -33,8 +34,8 @@ fun ConversationRoute(viewModel: ConversationViewModel = ConversationViewModel()
                     content = {
                         AllConversationScreen(
                             newActivities = newActivities,
-                            conversations = conversations
-                        ) {  }
+                            conversations = conversationMockData
+                        ) { }
                     })
                 composable(
                     route = ConversationsNavigationItem.Calls.route,
@@ -42,7 +43,7 @@ fun ConversationRoute(viewModel: ConversationViewModel = ConversationViewModel()
                         CallScreen(
                             missedCalls = missedCalls,
                             callHistory = callHistory
-                        ) {  }
+                        ) { }
                     })
                 composable(
                     route = ConversationsNavigationItem.Mentions.route,

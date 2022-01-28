@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversationlist
+package com.wire.android.ui.main.conversationlist.mock
 
 import com.wire.android.ui.main.conversationlist.model.AvailabilityStatus
 import com.wire.android.ui.main.conversationlist.model.Conversation

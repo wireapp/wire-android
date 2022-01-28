@@ -1,13 +1,14 @@
 package com.wire.android.ui.main.conversationlist
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
+import com.wire.android.ui.main.conversationlist.mock.conversationMockData
+import com.wire.android.ui.main.conversationlist.mock.mockAllMentionList
+import com.wire.android.ui.main.conversationlist.mock.mockCallHistory
+import com.wire.android.ui.main.conversationlist.mock.mockMissedCalls
+import com.wire.android.ui.main.conversationlist.mock.mockUnreadMentionList
+import com.wire.android.ui.main.conversationlist.mock.newActivitiesMockData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 @Suppress("MagicNumber")
 class ConversationViewModel : ViewModel() {
@@ -29,22 +30,6 @@ class ConversationViewModel : ViewModel() {
             missedCallsCount = 100,
             newActivityCount = 1
         )
-
-        viewModelScope.launch {
-            delay(2000)
-            _state.update {
-                Log.d("TEST", "updating after 2000")
-                it.copy(newActivities = emptyList(), conversations = emptyMap(),unreadMentionsCount = 5,missedCallsCount = 20)
-            }
-        }
-
-        viewModelScope.launch {
-            delay(6000)
-            _state.update {
-                Log.d("TEST", "updating after 6000")
-                it.copy(conversations = com.wire.android.ui.main.conversationlist.conversationMockData1,unreadMentionsCount = 50)
-            }
-        }
     }
 
 }

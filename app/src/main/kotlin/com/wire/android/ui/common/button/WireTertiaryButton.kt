@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.Icon
+import com.wire.android.ui.theme.Dimensions
 import com.wire.android.ui.theme.button04
 
 @Composable
@@ -31,14 +32,17 @@ fun WireTertiaryButton(
     text: String? = null,
     textStyle: TextStyle = MaterialTheme.typography.button04,
     state: WireButtonState = WireButtonState.Default,
-    minHeight: Dp = 48.dp,
-    minWidth: Dp = 60.dp,
+    minHeight: Dp = Dimensions.buttonMinHeight,
+    minWidth: Dp = Dimensions.buttonMinWidth,
     fillMaxWidth: Boolean = true,
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireButtonColors = wireTertiaryButtonColors(),
     elevation: ButtonElevation? = null,
     borderWidth: Dp = 1.dp,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+    contentPadding: PaddingValues = PaddingValues(
+        horizontal = Dimensions.buttonHorizontalContentPadding,
+        vertical = Dimensions.buttonVerticalContentPadding
+    ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     modifier: Modifier = Modifier,
 ) = WireButton(

@@ -28,6 +28,8 @@ object BuildPlugins {
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val kotlinKapt = "kotlin-kapt"
+    const val kapt = "kapt"
+    const val hilt = "dagger.hilt.android.plugin"
 }
 
 object ScriptPlugins {
@@ -51,7 +53,7 @@ object Libraries {
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
         const val ktx = "1.6.0"
-        const val material = "1.3.0"
+        const val material = "1.5.0"
         const val koin = "2.2.3"
         const val lifecycleKtx = "2.2.0"
         const val messageProto = "1.28.2"
@@ -68,10 +70,13 @@ object Libraries {
         const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
         const val compose = "1.0.5"
+        const val composeMaterial = "1.0.0-alpha03"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.0-beta02"
         const val accompanist = "0.22.0-rc"
         const val composeConstraint = "1.0.0-rc02"
+        const val hilt = "2.38.1"
+        const val lifecycle = "2.4.0"
     }
 
     // AndroidX Dependencies
@@ -85,7 +90,7 @@ object Libraries {
     const val workManager               = "androidx.work:work-runtime-ktx:${Versions.workManager}"
     const val fragment                  = "androidx.fragment:fragment:${Versions.fragment}"
     const val composeUi                 = "androidx.compose.ui:ui:${Versions.compose}"
-    const val composeMaterial           = "androidx.compose.material:material:${Versions.compose}"
+    const val composeMaterial           = "androidx.compose.material3:material3:${Versions.composeMaterial}"
     const val composeTooling            = "androidx.compose.ui:ui-tooling:${Versions.compose}"
     const val composeActivity           = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeIcons              = "androidx.compose.material:material-icons-extended:${Versions.compose}"
@@ -111,11 +116,28 @@ object Libraries {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"
     }
 
-    object Koin {
+    object Hilt {
+        const val android = "com.google.dagger:hilt-android:${Versions.hilt}"
+        const val compiler = "com.google.dagger:hilt-android-compiler:${Versions.hilt}"
+        const val gradlePlugin = "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}"
+    }
+
+    object Lifecycle {
+        const val viewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
+        const val viewModelCompose = "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycle}"
+        const val liveData = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycle}"
+        const val runtime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
+        const val viewModelSavedState = "androidx.lifecycle:lifecycle-viewmodel-savedstate:${Versions.lifecycle}"
+    }
+
+
+    /*
+    bject Koin {
         const val androidCore  = "io.insert-koin:koin-android:${Versions.koin}"
         const val viewModel    = "io.insert-koin:koin-android-viewmodel:${Versions.koin}"
         const val workManager  = "io.insert-koin:koin-androidx-workmanager:${Versions.koin}"
     }
+     */
 
     object Kotlin {
         const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"

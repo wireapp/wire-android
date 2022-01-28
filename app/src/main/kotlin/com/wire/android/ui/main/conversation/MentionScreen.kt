@@ -5,8 +5,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -14,13 +15,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.main.conversation.all.model.toUserInfoLabel
+import com.wire.android.ui.main.conversation.model.toUserInfoLabel
 import com.wire.android.ui.main.conversation.common.RowItem
 import com.wire.android.ui.main.conversation.common.UnreadMentionBadge
 import com.wire.android.ui.main.conversation.common.UserLabel
 import com.wire.android.ui.main.conversation.common.folderWithElements
-import com.wire.android.ui.main.conversation.mention.model.Mention
-import com.wire.android.ui.theme.subLine1
+import com.wire.android.ui.main.conversation.model.Mention
+import com.wire.android.ui.theme.subline01
+import com.wire.android.ui.theme.wireColorScheme
 
 
 @Composable
@@ -31,6 +33,7 @@ fun MentionScreen(
     MentionContent(unreadMentions, allMentions)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MentionContent(unreadMentions: List<Mention>, allMentions: List<Mention>) {
     LazyColumn {
@@ -86,7 +89,8 @@ fun MentionLabel(mention: Mention, modifier: Modifier = Modifier) {
                 UserLabel(conversation.toUserInfoLabel())
                 Text(
                     text = mentionInfo.mentionMessage.toQuote(),
-                    style = MaterialTheme.typography.subLine1,
+                    style = MaterialTheme.typography.subline01,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

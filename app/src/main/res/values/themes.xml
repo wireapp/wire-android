@@ -1,65 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="AppTheme.Light" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="colorPrimary">@color/black</item>
-        <item name="colorSecondary">#2492d3</item>
-        <item name="colorSecondaryVariant">#0065a1</item>
-        <item name="colorError">#fb0807</item>
-        <item name="colorOnError">@color/white</item>
-
-        <item name="colorOnPrimary">@color/white</item>
-
-        <!--Material type attributes-->
-        <item name="android:textDirection">locale</item>
-<!--        <item name="homeAsUpIndicator">@drawable/ic_arrow_back</item>-->
-
-        <!--Component styles-->
-<!--        <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>-->
-<!--        <item name="toolbarStyle">@style/Toolbar.Transparent</item>-->
-
-        <!--Widget styles-->
-<!--        <item name="materialButtonOutlinedStyle">@style/Button.Outlined</item>-->
-<!--        <item name="tabStyle">@style/TabLayout.Transparent</item>-->
-<!--        <item name="textInputStyle">@style/TextInputLayout.NoBorder</item>-->
-
-        <item name="android:statusBarColor">?android:attr/colorBackground</item>
+    <!-- This theme is only used as the splash screen -->
+    <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
+        <item name="colorPrimary">@color/background</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:navigationBarColor">?android:attr/colorBackground</item>
         <item name="android:windowLightNavigationBar" tools:ignore="NewApi">true</item>
-        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">
-            ?attr/colorControlHighlight
-        </item>
     </style>
 
-    <style name="AppTheme.Dark" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimary">@color/white</item>
-        <item name="colorSecondary">#2492d3</item>
-        <item name="colorSecondaryVariant">#0065a1</item>
-        <item name="colorError">#fb0807</item>
-        <item name="colorOnError">@color/white</item>
+    <!-- Theme for Composable is available in com.wire.android.ui.theme.Theme.kt -->
 
-        <item name="colorOnPrimary">@color/white</item>
-
-        <!--Material type attributes-->
-        <item name="android:textDirection">locale</item>
-<!--        <item name="homeAsUpIndicator">@drawable/ic_arrow_back</item>-->
-
-        <!--Component styles-->
-<!--        <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>-->
-<!--        <item name="toolbarStyle">@style/Toolbar.Transparent</item>-->
-
-        <!--Widget styles-->
-<!--        <item name="materialButtonOutlinedStyle">@style/Button.Outlined</item>-->
-<!--        <item name="tabStyle">@style/TabLayout.Transparent</item>-->
-<!--        <item name="textInputStyle">@style/TextInputLayout.NoBorder</item>-->
-
-        <item name="android:statusBarColor">?android:attr/colorBackground</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:navigationBarColor">?android:attr/colorBackground</item>
-        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">false</item>
-        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">
-            ?attr/colorControlHighlight
-        </item>
-    </style>
 </resources>

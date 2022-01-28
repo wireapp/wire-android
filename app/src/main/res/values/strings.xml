@@ -47,4 +47,6 @@
     <string name="conversation_label_new_activity">NEW ACTIVITY</string>
     <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
+    <string name="label_message_status_deleted">Deleted</string>
+    <string name="label_message_status_edited">Edited</string>
 </resources>

@@ -2,6 +2,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
@@ -10,6 +11,7 @@ allprojects {
         google()
         mavenCentral()
         maven { url = java.net.URI("https://jitpack.io") }
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 

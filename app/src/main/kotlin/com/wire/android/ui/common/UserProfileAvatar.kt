@@ -22,7 +22,12 @@ import com.wire.android.R
 import com.wire.android.ui.theme.Dimensions.USER_AVATAR_DEFAULT_SIZE
 
 @Composable
-fun UserProfileAvatar(avatarUrl: String, size: Dp = USER_AVATAR_DEFAULT_SIZE, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun UserProfileAvatar(
+    avatarUrl: String = "",
+    size: Dp = USER_AVATAR_DEFAULT_SIZE,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
     ConstraintLayout(
         modifier = modifier
             .padding(10.dp)

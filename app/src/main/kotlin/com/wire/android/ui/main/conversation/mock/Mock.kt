@@ -1,20 +1,20 @@
 package com.wire.android.ui.main.conversation
 
-import com.wire.android.ui.main.conversation.all.model.AvailabilityStatus
-import com.wire.android.ui.main.conversation.all.model.Conversation
-import com.wire.android.ui.main.conversation.all.model.ConversationFolder
-import com.wire.android.ui.main.conversation.all.model.ConversationInfo
-import com.wire.android.ui.main.conversation.all.model.EventType
-import com.wire.android.ui.main.conversation.all.model.Membership
-import com.wire.android.ui.main.conversation.all.model.NewActivity
-import com.wire.android.ui.main.conversation.all.model.UserInfo
-import com.wire.android.ui.main.conversation.call.model.Call
-import com.wire.android.ui.main.conversation.call.model.CallEvent
-import com.wire.android.ui.main.conversation.call.model.CallInfo
-import com.wire.android.ui.main.conversation.call.model.CallTime
-import com.wire.android.ui.main.conversation.mention.model.Mention
-import com.wire.android.ui.main.conversation.mention.model.MentionInfo
-import com.wire.android.ui.main.conversation.mention.model.MentionMessage
+import com.wire.android.ui.main.conversation.model.AvailabilityStatus
+import com.wire.android.ui.main.conversation.model.Conversation
+import com.wire.android.ui.main.conversation.model.ConversationFolder
+import com.wire.android.ui.main.conversation.model.ConversationInfo
+import com.wire.android.ui.main.conversation.model.EventType
+import com.wire.android.ui.main.conversation.model.Membership
+import com.wire.android.ui.main.conversation.model.NewActivity
+import com.wire.android.ui.main.conversation.model.UserInfo
+import com.wire.android.ui.main.conversation.model.Call
+import com.wire.android.ui.main.conversation.model.CallEvent
+import com.wire.android.ui.main.conversation.model.CallInfo
+import com.wire.android.ui.main.conversation.model.CallTime
+import com.wire.android.ui.main.conversation.model.Mention
+import com.wire.android.ui.main.conversation.model.MentionInfo
+import com.wire.android.ui.main.conversation.model.MentionMessage
 
 val mockConversations = listOf(
     Conversation(

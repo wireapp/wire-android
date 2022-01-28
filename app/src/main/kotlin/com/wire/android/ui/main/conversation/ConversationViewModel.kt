@@ -29,22 +29,6 @@ class ConversationViewModel : ViewModel() {
             missedCallsCount = 100,
             newActivityCount = 1
         )
-
-        viewModelScope.launch {
-            delay(2000)
-            _state.update {
-                Log.d("TEST", "updating after 2000")
-                it.copy(newActivities = emptyList(), conversations = emptyMap(),unreadMentionsCount = 5,missedCallsCount = 20)
-            }
-        }
-
-        viewModelScope.launch {
-            delay(6000)
-            _state.update {
-                Log.d("TEST", "updating after 6000")
-                it.copy(conversations = com.wire.android.ui.main.conversation.conversationMockData1,unreadMentionsCount = 50)
-            }
-        }
     }
 
 }

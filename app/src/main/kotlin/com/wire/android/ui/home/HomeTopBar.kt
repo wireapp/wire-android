@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,9 +32,9 @@ fun HomeTopBar(
     @StringRes title: Int?,
     isSearchable: Boolean,
     drawerState: DrawerState,
+    scope: CoroutineScope,
     viewModel: HomeViewModel
 ) {
-    val scope = rememberCoroutineScope()
     val titleText = stringResource(id = title ?: R.string.conversations_screen_title)
 
     Column(

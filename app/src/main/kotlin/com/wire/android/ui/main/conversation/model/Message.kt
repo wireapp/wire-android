@@ -1,8 +1,8 @@
-package com.wire.android.ui.main.message.model
+package com.wire.android.ui.main.conversation.model
 
 import com.wire.android.R
-import com.wire.android.ui.main.conversation.model.AvailabilityStatus
-import com.wire.android.ui.main.conversation.model.Membership
+import com.wire.android.ui.main.conversationlist.model.AvailabilityStatus
+import com.wire.android.ui.main.conversationlist.model.Membership
 
 
 data class MessageHeader(

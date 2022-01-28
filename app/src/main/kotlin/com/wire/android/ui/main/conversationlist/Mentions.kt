@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversation
+package com.wire.android.ui.main.conversationlist
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,12 +15,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.main.conversation.model.toUserInfoLabel
-import com.wire.android.ui.main.conversation.common.RowItem
-import com.wire.android.ui.main.conversation.common.UnreadMentionBadge
-import com.wire.android.ui.main.conversation.common.UserLabel
-import com.wire.android.ui.main.conversation.common.folderWithElements
-import com.wire.android.ui.main.conversation.model.Mention
+import com.wire.android.ui.main.conversationlist.common.RowItem
+import com.wire.android.ui.main.conversationlist.common.UnreadMentionBadge
+import com.wire.android.ui.main.conversationlist.common.UserLabel
+import com.wire.android.ui.main.conversationlist.common.folderWithElements
+import com.wire.android.ui.main.conversationlist.model.Mention
+import com.wire.android.ui.main.conversationlist.model.toUserInfoLabel
 import com.wire.android.ui.theme.subline01
 import com.wire.android.ui.theme.wireColorScheme
 
@@ -28,34 +28,49 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun MentionScreen(
     unreadMentions: List<Mention> = emptyList(),
-    allMentions: List<Mention> = emptyList()
+    allMentions: List<Mention> = emptyList(),
+    onMentionItemClick: () -> Unit
 ) {
-    MentionContent(unreadMentions, allMentions)
+    MentionContent(
+        unreadMentions = unreadMentions,
+        allMentions = allMentions,
+        onMentionItemClick = onMentionItemClick
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MentionContent(unreadMentions: List<Mention>, allMentions: List<Mention>) {
+private fun MentionContent(
+    unreadMentions: List<Mention>,
+    allMentions: List<Mention>,
+    onMentionItemClick: () -> Unit
+) {
     LazyColumn {
         folderWithElements(
             header = { stringResource(id = R.string.mention_label_unread_mentions) },
             items = unreadMentions
         ) { unreadMention ->
-            UnreadMentionRowItem(unreadMention)
+            UnreadMentionRowItem(
+                unreadMention = unreadMention,
+                onMentionItemClick = onMentionItemClick
+            )
         }
 
         folderWithElements(
             header = { stringResource(R.string.mention_label_all_mentions) },
             items = allMentions
         ) { mention ->
-            AllMentionRowItem(mention)
+            AllMentionRowItem(
+                mention = mention,
+                onMentionItemClick = onMentionItemClick
+            )
         }
     }
 }
 
 @Composable
-fun UnreadMentionRowItem(unreadMention: Mention) {
-    RowItem {
+fun UnreadMentionRowItem(unreadMention: Mention, onMentionItemClick: () -> Unit) {
+    RowItem(onRowItemClick = onMentionItemClick) {
         MentionLabel(
             mention = unreadMention,
             modifier = Modifier
@@ -71,8 +86,8 @@ fun UnreadMentionRowItem(unreadMention: Mention) {
 }
 
 @Composable
-fun AllMentionRowItem(mention: Mention) {
-    RowItem {
+fun AllMentionRowItem(mention: Mention, onMentionItemClick: () -> Unit) {
+    RowItem(onRowItemClick = onMentionItemClick) {
         MentionLabel(
             mention = mention,
             modifier = Modifier.padding(end = 42.dp)

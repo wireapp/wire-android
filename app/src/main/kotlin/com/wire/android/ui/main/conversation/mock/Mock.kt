@@ -1,187 +1,159 @@
-package com.wire.android.ui.main.conversation
+package com.wire.android.ui.main.conversation.mock
 
-import com.wire.android.ui.main.conversation.model.AvailabilityStatus
-import com.wire.android.ui.main.conversation.model.Conversation
-import com.wire.android.ui.main.conversation.model.ConversationFolder
-import com.wire.android.ui.main.conversation.model.ConversationInfo
-import com.wire.android.ui.main.conversation.model.EventType
-import com.wire.android.ui.main.conversation.model.Membership
-import com.wire.android.ui.main.conversation.model.NewActivity
-import com.wire.android.ui.main.conversation.model.UserInfo
-import com.wire.android.ui.main.conversation.model.Call
-import com.wire.android.ui.main.conversation.model.CallEvent
-import com.wire.android.ui.main.conversation.model.CallInfo
-import com.wire.android.ui.main.conversation.model.CallTime
-import com.wire.android.ui.main.conversation.model.Mention
-import com.wire.android.ui.main.conversation.model.MentionInfo
-import com.wire.android.ui.main.conversation.model.MentionMessage
+import com.wire.android.ui.main.conversationlist.model.AvailabilityStatus
+import com.wire.android.ui.main.conversationlist.model.Membership
+import com.wire.android.ui.main.conversation.model.Message
+import com.wire.android.ui.main.conversation.model.MessageBody
+import com.wire.android.ui.main.conversation.model.MessageContent
+import com.wire.android.ui.main.conversation.model.MessageHeader
+import com.wire.android.ui.main.conversation.model.MessageStatus
+import com.wire.android.ui.main.conversation.model.User
 
-val mockConversations = listOf(
-    Conversation(
-        userInfo = UserInfo(),
-        conversationInfo = ConversationInfo(
-            name = "some test value",
+
+val mockMessageWithText = Message(
+    user = User("", AvailabilityStatus.Available),
+    messageHeader = MessageHeader(
+        username = "Mateusz Pachulski",
+        membership = Membership.Guest,
+        isLegalHold = true,
+        time = "12.23pm",
+        messageStatus = MessageStatus.Untouched
+    ),
+    messageContent = MessageContent.TextMessage(
+        messageBody = MessageBody(
+            "This is some test message that is very very" +
+                    "very very very very" +
+                    " very very very" +
+                    "very very very very very long"
+        )
+    ),
+)
+
+val mockMessageWithImage = Message(
+    user = User("", AvailabilityStatus.Available),
+    messageHeader = MessageHeader(
+        username = "Mateusz Pachulski",
+        membership = Membership.Guest,
+        isLegalHold = true,
+        time = "12.23pm",
+        messageStatus = MessageStatus.Deleted
+    ),
+    messageContent = MessageContent.ImageMessage("someUrl")
+)
+
+val mockMessages = listOf(
+    Message(
+        user = User("", AvailabilityStatus.Available),
+        messageHeader = MessageHeader(
+            username = "Mateusz Pachulski",
             membership = Membership.Guest,
-            isLegalHold = true
-        )
-    ),
-    Conversation(
-        userInfo = UserInfo(
-            availabilityStatus = AvailabilityStatus.Available
+            isLegalHold = true,
+            time = "12.23pm",
+            messageStatus = MessageStatus.Untouched
         ),
-        conversationInfo = ConversationInfo(
-            name = "some other test value",
-            isLegalHold = true
-        )
-    ),
-    Conversation(
-        userInfo = UserInfo(
-            availabilityStatus = AvailabilityStatus.Busy
+        messageContent = MessageContent.TextMessage(
+            messageBody = MessageBody(
+                "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
+            )
         ),
-        conversationInfo = ConversationInfo(
-            name = "and once more 1",
-            membership = Membership.External
-        )
     ),
-    Conversation(
-        userInfo = UserInfo(
-            availabilityStatus = AvailabilityStatus.Away
+    Message(
+        user = User("", AvailabilityStatus.Available),
+        messageHeader = MessageHeader(
+            username = "Mateusz Pachulski",
+            membership = Membership.Guest,
+            isLegalHold = true,
+            time = "12.23pm",
+            messageStatus = MessageStatus.Deleted
         ),
-        conversationInfo = ConversationInfo(
-            name = "and once more 2",
-            isLegalHold = true
-        )
+        messageContent = MessageContent.ImageMessage("someUrl"),
     ),
-    Conversation(
-        userInfo = UserInfo(),
-        conversationInfo = ConversationInfo(
-            name = "and once more 3",
-            membership = Membership.External
-        )
+    Message(
+        user = User("", AvailabilityStatus.Available),
+        messageHeader = MessageHeader(
+            username = "Mateusz Pachulski",
+            membership = Membership.External,
+            isLegalHold = false,
+            time = "12.23pm",
+            messageStatus = MessageStatus.Edited
+        ),
+        messageContent = MessageContent.ImageMessage("someUrl"),
     ),
-    Conversation(
-        userInfo = UserInfo(),
-        conversationInfo = ConversationInfo(
-            name = "and once more 4",
-            membership = Membership.External
-        )
+    Message(
+        user = User("", AvailabilityStatus.Available),
+        messageHeader = MessageHeader(
+            username = "Mateusz Pachulski",
+            membership = Membership.External,
+            isLegalHold = false,
+            time = "12.23pm",
+            messageStatus = MessageStatus.Edited
+        ),
+        messageContent = MessageContent.ImageMessage("someUrl"),
     ),
-)
-
-val mockConversation = Conversation(
-    userInfo = UserInfo(),
-    conversationInfo = ConversationInfo(
-        name = "and once more 4",
-        membership = Membership.External
+    Message(
+        user = User("", AvailabilityStatus.Available),
+        messageHeader = MessageHeader(
+            username = "Mateusz Pachulski",
+            membership = Membership.External,
+            isLegalHold = false,
+            time = "12.23pm",
+            messageStatus = MessageStatus.Deleted
+        ),
+        messageContent = MessageContent.TextMessage(
+            messageBody = MessageBody(
+                "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
+            )
+        ),
+    ),
+    Message(
+        user = User("", AvailabilityStatus.Available),
+        messageHeader = MessageHeader(
+            username = "Mateusz Pachulski",
+            membership = Membership.External,
+            isLegalHold = false,
+            time = "12.23pm",
+            messageStatus = MessageStatus.Edited
+        ),
+        messageContent = MessageContent.ImageMessage("someUrl"),
+    ),
+    Message(
+        user = User("", AvailabilityStatus.Available),
+        messageHeader = MessageHeader(
+            username = "Mateusz Pachulski",
+            membership = Membership.External,
+            isLegalHold = false,
+            time = "12.23pm",
+            messageStatus = MessageStatus.Edited
+        ),
+        messageContent = MessageContent.TextMessage(
+            messageBody = MessageBody(
+                "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
+            )
+        ),
     )
 )
-
-val conversationMockData = mapOf(
-    ConversationFolder("SOME TEST FOLDER") to mockConversations,
-    ConversationFolder("FOLDER NAME1") to mockConversations,
-    ConversationFolder("SOME OTHER FOLDER") to mockConversations,
-    ConversationFolder("SOME OTHER Folder1") to mockConversations,
-    ConversationFolder("THIS IS A TEST FOLDER") to mockConversations,
-    ConversationFolder(
-        "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +
-                " VERY VERY VERY VERY VERY VERY VERY " +
-                "VERY VERY VERY VERY VERY LONG NAME"
-    ) to mockConversations
-)
-
-val conversationMockData1 = mapOf(
-    ConversationFolder("THIS IS A TEST FOLDER after deletin the first one") to mockConversations,
-    ConversationFolder(
-        "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +
-                " VERY VERY VERY VERY VERY VERY VERY " +
-                "VERY VERY VERY VERY VERY LONG NAME"
-    ) to mockConversations
-)
-
-
-
-
-@Suppress("MagicNumber")
-val newActivitiesMockData = listOf(
-    NewActivity(EventType.MissedCall, mockConversation),
-    NewActivity(EventType.UnreadMention, mockConversation),
-    NewActivity(EventType.UnreadReply, mockConversation),
-    NewActivity(EventType.UnreadMessage(2), mockConversation),
-    NewActivity(EventType.UnreadMessage(1000000), mockConversation),
-    NewActivity(EventType.UnreadMessage(0), mockConversation),
-    NewActivity(EventType.UnreadMessage(50), mockConversation),
-    NewActivity(EventType.UnreadMessage(99), mockConversation),
-    NewActivity(EventType.UnreadMention, mockConversation),
-    NewActivity(EventType.UnreadReply, mockConversation)
-)
-
-
-val mockShortMentionInfo = MentionInfo(mentionMessage = MentionMessage("Short message"))
-
-val mockLongMentionInfo = MentionInfo(
-    mentionMessage = MentionMessage(
-        "THis is a very very very very very very very " +
-                "very very very very very very very" +
-                " very very very very very very very " +
-                "very very very very very very very mention message"
-    )
-)
-
-val mockUnreadMentionList = listOf(
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-)
-
-val mockAllMentionList = listOf(
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-)
-
-val mockCallInfo1 = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
-val mockCallInfo2 = CallInfo(CallTime("Yesterday", "1:00 PM"), CallEvent.OutgoingCall)
-val mockCallInfo3 = CallInfo(CallTime("Today", "2:34 PM"), CallEvent.MissedCall)
-val mockCallInfo4 = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
-val mockCallInfo5 = CallInfo(CallTime("Today", "6:59 PM"), CallEvent.NoAnswerCall)
-
-val mockMissedCalls = listOf(
-    Call(mockCallInfo1, mockConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo3, mockConversation),
-)
-
-val mockCallHistory = listOf(
-    Call(mockCallInfo1, mockConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo3, mockConversation),
-    Call(mockCallInfo1, mockConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo3, mockConversation),
-    Call(mockCallInfo4, mockConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo3, mockConversation),
-    Call(mockCallInfo1, mockConversation),
-    Call(mockCallInfo5, mockConversation),
-    Call(mockCallInfo3, mockConversation),
-    Call(mockCallInfo1, mockConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo3, mockConversation),
-    Call(mockCallInfo4, mockConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo5, mockConversation),
-)
-
-

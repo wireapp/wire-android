@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversation.common
+package com.wire.android.ui.main.conversationlist.common
 
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items

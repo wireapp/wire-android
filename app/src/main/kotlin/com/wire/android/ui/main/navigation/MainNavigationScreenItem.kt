@@ -5,8 +5,8 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.R
-import com.wire.android.ui.main.conversation.Conversation
 import com.wire.android.ui.main.archive.ArchiveScreen
+import com.wire.android.ui.main.conversationlist.ConversationRoute
 import com.wire.android.ui.main.settings.SettingsScreen
 import com.wire.android.ui.main.support.SupportScreen
 import com.wire.android.ui.main.userprofile.UserProfileScreen
@@ -25,7 +25,7 @@ enum class MainNavigationScreenItem(
         title = R.string.conversations_screen_title,
         route = "conversations",
         hasSearchableTopBar = true,
-        content = { Conversation() }
+        content = { ConversationRoute() }
     ),
 
     Vault(

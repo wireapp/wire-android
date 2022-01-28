@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.message
+package com.wire.android.ui.main.conversation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -30,13 +29,13 @@ import com.wire.android.R
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.main.conversation.model.Membership
-import com.wire.android.ui.main.message.mock.mockMessageWithText
-import com.wire.android.ui.main.message.model.Message
-import com.wire.android.ui.main.message.model.MessageBody
-import com.wire.android.ui.main.message.model.MessageContent
-import com.wire.android.ui.main.message.model.MessageHeader
-import com.wire.android.ui.main.message.model.MessageStatus
+import com.wire.android.ui.main.conversation.mock.mockMessageWithText
+import com.wire.android.ui.main.conversation.model.Message
+import com.wire.android.ui.main.conversation.model.MessageBody
+import com.wire.android.ui.main.conversation.model.MessageContent
+import com.wire.android.ui.main.conversation.model.MessageHeader
+import com.wire.android.ui.main.conversation.model.MessageStatus
+import com.wire.android.ui.main.conversationlist.model.Membership
 import com.wire.android.ui.theme.Dimensions
 import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.wireColorScheme
@@ -75,14 +74,16 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                     Spacer(modifier = Modifier.width(6.dp))
                     LegalHoldIndicator()
                 }
-
-                Box(Modifier.fillMaxWidth()) {
-                    MessageTimeLabel(
-                        time, modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 8.dp)
-                    )
-                }
+/*
+for now this feature is disabled as Wolfgang suggested
+Box(Modifier.fillMaxWidth()) {
+MessageTimeLabel(
+time, modifier = Modifier
+.align(Alignment.CenterEnd)
+.padding(end = 8.dp)
+)
+}
+*/
             }
         }
         if (messageStatus != MessageStatus.Untouched) {

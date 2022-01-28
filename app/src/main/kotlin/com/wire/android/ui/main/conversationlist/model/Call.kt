@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversation.model
+package com.wire.android.ui.main.conversationlist.model
 
 import androidx.annotation.DrawableRes
 import com.wire.android.R

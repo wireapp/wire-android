@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversation
+package com.wire.android.ui.main.conversationlist
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -20,45 +20,66 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.main.conversation.model.toUserInfoLabel
-import com.wire.android.ui.main.conversation.model.Call
-import com.wire.android.ui.main.conversation.model.CallEvent
-import com.wire.android.ui.main.conversation.model.CallTime
-import com.wire.android.ui.main.conversation.common.MissedCallBadge
-import com.wire.android.ui.main.conversation.common.RowItem
-import com.wire.android.ui.main.conversation.common.UserLabel
-import com.wire.android.ui.main.conversation.common.folderWithElements
+import com.wire.android.ui.main.conversationlist.common.MissedCallBadge
+import com.wire.android.ui.main.conversationlist.common.RowItem
+import com.wire.android.ui.main.conversationlist.common.UserLabel
+import com.wire.android.ui.main.conversationlist.common.folderWithElements
+import com.wire.android.ui.main.conversationlist.model.Call
+import com.wire.android.ui.main.conversationlist.model.CallEvent
+import com.wire.android.ui.main.conversationlist.model.CallTime
+import com.wire.android.ui.main.conversationlist.model.toUserInfoLabel
 import com.wire.android.ui.theme.subline01
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun CallScreen(missedCalls: List<Call> = emptyList(), callHistory: List<Call> = emptyList()) {
-    CallContent(missedCalls, callHistory)
+fun CallScreen(
+    missedCalls: List<Call> = emptyList(),
+    callHistory: List<Call> = emptyList(),
+    onCallItemClick: () -> Unit
+) {
+    CallContent(
+        missedCalls = missedCalls,
+        callHistory = callHistory,
+        onCallItemClick = onCallItemClick
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CallContent(missedCalls: List<Call>, callHistory: List<Call>) {
+fun CallContent(
+    missedCalls: List<Call>,
+    callHistory: List<Call>,
+    onCallItemClick: () -> Unit
+) {
     LazyColumn {
         folderWithElements(
             header = { stringResource(id = R.string.calls_label_missed_calls) },
             items = missedCalls
         ) { missedCall ->
-            MissedCallRowItem(missedCall = missedCall)
+            MissedCallRowItem(
+                missedCall = missedCall,
+                onCallItemClick = onCallItemClick
+            )
         }
 
         folderWithElements(
             header = { stringResource(id = R.string.calls_label_calls_history) },
             items = callHistory
         ) { callHistory ->
-            CallHistoryRowItem(callHistory = callHistory)
+            CallHistoryRowItem(
+                callHistory = callHistory,
+                onCallItemClick = onCallItemClick
+            )
         }
     }
 }
 
 @Composable
-fun MissedCallRowItem(missedCall: Call) {
-    RowItem {
+fun MissedCallRowItem(
+    missedCall: Call,
+    onCallItemClick: () -> Unit
+) {
+    RowItem(onRowItemClick = onCallItemClick) {
         CallLabel(missedCall)
         Box(modifier = Modifier.fillMaxWidth()) {
             MissedCallBadge(
@@ -71,8 +92,8 @@ fun MissedCallRowItem(missedCall: Call) {
 }
 
 @Composable
-private fun CallHistoryRowItem(callHistory: Call) {
-    RowItem {
+private fun CallHistoryRowItem(callHistory: Call, onCallItemClick: () -> Unit) {
+    RowItem(onRowItemClick = onCallItemClick) {
         CallLabel(callHistory)
     }
 }

@@ -84,53 +84,79 @@ fun WireButton(
         colors = baseColors,
         contentPadding = contentPadding
     ) {
-        val contentColor = colors.contentColor(state, interactionSource).value
-        val leadingItem: (@Composable () -> Unit) = { leadingIcon?.let { Tint(contentColor = contentColor, content = it) } }
-        val trailingItem: (@Composable () -> Unit) = {
-            Crossfade(targetState = (trailingIcon != null) to loading) { (hasTrailingIcon, loading) ->
-                when {
-                    hasTrailingIcon -> Tint(contentColor = contentColor, content = trailingIcon!!)
-                    loading -> CircularProgressIndicator(progressColor = contentColor)
-                }
+        InnerButtonBox(
+            fillMaxWidth = fillMaxWidth,
+            loading = loading,
+            leadingIcon = leadingIcon,
+            leadingIconAlignment = leadingIconAlignment,
+            trailingIcon = trailingIcon,
+            trailingIconAlignment = trailingIconAlignment,
+            text = text,
+            textStyle = textStyle,
+            state = state,
+            colors = colors,
+            interactionSource = interactionSource
+        )
+    }
+}
+
+@Composable
+fun InnerButtonBox(
+    fillMaxWidth: Boolean = true,
+    loading: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingIconAlignment: IconAlignment = IconAlignment.Center,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    trailingIconAlignment: IconAlignment = IconAlignment.Border,
+    text: String? = null,
+    textStyle: TextStyle = MaterialTheme.typography.button03,
+    state: WireButtonState = WireButtonState.Default,
+    colors: WireButtonColors = wirePrimaryButtonColors(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    ) {
+    val contentColor = colors.contentColor(state, interactionSource).value
+    val leadingItem: (@Composable () -> Unit) = { leadingIcon?.let { Tint(contentColor = contentColor, content = it) } }
+    val trailingItem: (@Composable () -> Unit) = {
+        Crossfade(targetState = (trailingIcon != null) to loading) { (hasTrailingIcon, loading) ->
+            when {
+                hasTrailingIcon -> Tint(contentColor = contentColor, content = trailingIcon!!)
+                loading -> CircularProgressIndicator(progressColor = contentColor)
             }
         }
+    }
+    Box(contentAlignment = Alignment.Center,
+        modifier = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.wrapContentWidth(),
+    ) {
+        var startItemWidth by remember { mutableStateOf(0) }
+        var endItemWidth by remember { mutableStateOf(0) }
+        val borderItemsMaxWidth = with(LocalDensity.current) { max(startItemWidth, endItemWidth).toDp() }
 
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.wrapContentWidth(),
+        Box(modifier = Modifier
+            .align(Alignment.CenterStart)
+            .onGloballyPositioned { startItemWidth = it.size.width },
+        ) { if (leadingIconAlignment == IconAlignment.Border) leadingItem() }
+
+        Row(
+            modifier = Modifier.padding(horizontal = borderItemsMaxWidth).let {
+                if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth()
+            },
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            var startItemWidth by remember { mutableStateOf(0) }
-            var endItemWidth by remember { mutableStateOf(0) }
-            val borderItemsMaxWidth = with(LocalDensity.current) { max(startItemWidth, endItemWidth).toDp() }
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .onGloballyPositioned { startItemWidth = it.size.width },
-            ) { if (leadingIconAlignment == IconAlignment.Border) leadingItem() }
-
-            Row(
-                modifier = Modifier.padding(horizontal = borderItemsMaxWidth).let {
-                    if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth()
-                },
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (leadingIconAlignment == IconAlignment.Center) leadingItem()
-                if (!text.isNullOrEmpty())
-                    Text(
-                        text = text,
-                        style = textStyle,
-                        color = contentColor
-                    )
-                if (trailingIconAlignment == IconAlignment.Center) trailingItem()
-            }
-
-            Box(modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .onGloballyPositioned { endItemWidth = it.size.width }
-            ) { if (trailingIconAlignment == IconAlignment.Border) trailingItem() }
+            if (leadingIconAlignment == IconAlignment.Center) leadingItem()
+            if (!text.isNullOrEmpty())
+                Text(
+                    text = text,
+                    style = textStyle,
+                    color = contentColor
+                )
+            if (trailingIconAlignment == IconAlignment.Center) trailingItem()
         }
+
+        Box(modifier = Modifier
+            .align(Alignment.CenterEnd)
+            .onGloballyPositioned { endItemWidth = it.size.width }
+        ) { if (trailingIconAlignment == IconAlignment.Border) trailingItem() }
     }
 }
 

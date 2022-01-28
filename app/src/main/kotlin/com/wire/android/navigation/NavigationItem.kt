@@ -13,7 +13,7 @@ import com.wire.android.ui.support.SupportScreen
 import com.wire.android.ui.home.userprofile.UserProfileScreen
 
 @ExperimentalMaterial3Api
-open class NavigationItem(
+sealed class NavigationItem(
     open val route: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (NavBackStackEntry) -> Unit
@@ -50,7 +50,7 @@ open class NavigationItem(
 
     companion object {
 
-        const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
+        const val HOME_START_TAB_ARGUMENT: String = "start_tab_route"
 
         val globalNavigationItems = listOf(
             Settings,

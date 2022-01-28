@@ -8,9 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.main.conversation.all.model.Membership
+import com.wire.android.ui.common.LegalHoldIndicator
+import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.ui.main.conversation.model.Membership
 import com.wire.android.ui.theme.body02
 
 @Composable
@@ -24,7 +25,7 @@ fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
 
             if (membership != Membership.None) {
                 Spacer(modifier = Modifier.width(6.dp))
-                MembershipQualifier(label = stringResource(id = membership.stringResourceId))
+                MembershipQualifierLabel(membership)
             }
 
             if (isLegalHold) {

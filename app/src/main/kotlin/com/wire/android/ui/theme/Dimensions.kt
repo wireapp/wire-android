@@ -12,4 +12,7 @@ object Dimensions {
     // Conversation
     val conversationItemRowPadding = 8.dp
     val conversationItemPadding = 0.5.dp
+
+    // Message
+    val messageImagePortraitModeWidth = 200.dp
 }

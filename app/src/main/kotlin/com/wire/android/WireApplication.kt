@@ -1,11 +1,7 @@
 package com.wire.android
 
 import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-class WireApplication : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-    }
-
-}
+@HiltAndroidApp
+class WireApplication : Application()

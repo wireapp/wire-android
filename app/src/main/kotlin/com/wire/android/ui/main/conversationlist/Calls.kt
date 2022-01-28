@@ -1,14 +1,9 @@
 package com.wire.android.ui.main.conversationlist
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -21,9 +16,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.main.conversationlist.common.EventBadgeFactory
+import com.wire.android.ui.main.conversationlist.common.ConversationItem
 import com.wire.android.ui.main.conversationlist.common.GroupConversationAvatar
-import com.wire.android.ui.main.conversationlist.common.RowItem
+import com.wire.android.ui.main.conversationlist.common.GroupName
 import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.main.conversationlist.common.folderWithElements
 import com.wire.android.ui.main.conversationlist.model.Call
@@ -68,32 +63,6 @@ fun CallContent(
             items = callHistory
         ) { callHistory ->
             CallItem(call = callHistory)
-        }
-    }
-}
-
-@Composable
-fun ConversationItem(
-    avatar: @Composable () -> Unit,
-    title: @Composable () -> Unit,
-    subTitle: @Composable () -> Unit = {},
-    eventType: EventType? = null
-) {
-    RowItem(onRowItemClick = {}) {
-        avatar()
-        Column(modifier = Modifier.wrapContentWidth()) {
-            title()
-            subTitle()
-        }
-        Spacer(modifier = Modifier.weight(1f))
-        Box(
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(end = 8.dp)
-        ) {
-            if (eventType != null) {
-                EventBadgeFactory(eventType = eventType)
-            }
         }
     }
 }

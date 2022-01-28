@@ -13,7 +13,7 @@ import com.wire.android.ui.support.SupportScreen
 import com.wire.android.ui.home.userprofile.UserProfileScreen
 
 @ExperimentalMaterial3Api
-open class NavigationItem(
+sealed class NavigationItem(
     open val route: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (NavBackStackEntry) -> Unit
@@ -24,7 +24,7 @@ open class NavigationItem(
 //    object Login  //TODO
 
     object Home : NavigationItem(
-        route = "home/{$HOME_START_TAB_ARGUMENT}",
+        route = "home/$HOME_START_TAB_ARGUMENT",
         content = { HomeScreen(it.arguments?.getString(HOME_START_TAB_ARGUMENT), hiltViewModel()) },
         arguments = listOf(
             navArgument(HOME_START_TAB_ARGUMENT) { type = NavType.StringType }

@@ -28,6 +28,7 @@ object BuildPlugins {
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val kotlinKapt = "kotlin-kapt"
+    const val kapt = "kapt"
     const val hilt = "dagger.hilt.android.plugin"
 }
 
@@ -74,8 +75,9 @@ object Libraries {
         const val composeNavigation = "2.4.0-beta02"
         const val accompanist = "0.22.0-rc"
         const val composeConstraint = "1.0.0-rc02"
+        const val hilt = "2.38.1"
+        const val lifecycle = "2.4.0"
         const val composeHiltNavigation = "1.0.0-alpha03"
-        const val hilt = "2.40"
     }
 
     // AndroidX Dependencies
@@ -96,11 +98,6 @@ object Libraries {
     const val composeNavigation         = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
 
-    // Hilt
-    const val hiltNavigationCompose     = "androidx.hilt:hilt-navigation-compose:${Versions.composeHiltNavigation}"
-    const val hilt                      = "com.google.dagger:hilt-android:${Versions.hilt}"
-    const val hiltCompiler              = "com.google.dagger:hilt-android-compiler:${Versions.hilt}"
-
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
     const val accompanistPager          = "com.google.accompanist:accompanist-pager:${Versions.accompanist}"
@@ -120,11 +117,29 @@ object Libraries {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"
     }
 
-    object Koin {
+    object Hilt {
+        const val android = "com.google.dagger:hilt-android:${Versions.hilt}"
+        const val compiler = "com.google.dagger:hilt-android-compiler:${Versions.hilt}"
+        const val gradlePlugin = "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}"
+        const val navigationCompose = "androidx.hilt:hilt-navigation-compose:${Versions.composeHiltNavigation}"
+    }
+
+    object Lifecycle {
+        const val viewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
+        const val viewModelCompose = "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycle}"
+        const val liveData = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycle}"
+        const val runtime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
+        const val viewModelSavedState = "androidx.lifecycle:lifecycle-viewmodel-savedstate:${Versions.lifecycle}"
+    }
+
+
+    /*
+    bject Koin {
         const val androidCore  = "io.insert-koin:koin-android:${Versions.koin}"
         const val viewModel    = "io.insert-koin:koin-android-viewmodel:${Versions.koin}"
         const val workManager  = "io.insert-koin:koin-androidx-workmanager:${Versions.koin}"
     }
+     */
 
     object Kotlin {
         const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"

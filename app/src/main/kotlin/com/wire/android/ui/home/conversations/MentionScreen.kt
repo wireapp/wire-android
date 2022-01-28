@@ -24,7 +24,6 @@ import com.wire.android.ui.home.conversations.mention.model.Mention
 import com.wire.android.ui.theme.subline01
 import com.wire.android.ui.theme.wireColorScheme
 
-
 @Composable
 fun MentionScreen(
     unreadMentions: List<Mention> = emptyList(),

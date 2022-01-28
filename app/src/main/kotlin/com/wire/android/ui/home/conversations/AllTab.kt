@@ -20,7 +20,6 @@ import com.wire.android.ui.home.conversations.common.RowItem
 import com.wire.android.ui.home.conversations.common.UserLabel
 import com.wire.android.ui.home.conversations.common.folderWithElements
 
-
 @Composable
 fun AllTab(
     newActivities: List<NewActivity>,

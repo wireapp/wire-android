@@ -4,10 +4,8 @@ plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
     id(BuildPlugins.kotlinAndroid)
-    //id(BuildPlugins.kotlinAndroidExtensions)
+    id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinKapt)
-    id(BuildPlugins.hilt)
-    kotlin(BuildPlugins.kapt)
 
     // Internal Script plugins
     id(ScriptPlugins.variants)
@@ -16,71 +14,50 @@ plugins {
     id(ScriptPlugins.testing)
 }
 
-repositories {
-    google()
-}
-
 android {
-    compileSdk = AndroidSdk.compile
+    compileSdkVersion(AndroidSdk.compile)
 
     defaultConfig {
         applicationId = AndroidClient.appId
-        minSdk = AndroidSdk.min
-        targetSdk = AndroidSdk.target
+        minSdkVersion(AndroidSdk.min)
+        targetSdkVersion(AndroidSdk.target)
         versionCode = AndroidClient.versionCode
         versionName = "v${AndroidClient.versionName}(${versionCode})"
         testInstrumentationRunner = AndroidClient.testRunner
         setProperty("archivesBaseName", "${applicationId}-v${versionName}(${versionCode})")
-        /*
+
         kapt {
             arguments {
                 arg("room.schemaLocation", "$projectDir/schemas")
             }
         }
-         */
     }
 
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = Libraries.Versions.compose
+    externalNativeBuild {
+        cmake {
+            version = AndroidNdk.cMakeVersion
+        }
+        ndkBuild {
+            ndkVersion = AndroidNdk.version
+            path(File("src/main/jni/Android.mk"))
+        }
     }
 
     sourceSets {
         map { it.java.srcDir("src/${it.name}/kotlin") }
     }
-
-    // This enables us to share some code between UI and Unit tests!
     fun AndroidSourceSet.includeCommonTestSourceDir() = java {
         srcDir("src/commonTest/kotlin")
     }
     sourceSets["test"].includeCommonTestSourceDir()
     sourceSets["androidTest"].includeCommonTestSourceDir()
 
-    // Remove protobuf-java as dependencies, so we can get protobuf-lite
     configurations.implementation.configure {
         exclude(module = "protobuf-java")
     }
-
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = Libraries.Versions.compose
-    }
 }
-
-kapt {
-    correctErrorTypes = true
-}
-
 
 dependencies {
-    implementation("com.wire.kalium:kalium-logic")
-
     // Application dependencies
     implementation(Libraries.Kotlin.stdLib)
     implementation(Libraries.appCompat)
@@ -89,42 +66,37 @@ dependencies {
     implementation(Libraries.material)
     implementation(Libraries.livedataKtx)
     implementation(Libraries.viewModelKtx)
-    //implementation(Libraries.Koin.androidCore)
-    //implementation(Libraries.Koin.viewModel)
+    implementation(Libraries.Koin.androidCore)
+    implementation(Libraries.Koin.viewModel)
+//    implementation(Libraries.Koin.workManager)
     implementation(Libraries.Kotlin.coroutinesCore)
     implementation(Libraries.Kotlin.coroutinesAndroid)
+    implementation(Libraries.pinEditText)
     implementation(Libraries.viewPager2)
+    implementation(Libraries.paging)
+    implementation(Libraries.glide)
+    implementation(Libraries.fragment)
+    kapt(Libraries.glideCompiler)
+    implementation(Libraries.workManager)
+    implementation(Libraries.scarlet)
+    implementation(Libraries.scarletOkhttp)
+    implementation(Libraries.scarletLifecycle)
+    implementation(Libraries.scarletGson)
 
-    // lifecycle
-    // ViewModel
-    implementation(Libraries.Lifecycle.viewModel)
-    // ViewModel utilities for Compose
-    implementation(Libraries.Lifecycle.viewModelCompose)
-    // LiveData
-    implementation(Libraries.Lifecycle.liveData)
-    // Lifecycles only (without ViewModel or LiveData)
-    implementation(Libraries.Lifecycle.runtime)
-    // Saved state module for ViewModel
-    implementation(Libraries.Lifecycle.viewModelSavedState)
+    implementation(Libraries.messageProto)
+    implementation(Libraries.Crypto.cryptobox)
 
-    //Compose
-    implementation(Libraries.composeUi)
-    implementation(Libraries.composeMaterial)
-    implementation(Libraries.composeTooling)
-    implementation(Libraries.composeIcons)
-    implementation(Libraries.composeActivity)
-    implementation(Libraries.composeNavigation)
-    implementation(Libraries.composeConstraintLayout)
-    implementation(Libraries.accompanistPager)
-    implementation(Libraries.accompanistSystemUI)
+    implementation(Libraries.Retrofit.core)
+    implementation(Libraries.Retrofit.gsonConverter)
+    implementation(Libraries.Retrofit.protoConverter)
+    implementation(Libraries.okHttpLogging)
 
-    // dagger/hilt
-    implementation(Libraries.Hilt.android)
-    implementation("androidx.appcompat:appcompat:1.4.0")
-    implementation("com.google.android.material:material:1.4.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
-    implementation(Libraries.Hilt.navigationCompose)
-    kapt(Libraries.Hilt.compiler)
+    kapt(Libraries.Room.sqlLiteJdbc)
+    implementation(Libraries.Room.runtime)
+    implementation(Libraries.Room.ktx)
+    kapt(Libraries.Room.compiler)
+
+    implementation("com.github.poovamraj:PinEditTextField:1.2.6")
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)
@@ -132,7 +104,7 @@ dependencies {
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.coroutinesTest)
     testImplementation(TestLibraries.testCore)
-    //testImplementation(TestLibraries.koinTest)
+    testImplementation(TestLibraries.koinTest)
     testImplementation(TestLibraries.mockk)
     testImplementation(TestLibraries.kluent)
 

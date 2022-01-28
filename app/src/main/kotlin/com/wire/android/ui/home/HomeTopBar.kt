@@ -84,7 +84,7 @@ private fun ToolbarIconBtn(scope: CoroutineScope, drawerState: DrawerState) {
     ) {
         Icon(
             imageVector = Icons.Filled.Menu,
-            contentDescription = "Open Drawer",
+            contentDescription = stringResource(R.string.home_open_drawer_description),
             tint = MaterialTheme.colorScheme.onBackground
         )
     }

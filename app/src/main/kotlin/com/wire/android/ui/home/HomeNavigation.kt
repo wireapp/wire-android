@@ -20,7 +20,7 @@ import com.wire.android.ui.home.vault.VaultScreen
 @Composable
 fun HomeNavigationGraph(navController: NavHostController, startDestination: String?) {
     NavHost(navController, startDestination = startDestination ?: HomeNavigationItem.Conversations.route) {
-        listOf<HomeNavigationItem>(HomeNavigationItem.Conversations, HomeNavigationItem.Vault, HomeNavigationItem.Archive)
+        HomeNavigationItem.all
             .forEach { item ->
                 composable(route = item.route, content = item.content)
             }
@@ -71,6 +71,9 @@ sealed class HomeNavigationItem(
     )
 
     companion object {
+
+        val all = listOf(Conversations, Archive, Vault)
+
         @Composable
         fun getCurrentNavigationItem(controller: NavController): HomeNavigationItem {
             val navBackStackEntry by controller.currentBackStackEntryAsState()

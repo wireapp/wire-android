@@ -24,13 +24,13 @@ open class NavigationItem(
 //    object Login  //TODO
 
     object Home : NavigationItem(
-        route = "home/{$HOME_START_TAB_INDEX_ARGUMENT}",
-        content = { HomeScreen(it.arguments?.getInt(HOME_START_TAB_INDEX_ARGUMENT), hiltViewModel()) },
+        route = "home/{$HOME_START_TAB_ARGUMENT}",
+        content = { HomeScreen(it.arguments?.getString(HOME_START_TAB_ARGUMENT), hiltViewModel()) },
         arguments = listOf(
-            navArgument(HOME_START_TAB_INDEX_ARGUMENT) { type = NavType.IntType }
+            navArgument(HOME_START_TAB_ARGUMENT) { type = NavType.StringType }
         )
     ) {
-        fun navigationRoute(startTabIndex: Int): String = "home/$startTabIndex"
+        fun navigationRoute(startTabRoute: String): String = "home/$startTabRoute"
     }
 
     object Settings : NavigationItem(
@@ -50,7 +50,7 @@ open class NavigationItem(
 
     companion object {
 
-        const val HOME_START_TAB_INDEX_ARGUMENT: String = "start_tab_index"
+        const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
 
         val globalNavigationItems = listOf(
             Settings,

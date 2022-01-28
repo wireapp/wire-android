@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.support
+package com.wire.android.ui.support
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview

@@ -7,12 +7,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +34,7 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
     var text by remember { mutableStateOf(TextFieldValue()) }
 
     WireTextField(
-        modifier = modifier.padding(16.dp),
+        modifier = modifier.padding(top = 12.dp, bottom = 16.dp, end = 16.dp, start = 16.dp),
         value = text,
 
         onValueChange = {

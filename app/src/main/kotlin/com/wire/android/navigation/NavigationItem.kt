@@ -1,121 +1,66 @@
 package com.wire.android.navigation
 
-import androidx.annotation.StringRes
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
-import com.wire.android.R
-import com.wire.android.ui.home.archive.ArchiveScreen
-import com.wire.android.ui.home.conversations.ConversationsScreen
-import com.wire.android.ui.home.settings.SettingsScreen
-import com.wire.android.ui.home.support.SupportScreen
-import com.wire.android.ui.home.userprofile.UserProfileScreen
-import com.wire.android.ui.home.vault.VaultScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.wire.android.ui.home.HomeScreen
+import com.wire.android.ui.settings.SettingsScreen
+import com.wire.android.ui.support.SupportScreen
+import com.wire.android.ui.userprofile.UserProfileScreen
 
-sealed class NavigationItem(
-    val route: String,
+@ExperimentalMaterial3Api
+open class NavigationItem(
+    open val route: String,
     val arguments: List<NamedNavArgument> = emptyList(),
-    val addingToBackStack: Boolean = false,
-    val content: @Composable (NavBackStackEntry) -> Unit,
-    val navigationElements: NavigationElements = NavigationElements.None,
+    open val content: @Composable (NavBackStackEntry) -> Unit
+    //TODO add animations here
 ) {
 
 //    object Splash  //TODO
 //    object Login  //TODO
 
-    object Conversations : NavigationItem(
-        route = "conversations",
-        content = { ConversationsScreen(hiltViewModel()) },
-        navigationElements = NavigationElements.TopBar.WithDrawer(
-            title = R.string.conversations_screen_title,
-            isSearchable = true,
-            hasUserAvatar = true
-        ) as NavigationElements
-    )
-
-    object Vault : NavigationItem(
-        route = "vault",
-        content = { VaultScreen() },
-        navigationElements = NavigationElements.TopBar.WithDrawer(
-            title = R.string.vault_screen_title,
-            hasUserAvatar = true
-        ) as NavigationElements
-    )
-
-    object Archive : NavigationItem(
-        route = "archive",
-        content = { ArchiveScreen() },
-        navigationElements = NavigationElements.TopBar.WithDrawer(
-            title = R.string.archive_screen_title,
-            hasUserAvatar = true
-        ) as NavigationElements
-    )
+    object Home : NavigationItem(
+        route = "home/{$HOME_START_TAB_INDEX_ARGUMENT}",
+        content = { HomeScreen(it.arguments?.getInt(HOME_START_TAB_INDEX_ARGUMENT), hiltViewModel()) },
+        arguments = listOf(
+            navArgument(HOME_START_TAB_INDEX_ARGUMENT) { type = NavType.IntType }
+        )
+    ) {
+        fun navigationRoute(startTabIndex: Int): String = "home/$startTabIndex"
+    }
 
     object Settings : NavigationItem(
         route = "settings",
         content = { SettingsScreen() },
-        addingToBackStack = true,
-        navigationElements = NavigationElements.TopBar(
-            title = R.string.settings_screen_title,
-            btnType = TopBarBtn.BACK
-        ) as NavigationElements
     )
 
     object Support : NavigationItem(
         route = "support",
         content = { SupportScreen() },
-        addingToBackStack = true,
-        navigationElements = NavigationElements.TopBar(
-            title = R.string.support_screen_title,
-            btnType = TopBarBtn.BACK
-        ) as NavigationElements
     )
 
     object UserProfile : NavigationItem(
         route = "user_profile",
         content = { UserProfileScreen() },
-        addingToBackStack = true,
-        navigationElements = NavigationElements.None //TODO
     )
 
     companion object {
 
-        val values = listOf(
-            Archive,
-            Conversations,
+        const val HOME_START_TAB_INDEX_ARGUMENT: String = "start_tab_index"
+
+        val globalNavigationItems = listOf(
             Settings,
             Support,
             UserProfile,
-            Vault,
+            Home
         )
-        val map: Map<String, NavigationItem> = values.associateBy { it.route }
+        val map: Map<String, NavigationItem> = globalNavigationItems.associateBy { it.route }
 
         fun fromRoute(route: String?): NavigationItem? = map[route]
     }
 
-}
-
-sealed class NavigationElements {
-
-    object None : NavigationElements()
-
-    open class TopBar(
-        @StringRes open val title: Int,
-        open val btnType: TopBarBtn,
-        open val isSearchable: Boolean = false,
-        open val hasUserAvatar: Boolean = false
-    ) : NavigationElements() {
-
-        data class WithDrawer(
-            @StringRes override val title: Int,
-            override val isSearchable: Boolean = false,
-            override val hasUserAvatar: Boolean = false
-        ) : TopBar(title, TopBarBtn.MENU, isSearchable, hasUserAvatar)
-    }
-
-}
-
-enum class TopBarBtn {
-    CLOSE, BACK, MENU
 }

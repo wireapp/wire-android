@@ -1,17 +1,17 @@
-package com.wire.android.ui.drawer
+package com.wire.android.ui.home
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,34 +28,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.wire.android.R
-import com.wire.android.navigation.NavigationElements
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
 import kotlinx.coroutines.launch
 
-@Composable
-fun WireDrawer(
-    currentRoute: String?,
-    navigationElements: NavigationElements?,
-    viewModel: DrawerViewModel = hiltViewModel()
-): @Composable (ColumnScope.() -> Unit)? =
-    if (navigationElements != null && navigationElements is NavigationElements.TopBar.WithDrawer) {
-        { HomeDrawerCompose(currentRoute, viewModel) }
-    } else {
-        null
-    }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeDrawerCompose(
+fun HomeDrawer(
+    drawerState: DrawerState,
     currentRoute: String?,
-    viewModel: DrawerViewModel
+    homeNavController: NavController,
+    topItems: List<HomeNavigationItem>,
+    viewModel: HomeViewModel
 ) {
     val scope = rememberCoroutineScope()
-    val topItems = listOf(NavigationItem.Conversations, NavigationItem.Archive, NavigationItem.Vault)
+
     val bottomItems = listOf(NavigationItem.Settings, NavigationItem.Support)
 
     Column(
@@ -75,7 +65,8 @@ private fun HomeDrawerCompose(
             DrawerItem(data = item.getDrawerData(),
                 selected = currentRoute == item.route,
                 onItemClick = {
-                    scope.launch { viewModel.navigateTo(item) }
+                    navigateToItemInHome(homeNavController, item)
+                    scope.launch { drawerState.close() }
                 })
         }
 
@@ -85,7 +76,10 @@ private fun HomeDrawerCompose(
             DrawerItem(data = item.getDrawerData(),
                 selected = currentRoute == item.route,
                 onItemClick = {
-                    scope.launch { viewModel.navigateTo(item) }
+                    scope.launch {
+                        viewModel.navigateTo(item)
+                        drawerState.close()
+                    }
                 })
         }
     }
@@ -123,38 +117,13 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
 
 data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int?)
 
-private fun NavigationItem.getDrawerData(): DrawerItemData =
+@ExperimentalMaterial3Api
+private fun Any.getDrawerData(): DrawerItemData =
     when (this) {
-        is NavigationItem.Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
-        is NavigationItem.Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
-        is NavigationItem.Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
+        is HomeNavigationItem.Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
+        is HomeNavigationItem.Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
+        is HomeNavigationItem.Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
         is NavigationItem.Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
         is NavigationItem.Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
         else -> DrawerItemData(null, null)
     }
-
-@Preview(showBackground = false)
-@Composable
-fun DrawerItemPreview() {
-    DrawerItem(data = NavigationItem.Conversations.getDrawerData(), selected = false, onItemClick = {})
-}
-
-@Preview(showBackground = false)
-@Composable
-fun DrawerItemSelectedPreview() {
-    DrawerItem(data = NavigationItem.Conversations.getDrawerData(), selected = true, onItemClick = {})
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
-@Composable
-fun DrawerPreview() {
-    WireDrawer(
-        currentRoute = "scope",
-        navigationElements = NavigationElements.TopBar.WithDrawer(
-            title = R.string.conversations_screen_title,
-            isSearchable = true,
-            hasUserAvatar = true
-        ) as NavigationElements
-    )
-}

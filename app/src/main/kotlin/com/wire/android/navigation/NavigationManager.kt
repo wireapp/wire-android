@@ -1,23 +1,25 @@
 package com.wire.android.navigation
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import kotlinx.coroutines.flow.MutableSharedFlow
 
+@ExperimentalMaterial3Api
 class NavigationManager {
 
-    var navigateState = MutableSharedFlow<NavigationItem?>()
+    var navigateState = MutableSharedFlow<NavigationCommand?>()
     var navigateBack = MutableSharedFlow<Unit>()
-    var drawerState = MutableSharedFlow<Boolean>()
 
-    suspend fun navigate(directions: NavigationItem) {
-        navigateState.emit(directions)
+    suspend fun navigate(command: NavigationCommand) {
+        navigateState.emit(command)
     }
 
     suspend fun navigateBack() {
         navigateBack.emit(Unit)
     }
-
-    suspend fun drawerState(isOpened: Boolean) {
-        drawerState.emit(isOpened)
-    }
-
 }
+
+data class NavigationCommand(
+    val destination: String,
+    val removeBackStack: Boolean = false
+    //TODO add in/out animations here
+)

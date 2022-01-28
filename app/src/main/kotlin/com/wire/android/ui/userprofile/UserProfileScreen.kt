@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.userprofile
+package com.wire.android.ui.userprofile
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview

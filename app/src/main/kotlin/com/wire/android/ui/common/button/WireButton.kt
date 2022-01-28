@@ -1,0 +1,138 @@
+package com.wire.android.ui.common.button
+
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.CircularProgressIndicator
+import com.wire.android.ui.common.Tint
+import com.wire.android.ui.theme.button03
+import java.lang.Integer.max
+
+
+@Composable
+fun WireButton(
+    onClick: () -> Unit,
+    loading: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingIconAlignment: IconAlignment = IconAlignment.Center,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    trailingIconAlignment: IconAlignment = IconAlignment.Border,
+    text: String? = null,
+    textStyle: TextStyle = MaterialTheme.typography.button03,
+    state: WireButtonState = WireButtonState.Default,
+    minHeight: Dp = 48.dp,
+    minWidth: Dp = 60.dp,
+    fillMaxWidth: Boolean = true,
+    shape: Shape = RoundedCornerShape(16.dp),
+    colors: WireButtonColors = wirePrimaryButtonColors(),
+    elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
+    borderWidth: Dp = 0.dp,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    modifier: Modifier = Modifier,
+) {
+    val border =
+        if (borderWidth > 0.dp) BorderStroke(
+            width = borderWidth,
+            color = colors.outlineColor(state, interactionSource).value
+        )
+        else null
+    val baseColors = ButtonDefaults.buttonColors(
+        containerColor = colors.containerColor(state, interactionSource).value,
+        contentColor = colors.rippleColor(), // actual content color is set directly for the children, here it's only used for the ripple
+        disabledContainerColor = colors.containerColor(state, interactionSource).value,
+        disabledContentColor = colors.rippleColor(),
+    )
+    Button(
+        onClick = onClick,
+        modifier = modifier.heightIn(minHeight).widthIn(minWidth).let {
+            if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth()
+        },
+        enabled = state != WireButtonState.Disabled,
+        interactionSource = interactionSource,
+        elevation = elevation,
+        shape = shape,
+        border = border,
+        colors = baseColors,
+        contentPadding = contentPadding
+    ) {
+        val contentColor = colors.contentColor(state, interactionSource).value
+        val leadingItem: (@Composable () -> Unit) = { leadingIcon?.let { Tint(contentColor = contentColor, content = it) } }
+        val trailingItem: (@Composable () -> Unit) = {
+            Crossfade(targetState = (trailingIcon != null) to loading) { (hasTrailingIcon, loading) ->
+                when {
+                    hasTrailingIcon -> Tint(contentColor = contentColor, content = trailingIcon!!)
+                    loading -> CircularProgressIndicator(progressColor = contentColor)
+                }
+            }
+        }
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.wrapContentWidth(),
+        ) {
+            var startItemWidth by remember { mutableStateOf(0) }
+            var endItemWidth by remember { mutableStateOf(0) }
+            val borderItemsMaxWidth = with(LocalDensity.current) { max(startItemWidth, endItemWidth).toDp() }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .onGloballyPositioned { startItemWidth = it.size.width },
+            ) { if (leadingIconAlignment == IconAlignment.Border) leadingItem() }
+
+            Row(
+                modifier = Modifier.padding(horizontal = borderItemsMaxWidth).let {
+                    if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth()
+                },
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (leadingIconAlignment == IconAlignment.Center) leadingItem()
+                if (!text.isNullOrEmpty())
+                    Text(
+                        text = text,
+                        style = textStyle,
+                        color = contentColor
+                    )
+                if (trailingIconAlignment == IconAlignment.Center) trailingItem()
+            }
+
+            Box(modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .onGloballyPositioned { endItemWidth = it.size.width }
+            ) { if (trailingIconAlignment == IconAlignment.Border) trailingItem() }
+        }
+    }
+}
+
+enum class IconAlignment { Border, Center }
+

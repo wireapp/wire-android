@@ -20,6 +20,6 @@ class NavigationManager {
 
 data class NavigationCommand(
     val destination: String,
-    val removeBackStack: Boolean = false
+    val skipBackStack: Boolean = false
     //TODO add in/out animations here
 )

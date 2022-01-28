@@ -10,7 +10,7 @@ import androidx.navigation.navArgument
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.support.SupportScreen
-import com.wire.android.ui.userprofile.UserProfileScreen
+import com.wire.android.ui.home.userprofile.UserProfileScreen
 
 @ExperimentalMaterial3Api
 open class NavigationItem(

@@ -41,6 +41,9 @@
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
 
+    <!-- Home -->
+    <string name="home_open_drawer_description">Open drawer</string>
+
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALLS HISTORY</string>

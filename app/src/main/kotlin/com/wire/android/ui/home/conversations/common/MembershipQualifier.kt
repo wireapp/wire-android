@@ -1,4 +1,4 @@
-package com.wire.android.ui.common
+package com.wire.android.ui.home.conversations.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -8,19 +8,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.home.conversations.all.model.Membership
 import com.wire.android.ui.theme.label03
 
 
 @Composable
-fun MembershipQualifierLabel(
-    membership: Membership,
-) {
+fun MembershipQualifier(label: String) {
     Text(
-        text = stringResource(id = membership.stringResourceId),
+        text = label,
         color = MaterialTheme.colorScheme.primary,
         style = MaterialTheme.typography.label03.copy(textAlign = TextAlign.Center),
         modifier = Modifier
@@ -29,6 +25,9 @@ fun MembershipQualifierLabel(
                 color = MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(8.dp)
             )
-            .padding(horizontal = 4.dp, vertical = 2.dp)
+            .padding(
+                horizontal = 4.dp,
+                vertical = 2.dp
+            )
     )
 }

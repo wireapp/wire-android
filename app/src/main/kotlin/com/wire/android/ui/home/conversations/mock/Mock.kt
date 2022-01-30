@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversations.mock
 
 import com.wire.android.ui.home.conversations.all.model.AvailabilityStatus
 import com.wire.android.ui.home.conversations.all.model.Conversation

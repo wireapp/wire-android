@@ -18,6 +18,7 @@ import com.wire.android.ui.home.conversations.navigation.ConversationsNavigation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+// TODO: change ConversationViewModel() to viewModel()
 fun ConversationsScreen(viewModel: ConversationViewModel = ConversationViewModel()) {
     val uiState by viewModel.state.collectAsState()
     val navController = rememberNavController()

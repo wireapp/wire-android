@@ -1,6 +1,12 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.lifecycle.ViewModel
+import com.wire.android.ui.home.conversations.mock.conversationMockData
+import com.wire.android.ui.home.conversations.mock.mockAllMentionList
+import com.wire.android.ui.home.conversations.mock.mockCallHistory
+import com.wire.android.ui.home.conversations.mock.mockMissedCalls
+import com.wire.android.ui.home.conversations.mock.mockUnreadMentionList
+import com.wire.android.ui.home.conversations.mock.newActivitiesMockData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

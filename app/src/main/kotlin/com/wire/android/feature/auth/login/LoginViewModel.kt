@@ -1,6 +1,8 @@
 package com.wire.android.feature.auth.login
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -19,17 +21,20 @@ class LoginViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val userIdentifier = mutableStateOf(
+    var userIdentifier by mutableStateOf(
         savedStateHandle.get(USER_IDENTIFIER_SAVED_STATE_KEY) ?: String.EMPTY
     )
-    private val password = mutableStateOf(String.EMPTY)
+        private set
+
+    var password by mutableStateOf(String.EMPTY)
+        private set
 
     private val _loginResultLiveData = MutableLiveData<AuthenticationResult>()
     val loginResultLiveData: LiveData<AuthenticationResult> = _loginResultLiveData
 
     fun login() {
         viewModelScope.launch {
-            when (val loginResult = loginUseCase(userIdentifier.value, password.value, true)) {
+            when (val loginResult = loginUseCase(userIdentifier, password, true)) {
                 is AuthenticationResult.Failure.Generic -> TODO()
                 is AuthenticationResult.Failure.InvalidCredentials -> TODO()
                 is AuthenticationResult.Failure.InvalidUserIdentifier -> TODO()
@@ -39,12 +44,12 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onUserIdentifierChange(newText: String) {
-        userIdentifier.value = newText
-        savedStateHandle.set(USER_IDENTIFIER_SAVED_STATE_KEY, userIdentifier.value)
+        userIdentifier = newText
+        savedStateHandle.set(USER_IDENTIFIER_SAVED_STATE_KEY, userIdentifier)
     }
 
     fun onPasswordChange(newText: String) {
-        password.value = newText
+        password = newText
     }
 
     private companion object {

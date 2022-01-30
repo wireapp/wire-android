@@ -1,4 +1,4 @@
-package com.wire.android.ui.login
+package com.wire.android.ui.authentication.login
 
 import android.widget.Toast
 import androidx.compose.animation.ExperimentalAnimationApi

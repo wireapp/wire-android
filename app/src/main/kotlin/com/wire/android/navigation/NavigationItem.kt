@@ -7,10 +7,13 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.wire.android.ui.authentication.AuthScreen
+import com.wire.android.ui.authentication.AuthScreenDestinations
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.support.SupportScreen
 import com.wire.android.ui.home.userprofile.UserProfileScreen
+import com.wire.android.ui.authentication.welcome.WelcomeScreen
 
 @ExperimentalMaterial3Api
 sealed class NavigationItem(
@@ -21,7 +24,12 @@ sealed class NavigationItem(
 ) {
 
 //    object Splash  //TODO
-//    object Login  //TODO
+
+    @ExperimentalMaterial3Api
+    object Authentication : NavigationItem(
+        route = "auth",
+        content = { AuthScreen() },
+    )
 
     object Home : NavigationItem(
         route = "home/$HOME_START_TAB_ARGUMENT",
@@ -53,6 +61,7 @@ sealed class NavigationItem(
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
 
         val globalNavigationItems = listOf(
+            Authentication,
             Settings,
             Support,
             UserProfile,

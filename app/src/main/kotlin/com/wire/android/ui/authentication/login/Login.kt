@@ -40,8 +40,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.wire.android.R
 import com.wire.android.ui.common.AnimatedButtonColors
 import com.wire.android.ui.common.CircularProgressIndicator
@@ -51,15 +51,15 @@ import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.button02
 
 
-@Preview
+//@Preview
 @Composable
-fun LoginScreen() {
-    LoginContent()
+fun LoginScreen(navController: NavController) {
+    LoginContent(navController)
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-private fun LoginContent() {
+private fun LoginContent(navController: NavController) {
 
     var email by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }

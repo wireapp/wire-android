@@ -1,4 +1,4 @@
-package com.wire.android.ui.welcome
+package com.wire.android.ui.authentication.welcome
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -13,7 +13,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -21,11 +20,9 @@ import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import kotlinx.coroutines.delay
 import android.content.res.TypedArray
-import android.widget.Toast
 import androidx.annotation.ArrayRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -53,20 +49,21 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.navigation.NavController
+import com.wire.android.ui.authentication.AuthScreenDestinations
 import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.button02
 import com.wire.android.ui.theme.title01
 
-@Preview
+//@Preview
 @Composable
-fun WelcomeScreen() {
-    WelcomeContent()
+fun WelcomeScreen(navController: NavController) {
+    WelcomeContent(navController)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WelcomeContent() {
+private fun WelcomeContent(navController: NavController) {
     Scaffold {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -85,8 +82,18 @@ private fun WelcomeContent() {
             ) {
                 WelcomeCarousel()
             }
-            WelcomeButtons(modifier = Modifier.padding(top = 40.dp, bottom = 52.dp, start = 16.dp, end = 16.dp))
-            WelcomeFooter(modifier = Modifier.padding(bottom = 56.dp, start = 16.dp, end = 16.dp))
+            WelcomeButtons(
+                modifier = Modifier.padding(top = 40.dp, bottom = 52.dp, start = 16.dp, end = 16.dp),
+                onLoginClick = {
+                    navController.navigate(AuthScreenDestinations.loginScreen)
+                },
+                onEnterpriseAccountClick = {
+                    navController.navigate((AuthScreenDestinations.createEnterpriseAccount))
+                })
+            WelcomeFooter(modifier = Modifier.padding(bottom = 56.dp, start = 16.dp, end = 16.dp),
+                onPrivateAccountClick = {
+                    navController.navigate(AuthScreenDestinations.createPrivateAccountScreen)
+                })
         }
     }
 }
@@ -149,13 +156,12 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
 }
 
 @Composable
-private fun WelcomeButtons(modifier: Modifier) {
+private fun WelcomeButtons(modifier: Modifier, onLoginClick: () -> Unit, onEnterpriseAccountClick: () -> Unit) {
     Column(modifier = modifier) {
-        val context = LocalContext.current
 
         Button(
             shape = RoundedCornerShape(16.dp),
-            onClick = { Toast.makeText(context, "Login click 💥", Toast.LENGTH_SHORT).show() }, //TODO
+            onClick = onLoginClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
@@ -169,7 +175,7 @@ private fun WelcomeButtons(modifier: Modifier) {
         OutlinedButton(
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.surface),
-            onClick = { Toast.makeText(context, "Create account click 💥", Toast.LENGTH_SHORT).show() }, //TODO
+            onClick = onEnterpriseAccountClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -184,9 +190,8 @@ private fun WelcomeButtons(modifier: Modifier) {
 }
 
 @Composable
-private fun WelcomeFooter(modifier: Modifier) {
+private fun WelcomeFooter(modifier: Modifier, onPrivateAccountClick: () -> Unit) {
     Column(modifier = modifier) {
-        val context = LocalContext.current
 
         Text(
             text = stringResource(R.string.welcome_footer_text),
@@ -207,7 +212,7 @@ private fun WelcomeFooter(modifier: Modifier) {
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = { Toast.makeText(context, "Link click 💥", Toast.LENGTH_SHORT).show() } //TODO
+                    onClick = onPrivateAccountClick
                 )
         )
     }

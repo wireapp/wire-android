@@ -49,7 +49,6 @@ import com.wire.android.ui.authentication.AuthDestination
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.body02
-import com.wire.android.ui.theme.button02
 import com.wire.android.ui.theme.title01
 
 //@Preview
@@ -79,14 +78,17 @@ private fun WelcomeContent(navController: NavController) {
             ) {
                 WelcomeCarousel()
             }
-            WelcomeButtons(
-                modifier = Modifier.padding(top = 40.dp, bottom = 52.dp, start = 16.dp, end = 16.dp),
-                onLoginClick = {
+
+            Column(modifier = Modifier.padding(top = 40.dp, bottom = 52.dp, start = 16.dp, end = 16.dp),) {
+                LoginButton {
                     navController.navigate(AuthDestination.loginScreen)
-                },
-                onEnterpriseAccountClick = {
+                }
+                CreateEnterpriseAccountButton {
                     navController.navigate((AuthDestination.createEnterpriseAccount))
-                })
+
+                }
+            }
+
             WelcomeFooter(modifier = Modifier.padding(bottom = 56.dp, start = 16.dp, end = 16.dp),
                 onPrivateAccountClick = {
                     navController.navigate(AuthDestination.createPrivateAccountScreen)
@@ -153,25 +155,24 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
 }
 
 @Composable
-private fun WelcomeButtons(modifier: Modifier, onLoginClick: () -> Unit, onEnterpriseAccountClick: () -> Unit) {
-    Column(modifier = modifier) {
+private fun LoginButton(onClick: () -> Unit) {
+    WirePrimaryButton(
+        onClick = onClick,
+        text = stringResource(R.string.label_login),
+        modifier = Modifier
+            .fillMaxWidth()
+    )
+}
 
-        // login button
-        WirePrimaryButton(
-            onClick = onLoginClick, //TODO
-            text = stringResource(R.string.label_login),
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-
-        WireSecondaryButton(
-            onClick = onEnterpriseAccountClick,
-            text = stringResource(R.string.welcome_button_create_enterprise_account),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        )
-    }
+@Composable
+private fun CreateEnterpriseAccountButton(onClick: () -> Unit) {
+    WireSecondaryButton(
+        onClick = onClick,
+        text = stringResource(R.string.welcome_button_create_enterprise_account),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    )
 }
 
 @Composable

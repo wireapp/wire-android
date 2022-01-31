@@ -56,7 +56,7 @@ sealed class HomeNavigationItem(
         route = "home_conversations",
         title = R.string.conversations_screen_title,
         isSearchable = true,
-        content = { ConversationScreenPreview() },
+        content = { ConversationRoute() },
     )
 
     object Vault : HomeNavigationItem(

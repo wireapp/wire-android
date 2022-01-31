@@ -74,7 +74,7 @@ private fun ConversationScreenTopAppBar(
     SmallTopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                //TODO:This is only for the design preview, this is going to be changed, ignore it during code-review
+                //TODO:This Box is only for the design preview, this is going to be changed, ignore it during code-review
                 Box(
                     modifier = Modifier
                         .background(color = Color.Green, shape = RoundedCornerShape(8.dp))

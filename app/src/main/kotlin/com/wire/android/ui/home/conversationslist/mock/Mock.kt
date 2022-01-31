@@ -1,20 +1,20 @@
-package com.wire.android.ui.home.conversationlist.mock
+package com.wire.android.ui.home.conversationslist.mock
 
-import com.wire.android.ui.home.conversationlist.model.AvailabilityStatus
-import com.wire.android.ui.home.conversationlist.model.Call
-import com.wire.android.ui.home.conversationlist.model.CallEvent
-import com.wire.android.ui.home.conversationlist.model.CallInfo
-import com.wire.android.ui.home.conversationlist.model.CallTime
-import com.wire.android.ui.home.conversationlist.model.Conversation
-import com.wire.android.ui.home.conversationlist.model.ConversationFolder
-import com.wire.android.ui.home.conversationlist.model.ConversationInfo
-import com.wire.android.ui.home.conversationlist.model.EventType
-import com.wire.android.ui.home.conversationlist.model.Membership
-import com.wire.android.ui.home.conversationlist.model.Mention
-import com.wire.android.ui.home.conversationlist.model.MentionInfo
-import com.wire.android.ui.home.conversationlist.model.MentionMessage
-import com.wire.android.ui.home.conversationlist.model.NewActivity
-import com.wire.android.ui.home.conversationlist.model.UserInfo
+import com.wire.android.ui.home.conversationslist.model.AvailabilityStatus
+import com.wire.android.ui.home.conversationslist.model.Call
+import com.wire.android.ui.home.conversationslist.model.CallEvent
+import com.wire.android.ui.home.conversationslist.model.CallInfo
+import com.wire.android.ui.home.conversationslist.model.CallTime
+import com.wire.android.ui.home.conversationslist.model.Conversation
+import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversationslist.model.ConversationInfo
+import com.wire.android.ui.home.conversationslist.model.EventType
+import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.Mention
+import com.wire.android.ui.home.conversationslist.model.MentionInfo
+import com.wire.android.ui.home.conversationslist.model.MentionMessage
+import com.wire.android.ui.home.conversationslist.model.NewActivity
+import com.wire.android.ui.home.conversationslist.model.UserInfo
 
 val mockConversations = listOf(
     Conversation(

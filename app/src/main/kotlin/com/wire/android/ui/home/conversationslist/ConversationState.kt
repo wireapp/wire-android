@@ -1,11 +1,11 @@
 package com.wire.android.ui.main.conversationlist
 
 
-import com.wire.android.ui.home.conversationlist.model.Call
-import com.wire.android.ui.home.conversationlist.model.Conversation
-import com.wire.android.ui.home.conversationlist.model.ConversationFolder
-import com.wire.android.ui.home.conversationlist.model.Mention
-import com.wire.android.ui.home.conversationlist.model.NewActivity
+import com.wire.android.ui.home.conversationslist.model.Call
+import com.wire.android.ui.home.conversationslist.model.Conversation
+import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversationslist.model.Mention
+import com.wire.android.ui.home.conversationslist.model.NewActivity
 
 data class ConversationState(
     val newActivities: List<NewActivity> = emptyList(),

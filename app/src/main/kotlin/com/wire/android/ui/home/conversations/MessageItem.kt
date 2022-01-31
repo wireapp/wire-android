@@ -35,7 +35,7 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversationlist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.Dimensions
 import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.wireColorScheme

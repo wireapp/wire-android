@@ -6,8 +6,8 @@ import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.User
-import com.wire.android.ui.home.conversationlist.model.AvailabilityStatus
-import com.wire.android.ui.home.conversationlist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.AvailabilityStatus
+import com.wire.android.ui.home.conversationslist.model.Membership
 
 val mockMessageWithText = Message(
     user = User("", AvailabilityStatus.Available),

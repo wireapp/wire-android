@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -13,8 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.R
 import com.wire.android.ui.home.archive.ArchiveScreen
-import com.wire.android.ui.home.conversationlist.ConversationRoute
-import com.wire.android.ui.home.conversations.ConversationScreenPreview
+import com.wire.android.ui.home.conversationslist.ConversationRoute
 import com.wire.android.ui.home.vault.VaultScreen
 
 @ExperimentalMaterial3Api

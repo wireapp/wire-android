@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
-import com.wire.android.ui.home.conversationlist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.body02
 
 @Composable

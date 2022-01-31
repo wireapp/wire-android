@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationlist
+package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -20,14 +20,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.home.conversationlist.common.MissedCallBadge
-import com.wire.android.ui.home.conversationlist.common.RowItem
+import com.wire.android.ui.home.conversationslist.common.MissedCallBadge
+import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.main.conversationlist.common.UserLabel
-import com.wire.android.ui.home.conversationlist.common.folderWithElements
-import com.wire.android.ui.home.conversationlist.model.Call
-import com.wire.android.ui.home.conversationlist.model.CallEvent
-import com.wire.android.ui.home.conversationlist.model.CallTime
-import com.wire.android.ui.home.conversationlist.model.toUserInfoLabel
+import com.wire.android.ui.home.conversationslist.common.folderWithElements
+import com.wire.android.ui.home.conversationslist.model.Call
+import com.wire.android.ui.home.conversationslist.model.CallEvent
+import com.wire.android.ui.home.conversationslist.model.CallTime
+import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.android.ui.theme.subline01
 import com.wire.android.ui.theme.wireColorScheme
 

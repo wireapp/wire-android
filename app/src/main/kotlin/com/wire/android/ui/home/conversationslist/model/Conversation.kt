@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationlist.model
+package com.wire.android.ui.home.conversationslist.model
 
 import androidx.annotation.StringRes
 import com.wire.android.R

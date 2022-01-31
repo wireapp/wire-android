@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationlist.common
+package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row

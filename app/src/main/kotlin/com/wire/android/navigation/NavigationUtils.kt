@@ -12,10 +12,21 @@ internal fun navigateToItem(
     command: NavigationCommand
 ) {
     navController.navigate(command.destination) {
-        if (command.skipBackStack) {
-            navController.graph.startDestinationRoute?.let { route ->
-                popUpTo(route) {
-                    saveState = true
+        when (command.backStackMode) {
+            BackStackMode.NONE -> {}
+            BackStackMode.CLEAR_TILL_START -> {
+                navController.graph.startDestinationRoute?.let { route ->
+                    popUpTo(route) {
+                        saveState = true
+                    }
+                }
+            }
+            BackStackMode.CLEAR_WHOLE -> {
+                navController.graph.startDestinationRoute?.let { route ->
+                    popUpTo(route) {
+                        saveState = true
+                        inclusive = true
+                    }
                 }
             }
         }

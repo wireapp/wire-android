@@ -45,8 +45,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
-import com.wire.android.ui.theme.label01
-import com.wire.android.ui.theme.label04
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 internal fun WireTextField(
@@ -107,7 +106,7 @@ internal fun WireTextField(
         if (bottomText != null)
             Text(
                 text = bottomText,
-                style = MaterialTheme.typography.label04,
+                style = MaterialTheme.wireTypography.label04,
                 color = colors.descriptionColor(state).value,
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -125,7 +124,7 @@ private fun Label(
     Row {
         Text(
             text = labelText,
-            style = MaterialTheme.typography.label01,
+            style = MaterialTheme.wireTypography.label01,
             color = colors.labelColor(state, interactionSource).value,
             modifier = Modifier.padding(bottom = 4.dp, end = 4.dp)
         )

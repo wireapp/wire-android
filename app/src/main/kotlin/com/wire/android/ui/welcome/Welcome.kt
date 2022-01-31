@@ -53,10 +53,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.wire.android.ui.theme.body02
-import com.wire.android.ui.theme.button02
-import com.wire.android.ui.theme.title01
+import com.wire.android.ui.theme.wireTypography
 
 @Preview
 @Composable
@@ -140,7 +137,7 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
         )
         Text(
             text = pageText,
-            style = MaterialTheme.typography.title01,
+            style = MaterialTheme.wireTypography.title01,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 24.dp)
@@ -162,7 +159,7 @@ private fun WelcomeButtons(modifier: Modifier) {
         ) {
             Text(
                 text = stringResource(R.string.label_login),
-                style = MaterialTheme.typography.button02
+                style = MaterialTheme.wireTypography.button02
             )
         }
 
@@ -177,7 +174,7 @@ private fun WelcomeButtons(modifier: Modifier) {
         ) {
             Text(
                 text = stringResource(R.string.welcome_button_create_enterprise_account),
-                style = MaterialTheme.typography.button02.copy(color = MaterialTheme.colorScheme.onSurface)
+                style = MaterialTheme.wireTypography.button02.copy(color = MaterialTheme.colorScheme.onSurface)
             )
         }
     }
@@ -190,14 +187,14 @@ private fun WelcomeFooter(modifier: Modifier) {
 
         Text(
             text = stringResource(R.string.welcome_footer_text),
-            style = MaterialTheme.typography.body02,
+            style = MaterialTheme.wireTypography.body02,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
 
         Text(
             text = stringResource(R.string.welcome_footer_link),
-            style = MaterialTheme.typography.body02.copy(
+            style = MaterialTheme.wireTypography.body02.copy(
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.colorScheme.primary
             ),

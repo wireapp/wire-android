@@ -27,7 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.SearchBarUI
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.theme.title01
+import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -51,7 +51,7 @@ fun MainTopBar(scope: CoroutineScope, drawerState: DrawerState, navController: N
             title = {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.title01
+                    style = MaterialTheme.wireTypography.title01
                 )
             },
             navigationIcon = {

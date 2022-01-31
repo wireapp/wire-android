@@ -47,8 +47,7 @@ import com.wire.android.ui.common.AnimatedButtonColors
 import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
-import com.wire.android.ui.theme.body02
-import com.wire.android.ui.theme.button02
+import com.wire.android.ui.theme.wireTypography
 
 
 @Preview
@@ -112,7 +111,7 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
         val context = LocalContext.current
         Text(
             text = stringResource(R.string.login_forgot_password),
-            style = MaterialTheme.typography.body02.copy(
+            style = MaterialTheme.wireTypography.body02.copy(
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.colorScheme.primary
             ),
@@ -151,7 +150,7 @@ private fun LoginButton(modifier: Modifier, email: String, password: String) {
                 Text(
                     text = text,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.button02,
+                    style = MaterialTheme.wireTypography.button02,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp),

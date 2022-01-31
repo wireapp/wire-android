@@ -21,8 +21,8 @@ import com.wire.android.ui.main.conversation.common.UnreadMentionBadge
 import com.wire.android.ui.main.conversation.common.UserLabel
 import com.wire.android.ui.main.conversation.common.folderWithElements
 import com.wire.android.ui.main.conversation.model.Mention
-import com.wire.android.ui.theme.subline01
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 
 
 @Composable
@@ -89,7 +89,7 @@ fun MentionLabel(mention: Mention, modifier: Modifier = Modifier) {
                 UserLabel(conversation.toUserInfoLabel())
                 Text(
                     text = mentionInfo.mentionMessage.toQuote(),
-                    style = MaterialTheme.typography.subline01,
+                    style = MaterialTheme.wireTypography.subline01,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

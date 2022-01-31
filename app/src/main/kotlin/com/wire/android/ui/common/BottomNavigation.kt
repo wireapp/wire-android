@@ -33,9 +33,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.wire.android.ui.theme.Dimensions
-import com.wire.android.ui.theme.badge01
-import com.wire.android.ui.theme.button05
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun WireBottomNavigationBar(
@@ -59,12 +58,12 @@ fun WireBottomNavigationBar(
                     .fillMaxHeight()
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(
-                        top = Dimensions.bottomNavigationPadding,
-                        bottom = Dimensions.bottomNavigationPadding,
-                        start = Dimensions.bottomNavigationPadding
-                                + if (index == 0) Dimensions.bottomNavigationPadding else spaceBetweenItems / 2,
-                        end = Dimensions.bottomNavigationPadding
-                                + if (index == items.lastIndex) Dimensions.bottomNavigationPadding else spaceBetweenItems / 2
+                        top = MaterialTheme.wireDimensions.bottomNavigationPadding,
+                        bottom = MaterialTheme.wireDimensions.bottomNavigationPadding,
+                        start = MaterialTheme.wireDimensions.bottomNavigationPadding
+                                + if (index == 0) MaterialTheme.wireDimensions.bottomNavigationPadding else spaceBetweenItems / 2,
+                        end = MaterialTheme.wireDimensions.bottomNavigationPadding
+                                + if (index == items.lastIndex) MaterialTheme.wireDimensions.bottomNavigationPadding else spaceBetweenItems / 2
                     )
 
                 WireBottomNavigationItem(
@@ -100,7 +99,7 @@ fun RowScope.WireBottomNavigationItem(
             .clip(RoundedCornerShape(6.dp))
             .selectableBackground(selected) { onItemClick(data) }
             .background(backgroundColor)
-            .padding(Dimensions.bottomNavigationItemPadding)
+            .padding(MaterialTheme.wireDimensions.bottomNavigationItemPadding)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -117,7 +116,7 @@ fun RowScope.WireBottomNavigationItem(
             )
             Text(
                 text = stringResource(id = data.title),
-                style = MaterialTheme.typography.button05,
+                style = MaterialTheme.wireTypography.button05,
                 color = contentColor,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -135,7 +134,7 @@ fun RowScope.WireBottomNavigationItem(
                 Text(
                     text = data.notificationAmount.toString(),
                     color = MaterialTheme.colorScheme.onError,
-                    style = MaterialTheme.typography.badge01,
+                    style = MaterialTheme.wireTypography.badge01,
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))
                         .background(MaterialTheme.colorScheme.error)

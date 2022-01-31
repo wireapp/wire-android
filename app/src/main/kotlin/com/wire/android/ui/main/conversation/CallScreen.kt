@@ -28,8 +28,8 @@ import com.wire.android.ui.main.conversation.common.MissedCallBadge
 import com.wire.android.ui.main.conversation.common.RowItem
 import com.wire.android.ui.main.conversation.common.UserLabel
 import com.wire.android.ui.main.conversation.common.folderWithElements
-import com.wire.android.ui.theme.subline01
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun CallScreen(missedCalls: List<Call> = emptyList(), callHistory: List<Call> = emptyList()) {
@@ -105,6 +105,6 @@ private fun CallEventIcon(callEvent: CallEvent, modifier: Modifier = Modifier) {
 
 @Composable
 private fun TimeLabel(callTime: CallTime) {
-    Text(text = callTime.toLabel(), style = MaterialTheme.typography.subline01, color = MaterialTheme.wireColorScheme.secondaryText)
+    Text(text = callTime.toLabel(), style = MaterialTheme.wireTypography.subline01, color = MaterialTheme.wireColorScheme.secondaryText)
 }
 

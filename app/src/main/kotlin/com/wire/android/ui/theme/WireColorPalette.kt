@@ -1,62 +1,12 @@
 package com.wire.android.ui.theme
 
-import androidx.compose.material3.ColorScheme
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
+import io.github.esentsov.PackagePrivate
 
-@Immutable
-data class WireColorScheme(
-    val primary: Color,                         val onPrimary: Color,
-    val error: Color,                           val onError: Color,
-    val errorOutline: Color, //TODO missing on designs
-    val warning: Color,                         val onWarning: Color,
-    val positive: Color,                        val onPositive: Color,
-    val background: Color,                      val onBackground: Color,
-    val backgroundVariant: Color,               val onBackgroundVariant: Color,
-    val surface: Color,                         val onSurface: Color,
-    val primaryButtonEnabled: Color,            val onPrimaryButtonEnabled: Color,
-    val primaryButtonDisabled: Color,           val onPrimaryButtonDisabled: Color,
-    val primaryButtonFocus: Color,              val onPrimaryButtonFocus: Color,
-    val primaryButtonSelected: Color,           val onPrimaryButtonSelected: Color,
-    val secondaryButtonEnabled: Color,          val onSecondaryButtonEnabled: Color,
-    val secondaryButtonEnabledOutline: Color,
-    val secondaryButtonDisabled: Color,         val onSecondaryButtonDisabled: Color,
-    val secondaryButtonDisabledOutline: Color,
-    val secondaryButtonFocus: Color,            val onSecondaryButtonFocus: Color,
-    val secondaryButtonFocusOutline: Color,
-    val secondaryButtonSelected: Color,         val onSecondaryButtonSelected: Color,
-    val secondaryButtonSelectedOutline: Color,
-    val tertiaryButtonEnabled: Color,           val onTertiaryButtonEnabled: Color,
-    val tertiaryButtonDisabled: Color,          val onTertiaryButtonDisabled: Color,
-    val tertiaryButtonFocus: Color,             val onTertiaryButtonFocus: Color,
-    val tertiaryButtonSelected: Color,          val onTertiaryButtonSelected: Color,
-    val tertiaryButtonSelectedOutline: Color,
-    val divider: Color,
-    val secondaryText: Color,
-    val labelText: Color, //TODO missing on designs
-    val badge: Color,                           val onBadge: Color //TODO missing on designs
-) {
-    fun toColorScheme(): ColorScheme = ColorScheme(
-        primary = primary,                              onPrimary = onPrimary,
-        primaryContainer = secondaryButtonSelected,     onPrimaryContainer = onSecondaryButtonSelected,
-        inversePrimary = secondaryButtonSelected,
-        secondary = badge,                              onSecondary = onBadge,
-        secondaryContainer = backgroundVariant,         onSecondaryContainer = onBackgroundVariant,
-        tertiary = primary,                             onTertiary = onPrimary,
-        tertiaryContainer = secondaryButtonSelected,    onTertiaryContainer = onSecondaryButtonSelected,
-        background = background,                        onBackground = onBackground,
-        surface = surface,                              onSurface = onSurface,
-        surfaceVariant = backgroundVariant,             onSurfaceVariant = onBackgroundVariant,
-        inverseSurface = onPrimaryButtonDisabled,       inverseOnSurface = Color.White,
-        error = error,                                  onError = onError,
-        errorContainer = errorOutline,                  onErrorContainer = error,
-        outline = divider
-    )
-}
-
+@PackagePrivate
 @Suppress("MagicNumber")
-object WireColor {
+object WireColorPalette {
 
     @Stable val LightBlue50  = Color(0xFFE7F0FA)
     @Stable val LightBlue100 = Color(0xFFCDE1F4)

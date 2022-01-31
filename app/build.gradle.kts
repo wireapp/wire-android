@@ -94,6 +94,7 @@ dependencies {
     implementation(Libraries.Kotlin.coroutinesCore)
     implementation(Libraries.Kotlin.coroutinesAndroid)
     implementation(Libraries.viewPager2)
+    implementation(Libraries.visibilityModifiers)
 
     // lifecycle
     // ViewModel

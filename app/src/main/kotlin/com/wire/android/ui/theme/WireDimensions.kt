@@ -17,6 +17,11 @@ data class WireDimensions(
     val conversationItemPadding: Dp,
     // Message
     val messageImagePortraitModeWidth: Dp,
+    // Buttons
+    val buttonMinHeight: Dp,
+    val buttonMinWidth: Dp,
+    val buttonHorizontalContentPadding: Dp,
+    val buttonVerticalContentPadding: Dp,
 )
 
 private val DefaultWireDimensions: WireDimensions = WireDimensions(
@@ -25,7 +30,11 @@ private val DefaultWireDimensions: WireDimensions = WireDimensions(
     bottomNavigationItemPadding = 6.dp,
     conversationItemRowPadding = 8.dp,
     conversationItemPadding = 0.5.dp,
-    messageImagePortraitModeWidth = 200.dp
+    messageImagePortraitModeWidth = 200.dp,
+    buttonMinHeight = 48.dp,
+    buttonMinWidth = 60.dp,
+    buttonHorizontalContentPadding = 16.dp,
+    buttonVerticalContentPadding = 8.dp
 )
 
 @PackagePrivate

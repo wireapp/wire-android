@@ -28,7 +28,6 @@ import com.wire.android.ui.home.conversations.common.MissedCallBadge
 import com.wire.android.ui.home.conversations.common.RowItem
 import com.wire.android.ui.home.conversations.common.UserLabel
 import com.wire.android.ui.home.conversations.common.folderWithElements
-import com.wire.android.ui.theme.subline01
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 

@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.theme.label03
+import com.wire.android.ui.theme.wireTypography
 
 
 @Composable
@@ -18,7 +18,7 @@ fun MembershipQualifier(label: String) {
     Text(
         text = label,
         color = MaterialTheme.colorScheme.primary,
-        style = MaterialTheme.typography.label03.copy(textAlign = TextAlign.Center),
+        style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
         modifier = Modifier
             .wrapContentWidth()
             .background(

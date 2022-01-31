@@ -142,7 +142,7 @@ private fun InnerText(
     trailingIcon: @Composable (() -> Unit)? = null,
     placeholderText: String? = null,
     state: WireTextFieldState = WireTextFieldState.Default,
-    placeholderTextStyle: TextStyle = MaterialTheme.typography.body01,
+    placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
     inputMinHeight: Dp = 48.dp,
     colors: WireTextFieldColors = wireTextFieldColors()
 ) {

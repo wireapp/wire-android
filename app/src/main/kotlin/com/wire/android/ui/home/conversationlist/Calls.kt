@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversationlist.common.MissedCallBadge
-import com.wire.android.ui.main.conversationlist.common.RowItem
+import com.wire.android.ui.home.conversationlist.common.RowItem
 import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.home.conversationlist.common.folderWithElements
 import com.wire.android.ui.home.conversationlist.model.Call

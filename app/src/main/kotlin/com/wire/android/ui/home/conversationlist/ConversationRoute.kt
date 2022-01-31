@@ -13,6 +13,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
+import com.wire.android.ui.home.conversationslist.ConversationViewModel
 import com.wire.android.ui.main.conversationlist.ConversationState
 import com.wire.android.ui.main.conversationlist.MentionScreen
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
@@ -53,7 +54,8 @@ fun ConversationRoute(viewModel: ConversationViewModel = ConversationViewModel()
                             unreadMentions = unreadMentions,
                             allMentions = allMentions
                         ) { }
-                    })
+                    }
+                )
             }
         }
     }

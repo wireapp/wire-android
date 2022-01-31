@@ -37,8 +37,8 @@
     <!-- Login -->
     <string name="login_title">Login</string>
     <string name="login_forgot_password">Forgot password?</string>
-    <string name="login_email_placeholder">jane@example.com or jane.doe</string>
-    <string name="login_email_label">EMAIL OR USERNAME</string>
+    <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
+    <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
 

@@ -50,18 +50,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen() {
     val scope = rememberCoroutineScope()
-    LoginContent(scope = scope)
+    LoginContent(loginViewModel = hiltViewModel(), scope = scope)
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun LoginContent(
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel,
     scope: CoroutineScope
 ) {
-
-    var email by remember { mutableStateOf(TextFieldValue("")) }
-    var password by remember { mutableStateOf(TextFieldValue("")) }
 
     Scaffold(topBar = { LoginTopBar() }) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -69,13 +66,26 @@ private fun LoginContent(
                 modifier = Modifier.weight(1f, true),
                 verticalArrangement = Arrangement.Center,
             ) {
-                EmailInput(modifier = Modifier.fillMaxWidth(), email = email, onEmailChange = { email = it })
+                UserIdentifierInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    userIdentifier = loginViewModel.userIdentifier,
+                    onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) })
+
                 Spacer(modifier = Modifier.height(16.dp))
-                PasswordInput(modifier = Modifier.fillMaxWidth(), password = password, onPasswordChange = { password = it })
+
+                PasswordInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    password = loginViewModel.password,
+                    onPasswordChange = { loginViewModel.onPasswordChange(it) })
                 Spacer(modifier = Modifier.height(16.dp))
                 ForgotPasswordLabel(modifier = Modifier.fillMaxWidth())
             }
-            LoginButton(modifier = Modifier.fillMaxWidth(), email = email.text, password = password.text) {
+
+            LoginButton(
+                modifier = Modifier.fillMaxWidth(),
+                userIdentifier = loginViewModel.userIdentifier.text,
+                password = loginViewModel.password.text
+            ) {
                 scope.launch {
                     loginViewModel.navigateToConvScreen()
                 }
@@ -85,12 +95,12 @@ private fun LoginContent(
 }
 
 @Composable
-private fun EmailInput(modifier: Modifier, email: TextFieldValue, onEmailChange: (TextFieldValue) -> Unit) {
+private fun UserIdentifierInput(modifier: Modifier, userIdentifier: TextFieldValue, onUserIdentifierChange: (TextFieldValue) -> Unit) {
     WireTextField(
-        value = email,
-        onValueChange = onEmailChange,
-        placeholderText = stringResource(R.string.login_email_placeholder),
-        labelText = stringResource(R.string.login_email_label),
+        value = userIdentifier,
+        onValueChange = onUserIdentifierChange,
+        placeholderText = stringResource(R.string.login_user_identifier_placeholder),
+        labelText = stringResource(R.string.login_user_identifier_label),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         modifier = modifier,
     )
@@ -132,11 +142,11 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun LoginButton(modifier: Modifier, email: String, password: String, onClick: () -> Unit) {
+private fun LoginButton(modifier: Modifier, userIdentifier: String, password: String, onClick: () -> Unit) {
     var isLoading by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
-        val enabled = validInput(email, password) && !isLoading
+        val enabled = validInput(userIdentifier, password) && !isLoading
         val text = if (isLoading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
 
         WirePrimaryButton(
@@ -153,5 +163,5 @@ private fun LoginButton(modifier: Modifier, email: String, password: String, onC
     }
 }
 
-private fun validInput(email: String, password: String): Boolean =
-    email.isNotEmpty() && password.isNotEmpty()
+private fun validInput(userIdentifier: String, password: String): Boolean =
+    userIdentifier.isNotEmpty() && password.isNotEmpty()

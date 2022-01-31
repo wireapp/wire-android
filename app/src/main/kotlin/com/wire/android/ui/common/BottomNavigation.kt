@@ -39,8 +39,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun WireBottomNavigationBar(
     items: List<WireBottomNavigationItemData>,
-    navController: NavController,
-    spaceBetweenItems: Dp = 24.dp
+    navController: NavController
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -53,16 +52,17 @@ fun WireBottomNavigationBar(
     ) {
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             items.forEachIndexed { index, item ->
-                val padding = MaterialTheme.wireDimensions.bottomNavigationPadding
                 val modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(
-                        top = padding,
-                        bottom = padding,
-                        start = padding + if (index == 0) padding else spaceBetweenItems / 2,
-                        end = padding + if (index == items.lastIndex) padding else spaceBetweenItems / 2
+                        top = MaterialTheme.wireDimensions.bottomNavigationVerticalPadding,
+                        bottom = MaterialTheme.wireDimensions.bottomNavigationVerticalPadding,
+                        start = if (index == 0) MaterialTheme.wireDimensions.bottomNavigationHorizontalPadding
+                                else MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding,
+                        end = if (index == items.lastIndex) MaterialTheme.wireDimensions.bottomNavigationHorizontalPadding
+                              else MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding
                     )
 
                 WireBottomNavigationItem(
@@ -91,7 +91,7 @@ fun RowScope.WireBottomNavigationItem(
     modifier: Modifier = Modifier,
     onItemClick: (WireBottomNavigationItemData) -> Unit
 ) {
-    val backgroundColor = if(selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+    val backgroundColor = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onBackground
     Box(
         modifier

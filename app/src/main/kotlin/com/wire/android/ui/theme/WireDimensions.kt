@@ -10,7 +10,9 @@ data class WireDimensions(
     // Avatar
     val userAvatarDefaultSize: Dp,
     // BottomNavigation
-    val bottomNavigationPadding: Dp,
+    val bottomNavigationHorizontalPadding: Dp,
+    val bottomNavigationVerticalPadding: Dp,
+    val bottomNavigationBetweenItemsPadding: Dp,
     val bottomNavigationItemPadding: Dp,
     // Conversation
     val conversationItemRowPadding: Dp,
@@ -26,7 +28,9 @@ data class WireDimensions(
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     userAvatarDefaultSize = 24.dp,
-    bottomNavigationPadding = 4.dp,
+    bottomNavigationHorizontalPadding = 8.dp,
+    bottomNavigationVerticalPadding = 4.dp,
+    bottomNavigationBetweenItemsPadding = 12.dp,
     bottomNavigationItemPadding = 6.dp,
     conversationItemRowPadding = 8.dp,
     conversationItemPadding = 0.5.dp,

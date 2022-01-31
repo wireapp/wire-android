@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -13,15 +14,13 @@ import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
-import com.wire.android.ui.main.conversationlist.ConversationState
-import com.wire.android.ui.main.conversationlist.MentionScreen
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConversationRoute(viewModel: ConversationViewModel = ConversationViewModel()) {
-    val uiState by viewModel.state.collectAsState()
+fun ConversationRoute(conversationListViewModel: ConversationListViewModel = hiltViewModel()) {
+    val uiState by conversationListViewModel.listState.collectAsState()
     val navController = rememberNavController()
 
     Scaffold(
@@ -36,7 +35,7 @@ fun ConversationRoute(viewModel: ConversationViewModel = ConversationViewModel()
                         AllConversationScreen(
                             newActivities = newActivities,
                             conversations = conversations
-                        ) { }
+                        ) { conversationId -> conversationListViewModel.openConversation(conversationId) }
                     })
                 composable(
                     route = ConversationsNavigationItem.Calls.route,
@@ -44,7 +43,7 @@ fun ConversationRoute(viewModel: ConversationViewModel = ConversationViewModel()
                         CallScreen(
                             missedCalls = missedCalls,
                             callHistory = callHistory
-                        ) { }
+                        ) { conversationListViewModel.openConversation("someId") }
                     })
                 composable(
                     route = ConversationsNavigationItem.Mentions.route,
@@ -52,7 +51,7 @@ fun ConversationRoute(viewModel: ConversationViewModel = ConversationViewModel()
                         MentionScreen(
                             unreadMentions = unreadMentions,
                             allMentions = allMentions
-                        ) { }
+                        ) { conversationListViewModel.openConversation("someId") }
                     }
                 )
             }
@@ -62,13 +61,13 @@ fun ConversationRoute(viewModel: ConversationViewModel = ConversationViewModel()
 
 @Composable
 private fun ConversationNavigationItems(
-    uiState: ConversationState
+    uiListState: ConversationListState
 ): List<WireBottomNavigationItemData> {
     return ConversationsNavigationItem.values().map {
         when (it) {
-            ConversationsNavigationItem.All -> it.toBottomNavigationItemData(uiState.newActivityCount)
-            ConversationsNavigationItem.Calls -> it.toBottomNavigationItemData(uiState.missedCallsCount)
-            ConversationsNavigationItem.Mentions -> it.toBottomNavigationItemData(uiState.unreadMentionsCount)
+            ConversationsNavigationItem.All -> it.toBottomNavigationItemData(uiListState.newActivityCount)
+            ConversationsNavigationItem.Calls -> it.toBottomNavigationItemData(uiListState.missedCallsCount)
+            ConversationsNavigationItem.Mentions -> it.toBottomNavigationItemData(uiListState.unreadMentionsCount)
         }
     }
 }

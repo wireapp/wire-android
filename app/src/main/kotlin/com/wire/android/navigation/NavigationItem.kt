@@ -8,9 +8,10 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.ui.home.HomeScreen
+import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.userprofile.UserProfileScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.support.SupportScreen
-import com.wire.android.ui.home.userprofile.UserProfileScreen
 
 @ExperimentalMaterial3Api
 sealed class NavigationItem(
@@ -48,19 +49,35 @@ sealed class NavigationItem(
         content = { UserProfileScreen() },
     )
 
-    companion object {
+    object Conversation : NavigationItem(
+        route = "conversation/{$CONVERSATION_ID_ARGUMENT}",
+        content = {
+            ConversationScreen(hiltViewModel())
+        }, arguments = listOf(
+            navArgument(CONVERSATION_ID_ARGUMENT) { type = NavType.StringType }
+        )
+    ) {
+        fun createRoute(conversationId: String) = "conversation/$conversationId"
+    }
 
+    companion object {
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
+        const val CONVERSATION_ID_ARGUMENT: String = "conversationId"
 
         val globalNavigationItems = listOf(
             Settings,
             Support,
             UserProfile,
-            Home
+            Home,
+            Conversation
         )
-        val map: Map<String, NavigationItem> = globalNavigationItems.associateBy { it.route }
+
+        private val map: Map<String, NavigationItem> = globalNavigationItems.associateBy { it.route }
 
         fun fromRoute(route: String?): NavigationItem? = map[route]
     }
 
 }
+
+
+

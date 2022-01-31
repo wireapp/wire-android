@@ -17,7 +17,7 @@ import com.wire.android.ui.theme.wireDimensions
 //TODO: added onRowClick only for UI-Design purpose
 @Composable
 fun RowItem(onRowItemClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
-    SurfaceBackgroundWrapper(modifier = Modifier.padding(Dimensions.conversationItemPadding)) {
+    SurfaceBackgroundWrapper(modifier = Modifier.padding(MaterialTheme.wireDimensions.conversationItemPadding)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier

@@ -77,6 +77,7 @@ object Libraries {
         const val composeConstraint = "1.0.0-rc02"
         const val hilt = "2.38.1"
         const val lifecycle = "2.4.0"
+        const val composeHiltNavigation = "1.0.0-alpha03"
     }
 
     // AndroidX Dependencies
@@ -120,6 +121,7 @@ object Libraries {
         const val android = "com.google.dagger:hilt-android:${Versions.hilt}"
         const val compiler = "com.google.dagger:hilt-android-compiler:${Versions.hilt}"
         const val gradlePlugin = "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}"
+        const val navigationCompose = "androidx.hilt:hilt-navigation-compose:${Versions.composeHiltNavigation}"
     }
 
     object Lifecycle {

@@ -5,17 +5,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
@@ -32,6 +29,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.BackNavigationIconButton
 import com.wire.android.ui.common.OnDropDownIconButton
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.ConversationView
 import com.wire.android.ui.home.conversations.model.Message
@@ -89,42 +87,41 @@ private fun ConversationScreenTopAppBar(
                     overflow = TextOverflow.Ellipsis
                 )
                 OnDropDownIconButton(onDropDownClick = onDropDownClick)
-                Spacer(Modifier.width(6.dp))
             }
-
         },
         navigationIcon = { BackNavigationIconButton(onBackButtonClick = onBackButtonClick) },
         actions = {
-            //TODO: replace this button once Michal has defined it
-            OutlinedButton(
+            WireSecondaryButton(
                 onClick = onSearchButtonClick,
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_search_icon),
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                },
+                fillMaxWidth = false,
+                minHeight = 32.dp,
+                minWidth = 40.dp,
                 shape = RoundedCornerShape(size = 12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.surface),
-                modifier = Modifier.defaultMinSize(minWidth = 40.dp, minHeight = 32.dp),
                 contentPadding = PaddingValues(0.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_search_icon),
-                    contentDescription = "",
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-            }
+            )
             Spacer(Modifier.width(6.dp))
-            //TODO: replace this button once Michal has defined it
-            OutlinedButton(
+            WireSecondaryButton(
                 onClick = onVideoButtonClick,
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_video_icon),
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                },
+                fillMaxWidth = false,
+                minHeight = 32.dp,
+                minWidth = 40.dp,
                 shape = RoundedCornerShape(size = 12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.surface),
-                modifier = Modifier.defaultMinSize(minWidth = 40.dp, minHeight = 32.dp),
-                contentPadding = PaddingValues(0.dp),
-
-                ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_video_icon),
-                    contentDescription = "",
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-            }
+                contentPadding = PaddingValues(0.dp)
+            )
             Spacer(Modifier.width(6.dp))
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,

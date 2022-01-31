@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.label03
+import com.wire.android.ui.theme.wireTypography
 
 
 @Composable
@@ -22,7 +22,7 @@ fun MembershipQualifierLabel(
     Text(
         text = stringResource(id = membership.stringResourceId),
         color = MaterialTheme.colorScheme.primary,
-        style = MaterialTheme.typography.label03.copy(textAlign = TextAlign.Center),
+        style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
         modifier = Modifier
             .wrapContentWidth()
             .background(

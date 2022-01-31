@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.body02
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
@@ -40,7 +40,7 @@ fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
 private fun ConversationName(name: String) {
     Text(
         text = name,
-        style = MaterialTheme.typography.body02
+        style = MaterialTheme.wireTypography.body02
     )
 }
 

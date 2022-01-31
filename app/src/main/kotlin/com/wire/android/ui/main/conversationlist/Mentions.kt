@@ -50,7 +50,8 @@ private fun MentionContent(
         ) { unreadMention ->
             MentionItem(
                 mention = unreadMention,
-                eventType = EventType.UnreadMention
+                eventType = EventType.UnreadMention,
+                onMentionItemClick = onMentionItemClick
             )
         }
 
@@ -60,13 +61,18 @@ private fun MentionContent(
         ) { mention ->
             MentionItem(
                 mention = mention,
+                onMentionItemClick = onMentionItemClick
             )
         }
     }
 }
 
 @Composable
-private fun MentionItem(mention: Mention, eventType: EventType? = null) {
+private fun MentionItem(
+    mention: Mention,
+    eventType: EventType? = null,
+    onMentionItemClick: () -> Unit
+) {
     when (val conversation = mention.conversation) {
         is Conversation.GroupConversation -> {
             with(conversation) {
@@ -74,7 +80,8 @@ private fun MentionItem(mention: Mention, eventType: EventType? = null) {
                     leadingIcon = { GroupConversationAvatar(colorValue = groupColorValue) },
                     title = { GroupName(name = groupName) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
-                    eventType = eventType
+                    eventType = eventType,
+                    onConversationItemClick = onMentionItemClick
                 )
             }
         }
@@ -84,7 +91,8 @@ private fun MentionItem(mention: Mention, eventType: EventType? = null) {
                     leadingIcon = { UserProfileAvatar() },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
-                    eventType = eventType
+                    eventType = eventType,
+                    onConversationItemClick = onMentionItemClick
                 )
             }
         }

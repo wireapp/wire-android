@@ -15,9 +15,10 @@ fun ConversationItem(
     leadingIcon: @Composable () -> Unit,
     title: @Composable () -> Unit,
     subTitle: @Composable () -> Unit = {},
-    eventType: EventType? = null
+    eventType: EventType? = null,
+    onConversationItemClick: () -> Unit = { }
 ) {
-    RowItem(onRowItemClick = {}) {
+    RowItem(onRowItemClick = onConversationItemClick) {
         leadingIcon()
         Column(
             modifier = Modifier
@@ -37,3 +38,6 @@ fun ConversationItem(
         }
     }
 }
+
+
+

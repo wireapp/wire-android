@@ -55,20 +55,31 @@ fun CallContent(
             header = { stringResource(id = R.string.calls_label_missed_calls) },
             items = missedCalls
         ) { missedCall ->
-            CallItem(missedCall, eventType = EventType.MissedCall)
+            CallItem(
+                call = missedCall,
+                eventType = EventType.MissedCall,
+                onCallItemClick = onCallItemClick
+            )
         }
 
         folderWithElements(
             header = { stringResource(id = R.string.calls_label_calls_history) },
             items = callHistory
         ) { callHistory ->
-            CallItem(call = callHistory)
+            CallItem(
+                call = callHistory,
+                onCallItemClick = onCallItemClick
+            )
         }
     }
 }
 
 @Composable
-fun CallItem(call: Call, eventType: EventType? = null) {
+fun CallItem(
+    call: Call,
+    eventType: EventType? = null,
+    onCallItemClick: () -> Unit
+) {
     with(call) {
         when (conversation) {
             is Conversation.GroupConversation -> {
@@ -86,7 +97,8 @@ fun CallItem(call: Call, eventType: EventType? = null) {
                             }
                         }
                     },
-                    eventType = eventType
+                    eventType = eventType,
+                    onConversationItemClick = onCallItemClick
                 )
             }
             is Conversation.PrivateConversation -> {
@@ -104,7 +116,8 @@ fun CallItem(call: Call, eventType: EventType? = null) {
                             }
                         }
                     },
-                    eventType = eventType
+                    eventType = eventType,
+                    onConversationItemClick = onCallItemClick
                 )
             }
         }

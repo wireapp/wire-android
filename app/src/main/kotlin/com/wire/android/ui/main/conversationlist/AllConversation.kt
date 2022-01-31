@@ -47,7 +47,8 @@ private fun AllConversationContent(
             with(newActivity) {
                 AllConversationItem(
                     conversation = conversation,
-                    eventType = eventType
+                    eventType = eventType,
+                    onConversationItemClick = onConversationItemClick
                 )
             }
         }
@@ -59,6 +60,7 @@ private fun AllConversationContent(
             ) { conversation ->
                 AllConversationItem(
                     conversation = conversation,
+                    onConversationItemClick = onConversationItemClick
                 )
             }
         }
@@ -66,7 +68,11 @@ private fun AllConversationContent(
 }
 
 @Composable
-private fun AllConversationItem(conversation: Conversation, eventType: EventType? = null) {
+private fun AllConversationItem(
+    conversation: Conversation,
+    eventType: EventType? = null,
+    onConversationItemClick: () -> Unit
+) {
     when (conversation) {
         is GroupConversation -> {
             with(conversation) {
@@ -74,8 +80,9 @@ private fun AllConversationItem(conversation: Conversation, eventType: EventType
                     leadingIcon = {
                         GroupConversationAvatar(colorValue = groupColorValue)
                     },
-                    title = { GroupName(groupName) },
-                    eventType = eventType
+                    title = { GroupName(name = groupName) },
+                    eventType = eventType,
+                    onConversationItemClick = onConversationItemClick
                 )
             }
         }
@@ -84,8 +91,9 @@ private fun AllConversationItem(conversation: Conversation, eventType: EventType
                 leadingIcon = {
                     UserProfileAvatar()
                 },
-                title = { UserLabel(conversation.toUserInfoLabel()) },
-                eventType = eventType
+                title = { UserLabel(userInfoLabel = conversation.toUserInfoLabel()) },
+                eventType = eventType,
+                onConversationItemClick = onConversationItemClick
             )
         }
     }

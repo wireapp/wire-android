@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
@@ -40,22 +41,35 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
-//@Preview
 @Composable
 fun LoginScreen() {
     val scope = rememberCoroutineScope()
-    LoginContent(loginViewModel = hiltViewModel(), scope = scope)
+    val loginViewModel: LoginViewModel = hiltViewModel()
+    LoginContent(
+        userIdentifier = loginViewModel.userIdentifier,
+        onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) },
+        password = loginViewModel.password,
+        onPasswordChange = { loginViewModel.onPasswordChange(it) },
+        onLoginButtonClick = suspend { loginViewModel.navigateToConvScreen() },
+        scope = scope
+    )
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun LoginContent(
-    loginViewModel: LoginViewModel,
+    userIdentifier: TextFieldValue,
+    onUserIdentifierChange: (TextFieldValue) -> Unit,
+    password: TextFieldValue,
+    onPasswordChange: (TextFieldValue) -> Unit,
+    onLoginButtonClick: suspend () -> Unit,
     scope: CoroutineScope
 ) {
 
@@ -67,26 +81,28 @@ private fun LoginContent(
             ) {
                 UserIdentifierInput(
                     modifier = Modifier.fillMaxWidth(),
-                    userIdentifier = loginViewModel.userIdentifier,
-                    onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) })
+                    userIdentifier = userIdentifier,
+                    onUserIdentifierChange = onUserIdentifierChange
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 PasswordInput(
                     modifier = Modifier.fillMaxWidth(),
-                    password = loginViewModel.password,
-                    onPasswordChange = { loginViewModel.onPasswordChange(it) })
+                    password = password,
+                    onPasswordChange = onPasswordChange
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 ForgotPasswordLabel(modifier = Modifier.fillMaxWidth())
             }
 
             LoginButton(
                 modifier = Modifier.fillMaxWidth(),
-                userIdentifier = loginViewModel.userIdentifier.text,
-                password = loginViewModel.password.text
+                userIdentifier = userIdentifier.text,
+                password = password.text
             ) {
                 scope.launch {
-                    loginViewModel.navigateToConvScreen()
+                    onLoginButtonClick()
                 }
             }
         }
@@ -164,3 +180,21 @@ private fun LoginButton(modifier: Modifier, userIdentifier: String, password: St
 
 private fun validInput(userIdentifier: String, password: String): Boolean =
     userIdentifier.isNotEmpty() && password.isNotEmpty()
+
+@Preview
+@Composable
+fun LoginScreenPreview() {
+    val scope = rememberCoroutineScope()
+    var userIdentifier by remember { mutableStateOf(TextFieldValue(String.EMPTY)) }
+    var password by remember { mutableStateOf(TextFieldValue(String.EMPTY)) }
+    WireTheme(useDarkColors = false, isPreview = true) {
+        LoginContent(
+            userIdentifier = userIdentifier,
+            onUserIdentifierChange = {userIdentifier = it},
+            password = password,
+            onPasswordChange = { password = it },
+            onLoginButtonClick = suspend {  },
+            scope = scope
+        )
+    }
+}

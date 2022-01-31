@@ -11,6 +11,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 @Composable
 fun WireTheme(
     useDarkColors: Boolean = isSystemInDarkTheme(),
+    isPreview: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val wireColorScheme = WireColorSchemeTypes.currentTheme
@@ -26,9 +27,11 @@ fun WireTheme(
             colorScheme = wireColorScheme.toColorScheme(),
             typography = wireTypography.toTypography()
         ) {
-            val systemUiController = rememberSystemUiController()
-            val backgroundColor = MaterialTheme.colorScheme.background
-            SideEffect { systemUiController.setSystemBarsColor(color = backgroundColor, darkIcons = !useDarkColors) }
+            if(!isPreview) {
+                val systemUiController = rememberSystemUiController()
+                val backgroundColor = MaterialTheme.colorScheme.background
+                SideEffect { systemUiController.setSystemBarsColor(color = backgroundColor, darkIcons = !useDarkColors) }
+            }
             content()
         }
     }

@@ -44,14 +44,15 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.authentication.AuthDestination
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.delay
 
-//@Preview
 @Composable
 fun WelcomeScreen(navController: NavController) {
     WelcomeContent(navController)
@@ -213,3 +214,11 @@ private fun TypedArray.drawableResIdList(): List<Int> = (0 until this.length()).
 private fun Modifier.disablePointerInputScroll() = this.nestedScroll(object : NestedScrollConnection {
     override fun onPreScroll(available: Offset, source: NestedScrollSource) = available
 })
+
+@Preview
+@Composable
+fun WelcomeScreenPreview() {
+    WireTheme(useDarkColors = false, isPreview = true) {
+        WelcomeContent(rememberNavController())
+    }
+}

@@ -3,7 +3,6 @@ package com.wire.android.ui.main.conversationlist.common
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
@@ -24,18 +23,15 @@ fun ConversationItem(
         avatar()
         Column(
             modifier = Modifier
-                .wrapContentWidth()
-                .padding(end = 128.dp)
-                .background(color = Color.Red)
+                .weight(1f)
         ) {
             title()
             subTitle()
         }
         Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .wrapContentWidth()
                 .padding(end = 8.dp)
-                .background(color = Color.Green)
         ) {
             if (eventType != null) {
                 EventBadgeFactory(eventType = eventType, modifier = Modifier.align(Alignment.TopEnd))

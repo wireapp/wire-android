@@ -1,23 +1,17 @@
 package com.wire.android.ui.main.conversationlist
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.main.conversationlist.common.ConversationItem
 import com.wire.android.ui.main.conversationlist.common.GroupConversationAvatar
 import com.wire.android.ui.main.conversationlist.common.GroupName
-import com.wire.android.ui.main.conversationlist.common.RowItem
-import com.wire.android.ui.main.conversationlist.common.UnreadMentionBadge
 import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.main.conversationlist.common.folderWithElements
 import com.wire.android.ui.main.conversationlist.model.Conversation
@@ -55,7 +49,7 @@ private fun MentionContent(
             items = unreadMentions
         ) { unreadMention ->
             MentionItem(
-               mention = unreadMention,
+                mention = unreadMention,
                 eventType = EventType.UnreadMention
             )
         }
@@ -70,35 +64,6 @@ private fun MentionContent(
         }
     }
 }
-
-//
-//@Composable
-//fun UnreadMentionRowItem(unreadMention: Mention, onMentionItemClick: () -> Unit) {
-//    RowItem(onRowItemClick = onMentionItemClick) {
-//        MentionLabel(
-//            mention = unreadMention,
-//            modifier = Modifier
-//                .weight(1f)
-//                .padding(end = 16.dp)
-//        )
-//        UnreadMentionBadge(
-//            modifier = Modifier
-//                .wrapContentWidth()
-//                .padding(start = 4.dp)
-//        )
-//    }
-//}
-//
-//@Composable
-//fun AllMentionRowItem(mention: Mention, onMentionItemClick: () -> Unit) {
-//    RowItem(onRowItemClick = onMentionItemClick) {
-//        MentionLabel(
-//            mention = mention,
-//            modifier = Modifier.padding(end = 42.dp)
-//        )
-//    }
-//}
-//
 
 @Composable
 private fun MentionItem(mention: Mention, eventType: EventType? = null) {

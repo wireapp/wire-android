@@ -22,16 +22,12 @@ import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -39,12 +35,12 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.wire.android.R
+import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.Tint
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
@@ -65,8 +61,8 @@ internal fun WireTextField(
     state: WireTextFieldState = WireTextFieldState.Default,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    textStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 15.sp, textAlign = TextAlign.Start),
-    placeholderTextStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 15.sp, textAlign = TextAlign.Start),
+    textStyle: TextStyle = MaterialTheme.wireTypography.body01,
+    placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
     inputMinHeight: Dp = 48.dp,
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireTextFieldColors = wireTextFieldColors(),
@@ -146,7 +142,7 @@ private fun InnerText(
     trailingIcon: @Composable (() -> Unit)? = null,
     placeholderText: String? = null,
     state: WireTextFieldState = WireTextFieldState.Default,
-    textStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 14.sp, textAlign = TextAlign.Start),
+    placeholderTextStyle: TextStyle = MaterialTheme.typography.body01,
     inputMinHeight: Dp = 48.dp,
     colors: WireTextFieldColors = wireTextFieldColors()
 ) {
@@ -157,7 +153,7 @@ private fun InnerText(
 
         val trailingOrStateIcon: @Composable (() -> Unit)? = when {
             trailingIcon != null -> trailingIcon
-            else -> state.icon()?.Icon()
+            else -> state.icon()?.Icon(Modifier.padding(horizontal = 16.dp))
         }
         if (leadingIcon != null)
             Box(contentAlignment = Alignment.Center) {
@@ -172,8 +168,7 @@ private fun InnerText(
             if (value.text.isEmpty() && placeholderText != null)
                 Text(
                     text = placeholderText,
-                    fontSize = textStyle.fontSize,
-                    textAlign = textStyle.textAlign,
+                    style = placeholderTextStyle,
                     color = colors.placeholderColor(state).value,
                     modifier = Modifier.fillMaxWidth().then(padding)
                 )
@@ -189,15 +184,6 @@ private fun InnerText(
                 Tint(contentColor = colors.iconColor(state).value, content = trailingOrStateIcon)
             }
     }
-}
-
-@Composable
-private fun ImageVector.Icon(): @Composable (() -> Unit) =
-    { Icon(imageVector = this, contentDescription = "", modifier = Modifier.padding(horizontal = 16.dp)) }
-
-@Composable
-private fun Tint(contentColor: Color, content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalContentColor provides contentColor, content = content)
 }
 
 @Preview(name = "Default WireTextField")

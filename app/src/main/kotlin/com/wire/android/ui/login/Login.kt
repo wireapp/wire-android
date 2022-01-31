@@ -2,24 +2,16 @@ package com.wire.android.ui.login
 
 import android.widget.Toast
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -43,9 +35,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.AnimatedButtonColors
-import com.wire.android.ui.common.CircularProgressIndicator
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
+import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.theme.wireTypography
 
@@ -133,42 +125,16 @@ private fun LoginButton(modifier: Modifier, email: String, password: String) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
         val enabled = validInput(email, password) && !isLoading
-        val buttonColors = AnimatedButtonColors(enabled = enabled)
-        Button(
-            interactionSource = interactionSource,
-            shape = RoundedCornerShape(16.dp),
-            colors = buttonColors,
+        val text = if (isLoading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
+
+        WirePrimaryButton(
+            text = text,
             onClick = { isLoading = true }, //TODO
-            enabled = validInput(email, password) && !isLoading,
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                val text = if (isLoading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
-                Text(
-                    text = text,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.wireTypography.button02,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                )
-                androidx.compose.animation.AnimatedVisibility(
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    visible = isLoading,
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
-                    val progressColor = buttonColors.contentColor(enabled).value
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.CenterEnd),
-                        progressColor = progressColor
-                    )
-                }
-            }
-        }
+            state = if(enabled) WireButtonState.Default else WireButtonState.Disabled,
+            loading = isLoading,
+            interactionSource = interactionSource,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

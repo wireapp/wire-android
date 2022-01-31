@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.Dp
 
 
 @Composable
-fun CircularProgressIndicator(modifier: Modifier, progressColor: Color, strokeWidth: Dp = 2.dp, size: Dp = 16.dp) {
+fun CircularProgressIndicator(modifier: Modifier = Modifier, progressColor: Color, strokeWidth: Dp = 2.dp, size: Dp = 16.dp) {
     val sizePx = with(LocalDensity.current) { size.roundToPx() }
     val trackWidthPx =  with(LocalDensity.current) { strokeWidth.roundToPx() }
     AndroidView( //TODO replace with proper CircularProgressIndicator when available for material3

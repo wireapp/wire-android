@@ -1,20 +1,18 @@
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversationslist
 
 import androidx.lifecycle.ViewModel
-import com.wire.android.ui.home.conversations.mock.conversationMockData
-import com.wire.android.ui.home.conversations.mock.mockAllMentionList
-import com.wire.android.ui.home.conversations.mock.mockCallHistory
-import com.wire.android.ui.home.conversations.mock.mockMissedCalls
-import com.wire.android.ui.home.conversations.mock.mockUnreadMentionList
-import com.wire.android.ui.home.conversations.mock.newActivitiesMockData
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.wire.android.ui.home.conversationslist.mock.conversationMockData
+import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
+import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
+import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
+import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
+import com.wire.android.ui.home.conversationslist.mock.newActivitiesMockData
+import com.wire.android.ui.main.conversationlist.ConversationState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import javax.inject.Inject
 
 @Suppress("MagicNumber")
-@HiltViewModel
-class ConversationViewModel @Inject constructor() : ViewModel() {
+class ConversationViewModel : ViewModel() {
 
     private val _state = MutableStateFlow(ConversationState())
 

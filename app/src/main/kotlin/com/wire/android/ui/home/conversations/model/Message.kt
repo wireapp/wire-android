@@ -1,9 +1,8 @@
-package com.wire.android.ui.main.message.model
+package com.wire.android.ui.home.conversations.model
 
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.all.model.AvailabilityStatus
-import com.wire.android.ui.home.conversations.all.model.Membership
-
+import com.wire.android.ui.home.conversationslist.model.AvailabilityStatus
+import com.wire.android.ui.home.conversationslist.model.Membership
 
 data class MessageHeader(
     val username: String,

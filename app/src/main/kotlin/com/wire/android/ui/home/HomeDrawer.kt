@@ -108,7 +108,7 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
             contentDescription = stringResource(data.title!!),
             colorFilter = ColorFilter.tint(contentColor),
             contentScale = ContentScale.Fit,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp)
         )
         Text(
             text = stringResource(id = data.title!!),

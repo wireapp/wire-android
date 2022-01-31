@@ -1,8 +1,9 @@
-package com.wire.android.ui.home.conversations.common
+package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.main.conversationlist.common.FolderHeader
 
 
 inline fun <T> LazyListScope.folderWithElements(

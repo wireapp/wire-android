@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,12 +13,14 @@ import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
-import com.wire.android.ui.home.conversations.navigation.ConversationsNavigationItem
+import com.wire.android.ui.main.conversationlist.ConversationState
+import com.wire.android.ui.main.conversationlist.MentionScreen
+import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConversationsScreen(viewModel: ConversationViewModel = hiltViewModel()) {
+fun ConversationRoute(viewModel: ConversationViewModel = ConversationViewModel()) {
     val uiState by viewModel.state.collectAsState()
     val navController = rememberNavController()
 
@@ -29,9 +30,31 @@ fun ConversationsScreen(viewModel: ConversationViewModel = hiltViewModel()) {
     ) {
         with(uiState) {
             NavHost(navController, startDestination = ConversationsNavigationItem.All.route) {
-                composable(route = ConversationsNavigationItem.All.route, content = { AllTab(newActivities, conversations) })
-                composable(route = ConversationsNavigationItem.Calls.route, content = { CallScreen(missedCalls, callHistory) })
-                composable(route = ConversationsNavigationItem.Mentions.route, content = { MentionScreen(unreadMentions, allMentions) })
+                composable(
+                    route = ConversationsNavigationItem.All.route,
+                    content = {
+                        AllConversationScreen(
+                            newActivities = newActivities,
+                            conversations = conversations
+                        ) { }
+                    })
+                composable(
+                    route = ConversationsNavigationItem.Calls.route,
+                    content = {
+                        CallScreen(
+                            missedCalls = missedCalls,
+                            callHistory = callHistory
+                        ) { }
+                    })
+                composable(
+                    route = ConversationsNavigationItem.Mentions.route,
+                    content = {
+                        MentionScreen(
+                            unreadMentions = unreadMentions,
+                            allMentions = allMentions
+                        ) { }
+                    }
+                )
             }
         }
     }

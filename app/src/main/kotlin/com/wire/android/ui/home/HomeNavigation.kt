@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.R
 import com.wire.android.ui.home.archive.ArchiveScreen
-import com.wire.android.ui.home.conversations.ConversationsScreen
+import com.wire.android.ui.home.conversationslist.ConversationRoute
 import com.wire.android.ui.home.vault.VaultScreen
 
 @ExperimentalMaterial3Api
@@ -54,7 +54,7 @@ sealed class HomeNavigationItem(
         route = HomeDestinations.conversations,
         title = R.string.conversations_screen_title,
         isSearchable = true,
-        content = { ConversationsScreen() }
+        content = { ConversationRoute() },
     )
 
     object Vault : HomeNavigationItem(

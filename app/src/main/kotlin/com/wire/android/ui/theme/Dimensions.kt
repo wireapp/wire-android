@@ -10,7 +10,7 @@ object Dimensions {
     val bottomNavigationItemPadding = 6.dp
 
     // Conversation
-    val conversationItemRowPadding = 8.dp
+    val conversationItemRowHeight = 56.dp
     val conversationItemPadding = 0.5.dp
 
     // Message

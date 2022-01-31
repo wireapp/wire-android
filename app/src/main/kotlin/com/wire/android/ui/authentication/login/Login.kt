@@ -1,7 +1,6 @@
 package com.wire.android.ui.authentication.login
 
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -44,16 +43,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.wire.android.R
 import com.wire.android.feature.auth.login.LoginViewModel
-import com.wire.android.ui.common.AnimatedButtonColors
-import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
-import com.wire.android.ui.home.HomeNavigationItem
 import com.wire.android.ui.theme.body02
-import com.wire.android.ui.theme.button02
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -149,46 +143,19 @@ private fun LoginButton(modifier: Modifier, email: String, password: String, onC
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
         val enabled = validInput(email, password) && !isLoading
-        val buttonColors = AnimatedButtonColors(enabled = enabled)
-        Button(
-            interactionSource = interactionSource,
-            shape = RoundedCornerShape(16.dp),
-            colors = buttonColors,
+        val text = if (isLoading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
+
+        WirePrimaryButton(
+            text = text,
             onClick = {
-                // TODO: move isLoading and enabled state to viewModel
                 isLoading = true
                 onClick()
             },
-            enabled = validInput(email, password) && !isLoading,
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                val text = if (isLoading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
-                Text(
-                    text = text,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.button02,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                )
-                androidx.compose.animation.AnimatedVisibility(
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    visible = isLoading,
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
-                    val progressColor = buttonColors.contentColor(enabled).value
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.CenterEnd),
-                        progressColor = progressColor
-                    )
-                }
-            }
-        }
+            state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
+            loading = isLoading,
+            interactionSource = interactionSource,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

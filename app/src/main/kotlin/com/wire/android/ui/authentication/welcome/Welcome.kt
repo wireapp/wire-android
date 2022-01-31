@@ -20,25 +20,30 @@ import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import kotlinx.coroutines.delay
 import android.content.res.TypedArray
+import android.widget.Toast
 import androidx.annotation.ArrayRes
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -158,34 +163,23 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
 @Composable
 private fun WelcomeButtons(modifier: Modifier, onLoginClick: () -> Unit, onEnterpriseAccountClick: () -> Unit) {
     Column(modifier = modifier) {
+        val context = LocalContext.current
 
-        Button(
-            shape = RoundedCornerShape(16.dp),
-            onClick = onLoginClick,
+        // login button
+        WirePrimaryButton(
+            onClick = onLoginClick(), //TODO
+            text = stringResource(R.string.label_login),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.label_login),
-                style = MaterialTheme.typography.button02
-            )
-        }
+        )
 
-        OutlinedButton(
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.surface),
-            onClick = onEnterpriseAccountClick,
+        WireSecondaryButton(
+            onClick = onEnterpriseAccountClick(),
+            text = stringResource(R.string.welcome_button_create_enterprise_account),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
-                .height(48.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.welcome_button_create_enterprise_account),
-                style = MaterialTheme.typography.button02.copy(color = MaterialTheme.colorScheme.onSurface)
-            )
-        }
+        )
     }
 }
 
@@ -212,7 +206,7 @@ private fun WelcomeFooter(modifier: Modifier, onPrivateAccountClick: () -> Unit)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = onPrivateAccountClick
+                    onClick = onPrivateAccountClick()
                 )
         )
     }

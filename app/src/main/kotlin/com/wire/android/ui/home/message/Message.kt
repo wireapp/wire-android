@@ -166,7 +166,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
             .border(
                 BorderStroke(
                     width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.tertiaryButtonFocus
+                    color = MaterialTheme.wireColorScheme.divider
                 ),
                 shape = RoundedCornerShape(size = 4.dp)
             )

@@ -91,8 +91,8 @@ fun RowScope.WireBottomNavigationItem(
     modifier: Modifier = Modifier,
     onItemClick: (WireBottomNavigationItemData) -> Unit
 ) {
-    val backgroundColor = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
-    val contentColor = if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onBackground
+    val backgroundColor = if(selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onBackground
     Box(
         modifier
             .clip(RoundedCornerShape(6.dp))

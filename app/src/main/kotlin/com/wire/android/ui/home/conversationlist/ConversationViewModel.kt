@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationlist
+package com.wire.android.ui.home.conversationslist
 
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.home.conversationlist.mock.conversationMockData

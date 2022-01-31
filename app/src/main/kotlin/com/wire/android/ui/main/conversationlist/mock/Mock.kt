@@ -18,7 +18,7 @@ import com.wire.android.ui.main.conversationlist.model.MentionMessage
 import com.wire.android.ui.main.conversationlist.model.NewActivity
 import com.wire.android.ui.main.conversationlist.model.UserInfo
 
-val mockConversations = listOf<Conversation>(
+val mockConversations = listOf(
     PrivateConversation(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
@@ -55,7 +55,7 @@ val mockConversations = listOf<Conversation>(
         )
     ),
     GroupConversation(
-        123456u, "Some group"
+        0xFF0000FF, "Some group"
     ),
     PrivateConversation(
         userInfo = UserInfo(),
@@ -105,7 +105,7 @@ val conversationMockData1 = mapOf(
 
 
 val mockGroupConversation = GroupConversation(
-    123456u, "Some group"
+    0xFF00FF00, "Some group"
 )
 
 @Suppress("MagicNumber")

@@ -19,18 +19,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
-import com.wire.android.ui.theme.Dimensions.USER_AVATAR_DEFAULT_SIZE
+import com.wire.android.ui.theme.Dimensions.userAvatarDefaultSize
 
 @Composable
 fun UserProfileAvatar(
     avatarUrl: String = "",
-    size: Dp = USER_AVATAR_DEFAULT_SIZE,
+    size: Dp = userAvatarDefaultSize,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
     ConstraintLayout(
         modifier = modifier
-            .padding(10.dp)
+            .padding(8.dp)
             .size(size)
     ) {
         val (avatarImg, statusImg) = createRefs()

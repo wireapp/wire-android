@@ -73,7 +73,7 @@ fun CallItem(call: Call, eventType: EventType? = null) {
         when (conversation) {
             is Conversation.GroupConversation -> {
                 ConversationItem(
-                    avatar = {
+                    leadingIcon = {
                         GroupConversationAvatar(colorValue = conversation.groupColorValue)
                     },
                     title = { GroupName(conversation.groupName) },
@@ -91,7 +91,7 @@ fun CallItem(call: Call, eventType: EventType? = null) {
             }
             is Conversation.PrivateConversation -> {
                 ConversationItem(
-                    avatar = {
+                    leadingIcon = {
                         UserProfileAvatar()
                     },
                     title = { UserLabel(conversation.toUserInfoLabel()) },

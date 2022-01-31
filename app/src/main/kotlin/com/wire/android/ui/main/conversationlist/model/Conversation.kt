@@ -11,7 +11,7 @@ data class ConversationFolder(
 
 sealed class Conversation {
     data class GroupConversation(
-        val groupColorValue: ULong,
+        val groupColorValue: Long,
         val groupName: String
     ) : Conversation()
 

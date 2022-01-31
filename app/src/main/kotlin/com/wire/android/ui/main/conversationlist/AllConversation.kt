@@ -71,7 +71,7 @@ private fun AllConversationItem(conversation: Conversation, eventType: EventType
         is GroupConversation -> {
             with(conversation) {
                 ConversationItem(
-                    avatar = {
+                    leadingIcon = {
                         GroupConversationAvatar(colorValue = groupColorValue)
                     },
                     title = { GroupName(groupName) },
@@ -81,7 +81,7 @@ private fun AllConversationItem(conversation: Conversation, eventType: EventType
         }
         is PrivateConversation -> {
             ConversationItem(
-                avatar = {
+                leadingIcon = {
                     UserProfileAvatar()
                 },
                 title = { UserLabel(conversation.toUserInfoLabel()) },

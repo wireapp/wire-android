@@ -71,9 +71,9 @@ private fun MentionItem(mention: Mention, eventType: EventType? = null) {
         is Conversation.GroupConversation -> {
             with(conversation) {
                 ConversationItem(
-                    avatar = { GroupConversationAvatar(colorValue = groupColorValue) },
-                    title = { GroupName(groupName) },
-                    subTitle = { MentionLabel(mention.mentionInfo.mentionMessage) },
+                    leadingIcon = { GroupConversationAvatar(colorValue = groupColorValue) },
+                    title = { GroupName(name = groupName) },
+                    subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType
                 )
             }
@@ -81,9 +81,9 @@ private fun MentionItem(mention: Mention, eventType: EventType? = null) {
         is Conversation.PrivateConversation -> {
             with(conversation) {
                 ConversationItem(
-                    avatar = { UserProfileAvatar() },
-                    title = { UserLabel(toUserInfoLabel()) },
-                    subTitle = { MentionLabel(mention.mentionInfo.mentionMessage) },
+                    leadingIcon = { UserProfileAvatar() },
+                    title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
+                    subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType
                 )
             }

@@ -53,17 +53,16 @@ fun WireBottomNavigationBar(
     ) {
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             items.forEachIndexed { index, item ->
+                val padding = MaterialTheme.wireDimensions.bottomNavigationPadding
                 val modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(
-                        top = MaterialTheme.wireDimensions.bottomNavigationPadding,
-                        bottom = MaterialTheme.wireDimensions.bottomNavigationPadding,
-                        start = MaterialTheme.wireDimensions.bottomNavigationPadding
-                                + if (index == 0) MaterialTheme.wireDimensions.bottomNavigationPadding else spaceBetweenItems / 2,
-                        end = MaterialTheme.wireDimensions.bottomNavigationPadding
-                                + if (index == items.lastIndex) MaterialTheme.wireDimensions.bottomNavigationPadding else spaceBetweenItems / 2
+                        top = padding,
+                        bottom = padding,
+                        start = padding + if (index == 0) padding else spaceBetweenItems / 2,
+                        end = padding + if (index == items.lastIndex) padding else spaceBetweenItems / 2
                     )
 
                 WireBottomNavigationItem(

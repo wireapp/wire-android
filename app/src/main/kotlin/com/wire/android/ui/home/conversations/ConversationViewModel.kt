@@ -7,11 +7,14 @@ import com.wire.android.ui.home.conversations.mock.mockCallHistory
 import com.wire.android.ui.home.conversations.mock.mockMissedCalls
 import com.wire.android.ui.home.conversations.mock.mockUnreadMentionList
 import com.wire.android.ui.home.conversations.mock.newActivitiesMockData
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import javax.inject.Inject
 
 @Suppress("MagicNumber")
-class ConversationViewModel : ViewModel() {
+@HiltViewModel
+class ConversationViewModel @Inject constructor() : ViewModel() {
 
     private val _state = MutableStateFlow(ConversationState())
 

@@ -43,7 +43,7 @@ internal fun navigateToItemInHome(
     }
 }
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 sealed class HomeNavigationItem(
     val route: String,
     @StringRes val title: Int,
@@ -55,7 +55,7 @@ sealed class HomeNavigationItem(
         route = "home_conversations",
         title = R.string.conversations_screen_title,
         isSearchable = true,
-        content = { ConversationsScreen(hiltViewModel()) },
+        content = { ConversationsScreen() }
     )
 
     object Vault : HomeNavigationItem(
@@ -86,4 +86,3 @@ sealed class HomeNavigationItem(
         }
     }
 }
-

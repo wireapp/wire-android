@@ -10,6 +10,9 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,7 +21,8 @@ import com.wire.kalium.logic.feature.auth.LoginUseCase
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val navigationManager: NavigationManager
 ) : ViewModel() {
 
     var userIdentifier by mutableStateOf(
@@ -51,6 +55,9 @@ class LoginViewModel @Inject constructor(
     fun onPasswordChange(newText: String) {
         password = newText
     }
+
+    suspend fun navigateToConvScreen() =
+        navigationManager.navigate(NavigationCommand(NavigationItem.Home.navigationRoute("home_conversations"), true))
 
     private companion object {
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"

@@ -27,6 +27,7 @@
     <string name="search_no_results">No matches found</string>
 
     <!-- Welcome -->
+    <string name="welcome_screen_title">welcome</string>
     <string name="welcome_wire_logo_content_description">Wire</string>
     <string name="welcome_carousel_item_content_description">Welcome image</string>
     <string name="welcome_footer_text">Want to chat with friends and family?</string>

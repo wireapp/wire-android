@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,8 +19,7 @@ import com.wire.android.ui.home.conversations.navigation.ConversationsNavigation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-// TODO: change ConversationViewModel() to viewModel()
-fun ConversationsScreen(viewModel: ConversationViewModel = ConversationViewModel()) {
+fun ConversationsScreen(viewModel: ConversationViewModel = hiltViewModel()) {
     val uiState by viewModel.state.collectAsState()
     val navController = rememberNavController()
 

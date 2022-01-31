@@ -3,7 +3,7 @@ package com.wire.android.navigation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 class NavigationManager {
 
     var navigateState = MutableSharedFlow<NavigationCommand?>()

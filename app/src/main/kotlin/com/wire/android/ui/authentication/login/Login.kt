@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication.login
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -28,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -41,25 +43,34 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.wire.android.R
+import com.wire.android.feature.auth.login.LoginViewModel
 import com.wire.android.ui.common.AnimatedButtonColors
 import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.home.HomeNavigationItem
 import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.button02
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 //@Preview
 @Composable
-fun LoginScreen(navController: NavController) {
-    LoginContent(navController)
+fun LoginScreen() {
+    val scope = rememberCoroutineScope()
+    LoginContent(scope = scope)
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-private fun LoginContent(navController: NavController) {
+private fun LoginContent(
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    scope: CoroutineScope
+) {
 
     var email by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
@@ -76,7 +87,11 @@ private fun LoginContent(navController: NavController) {
                 Spacer(modifier = Modifier.height(16.dp))
                 ForgotPasswordLabel(modifier = Modifier.fillMaxWidth())
             }
-            LoginButton(modifier = Modifier.fillMaxWidth(), email = email.text, password = password.text)
+            LoginButton(modifier = Modifier.fillMaxWidth(), email = email.text, password = password.text) {
+                scope.launch {
+                    loginViewModel.navigateToConvScreen()
+                }
+            }
         }
     }
 }
@@ -129,7 +144,7 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun LoginButton(modifier: Modifier, email: String, password: String) {
+private fun LoginButton(modifier: Modifier, email: String, password: String, onClick: () -> Unit) {
     var isLoading by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
@@ -139,7 +154,11 @@ private fun LoginButton(modifier: Modifier, email: String, password: String) {
             interactionSource = interactionSource,
             shape = RoundedCornerShape(16.dp),
             colors = buttonColors,
-            onClick = { isLoading = true }, //TODO
+            onClick = {
+                // TODO: move isLoading and enabled state to viewModel
+                isLoading = true
+                onClick()
+            },
             enabled = validInput(email, password) && !isLoading,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             modifier = Modifier

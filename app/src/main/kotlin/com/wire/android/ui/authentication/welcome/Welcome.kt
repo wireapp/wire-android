@@ -50,7 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
-import com.wire.android.ui.authentication.AuthScreenDestinations
+import com.wire.android.ui.authentication.AuthDestination
 import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.button02
 import com.wire.android.ui.theme.title01
@@ -85,14 +85,14 @@ private fun WelcomeContent(navController: NavController) {
             WelcomeButtons(
                 modifier = Modifier.padding(top = 40.dp, bottom = 52.dp, start = 16.dp, end = 16.dp),
                 onLoginClick = {
-                    navController.navigate(AuthScreenDestinations.loginScreen)
+                    navController.navigate(AuthDestination.loginScreen)
                 },
                 onEnterpriseAccountClick = {
-                    navController.navigate((AuthScreenDestinations.createEnterpriseAccount))
+                    navController.navigate((AuthDestination.createEnterpriseAccount))
                 })
             WelcomeFooter(modifier = Modifier.padding(bottom = 56.dp, start = 16.dp, end = 16.dp),
                 onPrivateAccountClick = {
-                    navController.navigate(AuthScreenDestinations.createPrivateAccountScreen)
+                    navController.navigate(AuthDestination.createPrivateAccountScreen)
                 })
         }
     }

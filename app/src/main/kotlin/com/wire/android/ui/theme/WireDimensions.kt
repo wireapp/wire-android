@@ -24,7 +24,7 @@ data class WireDimensions(
     val buttonVerticalContentPadding: Dp,
 )
 
-private val DefaultWireDimensions: WireDimensions = WireDimensions(
+private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     userAvatarDefaultSize = 24.dp,
     bottomNavigationPadding = 4.dp,
     bottomNavigationItemPadding = 6.dp,
@@ -37,10 +37,17 @@ private val DefaultWireDimensions: WireDimensions = WireDimensions(
     buttonVerticalContentPadding = 8.dp
 )
 
+private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions
+
+private val DefaultPhoneOrientationDependentWireDimensions: OrientationDependent<WireDimensions> = OrientationDependent(
+    portrait = DefaultPhonePortraitWireDimensions,
+    landscape = DefaultPhoneLandscapeWireDimensions
+)
+
 @PackagePrivate
-val WireDimensionsTypes: ScreenSizeDependent<WireDimensions> = ScreenSizeDependent(
-    compactPhone = DefaultWireDimensions,
-    defaultPhone = DefaultWireDimensions,
-    tablet7 = DefaultWireDimensions,
-    tablet10 = DefaultWireDimensions
+val WireDimensionsTypes: ScreenSizeDependent<OrientationDependent<WireDimensions>> = ScreenSizeDependent(
+    compactPhone = DefaultPhoneOrientationDependentWireDimensions,
+    defaultPhone = DefaultPhoneOrientationDependentWireDimensions,
+    tablet7 = DefaultPhoneOrientationDependentWireDimensions,
+    tablet10 = DefaultPhoneOrientationDependentWireDimensions
 )

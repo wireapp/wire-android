@@ -18,7 +18,7 @@ fun WireTheme(
 ) {
     val wireColorScheme = WireColorSchemeTypes.current
     val wireTypography = WireTypographyTypes.current
-    val wireDimensions = WireDimensionsTypes.current
+    val wireDimensions = WireDimensionsTypes.current.current
 
     CompositionLocalProvider(
         LocalWireColors provides wireColorScheme,
@@ -39,7 +39,7 @@ fun WireTheme(
 
 private val LocalWireColors = staticCompositionLocalOf { WireColorSchemeTypes.light }
 private val LocalWireTypography = staticCompositionLocalOf { WireTypographyTypes.defaultPhone }
-private val LocalWireDimensions = staticCompositionLocalOf { WireDimensionsTypes.defaultPhone }
+private val LocalWireDimensions = staticCompositionLocalOf { WireDimensionsTypes.defaultPhone.portrait }
 
 val MaterialTheme.wireColorScheme
     @Composable

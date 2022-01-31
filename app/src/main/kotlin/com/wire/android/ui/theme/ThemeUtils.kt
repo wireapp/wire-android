@@ -1,5 +1,6 @@
 package com.wire.android.ui.theme
 
+import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
@@ -10,6 +11,17 @@ data class ThemeDependent<T>(
 ) {
     val current: T
         @Composable get() = if (isSystemInDarkTheme()) dark else light
+}
+
+data class OrientationDependent<T>(
+    val portrait: T,
+    val landscape: T
+) {
+    val current: T
+        @Composable get() = when (LocalConfiguration.current.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> landscape
+            else -> portrait
+        }
 }
 
 // https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes#TaskUseSWQuali

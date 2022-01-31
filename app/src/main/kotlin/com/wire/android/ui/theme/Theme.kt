@@ -9,7 +9,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import io.github.esentsov.PackagePrivate
 
 @Composable
 fun WireTheme(

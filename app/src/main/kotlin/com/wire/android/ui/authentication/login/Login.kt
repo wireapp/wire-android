@@ -1,4 +1,4 @@
-package com.wire.android.ui.login
+package com.wire.android.ui.authentication.login
 
 import android.widget.Toast
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -32,28 +33,31 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.theme.wireTypography
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
-@Preview
+//@Preview
 @Composable
 fun LoginScreen() {
-    LoginContent()
+    val scope = rememberCoroutineScope()
+    LoginContent(loginViewModel = hiltViewModel(), scope = scope)
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-private fun LoginContent() {
-
-    var email by remember { mutableStateOf(TextFieldValue("")) }
-    var password by remember { mutableStateOf(TextFieldValue("")) }
+private fun LoginContent(
+    loginViewModel: LoginViewModel,
+    scope: CoroutineScope
+) {
 
     Scaffold(topBar = { LoginTopBar() }) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -61,24 +65,41 @@ private fun LoginContent() {
                 modifier = Modifier.weight(1f, true),
                 verticalArrangement = Arrangement.Center,
             ) {
-                EmailInput(modifier = Modifier.fillMaxWidth(), email = email, onEmailChange = { email = it })
+                UserIdentifierInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    userIdentifier = loginViewModel.userIdentifier,
+                    onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) })
+
                 Spacer(modifier = Modifier.height(16.dp))
-                PasswordInput(modifier = Modifier.fillMaxWidth(), password = password, onPasswordChange = { password = it })
+
+                PasswordInput(
+                    modifier = Modifier.fillMaxWidth(),
+                    password = loginViewModel.password,
+                    onPasswordChange = { loginViewModel.onPasswordChange(it) })
                 Spacer(modifier = Modifier.height(16.dp))
                 ForgotPasswordLabel(modifier = Modifier.fillMaxWidth())
             }
-            LoginButton(modifier = Modifier.fillMaxWidth(), email = email.text, password = password.text)
+
+            LoginButton(
+                modifier = Modifier.fillMaxWidth(),
+                userIdentifier = loginViewModel.userIdentifier.text,
+                password = loginViewModel.password.text
+            ) {
+                scope.launch {
+                    loginViewModel.navigateToConvScreen()
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun EmailInput(modifier: Modifier, email: TextFieldValue, onEmailChange: (TextFieldValue) -> Unit) {
+private fun UserIdentifierInput(modifier: Modifier, userIdentifier: TextFieldValue, onUserIdentifierChange: (TextFieldValue) -> Unit) {
     WireTextField(
-        value = email,
-        onValueChange = onEmailChange,
-        placeholderText = stringResource(R.string.login_email_placeholder),
-        labelText = stringResource(R.string.login_email_label),
+        value = userIdentifier,
+        onValueChange = onUserIdentifierChange,
+        placeholderText = stringResource(R.string.login_user_identifier_placeholder),
+        labelText = stringResource(R.string.login_user_identifier_label),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         modifier = modifier,
     )
@@ -120,17 +141,20 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun LoginButton(modifier: Modifier, email: String, password: String) {
+private fun LoginButton(modifier: Modifier, userIdentifier: String, password: String, onClick: () -> Unit) {
     var isLoading by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
-        val enabled = validInput(email, password) && !isLoading
+        val enabled = validInput(userIdentifier, password) && !isLoading
         val text = if (isLoading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
 
         WirePrimaryButton(
             text = text,
-            onClick = { isLoading = true }, //TODO
-            state = if(enabled) WireButtonState.Default else WireButtonState.Disabled,
+            onClick = {
+                isLoading = true
+                onClick()
+            },
+            state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             loading = isLoading,
             interactionSource = interactionSource,
             modifier = Modifier.fillMaxWidth()
@@ -138,5 +162,5 @@ private fun LoginButton(modifier: Modifier, email: String, password: String) {
     }
 }
 
-private fun validInput(email: String, password: String): Boolean =
-    email.isNotEmpty() && password.isNotEmpty()
+private fun validInput(userIdentifier: String, password: String): Boolean =
+    userIdentifier.isNotEmpty() && password.isNotEmpty()

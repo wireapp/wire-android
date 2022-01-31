@@ -27,6 +27,7 @@
     <string name="search_no_results">No matches found</string>
 
     <!-- Welcome -->
+    <string name="welcome_screen_title">welcome</string>
     <string name="welcome_wire_logo_content_description">Wire</string>
     <string name="welcome_carousel_item_content_description">Welcome image</string>
     <string name="welcome_footer_text">Want to chat with friends and family?</string>
@@ -36,8 +37,8 @@
     <!-- Login -->
     <string name="login_title">Login</string>
     <string name="login_forgot_password">Forgot password?</string>
-    <string name="login_email_placeholder">jane@example.com or jane.doe</string>
-    <string name="login_email_label">EMAIL OR USERNAME</string>
+    <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
+    <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
 

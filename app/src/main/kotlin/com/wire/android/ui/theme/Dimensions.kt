@@ -15,4 +15,10 @@ object Dimensions {
 
     // Message
     val messageImagePortraitModeWidth = 200.dp
+
+    //Button
+    val buttonMinHeight = 48.dp
+    val buttonMinWidth = 60.dp
+    val buttonHorizontalContentPadding = 16.dp
+    val buttonVerticalContentPadding = 8.dp
 }

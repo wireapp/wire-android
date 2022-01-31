@@ -4,6 +4,9 @@ buildscript {
         mavenCentral()
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
+    dependencies {
+        classpath("com.google.dagger:hilt-android-gradle-plugin:2.40")
+    }
 }
 
 allprojects {

@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.common.Logo
@@ -80,6 +81,12 @@ fun HomeDrawer(
                     }
                 })
         }
+
+        Text(
+            text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(10.dp)
+        )
     }
 }
 

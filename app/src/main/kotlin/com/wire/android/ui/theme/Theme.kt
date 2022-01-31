@@ -49,7 +49,7 @@ private val Typography = Typography(
 )
 
 
-// Dark WireColorScheme
+// Light WireColorScheme
 private val LightWireColors = WireColorScheme(
     primary = WireColor.LightBlue500,                       onPrimary = Color.White,
     error = WireColor.LightRed500,                          onError = Color.White,

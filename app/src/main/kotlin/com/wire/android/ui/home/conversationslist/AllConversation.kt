@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,37 +11,45 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.home.conversations.all.model.Conversation
-import com.wire.android.ui.home.conversations.all.model.ConversationFolder
-import com.wire.android.ui.home.conversations.all.model.NewActivity
-import com.wire.android.ui.home.conversations.all.model.toUserInfoLabel
-import com.wire.android.ui.home.conversations.common.EventBadgeFactory
-import com.wire.android.ui.home.conversations.common.RowItem
-import com.wire.android.ui.home.conversations.common.UserLabel
-import com.wire.android.ui.home.conversations.common.folderWithElements
+import com.wire.android.ui.home.conversationslist.common.EventBadgeFactory
+import com.wire.android.ui.home.conversationslist.common.RowItem
+import com.wire.android.ui.main.conversationlist.common.UserLabel
+import com.wire.android.ui.home.conversationslist.common.folderWithElements
+import com.wire.android.ui.home.conversationslist.model.Conversation
+import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversationslist.model.NewActivity
+import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
+
 
 @Composable
-fun AllTab(
+fun AllConversationScreen(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<Conversation>>
+    conversations: Map<ConversationFolder, List<Conversation>>,
+    //TODO: This is going to be replaced with proper lambda, test purpose only
+    onConversationItemClick: () -> Unit
 ) {
     AllConversationContent(
         newActivities = newActivities,
-        conversations = conversations
+        conversations = conversations,
+        onConversationItemClick
     )
 }
 
 @Composable
 private fun AllConversationContent(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<Conversation>>
+    conversations: Map<ConversationFolder, List<Conversation>>,
+    onConversationItemClick: () -> Unit,
 ) {
     LazyColumn {
         folderWithElements(
             header = { stringResource(id = R.string.conversation_label_new_activity) },
             items = newActivities
         ) { newActivity ->
-            NewActivityRowItem(newActivity = newActivity)
+            NewActivityRowItem(
+                newActivity = newActivity,
+                onConversationItemClick
+            )
         }
 
         conversations.forEach { (conversationFolder, conversationList) ->
@@ -49,16 +57,22 @@ private fun AllConversationContent(
                 header = { conversationFolder.folderName },
                 items = conversationList
             ) { conversation ->
-                ConversationRowItem(conversation = conversation)
+                ConversationRowItem(
+                    conversation = conversation,
+                    onConversationItemClick
+                )
             }
         }
     }
 }
 
 @Composable
-private fun NewActivityRowItem(newActivity: NewActivity) {
-    RowItem {
-        ConversationLabel(newActivity.conversation)
+private fun NewActivityRowItem(
+    newActivity: NewActivity,
+    onConversationItemClick: () -> Unit
+) {
+    RowItem(onRowItemClick = onConversationItemClick) {
+        ConversationLabel(conversation = newActivity.conversation)
         Box(modifier = Modifier.fillMaxWidth()) {
             EventBadgeFactory(
                 eventType = newActivity.eventType,
@@ -71,8 +85,8 @@ private fun NewActivityRowItem(newActivity: NewActivity) {
 }
 
 @Composable
-private fun ConversationRowItem(conversation: Conversation) {
-    RowItem {
+private fun ConversationRowItem(conversation: Conversation, onConversationItemClick: () -> Unit) {
+    RowItem(onRowItemClick = onConversationItemClick) {
         ConversationLabel(conversation)
     }
 }

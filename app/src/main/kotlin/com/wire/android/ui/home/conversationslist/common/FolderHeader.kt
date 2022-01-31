@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations.common
+package com.wire.android.ui.main.conversationlist.common
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme

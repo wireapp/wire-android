@@ -2,12 +2,10 @@ package com.wire.android.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
@@ -15,9 +13,9 @@ fun WireTheme(
     useDarkColors: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val wireColorScheme = WireColorSchemeTypes.current
-    val wireTypography = WireTypographyTypes.current
-    val wireDimensions = WireDimensionsTypes.current.current
+    val wireColorScheme = WireColorSchemeTypes.currentTheme
+    val wireTypography = WireTypographyTypes.currentScreenSize
+    val wireDimensions = WireDimensionsTypes.currentScreenSize.currentOrientation
 
     CompositionLocalProvider(
         LocalWireColors provides wireColorScheme,

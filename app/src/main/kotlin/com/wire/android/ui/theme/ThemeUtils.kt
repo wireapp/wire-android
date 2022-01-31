@@ -9,7 +9,7 @@ data class ThemeDependent<T>(
     val light: T,
     val dark: T
 ) {
-    val current: T
+    val currentTheme: T
         @Composable get() = if (isSystemInDarkTheme()) dark else light
 }
 
@@ -17,7 +17,7 @@ data class OrientationDependent<T>(
     val portrait: T,
     val landscape: T
 ) {
-    val current: T
+    val currentOrientation: T
         @Composable get() = when (LocalConfiguration.current.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> landscape
             else -> portrait
@@ -31,7 +31,7 @@ data class ScreenSizeDependent<T>(
     val tablet7: T,      //sw600dp
     val tablet10: T      //sw840dp
 ) {
-    val current: T
+    val currentScreenSize: T
         @Composable get() = LocalConfiguration.current.smallestScreenWidthDp.let { swDp ->
             when {
                 swDp >= 840 -> tablet10

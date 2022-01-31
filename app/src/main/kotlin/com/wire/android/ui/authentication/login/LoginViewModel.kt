@@ -1,4 +1,4 @@
-package com.wire.android.feature.auth.login
+package com.wire.android.ui.authentication.login
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

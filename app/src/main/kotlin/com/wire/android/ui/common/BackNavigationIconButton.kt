@@ -17,7 +17,6 @@ fun BackNavigationIconButton(onBackButtonClick: () -> Unit) {
         Icon(
             imageVector = Icons.Filled.ArrowBack,
             contentDescription = stringResource(R.string.content_description_back_button),
-            tint = MaterialTheme.colorScheme.onBackground
         )
     }
 }

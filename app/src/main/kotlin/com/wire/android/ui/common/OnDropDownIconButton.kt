@@ -18,7 +18,6 @@ fun OnDropDownIconButton(onDropDownClick: () -> Unit) {
         Icon(
             imageVector = Icons.Filled.ArrowDropDown,
             contentDescription = stringResource(R.string.content_description_drop_down_icon),
-            tint = MaterialTheme.colorScheme.onBackground
         )
     }
 }

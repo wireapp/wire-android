@@ -20,6 +20,12 @@ class NavigationManager {
 
 data class NavigationCommand(
     val destination: String,
-    val skipBackStack: Boolean = false
+    val backStackMode: BackStackMode = BackStackMode.NONE
     //TODO add in/out animations here
 )
+
+enum class BackStackMode {
+    CLEAR_TILL_START, // clear the whole backstack excluding "start screen"
+    CLEAR_WHOLE, // clear the whole backstack including "start screen" (use when you navigate to a new "start screen" )
+    NONE // screen will be added to the existed backstack.
+}

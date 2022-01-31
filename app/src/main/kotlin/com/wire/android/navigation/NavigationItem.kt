@@ -8,10 +8,11 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.ui.authentication.AuthScreen
+import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
+import com.wire.android.ui.home.userprofile.UserProfileScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.support.SupportScreen
-import com.wire.android.ui.home.userprofile.UserProfileScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 sealed class NavigationItem(
@@ -28,6 +29,7 @@ sealed class NavigationItem(
         route = "auth",
         content = { AuthScreen() }
     )
+
     object Home : NavigationItem(
         route = "home/{$HOME_START_TAB_ARGUMENT}",
         content = { HomeScreen(it.arguments?.getString(HOME_START_TAB_ARGUMENT), hiltViewModel()) },
@@ -35,7 +37,7 @@ sealed class NavigationItem(
             navArgument(HOME_START_TAB_ARGUMENT) { type = NavType.StringType }
         )
     ) {
-        fun navigationRoute(startTabRoute: String): String = "home/$startTabRoute"
+        fun navigationRoute(startTabRoute: String = HomeDestinations.conversations): String = "home/$startTabRoute"
     }
 
     object Settings : NavigationItem(

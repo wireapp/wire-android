@@ -3,20 +3,17 @@ package com.wire.android.feature.auth.login
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import com.wire.kalium.logic.feature.auth.AuthenticationResult
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.feature.auth.AuthenticationResult
+import com.wire.kalium.logic.feature.auth.LoginUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.wire.kalium.logic.feature.auth.LoginUseCase
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -57,7 +54,7 @@ class LoginViewModel @Inject constructor(
     }
 
     suspend fun navigateToConvScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.navigationRoute("home_conversations"), true))
+        navigationManager.navigate(NavigationCommand(NavigationItem.Home.navigationRoute(), BackStackMode.CLEAR_WHOLE))
 
     private companion object {
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"

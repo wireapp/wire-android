@@ -51,7 +51,10 @@ fun UserProfileAvatar(
                     .background(Color.Black, CircleShape)
                     .size(size)
             )
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.align(Alignment.BottomEnd)) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.align(Alignment.BottomEnd)
+            ) {
                 Box(
                     modifier = Modifier
                         .size(MaterialTheme.wireDimensions.userAvatarBorderSize)

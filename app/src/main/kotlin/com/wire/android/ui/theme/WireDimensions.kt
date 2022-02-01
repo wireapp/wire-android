@@ -27,8 +27,7 @@ data class WireDimensions(
     val buttonMinWidth: Dp,
     val buttonHorizontalContentPadding: Dp,
     val buttonVerticalContentPadding: Dp,
-) {
-}
+)
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     userAvatarDefaultSize = 32.dp,

@@ -19,7 +19,7 @@ import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConversationRoute(conversationListViewModel: ConversationListViewModel = hiltViewModel()) {
+fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hiltViewModel()) {
     val uiState by conversationListViewModel.listState.collectAsState()
     val navController = rememberNavController()
 

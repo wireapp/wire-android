@@ -16,12 +16,10 @@ import com.wire.android.ui.home.conversations.model.Message
 @Composable
 fun ConversationScreen(
     conversationViewModel: ConversationViewModel,
-    //TODO: needs to be implemented
-    onBackButtonClick: () -> Unit = {}
 ) {
     val uiState by conversationViewModel.conversationState.collectAsState()
 
-    ConversationScreen(uiState, onBackButtonClick)
+    ConversationScreen(uiState) { conversationViewModel.navigateBack() }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

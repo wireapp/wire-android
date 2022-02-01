@@ -69,7 +69,7 @@ sealed class NavigationItem(
 
     companion object {
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
-        const val CONVERSATION_ID_ARGUMENT: String = "conversationId"
+        const val CONVERSATION_ID_ARGUMENT: String = "conversation_id"
 
         val globalNavigationItems = listOf(
             Authentication,
@@ -86,6 +86,3 @@ sealed class NavigationItem(
     }
 
 }
-
-
-

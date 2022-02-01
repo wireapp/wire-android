@@ -10,15 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversationslist.common.EventBadgeFactory
 import com.wire.android.ui.home.conversationslist.common.RowItem
-import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Conversation
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
+import com.wire.android.ui.main.conversationlist.common.UserLabel
 
 
 @Composable
@@ -92,7 +92,7 @@ private fun ConversationRowItem(conversation: Conversation, onConversationItemCl
 
 @Composable
 private fun ConversationLabel(conversation: Conversation) {
-    UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
+    ConversationUserAvatar(avatarUrl = conversation.userInfo.avatarUrl)
     UserLabel(conversation.toUserInfoLabel())
 }
 

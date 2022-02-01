@@ -25,13 +25,12 @@ import com.wire.android.ui.main.conversationlist.common.UserLabel
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<Conversation>>,
-    //TODO: This is going to be replaced with proper lambda, test purpose only
-    onConversationItemClick: () -> Unit
+    onOpenConversationClick: (String) -> Unit
 ) {
     AllConversationContent(
         newActivities = newActivities,
         conversations = conversations,
-        onConversationItemClick
+        onOpenConversationClick
     )
 }
 
@@ -39,7 +38,7 @@ fun AllConversationScreen(
 private fun AllConversationContent(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<Conversation>>,
-    onConversationItemClick: () -> Unit,
+    onOpenConversationClick: (String) -> Unit,
 ) {
     LazyColumn {
         folderWithElements(
@@ -48,7 +47,7 @@ private fun AllConversationContent(
         ) { newActivity ->
             NewActivityRowItem(
                 newActivity = newActivity,
-                onConversationItemClick
+                onConversationItemClick = onOpenConversationClick
             )
         }
 
@@ -59,7 +58,7 @@ private fun AllConversationContent(
             ) { conversation ->
                 ConversationRowItem(
                     conversation = conversation,
-                    onConversationItemClick
+                    onConversationItemClick = onOpenConversationClick
                 )
             }
         }
@@ -69,9 +68,9 @@ private fun AllConversationContent(
 @Composable
 private fun NewActivityRowItem(
     newActivity: NewActivity,
-    onConversationItemClick: () -> Unit
+    onConversationItemClick: (String) -> Unit
 ) {
-    RowItem(onRowItemClick = onConversationItemClick) {
+    RowItem(onRowItemClick = { onConversationItemClick("someId") }) {
         ConversationLabel(conversation = newActivity.conversation)
         Box(modifier = Modifier.fillMaxWidth()) {
             EventBadgeFactory(
@@ -85,8 +84,8 @@ private fun NewActivityRowItem(
 }
 
 @Composable
-private fun ConversationRowItem(conversation: Conversation, onConversationItemClick: () -> Unit) {
-    RowItem(onRowItemClick = onConversationItemClick) {
+private fun ConversationRowItem(conversation: Conversation, onConversationItemClick: (String) -> Unit) {
+    RowItem(onRowItemClick = { onConversationItemClick("someId") } ) {
         ConversationLabel(conversation)
     }
 }

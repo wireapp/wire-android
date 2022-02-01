@@ -23,6 +23,10 @@ fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hi
     val uiState by conversationListViewModel.listState.collectAsState()
     val navController = rememberNavController()
 
+    fun navigateToConversation(id: String) {
+        conversationListViewModel.openConversation(id)
+    }
+
     Scaffold(
         floatingActionButton = { FloatingActionButton(stringResource(R.string.label_new), {}) },
         bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), navController) }
@@ -34,30 +38,34 @@ fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hi
                     content = {
                         AllConversationScreen(
                             newActivities = newActivities,
-                            conversations = conversations
-                        ) { conversationId -> conversationListViewModel.openConversation(conversationId) }
+                            conversations = conversations,
+                            onOpenConversationClick = ::navigateToConversation
+                        )
                     })
                 composable(
                     route = ConversationsNavigationItem.Calls.route,
                     content = {
                         CallScreen(
                             missedCalls = missedCalls,
-                            callHistory = callHistory
-                        ) { conversationListViewModel.openConversation("someId") }
+                            callHistory = callHistory,
+                            onCallItemClick = ::navigateToConversation
+                        )
                     })
                 composable(
                     route = ConversationsNavigationItem.Mentions.route,
                     content = {
                         MentionScreen(
                             unreadMentions = unreadMentions,
-                            allMentions = allMentions
-                        ) { conversationListViewModel.openConversation("someId") }
+                            allMentions = allMentions,
+                            onMentionItemClick = ::navigateToConversation
+                        )
                     }
                 )
             }
         }
     }
 }
+
 
 @Composable
 private fun ConversationNavigationItems(

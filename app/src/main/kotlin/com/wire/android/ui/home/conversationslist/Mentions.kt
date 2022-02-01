@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.common.UnreadMentionBadge
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
@@ -99,7 +99,7 @@ fun AllMentionRowItem(mention: Mention, onMentionItemClick: (String) -> Unit) {
 fun MentionLabel(mention: Mention, modifier: Modifier = Modifier) {
     Row(modifier = modifier) {
         with(mention) {
-            UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
+            ConversationUserAvatar(conversation.userInfo.avatarUrl)
             Column {
                 UserLabel(conversation.toUserInfoLabel())
                 Text(

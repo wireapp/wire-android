@@ -5,12 +5,6 @@ import com.wire.android.R
 import com.wire.android.ui.main.conversationlist.common.UserInfoLabel
 
 
-data class ConversationFolder(
-    val folderName: String,
-)
-
-data class GeneralConversation(override val conversationType: ConversationType) : Conversation()
-
 abstract class Conversation {
     abstract val conversationType: ConversationType
 }

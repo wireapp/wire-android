@@ -10,28 +10,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversationslist.common.EventBadgeFactory
 import com.wire.android.ui.home.conversationslist.common.RowItem
-import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Conversation
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
+import com.wire.android.ui.main.conversationlist.common.UserLabel
 
 
 @Composable
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<Conversation>>,
-    //TODO: This is going to be replaced with proper lambda, test purpose only
-    onConversationItemClick: () -> Unit
+    onOpenConversationClick: (String) -> Unit
 ) {
     AllConversationContent(
         newActivities = newActivities,
         conversations = conversations,
-        onConversationItemClick
+        onOpenConversationClick
     )
 }
 
@@ -39,7 +38,7 @@ fun AllConversationScreen(
 private fun AllConversationContent(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<Conversation>>,
-    onConversationItemClick: () -> Unit,
+    onOpenConversationClick: (String) -> Unit,
 ) {
     LazyColumn {
         folderWithElements(
@@ -48,7 +47,7 @@ private fun AllConversationContent(
         ) { newActivity ->
             NewActivityRowItem(
                 newActivity = newActivity,
-                onConversationItemClick
+                onConversationItemClick = onOpenConversationClick
             )
         }
 
@@ -59,7 +58,7 @@ private fun AllConversationContent(
             ) { conversation ->
                 ConversationRowItem(
                     conversation = conversation,
-                    onConversationItemClick
+                    onConversationItemClick = onOpenConversationClick
                 )
             }
         }
@@ -69,9 +68,9 @@ private fun AllConversationContent(
 @Composable
 private fun NewActivityRowItem(
     newActivity: NewActivity,
-    onConversationItemClick: () -> Unit
+    onConversationItemClick: (String) -> Unit
 ) {
-    RowItem(onRowItemClick = onConversationItemClick) {
+    RowItem(onRowItemClick = { onConversationItemClick("someId") }) {
         ConversationLabel(conversation = newActivity.conversation)
         Box(modifier = Modifier.fillMaxWidth()) {
             EventBadgeFactory(
@@ -85,15 +84,15 @@ private fun NewActivityRowItem(
 }
 
 @Composable
-private fun ConversationRowItem(conversation: Conversation, onConversationItemClick: () -> Unit) {
-    RowItem(onRowItemClick = onConversationItemClick) {
+private fun ConversationRowItem(conversation: Conversation, onConversationItemClick: (String) -> Unit) {
+    RowItem(onRowItemClick = { onConversationItemClick("someId") } ) {
         ConversationLabel(conversation)
     }
 }
 
 @Composable
 private fun ConversationLabel(conversation: Conversation) {
-    UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
+    ConversationUserAvatar(avatarUrl = conversation.userInfo.avatarUrl)
     UserLabel(conversation.toUserInfoLabel())
 }
 

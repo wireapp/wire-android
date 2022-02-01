@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversationlist
+package com.wire.android.ui.home.conversationslist
 
 
 import com.wire.android.ui.home.conversationslist.model.Call
@@ -7,7 +7,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.Mention
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 
-data class ConversationState(
+data class ConversationListState(
     val newActivities: List<NewActivity> = emptyList(),
     val conversations: Map<ConversationFolder, List<Conversation>> = emptyMap(),
     val missedCalls: List<Call> = emptyList(),

@@ -9,6 +9,9 @@ import io.github.esentsov.PackagePrivate
 data class WireDimensions(
     // Avatar
     val userAvatarDefaultSize: Dp,
+    val userAvatarClickablePadding: Dp,
+    val userAvatarStatusSize : Dp,
+    val userAvatarBorderSize: Dp,
     // BottomNavigation
     val bottomNavigationHorizontalPadding: Dp,
     val bottomNavigationVerticalPadding: Dp,
@@ -36,7 +39,10 @@ data class WireDimensions(
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
-    userAvatarDefaultSize = 24.dp,
+    userAvatarDefaultSize = 32.dp,
+    userAvatarClickablePadding = 8.dp,
+    userAvatarStatusSize = 10.dp,
+    userAvatarBorderSize = 14.dp,
     bottomNavigationHorizontalPadding = 8.dp,
     bottomNavigationVerticalPadding = 4.dp,
     bottomNavigationBetweenItemsPadding = 12.dp,

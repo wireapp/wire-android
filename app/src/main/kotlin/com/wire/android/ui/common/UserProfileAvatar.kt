@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,12 +20,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
-import com.wire.android.ui.theme.Dimensions.USER_AVATAR_DEFAULT_SIZE
+import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun UserProfileAvatar(
     avatarUrl: String = "",
-    size: Dp = USER_AVATAR_DEFAULT_SIZE,
+    size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {

@@ -41,9 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.Tint
-import com.wire.android.ui.theme.body01
-import com.wire.android.ui.theme.label01
-import com.wire.android.ui.theme.label04
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 internal fun WireTextField(
@@ -63,8 +61,8 @@ internal fun WireTextField(
     state: WireTextFieldState = WireTextFieldState.Default,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    textStyle: TextStyle = MaterialTheme.typography.body01,
-    placeholderTextStyle: TextStyle = MaterialTheme.typography.body01,
+    textStyle: TextStyle = MaterialTheme.wireTypography.body01,
+    placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
     inputMinHeight: Dp = 48.dp,
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireTextFieldColors = wireTextFieldColors(),
@@ -104,7 +102,7 @@ internal fun WireTextField(
         if (bottomText != null)
             Text(
                 text = bottomText,
-                style = MaterialTheme.typography.label04,
+                style = MaterialTheme.wireTypography.label04,
                 color = colors.descriptionColor(state).value,
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -122,7 +120,7 @@ private fun Label(
     Row {
         Text(
             text = labelText,
-            style = MaterialTheme.typography.label01,
+            style = MaterialTheme.wireTypography.label01,
             color = colors.labelColor(state, interactionSource).value,
             modifier = Modifier.padding(bottom = 4.dp, end = 4.dp)
         )
@@ -144,7 +142,7 @@ private fun InnerText(
     trailingIcon: @Composable (() -> Unit)? = null,
     placeholderText: String? = null,
     state: WireTextFieldState = WireTextFieldState.Default,
-    placeholderTextStyle: TextStyle = MaterialTheme.typography.body01,
+    placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
     inputMinHeight: Dp = 48.dp,
     colors: WireTextFieldColors = wireTextFieldColors()
 ) {

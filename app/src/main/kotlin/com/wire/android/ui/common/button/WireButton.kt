@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.Tint
-import com.wire.android.ui.theme.Dimensions
-import com.wire.android.ui.theme.button03
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import java.lang.Integer.max
 
 
@@ -47,18 +47,18 @@ fun WireButton(
     trailingIcon: @Composable (() -> Unit)? = null,
     trailingIconAlignment: IconAlignment = IconAlignment.Border,
     text: String? = null,
-    textStyle: TextStyle = MaterialTheme.typography.button03,
+    textStyle: TextStyle = MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
-    minHeight: Dp = Dimensions.buttonMinHeight,
-    minWidth: Dp = Dimensions.buttonMinWidth,
+    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinHeight,
+    minWidth: Dp = MaterialTheme.wireDimensions.buttonMinWidth,
     fillMaxWidth: Boolean = true,
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireButtonColors = wirePrimaryButtonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
     borderWidth: Dp = 0.dp,
     contentPadding: PaddingValues = PaddingValues(
-        horizontal = Dimensions.buttonHorizontalContentPadding,
-        vertical = Dimensions.buttonVerticalContentPadding
+        horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,
+        vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     modifier: Modifier = Modifier,
@@ -113,7 +113,7 @@ fun InnerButtonBox(
     trailingIcon: @Composable (() -> Unit)? = null,
     trailingIconAlignment: IconAlignment = IconAlignment.Border,
     text: String? = null,
-    textStyle: TextStyle = MaterialTheme.typography.button03,
+    textStyle: TextStyle = MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
     colors: WireButtonColors = wirePrimaryButtonColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },

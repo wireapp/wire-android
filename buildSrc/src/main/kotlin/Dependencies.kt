@@ -77,6 +77,7 @@ object Libraries {
         const val composeConstraint = "1.0.0-rc02"
         const val hilt = "2.38.1"
         const val lifecycle = "2.4.0"
+        const val visibilityModifiers = "1.1.0"
         const val composeHiltNavigation = "1.0.0-alpha03"
     }
 
@@ -112,6 +113,7 @@ object Libraries {
     const val scarletOkhttp             = "com.tinder.scarlet:websocket-okhttp:${Versions.scarlet}"
     const val scarletLifecycle          = "com.tinder.scarlet:lifecycle-android:${Versions.scarlet}"
     const val scarletGson               = "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
+    const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

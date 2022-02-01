@@ -45,7 +45,7 @@ fun WirePrimaryButton(
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinHeight,
     minWidth: Dp = MaterialTheme.wireDimensions.buttonMinWidth,
     fillMaxWidth: Boolean = true,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     colors: WireButtonColors = wirePrimaryButtonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
     borderWidth: Dp = 0.dp,

@@ -20,6 +20,9 @@ fun wirePrimaryButtonColors() = wireButtonColors(
     selected = MaterialTheme.wireColorScheme.primaryButtonSelected,
     onSelected = MaterialTheme.wireColorScheme.onPrimaryButtonSelected,
     selectedOutline = MaterialTheme.wireColorScheme.primaryButtonSelected,
+    error = MaterialTheme.wireColorScheme.error,
+    onError = MaterialTheme.wireColorScheme.onError,
+    errorOutline = MaterialTheme.wireColorScheme.error,
     ripple = MaterialTheme.wireColorScheme.primaryButtonRipple
 )
 
@@ -34,6 +37,9 @@ fun wireSecondaryButtonColors() = wireButtonColors(
     selected = MaterialTheme.wireColorScheme.secondaryButtonSelected,
     onSelected = MaterialTheme.wireColorScheme.onSecondaryButtonSelected,
     selectedOutline = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline,
+    error = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
+    onError = MaterialTheme.wireColorScheme.error,
+    errorOutline = MaterialTheme.wireColorScheme.error,
     ripple = MaterialTheme.wireColorScheme.secondaryButtonRipple
 )
 
@@ -48,6 +54,9 @@ fun wireTertiaryButtonColors() = wireButtonColors(
     selected = MaterialTheme.wireColorScheme.tertiaryButtonSelected,
     onSelected = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
     selectedOutline = MaterialTheme.wireColorScheme.tertiaryButtonSelectedOutline,
+    error = MaterialTheme.wireColorScheme.tertiaryButtonEnabled,
+    onError = MaterialTheme.wireColorScheme.error,
+    errorOutline = MaterialTheme.wireColorScheme.error,
     ripple = MaterialTheme.wireColorScheme.tertiaryButtonRipple
 )
 
@@ -56,6 +65,7 @@ private fun wireButtonColors(
     enabled: Color,     onEnabled: Color,   enabledOutline: Color,
     disabled: Color,    onDisabled: Color,  disabledOutline: Color,
     selected: Color,    onSelected: Color,  selectedOutline: Color,
+    error: Color,       onError: Color,     errorOutline: Color,
     ripple: Color
 ) = object: WireButtonColors {
     @Composable
@@ -64,6 +74,7 @@ private fun wireButtonColors(
                 WireButtonState.Default -> enabled
                 WireButtonState.Disabled -> disabled
                 WireButtonState.Selected -> selected
+                WireButtonState.Error -> error
             }
         )
 
@@ -73,6 +84,7 @@ private fun wireButtonColors(
             WireButtonState.Default -> enabledOutline
             WireButtonState.Disabled -> disabledOutline
             WireButtonState.Selected -> selectedOutline
+            WireButtonState.Error -> errorOutline
         }
     )
 
@@ -82,6 +94,7 @@ private fun wireButtonColors(
                 WireButtonState.Default -> onEnabled
                 WireButtonState.Disabled -> onDisabled
                 WireButtonState.Selected -> onSelected
+                WireButtonState.Error -> onError
             }
         )
 
@@ -109,4 +122,5 @@ sealed class WireButtonState {
     object Default : WireButtonState()
     object Disabled : WireButtonState()
     object Selected : WireButtonState()
+    object Error : WireButtonState()
 }

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.Tint
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
@@ -63,8 +64,8 @@ internal fun WireTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
-    inputMinHeight: Dp = 48.dp,
-    shape: Shape = RoundedCornerShape(16.dp),
+    inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
+    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
     modifier: Modifier = Modifier
 ) {

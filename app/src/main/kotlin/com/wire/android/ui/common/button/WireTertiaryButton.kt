@@ -35,7 +35,7 @@ fun WireTertiaryButton(
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinHeight,
     minWidth: Dp = MaterialTheme.wireDimensions.buttonMinWidth,
     fillMaxWidth: Boolean = true,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     colors: WireButtonColors = wireTertiaryButtonColors(),
     elevation: ButtonElevation? = null,
     borderWidth: Dp = 1.dp,

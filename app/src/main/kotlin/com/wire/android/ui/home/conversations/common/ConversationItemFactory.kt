@@ -10,9 +10,6 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Mention
 
-
-private val factoryMap = mapOf<Conversation, @Composable () -> Unit>()
-
 @Composable
 inline fun <reified Conversation> ConversationItemFactory(
     item: Conversation,

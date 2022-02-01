@@ -39,7 +39,7 @@ fun wireSecondaryButtonColors() = wireButtonColors(
     selectedOutline = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline,
     error = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
     onError = MaterialTheme.wireColorScheme.error,
-    errorOutline = MaterialTheme.wireColorScheme.error,
+    errorOutline = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
     ripple = MaterialTheme.wireColorScheme.secondaryButtonRipple
 )
 
@@ -56,7 +56,7 @@ fun wireTertiaryButtonColors() = wireButtonColors(
     selectedOutline = MaterialTheme.wireColorScheme.tertiaryButtonSelectedOutline,
     error = MaterialTheme.wireColorScheme.tertiaryButtonEnabled,
     onError = MaterialTheme.wireColorScheme.error,
-    errorOutline = MaterialTheme.wireColorScheme.error,
+    errorOutline = MaterialTheme.wireColorScheme.tertiaryButtonEnabled,
     ripple = MaterialTheme.wireColorScheme.tertiaryButtonRipple
 )
 

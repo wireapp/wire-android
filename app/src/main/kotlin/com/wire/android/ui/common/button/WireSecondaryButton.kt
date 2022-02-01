@@ -123,16 +123,22 @@ fun WireSecondaryButtonLoadingPreview() {
     WireSecondaryButton(onClick = { }, loading = true, text = "text")
 }
 
-@Preview(name = "Default Disabled WireSecondaryButton")
+@Preview(name = "Disabled WireSecondaryButton")
 @Composable
 fun WireSecondaryButtonDisabledPreview() {
     WireSecondaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text")
 }
 
-@Preview(name = "Default Selected WireSecondaryButton")
+@Preview(name = "Selected WireSecondaryButton")
 @Composable
 fun WireSecondaryButtonSelectedPreview() {
     WireSecondaryButton(onClick = { }, state = WireButtonState.Selected, text = "text")
+}
+
+@Preview(name = "Error WireSecondaryButton")
+@Composable
+fun WireSecondaryButtonErrorPreview() {
+    WireSecondaryButton(onClick = { }, state = WireButtonState.Error, text = "text")
 }
 
 @Preview(name = "Three WireSecondaryButtons with different states")

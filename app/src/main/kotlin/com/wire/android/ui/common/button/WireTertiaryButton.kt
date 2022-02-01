@@ -103,8 +103,15 @@ fun WireTertiaryButtonDisabledPreview() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text", fillMaxWidth = false)
 }
 
-@Preview(name = "Default narrow Selected WireSecondaryButton")
+@Preview(name = "Selected narrow WireSecondaryButton")
 @Composable
 fun WireTertiaryButtonSelectedPreview() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Selected, text = "text", fillMaxWidth = false)
 }
+
+@Preview(name = "Error narrow WireSecondaryButton")
+@Composable
+fun WireTertiaryButtonErrorPreview() {
+    WireTertiaryButton(onClick = { }, state = WireButtonState.Error, text = "text", fillMaxWidth = false)
+}
+

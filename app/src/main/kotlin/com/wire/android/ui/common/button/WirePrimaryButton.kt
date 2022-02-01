@@ -128,16 +128,22 @@ fun WirePrimaryButtonLoadingPreview() {
     WirePrimaryButton(onClick = { }, loading = true, text = "text")
 }
 
-@Preview(name = "Default Disabled WirePrimaryButton")
+@Preview(name = "Disabled WirePrimaryButton")
 @Composable
 fun WirePrimaryButtonDisabledPreview() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text")
 }
 
-@Preview(name = "Default Selected WirePrimaryButton")
+@Preview(name = "Selected WirePrimaryButton")
 @Composable
 fun WirePrimaryButtonSelectedPreview() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Selected, text = "text")
+}
+
+@Preview(name = "Error WirePrimaryButton")
+@Composable
+fun WirePrimaryButtonErrorPreview() {
+    WirePrimaryButton(onClick = { }, state = WireButtonState.Error, text = "text")
 }
 
 

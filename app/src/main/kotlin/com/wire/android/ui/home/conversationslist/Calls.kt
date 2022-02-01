@@ -22,12 +22,12 @@ import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversationslist.common.MissedCallBadge
 import com.wire.android.ui.home.conversationslist.common.RowItem
-import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Call
 import com.wire.android.ui.home.conversationslist.model.CallEvent
 import com.wire.android.ui.home.conversationslist.model.CallTime
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
+import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
@@ -35,7 +35,7 @@ import com.wire.android.ui.theme.wireTypography
 fun CallScreen(
     missedCalls: List<Call> = emptyList(),
     callHistory: List<Call> = emptyList(),
-    onCallItemClick: () -> Unit
+    onCallItemClick: (String) -> Unit
 ) {
     CallContent(
         missedCalls = missedCalls,
@@ -49,7 +49,7 @@ fun CallScreen(
 fun CallContent(
     missedCalls: List<Call>,
     callHistory: List<Call>,
-    onCallItemClick: () -> Unit
+    onCallItemClick: (String) -> Unit
 ) {
     LazyColumn {
         folderWithElements(
@@ -77,9 +77,9 @@ fun CallContent(
 @Composable
 fun MissedCallRowItem(
     missedCall: Call,
-    onCallItemClick: () -> Unit
+    onCallItemClick: (String) -> Unit
 ) {
-    RowItem(onRowItemClick = onCallItemClick) {
+    RowItem(onRowItemClick = { onCallItemClick("SomeId") }) {
         CallLabel(missedCall)
         Box(modifier = Modifier.fillMaxWidth()) {
             MissedCallBadge(
@@ -92,8 +92,8 @@ fun MissedCallRowItem(
 }
 
 @Composable
-private fun CallHistoryRowItem(callHistory: Call, onCallItemClick: () -> Unit) {
-    RowItem(onRowItemClick = onCallItemClick) {
+private fun CallHistoryRowItem(callHistory: Call, onCallItemClick: (String) -> Unit) {
+    RowItem(onRowItemClick = { onCallItemClick("SomeId") }) {
         CallLabel(callHistory)
     }
 }

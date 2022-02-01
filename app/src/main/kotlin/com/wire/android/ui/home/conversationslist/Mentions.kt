@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversationlist
+package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,10 +17,10 @@ import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.common.UnreadMentionBadge
-import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Mention
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
+import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
@@ -29,7 +29,7 @@ import com.wire.android.ui.theme.wireTypography
 fun MentionScreen(
     unreadMentions: List<Mention> = emptyList(),
     allMentions: List<Mention> = emptyList(),
-    onMentionItemClick: () -> Unit
+    onMentionItemClick: (String) -> Unit
 ) {
     MentionContent(
         unreadMentions = unreadMentions,
@@ -43,7 +43,7 @@ fun MentionScreen(
 private fun MentionContent(
     unreadMentions: List<Mention>,
     allMentions: List<Mention>,
-    onMentionItemClick: () -> Unit
+    onMentionItemClick: (String) -> Unit
 ) {
     LazyColumn {
         folderWithElements(
@@ -69,8 +69,8 @@ private fun MentionContent(
 }
 
 @Composable
-fun UnreadMentionRowItem(unreadMention: Mention, onMentionItemClick: () -> Unit) {
-    RowItem(onRowItemClick = onMentionItemClick) {
+fun UnreadMentionRowItem(unreadMention: Mention, onMentionItemClick: (String) -> Unit) {
+    RowItem(onRowItemClick = { onMentionItemClick("someId") }) {
         MentionLabel(
             mention = unreadMention,
             modifier = Modifier
@@ -86,8 +86,8 @@ fun UnreadMentionRowItem(unreadMention: Mention, onMentionItemClick: () -> Unit)
 }
 
 @Composable
-fun AllMentionRowItem(mention: Mention, onMentionItemClick: () -> Unit) {
-    RowItem(onRowItemClick = onMentionItemClick) {
+fun AllMentionRowItem(mention: Mention, onMentionItemClick: (String) -> Unit) {
+    RowItem(onRowItemClick = { onMentionItemClick("someId") }) {
         MentionLabel(
             mention = mention,
             modifier = Modifier.padding(end = 42.dp)

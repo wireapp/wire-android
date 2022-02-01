@@ -46,7 +46,11 @@ class ConversationListViewModel @Inject constructor(
 
     fun openConversation(conversationId: String) {
         viewModelScope.launch {
-            navigationManager.navigate(command = NavigationCommand(destination = NavigationItem.Conversation.createRoute(conversationId = conversationId)))
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.Conversation.createRoute(conversationId = conversationId)
+                )
+            )
         }
     }
 

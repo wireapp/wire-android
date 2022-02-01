@@ -6,6 +6,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
+import com.wire.android.ui.home.conversationslist.model.Conversation
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
@@ -15,7 +16,7 @@ import com.wire.android.ui.home.conversationslist.model.NewActivity
 @Composable
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<ConversationType>>,
+    conversations: Map<ConversationFolder, List<Conversation>>,
     //TODO: This is going to be replaced with proper lambda, test purpose only
     onOpenConversationClick: (String) -> Unit
 ) {
@@ -29,7 +30,7 @@ fun AllConversationScreen(
 @Composable
 private fun AllConversationContent(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<ConversationType>>,
+    conversations: Map<ConversationFolder, List<Conversation>>,
     onConversationItemClick: (String) -> Unit,
 ) {
     LazyColumn {
@@ -39,7 +40,7 @@ private fun AllConversationContent(
         ) { newActivity ->
             ConversationItemFactory(
                 item = newActivity.conversation,
-                eventType = EventType.MissedCall,
+                eventType = newActivity.eventType,
                 onConversationItemClick = { onConversationItemClick("someId") }
             )
         }
@@ -51,7 +52,6 @@ private fun AllConversationContent(
             ) { conversation ->
                 ConversationItemFactory(
                     item = conversation,
-                    eventType = EventType.MissedCall,
                     onConversationItemClick = { onConversationItemClick("someId") }
                 )
             }

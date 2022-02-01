@@ -38,7 +38,7 @@ private fun MentionContent(
         ) { unreadMention ->
             ConversationItemFactory(
                 item = unreadMention,
-                eventType = EventType.MissedCall,
+                eventType = EventType.UnreadMention,
                 onConversationItemClick = { onMentionItemClick("someId") }
             )
         }
@@ -49,7 +49,6 @@ private fun MentionContent(
         ) { mention ->
             ConversationItemFactory(
                 item = mention,
-                eventType = EventType.MissedCall,
                 onConversationItemClick = { onMentionItemClick("someId") }
             )
         }

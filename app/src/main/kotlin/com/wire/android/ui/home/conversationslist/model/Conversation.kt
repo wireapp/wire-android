@@ -32,14 +32,6 @@ data class UserInfo(
     val availabilityStatus: AvailabilityStatus = AvailabilityStatus.None
 )
 
-enum class AvailabilityStatus {
-    Available, Busy, Away, None
-}
-
-enum class Membership(@StringRes val stringResourceId: Int) {
-    Guest(R.string.label_membership_guest), External(R.string.label_memebership_external), None(-1)
-}
-
 fun ConversationType.PrivateConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,

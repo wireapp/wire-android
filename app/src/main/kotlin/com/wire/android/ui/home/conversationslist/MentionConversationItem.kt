@@ -51,7 +51,7 @@ fun MentionConversationItem(
 }
 
 @Composable
-fun MentionLabel(mentionMessage: MentionMessage) {
+private fun MentionLabel(mentionMessage: MentionMessage) {
     Text(
         text = mentionMessage.toQuote(),
         style = MaterialTheme.wireTypography.subline01,

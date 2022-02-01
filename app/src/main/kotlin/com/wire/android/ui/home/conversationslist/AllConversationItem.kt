@@ -1,8 +1,8 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.runtime.Composable
-import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
+import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversations.common.GroupName
 import com.wire.android.ui.home.conversationslist.model.ConversationType
@@ -33,7 +33,7 @@ fun AllConversationItem(
         is ConversationType.PrivateConversation -> {
             ConversationItemTemplate(
                 leadingIcon = {
-                    UserProfileAvatar()
+                    ConversationUserAvatar("")
                 },
                 title = { UserLabel(userInfoLabel = conversationType.toUserInfoLabel()) },
                 eventType = eventType,

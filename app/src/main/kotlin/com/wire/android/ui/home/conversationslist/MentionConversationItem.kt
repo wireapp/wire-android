@@ -4,8 +4,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.TextOverflow
-import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
+import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversations.common.GroupName
 import com.wire.android.ui.home.conversationslist.model.ConversationType
@@ -39,7 +39,7 @@ fun MentionConversationItem(
         is ConversationType.PrivateConversation -> {
             with(conversationType) {
                 ConversationItemTemplate(
-                    leadingIcon = { UserProfileAvatar() },
+                    leadingIcon = { ConversationUserAvatar("") },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,

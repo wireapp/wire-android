@@ -13,6 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
+import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversations.common.GroupName
 import com.wire.android.ui.home.conversationslist.model.Call
@@ -55,7 +56,7 @@ fun CallConversationItem(
             is ConversationType.PrivateConversation -> {
                 ConversationItemTemplate(
                     leadingIcon = {
-                        UserProfileAvatar()
+                        ConversationUserAvatar("")
                     },
                     title = { UserLabel(conversationType.toUserInfoLabel()) },
                     subTitle = {

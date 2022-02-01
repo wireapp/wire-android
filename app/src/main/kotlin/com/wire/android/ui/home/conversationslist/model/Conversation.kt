@@ -5,8 +5,8 @@ import com.wire.android.R
 import com.wire.android.ui.main.conversationlist.common.UserInfoLabel
 
 
-abstract class Conversation {
-    abstract val conversationType: ConversationType
+interface Conversation {
+    val conversationType: ConversationType
 }
 
 sealed class ConversationType {

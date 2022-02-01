@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
@@ -19,8 +20,8 @@ fun GroupConversationAvatar(colorValue: Long) {
     Box(
         modifier = Modifier
             .padding(8.dp)
-            .size(width = 32.dp, height = 32.dp)
-            .background(color = Color(colorValue), shape = RoundedCornerShape(10.dp))
+            .size(MaterialTheme.wireDimensions.groupAvatarSize)
+            .background(color = Color(colorValue), shape = RoundedCornerShape(MaterialTheme.wireDimensions.groupAvatarCornerRadius))
     )
 }
 

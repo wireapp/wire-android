@@ -6,8 +6,10 @@ import com.wire.android.R
 data class Call(
     val callInfo: CallInfo,
     override val conversationType: ConversationType
-) : Conversation()
+) : Conversation
 
+//TODO: This could be a Long timestamp,
+// waiting for the Kalium back-end to make decision
 data class CallTime(
     val date: String,
     val time: String

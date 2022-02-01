@@ -18,7 +18,7 @@ fun ConversationItemTemplate(
     title: @Composable () -> Unit,
     subTitle: @Composable () -> Unit = {},
     eventType: EventType? = null,
-    onConversationItemClick: () -> Unit = { }
+    onConversationItemClick: () -> Unit
 ) {
     RowItem(onRowItemClick = onConversationItemClick) {
         leadingIcon()

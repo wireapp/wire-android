@@ -5,10 +5,11 @@ import com.wire.android.ui.home.conversationslist.model.Call
 import com.wire.android.ui.home.conversationslist.model.CallEvent
 import com.wire.android.ui.home.conversationslist.model.CallInfo
 import com.wire.android.ui.home.conversationslist.model.CallTime
-import com.wire.android.ui.home.conversationslist.model.Conversation
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
+import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
+import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.Mention
 import com.wire.android.ui.home.conversationslist.model.MentionInfo
@@ -17,15 +18,17 @@ import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 
 val mockConversations = listOf(
-    Conversation(
-        userInfo = UserInfo(),
-        conversationInfo = ConversationInfo(
-            name = "some test value",
-            membership = Membership.Guest,
-            isLegalHold = true
+    GeneralConversation(
+        ConversationType.PrivateConversation(
+            userInfo = UserInfo(),
+            conversationInfo = ConversationInfo(
+                name = "some test value",
+                membership = Membership.Guest,
+                isLegalHold = true
+            )
         )
     ),
-    Conversation(
+    ConversationType(
         userInfo = UserInfo(
             availabilityStatus = AvailabilityStatus.Available
         ),
@@ -34,7 +37,7 @@ val mockConversations = listOf(
             isLegalHold = true
         )
     ),
-    Conversation(
+    ConversationType(
         userInfo = UserInfo(
             availabilityStatus = AvailabilityStatus.Busy
         ),
@@ -43,7 +46,7 @@ val mockConversations = listOf(
             membership = Membership.External
         )
     ),
-    Conversation(
+    ConversationType(
         userInfo = UserInfo(
             availabilityStatus = AvailabilityStatus.Away
         ),
@@ -52,14 +55,14 @@ val mockConversations = listOf(
             isLegalHold = true
         )
     ),
-    Conversation(
+    ConversationType(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "and once more 3",
             membership = Membership.External
         )
     ),
-    Conversation(
+    ConversationType(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
             name = "and once more 4",
@@ -68,7 +71,7 @@ val mockConversations = listOf(
     ),
 )
 
-val mockConversation = Conversation(
+val mockConversation = ConversationType(
     userInfo = UserInfo(),
     conversationInfo = ConversationInfo(
         name = "and once more 4",
@@ -88,16 +91,6 @@ val conversationMockData = mapOf(
                 "VERY VERY VERY VERY VERY LONG NAME"
     ) to mockConversations
 )
-
-val conversationMockData1 = mapOf(
-    ConversationFolder("THIS IS A TEST FOLDER after deletin the first one") to mockConversations,
-    ConversationFolder(
-        "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +
-                " VERY VERY VERY VERY VERY VERY VERY " +
-                "VERY VERY VERY VERY VERY LONG NAME"
-    ) to mockConversations
-)
-
 
 @Suppress("MagicNumber")
 val newActivitiesMockData = listOf(

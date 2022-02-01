@@ -2,7 +2,7 @@ package com.wire.android.ui.home.conversationslist.model
 
 data class Mention(
     val mentionInfo: MentionInfo,
-    val conversation: Conversation
+    val conversationType: ConversationType
 )
 
 data class MentionInfo(val mentionMessage: MentionMessage)

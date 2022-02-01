@@ -1,4 +1,4 @@
-package com.wire.android.ui.login
+package com.wire.android.ui.authentication.login
 
 import android.widget.Toast
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.BackNavigationIconButton
-import com.wire.android.ui.theme.title01
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun LoginTopBar() {
@@ -20,7 +20,7 @@ fun LoginTopBar() {
         title = {
             Text(
                 text = stringResource(R.string.login_title),
-                style = MaterialTheme.typography.title01
+                style = MaterialTheme.wireTypography.title01
             )
         },
         navigationIcon = {

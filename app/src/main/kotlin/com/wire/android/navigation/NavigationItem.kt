@@ -7,12 +7,14 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.wire.android.ui.authentication.AuthScreen
+import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
+import com.wire.android.ui.home.userprofile.UserProfileScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.support.SupportScreen
-import com.wire.android.ui.home.userprofile.UserProfileScreen
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 sealed class NavigationItem(
     open val route: String,
     val arguments: List<NamedNavArgument> = emptyList(),
@@ -21,16 +23,21 @@ sealed class NavigationItem(
 ) {
 
 //    object Splash  //TODO
-//    object Login  //TODO
+
+    @ExperimentalMaterial3Api
+    object Authentication : NavigationItem(
+        route = "auth",
+        content = { AuthScreen() }
+    )
 
     object Home : NavigationItem(
-        route = "home/$HOME_START_TAB_ARGUMENT",
+        route = "home/{$HOME_START_TAB_ARGUMENT}",
         content = { HomeScreen(it.arguments?.getString(HOME_START_TAB_ARGUMENT), hiltViewModel()) },
         arguments = listOf(
             navArgument(HOME_START_TAB_ARGUMENT) { type = NavType.StringType }
         )
     ) {
-        fun navigationRoute(startTabRoute: String): String = "home/$startTabRoute"
+        fun navigationRoute(startTabRoute: String = HomeDestinations.conversations): String = "home/$startTabRoute"
     }
 
     object Settings : NavigationItem(
@@ -53,6 +60,7 @@ sealed class NavigationItem(
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
 
         val globalNavigationItems = listOf(
+            Authentication,
             Settings,
             Support,
             UserProfile,

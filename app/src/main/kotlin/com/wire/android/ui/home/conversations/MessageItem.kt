@@ -36,9 +36,9 @@ import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.Dimensions
-import com.wire.android.ui.theme.body02
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun MessageItem(
@@ -106,7 +106,7 @@ private fun MessageTimeLabel(time: String, modifier: Modifier) {
 private fun Username(username: String) {
     Text(
         text = username,
-        style = MaterialTheme.typography.body02
+        style = MaterialTheme.wireTypography.body02
     )
 }
 
@@ -125,7 +125,7 @@ fun MessageImage(imageUrl: String = "") {
         painter = painterResource(R.drawable.mock_message_image), "",
         alignment = Alignment.CenterStart,
         modifier = Modifier
-            .width(Dimensions.messageImagePortraitModeWidth)
+            .width(MaterialTheme.wireDimensions.messageImagePortraitModeWidth)
     )
 }
 

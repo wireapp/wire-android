@@ -26,7 +26,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.BackNavigationIconButton
 import com.wire.android.ui.common.OnDropDownIconButton
 import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.theme.title01
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun ConversationScreenTopAppBar(
@@ -49,7 +49,7 @@ fun ConversationScreenTopAppBar(
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.title01,
+                    style = MaterialTheme.wireTypography.title01,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

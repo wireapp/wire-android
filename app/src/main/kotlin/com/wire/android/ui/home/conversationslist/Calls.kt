@@ -28,8 +28,8 @@ import com.wire.android.ui.home.conversationslist.model.Call
 import com.wire.android.ui.home.conversationslist.model.CallEvent
 import com.wire.android.ui.home.conversationslist.model.CallTime
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
-import com.wire.android.ui.theme.subline01
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun CallScreen(
@@ -126,6 +126,6 @@ private fun CallEventIcon(callEvent: CallEvent, modifier: Modifier = Modifier) {
 
 @Composable
 private fun TimeLabel(callTime: CallTime) {
-    Text(text = callTime.toLabel(), style = MaterialTheme.typography.subline01, color = MaterialTheme.wireColorScheme.secondaryText)
+    Text(text = callTime.toLabel(), style = MaterialTheme.wireTypography.subline01, color = MaterialTheme.wireColorScheme.secondaryText)
 }
 

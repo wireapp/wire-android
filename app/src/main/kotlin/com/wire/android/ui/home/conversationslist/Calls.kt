@@ -19,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversationslist.common.MissedCallBadge
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.main.conversationlist.common.UserLabel
@@ -101,7 +101,7 @@ private fun CallHistoryRowItem(callHistory: Call, onCallItemClick: () -> Unit) {
 @Composable
 private fun CallLabel(call: Call) {
     with(call) {
-        UserProfileAvatar(avatarUrl = conversation.userInfo.avatarUrl, onClick = {})
+        ConversationUserAvatar(avatarUrl = conversation.userInfo.avatarUrl)
         Column {
             UserLabel(conversation.toUserInfoLabel())
             with(callInfo) {

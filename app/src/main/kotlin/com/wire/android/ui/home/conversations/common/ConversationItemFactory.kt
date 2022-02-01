@@ -11,8 +11,8 @@ import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Mention
 
 @Composable
-inline fun <reified Conversation> ConversationItemFactory(
-    item: Conversation,
+inline fun <T : Conversation> ConversationItemFactory(
+    item: T,
     eventType: EventType? = null,
     noinline onConversationItemClick: () -> Unit
 ) {

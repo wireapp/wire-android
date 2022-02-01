@@ -36,38 +36,33 @@ fun UserProfileAvatar(
             .wrapContentSize()
             .clip(CircleShape)
             .then(if (isClickable) Modifier.clickable { onClick() } else Modifier)
-
+            .wrapContentSize()
+            .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
+        Image(
+            painter = painterResource(getAvatarAsDrawable(avatarUrl)),
+            contentDescription = stringResource(R.string.content_description_user_avatar),
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .background(Color.Black, CircleShape)
+                .size(size)
+        )
         Box(
-            modifier = modifier
-                .wrapContentSize()
-                .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.align(Alignment.BottomEnd)
         ) {
-            Image(
-                painter = painterResource(getAvatarAsDrawable(avatarUrl)),
-                contentDescription = stringResource(R.string.content_description_user_avatar),
-                contentScale = ContentScale.Crop,
+            Box(
                 modifier = Modifier
-                    .background(Color.Black, CircleShape)
-                    .size(size)
+                    .size(MaterialTheme.wireDimensions.userAvatarBorderSize)
+                    .clip(CircleShape)
+                    .background(Color.White)
             )
             Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.align(Alignment.BottomEnd)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(MaterialTheme.wireDimensions.userAvatarBorderSize)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                )
-                Box(
-                    modifier = Modifier
-                        .size(MaterialTheme.wireDimensions.userAvatarStatusSize)
-                        .clip(CircleShape)
-                        .background(Color.Green) // TODO: Map UserStatus availability to the right icon shape/color once this logic exists in Kalium
-                )
-            }
+                modifier = Modifier
+                    .size(MaterialTheme.wireDimensions.userAvatarStatusSize)
+                    .clip(CircleShape)
+                    .background(Color.Green) //TODO: Map UserStatus availability to the right icon shape/color
+            )
         }
     }
 }

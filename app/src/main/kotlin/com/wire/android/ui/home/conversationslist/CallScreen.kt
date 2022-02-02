@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
-import com.wire.android.ui.home.conversationslist.model.Conversation.ConversationMissedCall
+import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
 import com.wire.android.ui.home.conversationslist.model.EventType
 
 @Composable
@@ -35,7 +35,7 @@ fun CallContent(
             items = missedCalls
         ) { missedCall ->
             CallConversationItem(
-                call = missedCall,
+                conversationMissedCall = missedCall,
                 eventType = EventType.MissedCall,
                 onCallItemClick = { onCallItemClick("someId") }
             )
@@ -46,7 +46,7 @@ fun CallContent(
             items = callHistory
         ) { callHistory ->
             CallConversationItem(
-                call = callHistory,
+                conversationMissedCall = callHistory,
                 onCallItemClick = { onCallItemClick("someId") }
             )
         }

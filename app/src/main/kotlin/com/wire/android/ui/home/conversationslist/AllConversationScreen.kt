@@ -6,16 +6,15 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
-import com.wire.android.ui.home.conversationslist.model.Conversation
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 
 
 @Composable
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<Conversation>>,
-    //TODO: This is going to be replaced with proper lambda, test purpose only
+    conversations: Map<ConversationFolder, List<ConversationItem>>,
     onOpenConversationClick: (String) -> Unit
 ) {
     AllConversationContent(
@@ -28,7 +27,7 @@ fun AllConversationScreen(
 @Composable
 private fun AllConversationContent(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<Conversation>>,
+    conversations: Map<ConversationFolder, List<ConversationItem>>,
     onConversationItemClick: (String) -> Unit,
 ) {
     LazyColumn {
@@ -37,7 +36,7 @@ private fun AllConversationContent(
             items = newActivities
         ) { newActivity ->
             ConversationItemFactory(
-                conversation = newActivity.conversation,
+                conversation = newActivity.conversationItem,
                 eventType = newActivity.eventType,
                 onConversationItemClick = { onConversationItemClick("someId") }
             )

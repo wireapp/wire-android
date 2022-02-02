@@ -5,16 +5,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
+import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.EventType
-import com.wire.android.ui.home.conversationslist.model.Mention
 
 
 @Composable
 fun MentionScreen(
-    unreadMentions: List<Mention> = emptyList(),
-    allMentions: List<Mention> = emptyList(),
+    unreadMentions: List<ConversationUnreadMention> = emptyList(),
+    allMentions: List<ConversationUnreadMention> = emptyList(),
     onMentionItemClick: (String) -> Unit
 ) {
     MentionContent(
@@ -27,8 +26,8 @@ fun MentionScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MentionContent(
-    unreadMentions: List<Mention>,
-    allMentions: List<Mention>,
+    unreadMentions: List<ConversationUnreadMention>,
+    allMentions: List<ConversationUnreadMention>,
     onMentionItemClick: (String) -> Unit
 ) {
     LazyColumn {

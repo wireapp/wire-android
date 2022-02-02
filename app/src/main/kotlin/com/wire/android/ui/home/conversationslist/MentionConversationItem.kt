@@ -8,15 +8,14 @@ import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
 import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversations.common.GroupName
-import com.wire.android.ui.home.conversationslist.model.Conversation.*
 import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.MentionMessage
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-
 
 @Composable
 fun MentionConversationItem(

@@ -105,7 +105,7 @@ fun WireButton(
 }
 
 @Composable
-fun InnerButtonBox(
+private fun InnerButtonBox(
     fillMaxWidth: Boolean = true,
     loading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,

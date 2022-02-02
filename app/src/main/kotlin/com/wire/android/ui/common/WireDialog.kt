@@ -36,6 +36,8 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun WireDialog(
+    title: String,
+    text: String,
     openDialog: Boolean,
     onDismiss: () -> Unit,
     confirmButtonProperties: WireDialogButtonProperties,
@@ -44,8 +46,6 @@ fun WireDialog(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
-    title: String? = null,
-    text: String? = null,
     content: @Composable (() -> Unit)? = null
 ) {
     if (openDialog)
@@ -59,20 +59,21 @@ fun WireDialog(
                 contentPadding = contentPadding,
                 title = title,
                 text = text,
-                content = content)
+                content = content
+            )
         }
 }
 
 @Composable
 private fun WireDialogContent(
+    title: String,
+    text: String,
     confirmButtonProperties: WireDialogButtonProperties,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
-    title: String? = null,
-    text: String? = null,
     content: @Composable (() -> Unit)? = null
 ) {
     Surface(
@@ -81,21 +82,19 @@ private fun WireDialogContent(
         color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(contentPadding)) {
-            title?.let {
-                Text(
-                    text = title,
-                    style = MaterialTheme.wireTypography.title02,
-                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
-                )
-            }
-            text?.let {
-                Text(
-                    text = text,
-                    style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
-                )
-            }
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(contentPadding)) {
+            Text(
+                text = title,
+                style = MaterialTheme.wireTypography.title02,
+                modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.wireTypography.body01,
+                modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
+            )
             content?.let {
                 Box(modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
                     it.invoke()
@@ -138,21 +137,25 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
 
 @Preview(showBackground = true)
 @Composable
-fun WireDialogPreview() {
+private fun WireDialogPreview() {
     var password by remember { mutableStateOf(TextFieldValue("")) }
     WireTheme(useDarkColors = false, isPreview = true) {
-        Box(contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxWidth().padding(20.dp)) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
             WireDialogContent(
                 confirmButtonProperties = WireDialogButtonProperties(
                     text = "OK",
-                    onClick = {  },
+                    onClick = { },
                     type = WireDialogButtonType.Primary,
                     state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
                 ),
                 dismissButtonProperties = WireDialogButtonProperties(
                     text = "Cancel",
-                    onClick = {  }
+                    onClick = { }
                 ),
                 title = "title",
                 text = "text",

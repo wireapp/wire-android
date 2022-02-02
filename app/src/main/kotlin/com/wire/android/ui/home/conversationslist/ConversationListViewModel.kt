@@ -1,6 +1,8 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
@@ -27,7 +29,7 @@ class ConversationListViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(ConversationListState())
 
-    val listState: StateFlow<ConversationListState>
+    val state: StateFlow<ConversationListState>
         get() = _state
 
     init {

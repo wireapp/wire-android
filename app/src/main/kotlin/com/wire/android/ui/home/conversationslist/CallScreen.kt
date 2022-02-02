@@ -7,6 +7,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
+import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
 
 @Composable
@@ -14,7 +15,7 @@ fun CallScreen(
     missedCalls: List<ConversationMissedCall> = emptyList(),
     callHistory: List<ConversationMissedCall> = emptyList(),
     onCallItemClick: (String) -> Unit,
-    onEditConversationItem: () -> Unit
+    onEditConversationItem: (ConversationType) -> Unit
 ) {
     CallContent(
         missedCalls = missedCalls,
@@ -30,7 +31,7 @@ fun CallContent(
     missedCalls: List<ConversationMissedCall>,
     callHistory: List<ConversationMissedCall>,
     onCallItemClick: (String) -> Unit,
-    onEditConversationItem: () -> Unit
+    onEditConversationItem: (ConversationType) -> Unit
 ) {
     LazyColumn {
         folderWithElements(
@@ -41,7 +42,7 @@ fun CallContent(
                 conversationMissedCall = missedCall,
                 eventType = EventType.MissedCall,
                 onCallItemClick = { onCallItemClick("someId") },
-                onCallItemLongClick = onEditConversationItem
+                onCallItemLongClick = { onEditConversationItem(missedCall.conversationType) }
             )
         }
 
@@ -52,7 +53,7 @@ fun CallContent(
             CallConversationItem(
                 conversationMissedCall = callHistory,
                 onCallItemClick = { onCallItemClick("someId") },
-                onCallItemLongClick = onEditConversationItem
+                onCallItemLongClick = { onEditConversationItem(callHistory.conversationType) }
             )
         }
     }

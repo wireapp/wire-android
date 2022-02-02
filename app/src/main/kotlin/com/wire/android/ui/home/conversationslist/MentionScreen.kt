@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
+import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.EventType
 
@@ -15,7 +16,7 @@ fun MentionScreen(
     unreadMentions: List<ConversationUnreadMention> = emptyList(),
     allMentions: List<ConversationUnreadMention> = emptyList(),
     onMentionItemClick: (String) -> Unit,
-    onEditConversationItem: () -> Unit
+    onEditConversationItem: (ConversationType) -> Unit
 ) {
     MentionContent(
         unreadMentions = unreadMentions,
@@ -31,7 +32,7 @@ private fun MentionContent(
     unreadMentions: List<ConversationUnreadMention>,
     allMentions: List<ConversationUnreadMention>,
     onMentionItemClick: (String) -> Unit,
-    onEditConversationItem: () -> Unit
+    onEditConversationItem: (ConversationType) -> Unit
 ) {
     LazyColumn {
         folderWithElements(
@@ -42,7 +43,7 @@ private fun MentionContent(
                 mention = unreadMention,
                 eventType = EventType.UnreadMention,
                 onMentionItemClick = { onMentionItemClick("someId") },
-                onConversationItemLongClick = onEditConversationItem
+                onConversationItemLongClick = { onEditConversationItem(unreadMention.conversationType) }
             )
         }
 
@@ -53,7 +54,7 @@ private fun MentionContent(
             MentionConversationItem(
                 mention = mention,
                 onMentionItemClick = { onMentionItemClick("someId") },
-                onConversationItemLongClick = onEditConversationItem
+                onConversationItemLongClick = { onEditConversationItem(mention.conversationType) }
             )
         }
     }

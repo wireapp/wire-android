@@ -45,7 +45,7 @@ fun MentionConversationItem(
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,
                     onConversationItemClick = onMentionItemClick,
-                    onConversationItemLongClick = onConversationItemLongClick
+                    onConversationItemLongClick =  onConversationItemLongClick
                 )
             }
         }

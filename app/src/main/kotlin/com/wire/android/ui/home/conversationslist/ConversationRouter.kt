@@ -40,7 +40,7 @@ private fun ConversationRouter(
 ) {
     ConversationModalBottomSheet(
         modalBottomSheetState = conversationState.modalBottomSheetState,
-        modalSheetContentState = conversationState.modalSheetContentState
+        modalBottomSheetContentState = conversationState.modalBottomSheetContentState
     ) {
         Scaffold(
             floatingActionButton = { FloatingActionButton(stringResource(R.string.label_new), {}) },

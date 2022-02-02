@@ -44,7 +44,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun ConversationModalBottomSheet(
     modalBottomSheetState: ModalBottomSheetState,
-    modalSheetContentState: ModalSheetContentState,
+    modalBottomSheetContentState: ModalBottomSheetContentState,
     content: @Composable () -> Unit
 ) {
     ModalBottomSheetLayout(
@@ -60,7 +60,10 @@ fun ConversationModalBottomSheet(
                         .align(alignment = Alignment.CenterHorizontally),
                     thickness = 4.dp
                 )
-                ModalBottomSheetHeader(modalSheetContentState)
+                ModalBottomSheetHeader(
+                    title = modalBottomSheetContentState.title.value,
+                    avatar = modalBottomSheetContentState.avatar.value
+                )
                 Divider()
                 ModalBottomSheetItems()
             }
@@ -150,7 +153,7 @@ fun ModalBottomSheetItems() {
 }
 
 @Composable
-fun ModalBottomSheetHeader(modalSheetContentState: ModalSheetContentState) {
+fun ModalBottomSheetHeader(title: String, avatar: ModalSheetAvatar) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(
@@ -159,14 +162,14 @@ fun ModalBottomSheetHeader(modalSheetContentState: ModalSheetContentState) {
             bottom = 8.dp
         )
     ) {
-        when (val avatar = modalSheetContentState.avatar.value) {
+        when (avatar) {
             is ModalSheetAvatar.GroupAvatar -> GroupConversationAvatar(colorValue = avatar.groupColor)
             is ModalSheetAvatar.UserAvatar -> UserProfileAvatar()
             ModalSheetAvatar.None -> CircularProgressIndicator(progressColor = Color.Blue)
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = modalSheetContentState.title.value,
+            text = title,
             style = MaterialTheme.wireTypography.body02
         )
     }
@@ -231,7 +234,7 @@ private fun ModalBottomSheetItem(
     }
 }
 
-class ModalSheetContentState {
+class ModalBottomSheetContentState {
     val title: MutableState<String> = mutableStateOf("")
     val avatar: MutableState<ModalSheetAvatar> = mutableStateOf(ModalSheetAvatar.None)
 }
@@ -243,8 +246,8 @@ sealed class ModalSheetAvatar {
 }
 
 @Composable
-fun rememberModalSheetContentState(): ModalSheetContentState {
+fun rememberModalSheetContentState(): ModalBottomSheetContentState {
     return remember {
-        ModalSheetContentState()
+        ModalBottomSheetContentState()
     }
 }

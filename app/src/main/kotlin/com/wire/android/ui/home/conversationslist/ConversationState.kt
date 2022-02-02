@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class ConversationState(
     val navHostController: NavHostController,
     val modalBottomSheetState: ModalBottomSheetState,
-    val modalSheetContentState: ModalSheetContentState,
+    val modalBottomSheetContentState: ModalBottomSheetContentState,
     private val coroutineScope: CoroutineScope
 ) {
 
@@ -25,14 +25,14 @@ class ConversationState(
         when (conversationType) {
             is ConversationType.GroupConversation -> {
                 with(conversationType) {
-                    modalSheetContentState.avatar.value = ModalSheetAvatar.GroupAvatar(groupColorValue)
-                    modalSheetContentState.title.value = groupName
+                    modalBottomSheetContentState.avatar.value = ModalSheetAvatar.GroupAvatar(groupColorValue)
+                    modalBottomSheetContentState.title.value = groupName
                 }
             }
             is ConversationType.PrivateConversation -> {
                 with(conversationType) {
-                    modalSheetContentState.avatar.value = ModalSheetAvatar.UserAvatar(userInfo.avatarUrl)
-                    modalSheetContentState.title.value = conversationInfo.name
+                    modalBottomSheetContentState.avatar.value = ModalSheetAvatar.UserAvatar(userInfo.avatarUrl)
+                    modalBottomSheetContentState.title.value = conversationInfo.name
                 }
             }
         }
@@ -45,13 +45,13 @@ class ConversationState(
 fun rememberConversationState(
     navHostController: NavHostController = rememberNavController(),
     modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
-    modalSheetContentState: ModalSheetContentState = rememberModalSheetContentState(),
+    modalBottomSheetContentState: ModalBottomSheetContentState = rememberModalSheetContentState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
-) = remember(navHostController, modalBottomSheetState, modalSheetContentState, coroutineScope) {
+) = remember(navHostController, modalBottomSheetState, modalBottomSheetContentState, coroutineScope) {
     ConversationState(
         navHostController,
         modalBottomSheetState,
-        modalSheetContentState,
+        modalBottomSheetContentState,
         coroutineScope
     )
 }

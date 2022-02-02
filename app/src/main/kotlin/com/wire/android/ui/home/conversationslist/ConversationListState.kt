@@ -5,11 +5,12 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
 import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
+import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 
 data class ConversationListState(
     val newActivities: List<NewActivity> = emptyList(),
-    val conversations: Map<ConversationFolder, List<ConversationItem>> = emptyMap(),
+    val conversations: Map<ConversationFolder, List<GeneralConversation>> = emptyMap(),
     val missedCalls: List<ConversationMissedCall> = emptyList(),
     val callHistory: List<ConversationMissedCall> = emptyList(),
     val unreadMentions: List<ConversationUnreadMention> = emptyList(),

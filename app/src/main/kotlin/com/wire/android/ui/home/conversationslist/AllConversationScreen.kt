@@ -7,14 +7,14 @@ import com.wire.android.R
 import com.wire.android.ui.home.conversations.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
-import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 
 
 @Composable
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<ConversationItem>>,
+    conversations: Map<ConversationFolder, List<GeneralConversation>>,
     onOpenConversationClick: (String) -> Unit
 ) {
     AllConversationContent(
@@ -27,7 +27,7 @@ fun AllConversationScreen(
 @Composable
 private fun AllConversationContent(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<ConversationItem>>,
+    conversations: Map<ConversationFolder, List<GeneralConversation>>,
     onConversationItemClick: (String) -> Unit,
 ) {
     LazyColumn {
@@ -46,9 +46,9 @@ private fun AllConversationContent(
             folderWithElements(
                 header = { conversationFolder.folderName },
                 items = conversationList
-            ) { conversation ->
-                ConversationItemFactory(
-                    conversation = conversation,
+            ) { generalConversation ->
+                GeneralConversationItem(
+                    generalConversation = generalConversation,
                     onConversationItemClick = { onConversationItemClick("someId") }
                 )
             }

@@ -89,12 +89,13 @@ dependencies {
     implementation(Libraries.material)
     implementation(Libraries.livedataKtx)
     implementation(Libraries.viewModelKtx)
-    //implementation(Libraries.Koin.androidCore)
-    //implementation(Libraries.Koin.viewModel)
     implementation(Libraries.Kotlin.coroutinesCore)
     implementation(Libraries.Kotlin.coroutinesAndroid)
     implementation(Libraries.viewPager2)
     implementation(Libraries.visibilityModifiers)
+
+    // Localisation
+    implementation(Libraries.crowdin)
 
     // lifecycle
     // ViewModel

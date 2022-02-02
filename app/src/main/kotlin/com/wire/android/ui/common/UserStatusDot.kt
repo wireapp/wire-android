@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.theme.WireColor
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable

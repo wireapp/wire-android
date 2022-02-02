@@ -41,13 +41,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.textfield.WirePrimaryButton
-import com.wire.android.ui.theme.Dimensions
-import com.wire.android.ui.theme.body02
-import com.wire.android.ui.theme.label01
-import com.wire.android.ui.theme.subline01
-import com.wire.android.ui.theme.title01
-import com.wire.android.ui.theme.title02
-import com.wire.android.ui.theme.title03
+import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,7 +92,7 @@ fun renderUserProfileScreen(state: UserProfileState, viewModel: UserProfileViewM
             title = {
                 Text(
                     text = stringResource(id = R.string.user_profile_tile),
-                    style = MaterialTheme.typography.title01,
+                    style = MaterialTheme.wireTypography.title01,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
 
@@ -121,7 +115,7 @@ fun renderUserProfileScreen(state: UserProfileState, viewModel: UserProfileViewM
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
-            size = Dimensions.userAvatarBig,
+            size = 64.dp,
             avatarUrl = state.avatarUrl
         )
 
@@ -134,7 +128,7 @@ fun renderUserProfileScreen(state: UserProfileState, viewModel: UserProfileViewM
                     end.linkTo(parent.end)
                 },
             text = state.fullName,
-            style = MaterialTheme.typography.title02,
+            style = MaterialTheme.wireTypography.title02,
             color = MaterialTheme.colorScheme.onBackground,
         )
 
@@ -146,7 +140,7 @@ fun renderUserProfileScreen(state: UserProfileState, viewModel: UserProfileViewM
                     end.linkTo(parent.end)
                 },
             text = state.userName,
-            style = MaterialTheme.typography.body02,
+            style = MaterialTheme.wireTypography.body02,
             color = MaterialTheme.colorScheme.onBackground,
         )
 
@@ -159,7 +153,7 @@ fun renderUserProfileScreen(state: UserProfileState, viewModel: UserProfileViewM
                     end.linkTo(parent.end)
                 },
             text = state.teamName,
-            style = MaterialTheme.typography.label01,
+            style = MaterialTheme.wireTypography.label01,
             color = MaterialTheme.colorScheme.onBackground,
         )
 
@@ -244,7 +238,7 @@ fun renderUserProfileScreen(state: UserProfileState, viewModel: UserProfileViewM
                     end.linkTo(parent.end)
                 },
             text = stringResource(id = R.string.user_profile_other_accs).uppercase(),
-            style = MaterialTheme.typography.title03,
+            style = MaterialTheme.wireTypography.title03,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Start
         )
@@ -276,6 +270,7 @@ fun renderUserProfileScreen(state: UserProfileState, viewModel: UserProfileViewM
                     end.linkTo(parent.end)
                 }) {
             WirePrimaryButton(
+                modifier = Modifier.background(MaterialTheme.colorScheme.background),
                 text = stringResource(R.string.user_profile_new_acc_text),
                 onClick = {})
         }
@@ -312,10 +307,10 @@ private fun OtherAccountItem(account: OtherAccount, onClick: (String) -> Unit = 
                 start.linkTo(avatar.end)
             }) {
 
-            Text(text = account.fullName, style = MaterialTheme.typography.body02)
+            Text(text = account.fullName, style = MaterialTheme.wireTypography.body02)
 
             if (account.teamName != null) {
-                Text(text = account.teamName, style = MaterialTheme.typography.subline01)
+                Text(text = account.teamName, style = MaterialTheme.wireTypography.subline01)
             }
         }
     }

@@ -28,8 +28,8 @@ import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireButtonColors
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.wirePrimaryButtonColors
-import com.wire.android.ui.theme.Dimensions
-import com.wire.android.ui.theme.button03
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun WirePrimaryButton(
@@ -40,18 +40,18 @@ fun WirePrimaryButton(
     trailingIcon: @Composable (() -> Unit)? = null,
     trailingIconAlignment: IconAlignment = IconAlignment.Border,
     text: String? = null,
-    textStyle: TextStyle = MaterialTheme.typography.button03,
+    textStyle: TextStyle = MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
-    minHeight: Dp = Dimensions.buttonMinHeight,
-    minWidth: Dp = Dimensions.buttonMinWidth,
+    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinHeight,
+    minWidth: Dp = MaterialTheme.wireDimensions.buttonMinWidth,
     fillMaxWidth: Boolean = true,
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireButtonColors = wirePrimaryButtonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
     borderWidth: Dp = 0.dp,
     contentPadding: PaddingValues = PaddingValues(
-        horizontal = Dimensions.buttonHorizontalContentPadding,
-        vertical = Dimensions.buttonVerticalContentPadding
+        horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,
+        vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     modifier: Modifier = Modifier,

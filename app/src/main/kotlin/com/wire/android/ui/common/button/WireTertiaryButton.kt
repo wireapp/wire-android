@@ -18,8 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.Icon
-import com.wire.android.ui.theme.Dimensions
-import com.wire.android.ui.theme.button04
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun WireTertiaryButton(
@@ -30,18 +30,18 @@ fun WireTertiaryButton(
     trailingIcon: @Composable (() -> Unit)? = null,
     trailingIconAlignment: IconAlignment = IconAlignment.Border,
     text: String? = null,
-    textStyle: TextStyle = MaterialTheme.typography.button04,
+    textStyle: TextStyle = MaterialTheme.wireTypography.button04,
     state: WireButtonState = WireButtonState.Default,
-    minHeight: Dp = Dimensions.buttonMinHeight,
-    minWidth: Dp = Dimensions.buttonMinWidth,
+    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinHeight,
+    minWidth: Dp = MaterialTheme.wireDimensions.buttonMinWidth,
     fillMaxWidth: Boolean = true,
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireButtonColors = wireTertiaryButtonColors(),
     elevation: ButtonElevation? = null,
     borderWidth: Dp = 1.dp,
     contentPadding: PaddingValues = PaddingValues(
-        horizontal = Dimensions.buttonHorizontalContentPadding,
-        vertical = Dimensions.buttonVerticalContentPadding
+        horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,
+        vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     modifier: Modifier = Modifier,

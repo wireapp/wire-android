@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -13,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.R
 import com.wire.android.ui.home.archive.ArchiveScreen
-import com.wire.android.ui.home.conversations.ConversationsScreen
+import com.wire.android.ui.home.conversationslist.ConversationRouter
 import com.wire.android.ui.home.vault.VaultScreen
 
 @ExperimentalMaterial3Api
@@ -43,7 +42,7 @@ internal fun navigateToItemInHome(
     }
 }
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 sealed class HomeNavigationItem(
     val route: String,
     @StringRes val title: Int,
@@ -52,20 +51,20 @@ sealed class HomeNavigationItem(
 ) {
 
     object Conversations : HomeNavigationItem(
-        route = "home_conversations",
+        route = HomeDestinations.conversations,
         title = R.string.conversations_screen_title,
         isSearchable = true,
-        content = { ConversationsScreen(hiltViewModel()) },
+        content = { ConversationRouter() },
     )
 
     object Vault : HomeNavigationItem(
-        route = "home_vault",
+        route = HomeDestinations.vault,
         title = R.string.vault_screen_title,
         content = { VaultScreen() },
     )
 
     object Archive : HomeNavigationItem(
-        route = "home_archive",
+        route = HomeDestinations.archive,
         title = R.string.archive_screen_title,
         content = { ArchiveScreen() },
     )
@@ -87,3 +86,8 @@ sealed class HomeNavigationItem(
     }
 }
 
+object HomeDestinations {
+    const val conversations = "home_conversations"
+    const val vault = "home_vault"
+    const val archive = "home_archive"
+}

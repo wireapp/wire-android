@@ -8,12 +8,15 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.wire.android.ui.authentication.AuthScreen
+import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
+import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.userprofile.UserProfileScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.support.SupportScreen
-import com.wire.android.ui.home.userprofile.UserProfileScreen
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 sealed class NavigationItem(
     open val route: String,
     val arguments: List<NamedNavArgument> = emptyList(),
@@ -22,16 +25,21 @@ sealed class NavigationItem(
 ) {
 
 //    object Splash  //TODO
-//    object Login  //TODO
+
+    @ExperimentalMaterial3Api
+    object Authentication : NavigationItem(
+        route = "auth",
+        content = { AuthScreen() }
+    )
 
     object Home : NavigationItem(
-        route = "home/$HOME_START_TAB_ARGUMENT",
+        route = "home/{$HOME_START_TAB_ARGUMENT}",
         content = { HomeScreen(it.arguments?.getString(HOME_START_TAB_ARGUMENT), hiltViewModel()) },
         arguments = listOf(
             navArgument(HOME_START_TAB_ARGUMENT) { type = NavType.StringType }
         )
     ) {
-        fun navigationRoute(startTabRoute: String): String = "home/$startTabRoute"
+        fun navigationRoute(startTabRoute: String = HomeDestinations.conversations): String = "home/$startTabRoute"
     }
 
     object Settings : NavigationItem(
@@ -49,17 +57,31 @@ sealed class NavigationItem(
         content = { UserProfileScreen(hiltViewModel()) },
     )
 
-    companion object {
+    object Conversation : NavigationItem(
+        route = "conversation/{$CONVERSATION_ID_ARGUMENT}",
+        content = {
+            ConversationScreen(hiltViewModel())
+        }, arguments = listOf(
+            navArgument(CONVERSATION_ID_ARGUMENT) { type = NavType.StringType }
+        )
+    ) {
+        fun createRoute(conversationId: String) = "conversation/$conversationId"
+    }
 
+    companion object {
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
+        const val CONVERSATION_ID_ARGUMENT: String = "conversation_id"
 
         val globalNavigationItems = listOf(
+            Authentication,
             Settings,
             Support,
             UserProfile,
-            Home
+            Home,
+            Conversation
         )
-        val map: Map<String, NavigationItem> = globalNavigationItems.associateBy { it.route }
+
+        private val map: Map<String, NavigationItem> = globalNavigationItems.associateBy { it.route }
 
         fun fromRoute(route: String?): NavigationItem? = map[route]
     }

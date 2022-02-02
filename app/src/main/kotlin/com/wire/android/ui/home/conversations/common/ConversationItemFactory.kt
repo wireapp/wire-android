@@ -1,38 +1,37 @@
 package com.wire.android.ui.home.conversations.common
 
 import androidx.compose.runtime.Composable
-import com.wire.android.ui.home.conversationslist.AllConversationItem
 import com.wire.android.ui.home.conversationslist.CallConversationItem
+import com.wire.android.ui.home.conversationslist.GeneralConversationItem
 import com.wire.android.ui.home.conversationslist.MentionConversationItem
-import com.wire.android.ui.home.conversationslist.model.Call
-import com.wire.android.ui.home.conversationslist.model.Conversation
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
+import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
-import com.wire.android.ui.home.conversationslist.model.Mention
 
 @Composable
-inline fun <reified T : Conversation> ConversationItemFactory(
-    item: T,
+fun ConversationItemFactory(
+    conversation: ConversationItem,
     eventType: EventType? = null,
-    noinline onConversationItemClick: () -> Unit
+    onConversationItemClick: () -> Unit
 ) {
-    when (item) {
-        is GeneralConversation -> AllConversationItem(
-            item,
+    when (conversation) {
+        is ConversationMissedCall -> CallConversationItem(
+            conversation,
             eventType,
             onConversationItemClick
         )
-        is Call -> CallConversationItem(
-            item,
+        is ConversationUnreadMention -> MentionConversationItem(
+            conversation,
             eventType,
             onConversationItemClick
         )
-        is Mention -> MentionConversationItem(
-            item,
+        is GeneralConversation -> GeneralConversationItem(
+            conversation,
             eventType,
             onConversationItemClick
         )
-        else -> throw IllegalStateException("Illegal item type for ConversationItemFactory")
     }
 }
 

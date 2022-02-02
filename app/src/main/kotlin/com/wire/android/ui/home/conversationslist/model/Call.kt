@@ -3,11 +3,6 @@ package com.wire.android.ui.home.conversationslist.model
 import androidx.annotation.DrawableRes
 import com.wire.android.R
 
-data class Call(
-    val callInfo: CallInfo,
-    override val conversationType: ConversationType
-) : Conversation
-
 //TODO: This could be a Long timestamp,
 // waiting for the Kalium back-end to make decision
 data class CallTime(

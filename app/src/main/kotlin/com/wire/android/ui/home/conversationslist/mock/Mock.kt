@@ -1,18 +1,16 @@
 package com.wire.android.ui.home.conversationslist.mock
 
-import androidx.compose.ui.graphics.Color
-import com.wire.android.ui.home.conversationslist.model.Call
 import com.wire.android.ui.home.conversationslist.model.CallEvent
 import com.wire.android.ui.home.conversationslist.model.CallInfo
 import com.wire.android.ui.home.conversationslist.model.CallTime
-import com.wire.android.ui.home.conversationslist.model.Conversation
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
+import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
 import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.conversationslist.model.Mention
 import com.wire.android.ui.home.conversationslist.model.MentionInfo
 import com.wire.android.ui.home.conversationslist.model.MentionMessage
 import com.wire.android.ui.home.conversationslist.model.NewActivity
@@ -62,7 +60,7 @@ val mockConversations2 = listOf(
             )
         )
     ),
-    Call(
+    ConversationMissedCall(
         callInfo = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall),
         conversationType = ConversationType.PrivateConversation(
             userInfo = UserInfo(),
@@ -73,7 +71,7 @@ val mockConversations2 = listOf(
             )
         )
     ),
-    Mention(
+    ConversationUnreadMention(
         mentionInfo = MentionInfo(MentionMessage("Some mention message")),
         conversationType = ConversationType.GroupConversation(
             groupColorValue = 0xFF00FF00,
@@ -81,7 +79,6 @@ val mockConversations2 = listOf(
         ),
     )
 )
-
 
 val mockConversation = ConversationType.PrivateConversation(
     userInfo = UserInfo(),
@@ -147,27 +144,27 @@ val mockLongMentionInfo = MentionInfo(
 )
 
 val mockUnreadMentionList = listOf(
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockConversation),
 )
 
 val mockAllMentionList = listOf(
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockGroupConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockGroupConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockGroupConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockConversation),
-    Mention(mentionInfo = mockShortMentionInfo, mockConversation),
-    Mention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
+    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
+    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockGroupConversation),
+    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
+    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockGroupConversation),
+    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
+    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockGroupConversation),
+    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
+    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
 )
 
 val mockCallInfo1 = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
@@ -177,28 +174,28 @@ val mockCallInfo4 = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCal
 val mockCallInfo5 = CallInfo(CallTime("Today", "6:59 PM"), CallEvent.NoAnswerCall)
 
 val mockMissedCalls = listOf(
-    Call(mockCallInfo1, mockConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo3, mockConversation),
+    ConversationMissedCall(mockCallInfo1, mockConversation),
+    ConversationMissedCall(mockCallInfo2, mockConversation),
+    ConversationMissedCall(mockCallInfo3, mockConversation),
 )
 
 val mockCallHistory = listOf(
-    Call(mockCallInfo1, mockGroupConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo3, mockConversation),
-    Call(mockCallInfo1, mockGroupConversation),
-    Call(mockCallInfo2, mockGroupConversation),
-    Call(mockCallInfo3, mockConversation),
-    Call(mockCallInfo4, mockGroupConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo3, mockGroupConversation),
-    Call(mockCallInfo1, mockGroupConversation),
-    Call(mockCallInfo5, mockConversation),
-    Call(mockCallInfo3, mockGroupConversation),
-    Call(mockCallInfo1, mockConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo3, mockConversation),
-    Call(mockCallInfo4, mockConversation),
-    Call(mockCallInfo2, mockConversation),
-    Call(mockCallInfo5, mockConversation),
+    ConversationMissedCall(mockCallInfo1, mockGroupConversation),
+    ConversationMissedCall(mockCallInfo2, mockConversation),
+    ConversationMissedCall(mockCallInfo3, mockConversation),
+    ConversationMissedCall(mockCallInfo1, mockGroupConversation),
+    ConversationMissedCall(mockCallInfo2, mockGroupConversation),
+    ConversationMissedCall(mockCallInfo3, mockConversation),
+    ConversationMissedCall(mockCallInfo4, mockGroupConversation),
+    ConversationMissedCall(mockCallInfo2, mockConversation),
+    ConversationMissedCall(mockCallInfo3, mockGroupConversation),
+    ConversationMissedCall(mockCallInfo1, mockGroupConversation),
+    ConversationMissedCall(mockCallInfo5, mockConversation),
+    ConversationMissedCall(mockCallInfo3, mockGroupConversation),
+    ConversationMissedCall(mockCallInfo1, mockConversation),
+    ConversationMissedCall(mockCallInfo2, mockConversation),
+    ConversationMissedCall(mockCallInfo3, mockConversation),
+    ConversationMissedCall(mockCallInfo4, mockConversation),
+    ConversationMissedCall(mockCallInfo2, mockConversation),
+    ConversationMissedCall(mockCallInfo5, mockConversation),
 )

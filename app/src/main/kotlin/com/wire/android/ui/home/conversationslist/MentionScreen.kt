@@ -36,10 +36,10 @@ private fun MentionContent(
             header = { stringResource(id = R.string.mention_label_unread_mentions) },
             items = unreadMentions
         ) { unreadMention ->
-            ConversationItemFactory(
-                item = unreadMention,
+            MentionConversationItem(
+                mention = unreadMention,
                 eventType = EventType.UnreadMention,
-                onConversationItemClick = { onMentionItemClick("someId") }
+                onMentionItemClick = { onMentionItemClick("someId") }
             )
         }
 
@@ -47,9 +47,9 @@ private fun MentionContent(
             header = { stringResource(R.string.mention_label_all_mentions) },
             items = allMentions
         ) { mention ->
-            ConversationItemFactory(
-                item = mention,
-                onConversationItemClick = { onMentionItemClick("someId") }
+            MentionConversationItem(
+                mention = mention,
+                onMentionItemClick = { onMentionItemClick("someId") }
             )
         }
     }

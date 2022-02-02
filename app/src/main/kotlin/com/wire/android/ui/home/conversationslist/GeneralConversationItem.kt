@@ -12,7 +12,7 @@ import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.android.ui.main.conversationlist.common.UserLabel
 
 @Composable
-fun AllConversationItem(
+fun GeneralConversationItem(
     generalConversation: GeneralConversation,
     eventType: EventType? = null,
     onConversationItemClick: () -> Unit
@@ -42,4 +42,5 @@ fun AllConversationItem(
         }
     }
 }
+
 

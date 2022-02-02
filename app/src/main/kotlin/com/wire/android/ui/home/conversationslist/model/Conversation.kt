@@ -1,13 +1,12 @@
 package com.wire.android.ui.home.conversationslist.model
 
-import androidx.annotation.StringRes
-import com.wire.android.R
 import com.wire.android.ui.main.conversationlist.common.UserInfoLabel
 
+sealed class ConversationItem(val conversationType: ConversationType)
 
-sealed interface Conversation {
-    val conversationType: ConversationType
-}
+class GeneralConversation(conversationType: ConversationType) : ConversationItem(conversationType)
+class ConversationMissedCall(val callInfo: CallInfo, conversationType: ConversationType) : ConversationItem(conversationType)
+class ConversationUnreadMention(val mentionInfo: MentionInfo, conversationType: ConversationType) : ConversationItem(conversationType)
 
 sealed class ConversationType {
     data class GroupConversation(

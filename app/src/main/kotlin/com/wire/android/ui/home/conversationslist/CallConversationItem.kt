@@ -11,14 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
 import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversations.common.GroupName
-import com.wire.android.ui.home.conversationslist.model.Call
 import com.wire.android.ui.home.conversationslist.model.CallEvent
 import com.wire.android.ui.home.conversationslist.model.CallTime
+import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
@@ -28,12 +27,12 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun CallConversationItem(
-    call: Call,
+    conversationMissedCall: ConversationMissedCall,
     eventType: EventType? = null,
     onCallItemClick: () -> Unit
 ) {
-    with(call) {
-        when (val conversationType = call.conversationType) {
+    with(conversationMissedCall) {
+        when (val conversationType = conversationMissedCall.conversationType) {
             is ConversationType.GroupConversation -> {
                 ConversationItemTemplate(
                     leadingIcon = {

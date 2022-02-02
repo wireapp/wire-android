@@ -8,8 +8,6 @@ import com.wire.android.ui.home.conversations.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.common.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Conversation
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
-import com.wire.android.ui.home.conversationslist.model.ConversationType
-import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 
 
@@ -39,7 +37,7 @@ private fun AllConversationContent(
             items = newActivities
         ) { newActivity ->
             ConversationItemFactory(
-                item = newActivity.conversation,
+                conversation = newActivity.conversation,
                 eventType = newActivity.eventType,
                 onConversationItemClick = { onConversationItemClick("someId") }
             )
@@ -51,7 +49,7 @@ private fun AllConversationContent(
                 items = conversationList
             ) { conversation ->
                 ConversationItemFactory(
-                    item = conversation,
+                    conversation = conversation,
                     onConversationItemClick = { onConversationItemClick("someId") }
                 )
             }

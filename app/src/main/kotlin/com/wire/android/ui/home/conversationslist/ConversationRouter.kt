@@ -1,9 +1,16 @@
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Icon
+import androidx.compose.material.ListItem
+import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,6 +25,7 @@ import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.material.ExperimentalMaterialApi::class)
@@ -25,9 +33,8 @@ import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigat
 fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hiltViewModel()) {
     val uiState by conversationListViewModel.listState.collectAsState()
     val navController = rememberNavController()
-
     val state = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
+        initialValue = ModalBottomSheetValue.HalfExpanded,
     )
 
     val scope = rememberCoroutineScope()
@@ -36,40 +43,68 @@ fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hi
         conversationListViewModel.openConversation(id)
     }
 
-    Scaffold(
-        floatingActionButton = { FloatingActionButton(stringResource(R.string.label_new), {}) },
-        bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), navController) }
+    ModalBottomSheetLayout(
+        sheetState = state,
+        sheetContent = {
+            LazyColumn {
+                items(50) {
+                    ListItem(
+                        text = { Text("Item $it") },
+                        icon = {
+                            Icon(
+                                Icons.Default.Favorite,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                    )
+                }
+            }
+        }
     ) {
-        with(uiState) {
-            NavHost(navController, startDestination = ConversationsNavigationItem.All.route) {
-                composable(
-                    route = ConversationsNavigationItem.All.route,
-                    content = {
-                        AllConversationScreen(
-                            newActivities = newActivities,
-                            conversations = conversations,
-                            onOpenConversationClick = ::navigateToConversation
-                        )
-                    })
-                composable(
-                    route = ConversationsNavigationItem.Calls.route,
-                    content = {
-                        CallScreen(
-                            missedCalls = missedCalls,
-                            callHistory = callHistory,
-                            onCallItemClick = ::navigateToConversation
-                        )
-                    })
-                composable(
-                    route = ConversationsNavigationItem.Mentions.route,
-                    content = {
-                        MentionScreen(
-                            unreadMentions = unreadMentions,
-                            allMentions = allMentions,
-                            onMentionItemClick = ::navigateToConversation
-                        )
-                    }
-                )
+        Scaffold(
+            floatingActionButton = { FloatingActionButton(stringResource(R.string.label_new), {}) },
+            bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), navController) }
+        ) {
+            with(uiState) {
+                NavHost(navController, startDestination = ConversationsNavigationItem.All.route) {
+                    composable(
+                        route = ConversationsNavigationItem.All.route,
+                        content = {
+                            AllConversationScreen(
+                                newActivities = newActivities,
+                                conversations = conversations,
+                                onOpenConversationClick = ::navigateToConversation,
+                                onEditConversationItem = {
+                                    scope.launch { state.show() }
+                                }
+                            )
+                        })
+                    composable(
+                        route = ConversationsNavigationItem.Calls.route,
+                        content = {
+                            CallScreen(
+                                missedCalls = missedCalls,
+                                callHistory = callHistory,
+                                onCallItemClick = ::navigateToConversation,
+                                onEditConversationItem = {
+                                    scope.launch { state.show() }
+                                }
+                            )
+                        })
+                    composable(
+                        route = ConversationsNavigationItem.Mentions.route,
+                        content = {
+                            MentionScreen(
+                                unreadMentions = unreadMentions,
+                                allMentions = allMentions,
+                                onMentionItemClick = ::navigateToConversation,
+                                onEditConversationItem = {
+                                    scope.launch { state.show() }
+                                }
+                            )
+                        }
+                    )
+                }
             }
         }
     }

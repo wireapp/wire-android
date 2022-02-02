@@ -107,9 +107,9 @@ val mockGeneralConversation = GeneralConversation(
 
 val conversationMockData = mapOf(
     ConversationFolder("SOME TEST FOLDER") to mockConversations1,
-    ConversationFolder("FOLDER NAME1") to mockConversations2,
+    ConversationFolder("FOLDER NAME1") to mockConversations1,
     ConversationFolder("SOME OTHER FOLDER") to mockConversations1,
-    ConversationFolder("SOME OTHER Folder1") to mockConversations2,
+    ConversationFolder("SOME OTHER Folder1") to mockConversations1,
     ConversationFolder("THIS IS A TEST FOLDER") to mockConversations1,
     ConversationFolder(
         "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +

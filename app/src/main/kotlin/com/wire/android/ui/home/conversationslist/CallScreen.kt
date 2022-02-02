@@ -13,12 +13,14 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 fun CallScreen(
     missedCalls: List<ConversationMissedCall> = emptyList(),
     callHistory: List<ConversationMissedCall> = emptyList(),
-    onCallItemClick: (String) -> Unit
+    onCallItemClick: (String) -> Unit,
+    onEditConversationItem: () -> Unit
 ) {
     CallContent(
         missedCalls = missedCalls,
         callHistory = callHistory,
-        onCallItemClick = onCallItemClick
+        onCallItemClick = onCallItemClick,
+        onEditConversationItem = onEditConversationItem
     )
 }
 
@@ -27,7 +29,8 @@ fun CallScreen(
 fun CallContent(
     missedCalls: List<ConversationMissedCall>,
     callHistory: List<ConversationMissedCall>,
-    onCallItemClick: (String) -> Unit
+    onCallItemClick: (String) -> Unit,
+    onEditConversationItem: () -> Unit
 ) {
     LazyColumn {
         folderWithElements(
@@ -37,7 +40,8 @@ fun CallContent(
             CallConversationItem(
                 conversationMissedCall = missedCall,
                 eventType = EventType.MissedCall,
-                onCallItemClick = { onCallItemClick("someId") }
+                onCallItemClick = { onCallItemClick("someId") },
+                onCallItemLongClick = onEditConversationItem
             )
         }
 
@@ -47,7 +51,8 @@ fun CallContent(
         ) { callHistory ->
             CallConversationItem(
                 conversationMissedCall = callHistory,
-                onCallItemClick = { onCallItemClick("someId") }
+                onCallItemClick = { onCallItemClick("someId") },
+                onCallItemLongClick = onEditConversationItem
             )
         }
     }

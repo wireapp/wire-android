@@ -15,12 +15,14 @@ import com.wire.android.ui.home.conversationslist.model.NewActivity
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onOpenConversationClick: (String) -> Unit
+    onOpenConversationClick: (String) -> Unit,
+    onEditConversationItem: () -> Unit
 ) {
     AllConversationContent(
         newActivities = newActivities,
         conversations = conversations,
-        onOpenConversationClick
+        onOpenConversationClick,
+        onEditConversationItem
     )
 }
 
@@ -29,6 +31,7 @@ private fun AllConversationContent(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<GeneralConversation>>,
     onConversationItemClick: (String) -> Unit,
+    onEditConversationItem: () -> Unit,
 ) {
     LazyColumn {
         folderWithElements(
@@ -38,7 +41,8 @@ private fun AllConversationContent(
             ConversationItemFactory(
                 conversation = newActivity.conversationItem,
                 eventType = newActivity.eventType,
-                onConversationItemClick = { onConversationItemClick("someId") }
+                onConversationItemClick = { onConversationItemClick("someId") },
+                onConversationItemLongClick = { onEditConversationItem() }
             )
         }
 
@@ -49,7 +53,8 @@ private fun AllConversationContent(
             ) { generalConversation ->
                 GeneralConversationItem(
                     generalConversation = generalConversation,
-                    onConversationItemClick = { onConversationItemClick("someId") }
+                    onConversationItemClick = { onConversationItemClick("someId") },
+                    onConversationItemLongClick = { onEditConversationItem() }
                 )
             }
         }

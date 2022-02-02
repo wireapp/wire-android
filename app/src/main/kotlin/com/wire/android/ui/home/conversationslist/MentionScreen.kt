@@ -14,12 +14,14 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 fun MentionScreen(
     unreadMentions: List<ConversationUnreadMention> = emptyList(),
     allMentions: List<ConversationUnreadMention> = emptyList(),
-    onMentionItemClick: (String) -> Unit
+    onMentionItemClick: (String) -> Unit,
+    onEditConversationItem: () -> Unit
 ) {
     MentionContent(
         unreadMentions = unreadMentions,
         allMentions = allMentions,
-        onMentionItemClick = onMentionItemClick
+        onMentionItemClick = onMentionItemClick,
+        onEditConversationItem = onEditConversationItem
     )
 }
 
@@ -28,7 +30,8 @@ fun MentionScreen(
 private fun MentionContent(
     unreadMentions: List<ConversationUnreadMention>,
     allMentions: List<ConversationUnreadMention>,
-    onMentionItemClick: (String) -> Unit
+    onMentionItemClick: (String) -> Unit,
+    onEditConversationItem: () -> Unit
 ) {
     LazyColumn {
         folderWithElements(
@@ -38,7 +41,8 @@ private fun MentionContent(
             MentionConversationItem(
                 mention = unreadMention,
                 eventType = EventType.UnreadMention,
-                onMentionItemClick = { onMentionItemClick("someId") }
+                onMentionItemClick = { onMentionItemClick("someId") },
+                onConversationItemLongClick = onEditConversationItem
             )
         }
 
@@ -48,7 +52,8 @@ private fun MentionContent(
         ) { mention ->
             MentionConversationItem(
                 mention = mention,
-                onMentionItemClick = { onMentionItemClick("someId") }
+                onMentionItemClick = { onMentionItemClick("someId") },
+                onConversationItemLongClick = onEditConversationItem
             )
         }
     }

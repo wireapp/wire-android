@@ -22,7 +22,7 @@ import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigat
 @Composable
 fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hiltViewModel()) {
     val uiState by conversationListViewModel.state.collectAsState()
-    
+
     ConversationRouter(
         uiState = uiState,
         conversationState = rememberConversationState(),
@@ -38,7 +38,10 @@ private fun ConversationRouter(
     conversationState: ConversationState,
     openConversation: (String) -> Unit
 ) {
-    ConversationModalBottomSheet(conversationState) {
+    ConversationModalBottomSheet(
+        modalBottomSheetState = conversationState.modalBottomSheetState,
+        modalSheetContentState = conversationState.modalSheetContentState
+    ) {
         Scaffold(
             floatingActionButton = { FloatingActionButton(stringResource(R.string.label_new), {}) },
             bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }

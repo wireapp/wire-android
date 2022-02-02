@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication
 
 
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,6 +10,7 @@ import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.common.UnderConstructionScreen
 
+@ExperimentalMaterialApi
 @Composable
 fun AuthScreen() {
     val navController = rememberNavController()

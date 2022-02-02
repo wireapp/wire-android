@@ -17,13 +17,9 @@ import kotlinx.coroutines.launch
 class ConversationState(
     val navHostController: NavHostController,
     val modalBottomSheetState: ModalBottomSheetState,
-    private val modalSheetContentState: ModalSheetContentState,
+    val modalSheetContentState: ModalSheetContentState,
     private val coroutineScope: CoroutineScope
 ) {
-
-    val modalSheetTitle = modalSheetContentState.title
-
-    val modalSheetAvatar = modalSheetContentState.avatar
 
     fun showModalSheet(conversationType: ConversationType) {
         when (conversationType) {

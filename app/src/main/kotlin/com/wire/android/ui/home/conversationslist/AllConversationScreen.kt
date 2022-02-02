@@ -22,8 +22,8 @@ fun AllConversationScreen(
     AllConversationContent(
         newActivities = newActivities,
         conversations = conversations,
-        onOpenConversationClick,
-        onEditConversationItem
+        onConversationItemClick = onOpenConversationClick,
+        onEditConversationItem = onEditConversationItem
     )
 }
 

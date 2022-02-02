@@ -53,4 +53,16 @@
     <string name="label_message_status_deleted">Deleted</string>
     <string name="label_message_status_edited">Edited</string>
     <string name="app_version">App version: %s</string>
+
+    <!-- User Profile -->
+    <string name="user_profile_tile">User Profile</string>
+    <string name="user_profile_close_description">Close User profile</string>
+    <string name="user_profile_logout">Logout</string>
+    <string name="user_profile_other_accs">Other Accounts</string>
+    <string name="user_profile_status_available">Available</string>
+    <string name="user_profile_status_busy">Busy</string>
+    <string name="user_profile_status_away">Away</string>
+    <string name="user_profile_status_none">None</string>
+    <string name="user_profile_new_acc_text">New Team or Account</string>
+
 </resources>

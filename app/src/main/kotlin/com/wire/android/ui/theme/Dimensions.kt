@@ -4,7 +4,8 @@ import androidx.compose.ui.unit.dp
 
 @Suppress("MagicNumber")
 object Dimensions {
-    val USER_AVATAR_DEFAULT_SIZE = 24.dp
+    val USER_AVATAR_DEFAULT_SIZE = 32.dp
+    val userAvatarBig = 64.dp
 
     val bottomNavigationPadding = 4.dp
     val bottomNavigationItemPadding = 6.dp

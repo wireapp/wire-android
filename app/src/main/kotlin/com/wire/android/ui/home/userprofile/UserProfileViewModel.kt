@@ -3,6 +3,9 @@ package com.wire.android.ui.home.userprofile
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.UserStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,17 +26,11 @@ class UserProfileViewModel @Inject constructor(private val navigationManager: Na
             "@userName",
             "Best team ever",
             listOf(
-                OtherAccount("someId","", "Other Name", "team A"),
-                OtherAccount("someId","", "Other Name", "team A"),
-                OtherAccount("someId","", "Other Name", "team A"),
-                OtherAccount("someId","", "Other Name", "team A"),
-                OtherAccount("someId","", "Other Name", "team A"),
-                OtherAccount("someId","", "Other Name", "team A"),
-                OtherAccount("someId","", "Other Name", "team A"),
-                OtherAccount("someId","", "Other Name", "team A"),
-                OtherAccount("someId","", "Other Name", "team A"),
-                OtherAccount("someId","", "Other Name", "team A"),
-                OtherAccount("someId","", "New Name")
+                OtherAccount("someId", "", "Other Name 0", "team A"),
+                OtherAccount("someId", "", "Other Name 1", "team B"),
+                OtherAccount("someId", "", "Other Name 2", "team C"),
+//                OtherAccount("someId", "", "Other Name", "team A"),
+                OtherAccount("someId", "", "New Name")
             )
         )
     )
@@ -44,6 +41,22 @@ class UserProfileViewModel @Inject constructor(private val navigationManager: Na
     fun close() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun logout() {
+        //TODO
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Authentication.route,
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
+        }
+    }
+
+    fun addAccount() {
+        //TODO
+    }
+
+    fun editProfile() {
         //TODO
     }
 }

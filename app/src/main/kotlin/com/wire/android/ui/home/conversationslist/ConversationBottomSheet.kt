@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
@@ -48,96 +49,126 @@ fun ConversationModalBottomSheet(
 ) {
     ModalBottomSheetLayout(
         sheetState = modalBottomSheetState,
+        //TODO: create a shape object inside the materialtheme 3 component
+        sheetShape = androidx.compose.material.MaterialTheme.shapes.large.copy(topStart = CornerSize(12.dp), topEnd = CornerSize(12.dp)),
         sheetContent = {
             Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    when (val avatar = modalSheetContentState.avatar.value) {
-                        is ModalSheetAvatar.GroupAvatar -> GroupConversationAvatar(colorValue = avatar.groupColor)
-                        is ModalSheetAvatar.UserAvatar -> UserProfileAvatar()
-                        ModalSheetAvatar.None -> CircularProgressIndicator(progressColor = Color.Blue)
-                    }
-                    Text(modalSheetContentState.title.value)
-                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Divider(
+                    modifier = Modifier
+                        .width(width = 48.dp)
+                        .align(alignment = Alignment.CenterHorizontally),
+                    thickness = 4.dp
+                )
+                ModalBottomSheetHeader(modalSheetContentState)
                 Divider()
-                LazyColumn {
-                    item {
-                        ModalBottomSheetItem(
-                            icon = {
-                                ItemIcon(
-                                    id = R.drawable.ic_mute,
-                                    contentDescription = "",
-                                )
-                            },
-                            title = { ItemTitle("Mute") }
-                        )
-                    }
-                    item { Divider() }
-                    item {
-                        ModalBottomSheetItem(
-                            icon = {
-                                ItemIcon(
-                                    id = R.drawable.ic_favourite,
-                                    contentDescription = "",
-                                )
-                            },
-                            title = { ItemTitle("Add to Favourites") }
-                        )
-                    }
-                    item { Divider() }
-                    item {
-                        ModalBottomSheetItem(
-                            icon = {
-                                ItemIcon(
-                                    id = R.drawable.ic_folder,
-                                    contentDescription = "",
-                                )
-                            },
-                            title = { ItemTitle("Move to Folder") }
-                        )
-                    }
-                    item { Divider() }
-                    item {
-                        ModalBottomSheetItem(
-                            icon = {
-                                ItemIcon(
-                                    id = R.drawable.ic_archive,
-                                    contentDescription = "",
-                                )
-                            },
-                            title = { ItemTitle("Move to Archive") }
-                        )
-                    }
-                    item { Divider() }
-                    item {
-                        ModalBottomSheetItem(
-                            icon = {
-                                ItemIcon(
-                                    id = R.drawable.ic_erase,
-                                    contentDescription = "",
-                                )
-                            },
-                            title = { ItemTitle("Clear Content...") }
-                        )
-                    }
-                    item { Divider() }
-                    item {
-                        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                            ModalBottomSheetItem(
-                                icon = {
-                                    ItemIcon(
-                                        id = R.drawable.ic_leave,
-                                        contentDescription = "",
-                                    )
-                                },
-                                title = { ItemTitle("Leave Group") }
-                            )
-                        }
-                    }
-                }
+                ModalBottomSheetItems()
             }
         }
     ) {
         content()
+    }
+}
+
+@Composable
+fun ModalBottomSheetItems() {
+    LazyColumn {
+        item {
+            ModalBottomSheetItem(
+                icon = {
+                    ItemIcon(
+                        id = R.drawable.ic_mute,
+                        contentDescription = "",
+                    )
+                },
+                title = { ItemTitle("Mute") }
+            )
+        }
+        item { Divider() }
+        item {
+            ModalBottomSheetItem(
+                icon = {
+                    ItemIcon(
+                        id = R.drawable.ic_favourite,
+                        contentDescription = "",
+                    )
+                },
+                title = { ItemTitle("Add to Favourites") }
+            )
+        }
+        item { Divider() }
+        item {
+            ModalBottomSheetItem(
+                icon = {
+                    ItemIcon(
+                        id = R.drawable.ic_folder,
+                        contentDescription = "",
+                    )
+                },
+                title = { ItemTitle("Move to Folder") }
+            )
+        }
+        item { Divider() }
+        item {
+            ModalBottomSheetItem(
+                icon = {
+                    ItemIcon(
+                        id = R.drawable.ic_archive,
+                        contentDescription = "",
+                    )
+                },
+                title = { ItemTitle("Move to Archive") }
+            )
+        }
+        item { Divider() }
+        item {
+            ModalBottomSheetItem(
+                icon = {
+                    ItemIcon(
+                        id = R.drawable.ic_erase,
+                        contentDescription = "",
+                    )
+                },
+                title = { ItemTitle("Clear Content...") }
+            )
+        }
+        item { Divider() }
+        item {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+                ModalBottomSheetItem(
+                    icon = {
+                        ItemIcon(
+                            id = R.drawable.ic_leave,
+                            contentDescription = "",
+                        )
+                    },
+                    title = { ItemTitle("Leave Group") }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ModalBottomSheetHeader(modalSheetContentState: ModalSheetContentState) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(
+            start = 8.dp,
+            top = 16.dp,
+            bottom = 8.dp
+        )
+    ) {
+        when (val avatar = modalSheetContentState.avatar.value) {
+            is ModalSheetAvatar.GroupAvatar -> GroupConversationAvatar(colorValue = avatar.groupColor)
+            is ModalSheetAvatar.UserAvatar -> UserProfileAvatar()
+            ModalSheetAvatar.None -> CircularProgressIndicator(progressColor = Color.Blue)
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = modalSheetContentState.title.value,
+            style = MaterialTheme.wireTypography.body02
+        )
     }
 }
 
@@ -192,7 +223,7 @@ private fun ModalBottomSheetItem(
         .height(48.dp)
         .fillMaxWidth()
         .clickable { onItemClick() }
-        .padding(8.dp)
+        .padding(16.dp)
     ) {
         icon()
         Spacer(modifier = Modifier.width(12.dp))

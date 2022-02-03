@@ -111,12 +111,12 @@ private fun ColumnScope.TopBar(onCloseClick: () -> Unit, onLogoutClick: () -> Un
             )
         },
         actions = {
-            //TODO make it red, when such WireBtn ready
             WireSecondaryButton(
                 onClick = onLogoutClick,
                 text = stringResource(R.string.user_profile_logout),
                 fillMaxWidth = false,
                 minHeight = dimensions().userProfileLogoutBtnHeight,
+                state = WireButtonState.Error
             )
         }
     )

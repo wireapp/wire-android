@@ -127,7 +127,7 @@ private fun ColumnScope.TopBar(onCloseClick: () -> Unit, onLogoutClick: () -> Un
 private fun ColumnScope.Header(state: UserProfileState, onEditClick: () -> Unit) {
     UserProfileAvatar(
         modifier = Modifier
-            .padding(top = dimensions().spacing16)
+            .padding(top = dimensions().spacing16x)
             .align(Alignment.CenterHorizontally),
         size = dimensions().userAvatarDefaultBigSize,
         avatarUrl = state.avatarUrl,
@@ -139,7 +139,7 @@ private fun ColumnScope.Header(state: UserProfileState, onEditClick: () -> Unit)
         val (data, editBtn, team) = createRefs()
 
         Column(modifier = Modifier
-            .padding(horizontal = dimensions().spacing64)
+            .padding(horizontal = dimensions().spacing64x)
             .constrainAs(data) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
@@ -167,7 +167,7 @@ private fun ColumnScope.Header(state: UserProfileState, onEditClick: () -> Unit)
 
         IconButton(
             modifier = Modifier
-                .padding(start = dimensions().spacing16)
+                .padding(start = dimensions().spacing16x)
                 .constrainAs(editBtn) {
                     top.linkTo(data.top)
                     bottom.linkTo(data.bottom)
@@ -179,8 +179,8 @@ private fun ColumnScope.Header(state: UserProfileState, onEditClick: () -> Unit)
 
         Text(
             modifier = Modifier
-                .padding(top = dimensions().spacing8)
-                .padding(horizontal = dimensions().spacing16)
+                .padding(top = dimensions().spacing8x)
+                .padding(horizontal = dimensions().spacing16x)
                 .constrainAs(team) {
                     top.linkTo(data.bottom)
                     start.linkTo(parent.start)
@@ -200,7 +200,7 @@ private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserSt
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensions().spacing16),
+            .padding(dimensions().spacing16x),
     ) {
         WireSecondaryButton(
             onClick = { onStatusClicked(UserStatus.AVAILABLE) },
@@ -208,11 +208,11 @@ private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserSt
             fillMaxWidth = false,
             minHeight = dimensions().userProfileStatusBtnHeight,
             state = if (status == UserStatus.AVAILABLE) WireButtonState.Selected else WireButtonState.Default,
-            shape = RoundedCornerShape(topStart = dimensions().corner16, bottomStart = dimensions().corner16),
+            shape = RoundedCornerShape(topStart = dimensions().corner16x, bottomStart = dimensions().corner16x),
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.AVAILABLE,
-                    modifier = Modifier.padding(end = dimensions().spacing4)
+                    modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
             })
         WireSecondaryButton(
@@ -225,7 +225,7 @@ private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserSt
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.BUSY,
-                    modifier = Modifier.padding(end = dimensions().spacing4)
+                    modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
             })
         WireSecondaryButton(
@@ -238,19 +238,19 @@ private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserSt
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.AWAY,
-                    modifier = Modifier.padding(end = dimensions().spacing4)
+                    modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
             })
         WireSecondaryButton(
             onClick = { onStatusClicked(UserStatus.NONE) },
             text = stringResource(R.string.user_profile_status_none),
-            shape = RoundedCornerShape(topEnd = dimensions().corner16, bottomEnd = dimensions().corner16),
+            shape = RoundedCornerShape(topEnd = dimensions().corner16x, bottomEnd = dimensions().corner16x),
             minHeight = dimensions().userProfileStatusBtnHeight,
             state = if (status == UserStatus.NONE) WireButtonState.Selected else WireButtonState.Default,
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.NONE,
-                    modifier = Modifier.padding(end = dimensions().spacing4)
+                    modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
             })
     }
@@ -261,7 +261,7 @@ private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserSt
 private fun ColumnScope.OtherAccountsList(state: UserProfileState, onAddAccountClick: () -> Unit) {
     Text(
         modifier = Modifier
-            .padding(top = dimensions().spacing16, start = dimensions().spacing16, bottom = dimensions().spacing4),
+            .padding(top = dimensions().spacing16x, start = dimensions().spacing16x, bottom = dimensions().spacing4x),
         text = stringResource(id = R.string.user_profile_other_accs).uppercase(),
         style = MaterialTheme.wireTypography.title03,
         color = MaterialTheme.colorScheme.onBackground,
@@ -283,7 +283,7 @@ private fun ColumnScope.OtherAccountsList(state: UserProfileState, onAddAccountC
         WirePrimaryButton(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
-                .padding(dimensions().spacing16),
+                .padding(dimensions().spacing16x),
             text = stringResource(R.string.user_profile_new_acc_text),
             onClick = onAddAccountClick
         )
@@ -312,7 +312,7 @@ private fun OtherAccountItem(account: OtherAccount, onClick: (String) -> Unit = 
         )
 
         Column(modifier = Modifier
-            .padding(start = dimensions().spacing8)
+            .padding(start = dimensions().spacing8x)
             .constrainAs(data) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)

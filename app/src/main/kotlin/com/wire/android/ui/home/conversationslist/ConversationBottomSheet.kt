@@ -284,6 +284,7 @@ fun GroupHeader(title: String, groupColorValue: Long) {
 
 @Composable
 fun buildItems(items: List<@Composable () -> Unit>) {
+    Divider()
     items.forEachIndexed { index, sheetItem ->
         sheetItem()
         if (index != items.size) {
@@ -340,28 +341,28 @@ fun ModalBottomSheetItem(
 
 @Preview
 @Composable
-private fun PreviewPrivateModalSheet(){
+private fun PreviewPrivateModalSheet() {
     PrivateConversationSheet(
         content = ModalSheetContent.PrivateConversationEdit("Some test title for the conversation", ""),
-        onMuteClick = {  },
+        onMuteClick = { },
         onAddToFavouritesClick = { },
-        onMoveToFolderClick = {  },
+        onMoveToFolderClick = { },
         onMoveToArchiveClick = { },
-        onClearContentClick = {  },
+        onClearContentClick = { },
         onBlockClick = { }
     )
 }
 
 @Preview
 @Composable
-private fun PreviewGroupModalSheet(){
+private fun PreviewGroupModalSheet() {
     GroupConversationSheet(
         content = ModalSheetContent.GroupConversationEdit("Some test title for the conversation", 0xFF00FFFF),
-        onMuteClick = {  },
+        onMuteClick = { },
         onAddToFavouritesClick = { },
-        onMoveToFolderClick = {  },
+        onMoveToFolderClick = { },
         onMoveToArchiveClick = { },
-        onClearContentClick = {  },
+        onClearContentClick = { },
         onLeaveClick = { }
     )
 }

@@ -63,7 +63,7 @@ fun ConversationScreenTopAppBar(
                 leadingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_search_icon),
-                        contentDescription = stringResource(R.string.conetnt_description_conversation_search_icon),
+                        contentDescription = stringResource(R.string.content_description_conversation_search_icon),
                     )
                 },
                 fillMaxWidth = false,

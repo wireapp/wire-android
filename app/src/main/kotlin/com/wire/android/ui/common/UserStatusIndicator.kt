@@ -8,19 +8,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.model.UserStatus
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun UserStatusDot(status: UserStatus, modifier: Modifier = Modifier) {
+fun UserStatusIndicator(status: UserStatus, modifier: Modifier = Modifier) {
     when (status) {
         UserStatus.AVAILABLE -> AvailableDot(modifier)
         UserStatus.BUSY -> BusyDot(modifier)
         UserStatus.AWAY -> AwayDot(modifier)
-        UserStatus.NONE -> NoneDot()
+        UserStatus.NONE -> None()
     }
 }
 
@@ -29,11 +28,9 @@ private fun AvailableDot(modifier: Modifier) {
     Box(
         modifier = modifier
             .size(dimensions().userAvatarStatusSize)
-            .clip(CircleShape)
-            .background(Color.White)
+            .background(Color.White, CircleShape)
             .padding(dimensions().userAvatarStatusBorderSize)
-            .clip(CircleShape)
-            .background(MaterialTheme.wireColorScheme.positive)
+            .background(MaterialTheme.wireColorScheme.positive, CircleShape)
     )
 }
 
@@ -42,18 +39,15 @@ private fun BusyDot(modifier: Modifier) {
     Box(
         modifier = modifier
             .size(dimensions().userAvatarStatusSize)
-            .clip(CircleShape)
-            .background(Color.White)
+            .background(Color.White, CircleShape)
             .padding(dimensions().userAvatarStatusBorderSize)
-            .clip(CircleShape)
-            .background(MaterialTheme.wireColorScheme.warning)
+            .background(MaterialTheme.wireColorScheme.warning, CircleShape)
             .padding(
                 top = dimensions().userAvatarBusyVerticalPadding,
                 bottom = dimensions().userAvatarBusyVerticalPadding,
                 start = dimensions().userAvatarBusyHorizontalPadding,
                 end = dimensions().userAvatarBusyHorizontalPadding
             )
-            .clip(RectangleShape)
             .background(Color.White)
     )
 }
@@ -63,46 +57,39 @@ private fun AwayDot(modifier: Modifier) {
     Box(
         modifier = modifier
             .size(dimensions().userAvatarStatusSize)
-            .clip(CircleShape)
-            .background(Color.White)
+            .background(Color.White, CircleShape)
             .padding(dimensions().userAvatarStatusBorderSize)
-            .clip(CircleShape)
-            .background(MaterialTheme.wireColorScheme.error)
+            .background(MaterialTheme.wireColorScheme.error, CircleShape)
             .padding(dimensions().userAvatarStatusBorderSize)
-            .clip(CircleShape)
-            .background(Color.White)
+            .background(Color.White, CircleShape)
     )
 }
 
 @Composable
-private fun NoneDot() {
+private fun None() {
 
-}
-
-enum class UserStatus {
-    AVAILABLE, BUSY, AWAY, NONE
 }
 
 @Preview(name = "AvailablePreview")
 @Composable
-fun AvailablePreview() {
-    UserStatusDot(UserStatus.AVAILABLE)
+private fun AvailablePreview() {
+    UserStatusIndicator(UserStatus.AVAILABLE)
 }
 
 @Preview(name = "BusyPreview")
 @Composable
-fun BusyPreview() {
-    UserStatusDot(UserStatus.BUSY)
+private fun BusyPreview() {
+    UserStatusIndicator(UserStatus.BUSY)
 }
 
 @Preview(name = "AwayPreview")
 @Composable
-fun AwayPreview() {
-    UserStatusDot(UserStatus.AWAY)
+private fun AwayPreview() {
+    UserStatusIndicator(UserStatus.AWAY)
 }
 
 @Preview(name = "NonePreview")
 @Composable
-fun NonePreview() {
-    UserStatusDot(UserStatus.NONE)
+private fun NonePreview() {
+    UserStatusIndicator(UserStatus.NONE)
 }

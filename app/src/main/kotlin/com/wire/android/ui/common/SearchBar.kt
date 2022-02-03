@@ -34,7 +34,9 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
     var text by remember { mutableStateOf(TextFieldValue()) }
 
     WireTextField(
-        modifier = modifier.padding(bottom = 16.dp, end = 8.dp, start = 8.dp),
+        modifier = modifier
+            .padding(bottom = dimensions().spacing16)
+            .padding(horizontal = dimensions().spacing8),
         value = text,
 
         onValueChange = {

@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.userprofile
+package com.wire.android.ui.userprofile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -34,11 +34,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.UserStatus
-import com.wire.android.ui.common.UserStatusDot
+import com.wire.android.ui.common.UserStatusIndicator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -52,13 +51,27 @@ fun UserProfileScreen(viewModel: UserProfileViewModel) {
     val uiState by viewModel.state.collectAsState()
 
     with(uiState) {
-        renderUserProfileScreen(state = this, viewModel = viewModel)
+        UserProfileScreen(
+            state = this,
+            onCloseClick = { viewModel.close() },
+            onLogoutClick = { viewModel.logout() },
+            onEditClick = { viewModel.editProfile() },
+            onStatusClicked = { viewModel.changeStatus(it) },
+            onAddAccountClick = { viewModel.addAccount() },
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun renderUserProfileScreen(state: UserProfileState, viewModel: UserProfileViewModel) {
+private fun UserProfileScreen(
+    state: UserProfileState,
+    onCloseClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {},
+    onEditClick: () -> Unit = {},
+    onStatusClicked: (UserStatus) -> Unit = {},
+    onAddAccountClick: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -66,16 +79,16 @@ fun renderUserProfileScreen(state: UserProfileState, viewModel: UserProfileViewM
             .background(MaterialTheme.colorScheme.background)
     ) {
 
-        renderTopBar(viewModel)
-        renderHeader(state, viewModel)
-        renderStatusesRow(state)
-        renderOtherAccountsList(state, viewModel)
+        TopBar(onCloseClick, onLogoutClick)
+        Header(state, onEditClick)
+        StatusesRow(state.status, onStatusClicked)
+        OtherAccountsList(state, onAddAccountClick)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.renderTopBar(viewModel: UserProfileViewModel) {
+private fun ColumnScope.TopBar(onCloseClick: () -> Unit, onLogoutClick: () -> Unit) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
@@ -84,25 +97,23 @@ private fun ColumnScope.renderTopBar(viewModel: UserProfileViewModel) {
             navigationIconContentColor = MaterialTheme.colorScheme.onBackground
         ),
         navigationIcon = {
-            IconButton(onClick = { viewModel.close() }) {
+            IconButton(onClick = onCloseClick) {
                 Icon(
                     imageVector = Icons.Filled.Close,
                     contentDescription = stringResource(R.string.user_profile_close_description),
-                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
         },
         title = {
             Text(
-                text = stringResource(id = R.string.user_profile_tile),
+                text = stringResource(id = R.string.user_profile_title),
                 style = MaterialTheme.wireTypography.title01,
-                color = MaterialTheme.colorScheme.onBackground,
             )
         },
         actions = {
             //TODO make it red, when such WireBtn ready
             WireSecondaryButton(
-                onClick = { viewModel.logout() },
+                onClick = onLogoutClick,
                 text = stringResource(R.string.user_profile_logout),
                 fillMaxWidth = false,
                 minHeight = dimensions().userProfileLogoutBtnHeight,
@@ -113,7 +124,7 @@ private fun ColumnScope.renderTopBar(viewModel: UserProfileViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.renderHeader(state: UserProfileState, viewModel: UserProfileViewModel) {
+private fun ColumnScope.Header(state: UserProfileState, onEditClick: () -> Unit) {
     UserProfileAvatar(
         modifier = Modifier
             .padding(top = dimensions().spacing16)
@@ -162,7 +173,7 @@ private fun ColumnScope.renderHeader(state: UserProfileState, viewModel: UserPro
                     bottom.linkTo(data.bottom)
                     end.linkTo(data.end)
                 },
-            onClick = { viewModel.editProfile() },
+            onClick = onEditClick,
             content = Icons.Filled.Edit.Icon()
         )
 
@@ -185,59 +196,59 @@ private fun ColumnScope.renderHeader(state: UserProfileState, viewModel: UserPro
 }
 
 @Composable
-private fun ColumnScope.renderStatusesRow(state: UserProfileState) {
+private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserStatus) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(dimensions().spacing16),
     ) {
         WireSecondaryButton(
-            onClick = {},
+            onClick = { onStatusClicked(UserStatus.AVAILABLE) },
             text = stringResource(R.string.user_profile_status_available),
             fillMaxWidth = false,
             minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (state.status == UserStatus.AVAILABLE) WireButtonState.Selected else WireButtonState.Default,
+            state = if (status == UserStatus.AVAILABLE) WireButtonState.Selected else WireButtonState.Default,
             shape = RoundedCornerShape(topStart = dimensions().corner16, bottomStart = dimensions().corner16),
             leadingIcon = {
-                UserStatusDot(
+                UserStatusIndicator(
                     status = UserStatus.AVAILABLE,
                     modifier = Modifier.padding(end = dimensions().spacing4)
                 )
             })
         WireSecondaryButton(
-            onClick = {},
+            onClick = { onStatusClicked(UserStatus.BUSY) },
             text = stringResource(R.string.user_profile_status_busy),
             fillMaxWidth = false,
             minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (state.status == UserStatus.BUSY) WireButtonState.Selected else WireButtonState.Default,
+            state = if (status == UserStatus.BUSY) WireButtonState.Selected else WireButtonState.Default,
             shape = RoundedCornerShape(0.dp),
             leadingIcon = {
-                UserStatusDot(
+                UserStatusIndicator(
                     status = UserStatus.BUSY,
                     modifier = Modifier.padding(end = dimensions().spacing4)
                 )
             })
         WireSecondaryButton(
-            onClick = {},
-            text = stringResource(R.string.user_profile_status_available),
+            onClick = { onStatusClicked(UserStatus.AWAY) },
+            text = stringResource(R.string.user_profile_status_away),
             fillMaxWidth = false,
             minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (state.status == UserStatus.AWAY) WireButtonState.Selected else WireButtonState.Default,
+            state = if (status == UserStatus.AWAY) WireButtonState.Selected else WireButtonState.Default,
             shape = RoundedCornerShape(0.dp),
             leadingIcon = {
-                UserStatusDot(
+                UserStatusIndicator(
                     status = UserStatus.AWAY,
                     modifier = Modifier.padding(end = dimensions().spacing4)
                 )
             })
         WireSecondaryButton(
-            onClick = {},
+            onClick = { onStatusClicked(UserStatus.NONE) },
             text = stringResource(R.string.user_profile_status_none),
             shape = RoundedCornerShape(topEnd = dimensions().corner16, bottomEnd = dimensions().corner16),
             minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (state.status == UserStatus.NONE) WireButtonState.Selected else WireButtonState.Default,
+            state = if (status == UserStatus.NONE) WireButtonState.Selected else WireButtonState.Default,
             leadingIcon = {
-                UserStatusDot(
+                UserStatusIndicator(
                     status = UserStatus.NONE,
                     modifier = Modifier.padding(end = dimensions().spacing4)
                 )
@@ -247,7 +258,7 @@ private fun ColumnScope.renderStatusesRow(state: UserProfileState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.renderOtherAccountsList(state: UserProfileState, viewModel: UserProfileViewModel) {
+private fun ColumnScope.OtherAccountsList(state: UserProfileState, onAddAccountClick: () -> Unit) {
     Text(
         modifier = Modifier
             .padding(top = dimensions().spacing16, start = dimensions().spacing16, bottom = dimensions().spacing4),
@@ -274,7 +285,7 @@ private fun ColumnScope.renderOtherAccountsList(state: UserProfileState, viewMod
                 .background(MaterialTheme.colorScheme.background)
                 .padding(dimensions().spacing16),
             text = stringResource(R.string.user_profile_new_acc_text),
-            onClick = { viewModel.addAccount() }
+            onClick = onAddAccountClick
         )
     }
 }
@@ -320,8 +331,8 @@ private fun OtherAccountItem(account: OtherAccount, onClick: (String) -> Unit = 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = false)
 @Composable
-fun UserProfileScreenPreview() {
-    renderUserProfileScreen(
+private fun UserProfileScreenPreview() {
+    UserProfileScreen(
         UserProfileState(
             "",
             UserStatus.BUSY,
@@ -337,7 +348,6 @@ fun UserProfileScreenPreview() {
                 OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "New Name")
             )
-        ),
-        UserProfileViewModel(NavigationManager())
+        )
     )
 }

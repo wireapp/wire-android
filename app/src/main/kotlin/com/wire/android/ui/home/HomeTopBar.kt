@@ -20,9 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.SearchBarUI
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.UserStatus
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

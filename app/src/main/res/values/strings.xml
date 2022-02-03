@@ -60,7 +60,7 @@
     <string name="conetnt_description_conversation_search_icon">Conversation search icon</string>
 
     <!-- User Profile -->
-    <string name="user_profile_tile">User Profile</string>
+    <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>
     <string name="user_profile_logout">Logout</string>
     <string name="user_profile_other_accs">Other Accounts</string>

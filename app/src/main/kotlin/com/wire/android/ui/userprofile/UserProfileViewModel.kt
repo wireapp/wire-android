@@ -1,13 +1,13 @@
-package com.wire.android.ui.home.userprofile
+package com.wire.android.ui.userprofile
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.model.UserStatus
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.common.UserStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,6 +57,10 @@ class UserProfileViewModel @Inject constructor(private val navigationManager: Na
     }
 
     fun editProfile() {
+        //TODO
+    }
+
+    fun changeStatus(status: UserStatus) {
         //TODO
     }
 }

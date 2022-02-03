@@ -1,6 +1,6 @@
 package com.wire.android.ui.home.conversationslist.model
 
-import com.wire.android.ui.common.UserStatus
+import com.wire.android.model.UserStatus
 import com.wire.android.ui.main.conversationlist.common.UserInfoLabel
 
 sealed class ConversationItem(val conversationType: ConversationType)

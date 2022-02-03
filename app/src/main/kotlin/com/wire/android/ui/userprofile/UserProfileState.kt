@@ -1,6 +1,6 @@
-package com.wire.android.ui.home.userprofile
+package com.wire.android.ui.userprofile
 
-import com.wire.android.ui.common.UserStatus
+import com.wire.android.model.UserStatus
 
 data class UserProfileState(
     val avatarUrl: String = "",

@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
+import com.wire.android.model.UserStatus
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
@@ -49,7 +50,7 @@ fun UserProfileAvatar(
                 .background(Color.Black, CircleShape)
                 .size(size)
         )
-        UserStatusDot(
+        UserStatusIndicator(
             status = status,
             modifier = Modifier.align(Alignment.BottomEnd)
         )

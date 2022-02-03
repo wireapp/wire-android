@@ -58,4 +58,17 @@
     <string name="content_description_drop_down_icon">Drop down arrow</string>
     <string name="content_description_conversation_video_icon">Conversation video icon</string>
     <string name="conetnt_description_conversation_search_icon">Conversation search icon</string>
+    <string name="label_mute">Mute</string>
+    <string name="label_add_to_favourites">Add to Favourites</string>
+    <string name="label_move_to_folder">Move to Folder</string>
+    <string name="label_move_to_archive">Move to Archive</string>
+    <string name="label_clear_content">Clear Content...</string>
+    <string name="label_block">Block</string>
+    <string name="label_leave_group">Leave Group</string>
+    <string name="content_description_mute">Mute</string>
+    <string name="content_description_add_to_favourite">Add to favourite</string>
+    <string name="content_description_move_to_folder">Move to folder</string>
+    <string name="content_description_move_to_archive">Move to archive</string>
+    <string name="content_description_block_the_user">Block the user</string>
+    <string name="content_description_leave_the_group">Leave the group</string>
 </resources>

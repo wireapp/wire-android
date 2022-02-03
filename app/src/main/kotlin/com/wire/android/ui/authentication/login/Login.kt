@@ -150,7 +150,7 @@ private fun UserIdentifierInput(
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_user_identifier_label),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
         modifier = modifier,
     )
 }

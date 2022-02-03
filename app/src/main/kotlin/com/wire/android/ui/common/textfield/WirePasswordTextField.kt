@@ -87,7 +87,7 @@ fun WirePasswordTextField(
 
 @Preview(name = "Default WirePasswordTextField")
 @Composable
-fun WirePasswordTextFieldPreview() {
+private fun WirePasswordTextFieldPreview() {
     WirePasswordTextField(
         value = TextFieldValue(""),
         onValueChange = {},

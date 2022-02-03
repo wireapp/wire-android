@@ -2,7 +2,6 @@ package com.wire.android.ui.home.conversationslist
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,8 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
@@ -27,56 +26,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
-import com.wire.android.ui.home.conversationslist.model.ConversationType.GroupConversation
-import com.wire.android.ui.home.conversationslist.model.ConversationType.PrivateConversation
 import com.wire.android.ui.theme.wireTypography
 
 
-@ExperimentalMaterialApi
-@Composable
-fun ConversationModalBottomSheet(
-    modalBottomSheetState: ModalBottomSheetState,
-    modalBottomSheetContentState: ModalBottomSheetContentState,
-    content: @Composable () -> Unit
-) {
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        //TODO: create a shape object inside the materialtheme 3 component
-        sheetShape = androidx.compose.material.MaterialTheme.shapes.large.copy(topStart = CornerSize(12.dp), topEnd = CornerSize(12.dp)),
-        sheetContent = {
-            Column {
-                Spacer(modifier = Modifier.height(8.dp))
-                Divider(
-                    modifier = Modifier
-                        .width(width = 48.dp)
-                        .align(alignment = Alignment.CenterHorizontally),
-                    thickness = 4.dp
-                )
-                ModalBottomSheetHeader(
-                    title = modalBottomSheetContentState.title.value,
-                    avatar = modalBottomSheetContentState.avatar.value
-                )
-                Divider()
-                ModalBottomSheetItems()
-            }
-        }
-    ) {
-        content()
-    }
-}
-
-@Composable
-fun ModalBottomSheetItems() {
-    LazyColumn {
-        item {
+fun commonConversationItems(
+    onMuteClick: () -> Unit,
+    onAddToFavouritesClick: () -> Unit,
+    onMoveToFolderClick: () -> Unit,
+    onMoveToArchiveClick: () -> Unit,
+    onClearContentClick: () -> Unit
+): List<@Composable () -> Unit> {
+    return listOf<@Composable () -> Unit>(
+        {
             ModalBottomSheetItem(
                 icon = {
                     ItemIcon(
@@ -84,11 +51,11 @@ fun ModalBottomSheetItems() {
                         contentDescription = "",
                     )
                 },
-                title = { ItemTitle("Mute") }
+                title = { ItemTitle("Mute") },
+                onMuteClick
             )
-        }
-        item { Divider() }
-        item {
+        },
+        {
             ModalBottomSheetItem(
                 icon = {
                     ItemIcon(
@@ -96,11 +63,11 @@ fun ModalBottomSheetItems() {
                         contentDescription = "",
                     )
                 },
-                title = { ItemTitle("Add to Favourites") }
+                title = { ItemTitle("Add to Favourites") },
+                onAddToFavouritesClick
             )
-        }
-        item { Divider() }
-        item {
+        },
+        {
             ModalBottomSheetItem(
                 icon = {
                     ItemIcon(
@@ -108,11 +75,11 @@ fun ModalBottomSheetItems() {
                         contentDescription = "",
                     )
                 },
-                title = { ItemTitle("Move to Folder") }
+                title = { ItemTitle("Move to Folder") },
+                onMoveToFolderClick
             )
-        }
-        item { Divider() }
-        item {
+        },
+        {
             ModalBottomSheetItem(
                 icon = {
                     ItemIcon(
@@ -120,11 +87,10 @@ fun ModalBottomSheetItems() {
                         contentDescription = "",
                     )
                 },
-                title = { ItemTitle("Move to Archive") }
+                title = { ItemTitle("Move to Archive") },
+                onMoveToArchiveClick
             )
-        }
-        item { Divider() }
-        item {
+        }, {
             ModalBottomSheetItem(
                 icon = {
                     ItemIcon(
@@ -132,28 +98,36 @@ fun ModalBottomSheetItems() {
                         contentDescription = "",
                     )
                 },
-                title = { ItemTitle("Clear Content...") }
+                title = { ItemTitle("Clear Content...") },
+                onClearContentClick
             )
         }
-        item { Divider() }
-        item {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                ModalBottomSheetItem(
-                    icon = {
-                        ItemIcon(
-                            id = R.drawable.ic_leave,
-                            contentDescription = "",
-                        )
-                    },
-                    title = { ItemTitle("Leave Group") }
-                )
-            }
-        }
-    }
+    )
 }
 
 @Composable
-fun ModalBottomSheetHeader(title: String, avatar: ModalSheetAvatar) {
+fun PrivateConversationSheet(
+    content: ModalSheetContent.PrivateConversationEdit,
+    onMuteClick: () -> Unit,
+    onAddToFavouritesClick: () -> Unit,
+    onMoveToFolderClick: () -> Unit,
+    onMoveToArchiveClick: () -> Unit,
+    onClearContentClick: () -> Unit,
+    onBlockClick: () -> Unit
+) {
+    PrivateConversationHeader(content)
+    PrivateConversationItems(
+        onMuteClick = onMuteClick,
+        onAddToFavouritesClick = onAddToFavouritesClick,
+        onMoveToFolderClick = onMoveToFolderClick,
+        onMoveToArchiveClick = onMoveToArchiveClick,
+        onClearContentClick = onClearContentClick,
+        onBlockClick = onBlockClick,
+    )
+}
+
+@Composable
+fun PrivateConversationHeader(content: ModalSheetContent.PrivateConversationEdit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(
@@ -162,11 +136,153 @@ fun ModalBottomSheetHeader(title: String, avatar: ModalSheetAvatar) {
             bottom = 8.dp
         )
     ) {
-        when (avatar) {
-            is ModalSheetAvatar.GroupAvatar -> GroupConversationAvatar(colorValue = avatar.groupColor)
-            is ModalSheetAvatar.UserAvatar -> UserProfileAvatar()
-            ModalSheetAvatar.None -> CircularProgressIndicator(progressColor = Color.Blue)
+        UserProfileAvatar()
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = content.title,
+            style = MaterialTheme.wireTypography.body02
+        )
+    }
+}
+
+@Composable
+ fun PrivateConversationItems(
+    onMuteClick: () -> Unit,
+    onAddToFavouritesClick: () -> Unit,
+    onMoveToFolderClick: () -> Unit,
+    onMoveToArchiveClick: () -> Unit,
+    onClearContentClick: () -> Unit,
+    onBlockClick: () -> Unit
+) {
+    buildItems(
+        items = privateConversationItems(
+            onMuteClick = onMuteClick,
+            onAddToFavouritesClick = onAddToFavouritesClick,
+            onMoveToFolderClick = onMoveToFolderClick,
+            onMoveToArchiveClick = onMoveToArchiveClick,
+            onClearContentClick = onClearContentClick,
+            onBlockClick = onBlockClick,
+        )
+    )
+}
+
+ fun privateConversationItems(
+    onMuteClick: () -> Unit,
+    onAddToFavouritesClick: () -> Unit,
+    onMoveToFolderClick: () -> Unit,
+    onMoveToArchiveClick: () -> Unit,
+    onClearContentClick: () -> Unit,
+    onBlockClick: () -> Unit
+): List<@Composable () -> Unit> {
+    return commonConversationItems(
+        onMuteClick = onMuteClick,
+        onAddToFavouritesClick = onAddToFavouritesClick,
+        onMoveToFolderClick = onMoveToFolderClick,
+        onMoveToArchiveClick = onMoveToArchiveClick,
+        onClearContentClick = onClearContentClick
+    ) + {
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+            ModalBottomSheetItem(
+                icon = {
+                    ItemIcon(
+                        id = R.drawable.ic_leave,
+                        contentDescription = "",
+                    )
+                },
+                title = { ItemTitle("Block") },
+                onBlockClick
+            )
         }
+    }
+}
+
+@Composable
+ fun GroupConversationSheet(
+    groupConversationEdit: ModalSheetContent.GroupConversationEdit, onMuteClick: () -> Unit,
+    onAddToFavouritesClick: () -> Unit,
+    onMoveToFolderClick: () -> Unit,
+    onMoveToArchiveClick: () -> Unit,
+    onClearContentClick: () -> Unit,
+    onLeaveClick: () -> Unit
+) {
+    with(groupConversationEdit) {
+        GroupHeader(
+            title = title,
+            groupColorValue = groupColorValue
+        )
+    }
+    GroupConversationItems(
+        onMuteClick = onMuteClick,
+        onAddToFavouritesClick = onAddToFavouritesClick,
+        onMoveToFolderClick = onMoveToFolderClick,
+        onMoveToArchiveClick = onMoveToArchiveClick,
+        onClearContentClick = onClearContentClick,
+        onLeaveClick = onLeaveClick,
+    )
+}
+
+@Composable
+ fun GroupConversationItems(
+    onMuteClick: () -> Unit,
+    onAddToFavouritesClick: () -> Unit,
+    onMoveToFolderClick: () -> Unit,
+    onMoveToArchiveClick: () -> Unit,
+    onClearContentClick: () -> Unit,
+    onLeaveClick: () -> Unit
+) {
+    buildItems(
+        items = groupConversationItems(
+            onMuteClick = onMuteClick,
+            onAddToFavouritesClick = onAddToFavouritesClick,
+            onMoveToFolderClick = onMoveToFolderClick,
+            onMoveToArchiveClick = onMoveToArchiveClick,
+            onClearContentClick = onClearContentClick,
+            onLeaveClick = onLeaveClick,
+        )
+    )
+}
+
+ fun groupConversationItems(
+    onMuteClick: () -> Unit,
+    onAddToFavouritesClick: () -> Unit,
+    onMoveToFolderClick: () -> Unit,
+    onMoveToArchiveClick: () -> Unit,
+    onClearContentClick: () -> Unit,
+    onLeaveClick: () -> Unit
+): List<@Composable () -> Unit> {
+    return commonConversationItems(
+        onMuteClick = onMuteClick,
+        onAddToFavouritesClick = onAddToFavouritesClick,
+        onMoveToFolderClick = onMoveToFolderClick,
+        onMoveToArchiveClick = onMoveToArchiveClick,
+        onClearContentClick = onClearContentClick
+    ) + {
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+            ModalBottomSheetItem(
+                icon = {
+                    ItemIcon(
+                        id = R.drawable.ic_leave,
+                        contentDescription = "",
+                    )
+                },
+                title = { ItemTitle("Leave Group") },
+                onLeaveClick
+            )
+        }
+    }
+}
+
+@Composable
+fun GroupHeader(title: String, groupColorValue: Long) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(
+            start = 8.dp,
+            top = 16.dp,
+            bottom = 8.dp
+        )
+    ) {
+        GroupConversationAvatar(colorValue = groupColorValue)
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = title,
@@ -175,21 +291,18 @@ fun ModalBottomSheetHeader(title: String, avatar: ModalSheetAvatar) {
     }
 }
 
-
-//TODO: split components into two types
 @Composable
-private fun PrivateConversationModalBottomSheet(privateConversation: PrivateConversation) {
-
-}
-
-//TODO: split components into two types
-@Composable
-private fun GroupConversationModalBottomSheet(groupConversation: GroupConversation) {
-
+ fun buildItems(items: List<@Composable () -> Unit>) {
+    items.forEachIndexed { index, sheetItem ->
+        sheetItem()
+        if (index != items.size) {
+            Divider()
+        }
+    }
 }
 
 @Composable
-private fun ItemIcon(
+ fun ItemIcon(
     @DrawableRes id: Int,
     contentDescription: String,
     size: Dp = 16.dp,
@@ -205,7 +318,7 @@ private fun ItemIcon(
 }
 
 @Composable
-private fun ItemTitle(
+ fun ItemTitle(
     title: String,
     modifier: Modifier = Modifier
 ) {
@@ -217,7 +330,7 @@ private fun ItemTitle(
 }
 
 @Composable
-private fun ModalBottomSheetItem(
+ fun ModalBottomSheetItem(
     icon: @Composable () -> Unit,
     title: @Composable () -> Unit,
     onItemClick: () -> Unit = {}
@@ -235,14 +348,13 @@ private fun ModalBottomSheetItem(
 }
 
 class ModalBottomSheetContentState {
-    val title: MutableState<String> = mutableStateOf("")
-    val avatar: MutableState<ModalSheetAvatar> = mutableStateOf(ModalSheetAvatar.None)
+    val modalSheetContent: MutableState<ModalSheetContent> = mutableStateOf(ModalSheetContent.Initial)
 }
 
-sealed class ModalSheetAvatar {
-    data class UserAvatar(val avatarUrl: String) : ModalSheetAvatar()
-    data class GroupAvatar(val groupColor: Long) : ModalSheetAvatar()
-    object None : ModalSheetAvatar()
+sealed class ModalSheetContent {
+    object Initial : ModalSheetContent()
+    data class PrivateConversationEdit(val title: String, val avatarUrl: String) : ModalSheetContent()
+    data class GroupConversationEdit(val title: String, val groupColorValue: Long) : ModalSheetContent()
 }
 
 @Composable

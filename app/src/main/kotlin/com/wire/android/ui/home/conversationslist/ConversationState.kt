@@ -5,6 +5,8 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
@@ -17,7 +19,7 @@ import kotlinx.coroutines.launch
 class ConversationState(
     val navHostController: NavHostController,
     val modalBottomSheetState: ModalBottomSheetState,
-    val modalBottomSheetContentState: ModalBottomSheetContentState,
+    val modalBottomSheetContentState: MutableState<ModalSheetContent>,
     private val coroutineScope: CoroutineScope
 ) {
 
@@ -25,19 +27,24 @@ class ConversationState(
         when (conversationType) {
             is ConversationType.GroupConversation -> {
                 with(conversationType) {
-                    modalBottomSheetContentState.avatar.value = ModalSheetAvatar.GroupAvatar(groupColorValue)
-                    modalBottomSheetContentState.title.value = groupName
+                    modalBottomSheetContentState.value = ModalSheetContent.GroupConversationEdit(
+                        title = groupName,
+                        groupColorValue = groupColorValue
+                    )
                 }
             }
             is ConversationType.PrivateConversation -> {
                 with(conversationType) {
-                    modalBottomSheetContentState.avatar.value = ModalSheetAvatar.UserAvatar(userInfo.avatarUrl)
-                    modalBottomSheetContentState.title.value = conversationInfo.name
+                    modalBottomSheetContentState.value = ModalSheetContent.PrivateConversationEdit(
+                        title = conversationInfo.name,
+                        avatarUrl = userInfo.avatarUrl
+                    )
                 }
             }
         }
         coroutineScope.launch { modalBottomSheetState.show() }
     }
+
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -45,7 +52,9 @@ class ConversationState(
 fun rememberConversationState(
     navHostController: NavHostController = rememberNavController(),
     modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
-    modalBottomSheetContentState: ModalBottomSheetContentState = rememberModalSheetContentState(),
+    modalBottomSheetContentState: MutableState<ModalSheetContent> = remember {
+        mutableStateOf(ModalSheetContent.Initial)
+    },
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) = remember(navHostController, modalBottomSheetState, modalBottomSheetContentState, coroutineScope) {
     ConversationState(

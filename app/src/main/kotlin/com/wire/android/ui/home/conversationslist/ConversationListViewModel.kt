@@ -1,8 +1,6 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
@@ -54,6 +52,34 @@ class ConversationListViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    fun muteConversation(id: String) {
+
+    }
+
+    fun addConversationToFavourites(id: String) {
+
+    }
+
+    fun moveConversationToFolder(id: String) {
+
+    }
+
+    fun moveConversationToArchive(id: String) {
+
+    }
+
+    fun clearConversationContent(id: String) {
+
+    }
+
+    fun blockUser(id: String) {
+
+    }
+
+    fun leaveGroup(id: String) {
+
     }
 
 }

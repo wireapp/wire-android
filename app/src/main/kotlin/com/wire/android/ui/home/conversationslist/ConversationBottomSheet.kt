@@ -35,7 +35,7 @@ import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.android.ui.theme.wireTypography
 
 
-fun commonConversationItems(
+private fun commonConversationItems(
     onMuteClick: () -> Unit,
     onAddToFavouritesClick: () -> Unit,
     onMoveToFolderClick: () -> Unit,
@@ -127,7 +127,7 @@ fun PrivateConversationSheet(
 }
 
 @Composable
-fun PrivateConversationHeader(content: ModalSheetContent.PrivateConversationEdit) {
+private fun PrivateConversationHeader(content: ModalSheetContent.PrivateConversationEdit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(
@@ -146,7 +146,7 @@ fun PrivateConversationHeader(content: ModalSheetContent.PrivateConversationEdit
 }
 
 @Composable
- fun PrivateConversationItems(
+private fun PrivateConversationItems(
     onMuteClick: () -> Unit,
     onAddToFavouritesClick: () -> Unit,
     onMoveToFolderClick: () -> Unit,
@@ -166,7 +166,7 @@ fun PrivateConversationHeader(content: ModalSheetContent.PrivateConversationEdit
     )
 }
 
- fun privateConversationItems(
+private fun privateConversationItems(
     onMuteClick: () -> Unit,
     onAddToFavouritesClick: () -> Unit,
     onMoveToFolderClick: () -> Unit,
@@ -222,7 +222,7 @@ fun PrivateConversationHeader(content: ModalSheetContent.PrivateConversationEdit
 }
 
 @Composable
- fun GroupConversationItems(
+private fun GroupConversationItems(
     onMuteClick: () -> Unit,
     onAddToFavouritesClick: () -> Unit,
     onMoveToFolderClick: () -> Unit,
@@ -242,7 +242,7 @@ fun PrivateConversationHeader(content: ModalSheetContent.PrivateConversationEdit
     )
 }
 
- fun groupConversationItems(
+private fun groupConversationItems(
     onMuteClick: () -> Unit,
     onAddToFavouritesClick: () -> Unit,
     onMoveToFolderClick: () -> Unit,
@@ -347,19 +347,8 @@ fun GroupHeader(title: String, groupColorValue: Long) {
     }
 }
 
-class ModalBottomSheetContentState {
-    val modalSheetContent: MutableState<ModalSheetContent> = mutableStateOf(ModalSheetContent.Initial)
-}
-
 sealed class ModalSheetContent {
     object Initial : ModalSheetContent()
     data class PrivateConversationEdit(val title: String, val avatarUrl: String) : ModalSheetContent()
     data class GroupConversationEdit(val title: String, val groupColorValue: Long) : ModalSheetContent()
-}
-
-@Composable
-fun rememberModalSheetContentState(): ModalBottomSheetContentState {
-    return remember {
-        ModalBottomSheetContentState()
-    }
 }

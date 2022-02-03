@@ -45,7 +45,7 @@ fun WirePrimaryButton(
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinHeight,
     minWidth: Dp = MaterialTheme.wireDimensions.buttonMinWidth,
     fillMaxWidth: Boolean = true,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     colors: WireButtonColors = wirePrimaryButtonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
     borderWidth: Dp = 0.dp,
@@ -80,13 +80,13 @@ fun WirePrimaryButton(
 
 @Preview(name = "Default WirePrimaryButton")
 @Composable
-fun WirePrimaryButtonPreview() {
+private fun WirePrimaryButtonPreview() {
     WirePrimaryButton(onClick = { }, text = "text")
 }
 
 @Preview(name = "Default WirePrimaryButton with icons")
 @Composable
-fun WirePrimaryButtonWithIconsPreview() {
+private fun WirePrimaryButtonWithIconsPreview() {
     WirePrimaryButton(
         onClick = { },
         text = "text",
@@ -97,7 +97,7 @@ fun WirePrimaryButtonWithIconsPreview() {
 
 @Preview(name = "Default narrow WirePrimaryButton with icon")
 @Composable
-fun WirePrimaryButtonNarrowWithIconsPreview() {
+private fun WirePrimaryButtonNarrowWithIconsPreview() {
     WirePrimaryButton(
         onClick = { },
         text = "text",
@@ -109,7 +109,7 @@ fun WirePrimaryButtonNarrowWithIconsPreview() {
 
 @Preview(name = "Default small WirePrimaryButton only icon")
 @Composable
-fun WirePrimaryButtonSmallOnlyIconsPreview() {
+private fun WirePrimaryButtonSmallOnlyIconsPreview() {
     WirePrimaryButton(
         onClick = { },
         leadingIcon = Icons.Filled.Search.Icon(),
@@ -124,26 +124,32 @@ fun WirePrimaryButtonSmallOnlyIconsPreview() {
 
 @Preview(name = "Default Loading WirePrimaryButton")
 @Composable
-fun WirePrimaryButtonLoadingPreview() {
+private fun WirePrimaryButtonLoadingPreview() {
     WirePrimaryButton(onClick = { }, loading = true, text = "text")
 }
 
-@Preview(name = "Default Disabled WirePrimaryButton")
+@Preview(name = "Disabled WirePrimaryButton")
 @Composable
-fun WirePrimaryButtonDisabledPreview() {
+private fun WirePrimaryButtonDisabledPreview() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text")
 }
 
-@Preview(name = "Default Selected WirePrimaryButton")
+@Preview(name = "Selected WirePrimaryButton")
 @Composable
-fun WirePrimaryButtonSelectedPreview() {
+private fun WirePrimaryButtonSelectedPreview() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Selected, text = "text")
+}
+
+@Preview(name = "Error WirePrimaryButton")
+@Composable
+private fun WirePrimaryButtonErrorPreview() {
+    WirePrimaryButton(onClick = { }, state = WireButtonState.Error, text = "text")
 }
 
 
 @Preview(name = "Three WirePrimaryButton with different states")
 @Composable
-fun WirePrimaryButtonSelected3Preview() {
+private fun WirePrimaryButtonSelected3Preview() {
     Row {
         WirePrimaryButton(
             onClick = { },

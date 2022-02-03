@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.Tint
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
@@ -63,8 +64,8 @@ internal fun WireTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
-    inputMinHeight: Dp = 48.dp,
-    shape: Shape = RoundedCornerShape(16.dp),
+    inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
+    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
     modifier: Modifier = Modifier
 ) {
@@ -188,7 +189,7 @@ private fun InnerText(
 
 @Preview(name = "Default WireTextField")
 @Composable
-fun WireTextFieldPreview() {
+private fun WireTextFieldPreview() {
     WireTextField(
         value = TextFieldValue("text"),
         onValueChange = {},
@@ -198,7 +199,7 @@ fun WireTextFieldPreview() {
 
 @Preview(name = "Default WireTextField with labels")
 @Composable
-fun WireTextFieldLabelsPreview() {
+private fun WireTextFieldLabelsPreview() {
     WireTextField(
         value = TextFieldValue("text"),
         labelText = "label",
@@ -211,7 +212,7 @@ fun WireTextFieldLabelsPreview() {
 
 @Preview(name = "Dense Search WireTextField")
 @Composable
-fun WireTextFieldDenseSearchPreview() {
+private fun WireTextFieldDenseSearchPreview() {
     WireTextField(
         value = TextFieldValue(""),
         placeholderText = "Search",
@@ -225,7 +226,7 @@ fun WireTextFieldDenseSearchPreview() {
 
 @Preview(name = "Disabled WireTextField")
 @Composable
-fun WireTextFieldDisabledPreview() {
+private fun WireTextFieldDisabledPreview() {
     WireTextField(
         value = TextFieldValue("text"),
         onValueChange = {},
@@ -236,7 +237,7 @@ fun WireTextFieldDisabledPreview() {
 
 @Preview(name = "Error WireTextField")
 @Composable
-fun WireTextFieldErrorPreview() {
+private fun WireTextFieldErrorPreview() {
     WireTextField(
         value = TextFieldValue("text"),
         onValueChange = {},
@@ -247,7 +248,7 @@ fun WireTextFieldErrorPreview() {
 
 @Preview(name = "Success WireTextField")
 @Composable
-fun WireTextFieldSuccessPreview() {
+private fun WireTextFieldSuccessPreview() {
     WireTextField(
         value = TextFieldValue("text"),
         onValueChange = {},

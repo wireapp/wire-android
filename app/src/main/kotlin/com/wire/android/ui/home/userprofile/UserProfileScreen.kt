@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.userprofile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -20,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -27,9 +27,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -41,6 +41,7 @@ import com.wire.android.ui.common.UserStatus
 import com.wire.android.ui.common.UserStatusDot
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
@@ -74,10 +75,182 @@ fun renderUserProfileScreen(state: UserProfileState, viewModel: UserProfileViewM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+private fun ColumnScope.renderTopBar(viewModel: UserProfileViewModel) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            titleContentColor = MaterialTheme.colorScheme.onBackground,
+            actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+            navigationIconContentColor = MaterialTheme.colorScheme.onBackground
+        ),
+        navigationIcon = {
+            IconButton(onClick = { viewModel.close() }) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = stringResource(R.string.user_profile_close_description),
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        },
+        title = {
+            Text(
+                text = stringResource(id = R.string.user_profile_tile),
+                style = MaterialTheme.wireTypography.title01,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+        },
+        actions = {
+            //TODO make it red, when such WireBtn ready
+            WireSecondaryButton(
+                onClick = { viewModel.logout() },
+                text = stringResource(R.string.user_profile_logout),
+                fillMaxWidth = false,
+                minHeight = dimensions().userProfileLogoutBtnHeight,
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ColumnScope.renderHeader(state: UserProfileState, viewModel: UserProfileViewModel) {
+    UserProfileAvatar(
+        modifier = Modifier
+            .padding(top = dimensions().spacing16)
+            .align(Alignment.CenterHorizontally),
+        size = dimensions().userAvatarDefaultBigSize,
+        avatarUrl = state.avatarUrl,
+        status = UserStatus.NONE
+    )
+
+    ConstraintLayout(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+
+        val (data, editBtn, team) = createRefs()
+
+        Column(modifier = Modifier
+            .padding(horizontal = dimensions().spacing64)
+            .constrainAs(data) {
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            }) {
+            Text(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                text = state.fullName,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                style = MaterialTheme.wireTypography.title02,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+
+            Text(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                text = state.userName,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.wireTypography.body02,
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+        }
+
+        IconButton(
+            modifier = Modifier
+                .padding(start = dimensions().spacing16)
+                .constrainAs(editBtn) {
+                    top.linkTo(data.top)
+                    bottom.linkTo(data.bottom)
+                    end.linkTo(data.end)
+                },
+            onClick = { viewModel.editProfile() },
+            content = Icons.Filled.Edit.Icon()
+        )
+
+        Text(
+            modifier = Modifier
+                .padding(top = dimensions().spacing8)
+                .padding(horizontal = dimensions().spacing16)
+                .constrainAs(team) {
+                    top.linkTo(data.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
+            text = state.teamName,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.wireTypography.label01,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
+}
+
+@Composable
+private fun ColumnScope.renderStatusesRow(state: UserProfileState) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensions().spacing16),
+    ) {
+        WireSecondaryButton(
+            onClick = {},
+            text = stringResource(R.string.user_profile_status_available),
+            fillMaxWidth = false,
+            minHeight = dimensions().userProfileStatusBtnHeight,
+            state = if (state.status == UserStatus.AVAILABLE) WireButtonState.Selected else WireButtonState.Default,
+            shape = RoundedCornerShape(topStart = dimensions().corner16, bottomStart = dimensions().corner16),
+            leadingIcon = {
+                UserStatusDot(
+                    status = UserStatus.AVAILABLE,
+                    modifier = Modifier.padding(end = dimensions().spacing4)
+                )
+            })
+        WireSecondaryButton(
+            onClick = {},
+            text = stringResource(R.string.user_profile_status_busy),
+            fillMaxWidth = false,
+            minHeight = dimensions().userProfileStatusBtnHeight,
+            state = if (state.status == UserStatus.BUSY) WireButtonState.Selected else WireButtonState.Default,
+            shape = RoundedCornerShape(0.dp),
+            leadingIcon = {
+                UserStatusDot(
+                    status = UserStatus.BUSY,
+                    modifier = Modifier.padding(end = dimensions().spacing4)
+                )
+            })
+        WireSecondaryButton(
+            onClick = {},
+            text = stringResource(R.string.user_profile_status_available),
+            fillMaxWidth = false,
+            minHeight = dimensions().userProfileStatusBtnHeight,
+            state = if (state.status == UserStatus.AWAY) WireButtonState.Selected else WireButtonState.Default,
+            shape = RoundedCornerShape(0.dp),
+            leadingIcon = {
+                UserStatusDot(
+                    status = UserStatus.AWAY,
+                    modifier = Modifier.padding(end = dimensions().spacing4)
+                )
+            })
+        WireSecondaryButton(
+            onClick = {},
+            text = stringResource(R.string.user_profile_status_none),
+            shape = RoundedCornerShape(topEnd = dimensions().corner16, bottomEnd = dimensions().corner16),
+            minHeight = dimensions().userProfileStatusBtnHeight,
+            state = if (state.status == UserStatus.NONE) WireButtonState.Selected else WireButtonState.Default,
+            leadingIcon = {
+                UserStatusDot(
+                    status = UserStatus.NONE,
+                    modifier = Modifier.padding(end = dimensions().spacing4)
+                )
+            })
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun ColumnScope.renderOtherAccountsList(state: UserProfileState, viewModel: UserProfileViewModel) {
     Text(
         modifier = Modifier
-            .padding(top = 14.dp, start = 16.dp, bottom = 4.dp),
+            .padding(top = dimensions().spacing16, start = dimensions().spacing16, bottom = dimensions().spacing4),
         text = stringResource(id = R.string.user_profile_other_accs).uppercase(),
         style = MaterialTheme.wireTypography.title03,
         color = MaterialTheme.colorScheme.onBackground,
@@ -95,171 +268,13 @@ private fun ColumnScope.renderOtherAccountsList(state: UserProfileState, viewMod
         )
     }
 
-    Box(
-        modifier = Modifier
-            .shadow(2.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
-    ) {
+    Surface(shadowElevation = 8.dp) {
         WirePrimaryButton(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .padding(dimensions().spacing16),
             text = stringResource(R.string.user_profile_new_acc_text),
             onClick = { viewModel.addAccount() }
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ColumnScope.renderTopBar(viewModel: UserProfileViewModel) {
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            titleContentColor = MaterialTheme.colorScheme.onBackground,
-            actionIconContentColor = MaterialTheme.colorScheme.onBackground,
-            navigationIconContentColor = MaterialTheme.colorScheme.onBackground
-        ),
-        navigationIcon = {
-            IconButton(
-                onClick = { viewModel.close() },
-                modifier = Modifier.height(40.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = stringResource(R.string.user_profile_close_description),
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-            }
-        },
-        title = {
-            Text(
-                text = stringResource(id = R.string.user_profile_tile),
-                style = MaterialTheme.wireTypography.title01,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-
-        },
-        actions = {
-            WireSecondaryButton(
-                modifier = Modifier.height(32.dp),
-                onClick = { viewModel.logout() },
-                text = stringResource(R.string.user_profile_logout),
-                fillMaxWidth = false,
-            )
-        }
-    )
-}
-
-@Composable
-private fun ColumnScope.renderStatusesRow(state: UserProfileState) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .height(32.dp),
-    ) {
-        WireSecondaryButton(
-            onClick = {},
-            text = stringResource(R.string.user_profile_status_available),
-            fillMaxWidth = false,
-            state = if (state.status == UserStatus.AVAILABLE) WireButtonState.Selected else WireButtonState.Default,
-            shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp),
-            leadingIcon = {
-                UserStatusDot(
-                    status = UserStatus.AVAILABLE,
-                    modifier = Modifier.padding(end = 4.dp)
-                )
-            })
-        WireSecondaryButton(
-            onClick = {},
-            text = stringResource(R.string.user_profile_status_busy),
-            fillMaxWidth = false,
-            state = if (state.status == UserStatus.BUSY) WireButtonState.Selected else WireButtonState.Default,
-            shape = RoundedCornerShape(0.dp),
-            leadingIcon = {
-                UserStatusDot(
-                    status = UserStatus.BUSY,
-                    modifier = Modifier.padding(end = 4.dp)
-                )
-            })
-        WireSecondaryButton(
-            onClick = {},
-            text = stringResource(R.string.user_profile_status_available),
-            fillMaxWidth = false,
-            state = if (state.status == UserStatus.AWAY) WireButtonState.Selected else WireButtonState.Default,
-            shape = RoundedCornerShape(0.dp),
-            leadingIcon = {
-                UserStatusDot(
-                    status = UserStatus.AWAY,
-                    modifier = Modifier.padding(end = 4.dp)
-                )
-            })
-        WireSecondaryButton(
-            onClick = {},
-            text = stringResource(R.string.user_profile_status_none),
-            shape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
-            state = if (state.status == UserStatus.NONE) WireButtonState.Selected else WireButtonState.Default,
-            leadingIcon = {
-                UserStatusDot(
-                    status = UserStatus.NONE,
-                    modifier = Modifier.padding(end = 4.dp)
-                )
-            })
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ColumnScope.renderHeader(state: UserProfileState, viewModel: UserProfileViewModel) {
-    UserProfileAvatar(
-        modifier = Modifier
-            .padding(top = 16.dp)
-            .align(Alignment.CenterHorizontally),
-        size = 64.dp,
-        avatarUrl = state.avatarUrl
-    )
-
-    ConstraintLayout(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-
-        val (data, editBtn) = createRefs()
-
-        Column(modifier = Modifier.constrainAs(data) {
-            top.linkTo(parent.top)
-            bottom.linkTo(parent.bottom)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-        }) {
-            Text(
-                modifier = Modifier.padding(top = 16.dp),
-                text = state.fullName,
-                style = MaterialTheme.wireTypography.title02,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-
-            Text(
-                text = state.userName,
-                style = MaterialTheme.wireTypography.body02,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-
-            Text(
-                modifier = Modifier.padding(top = 8.dp),
-                text = state.teamName,
-                style = MaterialTheme.wireTypography.label01,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-
-        }
-
-        IconButton(
-            modifier = Modifier
-                .padding(start = 20.dp)
-                .constrainAs(editBtn) {
-                    top.linkTo(data.top)
-                    bottom.linkTo(data.bottom)
-                    start.linkTo(data.end)
-                },
-            onClick = { viewModel.editProfile() },
-            content = Icons.Filled.Edit.Icon()
         )
     }
 }
@@ -269,10 +284,9 @@ private fun OtherAccountItem(account: OtherAccount, onClick: (String) -> Unit = 
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(dimensions().userProfileOtherAccItemHeight)
             .padding(bottom = 1.dp)
             .background(MaterialTheme.colorScheme.surface)
-            .padding(start = 2.dp)
             .selectableBackground(true) { onClick(account.id) }
     ) {
         val (avatar, data) = createRefs()
@@ -287,7 +301,7 @@ private fun OtherAccountItem(account: OtherAccount, onClick: (String) -> Unit = 
         )
 
         Column(modifier = Modifier
-            .padding(start = 8.dp)
+            .padding(start = dimensions().spacing8)
             .constrainAs(data) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
@@ -311,9 +325,9 @@ fun UserProfileScreenPreview() {
         UserProfileState(
             "",
             UserStatus.BUSY,
-            "Tester Tost",
+            "Tester Tost long lomng long logn long logn long lonf lonf",
             "@userName",
-            "Best team ever",
+            "Best team ever long ",
             listOf(
                 OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "Other Name", "team A"),

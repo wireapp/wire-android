@@ -22,13 +22,13 @@ class UserProfileViewModel @Inject constructor(private val navigationManager: Na
         UserProfileState(
             "",
             UserStatus.BUSY,
-            "Tester Tost",
-            "@userName",
-            "Best team ever",
+            "Tester Tost_long_long_long long  long  long  long  long  long ",
+            "@userName_long_long_long_long_long_long_long_long_long_long",
+            "Best team ever long  long  long  long  long  long  long  long  long ",
             listOf(
                 OtherAccount("someId", "", "Other Name 0", "team A"),
-                OtherAccount("someId", "", "Other Name 1", "team B"),
-                OtherAccount("someId", "", "Other Name 2", "team C"),
+//                OtherAccount("someId", "", "Other Name 1", "team B"),
+//                OtherAccount("someId", "", "Other Name 2", "team C"),
 //                OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "New Name")
             )

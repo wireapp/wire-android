@@ -29,6 +29,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.UserStatus
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -46,7 +47,7 @@ fun MessageItem(
 ) {
     with(message) {
         Row {
-            UserProfileAvatar()
+            UserProfileAvatar(status = UserStatus.AVAILABLE)
             Column {
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(6.dp))

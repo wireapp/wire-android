@@ -12,7 +12,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
@@ -29,10 +28,10 @@ fun UserStatusDot(status: UserStatus, modifier: Modifier = Modifier) {
 private fun AvailableDot(modifier: Modifier) {
     Box(
         modifier = modifier
-            .size(16.dp)
+            .size(dimensions().userAvatarStatusSize)
             .clip(CircleShape)
             .background(Color.White)
-            .padding(2.dp)
+            .padding(dimensions().userAvatarStatusBorderSize)
             .clip(CircleShape)
             .background(MaterialTheme.wireColorScheme.positive)
     )
@@ -42,13 +41,18 @@ private fun AvailableDot(modifier: Modifier) {
 private fun BusyDot(modifier: Modifier) {
     Box(
         modifier = modifier
-            .size(16.dp)
+            .size(dimensions().userAvatarStatusSize)
             .clip(CircleShape)
             .background(Color.White)
-            .padding(2.dp)
+            .padding(dimensions().userAvatarStatusBorderSize)
             .clip(CircleShape)
             .background(MaterialTheme.wireColorScheme.warning)
-            .padding(top = 5.dp, bottom = 5.dp, start = 3.dp, end = 3.dp)
+            .padding(
+                top = dimensions().userAvatarBusyVerticalPadding,
+                bottom = dimensions().userAvatarBusyVerticalPadding,
+                start = dimensions().userAvatarBusyHorizontalPadding,
+                end = dimensions().userAvatarBusyHorizontalPadding
+            )
             .clip(RectangleShape)
             .background(Color.White)
     )
@@ -58,13 +62,13 @@ private fun BusyDot(modifier: Modifier) {
 private fun AwayDot(modifier: Modifier) {
     Box(
         modifier = modifier
-            .size(16.dp)
+            .size(dimensions().userAvatarStatusSize)
             .clip(CircleShape)
             .background(Color.White)
-            .padding(2.dp)
+            .padding(dimensions().userAvatarStatusBorderSize)
             .clip(CircleShape)
             .background(MaterialTheme.wireColorScheme.error)
-            .padding(2.dp)
+            .padding(dimensions().userAvatarStatusBorderSize)
             .clip(CircleShape)
             .background(Color.White)
     )

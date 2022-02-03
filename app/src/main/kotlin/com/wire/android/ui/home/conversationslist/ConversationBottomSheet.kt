@@ -84,7 +84,8 @@ private fun commonConversationItems(
             title = { ItemTitle(stringResource(R.string.label_move_to_archive)) },
             onMoveToArchiveClick
         )
-    }, {
+    },
+    {
         ModalBottomSheetItem(
             icon = {
                 ItemIcon(

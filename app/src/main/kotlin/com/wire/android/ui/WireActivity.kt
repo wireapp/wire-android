@@ -10,11 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
+import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -42,7 +44,7 @@ class WireActivity : AppCompatActivity() {
                 setUpNavigation(navController, scope)
 
                 Scaffold {
-                    NavigationGraph(navController = navController)
+                    ConversationScreen(hiltViewModel())
                 }
             }
         }

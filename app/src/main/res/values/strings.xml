@@ -3,6 +3,7 @@
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
+    <string name="label_ok">OK</string>
     <string name="label_logging_in">Logging in...</string>
     <string name="label_membership_guest">Guest</string>
     <string name="label_memebership_external">External</string>

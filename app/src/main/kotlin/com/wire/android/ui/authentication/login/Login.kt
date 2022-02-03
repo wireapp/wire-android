@@ -36,6 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
@@ -120,11 +123,15 @@ private fun LoginContent(
                 is LoginError.DialogError.GenericError ->
                     loginState.loginError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
             }
-            AlertDialog(
-                onDismissRequest = onDialogDismiss,
-                confirmButton = { Button(onClick = onDialogDismiss) { Text("OK") } },
-                title = { Text(text = title) },
-                text = { Text(text = message) }
+            WireDialog(
+                title = title, 
+                text = message, 
+                onDismiss = onDialogDismiss, 
+                confirmButtonProperties = WireDialogButtonProperties(
+                    onClick = onDialogDismiss,
+                    text = stringResource(id = R.string.label_ok),
+                    type = WireDialogButtonType.Primary,
+                )
             )
         }
     }

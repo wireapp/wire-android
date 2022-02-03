@@ -67,7 +67,7 @@ private fun AwayDot(modifier: Modifier) {
 
 @Composable
 private fun None() {
-
+    //Display nothing
 }
 
 @Preview(name = "AvailablePreview")

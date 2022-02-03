@@ -27,7 +27,7 @@ data class NavigationCommand(
 enum class BackStackMode {
     CLEAR_TILL_START, // clear the whole backstack excluding "start screen"
     CLEAR_WHOLE, // clear the whole backstack including "start screen" (use when you navigate to a new "start screen" )
-    NONE; // screen will be added to the existed backstack.
+    NONE; // screen will be added to the existing backstack.
 
     fun shouldClear(): Boolean = this == CLEAR_WHOLE || this == CLEAR_TILL_START
 }

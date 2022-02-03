@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 
@@ -327,10 +328,10 @@ fun ModalBottomSheetItem(
     onItemClick: () -> Unit = {}
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-        .height(48.dp)
+        .height(MaterialTheme.wireDimensions.conversationBottomSheetItemHeight)
         .fillMaxWidth()
         .clickable { onItemClick() }
-        .padding(16.dp)
+        .padding(MaterialTheme.wireDimensions.conversationBottomSheetItemPadding)
     ) {
         icon()
         Spacer(modifier = Modifier.width(12.dp))

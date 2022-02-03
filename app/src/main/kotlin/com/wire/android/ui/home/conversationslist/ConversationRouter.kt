@@ -159,7 +159,7 @@ private fun ColumnScope.ConversationModalBottomSheetContent(
     )
     when (val contentType = conversationState.modalBottomSheetContentState.value) {
         is ModalSheetContent.GroupConversationEdit -> GroupConversationSheet(
-            groupConversationEdit = contentType,
+            content = contentType,
             onMuteClick = { muteConversation("someId") },
             onAddToFavouritesClick = { addConversationToFavourites("someId") },
             onMoveToFolderClick = { moveConversationToFolder("someId") },

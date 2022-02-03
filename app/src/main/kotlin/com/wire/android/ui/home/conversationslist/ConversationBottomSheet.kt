@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -96,7 +97,6 @@ private fun commonConversationItems(
         )
     }
 )
-}
 
 @Composable
 fun PrivateConversationSheet(
@@ -186,18 +186,17 @@ private fun privateConversationItems(
         )
     }
 }
-}
 
 @Composable
 fun GroupConversationSheet(
-    groupConversationEdit: ModalSheetContent.GroupConversationEdit, onMuteClick: () -> Unit,
+    content: ModalSheetContent.GroupConversationEdit, onMuteClick: () -> Unit,
     onAddToFavouritesClick: () -> Unit,
     onMoveToFolderClick: () -> Unit,
     onMoveToArchiveClick: () -> Unit,
     onClearContentClick: () -> Unit,
     onLeaveClick: () -> Unit
 ) {
-    with(groupConversationEdit) {
+    with(content) {
         GroupHeader(
             title = title,
             groupColorValue = groupColorValue
@@ -337,6 +336,34 @@ fun ModalBottomSheetItem(
         Spacer(modifier = Modifier.width(12.dp))
         title()
     }
+}
+
+@Preview
+@Composable
+private fun PreviewPrivateModalSheet(){
+    PrivateConversationSheet(
+        content = ModalSheetContent.PrivateConversationEdit("Some test title for the conversation", ""),
+        onMuteClick = {  },
+        onAddToFavouritesClick = { },
+        onMoveToFolderClick = {  },
+        onMoveToArchiveClick = { },
+        onClearContentClick = {  },
+        onBlockClick = { }
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewGroupModalSheet(){
+    GroupConversationSheet(
+        content = ModalSheetContent.GroupConversationEdit("Some test title for the conversation", 0xFF00FFFF),
+        onMuteClick = {  },
+        onAddToFavouritesClick = { },
+        onMoveToFolderClick = {  },
+        onMoveToArchiveClick = { },
+        onClearContentClick = {  },
+        onLeaveClick = { }
+    )
 }
 
 sealed class ModalSheetContent {

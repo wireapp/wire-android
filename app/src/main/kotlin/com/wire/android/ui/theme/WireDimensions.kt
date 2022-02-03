@@ -27,11 +27,20 @@ data class WireDimensions(
     val conversationItemPadding: Dp,
     // Message
     val messageImagePortraitModeWidth: Dp,
+    // TextFields
+    val textFieldMinHeight: Dp,
+    val textFieldCornerSize: Dp,
     // Buttons
     val buttonMinHeight: Dp,
     val buttonMinWidth: Dp,
     val buttonHorizontalContentPadding: Dp,
     val buttonVerticalContentPadding: Dp,
+    val buttonCornerSize: Dp,
+    // Dialog
+    val dialogButtonsSpacing: Dp,
+    val dialogTextsSpacing: Dp,
+    val dialogContentPadding: Dp,
+    val dialogCornerSize: Dp,
     // UserProfile
     val userProfileLogoutBtnHeight: Dp,
     val userProfileStatusBtnHeight: Dp,
@@ -74,10 +83,17 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     conversationItemRowHeight = 56.dp,
     conversationItemPadding = 0.5.dp,
     messageImagePortraitModeWidth = 200.dp,
+    textFieldMinHeight = 48.dp,
+    textFieldCornerSize = 16.dp,
     buttonMinHeight = 48.dp,
     buttonMinWidth = 60.dp,
     buttonHorizontalContentPadding = 16.dp,
     buttonVerticalContentPadding = 8.dp,
+    buttonCornerSize = 16.dp,
+    dialogButtonsSpacing = 8.dp,
+    dialogTextsSpacing = 16.dp,
+    dialogContentPadding = 24.dp,
+    dialogCornerSize = 20.dp,
     userProfileLogoutBtnHeight = 32.dp,
     userProfileStatusBtnHeight = 32.dp,
     userProfileOtherAccItemHeight = 56.dp,

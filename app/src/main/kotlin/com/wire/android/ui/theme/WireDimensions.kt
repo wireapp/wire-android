@@ -10,8 +10,10 @@ data class WireDimensions(
     // Avatar
     val userAvatarDefaultSize: Dp,
     val userAvatarClickablePadding: Dp,
-    val userAvatarStatusSize : Dp,
+    val userAvatarStatusSize: Dp,
     val userAvatarBorderSize: Dp,
+    val groupAvatarCornerRadius: Dp,
+    val groupAvatarSize: Dp,
     // BottomNavigation
     val bottomNavigationHorizontalPadding: Dp,
     val bottomNavigationVerticalPadding: Dp,
@@ -22,11 +24,20 @@ data class WireDimensions(
     val conversationItemPadding: Dp,
     // Message
     val messageImagePortraitModeWidth: Dp,
+    // TextFields
+    val textFieldMinHeight: Dp,
+    val textFieldCornerSize: Dp,
     // Buttons
     val buttonMinHeight: Dp,
     val buttonMinWidth: Dp,
     val buttonHorizontalContentPadding: Dp,
     val buttonVerticalContentPadding: Dp,
+    val buttonCornerSize: Dp,
+    // Dialog
+    val dialogButtonsSpacing: Dp,
+    val dialogTextsSpacing: Dp,
+    val dialogContentPadding: Dp,
+    val dialogCornerSize: Dp,
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -34,6 +45,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     userAvatarClickablePadding = 8.dp,
     userAvatarStatusSize = 10.dp,
     userAvatarBorderSize = 14.dp,
+    groupAvatarCornerRadius = 10.dp,
+    groupAvatarSize = 32.dp,
     bottomNavigationHorizontalPadding = 8.dp,
     bottomNavigationVerticalPadding = 4.dp,
     bottomNavigationBetweenItemsPadding = 12.dp,
@@ -41,10 +54,17 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     conversationItemRowHeight = 56.dp,
     conversationItemPadding = 0.5.dp,
     messageImagePortraitModeWidth = 200.dp,
+    textFieldMinHeight = 48.dp,
+    textFieldCornerSize = 16.dp,
     buttonMinHeight = 48.dp,
     buttonMinWidth = 60.dp,
     buttonHorizontalContentPadding = 16.dp,
-    buttonVerticalContentPadding = 8.dp
+    buttonVerticalContentPadding = 8.dp,
+    buttonCornerSize = 16.dp,
+    dialogButtonsSpacing = 8.dp,
+    dialogTextsSpacing = 16.dp,
+    dialogContentPadding = 24.dp,
+    dialogCornerSize = 20.dp,
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

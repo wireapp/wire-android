@@ -35,7 +35,7 @@ fun WireTertiaryButton(
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinHeight,
     minWidth: Dp = MaterialTheme.wireDimensions.buttonMinWidth,
     fillMaxWidth: Boolean = true,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     colors: WireButtonColors = wireTertiaryButtonColors(),
     elevation: ButtonElevation? = null,
     borderWidth: Dp = 1.dp,
@@ -70,13 +70,13 @@ fun WireTertiaryButton(
 
 @Preview(name = "Default WireSecondaryButton")
 @Composable
-fun WireTertiaryButtonPreview() {
+private fun WireTertiaryButtonPreview() {
     WireTertiaryButton(onClick = { }, text = "text")
 }
 
 @Preview(name = "Default narrow WireTertiaryButton with icon")
 @Composable
-fun WireTertiaryButtonNarrowWithIconsPreview() {
+private fun WireTertiaryButtonNarrowWithIconsPreview() {
     WireTertiaryButton(
         onClick = { },
         text = "text",
@@ -88,7 +88,7 @@ fun WireTertiaryButtonNarrowWithIconsPreview() {
 
 @Preview(name = "Default narrow WireTertiaryButton only icon")
 @Composable
-fun WireTertiaryButtonNarrowOnlyIconsPreview() {
+private fun WireTertiaryButtonNarrowOnlyIconsPreview() {
     WireTertiaryButton(
         onClick = { },
         leadingIcon = Icons.Filled.Search.Icon(),
@@ -99,12 +99,19 @@ fun WireTertiaryButtonNarrowOnlyIconsPreview() {
 
 @Preview(name = "Default narrow Disabled WireSecondaryButton")
 @Composable
-fun WireTertiaryButtonDisabledPreview() {
+private fun WireTertiaryButtonDisabledPreview() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text", fillMaxWidth = false)
 }
 
-@Preview(name = "Default narrow Selected WireSecondaryButton")
+@Preview(name = "Selected narrow WireSecondaryButton")
 @Composable
-fun WireTertiaryButtonSelectedPreview() {
+private fun WireTertiaryButtonSelectedPreview() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Selected, text = "text", fillMaxWidth = false)
 }
+
+@Preview(name = "Error narrow WireSecondaryButton")
+@Composable
+private fun WireTertiaryButtonErrorPreview() {
+    WireTertiaryButton(onClick = { }, state = WireButtonState.Error, text = "text", fillMaxWidth = false)
+}
+

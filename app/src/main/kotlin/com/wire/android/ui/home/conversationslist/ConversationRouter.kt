@@ -25,20 +25,20 @@ import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigat
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 @Composable
-fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hiltViewModel()) {
-    val uiState by conversationListViewModel.state.collectAsState()
+fun ConversationRouter(viewModel: ConversationListViewModel = hiltViewModel()) {
+    val uiState by viewModel.state.collectAsState()
 
     ConversationRouter(
         uiState = uiState,
         conversationState = rememberConversationState(),
-        openConversation = { id -> conversationListViewModel.openConversation(id) },
-        muteConversation = { id -> conversationListViewModel.muteConversation(id) },
-        addConversationToFavourites = { id -> conversationListViewModel.addConversationToFavourites(id) },
-        moveConversationToFolder = { id -> conversationListViewModel.moveConversationToFolder(id) },
-        moveConversationToArchive = { id -> conversationListViewModel.moveConversationToArchive(id) },
-        clearConversationContent = { id -> conversationListViewModel.clearConversationContent(id) },
-        blockUser = { id -> conversationListViewModel.blockUser(id) },
-        leaveGroup = { id -> conversationListViewModel.leaveGroup(id) },
+        openConversation = { id -> viewModel.openConversation(id) },
+        muteConversation = { id -> viewModel.muteConversation(id) },
+        addConversationToFavourites = { id -> viewModel.addConversationToFavourites(id) },
+        moveConversationToFolder = { id -> viewModel.moveConversationToFolder(id) },
+        moveConversationToArchive = { id -> viewModel.moveConversationToArchive(id) },
+        clearConversationContent = { id -> viewModel.clearConversationContent(id) },
+        blockUser = { id -> viewModel.blockUser(id) },
+        leaveGroup = { id -> viewModel.leaveGroup(id) },
     )
 }
 

@@ -4,7 +4,6 @@ import android.content.res.Resources
 import com.wire.android.R
 import com.wire.kalium.logic.CoreFailure
 
-data class DialogErrorStrings(val title: String, val message: String)
 
 fun CoreFailure.dialogErrorStrings(resources: Resources): DialogErrorStrings = when (this) {
     CoreFailure.NoNetworkConnection -> DialogErrorStrings(
@@ -17,3 +16,5 @@ fun CoreFailure.dialogErrorStrings(resources: Resources): DialogErrorStrings = w
             resources.getString(R.string.error_unknown_title),
             resources.getString(R.string.error_unknown_message))
 }
+
+data class DialogErrorStrings(val title: String, val message: String)

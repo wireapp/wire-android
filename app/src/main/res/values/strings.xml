@@ -64,6 +64,18 @@ username</string>
     <string name="content_description_conversation_video_icon">Conversation video icon</string>
     <string name="conetnt_description_conversation_search_icon">Conversation search icon</string>
 
+    <!-- User Profile -->
+    <string name="user_profile_title">User Profile</string>
+    <string name="user_profile_close_description">Close User profile</string>
+    <string name="user_profile_logout">Logout</string>
+    <string name="user_profile_other_accs">Other Accounts</string>
+    <string name="user_profile_status_available">Available</string>
+    <string name="user_profile_status_busy">Busy</string>
+    <string name="user_profile_status_away">Away</string>
+    <string name="user_profile_status_none">None</string>
+    <string name="user_profile_new_acc_text">New Team or Account</string>
+
+
     <!-- errors -->
     <string name="error_unknown_title">Unknown error</string>
     <string name="error_unknown_message">Please try again in a moment</string>

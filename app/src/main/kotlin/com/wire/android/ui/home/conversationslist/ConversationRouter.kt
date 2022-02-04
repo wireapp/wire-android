@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -27,6 +27,7 @@ import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
+import com.wire.android.ui.theme.wireDimensions
 
 
 @ExperimentalMaterial3Api
@@ -67,7 +68,10 @@ private fun ConversationRouter(
     ModalBottomSheetLayout(
         sheetState = conversationState.modalBottomSheetState,
         //TODO: create a shape object inside the materialtheme 3 component
-        sheetShape = MaterialTheme.shapes.large.copy(topStart = CornerSize(12.dp), topEnd = CornerSize(12.dp)),
+        sheetShape = MaterialTheme.shapes.large.copy(
+            topStart = CornerSize(androidx.compose.material3.MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner),
+            topEnd = CornerSize(androidx.compose.material3.MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner)
+        ),
         sheetContent = {
             ConversationModalBottomSheetContent(
                 conversationState = conversationState,

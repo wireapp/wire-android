@@ -110,10 +110,11 @@ dependencies {
 
     //Compose
     implementation(Libraries.composeUi)
+    implementation(Libraries.composeMaterial3)
     implementation(Libraries.composeMaterial)
     implementation(Libraries.composeTooling)
     implementation(Libraries.composeIcons)
-    implementation("androidx.compose.material:material:1.0.5")
+    implementation("cc:1.0.5")
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
     implementation(Libraries.composeConstraintLayout)
@@ -123,7 +124,6 @@ dependencies {
     // dagger/hilt
     implementation(Libraries.Hilt.android)
     implementation("androidx.appcompat:appcompat:1.4.0")
-    implementation("com.google.android.material:material:1.4.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.2")
     implementation(Libraries.Hilt.navigationCompose)
     kapt(Libraries.Hilt.compiler)

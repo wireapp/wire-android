@@ -16,7 +16,10 @@ import com.wire.android.ui.home.userprofile.UserProfileScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.support.SupportScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterialApi::class
+)
 sealed class NavigationItem(
     open val route: String,
     val arguments: List<NamedNavArgument> = emptyList(),
@@ -26,14 +29,11 @@ sealed class NavigationItem(
 
 //    object Splash  //TODO
 
-    @ExperimentalMaterialApi
-    @ExperimentalMaterial3Api
     object Authentication : NavigationItem(
         route = "auth",
         content = { AuthScreen() }
     )
 
-    @ExperimentalMaterialApi
     object Home : NavigationItem(
         route = "home/{$HOME_START_TAB_ARGUMENT}",
         content = { HomeScreen(it.arguments?.getString(HOME_START_TAB_ARGUMENT), hiltViewModel()) },
@@ -74,7 +74,6 @@ sealed class NavigationItem(
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
         const val CONVERSATION_ID_ARGUMENT: String = "conversation_id"
 
-        @ExperimentalMaterialApi
         val globalNavigationItems = listOf(
             Authentication,
             Settings,

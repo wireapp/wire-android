@@ -10,7 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.Message
-import com.wire.android.ui.home.messagecomposer.MessageComposercontent
+import com.wire.android.ui.home.messagecomposer.MessageComposer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +40,7 @@ private fun ConversationScreen(
 
 @Composable
 private fun ConversationScreenContent(messages: List<Message>) {
-    MessageComposercontent(content = {
+    MessageComposer(content = {
         LazyColumn {
             items(messages) { message ->
                 MessageItem(message = message)

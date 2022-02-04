@@ -1,5 +1,6 @@
 package com.wire.android.ui.common.textfield
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.InteractionSource
@@ -43,6 +44,7 @@ import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.Tint
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 
 @Composable
 internal fun WireTextField(
@@ -98,15 +100,16 @@ internal fun WireTextField(
         val bottomText = when {
             state is WireTextFieldState.Error -> state.errorText
             !descriptionText.isNullOrEmpty() -> descriptionText
-            else -> null
+            else -> String.EMPTY
         }
-        if (bottomText != null)
+        AnimatedVisibility(visible = bottomText.isNotEmpty()) {
             Text(
                 text = bottomText,
                 style = MaterialTheme.wireTypography.label04,
                 color = colors.descriptionColor(state).value,
                 modifier = Modifier.padding(top = 4.dp)
             )
+        }
     }
 }
 

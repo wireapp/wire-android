@@ -5,16 +5,18 @@
     <string name="label_login">Login</string>
     <string name="label_logging_in">Anmelden...</string>
     <string name="label_membership_guest">Gast</string>
-    <string name="label_memebership_external">Extern</string>
+    <string name="label_membership_external">External</string>
     <string name="app_logo_description">App-Logo</string>
     <!-- Content descriptions -->
     <string name="content_description_search_back">Suche-Icon zurück</string>
     <string name="content_description_clear_content">Inhalt löschen</string>
     <string name="content_description_user_avatar">Benutzeravatar</string>
-    <string name="conversations_screen_title">Unterhaltungen</string>
-    <string name="conversations_all_tab_title">Alle</string>
-    <string name="conversations_calls_tab_title">Anrufe</string>
-    <string name="conversations_mentions_tab_title">Erwähnungen</string>
+    <string name="content_description_welcome_carousel_item">Welcome image</string>
+    <string name="content_description_welcome_wire_logo">Wire</string>
+    <string name="content_description_drop_down_icon">Dropdown-Pfeil</string>
+    <string name="content_description_conversation_video_icon">Konversations-Videosymbol</string>
+    <string name="content_description_back_button">Zurück-Button</string>
+    <string name="content_description_conversation_search_icon">Conversation search icon</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Tresor</string>
     <string name="archive_screen_title">Archiv</string>
@@ -25,8 +27,6 @@
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
     <!-- Welcome -->
     <string name="welcome_screen_title">Willkommen</string>
-    <string name="welcome_wire_logo_content_description">Wire</string>
-    <string name="welcome_carousel_item_content_description">Willkommensbild</string>
     <string name="welcome_footer_text">Möchten Sie mit Freunden und Familie chatten?</string>
     <string name="welcome_footer_link">Erstellen Sie kostenlos ein privates Konto</string>
     <string name="welcome_button_create_enterprise_account">Enterprise-Konto erstellen</string>
@@ -48,8 +48,19 @@
     <string name="label_message_status_deleted">Gelöscht</string>
     <string name="label_message_status_edited">Bearbeitet</string>
     <string name="app_version">App-Version: %s</string>
-    <string name="content_description_back_button">Zurück-Button</string>
-    <string name="content_description_drop_down_icon">Dropdown-Pfeil</string>
-    <string name="content_description_conversation_video_icon">Konversations-Videosymbol</string>
-    <string name="conetnt_description_conversation_search_icon">Konversations-Suchsymbol</string>
+    <string name="conversations_screen_title">Unterhaltungen</string>
+    <string name="conversations_all_tab_title">Alle</string>
+    <string name="conversations_calls_tab_title">Anrufe</string>
+    <string name="conversations_mentions_tab_title">Erwähnungen</string>
+    <!-- User Profile -->
+    <string name="user_profile_title">User Profile</string>
+    <string name="user_profile_close_description">Close User profile</string>
+    <string name="user_profile_logout">Logout</string>
+    <string name="user_profile_other_accs">Other Accounts</string>
+    <string name="user_profile_status_available">Available</string>
+    <string name="user_profile_status_busy">Busy</string>
+    <string name="user_profile_status_away">Away</string>
+    <string name="user_profile_status_none">None</string>
+    <string name="user_profile_new_account_text">New Team or Account</string>
+    <string name="string_test">Test</string>
 </resources>

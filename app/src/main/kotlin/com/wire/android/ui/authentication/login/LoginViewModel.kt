@@ -5,8 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,39 +24,51 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager
+    private val navigationManager: NavigationManager,
 ) : ViewModel() {
 
-    var userIdentifier by mutableStateOf(TextFieldValue(savedStateHandle.get(USER_IDENTIFIER_SAVED_STATE_KEY) ?: String.EMPTY))
+    var loginState by mutableStateOf(
+        LoginState(
+            userIdentifier = TextFieldValue(savedStateHandle.get(USER_IDENTIFIER_SAVED_STATE_KEY) ?: String.EMPTY),
+            password = TextFieldValue(String.EMPTY)
+        )
+    )
         private set
-
-    var password by mutableStateOf(TextFieldValue(String.EMPTY))
-        private set
-
-    private val _loginResultLiveData = MutableLiveData<AuthenticationResult>()
-    val loginResultLiveData: LiveData<AuthenticationResult> = _loginResultLiveData
 
     fun login() {
+        loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
-            when (val loginResult = loginUseCase(userIdentifier.text, password.text, true)) {
-                is AuthenticationResult.Failure.Generic -> TODO()
-                is AuthenticationResult.Failure.InvalidCredentials -> TODO()
-                is AuthenticationResult.Failure.InvalidUserIdentifier -> TODO()
-                is AuthenticationResult.Success -> _loginResultLiveData.value = loginResult
-            }
+            val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
+            loginState = loginState.copy(loading = false, loginError = loginResult.toLoginError()).updateLoginEnabled()
+            if(loginResult is AuthenticationResult.Success) navigateToConvScreen()
         }
     }
 
     fun onUserIdentifierChange(newText: TextFieldValue) {
-        userIdentifier = newText
-        savedStateHandle.set(USER_IDENTIFIER_SAVED_STATE_KEY, userIdentifier.text)
+        loginState = loginState.copy(userIdentifier = newText).updateLoginEnabled()
+        savedStateHandle.set(USER_IDENTIFIER_SAVED_STATE_KEY, newText.text)
     }
 
     fun onPasswordChange(newText: TextFieldValue) {
-        password = newText
+        loginState = loginState.copy(password = newText).updateLoginEnabled()
     }
 
-    suspend fun navigateToConvScreen() =
+    fun onDialogDismissed() {
+        loginState = loginState.copy(loginError = LoginError.None)
+    }
+
+    private fun LoginState.updateLoginEnabled() =
+        copy(loginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !loading)
+
+    private fun AuthenticationResult.toLoginError() =
+        when(this) {
+            is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
+            AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+            AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidUserIdentifierError
+            else -> LoginError.None
+        }
+
+    private suspend fun navigateToConvScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.navigationRoute(), BackStackMode.CLEAR_WHOLE))
 
     private companion object {

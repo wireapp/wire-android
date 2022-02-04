@@ -8,7 +8,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LongMethod")
 fun commonConversationItems(
     onMuteClick: () -> Unit,
     onAddToFavouritesClick: () -> Unit,
@@ -99,7 +99,57 @@ fun GroupConversationItems(
 }
 
 
-@Suppress("LongParameterList")
+@Composable
+fun PrivateConversationItems(
+    onMuteClick: () -> Unit,
+    onAddToFavouritesClick: () -> Unit,
+    onMoveToFolderClick: () -> Unit,
+    onMoveToArchiveClick: () -> Unit,
+    onClearContentClick: () -> Unit,
+    onBlockClick: () -> Unit
+) {
+    buildItems(
+        items = privateConversationItems(
+            onMuteClick = onMuteClick,
+            onAddToFavouritesClick = onAddToFavouritesClick,
+            onMoveToFolderClick = onMoveToFolderClick,
+            onMoveToArchiveClick = onMoveToArchiveClick,
+            onClearContentClick = onClearContentClick,
+            onBlockClick = onBlockClick,
+        )
+    )
+}
+
+@Suppress("LongParameterList", "LongMethod")
+fun privateConversationItems(
+    onMuteClick: () -> Unit,
+    onAddToFavouritesClick: () -> Unit,
+    onMoveToFolderClick: () -> Unit,
+    onMoveToArchiveClick: () -> Unit,
+    onClearContentClick: () -> Unit,
+    onBlockClick: () -> Unit
+) = commonConversationItems(
+    onMuteClick = onMuteClick,
+    onAddToFavouritesClick = onAddToFavouritesClick,
+    onMoveToFolderClick = onMoveToFolderClick,
+    onMoveToArchiveClick = onMoveToArchiveClick,
+    onClearContentClick = onClearContentClick
+) + {
+    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+        ModalBottomSheetItem(
+            icon = {
+                ItemIcon(
+                    id = R.drawable.ic_block,
+                    contentDescription = stringResource(R.string.content_description_block_the_user),
+                )
+            },
+            title = { ItemTitle(stringResource(R.string.label_block)) },
+            onBlockClick
+        )
+    }
+}
+
+@Suppress("LongParameterList", "LongMethod")
 fun groupConversationItems(
     onMuteClick: () -> Unit,
     onAddToFavouritesClick: () -> Unit,

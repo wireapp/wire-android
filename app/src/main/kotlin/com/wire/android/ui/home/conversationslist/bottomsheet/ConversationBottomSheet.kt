@@ -70,54 +70,6 @@ private fun PrivateConversationHeader(content: ModalSheetContent.PrivateConversa
     }
 }
 
-@Composable
-private fun PrivateConversationItems(
-    onMuteClick: () -> Unit,
-    onAddToFavouritesClick: () -> Unit,
-    onMoveToFolderClick: () -> Unit,
-    onMoveToArchiveClick: () -> Unit,
-    onClearContentClick: () -> Unit,
-    onBlockClick: () -> Unit
-) {
-    buildItems(
-        items = privateConversationItems(
-            onMuteClick = onMuteClick,
-            onAddToFavouritesClick = onAddToFavouritesClick,
-            onMoveToFolderClick = onMoveToFolderClick,
-            onMoveToArchiveClick = onMoveToArchiveClick,
-            onClearContentClick = onClearContentClick,
-            onBlockClick = onBlockClick,
-        )
-    )
-}
-
-private fun privateConversationItems(
-    onMuteClick: () -> Unit,
-    onAddToFavouritesClick: () -> Unit,
-    onMoveToFolderClick: () -> Unit,
-    onMoveToArchiveClick: () -> Unit,
-    onClearContentClick: () -> Unit,
-    onBlockClick: () -> Unit
-) = commonConversationItems(
-    onMuteClick = onMuteClick,
-    onAddToFavouritesClick = onAddToFavouritesClick,
-    onMoveToFolderClick = onMoveToFolderClick,
-    onMoveToArchiveClick = onMoveToArchiveClick,
-    onClearContentClick = onClearContentClick
-) + {
-    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-        ModalBottomSheetItem(
-            icon = {
-                ItemIcon(
-                    id = R.drawable.ic_block,
-                    contentDescription = stringResource(R.string.content_description_block_the_user),
-                )
-            },
-            title = { ItemTitle(stringResource(R.string.label_block)) },
-            onBlockClick
-        )
-    }
-}
 
 @Composable
 fun GroupConversationSheet(

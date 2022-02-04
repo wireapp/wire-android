@@ -54,30 +54,44 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
     fun muteConversation(id: String) {
 
     }
 
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
     fun addConversationToFavourites(id: String) {
 
     }
 
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
     fun moveConversationToFolder(id: String) {
 
     }
 
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
     fun moveConversationToArchive(id: String) {
 
     }
 
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
     fun clearConversationContent(id: String) {
 
     }
 
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
     fun blockUser(id: String) {
 
     }
 
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
     fun leaveGroup(id: String) {
 
     }

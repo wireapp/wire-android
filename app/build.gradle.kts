@@ -114,7 +114,6 @@ dependencies {
     implementation(Libraries.composeMaterial)
     implementation(Libraries.composeTooling)
     implementation(Libraries.composeIcons)
-    implementation("cc:1.0.5")
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
     implementation(Libraries.composeConstraintLayout)

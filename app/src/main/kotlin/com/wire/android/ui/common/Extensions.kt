@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun Modifier.selectableBackground(isSelected: Boolean, onClick: () -> Unit): Modifier =
@@ -31,3 +32,6 @@ fun Tint(contentColor: Color, content: @Composable () -> Unit) {
 @Composable
 fun ImageVector.Icon(modifier: Modifier = Modifier): @Composable (() -> Unit) =
     { androidx.compose.material3.Icon(imageVector = this, contentDescription = "", modifier = modifier) }
+
+@Composable
+internal fun dimensions() = MaterialTheme.wireDimensions

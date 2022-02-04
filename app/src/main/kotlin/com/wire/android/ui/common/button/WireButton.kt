@@ -52,7 +52,7 @@ fun WireButton(
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinHeight,
     minWidth: Dp = MaterialTheme.wireDimensions.buttonMinWidth,
     fillMaxWidth: Boolean = true,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     colors: WireButtonColors = wirePrimaryButtonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
     borderWidth: Dp = 0.dp,
@@ -105,7 +105,7 @@ fun WireButton(
 }
 
 @Composable
-fun InnerButtonBox(
+private fun InnerButtonBox(
     fillMaxWidth: Boolean = true,
     loading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,

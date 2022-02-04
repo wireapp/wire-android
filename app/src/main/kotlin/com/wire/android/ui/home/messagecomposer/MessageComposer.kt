@@ -85,45 +85,26 @@ class MessageComposerState(
         private set
 
     var messageComposerTextInputState by mutableStateOf(defaultMessageComposerTextInputState)
-
-    var sendButtonEnabled by mutableStateOf(defaultSendButtonEnabledState)
-
-    var sendButtonVisible by mutableStateOf(defaultSendButtonVisibleState)
-
-    var addButtonVisible by mutableStateOf(defaultAddButtonVisible)
-
-    var dropDownButtonVisible by mutableStateOf(defaultDropDownButtonVisibleState)
+        private set
 
     fun onTextChanged(newText: TextFieldValue) {
-        if (messageComposerTextInputState == MessageComposerTextInputState.Enabled) {
+        if (isEnabled()) {
             changeMessageComposerState(MessageComposerTextInputState.Active)
         }
-
-        sendButtonEnabled = newText.text.filter { !it.isWhitespace() }.isNotBlank()
 
         text = newText
     }
 
-    fun changeMessageComposerState(state: MessageComposerTextInputState) {
-        messageComposerTextInputState = state
+    fun isEnabled() = messageComposerTextInputState == MessageComposerTextInputState.Enabled
 
-        when (state) {
-            MessageComposerTextInputState.Active -> {
-                dropDownButtonVisible = true
-                sendButtonVisible = true
-                addButtonVisible = false
-            }
-            MessageComposerTextInputState.Enabled -> {
-                dropDownButtonVisible = true
-                sendButtonVisible = false
-                addButtonVisible = true
-            }
-            MessageComposerTextInputState.FullScreen -> {
-                dropDownButtonVisible = true
-                sendButtonVisible = true
-                addButtonVisible = false
-            }
-        }
+    fun isActive() = messageComposerTextInputState != MessageComposerTextInputState.Enabled
+
+    fun isActiveOrFullScreen() =
+        (messageComposerTextInputState == MessageComposerTextInputState.FullScreen) or
+                (messageComposerTextInputState == MessageComposerTextInputState.Active)
+
+    private fun changeMessageComposerState(state: MessageComposerTextInputState) {
+        messageComposerTextInputState = state
     }
 
     fun toggleFullScreen() {
@@ -154,10 +135,10 @@ fun MessageComposer(
             content = content,
             messageText = text,
             messageComposerTextInputState = messageComposerTextInputState,
-            addButtonVisible = addButtonVisible,
-            sendButtonVisible = sendButtonVisible,
-            sendButtonEnabled = sendButtonEnabled,
-            dropDownButtonVisible = dropDownButtonVisible,
+            addButtonVisible = state.isEnabled(),
+            sendButtonVisible = state.isActiveOrFullScreen(),
+            sendButtonEnabled = text.text.filter { !it.isWhitespace() }.isNotBlank(),
+            dropDownButtonVisible = state.isActiveOrFullScreen(),
             onFullScreenClick = ::toggleFullScreen,
             onTextChanged = ::onTextChanged
         )

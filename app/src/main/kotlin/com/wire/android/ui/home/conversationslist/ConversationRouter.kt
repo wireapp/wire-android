@@ -26,6 +26,9 @@ import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
+import com.wire.android.ui.home.conversationslist.bottomsheet.GroupConversationSheet
+import com.wire.android.ui.home.conversationslist.bottomsheet.ModalSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.PrivateConversationSheet
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 import com.wire.android.ui.theme.wireDimensions
 

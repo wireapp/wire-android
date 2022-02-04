@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.wire.android.ui.home.conversationslist.bottomsheet.ModalSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

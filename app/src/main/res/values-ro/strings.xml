@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Android Reloaded 2.0 FINAL</string>
+    <string name="label_new">New</string>
+    <string name="label_login">Login</string>
+    <string name="label_logging_in">Logging in...</string>
+    <string name="label_membership_guest">Guest</string>
+    <string name="label_memebership_external" comment="label_membership_external">External</string>
+    <string name="app_logo_description">App Logo</string>
+    <!-- Content descriptions -->
+    <string name="content_description_search_back">Search back icon</string>
+    <string name="content_description_clear_content">Clear content</string>
+    <string name="content_description_user_avatar">User avatar</string>
+    <string name="content_description_welcome_carousel_item">Welcome image</string>
+    <string name="content_description_welcome_wire_logo">Wire</string>
+    <string name="content_description_drop_down_icon">Drop down arrow</string>
+    <string name="content_description_conversation_video_icon">Conversation video icon</string>
+    <string name="content_description_back_button">Back button</string>
+    <string name="content_description_conversation_search_icon">Conversation search icon</string>
+    <!-- Navigation -->
+    <string name="vault_screen_title">Vault</string>
+    <string name="archive_screen_title">Archive</string>
+    <string name="user_profile_screen_title">User Profile</string>
+    <string name="settings_screen_title">Settings</string>
+    <string name="support_screen_title">Support</string>
+    <string name="search_bar_hint">Search %s</string>
+    <string name="search_no_results">No matches found</string>
+    <!-- Welcome -->
+    <string name="welcome_screen_title">welcome</string>
+    <string name="welcome_footer_text">Want to chat with friends and family?</string>
+    <string name="welcome_footer_link">Create a private account for free</string>
+    <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
+    <!-- Login -->
+    <string name="login_title">Login</string>
+    <string name="login_forgot_password">Forgot password?</string>
+    <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
+    <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
+    <string name="login_password_placeholder">Password</string>
+    <string name="login_password_label">PASSWORD</string>
+    <!-- Home -->
+    <string name="home_open_drawer_description">Open drawer</string>
+    <!-- Conversations -->
+    <string name="calls_label_missed_calls">MISSED CALLS</string>
+    <string name="calls_label_calls_history">CALLS HISTORY</string>
+    <string name="conversation_label_new_activity">NEW ACTIVITY</string>
+    <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
+    <string name="mention_label_all_mentions">ALL MENTIONS</string>
+    <string name="label_message_status_deleted">Deleted</string>
+    <string name="label_message_status_edited">Edited</string>
+    <string name="app_version">App version: %s</string>
+    <string name="conversations_screen_title">Conversations</string>
+    <string name="conversations_all_tab_title">All</string>
+    <string name="conversations_calls_tab_title">Calls</string>
+    <string name="conversations_mentions_tab_title">Mentions</string>
+    <!-- User Profile -->
+    <string name="user_profile_title">User Profile</string>
+    <string name="user_profile_close_description">Close User profile</string>
+    <string name="user_profile_logout">Logout</string>
+    <string name="user_profile_other_accs">Other Accounts</string>
+    <string name="user_profile_status_available">Available</string>
+    <string name="user_profile_status_busy">Busy</string>
+    <string name="user_profile_status_away">Away</string>
+    <string name="user_profile_status_none">None</string>
+    <string name="user_profile_new_account_text">New Team or Account</string>
+    <string name="string_test">Test</string>
+</resources>

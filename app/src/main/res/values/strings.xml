@@ -64,6 +64,19 @@
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
     <string name="label_message_status_deleted">Deleted</string>
     <string name="label_message_status_edited">Edited</string>
+    <string name="conetnt_description_conversation_search_icon">Conversation search icon</string>
+
+    <!-- User Profile -->
+    <string name="user_profile_title">User Profile</string>
+    <string name="user_profile_close_description">Close User profile</string>
+    <string name="user_profile_logout">Logout</string>
+    <string name="user_profile_other_accs">Other Accounts</string>
+    <string name="user_profile_status_available">Available</string>
+    <string name="user_profile_status_busy">Busy</string>
+    <string name="user_profile_status_away">Away</string>
+    <string name="user_profile_status_none">None</string>
+    <string name="user_profile_new_acc_text">New Team or Account</string>
+
 
     <!-- Conversations BottomSheet -->
     <string name="label_mute">Mute</string>

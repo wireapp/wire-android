@@ -20,11 +20,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
+import com.wire.android.model.UserStatus
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun UserProfileAvatar(
     avatarUrl: String = "",
+    status: UserStatus = UserStatus.NONE,
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
     isClickable: Boolean = true,
@@ -44,26 +46,14 @@ fun UserProfileAvatar(
             contentDescription = stringResource(R.string.content_description_user_avatar),
             contentScale = ContentScale.Crop,
             modifier = Modifier
+                .padding(dimensions().userAvatarStatusBorderSize)
                 .background(Color.Black, CircleShape)
                 .size(size)
         )
-        Box(
-            contentAlignment = Alignment.Center,
+        UserStatusIndicator(
+            status = status,
             modifier = Modifier.align(Alignment.BottomEnd)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(MaterialTheme.wireDimensions.userAvatarBorderSize)
-                    .clip(CircleShape)
-                    .background(Color.White)
-            )
-            Box(
-                modifier = Modifier
-                    .size(MaterialTheme.wireDimensions.userAvatarStatusSize)
-                    .clip(CircleShape)
-                    .background(Color.Green) //TODO: Map UserStatus availability to the right icon shape/color
-            )
-        }
+        )
     }
 }
 
@@ -75,5 +65,5 @@ fun getAvatarAsDrawable(avatarUrl: String): Int {
 @Preview
 @Composable
 fun UserProfileAvatarPreview() {
-    UserProfileAvatar(avatarUrl = "") {}
+    UserProfileAvatar(avatarUrl = "", status = UserStatus.BUSY) {}
 }

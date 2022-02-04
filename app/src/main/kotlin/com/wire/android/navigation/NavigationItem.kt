@@ -12,7 +12,7 @@ import com.wire.android.ui.authentication.AuthScreen
 import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.userprofile.UserProfileScreen
+import com.wire.android.ui.userprofile.UserProfileScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.support.SupportScreen
 
@@ -56,7 +56,7 @@ sealed class NavigationItem(
 
     object UserProfile : NavigationItem(
         route = "user_profile",
-        content = { UserProfileScreen() },
+        content = { UserProfileScreen(hiltViewModel()) },
     )
 
     object Conversation : NavigationItem(

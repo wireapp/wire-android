@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist.model
 
+import com.wire.android.model.UserStatus
 import com.wire.android.ui.main.conversationlist.common.UserInfoLabel
 
 sealed class ConversationItem(val conversationType: ConversationType)
@@ -28,7 +29,7 @@ data class ConversationInfo(
 
 data class UserInfo(
     val avatarUrl: String = "",
-    val availabilityStatus: AvailabilityStatus = AvailabilityStatus.None
+    val availabilityStatus: UserStatus = UserStatus.NONE
 )
 
 fun ConversationType.PrivateConversation.toUserInfoLabel() =

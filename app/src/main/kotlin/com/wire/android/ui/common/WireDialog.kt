@@ -38,7 +38,6 @@ import com.wire.android.ui.theme.wireTypography
 fun WireDialog(
     title: String,
     text: String,
-    openDialog: Boolean,
     onDismiss: () -> Unit,
     confirmButtonProperties: WireDialogButtonProperties,
     dismissButtonProperties: WireDialogButtonProperties? = null,
@@ -48,7 +47,6 @@ fun WireDialog(
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     content: @Composable (() -> Unit)? = null
 ) {
-    if (openDialog)
         Dialog(onDismissRequest = onDismiss) {
             WireDialogContent(
                 confirmButtonProperties = confirmButtonProperties,

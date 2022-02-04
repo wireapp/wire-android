@@ -3,12 +3,10 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -23,12 +21,10 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Surface
 import androidx.compose.material.SwipeableDefaults
 import androidx.compose.material.SwipeableState
-import androidx.compose.material.swipeable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,10 +38,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.collapse
-import androidx.compose.ui.semantics.dismiss
-import androidx.compose.ui.semantics.expand
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -185,9 +177,6 @@ private fun MessageComposComposerState(
     BoxWithConstraints {
         val fullHeight = constraints.maxHeight.toFloat()
         val sheetHeightState = remember { mutableStateOf<Float?>(null) }
-        Box(modifier = Modifier.fillMaxSize()) {
-            content()
-        }
         Surface(
             Modifier
                 .fillMaxWidth()
@@ -195,87 +184,45 @@ private fun MessageComposComposerState(
                     val y = state.offset.value.roundToInt()
 
                     IntOffset(0, y)
-                }.height(400.dp)
-                .bottomSheetSwipeable(state, fullHeight, sheetHeightState)
+                }
+                .height(400.dp)
                 .onGloballyPositioned {
                     sheetHeightState.value = it.size.height.toFloat()
-                }.semantics {
-
-                    dismiss {
-                        scope.launch { state.expand() }
-                        true
-                    }
-                        expand {
-                            scope.launch { state.expand()  }
-                            true
-                        }
-                        collapse {
-                            scope.launch { state.expand() }
-                            true
-                        }
-            }
+                }
         ) {
             Column {
-                Divider()
-//                if (state.isActive) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
+                content()
+                Column(
+                    Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    OnDropDownIconButton { scope.launch { state.expand() } }
-                }
+                        .weight(1f)) {
+                    Divider()
+//                if (state.isActive) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    ) {
+                        OnDropDownIconButton { scope.launch { state.expand() } }
+                    }
 //                }
 //                Row(verticalAlignment = Alignment.CenterVertically) {
 //                    if (state.messageComposerTextState is MessageComposerTextState.Enabled) {
 //                        AddButton()
 //                    }
-                MessageTextInput(
-                    text = TextFieldValue("this is test"),
-                    onValueChange = { },
-                )
+                    MessageTextInput(
+                        text = TextFieldValue("this is test"),
+                        onValueChange = { },
+                    )
 //                    if (state.isActive) {
 //                        SendButton(state.sendButtonEnabled)
 //                    }
 //                }
+                }
             }
         }
     }
-}
-
-@Suppress("ModifierInspectorInfo")
-@OptIn(ExperimentalMaterialApi::class)
-private fun Modifier.bottomSheetSwipeable(
-    sheetState: MessageComposerState,
-    fullHeight: Float,
-    sheetHeightState: State<Float?>
-): Modifier {
-    val sheetHeight = sheetHeightState.value
-    val modifier = if (sheetHeight != null) {
-        val anchors = if (sheetHeight < fullHeight / 2) {
-            mapOf(
-                100f to MessageComposerValue.Normal,
-                800f to MessageComposerValue.FullScreen
-            )
-        } else {
-            mapOf(
-                100f to MessageComposerValue.Normal,
-                800f to MessageComposerValue.FullScreen,
-            )
-        }
-        Modifier.swipeable(
-            state = sheetState,
-            anchors = anchors,
-            orientation = Orientation.Vertical,
-            enabled = true,
-            resistance = null
-        )
-    } else {
-        Modifier
-    }
-
-    return this.then(modifier)
 }
 
 @Composable

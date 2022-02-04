@@ -68,6 +68,6 @@
     <string name="user_profile_status_busy">Busy</string>
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>
-    <string name="user_profile_new_acc_text">New Team or Account</string>
+    <string name="user_profile_new_account_text">New Team or Account</string>
 
 </resources>

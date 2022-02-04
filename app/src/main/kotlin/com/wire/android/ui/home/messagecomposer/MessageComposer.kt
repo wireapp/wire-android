@@ -107,14 +107,17 @@ fun rememberMessageComposerState(
 }
 
 @Composable
-fun MessageComposer() {
+fun MessageComposer(content: @Composable () -> Unit) {
     val state = rememberMessageComposerState()
 
-    MessageComposer(state)
+    MessageComposer(state,content)
 }
 
 @Composable
-fun MessageComposer(state: MessageComposerState) {
+private fun MessageComposer(
+    state: MessageComposerState,
+    content: @Composable () -> Unit
+) {
     Column {
         Divider()
         if (state.isActive) {

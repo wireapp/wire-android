@@ -43,14 +43,16 @@ private fun ConversationScreen(
 
 @Composable
 private fun ConversationScreenContent(messages: List<Message>) {
-    SurfaceBackgroundWrapper {
-        Column {
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(messages) { message ->
-                    MessageItem(message = message)
+    MessageComposer {
+        SurfaceBackgroundWrapper {
+            Column {
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(messages) { message ->
+                        MessageItem(message = message)
+                    }
                 }
+
             }
-            MessageComposer()
         }
     }
 }

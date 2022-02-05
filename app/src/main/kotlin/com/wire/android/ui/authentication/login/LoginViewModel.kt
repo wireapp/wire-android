@@ -35,6 +35,8 @@ class LoginViewModel @Inject constructor(
         private set
 
     fun login(serverConfig: ServerConfig) {
+        viewModelScope.launch { navigateToConvScreen() }
+        return
         loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
             val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
@@ -59,6 +61,7 @@ class LoginViewModel @Inject constructor(
     private fun LoginState.updateLoginEnabled() =
         copy(loginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !loading)
 
+    // TODO: login error Mapper ?
     private fun AuthenticationResult.toLoginError() =
         when(this) {
             is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)

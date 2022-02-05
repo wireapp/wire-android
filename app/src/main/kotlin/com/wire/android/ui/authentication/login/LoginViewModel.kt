@@ -17,6 +17,7 @@ import com.wire.kalium.logic.feature.auth.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.wire.kalium.logic.configuration.ServerConfig
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -33,10 +34,10 @@ class LoginViewModel @Inject constructor(
     )
         private set
 
-    fun login() {
+    fun login(serverConfig: ServerConfig) {
         loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
-            val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
+            val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
             loginState = loginState.copy(loading = false, loginError = loginResult.toLoginError()).updateLoginEnabled()
             if(loginResult is AuthenticationResult.Success) navigateToConvScreen()
         }

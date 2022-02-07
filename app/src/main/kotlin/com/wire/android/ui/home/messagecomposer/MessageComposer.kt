@@ -32,14 +32,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
@@ -52,71 +49,72 @@ import com.wire.android.ui.common.OnDropDownIconButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.CoroutineScope
-
 
 class MessageComposerState(
-    defaultText: TextFieldValue,
-    defaultMessageComposeStaticState: MessageComposeStaticState,
-    val coroutineScope: CoroutineScope
+    defaultMessageText: TextFieldValue,
+    defaultMessageComposeInputState: MessageComposeInputState,
 ) {
 
-    var messageText by mutableStateOf(defaultText)
+    var messageText by mutableStateOf(defaultMessageText)
 
-    var messageComposeVisibilityState by mutableStateOf(defaultMessageComposeStaticState)
+    var messageComposeInputState by mutableStateOf(defaultMessageComposeInputState)
         private set
 
-    val sendButtonEnabledState: Boolean
-        @Composable get() = messageText.text.filter { !it.isWhitespace() }.isNotBlank()
+    val sendButtonEnabled: Boolean
+        @Composable get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
+            false
+        } else {
+            messageText.text.filter { !it.isWhitespace() }
+                .isNotBlank()
+        }
 
-    fun toActive() {
-        messageComposeVisibilityState = MessageComposeStaticState.Active
-    }
+    val sendButtonVisible: Boolean
+        @Composable get() = messageComposeInputState != MessageComposeInputState.Enabled
+
+    val addButtonVisible: Boolean
+        @Composable get() = messageComposeInputState == MessageComposeInputState.Enabled
+
+    val dropDownButtonVisible: Boolean
+        @Composable get() = isFullScreenOrActive()
+
+    val dropDownButtonRotation: Float
+        @Composable get() = when (messageComposeInputState) {
+            MessageComposeInputState.FullScreen -> 0f
+            MessageComposeInputState.Enabled, MessageComposeInputState.Active -> 180f
+        }
 
     fun toEnabled() {
-        messageComposeVisibilityState = MessageComposeStaticState.Enabled
+        messageComposeInputState = MessageComposeInputState.Enabled
+    }
+
+    fun toActive() {
+        messageComposeInputState = MessageComposeInputState.Active
     }
 
     fun toggleFullScreen() {
-        messageComposeVisibilityState = if (messageComposeVisibilityState == MessageComposeStaticState.Active) {
-            MessageComposeStaticState.FullScreen
-        } else {
-            MessageComposeStaticState.Active
-        }
+        messageComposeInputState = if (messageComposeInputState == MessageComposeInputState.Active)
+            MessageComposeInputState.FullScreen else MessageComposeInputState.Active
     }
 
-    fun isEnabled(): Boolean = messageComposeVisibilityState == MessageComposeStaticState.Enabled
+    private fun isFullScreenOrActive() =
+        (messageComposeInputState == MessageComposeInputState.Active) or
+                (messageComposeInputState == MessageComposeInputState.FullScreen)
 
+}
+
+enum class MessageComposeInputState {
+    Active, Enabled, FullScreen
 }
 
 @Composable
 fun rememberMessageComposerState(
-    defaultText: TextFieldValue = TextFieldValue(""),
-    defaultMessageComposeStaticState: MessageComposeStaticState = MessageComposeStaticState.Enabled,
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
+    defaultMessageText: TextFieldValue = TextFieldValue(""),
+    defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled
 ) = remember {
     MessageComposerState(
-        defaultText,
-        defaultMessageComposeStaticState,
-        coroutineScope
+        defaultMessageText,
+        defaultMessageComposeInputState
     )
-}
-
-sealed class MessageComposeStaticState(
-    val sendButtonVisibleState: Boolean,
-    val dropDownButtonVisibleState: Boolean,
-    val dropDownButtonRotation: DropDownButtonRotation,
-    val addButtonVisible: Boolean,
-) {
-    object Enabled : MessageComposeStaticState(false, false, DropDownButtonRotation.Up, true)
-
-    object Active : MessageComposeStaticState(true, true, DropDownButtonRotation.Up, false)
-
-    object FullScreen : MessageComposeStaticState(true, true, DropDownButtonRotation.Down, false)
-}
-
-enum class DropDownButtonRotation(val rotationDegree: Float) {
-    Up(180f), Down(0f)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -126,22 +124,22 @@ fun MessageComposer(
 ) {
     val state = rememberMessageComposerState()
 
-    MessageComposComposer(
-        content = content,
+    MessageComposer(
+        content,
         state
     )
 }
 
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun MessageComposComposer(
+private fun MessageComposer(
     content: @Composable () -> Unit,
     state: MessageComposerState
 ) {
-    val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    if (state.isEnabled()) {
+    if (state.messageComposeInputState == MessageComposeInputState.Enabled) {
         focusManager.clearFocus()
     }
 
@@ -168,22 +166,24 @@ private fun MessageComposComposer(
                     content()
                 }
 
-                val transition = updateTransition(state.messageComposeVisibilityState, label = "")
+                val sizeTransition = updateTransition(state.messageComposeInputState, label = "")
 
-                val messageTextInputSize by transition.animateDp(label = "", transitionSpec = {
+                val messageTextInputSize by sizeTransition.animateDp(label = "", transitionSpec = {
                     spring(stiffness = StiffnessLow)
                 }) { state ->
                     when (state) {
-                        MessageComposeStaticState.Enabled -> 56.dp
-                        MessageComposeStaticState.Active -> 90.dp
-                        MessageComposeStaticState.FullScreen -> fullHeight.dp
+                        MessageComposeInputState.Enabled -> 56.dp
+                        MessageComposeInputState.Active -> 90.dp
+                        MessageComposeInputState.FullScreen -> fullHeight.dp
                     }
                 }
 
-                val onDropDownButtonRotationDegree by transition.animateFloat(label = "", transitionSpec = {
+                val rotationTransition = updateTransition(state.dropDownButtonRotation, label = "")
+
+                val onDropDownButtonRotationDegree by rotationTransition.animateFloat(label = "", transitionSpec = {
                     spring(stiffness = StiffnessLow)
-                }) { state ->
-                    state.dropDownButtonRotation.rotationDegree
+                }) { rotationDegree ->
+                    rotationDegree
                 }
                 Box(
                     modifier = Modifier
@@ -192,7 +192,7 @@ private fun MessageComposComposer(
                 ) {
                     Column {
                         Divider()
-                        AnimatedVisibility(visible = state.messageComposeVisibilityState.dropDownButtonVisibleState) {
+                        AnimatedVisibility(visible = state.dropDownButtonVisible) {
                             Box(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier
@@ -206,7 +206,7 @@ private fun MessageComposComposer(
                             }
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            AnimatedVisibility(visible = state.messageComposeVisibilityState.addButtonVisible) {
+                            AnimatedVisibility(visible = state.addButtonVisible) {
                                 AddButton()
                             }
                             MessageTextInput(
@@ -219,10 +219,9 @@ private fun MessageComposComposer(
                                 },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .focusRequester(focusRequester)
                             )
-                            AnimatedVisibility(visible = state.messageComposeVisibilityState.sendButtonVisibleState) {
-                                SendButton(isEnabled = state.sendButtonEnabledState)
+                            AnimatedVisibility(visible = state.sendButtonVisible) {
+                                SendButton(isEnabled = state.sendButtonEnabled)
                             }
                         }
                     }

@@ -81,7 +81,7 @@ class MessageComposerState(
     val coroutineScope: CoroutineScope
 ) {
 
-    var text by mutableStateOf(defaultText)
+    var messageText by mutableStateOf(defaultText)
         private set
 
     var messageComposerTextInputState by mutableStateOf(defaultMessageComposerTextInputState)
@@ -92,7 +92,7 @@ class MessageComposerState(
             changeMessageComposerState(MessageComposerTextInputState.Active)
         }
 
-        text = newText
+        messageText = newText
     }
 
     fun isEnabled() = messageComposerTextInputState == MessageComposerTextInputState.Enabled
@@ -133,12 +133,12 @@ fun MessageComposer(
     with(state) {
         MessageComposComposer(
             content = content,
-            messageText = text,
+            messageText = messageText,
             messageComposerTextInputState = messageComposerTextInputState,
-            addButtonVisible = state.isEnabled(),
-            sendButtonVisible = state.isActiveOrFullScreen(),
-            sendButtonEnabled = text.text.filter { !it.isWhitespace() }.isNotBlank(),
-            dropDownButtonVisible = state.isActiveOrFullScreen(),
+            addButtonVisible = isEnabled(),
+            sendButtonVisible = isActiveOrFullScreen(),
+            sendButtonEnabled = messageText.text.filter { !it.isWhitespace() }.isNotBlank(),
+            dropDownButtonVisible = isActiveOrFullScreen(),
             onFullScreenClick = ::toggleFullScreen,
             onTextChanged = ::onTextChanged
         )

@@ -22,7 +22,7 @@ annotation class KaliumCoreLogic
 @InstallIn(SingletonComponent::class)
 class CoreLogicModule {
 
-    @com.wire.android.di.KaliumCoreLogic
+    @KaliumCoreLogic
     @Singleton
     @Provides
     fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
@@ -37,5 +37,5 @@ class CoreLogicModule {
 class UseCaseModule {
     @ViewModelScoped
     @Provides
-    fun loginUseCaseProvider(@com.wire.android.di.KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().loginUsingEmail
+    fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().login
 }

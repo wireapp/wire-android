@@ -78,8 +78,6 @@ class UserProfileViewModel @Inject constructor(
                 userProfileState = copy(dialogState = dialogState.changeCheckBoxState(doNotShow))
             }
         }
-
-        println("cyka $doNotShow")
     }
 
     fun changeStatusClick(status: UserStatus) {

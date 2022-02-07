@@ -59,10 +59,10 @@ import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
+import com.wire.kalium.logic.configuration.ServerConfig
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(serverConfig: ServerConfig) {
     val scope = rememberCoroutineScope()
     val loginViewModel: LoginViewModel = hiltViewModel()
     val loginState: LoginState = loginViewModel.loginState
@@ -71,7 +71,7 @@ fun LoginScreen() {
         onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) },
         onPasswordChange = { loginViewModel.onPasswordChange(it) },
         onDialogDismiss = { loginViewModel.onDialogDismissed() },
-        onLoginButtonClick = suspend { loginViewModel.login() },
+        onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
         scope = scope
     )
 }
@@ -193,14 +193,20 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = { openForgotPasswordPage(context, backgroundColor.toArgb()) }
+                    onClick = {
+                        // TODO: refactor this to open the browser
+                        openForgotPasswordPage(context, backgroundColor.toArgb())
+                    }
                 )
         )
     }
 }
 
 private fun openForgotPasswordPage(context: Context, @ColorInt color: Int) {
+    // TODO: get the link from the serverConfig
     val url = "${BuildConfig.ACCOUNTS_URL}/forgot"
+
+    // TODO: extract the custom tab code to it's own destination
     val builder = CustomTabsIntent.Builder()
     val colors = CustomTabColorSchemeParams.Builder()
         .setNavigationBarColor(color)

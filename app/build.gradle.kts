@@ -94,9 +94,6 @@ dependencies {
     implementation(Libraries.viewPager2)
     implementation(Libraries.visibilityModifiers)
 
-    // Localisation
-    implementation(Libraries.crowdin)
-
     // lifecycle
     // ViewModel
     implementation(Libraries.Lifecycle.viewModel)

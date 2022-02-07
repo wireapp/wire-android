@@ -83,6 +83,8 @@ class UserProfileViewModel @Inject constructor(
     }
 
     fun changeStatusClick(status: UserStatus) {
+        if (userProfileState.status == status) return
+
 //        if (!shouldShowDialog) {
 //            changeStatus(status)
 //        } else {

@@ -8,6 +8,8 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -36,7 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -49,78 +55,68 @@ import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.CoroutineScope
 
 
-@Composable
-fun rememberMessageComposerState(
-    defaultText: TextFieldValue = TextFieldValue(""),
-    defaultMessageComposerTextInputState: MessageComposerTextInputState = MessageComposerTextInputState.Enabled,
-    defaultSendButtonEnabledState: Boolean = false,
-    defaultSendButtonVisibleState: Boolean = false,
-    defaultDropDownButtonVisibleState: Boolean = false,
-    defaultAddButtonVisible: Boolean = true,
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
-) = remember {
-    MessageComposerState(
-        defaultText,
-        defaultMessageComposerTextInputState,
-        defaultDropDownButtonVisibleState,
-        defaultSendButtonEnabledState,
-        defaultSendButtonVisibleState,
-        defaultAddButtonVisible,
-        coroutineScope
-    )
-}
-
-@OptIn(ExperimentalMaterialApi::class)
 class MessageComposerState(
     defaultText: TextFieldValue,
-    defaultMessageComposerTextInputState: MessageComposerTextInputState,
-    defaultSendButtonEnabledState: Boolean,
-    defaultSendButtonVisibleState: Boolean,
-    defaultDropDownButtonVisibleState: Boolean,
-    defaultAddButtonVisible: Boolean,
+    defaultMessageComposeStaticState: MessageComposeStaticState,
     val coroutineScope: CoroutineScope
 ) {
 
     var messageText by mutableStateOf(defaultText)
+
+    var messageComposeVisibilityState by mutableStateOf(defaultMessageComposeStaticState)
         private set
 
-    var messageComposerTextInputState by mutableStateOf(defaultMessageComposerTextInputState)
-        private set
+    val sendButtonEnabledState: Boolean
+        @Composable get() = messageText.text.filter { !it.isWhitespace() }.isNotBlank()
 
-    fun onTextChanged(newText: TextFieldValue) {
-        if (isEnabled()) {
-            changeMessageComposerState(MessageComposerTextInputState.Active)
-        }
-
-        messageText = newText
+    fun toActive() {
+        messageComposeVisibilityState = MessageComposeStaticState.Active
     }
 
-    fun isEnabled() = messageComposerTextInputState == MessageComposerTextInputState.Enabled
-
-    fun isActive() = messageComposerTextInputState != MessageComposerTextInputState.Enabled
-
-    fun isActiveOrFullScreen() =
-        (messageComposerTextInputState == MessageComposerTextInputState.FullScreen) or
-                (messageComposerTextInputState == MessageComposerTextInputState.Active)
-
-    private fun changeMessageComposerState(state: MessageComposerTextInputState) {
-        messageComposerTextInputState = state
+    fun toEnabled() {
+        messageComposeVisibilityState = MessageComposeStaticState.Enabled
     }
 
     fun toggleFullScreen() {
-        messageComposerTextInputState = if (messageComposerTextInputState == MessageComposerTextInputState.FullScreen) {
-            MessageComposerTextInputState.Active
+        messageComposeVisibilityState = if (messageComposeVisibilityState == MessageComposeStaticState.Active) {
+            MessageComposeStaticState.FullScreen
         } else {
-            MessageComposerTextInputState.FullScreen
+            MessageComposeStaticState.Active
         }
     }
 
+    fun isEnabled(): Boolean = messageComposeVisibilityState == MessageComposeStaticState.Enabled
+
 }
 
-enum class MessageComposerTextInputState {
-    Active,
-    Enabled,
-    FullScreen
+@Composable
+fun rememberMessageComposerState(
+    defaultText: TextFieldValue = TextFieldValue(""),
+    defaultMessageComposeStaticState: MessageComposeStaticState = MessageComposeStaticState.Enabled,
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
+) = remember {
+    MessageComposerState(
+        defaultText,
+        defaultMessageComposeStaticState,
+        coroutineScope
+    )
+}
+
+sealed class MessageComposeStaticState(
+    val sendButtonVisibleState: Boolean,
+    val dropDownButtonVisibleState: Boolean,
+    val dropDownButtonRotation: DropDownButtonRotation,
+    val addButtonVisible: Boolean,
+) {
+    object Enabled : MessageComposeStaticState(false, false, DropDownButtonRotation.Up, true)
+
+    object Active : MessageComposeStaticState(true, true, DropDownButtonRotation.Up, false)
+
+    object FullScreen : MessageComposeStaticState(true, true, DropDownButtonRotation.Down, false)
+}
+
+enum class DropDownButtonRotation(val rotationDegree: Float) {
+    Up(180f), Down(0f)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -130,34 +126,25 @@ fun MessageComposer(
 ) {
     val state = rememberMessageComposerState()
 
-    with(state) {
-        MessageComposComposer(
-            content = content,
-            messageText = messageText,
-            messageComposerTextInputState = messageComposerTextInputState,
-            addButtonVisible = isEnabled(),
-            sendButtonVisible = isActiveOrFullScreen(),
-            sendButtonEnabled = messageText.text.filter { !it.isWhitespace() }.isNotBlank(),
-            dropDownButtonVisible = isActiveOrFullScreen(),
-            onFullScreenClick = ::toggleFullScreen,
-            onTextChanged = ::onTextChanged
-        )
-    }
+    MessageComposComposer(
+        content = content,
+        state
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun MessageComposComposer(
     content: @Composable () -> Unit,
-    messageText: TextFieldValue,
-    messageComposerTextInputState: MessageComposerTextInputState,
-    addButtonVisible: Boolean,
-    sendButtonVisible: Boolean,
-    sendButtonEnabled: Boolean,
-    dropDownButtonVisible: Boolean,
-    onFullScreenClick: () -> Unit,
-    onTextChanged: (TextFieldValue) -> Unit
+    state: MessageComposerState
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
+    if (state.isEnabled()) {
+        focusManager.clearFocus()
+    }
+
     BoxWithConstraints {
         val fullHeight = constraints.maxHeight.toFloat()
         val sheetHeightState = remember { mutableStateOf<Float?>(null) }
@@ -169,29 +156,34 @@ private fun MessageComposComposer(
                 }
         ) {
             Column {
-                Box(Modifier.weight(1f)) {
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            state.toEnabled()
+                        }) {
                     content()
                 }
 
-                val transition = updateTransition(messageComposerTextInputState, label = "")
+                val transition = updateTransition(state.messageComposeVisibilityState, label = "")
 
                 val messageTextInputSize by transition.animateDp(label = "", transitionSpec = {
                     spring(stiffness = StiffnessLow)
                 }) { state ->
                     when (state) {
-                        MessageComposerTextInputState.FullScreen -> fullHeight.dp
-                        MessageComposerTextInputState.Active -> 90.dp
-                        MessageComposerTextInputState.Enabled -> 56.dp
+                        MessageComposeStaticState.Enabled -> 56.dp
+                        MessageComposeStaticState.Active -> 90.dp
+                        MessageComposeStaticState.FullScreen -> fullHeight.dp
                     }
                 }
 
                 val onDropDownButtonRotationDegree by transition.animateFloat(label = "", transitionSpec = {
                     spring(stiffness = StiffnessLow)
                 }) { state ->
-                    when (state) {
-                        MessageComposerTextInputState.FullScreen -> 180f
-                        MessageComposerTextInputState.Active, MessageComposerTextInputState.Enabled -> 0f
-                    }
+                    state.dropDownButtonRotation.rotationDegree
                 }
                 Box(
                     modifier = Modifier
@@ -200,7 +192,7 @@ private fun MessageComposComposer(
                 ) {
                     Column {
                         Divider()
-                        AnimatedVisibility(visible = dropDownButtonVisible) {
+                        AnimatedVisibility(visible = state.messageComposeVisibilityState.dropDownButtonVisibleState) {
                             Box(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier
@@ -208,22 +200,29 @@ private fun MessageComposComposer(
                                     .wrapContentHeight()
                             ) {
                                 OnDropDownIconButton(
-                                    onDropDownClick = onFullScreenClick,
+                                    onDropDownClick = { state.toggleFullScreen() },
                                     modifier = Modifier.rotate(degrees = onDropDownButtonRotationDegree)
                                 )
                             }
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            AnimatedVisibility(visible = addButtonVisible) {
+                            AnimatedVisibility(visible = state.messageComposeVisibilityState.addButtonVisible) {
                                 AddButton()
                             }
                             MessageTextInput(
-                                text = messageText,
-                                onValueChange = onTextChanged,
-                                modifier = Modifier.weight(1f)
+                                text = state.messageText,
+                                onValueChange = {
+                                    state.messageText = it
+                                },
+                                onIsFocused = {
+                                    state.toActive()
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .focusRequester(focusRequester)
                             )
-                            AnimatedVisibility(visible = sendButtonVisible) {
-                                SendButton(isEnabled = sendButtonEnabled)
+                            AnimatedVisibility(visible = state.messageComposeVisibilityState.sendButtonVisibleState) {
+                                SendButton(isEnabled = state.sendButtonEnabledState)
                             }
                         }
                     }
@@ -252,12 +251,23 @@ fun AddButton() {
 }
 
 @Composable
-fun MessageTextInput(text: TextFieldValue, onValueChange: (TextFieldValue) -> Unit, modifier: Modifier = Modifier) {
+fun MessageTextInput(
+    text: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    onIsFocused: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     BasicTextField(
         value = text,
         onValueChange = onValueChange,
         textStyle = MaterialTheme.wireTypography.body01,
-        modifier = modifier
+        modifier = modifier.then(
+            Modifier.onFocusChanged { focusState ->
+                if (focusState.isFocused) {
+                    onIsFocused()
+                }
+            }
+        )
     )
 }
 
@@ -281,4 +291,5 @@ fun SendButton(isEnabled: Boolean) {
         }
     }
 }
+
 

@@ -1,6 +1,9 @@
 package com.wire.android.ui.userprofile
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.UserStatus
@@ -9,16 +12,16 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @HiltViewModel
-class UserProfileViewModel @Inject constructor(private val navigationManager: NavigationManager) : ViewModel() {
+class UserProfileViewModel @Inject constructor(
+    private val navigationManager: NavigationManager
+) : ViewModel() {
 
-    private val _state = MutableStateFlow<UserProfileState>(
+    var userProfileState by mutableStateOf<UserProfileState>(
         UserProfileState(
             "",
             UserStatus.BUSY,
@@ -34,9 +37,7 @@ class UserProfileViewModel @Inject constructor(private val navigationManager: Na
             )
         )
     )
-
-    val state: StateFlow<UserProfileState>
-        get() = _state
+        private set
 
     fun close() = viewModelScope.launch { navigationManager.navigateBack() }
 
@@ -57,10 +58,41 @@ class UserProfileViewModel @Inject constructor(private val navigationManager: Na
     }
 
     fun editProfile() {
-        //TODO
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(NavigationItem.Settings.route))
+        }
+    }
+
+    fun onDismissDialog() {
+        userProfileState = userProfileState.copy(dialogState = DialogState.None)
     }
 
     fun changeStatus(status: UserStatus) {
         //TODO
+        onDismissDialog()
+    }
+
+    fun doNotShowStatusDialogCheckChanged(doNotShow: Boolean) {
+        userProfileState.run {
+            if (dialogState is DialogState.StatusChange) {
+                userProfileState = copy(dialogState = dialogState.changeCheckBoxState(doNotShow))
+            }
+        }
+
+        println("cyka $doNotShow")
+    }
+
+    fun changeStatusClick(status: UserStatus) {
+//        if (!shouldShowDialog) {
+//            changeStatus(status)
+//        } else {
+        val dialogStatus = when (status) {
+            UserStatus.AVAILABLE -> DialogState.StatusChange.StateAvailable()
+            UserStatus.BUSY -> DialogState.StatusChange.StateBusy()
+            UserStatus.AWAY -> DialogState.StatusChange.StateAway()
+            UserStatus.NONE -> DialogState.StatusChange.StateNone()
+        }
+        userProfileState = userProfileState.copy(dialogState = dialogStatus)
+//        }
     }
 }

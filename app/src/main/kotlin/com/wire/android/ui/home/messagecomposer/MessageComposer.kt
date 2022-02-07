@@ -15,10 +15,14 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -38,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -145,13 +150,9 @@ private fun MessageComposer(
 
     BoxWithConstraints {
         val fullHeight = constraints.maxHeight.toFloat()
-        val sheetHeightState = remember { mutableStateOf<Float?>(null) }
         Surface(
             Modifier
                 .fillMaxWidth()
-                .onGloballyPositioned {
-                    sheetHeightState.value = it.size.height.toFloat()
-                }
         ) {
             Column {
                 Box(
@@ -166,18 +167,6 @@ private fun MessageComposer(
                     content()
                 }
 
-                val sizeTransition = updateTransition(state.messageComposeInputState, label = "")
-
-                val messageTextInputSize by sizeTransition.animateDp(label = "", transitionSpec = {
-                    spring(stiffness = StiffnessLow)
-                }) { state ->
-                    when (state) {
-                        MessageComposeInputState.Enabled -> 56.dp
-                        MessageComposeInputState.Active -> 90.dp
-                        MessageComposeInputState.FullScreen -> fullHeight.dp
-                    }
-                }
-
                 val rotationTransition = updateTransition(state.dropDownButtonRotation, label = "")
 
                 val onDropDownButtonRotationDegree by rotationTransition.animateFloat(label = "", transitionSpec = {
@@ -185,10 +174,11 @@ private fun MessageComposer(
                 }) { rotationDegree ->
                     rotationDegree
                 }
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(messageTextInputSize)
+                        .wrapContentHeight()
                 ) {
                     Column {
                         Divider()
@@ -205,10 +195,38 @@ private fun MessageComposer(
                                 )
                             }
                         }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+
+                        val sizeTransition = updateTransition(state.messageComposeInputState, label = "")
+
+                        val minMessageInputHeight by sizeTransition.animateDp(label = "", transitionSpec = {
+                            spring(stiffness = StiffnessLow)
+                        }) { state ->
+                            when (state) {
+                                MessageComposeInputState.Enabled -> 64.dp
+                                MessageComposeInputState.Active -> 64.dp
+                                MessageComposeInputState.FullScreen -> fullHeight.dp
+                            }
+                        }
+
+                        val maxMessageInputHeight by sizeTransition.animateDp(label = "", transitionSpec = {
+                            spring(stiffness = StiffnessLow)
+                        }) { state ->
+                            when (state) {
+                                MessageComposeInputState.Enabled -> 64.dp
+                                MessageComposeInputState.Active -> 168.dp
+                                MessageComposeInputState.FullScreen -> fullHeight.dp
+                            }
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                        ) {
                             AnimatedVisibility(visible = state.addButtonVisible) {
                                 AddButton()
                             }
+                            Spacer(Modifier.width(8.dp))
                             MessageTextInput(
                                 text = state.messageText,
                                 onValueChange = {
@@ -216,8 +234,11 @@ private fun MessageComposer(
                                 },
                                 onIsFocused = {
                                     state.toActive()
-                                },
-                                modifier = Modifier
+                                }, modifier = Modifier
+                                    .heightIn(
+                                        min = minMessageInputHeight,
+                                        max = maxMessageInputHeight
+                                    ).wrapContentWidth()
                                     .weight(1f)
                             )
                             AnimatedVisibility(visible = state.sendButtonVisible) {
@@ -237,7 +258,7 @@ fun AddButton() {
         onClick = { },
         leadingIcon = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_search_icon),
+                painter = painterResource(id = R.drawable.ic_add),
                 contentDescription = stringResource(R.string.content_description_conversation_search_icon),
             )
         },
@@ -256,18 +277,32 @@ fun MessageTextInput(
     onIsFocused: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BasicTextField(
-        value = text,
-        onValueChange = onValueChange,
-        textStyle = MaterialTheme.wireTypography.body01,
-        modifier = modifier.then(
-            Modifier.onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    onIsFocused()
-                }
-            }
+    val scrollBarVisibility by remember { mutableStateOf(false) }
+
+
+
+        BasicTextField(
+            value = text,
+            onValueChange = onValueChange,
+            textStyle = MaterialTheme.wireTypography.body01,
+            modifier = modifier.then(
+                Modifier
+                    .onFocusChanged { focusState ->
+                        if (focusState.isFocused) {
+                            onIsFocused()
+                        }
+                    }
+                    .onGloballyPositioned { layoutCoordinates ->
+                        val messageInputHeight = layoutCoordinates.size.height.dp
+
+                        if (messageInputHeight == 168.dp) {
+
+                        }
+                    }
+            )
         )
-    )
+
+
 }
 
 @Composable

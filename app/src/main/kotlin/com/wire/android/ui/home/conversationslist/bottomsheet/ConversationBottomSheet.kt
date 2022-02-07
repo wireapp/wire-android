@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,25 +10,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.TabRowDefaults.Divider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.ConversationState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import io.github.esentsov.PackagePrivate
 
 
 @Composable
@@ -96,6 +97,7 @@ fun GroupConversationSheet(
     )
 }
 
+@PackagePrivate
 @Composable
 fun GroupHeader(title: String, groupColorValue: Long) {
     Row(
@@ -115,6 +117,7 @@ fun GroupHeader(title: String, groupColorValue: Long) {
     }
 }
 
+@PackagePrivate
 @Composable
 fun ItemIcon(
     @DrawableRes id: Int,
@@ -131,6 +134,7 @@ fun ItemIcon(
     )
 }
 
+@PackagePrivate
 @Composable
 fun ItemTitle(
     title: String,
@@ -143,6 +147,7 @@ fun ItemTitle(
     )
 }
 
+@PackagePrivate
 @Composable
 fun ModalBottomSheetItem(
     icon: @Composable () -> Unit,
@@ -160,6 +165,49 @@ fun ModalBottomSheetItem(
         title()
     }
 }
+
+@ExperimentalMaterialApi
+@PackagePrivate
+@Composable
+fun ColumnScope.ConversationModalBottomSheetContent(
+    conversationState: ConversationState,
+    muteConversation: (String) -> Unit,
+    addConversationToFavourites: (String) -> Unit,
+    moveConversationToFolder: (String) -> Unit,
+    moveConversationToArchive: (String) -> Unit,
+    clearConversationContent: (String) -> Unit,
+    blockUser: (String) -> Unit,
+    leaveGroup: (String) -> Unit
+) {
+    Spacer(modifier = Modifier.height(8.dp))
+    Divider(
+        modifier = Modifier
+            .width(width = 48.dp)
+            .align(alignment = Alignment.CenterHorizontally),
+        thickness = 4.dp
+    )
+    when (val contentType = conversationState.modalBottomSheetContentState.value) {
+        is ModalSheetContent.GroupConversationEdit -> GroupConversationSheet(
+            content = contentType,
+            onMuteClick = { muteConversation("someId") },
+            onAddToFavouritesClick = { addConversationToFavourites("someId") },
+            onMoveToFolderClick = { moveConversationToFolder("someId") },
+            onMoveToArchiveClick = { moveConversationToArchive("someId") },
+            onClearContentClick = { clearConversationContent("someId") },
+            onLeaveClick = { leaveGroup("someId") })
+        is ModalSheetContent.PrivateConversationEdit -> PrivateConversationSheet(
+            content = contentType,
+            onMuteClick = { muteConversation("someId") },
+            onAddToFavouritesClick = { addConversationToFavourites("someId") },
+            onMoveToFolderClick = { moveConversationToFolder("someId") },
+            onMoveToArchiveClick = { moveConversationToArchive("someId") },
+            onClearContentClick = { clearConversationContent("someId") },
+            onBlockClick = { blockUser("someId") }
+        )
+        ModalSheetContent.Initial -> CircularProgressIndicator() //TODO: add loading state here
+    }
+}
+
 
 @Preview
 @Composable

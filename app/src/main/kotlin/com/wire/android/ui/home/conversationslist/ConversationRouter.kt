@@ -26,6 +26,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationModalBottomSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.GroupConversationSheet
 import com.wire.android.ui.home.conversationslist.bottomsheet.ModalSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.PrivateConversationSheet
@@ -144,45 +145,4 @@ private fun ConversationNavigationItems(
     }
 }
 
-
-@ExperimentalMaterialApi
-@Composable
-private fun ColumnScope.ConversationModalBottomSheetContent(
-    conversationState: ConversationState,
-    muteConversation: (String) -> Unit,
-    addConversationToFavourites: (String) -> Unit,
-    moveConversationToFolder: (String) -> Unit,
-    moveConversationToArchive: (String) -> Unit,
-    clearConversationContent: (String) -> Unit,
-    blockUser: (String) -> Unit,
-    leaveGroup: (String) -> Unit
-) {
-    Spacer(modifier = Modifier.height(8.dp))
-    Divider(
-        modifier = Modifier
-            .width(width = 48.dp)
-            .align(alignment = Alignment.CenterHorizontally),
-        thickness = 4.dp
-    )
-    when (val contentType = conversationState.modalBottomSheetContentState.value) {
-        is ModalSheetContent.GroupConversationEdit -> GroupConversationSheet(
-            content = contentType,
-            onMuteClick = { muteConversation("someId") },
-            onAddToFavouritesClick = { addConversationToFavourites("someId") },
-            onMoveToFolderClick = { moveConversationToFolder("someId") },
-            onMoveToArchiveClick = { moveConversationToArchive("someId") },
-            onClearContentClick = { clearConversationContent("someId") },
-            onLeaveClick = { leaveGroup("someId") })
-        is ModalSheetContent.PrivateConversationEdit -> PrivateConversationSheet(
-            content = contentType,
-            onMuteClick = { muteConversation("someId") },
-            onAddToFavouritesClick = { addConversationToFavourites("someId") },
-            onMoveToFolderClick = { moveConversationToFolder("someId") },
-            onMoveToArchiveClick = { moveConversationToArchive("someId") },
-            onClearContentClick = { clearConversationContent("someId") },
-            onBlockClick = { blockUser("someId") }
-        )
-        ModalSheetContent.Initial -> CircularProgressIndicator() //TODO: add loading state here
-    }
-}
 

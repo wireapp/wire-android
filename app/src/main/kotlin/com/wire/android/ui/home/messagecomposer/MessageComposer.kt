@@ -275,7 +275,6 @@ fun MessageComposerContent(messageComposerState: MessageComposerState) {
     }
 }
 
-
 @Composable
 fun RowScope.MessageComposerInput(
     messageText: TextFieldValue,
@@ -349,5 +348,3 @@ fun SendButton(isEnabledTransition: Transition<Boolean>) {
         }
     }
 }
-
-

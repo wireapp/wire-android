@@ -14,7 +14,7 @@ fun AuthScreen() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = AuthDestination.start) {
         composable(AuthDestination.welcomeScreen) { WelcomeScreen(navController) }
-        composable(AuthDestination.loginScreen) { LoginScreen() }
+        composable(AuthDestination.loginScreen) { LoginScreen(navController) }
         composable(AuthDestination.createEnterpriseAccount) { UnderConstructionScreen(AuthDestination.createEnterpriseAccount) }
         composable(AuthDestination.createPrivateAccountScreen) { UnderConstructionScreen(AuthDestination.createPrivateAccountScreen) }
 

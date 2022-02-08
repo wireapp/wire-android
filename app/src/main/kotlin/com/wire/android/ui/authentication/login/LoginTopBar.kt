@@ -14,8 +14,7 @@ import com.wire.android.ui.common.BackNavigationIconButton
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun LoginTopBar() {
-    val context = LocalContext.current
+fun LoginTopBar(onBackNavigationPressed: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -23,11 +22,7 @@ fun LoginTopBar() {
                 style = MaterialTheme.wireTypography.title01
             )
         },
-        navigationIcon = {
-            BackNavigationIconButton {
-                Toast.makeText(context, "Back click 💥", Toast.LENGTH_SHORT).show()  //TODO
-            }
-        },
+        navigationIcon = { BackNavigationIconButton { onBackNavigationPressed() } },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             titleContentColor = MaterialTheme.colorScheme.onBackground,
@@ -40,5 +35,5 @@ fun LoginTopBar() {
 @Preview(showBackground = false)
 @Composable
 fun LoginTopBarPreview() {
-    LoginTopBar()
+    LoginTopBar({})
 }

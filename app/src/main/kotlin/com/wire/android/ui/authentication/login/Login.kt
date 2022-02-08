@@ -1,13 +1,7 @@
 package com.wire.android.ui.authentication.login
 
 import android.content.Context
-import android.content.Intent
-import android.graphics.BitmapFactory
-import android.net.Uri
-import android.widget.Toast
 import androidx.annotation.ColorInt
-import androidx.browser.customtabs.CustomTabColorSchemeParams
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -55,11 +47,12 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
+import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.wire.kalium.logic.configuration.ServerConfig
 
 @Composable
 fun LoginScreen(serverConfig: ServerConfig) {
@@ -206,19 +199,7 @@ private fun openForgotPasswordPage(context: Context, @ColorInt color: Int) {
     // TODO: get the link from the serverConfig
     val url = "${BuildConfig.ACCOUNTS_URL}/forgot"
 
-    // TODO: extract the custom tab code to it's own destination
-    val builder = CustomTabsIntent.Builder()
-    val colors = CustomTabColorSchemeParams.Builder()
-        .setNavigationBarColor(color)
-        .setToolbarColor(color)
-        .build()
-    builder.setDefaultColorSchemeParams(colors)
-    builder.setCloseButtonIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_close))
-    builder.setShareState(CustomTabsIntent.SHARE_STATE_OFF)
-    builder.setShowTitle(true)
-    val customTabsIntent = builder.build()
-    customTabsIntent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
-    customTabsIntent.launchUrl(context, Uri.parse(url))
+    CustomTabsHelper.launchUrl(context, url)
 }
 
 @OptIn(ExperimentalAnimationApi::class)

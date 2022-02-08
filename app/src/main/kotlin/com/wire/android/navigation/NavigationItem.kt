@@ -11,9 +11,9 @@ import com.wire.android.ui.authentication.AuthScreen
 import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.userprofile.UserProfileScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.support.SupportScreen
+import com.wire.android.ui.userprofile.UserProfileScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 sealed class NavigationItem(
@@ -47,7 +47,7 @@ sealed class NavigationItem(
     )
 
     object Support : NavigationItem(
-        route = "support",
+        route = "https://support.wire.com",
         content = { SupportScreen() },
     )
 
@@ -60,7 +60,8 @@ sealed class NavigationItem(
         route = "conversation/{$CONVERSATION_ID_ARGUMENT}",
         content = {
             ConversationScreen(hiltViewModel())
-        }, arguments = listOf(
+        },
+        arguments = listOf(
             navArgument(CONVERSATION_ID_ARGUMENT) { type = NavType.StringType }
         )
     ) {
@@ -84,5 +85,4 @@ sealed class NavigationItem(
 
         fun fromRoute(route: String?): NavigationItem? = map[route]
     }
-
 }

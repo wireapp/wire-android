@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -32,6 +33,7 @@ import com.wire.android.R
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
+import com.wire.android.util.CustomTabsHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -45,7 +47,7 @@ fun HomeDrawer(
     scope: CoroutineScope,
     viewModel: HomeViewModel
 ) {
-    val bottomItems = listOf(NavigationItem.Settings, NavigationItem.Support)
+    val bottomItems = listOf(NavigationItem.Settings)
 
     Column(
         modifier = Modifier
@@ -61,12 +63,14 @@ fun HomeDrawer(
         )
 
         topItems.forEach { item ->
-            DrawerItem(data = item.getDrawerData(),
+            DrawerItem(
+                data = item.getDrawerData(),
                 selected = currentRoute == item.route,
                 onItemClick = {
                     navigateToItemInHome(homeNavController, item)
                     scope.launch { drawerState.close() }
-                })
+                }
+            )
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -81,6 +85,19 @@ fun HomeDrawer(
                     }
                 })
         }
+
+        // TODO: improve, how to wrap and reuse above code, maybe add parameter to NavItem(internal/external)
+        val supportItem = NavigationItem.Support
+        DrawerItem(
+            data = supportItem.getDrawerData(),
+            selected = currentRoute == supportItem.route,
+            onItemClick = {
+                scope.launch {
+                    CustomTabsHelper.launchUrl(homeNavController.context, supportItem.route)
+                    drawerState.close()
+                }
+            }
+        )
 
         Text(
             text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),

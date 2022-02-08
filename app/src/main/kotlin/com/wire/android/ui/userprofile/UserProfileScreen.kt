@@ -284,7 +284,7 @@ private fun ColumnScope.OtherAccountsList(state: UserProfileState, onAddAccountC
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
                 .padding(dimensions().spacing16x),
-            text = stringResource(R.string.user_profile_new_acc_text),
+            text = stringResource(R.string.user_profile_new_account_text),
             onClick = onAddAccountClick
         )
     }

@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,9 +36,6 @@ import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -58,9 +54,9 @@ fun UserProfileScreen(viewModel: UserProfileViewModel) {
             onEditClick = { viewModel.editProfile() },
             onStatusClicked = { viewModel.changeStatusClick(it) },
             onAddAccountClick = { viewModel.addAccount() },
-            onDismissDialog = { viewModel.onDismissDialog() },
+            dismissDialog = { viewModel.dismissDialog() },
             onStatusChange = { viewModel.changeStatus(it) },
-            onStatusCheckBoxChange = { viewModel.doNotShowStatusDialogCheckChanged(it) }
+            onNotShowRationaleAgainChange = { show, status -> viewModel.notShowStatusRationaleAgain(show, status) }
         )
     }
 }
@@ -74,9 +70,9 @@ private fun UserProfileScreen(
     onEditClick: () -> Unit = {},
     onStatusClicked: (UserStatus) -> Unit = {},
     onAddAccountClick: () -> Unit = {},
-    onDismissDialog: () -> Unit = {},
+    dismissDialog: () -> Unit = {},
     onStatusChange: (UserStatus) -> Unit = {},
-    onStatusCheckBoxChange: (Boolean) -> Unit = {}
+    onNotShowRationaleAgainChange: (Boolean, UserStatus) -> Unit = { _, _ -> }
 ) {
     Column(
         modifier = Modifier
@@ -91,7 +87,7 @@ private fun UserProfileScreen(
         OtherAccountsList(state, onAddAccountClick)
     }
 
-    DialogContent(state.dialogState, onDismissDialog, onStatusChange, onStatusCheckBoxChange)
+    DialogContent(state.dialogState, dismissDialog, onStatusChange, onNotShowRationaleAgainChange)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -336,46 +332,6 @@ private fun OtherAccountItem(account: OtherAccount, onClick: (String) -> Unit = 
     }
 }
 
-@Composable
-private fun DialogContent(
-    dialogState: DialogState,
-    onDismiss: () -> Unit = {},
-    onStatusChange: (UserStatus) -> Unit = {},
-    onCheckBoxChange: (Boolean) -> Unit = {}
-) {
-    if (dialogState is DialogState.StatusChange) {
-        WireDialog(
-            title = stringResource(id = dialogState.title),
-            text = stringResource(id = dialogState.text),
-            onDismiss = onDismiss,
-            confirmButtonProperties = WireDialogButtonProperties(
-                onClick = { onStatusChange(dialogState.status) },
-                text = stringResource(id = R.string.label_ok),
-                type = WireDialogButtonType.Primary,
-            ),
-            dismissButtonProperties = WireDialogButtonProperties(
-                onClick = onDismiss,
-                text = stringResource(id = android.R.string.cancel),
-                type = WireDialogButtonType.Secondary,
-            )
-        ) {
-            Row {
-                Checkbox(
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    checked = dialogState.isCheckBoxChecked,
-                    onCheckedChange = onCheckBoxChange
-                )
-
-                Text(
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    text = stringResource(R.string.user_profile_change_status_dialog_checkbox_text),
-                    style = MaterialTheme.wireTypography.body01
-                )
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = false)
 @Composable
@@ -396,14 +352,7 @@ private fun UserProfileScreenPreview() {
                 OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "New Name")
             ),
-            dialogState = DialogState.StatusChange.StateAvailable()
+            dialogState = DialogState.StatusInfo.StateAvailable()
         )
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = false)
-@Composable
-private fun StatusChangeDialogPreview() {
-    DialogContent(DialogState.StatusChange.StateAvailable())
 }

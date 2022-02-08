@@ -75,7 +75,7 @@ username</string>
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_acc_text">New Team or Account</string>
 
-    <!-- User Profile stratus dialog-->
+    <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
     <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
     <string name="user_profile_change_status_dialog_busy_title">Set yourself to Busy</string>

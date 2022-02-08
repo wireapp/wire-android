@@ -47,6 +47,7 @@ sealed class HomeNavigationItem(
     val route: String,
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
+    val isSwipeable: Boolean = true,
     val content: @Composable (NavBackStackEntry) -> Unit
 ) {
 
@@ -54,6 +55,7 @@ sealed class HomeNavigationItem(
         route = HomeDestinations.conversations,
         title = R.string.conversations_screen_title,
         isSearchable = true,
+        isSwipeable = false,
         content = { ConversationRouter() },
     )
 

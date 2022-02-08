@@ -45,7 +45,7 @@ android {
 
     buildTypes {
         getByName(BuildTypes.DEBUG) {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             applicationIdSuffix = ".${BuildTypes.DEBUG}"
             isDebuggable = true
             // Just in case a developer is trying to debug some prod crashes by turning on minify

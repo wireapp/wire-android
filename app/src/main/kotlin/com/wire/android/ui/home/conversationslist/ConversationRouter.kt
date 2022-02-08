@@ -1,24 +1,15 @@
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,10 +17,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationModalBottomSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.GroupConversationSheet
-import com.wire.android.ui.home.conversationslist.bottomsheet.ModalSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.PrivateConversationSheet
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheet
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 import com.wire.android.ui.theme.wireDimensions
 
@@ -77,8 +65,8 @@ private fun ConversationRouter(
             topEnd = CornerSize(androidx.compose.material3.MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner)
         ),
         sheetContent = {
-            ConversationModalBottomSheetContent(
-                conversationState = conversationState,
+            ConversationSheet(
+                modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
                 muteConversation = muteConversation,
                 addConversationToFavourites = addConversationToFavourites,
                 moveConversationToFolder = moveConversationToFolder,

@@ -3,12 +3,10 @@
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
-    <string name="label_ok">OK</string>
     <string name="label_logging_in">Logging in...</string>
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
     <string name="app_logo_description">App Logo</string>
-
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
@@ -19,7 +17,6 @@
     <string name="content_description_conversation_video_icon">Conversation video icon</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_conversation_search_icon">Conversation search icon</string>
-
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -28,28 +25,20 @@
     <string name="support_screen_title">Support</string>
     <string name="search_bar_hint">Search %s</string>
     <string name="search_no_results">No matches found</string>
-
     <!-- Welcome -->
     <string name="welcome_screen_title">welcome</string>
     <string name="welcome_footer_text">Want to chat with friends and family?</string>
     <string name="welcome_footer_link">Create a private account for free</string>
     <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
-
     <!-- Login -->
     <string name="login_title">Login</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
-    <string name="login_error_invalid_credentials_title">Invalid information</string>
-    <string name="login_error_invalid_credentials_message">Please validate your input and try again</string>
-    <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or
-username</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
-
     <!-- Home -->
     <string name="home_open_drawer_description">Open drawer</string>
-
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALLS HISTORY</string>
@@ -63,7 +52,6 @@ username</string>
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
-
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>
@@ -74,23 +62,4 @@ username</string>
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Account</string>
-
-    <!-- User Profile status dialog-->
-    <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
-    <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
-    <string name="user_profile_change_status_dialog_busy_title">Set yourself to Busy</string>
-    <string name="user_profile_change_status_dialog_busy_text">You will appear as Busy to other people. You will only receive notifications for mentions, replies, and calls in conversations that are not muted.</string>
-    <string name="user_profile_change_status_dialog_away_title">Set yourself to Away</string>
-    <string name="user_profile_change_status_dialog_away_text">You will appear as Away to other people. You will not receive notifications about any incoming calls or messages.</string>
-    <string name="user_profile_change_status_dialog_none_title">No Status Set</string>
-    <string name="user_profile_change_status_dialog_none_text">You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
-    <string name="user_profile_change_status_dialog_checkbox_text">Do not display this information again</string>
-
-    <!-- errors -->
-    <string name="error_unknown_title">Unknown error</string>
-    <string name="error_unknown_message">Please try again in a moment</string>
-    <string name="error_server_miscommunication_title">Server error</string>
-    <string name="error_server_miscommunication_message">Please try again in a moment</string>
-    <string name="error_no_network_title">No network error</string>
-    <string name="error_no_network_message">Please check your Internet connection</string>
 </resources>

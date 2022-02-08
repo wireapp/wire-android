@@ -246,7 +246,6 @@ fun MessageComposerContent(messageComposerState: MessageComposerState) {
                     )
                 }
             }
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -257,18 +256,17 @@ fun MessageComposerContent(messageComposerState: MessageComposerState) {
                     AddButton()
                 }
                 Spacer(Modifier.width(8.dp))
-
                 MessageComposerInput(
                     messageText = messageComposerState.messageText,
                     onMessageTextChanged = { messageComposerState.messageText = it },
                     messageComposerInputState = messageComposerState.messageComposeInputState,
                     onFocusChanged = { messageComposerState.toActive() })
-
                 transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled }) {
                     SendButton(isEnabled = messageComposerState.sendButtonEnabled)
                 }
             }
         }
+        Divider()
     }
 }
 

@@ -79,6 +79,7 @@ dependencies {
     implementation(Libraries.viewPager2)
     implementation(Libraries.visibilityModifiers)
     implementation(Libraries.browser)
+    implementation(Libraries.dataStore)
 
     // lifecycle
     // ViewModel

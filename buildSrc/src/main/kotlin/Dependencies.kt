@@ -80,6 +80,7 @@ object Libraries {
         const val visibilityModifiers = "1.1.0"
         const val composeHiltNavigation = "1.0.0-alpha03"
         const val browser = "1.3.0"
+        const val dataStore = "1.0.0"
     }
 
     // AndroidX Dependencies
@@ -99,6 +100,7 @@ object Libraries {
     const val composeIcons              = "androidx.compose.material:material-icons-extended:${Versions.compose}"
     const val composeNavigation         = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
+    const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
 
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"

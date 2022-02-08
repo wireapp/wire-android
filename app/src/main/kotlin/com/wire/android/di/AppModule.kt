@@ -1,13 +1,10 @@
 package com.wire.android.di
 
-import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
-import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -20,8 +17,4 @@ object AppModule {
     @Provides
     fun providesNavigationManager() = NavigationManager()
 
-//    @ExperimentalMaterial3Api
-//    @Singleton
-//    @Provides
-//    fun providesUserDataStore(@ApplicationContext context: Context) = UserDataStore(context)
 }

@@ -112,7 +112,7 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
         )
         Text(
             text = stringResource(id = data.title!!),
-            fontSize = 14.sp,
+            fontSize = 15.sp,
             color = contentColor,
             modifier = Modifier
                 .align(Alignment.CenterVertically)

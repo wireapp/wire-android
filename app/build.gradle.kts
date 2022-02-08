@@ -31,13 +31,6 @@ android {
         versionName = "v${AndroidClient.versionName}(${versionCode})"
         testInstrumentationRunner = AndroidClient.testRunner
         setProperty("archivesBaseName", "${applicationId}-v${versionName}(${versionCode})")
-        /*
-        kapt {
-            arguments {
-                arg("room.schemaLocation", "$projectDir/schemas")
-            }
-        }
-         */
     }
 
     buildFeatures {
@@ -60,17 +53,9 @@ android {
     sourceSets["androidTest"].includeCommonTestSourceDir()
 
     // Remove protobuf-java as dependencies, so we can get protobuf-lite
-    configurations.implementation.configure {
-        exclude(module = "protobuf-java")
-    }
-
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = Libraries.Versions.compose
-    }
+    //configurations.implementation.configure {
+    //    exclude(module = "protobuf-java")
+    //}
 }
 
 kapt {
@@ -89,12 +74,12 @@ dependencies {
     implementation(Libraries.material)
     implementation(Libraries.livedataKtx)
     implementation(Libraries.viewModelKtx)
-    //implementation(Libraries.Koin.androidCore)
-    //implementation(Libraries.Koin.viewModel)
     implementation(Libraries.Kotlin.coroutinesCore)
     implementation(Libraries.Kotlin.coroutinesAndroid)
     implementation(Libraries.viewPager2)
     implementation(Libraries.visibilityModifiers)
+    implementation(Libraries.browser)
+    implementation(Libraries.dataStore)
 
     // lifecycle
     // ViewModel
@@ -121,11 +106,13 @@ dependencies {
 
     // dagger/hilt
     implementation(Libraries.Hilt.android)
+    implementation(Libraries.Hilt.navigationCompose)
+    kapt(Libraries.Hilt.compiler)
+
+    // TODO: remove or move to Libraries
     implementation("androidx.appcompat:appcompat:1.4.0")
     implementation("com.google.android.material:material:1.4.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.2")
-    implementation(Libraries.Hilt.navigationCompose)
-    kapt(Libraries.Hilt.compiler)
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)
@@ -133,7 +120,6 @@ dependencies {
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.coroutinesTest)
     testImplementation(TestLibraries.testCore)
-    //testImplementation(TestLibraries.koinTest)
     testImplementation(TestLibraries.mockk)
     testImplementation(TestLibraries.kluent)
 
@@ -150,6 +136,6 @@ dependencies {
     androidTestImplementation(TestLibraries.kluentAndroid)
 
     // Development dependencies
-    debugImplementation(DevLibraries.fragmentTesting)
+    //debugImplementation(DevLibraries.fragmentTesting)
     debugImplementation(DevLibraries.leakCanary)
 }

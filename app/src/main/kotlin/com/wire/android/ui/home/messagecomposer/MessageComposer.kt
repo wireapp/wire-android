@@ -3,10 +3,13 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring.StiffnessLow
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
@@ -211,7 +214,7 @@ private fun MessageComposer(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, androidx.compose.animation.core.ExperimentalTransitionApi::class)
 @Composable
 fun MessageComposerContent(messageComposerState: MessageComposerState) {
     val transition = updateTransition(messageComposerState.messageComposeInputState, label = "")
@@ -262,11 +265,13 @@ fun MessageComposerContent(messageComposerState: MessageComposerState) {
                     messageComposerInputState = messageComposerState.messageComposeInputState,
                     onFocusChanged = { messageComposerState.toActive() })
                 transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled }) {
-                    SendButton(isEnabled = messageComposerState.sendButtonEnabled)
+                    SendButton(isEnabledTransition = transition.createChildTransition {
+                        messageComposerState.sendButtonEnabled
+                    })
                 }
             }
+            Divider()
         }
-        Divider()
     }
 }
 
@@ -321,7 +326,11 @@ fun AddButton() {
 }
 
 @Composable
-fun SendButton(isEnabled: Boolean) {
+fun SendButton(isEnabledTransition: Transition<Boolean>) {
+    val backgroundColor by isEnabledTransition.animateColor(label = "") { isEnabled ->
+        if (isEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.wireColorScheme.onSecondaryButtonDisabled
+    }
+
     IconButton(
         onClick = { }
     ) {
@@ -330,7 +339,7 @@ fun SendButton(isEnabled: Boolean) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(if (isEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.wireColorScheme.onSecondaryButtonDisabled)
+                .background(backgroundColor)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_send),

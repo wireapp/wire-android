@@ -80,6 +80,8 @@ object Libraries {
         const val lifecycle = "2.4.0"
         const val visibilityModifiers = "1.1.0"
         const val composeHiltNavigation = "1.0.0-alpha03"
+        const val browser = "1.3.0"
+        const val dataStore = "1.0.0"
     }
 
     // AndroidX Dependencies
@@ -100,6 +102,7 @@ object Libraries {
     const val composeIcons              = "androidx.compose.material:material-icons-extended:${Versions.compose}"
     const val composeNavigation         = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
+    const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
 
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
@@ -116,6 +119,7 @@ object Libraries {
     const val scarletLifecycle          = "com.tinder.scarlet:lifecycle-android:${Versions.scarlet}"
     const val scarletGson               = "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
     const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
+    const val browser                   = "androidx.browser:browser:${Versions.browser}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

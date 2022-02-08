@@ -45,6 +45,7 @@ data class WireDimensions(
     val dialogTextsSpacing: Dp,
     val dialogContentPadding: Dp,
     val dialogCornerSize: Dp,
+    val dialogCardMargin: Dp,
     // UserProfile
     val userProfileLogoutBtnHeight: Dp,
     val userProfileStatusBtnHeight: Dp,
@@ -101,6 +102,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     dialogTextsSpacing = 16.dp,
     dialogContentPadding = 24.dp,
     dialogCornerSize = 20.dp,
+    dialogCardMargin = 16.dp,
     userProfileLogoutBtnHeight = 32.dp,
     userProfileStatusBtnHeight = 32.dp,
     userProfileOtherAccItemHeight = 56.dp,

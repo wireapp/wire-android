@@ -18,6 +18,7 @@ import com.wire.kalium.logic.feature.auth.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.wire.kalium.logic.configuration.ServerConfig
 
 @ExperimentalMaterialApi
 @HiltViewModel
@@ -35,10 +36,14 @@ class LoginViewModel @Inject constructor(
     )
         private set
 
-    fun login() {
+    fun login(serverConfig: ServerConfig) {
+        // TODO: remove the temporary trick to ignore login once the minify issue is solved
+        viewModelScope.launch { navigateToConvScreen() }
+        return
+        // -----
         loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
-            val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
+            val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
             loginState = loginState.copy(loading = false, loginError = loginResult.toLoginError()).updateLoginEnabled()
             if(loginResult is AuthenticationResult.Success) navigateToConvScreen()
         }
@@ -60,6 +65,7 @@ class LoginViewModel @Inject constructor(
     private fun LoginState.updateLoginEnabled() =
         copy(loginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !loading)
 
+    // TODO: login error Mapper ?
     private fun AuthenticationResult.toLoginError() =
         when(this) {
             is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)

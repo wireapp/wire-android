@@ -104,7 +104,7 @@ class UserProfileViewModel @Inject constructor(
     private fun setNotShowStatusRationaleAgainIfNeeded(status: UserStatus) {
         userProfileState.statusDialogData.let { dialogState ->
             if (dialogState?.isCheckBoxChecked == true) {
-                viewModelScope.launch { dataStore.donNotShowStatusRationaleAgain(status) }
+                viewModelScope.launch { dataStore.dontShowStatusRationaleAgain(status) }
             }
         }
     }

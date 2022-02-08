@@ -28,7 +28,7 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
 
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 
-    suspend fun donNotShowStatusRationaleAgain(status: UserStatus) {
+    suspend fun dontShowStatusRationaleAgain(status: UserStatus) {
         context.dataStore.edit { preferences ->
             preferences[getStatusKey(status)] = false
         }

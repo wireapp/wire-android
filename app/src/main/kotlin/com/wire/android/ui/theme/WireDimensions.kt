@@ -47,6 +47,7 @@ data class WireDimensions(
     val userProfileStatusBtnHeight: Dp,
     val userProfileOtherAccItemHeight: Dp,
     // Spacing
+    val spacing2x: Dp,
     val spacing4x: Dp,
     val spacing8x: Dp,
     val spacing16x: Dp,
@@ -99,6 +100,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     userProfileLogoutBtnHeight = 32.dp,
     userProfileStatusBtnHeight = 32.dp,
     userProfileOtherAccItemHeight = 56.dp,
+    spacing2x = 2.dp,
     spacing4x = 4.dp,
     spacing8x = 8.dp,
     spacing16x = 16.dp,

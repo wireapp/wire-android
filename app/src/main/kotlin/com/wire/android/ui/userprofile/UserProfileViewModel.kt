@@ -24,8 +24,8 @@ class UserProfileViewModel @Inject constructor(
     private val dataStore: UserDataStore
 ) : ViewModel() {
 
-    var userProfileState by mutableStateOf<UserProfileState>(
-        UserProfileState(
+    var userProfileState by mutableStateOf<SelfUserProfileState>(
+        SelfUserProfileState(
             "",
             UserStatus.BUSY,
             "Tester Tost_long_long_long long  long  long  long  long  long ",
@@ -67,21 +67,19 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    fun dismissDialog() {
-        userProfileState = userProfileState.copy(dialogState = DialogState.None)
+    fun dismissStatusDialog() {
+        userProfileState = userProfileState.copy(statusDialogData = null)
     }
 
     fun changeStatus(status: UserStatus) {
         setNotShowStatusRationaleAgainIfNeeded(status)
         //TODO
-        dismissDialog()
+        dismissStatusDialog()
     }
 
-    fun notShowStatusRationaleAgain(doNotShow: Boolean, status: UserStatus) {
+    fun dialogCheckBoxStateChanged(isChecked: Boolean) {
         userProfileState.run {
-            if (dialogState is DialogState.StatusInfo) {
-                userProfileState = copy(dialogState = dialogState.changeCheckBoxState(doNotShow))
-            }
+            userProfileState = copy(statusDialogData = statusDialogData?.changeCheckBoxState(isChecked))
         }
     }
 
@@ -90,13 +88,13 @@ class UserProfileViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (shouldShowStatusRationaleDialog(status)) {
-                val dialogStatus = when (status) {
-                    UserStatus.AVAILABLE -> DialogState.StatusInfo.StateAvailable()
-                    UserStatus.BUSY -> DialogState.StatusInfo.StateBusy()
-                    UserStatus.AWAY -> DialogState.StatusInfo.StateAway()
-                    UserStatus.NONE -> DialogState.StatusInfo.StateNone()
+                val statusDialogInfo = when (status) {
+                    UserStatus.AVAILABLE -> StatusDialogData.StateAvailable()
+                    UserStatus.BUSY -> StatusDialogData.StateBusy()
+                    UserStatus.AWAY -> StatusDialogData.StateAway()
+                    UserStatus.NONE -> StatusDialogData.StateNone()
                 }
-                userProfileState = userProfileState.copy(dialogState = dialogStatus)
+                userProfileState = userProfileState.copy(statusDialogData = statusDialogInfo)
             } else {
                 changeStatus(status)
             }
@@ -104,8 +102,8 @@ class UserProfileViewModel @Inject constructor(
     }
 
     private fun setNotShowStatusRationaleAgainIfNeeded(status: UserStatus) {
-        userProfileState.dialogState.let { dialogState ->
-            if (dialogState is DialogState.StatusInfo && dialogState.isCheckBoxChecked) {
+        userProfileState.statusDialogData.let { dialogState ->
+            if (dialogState?.isCheckBoxChecked == true) {
                 viewModelScope.launch { dataStore.donNotShowStatusRationaleAgain(status) }
             }
         }

@@ -54,9 +54,9 @@ fun UserProfileScreen(viewModel: UserProfileViewModel) {
             onEditClick = { viewModel.editProfile() },
             onStatusClicked = { viewModel.changeStatusClick(it) },
             onAddAccountClick = { viewModel.addAccount() },
-            dismissDialog = { viewModel.dismissDialog() },
+            dismissStatusDialog = { viewModel.dismissStatusDialog() },
             onStatusChange = { viewModel.changeStatus(it) },
-            onNotShowRationaleAgainChange = { show, status -> viewModel.notShowStatusRationaleAgain(show, status) }
+            onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) }
         )
     }
 }
@@ -64,15 +64,15 @@ fun UserProfileScreen(viewModel: UserProfileViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun UserProfileScreen(
-    state: UserProfileState,
+    state: SelfUserProfileState,
     onCloseClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
     onStatusClicked: (UserStatus) -> Unit = {},
     onAddAccountClick: () -> Unit = {},
-    dismissDialog: () -> Unit = {},
+    dismissStatusDialog: () -> Unit = {},
     onStatusChange: (UserStatus) -> Unit = {},
-    onNotShowRationaleAgainChange: (Boolean, UserStatus) -> Unit = { _, _ -> }
+    onNotShowRationaleAgainChange: (Boolean) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -87,7 +87,7 @@ private fun UserProfileScreen(
         OtherAccountsList(state, onAddAccountClick)
     }
 
-    DialogContent(state.dialogState, dismissDialog, onStatusChange, onNotShowRationaleAgainChange)
+    ChangeStatusDialogContent(state.statusDialogData, dismissStatusDialog, onStatusChange, onNotShowRationaleAgainChange)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,7 +128,7 @@ private fun ColumnScope.TopBar(onCloseClick: () -> Unit, onLogoutClick: () -> Un
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.Header(state: UserProfileState, onEditClick: () -> Unit) {
+private fun ColumnScope.Header(state: SelfUserProfileState, onEditClick: () -> Unit) {
     UserProfileAvatar(
         modifier = Modifier
             .padding(top = dimensions().spacing16x)
@@ -262,7 +262,7 @@ private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserSt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.OtherAccountsList(state: UserProfileState, onAddAccountClick: () -> Unit) {
+private fun ColumnScope.OtherAccountsList(state: SelfUserProfileState, onAddAccountClick: () -> Unit) {
     Text(
         modifier = Modifier
             .padding(top = dimensions().spacing16x, start = dimensions().spacing16x, bottom = dimensions().spacing4x),
@@ -337,7 +337,7 @@ private fun OtherAccountItem(account: OtherAccount, onClick: (String) -> Unit = 
 @Composable
 private fun UserProfileScreenPreview() {
     UserProfileScreen(
-        UserProfileState(
+        SelfUserProfileState(
             "",
             UserStatus.BUSY,
             "Tester Tost long lomng long logn long logn long lonf lonf",
@@ -352,7 +352,7 @@ private fun UserProfileScreenPreview() {
                 OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "New Name")
             ),
-            dialogState = DialogState.StatusInfo.StateAvailable()
+            statusDialogData = null
         )
     )
 }

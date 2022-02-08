@@ -7,7 +7,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
@@ -20,30 +19,30 @@ import io.github.esentsov.PackagePrivate
 
 @PackagePrivate
 @Composable
-fun DialogContent(
-    dialogState: DialogState,
+fun ChangeStatusDialogContent(
+    data: StatusDialogData?,
     dismiss: () -> Unit = {},
     onStatusChange: (UserStatus) -> Unit = {},
-    onNotShowRationaleAgainChange: (Boolean, UserStatus) -> Unit = { _, _ -> }
+    onNotShowRationaleAgainChange: (Boolean) -> Unit = {}
 ) {
-    if (dialogState is DialogState.StatusInfo) {
-        UserStatusChangeDialogContent(dialogState, dismiss, onStatusChange, onNotShowRationaleAgainChange)
+    if (data != null) {
+        ChangeStatusDialog(data, dismiss, onStatusChange, onNotShowRationaleAgainChange)
     }
 }
 
 @Composable
-private fun UserStatusChangeDialogContent(
-    dialogState: DialogState.StatusInfo,
+private fun ChangeStatusDialog(
+    data: StatusDialogData,
     dismiss: () -> Unit = {},
     onStatusChange: (UserStatus) -> Unit = {},
-    onNotShowRationaleAgainChange: (Boolean, UserStatus) -> Unit = { _, _ -> }
+    onNotShowRationaleAgainChange: (Boolean) -> Unit = {}
 ) {
     WireDialog(
-        title = stringResource(id = dialogState.title),
-        text = stringResource(id = dialogState.text),
+        title = stringResource(id = data.title),
+        text = stringResource(id = data.text),
         onDismiss = dismiss,
         confirmButtonProperties = WireDialogButtonProperties(
-            onClick = { onStatusChange(dialogState.status) },
+            onClick = { onStatusChange(data.status) },
             text = stringResource(id = R.string.label_ok),
             type = WireDialogButtonType.Primary,
         ),
@@ -55,8 +54,8 @@ private fun UserStatusChangeDialogContent(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
-                checked = dialogState.isCheckBoxChecked,
-                onCheckedChange = { onNotShowRationaleAgainChange(it, dialogState.status) }
+                checked = data.isCheckBoxChecked,
+                onCheckedChange = onNotShowRationaleAgainChange
             )
 
             Text(
@@ -70,7 +69,7 @@ private fun UserStatusChangeDialogContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = false)
 @Composable
-private fun StatusChangeDialogPreview() {
-    DialogContent(DialogState.StatusInfo.StateAvailable())
+private fun ChangeStatusDialogPreview() {
+    ChangeStatusDialogContent(StatusDialogData.StateAvailable())
 }
 

@@ -72,7 +72,7 @@ private fun WelcomeContent(navController: NavController) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
                 tint = MaterialTheme.colorScheme.onBackground,
-                contentDescription = stringResource(id = R.string.welcome_wire_logo_content_description),
+                contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
                 modifier = Modifier.padding(48.dp)
             )
             Column(

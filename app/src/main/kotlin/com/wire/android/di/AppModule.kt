@@ -1,4 +1,4 @@
-package com.wire.android.hilt
+package com.wire.android.di
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.navigation.NavigationManager

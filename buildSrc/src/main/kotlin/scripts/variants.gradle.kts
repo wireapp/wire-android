@@ -48,14 +48,15 @@ android {
             isMinifyEnabled = false
             applicationIdSuffix = ".${BuildTypes.DEBUG}"
             isDebuggable = true
-            if(enableSigning)
+            if (isMinifyEnabled) proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (enableSigning)
                 signingConfig = signingConfigs.getByName("debug")
         }
         getByName(BuildTypes.RELEASE) {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
-            if(enableSigning)
+            if (enableSigning)
                 signingConfig = signingConfigs.getByName("release")
         }
     }
@@ -86,8 +87,10 @@ android {
         ConfigFields.values().forEach { configField ->
             val configValuesMap = ClientConfig.properties[type.name].orEmpty()
             if (configValuesMap.isNotEmpty()) {
-                type.buildConfigField("String", configField.name,
-                    configValuesMap[configField] ?: configField.defaultValue)
+                type.buildConfigField(
+                    "String", configField.name,
+                    configValuesMap[configField] ?: configField.defaultValue
+                )
             }
         }
     }

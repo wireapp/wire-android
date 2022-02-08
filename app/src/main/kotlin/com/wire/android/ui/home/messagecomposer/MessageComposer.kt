@@ -6,11 +6,9 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring.StiffnessLow
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,11 +36,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,7 +47,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.OnDropDownIconButton
@@ -60,98 +54,6 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
-
-private class TransistionData(
-    dropDownButtonRotation: State<Float>,
-    val dropDownButtonVisiblity: Boolean,
-//    sendButtonVisiblity: State<Boolean>,
-    messageComposerMaxHeight: State<Dp>,
-    messageComposerMinHeight: State<Dp>,
-) {
-    val dropDownButtonRotation by dropDownButtonRotation
-
-    //    val addButtonVisiblity by addButtonVisiblity
-//    val sendButtonVisiblity by sendButtonVisiblity
-    val messageComposerMaxHeight by messageComposerMaxHeight
-    val messageComposerMinHeight by messageComposerMinHeight
-}
-
-@OptIn(ExperimentalAnimationApi::class, androidx.compose.animation.core.ExperimentalTransitionApi::class)
-@Composable
-private fun updateTransistionData(messageComposerInputState: MessageComposeInputState): TransistionData {
-    val transistion = updateTransition(messageComposerInputState, label = "")
-
-    val dropDownButtonRotation = transistion.animateFloat(label = "") { state ->
-        when (state) {
-            MessageComposeInputState.Active -> 0f
-            MessageComposeInputState.Enabled -> 180f
-            MessageComposeInputState.FullScreen -> 180f
-        }
-    }
-    val messageComposerMaxHeight = transistion.animateDp(label = "") { state ->
-        when (state) {
-            MessageComposeInputState.Active -> 56.dp
-            MessageComposeInputState.Enabled -> 56.dp
-            MessageComposeInputState.FullScreen -> 250.dp
-        }
-    }
-
-    val messageComposerMinHeight = transistion.animateDp(label = "") { state ->
-        when (state) {
-            MessageComposeInputState.Enabled -> 64.dp
-            MessageComposeInputState.Active -> 64.dp
-            MessageComposeInputState.FullScreen -> 250.dp
-        }
-    }
-
-    val dropDownButtonVisibility = messageComposerInputState == MessageComposeInputState.Active
-
-    return remember(transistion) {
-        TransistionData(dropDownButtonRotation, dropDownButtonVisibility, messageComposerMaxHeight, messageComposerMinHeight)
-    }
-}
-
-
-class MessageComposerState(
-    defaultMessageText: TextFieldValue,
-    defaultMessageComposeInputState: MessageComposeInputState,
-) {
-
-    var messageText by mutableStateOf(defaultMessageText)
-
-    var messageComposeInputState by mutableStateOf(defaultMessageComposeInputState)
-        private set
-
-    val sendButtonEnabled: Boolean
-        @Composable get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
-            false
-        } else {
-            messageText.text.filter { !it.isWhitespace() }
-                .isNotBlank()
-        }
-
-    fun toEnabled() {
-        messageComposeInputState = MessageComposeInputState.Enabled
-    }
-
-    fun toActive() {
-        messageComposeInputState = MessageComposeInputState.Active
-    }
-
-    fun toggleFullScreen() {
-        messageComposeInputState = if (messageComposeInputState == MessageComposeInputState.Active)
-            MessageComposeInputState.FullScreen else MessageComposeInputState.Active
-    }
-
-    private fun isFullScreenOrActive() =
-        (messageComposeInputState == MessageComposeInputState.Active) or
-                (messageComposeInputState == MessageComposeInputState.FullScreen)
-
-}
-
-enum class MessageComposeInputState {
-    Active, Enabled, FullScreen
-}
 
 @Composable
 fun rememberMessageComposerState(
@@ -172,11 +74,10 @@ fun MessageComposer(
     val state = rememberMessageComposerState()
 
     MessageComposer(
-        content,
-        state
+        content = content,
+        state = state
     )
 }
-
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -191,7 +92,6 @@ private fun MessageComposer(
     }
 
     BoxWithConstraints {
-        val fullHeight = constraints.maxHeight.toFloat()
         Surface(
             Modifier
                 .fillMaxWidth()
@@ -265,9 +165,7 @@ fun MessageComposerContent(messageComposerState: MessageComposerState) {
                     messageComposerInputState = messageComposerState.messageComposeInputState,
                     onFocusChanged = { messageComposerState.toActive() })
                 transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled }) {
-                    SendButton(isEnabledTransition = transition.createChildTransition {
-                        messageComposerState.sendButtonEnabled
-                    })
+                    SendButton(messageComposerState.sendButtonEnabled)
                 }
             }
             Divider()
@@ -325,9 +223,13 @@ fun AddButton() {
 }
 
 @Composable
-fun SendButton(isEnabledTransition: Transition<Boolean>) {
-    val backgroundColor by isEnabledTransition.animateColor(label = "") { isEnabled ->
-        if (isEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.wireColorScheme.onSecondaryButtonDisabled
+fun SendButton(isEnabled: Boolean) {
+    val transition = updateTransition(isEnabled, label = "")
+
+    val backgroundColor by transition.animateColor(label = "", transitionSpec = {
+        tween(durationMillis = 500)
+    }) {
+        if (it) MaterialTheme.colorScheme.primary else MaterialTheme.wireColorScheme.onSecondaryButtonDisabled
     }
 
     IconButton(

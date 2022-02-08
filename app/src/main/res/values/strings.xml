@@ -75,6 +75,16 @@ username</string>
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Account</string>
 
+    <!-- User Profile status dialog-->
+    <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
+    <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
+    <string name="user_profile_change_status_dialog_busy_title">Set yourself to Busy</string>
+    <string name="user_profile_change_status_dialog_busy_text">You will appear as Busy to other people. You will only receive notifications for mentions, replies, and calls in conversations that are not muted.</string>
+    <string name="user_profile_change_status_dialog_away_title">Set yourself to Away</string>
+    <string name="user_profile_change_status_dialog_away_text">You will appear as Away to other people. You will not receive notifications about any incoming calls or messages.</string>
+    <string name="user_profile_change_status_dialog_none_title">No Status Set</string>
+    <string name="user_profile_change_status_dialog_none_text">You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
+    <string name="user_profile_change_status_dialog_checkbox_text">Do not display this information again</string>
 
     <!-- errors -->
     <string name="error_unknown_title">Unknown error</string>

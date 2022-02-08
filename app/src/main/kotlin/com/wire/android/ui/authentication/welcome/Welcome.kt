@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -47,6 +46,7 @@ import com.wire.android.ui.authentication.AuthDestination
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -64,7 +64,7 @@ fun WelcomeScreen(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WelcomeContent(navController: NavController) {
-    Scaffold {
+    Scaffold(modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.welcomeVerticalPadding)) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
@@ -72,8 +72,7 @@ private fun WelcomeContent(navController: NavController) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
                 tint = MaterialTheme.colorScheme.onBackground,
-                contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
-                modifier = Modifier.padding(48.dp)
+                contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo)
             )
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,17 +82,20 @@ private fun WelcomeContent(navController: NavController) {
                 WelcomeCarousel()
             }
 
-            Column(modifier = Modifier.padding(top = 40.dp, bottom = 52.dp, start = 16.dp, end = 16.dp)) {
+            Column(modifier = Modifier.padding(
+                vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
+                horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
+            )) {
                 LoginButton {
                     navController.navigate(AuthDestination.loginScreen)
                 }
                 CreateEnterpriseAccountButton {
                     navController.navigate((AuthDestination.createEnterpriseAccount))
-
                 }
             }
 
-            WelcomeFooter(modifier = Modifier.padding(bottom = 56.dp, start = 16.dp, end = 16.dp),
+            WelcomeFooter(modifier = Modifier
+                .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                 onPrivateAccountClick = {
                     navController.navigate(AuthDestination.createPrivateAccountScreen)
                 })
@@ -115,15 +117,17 @@ private fun WelcomeCarousel() {
     LaunchedEffect(pageState) {
         snapshotFlow { pageState.currentPage }
             .distinctUntilChanged()
-            .scan(initialPage to initialPage) { (_, lastPage), currentPage -> lastPage to currentPage }
-            .flatMapLatest { (lastPage, currentPage) ->
-                if (currentPage == circularItemsList.lastIndex && lastPage < currentPage && lastPage >= initialPage)
-                    flow { emit(initialPage to false) }
-                else if (currentPage == 0 && lastPage > currentPage && lastPage < circularItemsList.lastIndex)
-                    flow { emit(circularItemsList.lastIndex - 1 to false) }
-                else
-                    flow { emit(pageState.currentPage + 1 to true) }
-                        .onEach { delay(delay.toLong()) }
+            .scan(initialPage to initialPage) { (_, previousPage), currentPage -> previousPage to currentPage }
+            .flatMapLatest { (previousPage, currentPage) ->
+                when {
+                    shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) ->
+                        flow { emit(initialPage to false) }
+                    shouldJumpToEnd(previousPage, currentPage, circularItemsList.lastIndex) ->
+                        flow { emit(circularItemsList.lastIndex - 1 to false) }
+                    else ->
+                        flow { emit(pageState.currentPage + 1 to true) }
+                            .onEach { delay(delay.toLong()) }
+                }
             }
             .collect { (scrollToPage, animate) ->
                 if (animate) pageState.animateScrollToPage(scrollToPage)
@@ -155,14 +159,17 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
             contentScale = ContentScale.Inside,
             modifier = Modifier
                 .weight(1f, true)
-                .padding(start = 64.dp, end = 64.dp, bottom = 36.dp)
+                .padding(
+                    horizontal = MaterialTheme.wireDimensions.welcomeImageHorizontalPadding,
+                    vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing
+                )
         )
         Text(
             text = pageText,
             style = MaterialTheme.wireTypography.title01,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 24.dp)
+            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
         )
     }
 }
@@ -172,8 +179,7 @@ private fun LoginButton(onClick: () -> Unit) {
     WirePrimaryButton(
         onClick = onClick,
         text = stringResource(R.string.label_login),
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
     )
 }
 
@@ -182,9 +188,7 @@ private fun CreateEnterpriseAccountButton(onClick: () -> Unit) {
     WireSecondaryButton(
         onClick = onClick,
         text = stringResource(R.string.welcome_button_create_enterprise_account),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp)
+        modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
     )
 }
 
@@ -223,9 +227,15 @@ private fun typedArrayResource(@ArrayRes id: Int): TypedArray = LocalContext.cur
 
 private fun TypedArray.drawableResIdList(): List<Int> = (0 until this.length()).map { this.getResourceId(it, 0) }
 
+private fun shouldJumpToStart(previousPage: Int, currentPage: Int, lastPage: Int, initialPage: Int): Boolean =
+    currentPage == lastPage && previousPage < currentPage && previousPage >= initialPage
+
+private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int): Boolean =
+    currentPage == 0 && previousPage > currentPage && previousPage < lastPage
+
 @Preview
 @Composable
-fun WelcomeScreenPreview() {
+private fun WelcomeScreenPreview() {
     WireTheme(useDarkColors = false, isPreview = true) {
         WelcomeContent(rememberNavController())
     }

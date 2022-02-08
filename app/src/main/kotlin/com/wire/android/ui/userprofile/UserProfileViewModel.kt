@@ -106,24 +106,11 @@ class UserProfileViewModel @Inject constructor(
     private fun setNotShowStatusRationaleAgainIfNeeded(status: UserStatus) {
         userProfileState.dialogState.let { dialogState ->
             if (dialogState is DialogState.StatusInfo && dialogState.isCheckBoxChecked) {
-                viewModelScope.launch {
-                    when (status) {
-                        UserStatus.AVAILABLE -> dataStore.donNotShowStatusRationaleAvailable()
-                        UserStatus.BUSY -> dataStore.donNotShowStatusRationaleBusy()
-                        UserStatus.AWAY -> dataStore.donNotShowStatusRationaleAway()
-                        UserStatus.NONE -> dataStore.donNotShowStatusRationaleNone()
-                    }
-                }
+                viewModelScope.launch { dataStore.donNotShowStatusRationaleAgain(status) }
             }
         }
     }
 
-    private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean {
-        return when (status) {
-            UserStatus.AVAILABLE -> dataStore.shouldShowStatusRationaleAvailableFlow
-            UserStatus.BUSY -> dataStore.shouldShowStatusRationaleBusyFlow
-            UserStatus.AWAY -> dataStore.shouldShowStatusRationaleAwayFlow
-            UserStatus.NONE -> dataStore.shouldShowStatusRationaleNoneFlow
-        }.first()
-    }
+    private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean =
+        dataStore.shouldShowStatusRationaleFlow(status).first()
 }

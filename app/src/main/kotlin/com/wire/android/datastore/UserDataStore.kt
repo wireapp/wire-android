@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import com.wire.android.model.UserStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -27,51 +28,25 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
 
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 
-    val shouldShowStatusRationaleAvailableFlow: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[SHOW_STATUS_RATIONALE_AVAILABLE] ?: true
-        }
-
-    suspend fun donNotShowStatusRationaleAvailable() {
+    suspend fun donNotShowStatusRationaleAgain(status: UserStatus) {
         context.dataStore.edit { preferences ->
-            preferences[SHOW_STATUS_RATIONALE_AVAILABLE] = false
+            preferences[getStatusKey(status)] = false
         }
     }
 
-    val shouldShowStatusRationaleBusyFlow: Flow<Boolean> = context.dataStore.data
+    fun shouldShowStatusRationaleFlow(status: UserStatus): Flow<Boolean> = context.dataStore.data
         .map { preferences ->
-            preferences[SHOW_STATUS_RATIONALE_BUSY] ?: true
+            preferences[getStatusKey(status)] ?: true
         }
-
-    suspend fun donNotShowStatusRationaleBusy() {
-        context.dataStore.edit { preferences ->
-            preferences[SHOW_STATUS_RATIONALE_BUSY] = false
-        }
-    }
-
-    val shouldShowStatusRationaleAwayFlow: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[SHOW_STATUS_RATIONALE_AWAY] ?: true
-        }
-
-    suspend fun donNotShowStatusRationaleAway() {
-        context.dataStore.edit { preferences ->
-            preferences[SHOW_STATUS_RATIONALE_AWAY] = false
-        }
-    }
-
-    val shouldShowStatusRationaleNoneFlow: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[SHOW_STATUS_RATIONALE_NONE] ?: true
-        }
-
-    suspend fun donNotShowStatusRationaleNone() {
-        context.dataStore.edit { preferences ->
-            preferences[SHOW_STATUS_RATIONALE_NONE] = false
-        }
-    }
 
     suspend fun clear() {
         context.dataStore.edit { it.clear() }
+    }
+
+    private fun getStatusKey(status: UserStatus) = when (status) {
+        UserStatus.AVAILABLE -> SHOW_STATUS_RATIONALE_AVAILABLE
+        UserStatus.BUSY -> SHOW_STATUS_RATIONALE_BUSY
+        UserStatus.AWAY -> SHOW_STATUS_RATIONALE_AWAY
+        UserStatus.NONE -> SHOW_STATUS_RATIONALE_NONE
     }
 }

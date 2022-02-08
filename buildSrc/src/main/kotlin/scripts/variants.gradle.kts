@@ -45,7 +45,7 @@ android {
 
     buildTypes {
         getByName(BuildTypes.DEBUG) {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             applicationIdSuffix = ".${BuildTypes.DEBUG}"
             isDebuggable = true
             if (isMinifyEnabled) proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

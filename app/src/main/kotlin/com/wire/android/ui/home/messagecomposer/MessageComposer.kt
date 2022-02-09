@@ -7,6 +7,10 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -115,7 +119,10 @@ private fun MessageComposer(
 )
 @Composable
 private fun MessageComposerContent(messageComposerState: MessageComposerState) {
-    val transition = updateTransition(messageComposerState.messageComposeInputState, label = "MessageComposeInputState transition")
+    val transition = updateTransition(
+        messageComposerState.messageComposeInputState,
+        label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
+    )
 
     Box(
         modifier = Modifier
@@ -132,7 +139,7 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
                         .wrapContentHeight()
                 ) {
                     val collapseButtonRotationDegree by transition.animateFloat(
-                        label = "Collapse button rotation degree transition"
+                        label = stringResource(R.string.animation_label_button_rotation_degree_transistion)
                     ) { state ->
                         when (state) {
                             MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
@@ -172,7 +179,11 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
                     }
                 }
                 Divider()
-                transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled }) {
+                transition.AnimatedVisibility(
+                    visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
+                    enter = slideInVertically(),
+                    exit = slideOutVertically(targetOffsetY = { fullHeight -> fullHeight / 2 })
+                ) {
                     MessageComposeActions()
                 }
             }

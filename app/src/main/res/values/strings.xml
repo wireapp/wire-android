@@ -73,5 +73,7 @@
     <string name="label_clear_content">Clear Content...</string>
     <string name="label_block">Block</string>
     <string name="label_leave_group">Leave Group</string>
+    <string name="animation_label_messagecomposeinput_state_transistion">MessageComposeInputState transition</string>
+    <string name="animation_label_button_rotation_degree_transistion">Collapse button rotation degree transition</string>
 
 </resources>

@@ -24,11 +24,6 @@ class MessageComposerState(
                 .isNotBlank()
         }
 
-    val isEnabled: Boolean = messageComposeInputState == MessageComposeInputState.Enabled
-
-    val isActive: Boolean = messageComposeInputState == MessageComposeInputState.Active
-
-    val isFullScreen: Boolean = messageComposeInputState == MessageComposeInputState.FullScreen
 
     fun toEnabled() {
         messageComposeInputState = MessageComposeInputState.Enabled

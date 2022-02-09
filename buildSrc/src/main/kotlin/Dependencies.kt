@@ -70,7 +70,7 @@ object Libraries {
         const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
         const val compose = "1.0.5"
-        const val composeMaterial = "1.0.5"
+        const val composeMaterial = compose
         const val composeMaterial3 = "1.0.0-alpha04"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.0-beta02"

@@ -25,13 +25,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
+import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -49,16 +49,10 @@ fun HomeDrawer(
 
     Column(
         modifier = Modifier
-            .padding(top = 40.dp, start = 8.dp, end = 8.dp, bottom = 16.dp)
+            .padding(top = 0.dp, start = 8.dp, end = 8.dp, bottom = 16.dp)
 
     ) {
         Logo()
-
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(16.dp)
-        )
 
         topItems.forEach { item ->
             DrawerItem(data = item.getDrawerData(),
@@ -97,11 +91,12 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
+            .padding(bottom = 8.dp)
             .clip(RoundedCornerShape(12.dp))
             .fillMaxWidth()
             .height(40.dp)
             .background(backgroundColor)
-            .selectableBackground(selected) { onItemClick() }
+            .selectableBackground(selected) { onItemClick() },
     ) {
         Image(
             painter = painterResource(id = data.icon!!),
@@ -111,8 +106,8 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
             modifier = Modifier.padding(start = 16.dp, end = 16.dp)
         )
         Text(
+            style = MaterialTheme.wireTypography.button02,
             text = stringResource(id = data.title!!),
-            fontSize = 15.sp,
             color = contentColor,
             modifier = Modifier
                 .align(Alignment.CenterVertically)

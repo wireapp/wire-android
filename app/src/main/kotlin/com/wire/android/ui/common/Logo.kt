@@ -1,6 +1,7 @@
 package com.wire.android.ui.common
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -19,8 +20,8 @@ fun Logo() {
         contentDescription = stringResource(id = R.string.app_logo_description),
         contentScale = ContentScale.Fit,
         modifier = Modifier
-            .width(80.dp)
-            .height(30.dp)
-            .padding(8.dp)
+            .padding(paddingValues = PaddingValues(horizontal = 8.dp, vertical = 32.dp))
+            .width(72.dp)
+            .height(23.dp)
     )
 }

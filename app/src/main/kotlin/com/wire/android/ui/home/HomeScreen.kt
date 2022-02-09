@@ -37,7 +37,8 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         drawerTonalElevation = 0.dp,
         drawerShape = RectangleShape,
         drawerState = drawerState,
-        drawerContent = drawerContent
+        drawerContent = drawerContent,
+        gesturesEnabled = currentItem.isSwipeable
     ) {
         Scaffold(
             topBar = topBar,

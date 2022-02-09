@@ -19,6 +19,7 @@
     <string name="content_description_conversation_video_icon">Conversation video icon</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_conversation_search_icon">Conversation search icon</string>
+    <string name="content_description_new_conversation">Start a new conversation</string>
 
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>

@@ -2,6 +2,7 @@ package com.wire.android.ui.authentication.welcome
 
 import android.content.res.TypedArray
 import androidx.annotation.ArrayRes
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -40,6 +41,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import com.wire.android.ui.authentication.AuthDestination
@@ -103,41 +105,27 @@ private fun WelcomeContent(navController: NavController) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun WelcomeCarousel() {
     val delay = integerResource(id = R.integer.welcome_carousel_item_time_ms)
     val icons: List<Int> = typedArrayResource(id = R.array.welcome_carousel_icons).drawableResIdList()
     val texts: List<String> = stringArrayResource(id = R.array.welcome_carousel_texts).toList()
-    val items: List<Pair<Int, String>> = icons zip texts
-    val circularItemsList = listOf<Pair<Int, String>>().plus(items.last()).plus(items).plus(items.first())
-    val initialPage = 1
-    val pageState = rememberPagerState(initialPage = initialPage)
+    val items: List<CarouselPageData> = icons.zip(texts) { icon, text -> CarouselPageData(icon, text) }
 
-    LaunchedEffect(pageState) {
-        snapshotFlow { pageState.currentPage }
-            .distinctUntilChanged()
-            .scan(initialPage to initialPage) { (_, previousPage), currentPage -> previousPage to currentPage }
-            .flatMapLatest { (previousPage, currentPage) ->
-                when {
-                    shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) ->
-                        flow { emit(initialPage to false) }
-                    shouldJumpToEnd(previousPage, currentPage, circularItemsList.lastIndex) ->
-                        flow { emit(circularItemsList.lastIndex - 1 to false) }
-                    else ->
-                        flow { emit(pageState.currentPage + 1 to true) }
-                            .onEach { delay(delay.toLong()) }
-                }
-            }
-            .collect { (scrollToPage, animate) ->
-                if (animate) pageState.animateScrollToPage(scrollToPage)
-                else pageState.scrollToPage(scrollToPage)
-            }
+    // adding repeated elements on both edges to have list like: [E A B C D E A] and because of that we can flip to the other side of the
+    // list when we reach the end while keeping swipe capability both ways and from the user side it looks like an infinite loop both ways
+    val circularItemsList = listOf<CarouselPageData>().plus(items.last()).plus(items).plus(items.first())
+    val initialPage = 1
+    val pagerState = rememberPagerState(initialPage = initialPage)
+
+    LaunchedEffect(pagerState) {
+        autoScrollCarousel(pagerState, initialPage, circularItemsList, delay.toLong())
     }
 
     CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
         HorizontalPager(
-            state = pageState,
+            state = pagerState,
             count = circularItemsList.size,
             modifier = Modifier.fillMaxWidth()
         ) { page ->
@@ -146,6 +134,31 @@ private fun WelcomeCarousel() {
         }
     }
 }
+
+@OptIn(ExperimentalPagerApi::class, ExperimentalCoroutinesApi::class)
+private suspend fun autoScrollCarousel(
+    pageState: PagerState,
+    initialPage: Int,
+    circularItemsList: List<CarouselPageData>,
+    delay: Long
+) = snapshotFlow { pageState.currentPage }
+    .distinctUntilChanged()
+    .scan(initialPage to initialPage) { (_, previousPage), currentPage -> previousPage to currentPage }
+    .flatMapLatest { (previousPage, currentPage) ->
+        when {
+            shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) ->
+                flow { emit(CarouselScrollData(scrollToPage = initialPage, animate = false)) }
+            shouldJumpToEnd(previousPage, currentPage, circularItemsList.lastIndex) ->
+                flow { emit(CarouselScrollData(scrollToPage = circularItemsList.lastIndex - 1, animate = false)) }
+            else ->
+                flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }
+                    .onEach { delay(delay) }
+        }
+    }
+    .collect { (scrollToPage, animate) ->
+        if (animate) pageState.animateScrollToPage(scrollToPage)
+        else pageState.scrollToPage(scrollToPage)
+    }
 
 @Composable
 private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
@@ -227,9 +240,13 @@ private fun typedArrayResource(@ArrayRes id: Int): TypedArray = LocalContext.cur
 
 private fun TypedArray.drawableResIdList(): List<Int> = (0 until this.length()).map { this.getResourceId(it, 0) }
 
+// having list [E A B C D E A], when moving forward we reach the last one - second "A", we want to flip to the first "A"
+// to keep swipe capability both ways and the feeling of an endless loop
 private fun shouldJumpToStart(previousPage: Int, currentPage: Int, lastPage: Int, initialPage: Int): Boolean =
     currentPage == lastPage && previousPage < currentPage && previousPage >= initialPage
 
+// having list [E A B C D E A], when moving backward we reach the first one - first "E", we want to flip to the second "E"
+// to keep swipe capability both ways and the feeling of an endless loop
 private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int): Boolean =
     currentPage == 0 && previousPage > currentPage && previousPage < lastPage
 
@@ -240,3 +257,7 @@ private fun WelcomeScreenPreview() {
         WelcomeContent(rememberNavController())
     }
 }
+
+private data class CarouselScrollData(val scrollToPage: Int, val animate: Boolean)
+private data class CarouselPageData(@DrawableRes val icon: Int, val text: String)
+

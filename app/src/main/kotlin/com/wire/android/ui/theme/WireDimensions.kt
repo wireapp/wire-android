@@ -24,6 +24,8 @@ data class WireDimensions(
     val homeDrawerLogoVerticalPadding: Dp,
     val homeDrawerLogoWidth: Dp,
     val homeDrawerLogoHeight: Dp,
+    // FAB
+    val fabIconSize: Dp,
     // BottomNavigation
     val bottomNavigationHorizontalPadding: Dp,
     val bottomNavigationVerticalPadding: Dp,
@@ -32,6 +34,11 @@ data class WireDimensions(
     // Conversation
     val conversationItemRowHeight: Dp,
     val conversationItemPadding: Dp,
+    // Conversation BottomSheet
+    val conversationBottomSheetItemHeight: Dp,
+    val conversationBottomSheetItemPadding: Dp,
+    val conversationBottomSheetShapeCorner: Dp,
+    val conversationBottomSheetItemSize: Dp,
     // Message
     val messageImagePortraitModeWidth: Dp,
     // TextFields
@@ -53,7 +60,15 @@ data class WireDimensions(
     val userProfileLogoutBtnHeight: Dp,
     val userProfileStatusBtnHeight: Dp,
     val userProfileOtherAccItemHeight: Dp,
+    // Welcome
+    val welcomeImageHorizontalPadding: Dp,
+    val welcomeTextHorizontalPadding: Dp,
+    val welcomeButtonHorizontalPadding: Dp,
+    val welcomeButtonVerticalPadding: Dp,
+    val welcomeVerticalPadding: Dp,
+    val welcomeVerticalSpacing: Dp,
     // Spacing
+    val spacing2x: Dp,
     val spacing4x: Dp,
     val spacing8x: Dp,
     val spacing16x: Dp,
@@ -90,12 +105,17 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     homeDrawerLogoVerticalPadding = 32.dp,
     homeDrawerLogoWidth = 80.dp,
     homeDrawerLogoHeight = 24.dp,
+    fabIconSize = 16.dp,
     bottomNavigationHorizontalPadding = 8.dp,
     bottomNavigationVerticalPadding = 4.dp,
     bottomNavigationBetweenItemsPadding = 12.dp,
     bottomNavigationItemPadding = 6.dp,
     conversationItemRowHeight = 56.dp,
     conversationItemPadding = 0.5.dp,
+    conversationBottomSheetItemHeight = 48.dp,
+    conversationBottomSheetItemPadding = 16.dp,
+    conversationBottomSheetShapeCorner = 12.dp,
+    conversationBottomSheetItemSize = 16.dp,
     messageImagePortraitModeWidth = 200.dp,
     textFieldMinHeight = 48.dp,
     textFieldCornerSize = 16.dp,
@@ -112,6 +132,13 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     userProfileLogoutBtnHeight = 32.dp,
     userProfileStatusBtnHeight = 32.dp,
     userProfileOtherAccItemHeight = 56.dp,
+    welcomeImageHorizontalPadding = 64.dp,
+    welcomeTextHorizontalPadding = 24.dp,
+    welcomeButtonHorizontalPadding = 16.dp,
+    welcomeButtonVerticalPadding = 8.dp,
+    welcomeVerticalPadding = 56.dp,
+    welcomeVerticalSpacing = 40.dp,
+    spacing2x = 2.dp,
     spacing4x = 4.dp,
     spacing8x = 8.dp,
     spacing16x = 16.dp,

@@ -80,7 +80,6 @@ fun ConversationScreenTopAppBar(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_video_icon),
                         contentDescription = stringResource(R.string.content_description_conversation_video_icon),
-                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 },
                 fillMaxWidth = false,

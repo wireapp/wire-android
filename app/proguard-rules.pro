@@ -21,16 +21,19 @@
 #-renamesourcefileattribute SourceFile
 
 # For E2EE
--keep class com.wire.cryptobox.** { *; }
+#-keep class com.wire.cryptobox.** { *; }
 
 -keepclasseswithmembernames,includedescriptorclasses class * {
     native <methods>;
 }
 
-# Gson
--keepclassmembers,allowobfuscation class * {
-    @com.google.gson.annotations.SerializedName <fields>;
-}
 
 # protobuf
--keep class * extends com.google.protobuf.GeneratedMessageLite { *; }
+#-keep class * extends com.google.protobuf.GeneratedMessageLite { *; }
+
+
+# @Serializable and @Polymorphic are used at runtime for polymorphic serialization.
+#-keepattributes RuntimeVisibleAnnotations,AnnotationDefault
+#-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
+
+

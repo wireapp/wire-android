@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeDrawer(
@@ -122,6 +124,7 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
 
 data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int?)
 
+@OptIn(ExperimentalMaterialApi::class)
 @ExperimentalMaterial3Api
 private fun Any.getDrawerData(): DrawerItemData =
     when (this) {

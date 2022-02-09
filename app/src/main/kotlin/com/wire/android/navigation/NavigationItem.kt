@@ -24,7 +24,7 @@ sealed class NavigationItem(
     open val route: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (NavBackStackEntry) -> Unit
-    //TODO add animations here
+    // TODO add animations here
 ) {
 
 //    object Splash  //TODO
@@ -90,3 +90,5 @@ sealed class NavigationItem(
         fun fromRoute(route: String?): NavigationItem? = map[route]
     }
 }
+
+fun NavigationItem.isExternalRoute() = this.route.startsWith("http")

@@ -30,6 +30,7 @@ import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.isExternalRoute
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
@@ -74,29 +75,22 @@ fun HomeDrawer(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val settingsItem = NavigationItem.Settings
-        DrawerItem(
-            data = settingsItem.getDrawerData(),
-            selected = currentRoute == settingsItem.route,
-            onItemClick = {
-                scope.launch {
-                    viewModel.navigateTo(settingsItem)
-                    drawerState.close()
+        val bottomItems = listOf(NavigationItem.Settings, NavigationItem.Support)
+        bottomItems.forEach { item ->
+            DrawerItem(
+                data = item.getDrawerData(),
+                selected = currentRoute == item.route,
+                onItemClick = {
+                    scope.launch {
+                        when (item.isExternalRoute()) {
+                            true -> CustomTabsHelper.launchUrl(homeNavController.context, item.route)
+                            false -> viewModel.navigateTo(item)
+                        }
+                        drawerState.close()
+                    }
                 }
-            }
-        )
-
-        val supportItem = NavigationItem.Support
-        DrawerItem(
-            data = supportItem.getDrawerData(),
-            selected = currentRoute == supportItem.route,
-            onItemClick = {
-                scope.launch {
-                    CustomTabsHelper.launchUrl(homeNavController.context, supportItem.route)
-                    drawerState.close()
-                }
-            }
-        )
+            )
+        }
 
         Text(
             text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),

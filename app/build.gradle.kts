@@ -95,6 +95,7 @@ dependencies {
 
     //Compose
     implementation(Libraries.composeUi)
+    implementation(Libraries.composeMaterial3)
     implementation(Libraries.composeMaterial)
     implementation(Libraries.composeTooling)
     implementation(Libraries.composeIcons)
@@ -111,7 +112,6 @@ dependencies {
 
     // TODO: remove or move to Libraries
     implementation("androidx.appcompat:appcompat:1.4.0")
-    implementation("com.google.android.material:material:1.4.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.2")
 
     // Unit/Android tests dependencies

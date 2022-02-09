@@ -6,18 +6,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
+import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
 
 @Composable
 fun CallScreen(
     missedCalls: List<ConversationMissedCall> = emptyList(),
     callHistory: List<ConversationMissedCall> = emptyList(),
-    onCallItemClick: (String) -> Unit
+    onCallItemClick: (String) -> Unit,
+    onEditConversationItem: (ConversationType) -> Unit
 ) {
     CallContent(
         missedCalls = missedCalls,
         callHistory = callHistory,
-        onCallItemClick = onCallItemClick
+        onCallItemClick = onCallItemClick,
+        onEditConversationItem = onEditConversationItem
     )
 }
 
@@ -26,7 +29,8 @@ fun CallScreen(
 fun CallContent(
     missedCalls: List<ConversationMissedCall>,
     callHistory: List<ConversationMissedCall>,
-    onCallItemClick: (String) -> Unit
+    onCallItemClick: (String) -> Unit,
+    onEditConversationItem: (ConversationType) -> Unit
 ) {
     LazyColumn {
         folderWithElements(
@@ -36,7 +40,8 @@ fun CallContent(
             CallConversationItem(
                 conversationMissedCall = missedCall,
                 eventType = EventType.MissedCall,
-                onCallItemClick = { onCallItemClick("someId") }
+                onCallItemClick = { onCallItemClick("someId") },
+                onCallItemLongClick = { onEditConversationItem(missedCall.conversationType) }
             )
         }
 
@@ -46,7 +51,8 @@ fun CallContent(
         ) { callHistory ->
             CallConversationItem(
                 conversationMissedCall = callHistory,
-                onCallItemClick = { onCallItemClick("someId") }
+                onCallItemClick = { onCallItemClick("someId") },
+                onCallItemLongClick = { onEditConversationItem(callHistory.conversationType) }
             )
         }
     }

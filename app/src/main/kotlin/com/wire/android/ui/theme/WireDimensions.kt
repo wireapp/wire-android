@@ -27,6 +27,11 @@ data class WireDimensions(
     // Conversation
     val conversationItemRowHeight: Dp,
     val conversationItemPadding: Dp,
+    // Conversation BottomSheet
+    val conversationBottomSheetItemHeight: Dp,
+    val conversationBottomSheetItemPadding: Dp,
+    val conversationBottomSheetShapeCorner: Dp,
+    val conversationBottomSheetItemSize : Dp,
     // Message
     val messageImagePortraitModeWidth: Dp,
     // TextFields
@@ -94,6 +99,10 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     bottomNavigationItemPadding = 6.dp,
     conversationItemRowHeight = 56.dp,
     conversationItemPadding = 0.5.dp,
+    conversationBottomSheetItemHeight = 48.dp,
+    conversationBottomSheetItemPadding = 16.dp,
+    conversationBottomSheetShapeCorner = 12.dp,
+    conversationBottomSheetItemSize = 16.dp,
     messageImagePortraitModeWidth = 200.dp,
     textFieldMinHeight = 48.dp,
     textFieldCornerSize = 16.dp,

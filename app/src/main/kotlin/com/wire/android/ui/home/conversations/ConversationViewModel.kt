@@ -18,13 +18,13 @@ class ConversationViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager
 ) : ViewModel() {
-    private val _state = MutableStateFlow(ConversationState())
+    private val _state = MutableStateFlow(ConversationViewState())
 
-    val conversationState: StateFlow<ConversationState>
+    val conversationViewState: StateFlow<ConversationViewState>
         get() = _state
 
     init {
-        _state.value = ConversationState(
+        _state.value = ConversationViewState(
             conversationName = "Some test conversation",
             messages = mockMessages
         )

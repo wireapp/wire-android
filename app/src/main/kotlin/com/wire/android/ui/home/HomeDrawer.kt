@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -25,17 +26,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeDrawer(
@@ -49,16 +52,14 @@ fun HomeDrawer(
 
     Column(
         modifier = Modifier
-            .padding(top = 40.dp, start = 8.dp, end = 8.dp, bottom = 16.dp)
+            .padding(
+                start = MaterialTheme.wireDimensions.homeDrawerHorizontalPadding,
+                end = MaterialTheme.wireDimensions.homeDrawerHorizontalPadding,
+                bottom = MaterialTheme.wireDimensions.homeDrawerBottomPadding
+            )
 
     ) {
         Logo()
-
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(16.dp)
-        )
 
         topItems.forEach { item ->
             DrawerItem(
@@ -112,11 +113,12 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
+            .padding(bottom = 8.dp)
             .clip(RoundedCornerShape(12.dp))
             .fillMaxWidth()
             .height(40.dp)
             .background(backgroundColor)
-            .selectableBackground(selected) { onItemClick() }
+            .selectableBackground(selected) { onItemClick() },
     ) {
         Image(
             painter = painterResource(id = data.icon!!),
@@ -126,8 +128,8 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
             modifier = Modifier.padding(start = 16.dp, end = 16.dp)
         )
         Text(
+            style = MaterialTheme.wireTypography.button02,
             text = stringResource(id = data.title!!),
-            fontSize = 14.sp,
             color = contentColor,
             modifier = Modifier
                 .align(Alignment.CenterVertically)
@@ -137,6 +139,7 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
 
 data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int?)
 
+@OptIn(ExperimentalMaterialApi::class)
 @ExperimentalMaterial3Api
 private fun Any.getDrawerData(): DrawerItemData =
     when (this) {

@@ -1,7 +1,6 @@
 package com.wire.android.ui.authentication.login
 
 import android.content.Context
-import androidx.annotation.ColorInt
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -23,7 +23,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -56,6 +55,7 @@ import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 @Composable
 fun LoginScreen(
     navController: NavController,
@@ -184,7 +184,6 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
 private fun ForgotPasswordLabel(modifier: Modifier) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
-        val backgroundColor = MaterialTheme.colorScheme.background
         Text(
             text = stringResource(R.string.login_forgot_password),
             style = MaterialTheme.wireTypography.body02.copy(
@@ -198,14 +197,14 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
                     indication = null,
                     onClick = {
                         // TODO: refactor this to open the browser
-                        openForgotPasswordPage(context, backgroundColor.toArgb())
+                        openForgotPasswordPage(context)
                     }
                 )
         )
     }
 }
 
-private fun openForgotPasswordPage(context: Context, @ColorInt color: Int) {
+private fun openForgotPasswordPage(context: Context) {
     // TODO: get the link from the serverConfig
     val url = "${BuildConfig.ACCOUNTS_URL}/forgot"
 

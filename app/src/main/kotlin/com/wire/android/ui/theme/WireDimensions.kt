@@ -17,6 +17,13 @@ data class WireDimensions(
     val userAvatarStatusBorderSize: Dp,
     val groupAvatarCornerRadius: Dp,
     val groupAvatarSize: Dp,
+    // Drawer Navigation
+    val homeDrawerHorizontalPadding: Dp,
+    val homeDrawerBottomPadding: Dp,
+    val homeDrawerLogoHorizontalPadding: Dp,
+    val homeDrawerLogoVerticalPadding: Dp,
+    val homeDrawerLogoWidth: Dp,
+    val homeDrawerLogoHeight: Dp,
     // FAB
     val fabIconSize: Dp,
     // BottomNavigation
@@ -27,6 +34,11 @@ data class WireDimensions(
     // Conversation
     val conversationItemRowHeight: Dp,
     val conversationItemPadding: Dp,
+    // Conversation BottomSheet
+    val conversationBottomSheetItemHeight: Dp,
+    val conversationBottomSheetItemPadding: Dp,
+    val conversationBottomSheetShapeCorner: Dp,
+    val conversationBottomSheetItemSize: Dp,
     // Message
     val messageImagePortraitModeWidth: Dp,
     // TextFields
@@ -87,6 +99,12 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     userAvatarBusyHorizontalPadding = 3.dp,
     groupAvatarCornerRadius = 10.dp,
     groupAvatarSize = 32.dp,
+    homeDrawerHorizontalPadding = 8.dp,
+    homeDrawerBottomPadding = 16.dp,
+    homeDrawerLogoHorizontalPadding = 8.dp,
+    homeDrawerLogoVerticalPadding = 32.dp,
+    homeDrawerLogoWidth = 80.dp,
+    homeDrawerLogoHeight = 24.dp,
     fabIconSize = 16.dp,
     bottomNavigationHorizontalPadding = 8.dp,
     bottomNavigationVerticalPadding = 4.dp,
@@ -94,6 +112,10 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     bottomNavigationItemPadding = 6.dp,
     conversationItemRowHeight = 56.dp,
     conversationItemPadding = 0.5.dp,
+    conversationBottomSheetItemHeight = 48.dp,
+    conversationBottomSheetItemPadding = 16.dp,
+    conversationBottomSheetShapeCorner = 12.dp,
+    conversationBottomSheetItemSize = 16.dp,
     messageImagePortraitModeWidth = 200.dp,
     textFieldMinHeight = 48.dp,
     textFieldCornerSize = 16.dp,

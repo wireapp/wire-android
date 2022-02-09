@@ -15,7 +15,8 @@ import com.wire.android.ui.main.conversationlist.common.UserLabel
 fun GeneralConversationItem(
     generalConversation: GeneralConversation,
     eventType: EventType? = null,
-    onConversationItemClick: () -> Unit
+    onConversationItemClick: () -> Unit,
+    onConversationItemLongClick: () -> Unit
 ) {
     when (val conversationType = generalConversation.conversationType) {
         is ConversationType.GroupConversation -> {
@@ -26,7 +27,8 @@ fun GeneralConversationItem(
                     },
                     title = { GroupName(name = groupName) },
                     eventType = eventType,
-                    onConversationItemClick = onConversationItemClick
+                    onConversationItemClick = onConversationItemClick,
+                    onConversationItemLongClick = onConversationItemLongClick
                 )
             }
         }
@@ -37,7 +39,8 @@ fun GeneralConversationItem(
                 },
                 title = { UserLabel(userInfoLabel = conversationType.toUserInfoLabel()) },
                 eventType = eventType,
-                onConversationItemClick = onConversationItemClick
+                onConversationItemClick = onConversationItemClick,
+                onConversationItemLongClick = onConversationItemLongClick
             )
         }
     }

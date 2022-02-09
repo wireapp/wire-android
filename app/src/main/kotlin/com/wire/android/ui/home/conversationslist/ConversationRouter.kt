@@ -1,9 +1,8 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -15,7 +14,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -49,8 +47,7 @@ fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hi
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
                         modifier = Modifier
                             .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
-                            .width(16.dp)
-                            .height(16.dp)
+                            .size(dimensions().fabIconSize)
                     )
                 },
                 onClick = {}

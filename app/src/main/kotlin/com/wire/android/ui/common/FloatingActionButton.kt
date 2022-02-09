@@ -14,13 +14,13 @@ import com.wire.android.ui.theme.wireTypography
 fun FloatingActionButton(
     text: String,
     modifier: Modifier = Modifier,
-    icon: @Composable (() -> Unit)? = null,
+    icon: @Composable (() -> Unit) = { Icon(Icons.Filled.Add, "") },
     onClick: () -> Unit
 ) {
     ExtendedFloatingActionButton(
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
-        icon = icon ?: { Icon(Icons.Filled.Add, "") },
+        icon = icon,
         text = {
             Text(
                 text = text,

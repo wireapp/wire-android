@@ -17,6 +17,8 @@ data class WireDimensions(
     val userAvatarStatusBorderSize: Dp,
     val groupAvatarCornerRadius: Dp,
     val groupAvatarSize: Dp,
+    // FAB
+    val fabIconSize: Dp,
     // BottomNavigation
     val bottomNavigationHorizontalPadding: Dp,
     val bottomNavigationVerticalPadding: Dp,
@@ -78,6 +80,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     userAvatarBusyHorizontalPadding = 3.dp,
     groupAvatarCornerRadius = 10.dp,
     groupAvatarSize = 32.dp,
+    fabIconSize = 16.dp,
     bottomNavigationHorizontalPadding = 8.dp,
     bottomNavigationVerticalPadding = 4.dp,
     bottomNavigationBetweenItemsPadding = 12.dp,

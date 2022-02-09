@@ -3,22 +3,18 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateColor
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring.StiffnessLow
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,7 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
@@ -49,7 +44,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.OnDropDownIconButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -114,10 +108,13 @@ private fun MessageComposer(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class, androidx.compose.animation.core.ExperimentalTransitionApi::class)
+@OptIn(
+    ExperimentalAnimationApi::class, androidx.compose.animation.core.ExperimentalTransitionApi::class,
+    ExperimentalAnimationApi::class
+)
 @Composable
-fun MessageComposerContent(messageComposerState: MessageComposerState) {
-    val transition = updateTransition(messageComposerState.messageComposeInputState, label = "")
+private fun MessageComposerContent(messageComposerState: MessageComposerState) {
+    val transition = updateTransition(messageComposerState.messageComposeInputState, label = "MessageComposeInputState transition")
 
     Box(
         modifier = Modifier
@@ -133,9 +130,9 @@ fun MessageComposerContent(messageComposerState: MessageComposerState) {
                         .fillMaxWidth()
                         .wrapContentHeight()
                 ) {
-                    val onDropDownButtonRotationDegree by transition.animateFloat(label = "", transitionSpec = {
-                        spring(stiffness = StiffnessLow)
-                    }) { state ->
+                    val collapseButtonRotationDegree by transition.animateFloat(
+                        label = "Collapse button rotation degree transition"
+                    ) { state ->
                         when (state) {
                             MessageComposeInputState.Active -> 180f
                             MessageComposeInputState.Enabled -> 180f
@@ -143,38 +140,59 @@ fun MessageComposerContent(messageComposerState: MessageComposerState) {
                         }
                     }
 
-                    OnDropDownIconButton(
-                        onDropDownClick = { messageComposerState.toggleFullScreen() },
-                        modifier = Modifier.rotate(degrees = onDropDownButtonRotationDegree)
+                    CollapseIconButton(
+                        onCollapseClick = { messageComposerState.toggleFullScreen() },
+                        modifier = Modifier.rotate(degrees = collapseButtonRotationDegree)
                     )
                 }
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }) {
-                    AddButton()
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .then(
+                            if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                                Modifier.weight(1f) else Modifier
+                        )
+
+                ) {
+                    transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }) {
+                        AdditionalOptionButton()
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    MessageComposerInput(
+                        messageText = messageComposerState.messageText,
+                        onMessageTextChanged = { messageComposerState.messageText = it },
+                        messageComposerInputState = messageComposerState.messageComposeInputState
+                    ) { messageComposerState.toActive() }
+                    transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled }) {
+                        SendButton(messageComposerState.sendButtonEnabled)
+                    }
                 }
-                Spacer(Modifier.width(8.dp))
-                MessageComposerInput(
-                    messageText = messageComposerState.messageText,
-                    onMessageTextChanged = { messageComposerState.messageText = it },
-                    messageComposerInputState = messageComposerState.messageComposeInputState,
-                    onFocusChanged = { messageComposerState.toActive() })
-                transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled }) {
-                    SendButton(messageComposerState.sendButtonEnabled)
-                }
+                Divider()
+                MessageComposeActions()
             }
-            Divider()
         }
     }
 }
 
 @Composable
-fun RowScope.MessageComposerInput(
+private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier = Modifier) {
+    IconButton(
+        onClick = onCollapseClick
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_collapse),
+            contentDescription = stringResource(R.string.content_description_drop_down_icon),
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+private fun MessageComposerInput(
     messageText: TextFieldValue,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,
@@ -186,7 +204,6 @@ fun RowScope.MessageComposerInput(
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         textStyle = MaterialTheme.wireTypography.body01,
         modifier = Modifier
-            .weight(1f)
             .fillMaxWidth()
             .then(
                 when (messageComposerInputState) {
@@ -205,7 +222,50 @@ fun RowScope.MessageComposerInput(
 }
 
 @Composable
-fun AddButton() {
+private fun SendButton(isEnabled: Boolean) {
+    IconButton(
+        onClick = { }
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(
+                    animateColorAsState(
+                        when {
+                            isEnabled -> MaterialTheme.colorScheme.primary
+                            else -> MaterialTheme.wireColorScheme.onSecondaryButtonDisabled
+                        }
+                    ).value
+                )
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_send),
+                contentDescription = stringResource(R.string.content_description_back_button),
+                tint = MaterialTheme.wireColorScheme.surface
+            )
+        }
+    }
+}
+
+@Composable
+private fun MessageComposeActions() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        AdditionalOptionButton()
+        RichTextEditingAction()
+        AddEmojiAction()
+        AddGifAction()
+        AddMentionAction()
+    }
+}
+
+@Composable
+private fun AdditionalOptionButton() {
     WireSecondaryButton(
         onClick = { },
         leadingIcon = {
@@ -217,36 +277,69 @@ fun AddButton() {
         fillMaxWidth = false,
         minHeight = 32.dp,
         minWidth = 40.dp,
-        shape = RoundedCornerShape(size = 12.dp),
-        contentPadding = PaddingValues(0.dp)
     )
 }
 
 @Composable
-fun SendButton(isEnabled: Boolean) {
-    val transition = updateTransition(isEnabled, label = "")
-
-    val backgroundColor by transition.animateColor(label = "", transitionSpec = {
-        tween(durationMillis = 500)
-    }) {
-        if (it) MaterialTheme.colorScheme.primary else MaterialTheme.wireColorScheme.onSecondaryButtonDisabled
-    }
-
-    IconButton(
-        onClick = { }
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(backgroundColor)
-        ) {
+private fun RichTextEditingAction() {
+    WireSecondaryButton(
+        onClick = { },
+        leadingIcon = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_send),
-                contentDescription = stringResource(R.string.content_description_back_button),
-                tint = MaterialTheme.wireColorScheme.surface
+                painter = painterResource(id = R.drawable.ic_rich_text),
+                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
             )
-        }
-    }
+        },
+        fillMaxWidth = false,
+        minHeight = 32.dp,
+        minWidth = 40.dp
+    )
+}
+
+@Composable
+private fun AddEmojiAction() {
+    WireSecondaryButton(
+        onClick = { },
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_emoticon),
+                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+            )
+        },
+        fillMaxWidth = false,
+        minHeight = 32.dp,
+        minWidth = 40.dp
+    )
+}
+
+@Composable
+private fun AddGifAction() {
+    WireSecondaryButton(
+        onClick = { },
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_gif),
+                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+            )
+        },
+        fillMaxWidth = false,
+        minHeight = 32.dp,
+        minWidth = 40.dp,
+    )
+}
+
+@Composable
+private fun AddMentionAction() {
+    WireSecondaryButton(
+        onClick = { },
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_mention),
+                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+            )
+        },
+        fillMaxWidth = false,
+        minHeight = 32.dp,
+        minWidth = 40.dp,
+    )
 }

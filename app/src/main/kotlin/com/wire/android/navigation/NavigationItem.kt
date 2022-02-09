@@ -7,6 +7,7 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.wire.android.BuildConfig
 import com.wire.android.ui.authentication.AuthScreen
 import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
@@ -45,7 +46,7 @@ sealed class NavigationItem(
     )
 
     object Support : NavigationItem(
-        route = "https://support.wire.com",
+        route = BuildConfig.SUPPORT_URL,
         content = { },
     )
 

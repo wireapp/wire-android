@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
@@ -42,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -127,7 +125,6 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
 
     Column(modifier = Modifier.animateContentSize()) {
         Divider()
-        // Collapsed button
         transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
             Box(
                 contentAlignment = Alignment.Center,
@@ -151,11 +148,11 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
             }
         }
         Row(
+            verticalAlignment = if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen) Alignment.Top else Alignment.CenterVertically,
             modifier = Modifier
-                .fillMaxWidth()
                 .then(
                     when (messageComposerState.messageComposeInputState) {
-                        MessageComposeInputState.FullScreen -> Modifier.fillMaxHeight()
+                        MessageComposeInputState.FullScreen -> Modifier.weight(1f)
                         MessageComposeInputState.Active -> {
                             Modifier.heightIn(
                                 max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
@@ -164,51 +161,34 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
                         else -> Modifier
                     }
                 )
-
         ) {
-            Row(
-                modifier = Modifier
-                    .background(Color.Red),
-                verticalAlignment =
-                if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-                    Alignment.Top
-                else
-                    Alignment.CenterVertically,
+            transition.AnimatedVisibility(
+                visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
             ) {
-                transition.AnimatedVisibility(
-                    visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
-                ) {
-                    AdditionalOptionButton()
-                }
-                Spacer(Modifier.width(8.dp))
-                MessageComposerInput(
-                    messageText = messageComposerState.messageText,
-                    onMessageTextChanged = { messageComposerState.messageText = it },
-                    messageComposerInputState = messageComposerState.messageComposeInputState,
-                    onFocusChanged = { messageComposerState.toActive() },
-                    modifier = Modifier
-                        .weight(1f)
-                )
-                transition.AnimatedVisibility(
-                    visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                }
+                AdditionalOptionButton()
             }
-
-            Row(
-                verticalAlignment = Alignment.Bottom,
+            Spacer(Modifier.width(8.dp))
+            MessageComposerInput(
+                messageText = messageComposerState.messageText,
+                onMessageTextChanged = { messageComposerState.messageText = it },
+                messageComposerInputState = messageComposerState.messageComposeInputState,
+                onFocusChanged = { messageComposerState.toActive() },
                 modifier = Modifier
-                    .background(Color.Green)
-                    .then(
-                        Modifier
-                    )
-            ) {
-                if (messageComposerState.sendButtonEnabled) {
-                    ScheduleMessageButton()
+                    .weight(1f)
+            )
+            Box(modifier = Modifier.align(Alignment.Bottom)) {
+                Row {
+                    if (messageComposerState.sendButtonEnabled) {
+                        ScheduleMessageButton()
+                    }
+                    transition.AnimatedVisibility(
+                        visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        SendButton(messageComposerState.sendButtonEnabled)
+                    }
                 }
-                SendButton(messageComposerState.sendButtonEnabled)
             }
         }
         Divider()

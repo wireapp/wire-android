@@ -22,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -47,7 +46,6 @@ fun HomeDrawer(
     scope: CoroutineScope,
     viewModel: HomeViewModel
 ) {
-    val bottomItems = listOf(NavigationItem.Settings)
 
     Column(
         modifier = Modifier
@@ -75,18 +73,18 @@ fun HomeDrawer(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        bottomItems.forEach { item ->
-            DrawerItem(data = item.getDrawerData(),
-                selected = currentRoute == item.route,
-                onItemClick = {
-                    scope.launch {
-                        viewModel.navigateTo(item)
-                        drawerState.close()
-                    }
-                })
-        }
+        val settingsItem = NavigationItem.Settings
+        DrawerItem(
+            data = settingsItem.getDrawerData(),
+            selected = currentRoute == settingsItem.route,
+            onItemClick = {
+                scope.launch {
+                    viewModel.navigateTo(settingsItem)
+                    drawerState.close()
+                }
+            }
+        )
 
-        // TODO: improve, how to wrap and reuse above code, maybe add parameter to NavItem(internal/external)
         val supportItem = NavigationItem.Support
         DrawerItem(
             data = supportItem.getDrawerData(),

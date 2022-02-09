@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -30,11 +29,9 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
-import androidx.compose.material.TextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -48,7 +45,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.google.android.material.textfield.TextInputLayout
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.theme.wireColorScheme
@@ -70,13 +66,17 @@ fun rememberMessageComposerState(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MessageComposer(
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
+    onMessageChanged: (String) -> Unit,
+    onSendButtonClicked: () -> Unit
 ) {
     val state = rememberMessageComposerState()
 
     MessageComposer(
         content = content,
-        state = state
+        messageComposerState = state,
+        onMessageChanged = onMessageChanged,
+        onSendButtonClicked = onSendButtonClicked
     )
 }
 
@@ -84,11 +84,13 @@ fun MessageComposer(
 @Composable
 private fun MessageComposer(
     content: @Composable () -> Unit,
-    state: MessageComposerState
+    messageComposerState: MessageComposerState,
+    onMessageChanged: (String) -> Unit,
+    onSendButtonClicked: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
-    if (state.messageComposeInputState == MessageComposeInputState.Enabled) {
+    if (messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled) {
         focusManager.clearFocus()
     }
 
@@ -105,22 +107,30 @@ private fun MessageComposer(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         ) {
-                            state.toEnabled()
+                            messageComposerState.toEnabled()
                         }) {
                     content()
                 }
-                MessageComposerContent(state)
+                MessageComposerContent(
+                    messageComposerState = messageComposerState,
+                    onMessageChanged = onMessageChanged,
+                    onSendButtonClicked = onSendButtonClicked
+                )
             }
         }
     }
 }
 
 @OptIn(
-    ExperimentalAnimationApi::class, androidx.compose.animation.core.ExperimentalTransitionApi::class,
+    ExperimentalAnimationApi::class,
     ExperimentalAnimationApi::class
 )
 @Composable
-private fun MessageComposerContent(messageComposerState: MessageComposerState) {
+private fun MessageComposerContent(
+    messageComposerState: MessageComposerState,
+    onMessageChanged: (String) -> Unit,
+    onSendButtonClicked: () -> Unit
+) {
     val transition = updateTransition(
         messageComposerState.messageComposeInputState,
         label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
@@ -174,7 +184,10 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
             Spacer(Modifier.width(8.dp))
             MessageComposerInput(
                 messageText = messageComposerState.messageText,
-                onMessageTextChanged = { messageComposerState.messageText = it },
+                onMessageTextChanged = { value ->
+                    messageComposerState.messageText = value
+                    onMessageChanged(value.text)
+                },
                 messageComposerInputState = messageComposerState.messageComposeInputState,
                 onFocusChanged = { messageComposerState.toActive() },
                 modifier = Modifier
@@ -191,7 +204,10 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
-                        SendButton(messageComposerState.sendButtonEnabled)
+                        SendButton(
+                            isEnabled = messageComposerState.sendButtonEnabled,
+                            onSendButtonClicked = onSendButtonClicked
+                        )
                     }
                 }
             }
@@ -253,9 +269,12 @@ private fun MessageComposerInput(
 }
 
 @Composable
-private fun SendButton(isEnabled: Boolean) {
+private fun SendButton(
+    isEnabled: Boolean,
+    onSendButtonClicked: () -> Unit
+) {
     IconButton(
-        onClick = { }
+        onClick = { if (isEnabled) onSendButtonClicked() }
     ) {
         Box(
             contentAlignment = Alignment.Center,

@@ -19,34 +19,53 @@ fun ConversationScreen(
 ) {
     val uiState by conversationViewModel.conversationViewState.collectAsState()
 
-    ConversationScreen(uiState) { conversationViewModel.navigateBack() }
+    ConversationScreen(
+        conversationViewState = uiState,
+        onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },
+        onSendButtonClicked = { conversationViewModel.sendMessage() },
+        onBackButtonClick = { conversationViewModel.navigateBack() },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ConversationScreen(
     conversationViewState: ConversationViewState,
+    onMessageChanged: (String) -> Unit,
+    onSendButtonClicked: () -> Unit,
     onBackButtonClick: () -> Unit
 ) {
     with(conversationViewState) {
         Scaffold(
             topBar = { ConversationScreenTopAppBar(conversationName, onBackButtonClick, {}, {}, {}) },
             content = {
-                ConversationScreenContent(messages)
+                ConversationScreenContent(
+                    messages = messages,
+                    onMessageChanged = onMessageChanged,
+                    onSendButtonClicked = onSendButtonClicked
+                )
             }
         )
     }
 }
 
 @Composable
-private fun ConversationScreenContent(messages: List<Message>) {
-    MessageComposer(content = {
-        LazyColumn {
-            items(messages) { message ->
-                MessageItem(message = message)
+private fun ConversationScreenContent(
+    messages: List<Message>,
+    onMessageChanged: (String) -> Unit,
+    onSendButtonClicked: () -> Unit
+) {
+    MessageComposer(
+        content = {
+            LazyColumn {
+                items(messages) { message ->
+                    MessageItem(message = message)
+                }
             }
-        }
-    })
+        },
+        onMessageChanged = onMessageChanged,
+        onSendButtonClicked = onSendButtonClicked
+    )
 }
 
 @Preview
@@ -55,8 +74,7 @@ fun ConversationScreenPreview() {
     ConversationScreen(
         ConversationViewState(
             conversationName = "Some test conversation",
-            messages = mockMessages
-        )
-    ) {}
+            messages = mockMessages,
+        ), {}, {}, {})
 }
 

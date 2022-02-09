@@ -12,7 +12,6 @@ import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
-import com.wire.android.ui.support.SupportScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,7 +47,7 @@ sealed class NavigationItem(
 
     object Support : NavigationItem(
         route = "https://support.wire.com",
-        content = { SupportScreen() },
+        content = { },
     )
 
     object UserProfile : NavigationItem(

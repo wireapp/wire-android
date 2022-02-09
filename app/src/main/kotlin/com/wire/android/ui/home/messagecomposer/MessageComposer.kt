@@ -30,9 +30,11 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
+import androidx.compose.material.TextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -46,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.google.android.material.textfield.TextInputLayout
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.theme.wireColorScheme
@@ -123,7 +126,7 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
         label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
     )
 
-    Column(modifier = Modifier.animateContentSize()) {
+    Column {
         Divider()
         transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
             Box(
@@ -150,6 +153,7 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
         Row(
             verticalAlignment = if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen) Alignment.Top else Alignment.CenterVertically,
             modifier = Modifier
+                .fillMaxWidth()
                 .then(
                     when (messageComposerState.messageComposeInputState) {
                         MessageComposeInputState.FullScreen -> Modifier.weight(1f)
@@ -175,6 +179,7 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
                 onFocusChanged = { messageComposerState.toActive() },
                 modifier = Modifier
                     .weight(1f)
+                    .animateContentSize()
             )
             Box(modifier = Modifier.align(Alignment.Bottom)) {
                 Row {
@@ -227,7 +232,7 @@ private fun ScheduleMessageButton() {
 }
 
 @Composable
-private fun RowScope.MessageComposerInput(
+private fun MessageComposerInput(
     messageText: TextFieldValue,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,

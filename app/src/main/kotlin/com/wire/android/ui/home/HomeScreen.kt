@@ -2,6 +2,7 @@ package com.wire.android.ui.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 @Composable
 fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
@@ -37,7 +39,8 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         drawerTonalElevation = 0.dp,
         drawerShape = RectangleShape,
         drawerState = drawerState,
-        drawerContent = drawerContent
+        drawerContent = drawerContent,
+        gesturesEnabled = currentItem.isSwipeable
     ) {
         Scaffold(
             topBar = topBar,

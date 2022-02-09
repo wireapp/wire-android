@@ -14,23 +14,27 @@ import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 fun ConversationItemFactory(
     conversation: ConversationItem,
     eventType: EventType? = null,
-    onConversationItemClick: () -> Unit
+    onConversationItemClick: () -> Unit,
+    onConversationItemLongClick: () -> Unit,
 ) {
     when (conversation) {
         is ConversationMissedCall -> CallConversationItem(
             conversation,
             eventType,
-            onConversationItemClick
+            onConversationItemClick,
+            onConversationItemLongClick
         )
         is ConversationUnreadMention -> MentionConversationItem(
             conversation,
             eventType,
-            onConversationItemClick
+            onConversationItemClick,
+            onConversationItemLongClick
         )
         is GeneralConversation -> GeneralConversationItem(
             conversation,
             eventType,
-            onConversationItemClick
+            onConversationItemClick,
+            onConversationItemLongClick
         )
     }
 }

@@ -17,7 +17,7 @@ import com.wire.android.ui.home.conversations.model.Message
 fun ConversationScreen(
     conversationViewModel: ConversationViewModel,
 ) {
-    val uiState by conversationViewModel.conversationState.collectAsState()
+    val uiState by conversationViewModel.conversationViewState.collectAsState()
 
     ConversationScreen(uiState) { conversationViewModel.navigateBack() }
 }
@@ -25,10 +25,10 @@ fun ConversationScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ConversationScreen(
-    conversationState: ConversationState,
+    conversationViewState: ConversationViewState,
     onBackButtonClick: () -> Unit
 ) {
-    with(conversationState) {
+    with(conversationViewState) {
         Scaffold(
             topBar = { ConversationScreenTopAppBar(conversationName, onBackButtonClick, {}, {}, {}) },
             content = {
@@ -53,7 +53,7 @@ private fun ConversationScreenContent(messages: List<Message>) {
 @Composable
 fun ConversationScreenPreview() {
     ConversationScreen(
-        ConversationState(
+        ConversationViewState(
             conversationName = "Some test conversation",
             messages = mockMessages
         )

@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.login
 
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.wire.kalium.logic.configuration.ServerConfig
 
+@ExperimentalMaterialApi
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
@@ -35,10 +37,6 @@ class LoginViewModel @Inject constructor(
         private set
 
     fun login(serverConfig: ServerConfig) {
-        // TODO: remove the temporary trick to ignore login once the minify issue is solved
-        viewModelScope.launch { navigateToConvScreen() }
-        return
-        // -----
         loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
             val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)

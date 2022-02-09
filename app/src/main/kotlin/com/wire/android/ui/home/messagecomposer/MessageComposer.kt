@@ -15,11 +15,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -59,9 +59,6 @@ fun rememberMessageComposerState(
         defaultMessageText,
         defaultMessageComposeInputState
     )
-
-
-//    Modifier.padding(hori)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -138,9 +135,8 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
                         label = "Collapse button rotation degree transition"
                     ) { state ->
                         when (state) {
-                            MessageComposeInputState.Active -> 180f
-                            MessageComposeInputState.Enabled -> 180f
-                            MessageComposeInputState.FullScreen -> 0f
+                            MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
+                            MessageComposeInputState.FullScreen -> 180f
                         }
                     }
 
@@ -176,7 +172,9 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
                     }
                 }
                 Divider()
-                MessageComposeActions()
+                transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled }) {
+                    MessageComposeActions()
+                }
             }
         }
     }
@@ -196,7 +194,7 @@ private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier =
 }
 
 @Composable
-private fun MessageComposerInput(
+private fun RowScope.MessageComposerInput(
     messageText: TextFieldValue,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,
@@ -209,6 +207,7 @@ private fun MessageComposerInput(
         textStyle = MaterialTheme.wireTypography.body01,
         modifier = Modifier
             .fillMaxWidth()
+            .weight(1f)
             .then(
                 when (messageComposerInputState) {
                     MessageComposeInputState.Enabled -> Modifier.wrapContentHeight()

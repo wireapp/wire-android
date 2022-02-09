@@ -37,10 +37,6 @@ class LoginViewModel @Inject constructor(
         private set
 
     fun login(serverConfig: ServerConfig) {
-        // TODO: remove the temporary trick to ignore login once the minify issue is solved
-        viewModelScope.launch { navigateToConvScreen() }
-        return
-        // -----
         loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
             val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)

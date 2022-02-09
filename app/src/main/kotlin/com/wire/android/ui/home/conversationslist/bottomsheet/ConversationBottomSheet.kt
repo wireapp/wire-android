@@ -188,7 +188,7 @@ fun GroupHeader(title: String, groupColorValue: Long) {
 fun ItemIcon(
     @DrawableRes id: Int,
     contentDescription: String,
-    size: Dp = 16.dp,
+    size: Dp = MaterialTheme.wireDimensions.conversationBottomSheetItemSize,
     modifier: Modifier = Modifier
 ) {
     Icon(

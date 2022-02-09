@@ -2,13 +2,20 @@ package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -17,10 +24,10 @@ import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheet
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 import com.wire.android.ui.theme.wireDimensions
-
 
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
@@ -61,8 +68,8 @@ private fun ConversationRouter(
         sheetState = conversationState.modalBottomSheetState,
         //TODO: create a shape object inside the materialtheme 3 component
         sheetShape = MaterialTheme.shapes.large.copy(
-            topStart = CornerSize(androidx.compose.material3.MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner),
-            topEnd = CornerSize(androidx.compose.material3.MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner)
+            topStart = CornerSize(MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner),
+            topEnd = CornerSize(MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner)
         ),
         sheetContent = {
             ConversationSheet(
@@ -78,7 +85,23 @@ private fun ConversationRouter(
         }
     ) {
         Scaffold(
-            floatingActionButton = { FloatingActionButton(stringResource(R.string.label_new), {}) },
+            floatingActionButton = {
+            FloatingActionButton(
+                text = stringResource(R.string.label_new),
+                icon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_conversation),
+                        contentDescription = stringResource(R.string.content_description_new_conversation),
+                        contentScale = ContentScale.FillBounds,
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                        modifier = Modifier
+                            .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
+                            .size(dimensions().fabIconSize)
+                    )
+                },
+                onClick = {}
+            )
+        },
             bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
         ) {
             with(uiState) {

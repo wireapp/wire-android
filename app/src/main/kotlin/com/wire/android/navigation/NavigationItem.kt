@@ -25,7 +25,6 @@ sealed class NavigationItem(
 
 //    object Splash  //TODO
 
-    @ExperimentalMaterial3Api
     object Authentication : NavigationItem(
         route = "auth",
         content = { AuthScreen() }

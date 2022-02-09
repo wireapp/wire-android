@@ -35,6 +35,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
@@ -55,11 +57,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(serverConfig: ServerConfig) {
+fun LoginScreen(
+    navController: NavController,
+    serverConfig: ServerConfig
+) {
     val scope = rememberCoroutineScope()
     val loginViewModel: LoginViewModel = hiltViewModel()
     val loginState: LoginState = loginViewModel.loginState
     LoginContent(
+        navController = navController,
         loginState = loginState,
         onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) },
         onPasswordChange = { loginViewModel.onPasswordChange(it) },
@@ -72,6 +78,7 @@ fun LoginScreen(serverConfig: ServerConfig) {
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun LoginContent(
+    navController: NavController,
     loginState: LoginState,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
@@ -79,7 +86,9 @@ private fun LoginContent(
     onLoginButtonClick: suspend () -> Unit,
     scope: CoroutineScope
 ) {
-    Scaffold(topBar = { LoginTopBar() }) {
+    Scaffold(
+        topBar = { LoginTopBar(onBackNavigationPressed = { navController.popBackStack() }) }
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Column(
                 modifier = Modifier.weight(1f, true),
@@ -121,14 +130,15 @@ private fun LoginContent(
             val (title, message) = when (loginState.loginError) {
                 LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
                     stringResource(id = R.string.login_error_invalid_credentials_title),
-                    stringResource(id = R.string.login_error_invalid_credentials_message))
+                    stringResource(id = R.string.login_error_invalid_credentials_message)
+                )
                 is LoginError.DialogError.GenericError ->
                     loginState.loginError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
             }
             WireDialog(
-                title = title, 
-                text = message, 
-                onDismiss = onDialogDismiss, 
+                title = title,
+                text = message,
+                onDismiss = onDialogDismiss,
                 confirmButtonProperties = WireDialogButtonProperties(
                     onClick = onDialogDismiss,
                     text = stringResource(id = R.string.label_ok),
@@ -164,7 +174,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
     WirePasswordTextField(
         value = password,
         onValueChange = onPasswordChange,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = modifier,
     )
@@ -204,7 +214,7 @@ private fun openForgotPasswordPage(context: Context, @ColorInt color: Int) {
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, onClick: () -> Unit, ) {
+private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
         val text = if (loading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
@@ -225,6 +235,7 @@ private fun LoginScreenPreview() {
     val scope = rememberCoroutineScope()
     WireTheme(useDarkColors = false, isPreview = true) {
         LoginContent(
+            navController = rememberNavController(),
             loginState = LoginState(),
             onUserIdentifierChange = { },
             onPasswordChange = { },

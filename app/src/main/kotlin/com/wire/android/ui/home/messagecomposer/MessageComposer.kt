@@ -9,7 +9,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 
@@ -124,69 +125,100 @@ private fun MessageComposerContent(messageComposerState: MessageComposerState) {
         label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
     )
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
-        Column {
-            Divider()
-            transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    val collapseButtonRotationDegree by transition.animateFloat(
-                        label = stringResource(R.string.animation_label_button_rotation_degree_transistion)
-                    ) { state ->
-                        when (state) {
-                            MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
-                            MessageComposeInputState.FullScreen -> 180f
-                        }
+    Column(modifier = Modifier.animateContentSize()) {
+        Divider()
+        // Collapsed button
+        transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                val collapseButtonRotationDegree by transition.animateFloat(
+                    label = stringResource(R.string.animation_label_button_rotation_degree_transistion)
+                ) { state ->
+                    when (state) {
+                        MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
+                        MessageComposeInputState.FullScreen -> 180f
                     }
-
-                    CollapseIconButton(
-                        onCollapseClick = { messageComposerState.toggleFullScreen() },
-                        modifier = Modifier.rotate(degrees = collapseButtonRotationDegree)
-                    )
                 }
+
+                CollapseIconButton(
+                    onCollapseClick = { messageComposerState.toggleFullScreen() },
+                    modifier = Modifier.rotate(degrees = collapseButtonRotationDegree)
+                )
             }
-            Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .then(
-                            if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-                                Modifier.weight(1f) else Modifier
-                        )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(
+                    when (messageComposerState.messageComposeInputState) {
+                        MessageComposeInputState.FullScreen -> Modifier.fillMaxHeight()
+                        MessageComposeInputState.Active -> {
+                            Modifier.heightIn(
+                                max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
+                            )
+                        }
+                        else -> Modifier
+                    }
+                )
 
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(Color.Red),
+                verticalAlignment =
+                if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                    Alignment.Top
+                else
+                    Alignment.CenterVertically,
+            ) {
+                transition.AnimatedVisibility(
+                    visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
                 ) {
-                    transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }) {
-                        AdditionalOptionButton()
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    MessageComposerInput(
-                        messageText = messageComposerState.messageText,
-                        onMessageTextChanged = { messageComposerState.messageText = it },
-                        messageComposerInputState = messageComposerState.messageComposeInputState
-                    ) { messageComposerState.toActive() }
-                    transition.AnimatedVisibility(visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled }) {
-                        SendButton(messageComposerState.sendButtonEnabled)
-                    }
+                    AdditionalOptionButton()
                 }
-                Divider()
+                Spacer(Modifier.width(8.dp))
+                MessageComposerInput(
+                    messageText = messageComposerState.messageText,
+                    onMessageTextChanged = { messageComposerState.messageText = it },
+                    messageComposerInputState = messageComposerState.messageComposeInputState,
+                    onFocusChanged = { messageComposerState.toActive() },
+                    modifier = Modifier
+                        .weight(1f)
+                )
                 transition.AnimatedVisibility(
                     visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                    enter = slideInVertically(),
-                    exit = slideOutVertically(targetOffsetY = { fullHeight -> fullHeight / 2 })
+                    enter = fadeIn(),
+                    exit = fadeOut()
                 ) {
-                    MessageComposeActions()
                 }
             }
+
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier
+                    .background(Color.Green)
+                    .then(
+                        Modifier
+                    )
+            ) {
+                if (messageComposerState.sendButtonEnabled) {
+                    ScheduleMessageButton()
+                }
+                SendButton(messageComposerState.sendButtonEnabled)
+            }
+        }
+        Divider()
+        transition.AnimatedVisibility(
+            visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
+            // we are animating the exit, so that the MessageComposeActions go down
+            exit = slideOutVertically(
+                targetOffsetY = { fullHeight -> fullHeight / 2 }) + fadeOut()
+        ) {
+            MessageComposeActions()
         }
     }
 }
@@ -205,33 +237,33 @@ private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier =
 }
 
 @Composable
+private fun ScheduleMessageButton() {
+    IconButton(onClick = { }) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_timer),
+            contentDescription = stringResource(R.string.content_description_back_button),
+        )
+    }
+}
+
+@Composable
 private fun RowScope.MessageComposerInput(
     messageText: TextFieldValue,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,
     onFocusChanged: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     BasicTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         textStyle = MaterialTheme.wireTypography.body01,
-        modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f)
-            .then(
-                when (messageComposerInputState) {
-                    MessageComposeInputState.Enabled -> Modifier.wrapContentHeight()
-                    MessageComposeInputState.Active -> Modifier.heightIn(max = 168.dp)
-                    MessageComposeInputState.FullScreen -> Modifier.fillMaxHeight()
-                }
-            )
-            .animateContentSize()
-            .onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    onFocusChanged()
-                }
+        modifier = modifier.then(Modifier.onFocusChanged { focusState ->
+            if (focusState.isFocused) {
+                onFocusChanged()
             }
+        })
     )
 }
 

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTyped: (String) -> Unit = {}) {
@@ -47,11 +48,11 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
             showClearButton = it.text.isNotEmpty()
         },
         leadingIcon = {
-            IconButton(modifier = Modifier.height(40.dp), onClick = {}) {
+            IconButton(onClick = {}) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_search_icon),
                     contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                    tint = MaterialTheme.colorScheme.onBackground
+                    tint = MaterialTheme.wireColorScheme.onBackground
                 )
             }
         },
@@ -67,7 +68,6 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
                         showClearButton = false
                     }) {
                         Icon(
-                            modifier = Modifier.height(35.dp),
                             painter = painterResource(id = R.drawable.ic_clear_search),
                             contentDescription = stringResource(R.string.content_description_clear_content)
                         )

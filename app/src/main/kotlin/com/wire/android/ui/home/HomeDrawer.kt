@@ -31,6 +31,7 @@ import com.wire.android.R
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -49,7 +50,11 @@ fun HomeDrawer(
 
     Column(
         modifier = Modifier
-            .padding(top = 0.dp, start = 8.dp, end = 8.dp, bottom = 16.dp)
+            .padding(
+                start = MaterialTheme.wireDimensions.homeDrawerHorizontalPadding,
+                end = MaterialTheme.wireDimensions.homeDrawerHorizontalPadding,
+                bottom = MaterialTheme.wireDimensions.homeDrawerBottomPadding
+            )
 
     ) {
         Logo()

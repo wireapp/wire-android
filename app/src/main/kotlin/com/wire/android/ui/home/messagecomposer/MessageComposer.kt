@@ -14,7 +14,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,7 +50,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MessageComposer(
@@ -59,13 +57,13 @@ fun MessageComposer(
     onMessageChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit
 ) {
-    val state = rememberMessageComposerState()
+    val messageComposerState = rememberMessageComposerState()
 
     MessageComposer(
         content = content,
-        messageComposerState = state,
+        messageComposerState,
         onMessageChanged = onMessageChanged,
-        onSendButtonClicked = onSendButtonClicked
+        onSendButtonClicked = onSendButtonClicked,
     )
 }
 
@@ -83,29 +81,25 @@ private fun MessageComposer(
         focusManager.clearFocus()
     }
 
-    BoxWithConstraints {
-        Surface(
+    Column {
+        Box(
             Modifier
-                .fillMaxWidth()
-        ) {
-            Column {
-                Box(
-                    Modifier
-                        .weight(1f)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            messageComposerState.toEnabled()
-                        }) {
-                    content()
+                .weight(1f)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    messageComposerState.toEnabled()
                 }
-                MessageComposerContent(
-                    messageComposerState = messageComposerState,
-                    onMessageChanged = onMessageChanged,
-                    onSendButtonClicked = onSendButtonClicked
-                )
-            }
+        ) {
+            content()
+        }
+        Surface {
+            MessageComposerContent(
+                messageComposerState = messageComposerState,
+                onMessageChanged = onMessageChanged,
+                onSendButtonClicked = onSendButtonClicked
+            )
         }
     }
 }
@@ -120,12 +114,12 @@ private fun MessageComposerContent(
     onMessageChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit
 ) {
-    val transition = updateTransition(
-        messageComposerState.messageComposeInputState,
-        label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
-    )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        val transition = updateTransition(
+            messageComposerState.messageComposeInputState,
+            label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
+        )
 
-    Column {
         Divider()
         transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
             Box(
@@ -150,7 +144,11 @@ private fun MessageComposerContent(
             }
         }
         Row(
-            verticalAlignment = if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen) Alignment.Top else Alignment.CenterVertically,
+            verticalAlignment =
+            if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                Alignment.Top
+            else
+                Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .then(

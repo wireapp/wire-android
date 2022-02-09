@@ -61,7 +61,7 @@ fun rememberMessageComposerState(
     )
 
 
-    Modifier.padding(hori)
+//    Modifier.padding(hori)
 }
 
 @OptIn(ExperimentalMaterialApi::class)

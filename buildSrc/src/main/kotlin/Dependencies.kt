@@ -80,6 +80,7 @@ object Libraries {
         const val visibilityModifiers = "1.1.0"
         const val composeHiltNavigation = "1.0.0-alpha03"
         const val browser = "1.3.0"
+        const val splashscreen = "1.0.0-beta01"
     }
 
     // AndroidX Dependencies
@@ -116,6 +117,7 @@ object Libraries {
     const val scarletGson               = "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
     const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
     const val browser                   = "androidx.browser:browser:${Versions.browser}"
+    const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

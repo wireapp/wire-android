@@ -242,7 +242,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 private fun LoginScreenPreview() {
     val scope = rememberCoroutineScope()
-    WireTheme(useDarkColors = false, isPreview = true) {
+    WireTheme(isPreview = true) {
         LoginContent(
             loginState = LoginState(),
             onUserIdentifierChange = { },

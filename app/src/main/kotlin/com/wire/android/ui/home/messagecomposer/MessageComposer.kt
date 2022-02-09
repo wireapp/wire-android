@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.messagecomposer
 
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -52,16 +51,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 
-@Composable
-fun rememberMessageComposerState(
-    defaultMessageText: TextFieldValue = TextFieldValue(""),
-    defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled
-) = remember {
-    MessageComposerState(
-        defaultMessageText,
-        defaultMessageComposeInputState
-    )
-}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

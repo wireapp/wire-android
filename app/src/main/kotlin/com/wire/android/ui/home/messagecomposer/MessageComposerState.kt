@@ -3,8 +3,20 @@ package com.wire.android.ui.home.messagecomposer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+
+@Composable
+fun rememberMessageComposerState(
+    defaultMessageText: TextFieldValue = TextFieldValue(""),
+    defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled
+) = remember {
+    MessageComposerState(
+        defaultMessageText,
+        defaultMessageComposeInputState
+    )
+}
 
 class MessageComposerState(
     defaultMessageText: TextFieldValue,

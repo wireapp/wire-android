@@ -19,12 +19,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
@@ -34,6 +35,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WireDialog(
     title: String,
@@ -47,19 +49,22 @@ fun WireDialog(
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     content: @Composable (() -> Unit)? = null
 ) {
-        Dialog(onDismissRequest = onDismiss) {
-            WireDialogContent(
-                confirmButtonProperties = confirmButtonProperties,
-                dismissButtonProperties = dismissButtonProperties,
-                buttonsHorizontalAlignment = buttonsHorizontalAlignment,
-                modifier = modifier,
-                shape = shape,
-                contentPadding = contentPadding,
-                title = title,
-                text = text,
-                content = content
-            )
-        }
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        WireDialogContent(
+            confirmButtonProperties = confirmButtonProperties,
+            dismissButtonProperties = dismissButtonProperties,
+            buttonsHorizontalAlignment = buttonsHorizontalAlignment,
+            modifier = modifier,
+            shape = shape,
+            contentPadding = contentPadding,
+            title = title,
+            text = text,
+            content = content
+        )
+    }
 }
 
 @Composable
@@ -75,14 +80,16 @@ private fun WireDialogContent(
     content: @Composable (() -> Unit)? = null
 ) {
     Surface(
-        modifier = modifier,
+        modifier = modifier.padding(MaterialTheme.wireDimensions.dialogCardMargin),
         shape = shape,
         color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(contentPadding)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(contentPadding)
+        ) {
             Text(
                 text = title,
                 style = MaterialTheme.wireTypography.title02,
@@ -140,9 +147,7 @@ private fun WireDialogPreview() {
     WireTheme(useDarkColors = false, isPreview = true) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             WireDialogContent(
                 confirmButtonProperties = WireDialogButtonProperties(

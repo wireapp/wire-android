@@ -27,7 +27,10 @@ import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hiltViewModel()) {
+fun ConversationRouter(
+    updateScrollPosition: (Int) -> Unit = {},
+    conversationListViewModel: ConversationListViewModel = hiltViewModel()
+) {
     val uiState by conversationListViewModel.listState.collectAsState()
     val navController = rememberNavController()
 
@@ -63,7 +66,8 @@ fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hi
                         AllConversationScreen(
                             newActivities = newActivities,
                             conversations = conversations,
-                            onOpenConversationClick = ::navigateToConversation
+                            onOpenConversationClick = ::navigateToConversation,
+                            onScrollPositionChanged = updateScrollPosition
                         )
                     })
                 composable(
@@ -72,7 +76,8 @@ fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hi
                         CallScreen(
                             missedCalls = missedCalls,
                             callHistory = callHistory,
-                            onCallItemClick = ::navigateToConversation
+                            onCallItemClick = ::navigateToConversation,
+                            onScrollPositionChanged = updateScrollPosition
                         )
                     })
                 composable(
@@ -81,7 +86,8 @@ fun ConversationRouter(conversationListViewModel: ConversationListViewModel = hi
                         MentionScreen(
                             unreadMentions = unreadMentions,
                             allMentions = allMentions,
-                            onMentionItemClick = ::navigateToConversation
+                            onMentionItemClick = ::navigateToConversation,
+                            onScrollPositionChanged = updateScrollPosition
                         )
                     }
                 )

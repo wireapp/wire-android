@@ -48,7 +48,7 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
             IconButton(modifier = Modifier.height(40.dp), onClick = {}) {
                 Icon(
                     Icons.Filled.Search,
-                    stringResource(R.string.content_description_clear_content)
+                    stringResource(R.string.content_description_search_conversation)
                 )
             }
         },

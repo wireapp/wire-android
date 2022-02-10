@@ -11,6 +11,7 @@
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
+    <string name="content_description_search_conversation">Search conversation</string>
     <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_user_avatar">User avatar</string>
     <string name="content_description_welcome_carousel_item">Welcome image</string>

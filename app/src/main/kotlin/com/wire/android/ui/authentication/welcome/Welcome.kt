@@ -92,7 +92,7 @@ private fun WelcomeContent(navController: NavController) {
                     navController.navigate(AuthDestination.loginScreen)
                 }
                 CreateEnterpriseAccountButton {
-                    navController.navigate((AuthDestination.createEnterpriseAccount))
+                    navController.navigate((AuthDestination.createEnterpriseAccountScreen))
                 }
             }
 

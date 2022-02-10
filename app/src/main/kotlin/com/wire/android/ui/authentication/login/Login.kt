@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
@@ -43,9 +42,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.ui.authentication.AuthDestination
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -72,11 +71,15 @@ fun LoginScreen(
     val loginViewModel: LoginViewModel = hiltViewModel()
     val loginState: LoginState = loginViewModel.loginState
     LoginContent(
-        navController = navController,
         loginState = loginState,
         onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) },
+        onBackPressed = { navController.popBackStack() },
         onPasswordChange = { loginViewModel.onPasswordChange(it) },
-        onDialogDismiss = { loginViewModel.onDialogDismissed() },
+        onDialogDismiss = { loginViewModel.clearLoginError() },
+        onRemoveDeviceOpen = {
+            navController.navigate(AuthDestination.removeDeviceScreen)
+            loginViewModel.clearLoginError()
+        },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
         scope = scope
     )
@@ -85,16 +88,17 @@ fun LoginScreen(
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun LoginContent(
-    navController: NavController,
     loginState: LoginState,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
+    onBackPressed: () -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
+    onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
     scope: CoroutineScope
 ) {
     Scaffold(
-        topBar = { LoginTopBar(onBackNavigationPressed = { navController.popBackStack() }) }
+        topBar = { LoginTopBar(onBackNavigationPressed = onBackPressed ) }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Column(
@@ -152,6 +156,9 @@ private fun LoginContent(
                     type = WireDialogButtonType.Primary,
                 )
             )
+        }
+        else if (loginState.loginError is LoginError.TooManyDevicesError) {
+            onRemoveDeviceOpen()
         }
     }
 }
@@ -254,11 +261,12 @@ private fun LoginScreenPreview() {
     val scope = rememberCoroutineScope()
     WireTheme(useDarkColors = false, isPreview = true) {
         LoginContent(
-            navController = rememberNavController(),
             loginState = LoginState(),
             onUserIdentifierChange = { },
+            onBackPressed = { },
             onPasswordChange = { },
             onDialogDismiss = { },
+            onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
             scope = scope
         )

@@ -1,12 +1,6 @@
 package com.wire.android.ui.authentication.login
 
 import android.content.Context
-import android.content.Intent
-import android.graphics.BitmapFactory
-import android.net.Uri
-import androidx.annotation.ColorInt
-import androidx.browser.customtabs.CustomTabColorSchemeParams
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -29,7 +23,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -55,11 +48,12 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
+import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.wire.kalium.logic.configuration.ServerConfig
 
 @ExperimentalMaterialApi
 @Composable
@@ -198,7 +192,6 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
 private fun ForgotPasswordLabel(modifier: Modifier) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
-        val backgroundColor = MaterialTheme.colorScheme.background
         Text(
             text = stringResource(R.string.login_forgot_password),
             style = MaterialTheme.wireTypography.body02.copy(
@@ -212,30 +205,18 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
                     indication = null,
                     onClick = {
                         // TODO: refactor this to open the browser
-                        openForgotPasswordPage(context, backgroundColor.toArgb())
+                        openForgotPasswordPage(context)
                     }
                 )
         )
     }
 }
 
-private fun openForgotPasswordPage(context: Context, @ColorInt color: Int) {
+private fun openForgotPasswordPage(context: Context) {
     // TODO: get the link from the serverConfig
     val url = "${BuildConfig.ACCOUNTS_URL}/forgot"
 
-    // TODO: extract the custom tab code to it's own destination
-    val builder = CustomTabsIntent.Builder()
-    val colors = CustomTabColorSchemeParams.Builder()
-        .setNavigationBarColor(color)
-        .setToolbarColor(color)
-        .build()
-    builder.setDefaultColorSchemeParams(colors)
-    builder.setCloseButtonIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_close))
-    builder.setShareState(CustomTabsIntent.SHARE_STATE_OFF)
-    builder.setShowTitle(true)
-    val customTabsIntent = builder.build()
-    customTabsIntent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
-    customTabsIntent.launchUrl(context, Uri.parse(url))
+    CustomTabsHelper.launchUrl(context, url)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -259,7 +240,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 private fun LoginScreenPreview() {
     val scope = rememberCoroutineScope()
-    WireTheme(useDarkColors = false, isPreview = true) {
+    WireTheme(isPreview = true) {
         LoginContent(
             loginState = LoginState(),
             onUserIdentifierChange = { },

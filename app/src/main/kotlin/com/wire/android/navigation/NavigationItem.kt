@@ -8,13 +8,13 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.wire.android.BuildConfig
 import com.wire.android.ui.authentication.AuthScreen
 import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.userprofile.UserProfileScreen
 import com.wire.android.ui.settings.SettingsScreen
-import com.wire.android.ui.support.SupportScreen
+import com.wire.android.ui.userprofile.UserProfileScreen
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -24,7 +24,7 @@ sealed class NavigationItem(
     open val route: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (NavBackStackEntry) -> Unit
-    //TODO add animations here
+    // TODO add animations here
 ) {
 
 //    object Splash  //TODO
@@ -50,8 +50,8 @@ sealed class NavigationItem(
     )
 
     object Support : NavigationItem(
-        route = "support",
-        content = { SupportScreen() },
+        route = BuildConfig.SUPPORT_URL,
+        content = { },
     )
 
     object UserProfile : NavigationItem(
@@ -63,7 +63,8 @@ sealed class NavigationItem(
         route = "conversation/{$CONVERSATION_ID_ARGUMENT}",
         content = {
             ConversationScreen(hiltViewModel())
-        }, arguments = listOf(
+        },
+        arguments = listOf(
             navArgument(CONVERSATION_ID_ARGUMENT) { type = NavType.StringType }
         )
     ) {
@@ -88,5 +89,6 @@ sealed class NavigationItem(
 
         fun fromRoute(route: String?): NavigationItem? = map[route]
     }
-
 }
+
+fun NavigationItem.isExternalRoute() = this.route.startsWith("http")

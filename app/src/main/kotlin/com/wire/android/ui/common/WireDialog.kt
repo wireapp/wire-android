@@ -144,7 +144,7 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
 @Composable
 private fun WireDialogPreview() {
     var password by remember { mutableStateOf(TextFieldValue("")) }
-    WireTheme(useDarkColors = false, isPreview = true) {
+    WireTheme(isPreview = true) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxWidth()

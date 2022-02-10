@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.navigation.NavigationGraph
@@ -17,10 +18,10 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
@@ -32,6 +33,7 @@ class WireActivity : AppCompatActivity() {
     lateinit var navigationManager: NavigationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             WireTheme {
@@ -66,9 +68,6 @@ class WireActivity : AppCompatActivity() {
             navigationManager.navigateBack
                 .onEach { navController.popBackStack() }
                 .launchIn(scope)
-
         }
     }
-
 }
-

@@ -253,7 +253,7 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
-    WireTheme(useDarkColors = false, isPreview = true) {
+    WireTheme(isPreview = true) {
         WelcomeContent(rememberNavController())
     }
 }

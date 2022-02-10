@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="welcome_carousel_item_time_ms">3000</integer>
+    <integer name="splashscreen_animation_ms">1000</integer>
 </resources>

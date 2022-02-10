@@ -87,6 +87,8 @@ data class WireDimensions(
     val corner12x: Dp,
     val corner14x: Dp,
     val corner16x: Dp,
+    // Notifications
+    val notificationBadgeHeight: Dp,
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -155,7 +157,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     corner10x = 10.dp,
     corner12x = 12.dp,
     corner14x = 14.dp,
-    corner16x = 16.dp
+    corner16x = 16.dp,
+    notificationBadgeHeight = 18.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

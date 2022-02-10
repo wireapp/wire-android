@@ -5,6 +5,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.EventType
 
@@ -12,12 +13,14 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 fun MentionScreen(
     unreadMentions: List<ConversationUnreadMention> = emptyList(),
     allMentions: List<ConversationUnreadMention> = emptyList(),
-    onMentionItemClick: (String) -> Unit
+    onMentionItemClick: (String) -> Unit,
+    onEditConversationItem: (ConversationType) -> Unit
 ) {
     MentionContent(
         unreadMentions = unreadMentions,
         allMentions = allMentions,
-        onMentionItemClick = onMentionItemClick
+        onMentionItemClick = onMentionItemClick,
+        onEditConversationItem = onEditConversationItem
     )
 }
 
@@ -26,7 +29,8 @@ fun MentionScreen(
 private fun MentionContent(
     unreadMentions: List<ConversationUnreadMention>,
     allMentions: List<ConversationUnreadMention>,
-    onMentionItemClick: (String) -> Unit
+    onMentionItemClick: (String) -> Unit,
+    onEditConversationItem: (ConversationType) -> Unit
 ) {
     LazyColumn {
         folderWithElements(
@@ -36,7 +40,8 @@ private fun MentionContent(
             MentionConversationItem(
                 mention = unreadMention,
                 eventType = EventType.UnreadMention,
-                onMentionItemClick = { onMentionItemClick("someId") }
+                onMentionItemClick = { onMentionItemClick("someId") },
+                onConversationItemLongClick = { onEditConversationItem(unreadMention.conversationType) }
             )
         }
 
@@ -46,7 +51,8 @@ private fun MentionContent(
         ) { mention ->
             MentionConversationItem(
                 mention = mention,
-                onMentionItemClick = { onMentionItemClick("someId") }
+                onMentionItemClick = { onMentionItemClick("someId") },
+                onConversationItemLongClick = { onEditConversationItem(mention.conversationType) }
             )
         }
     }

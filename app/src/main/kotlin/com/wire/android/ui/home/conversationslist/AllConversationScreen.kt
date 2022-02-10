@@ -6,6 +6,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 
@@ -13,12 +14,14 @@ import com.wire.android.ui.home.conversationslist.model.NewActivity
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onOpenConversationClick: (String) -> Unit
+    onOpenConversationClick: (String) -> Unit,
+    onEditConversationItem: (ConversationType) -> Unit
 ) {
     AllConversationContent(
         newActivities = newActivities,
         conversations = conversations,
-        onOpenConversationClick
+        onConversationItemClick = onOpenConversationClick,
+        onEditConversationItem = onEditConversationItem
     )
 }
 
@@ -27,17 +30,21 @@ private fun AllConversationContent(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<GeneralConversation>>,
     onConversationItemClick: (String) -> Unit,
+    onEditConversationItem: (ConversationType) -> Unit,
 ) {
     LazyColumn {
         folderWithElements(
             header = { stringResource(id = R.string.conversation_label_new_activity) },
             items = newActivities
         ) { newActivity ->
-            ConversationItemFactory(
-                conversation = newActivity.conversationItem,
-                eventType = newActivity.eventType,
-                onConversationItemClick = { onConversationItemClick("someId") }
-            )
+            with(newActivity) {
+                ConversationItemFactory(
+                    conversation = conversationItem,
+                    eventType = eventType,
+                    onConversationItemClick = { onConversationItemClick("someId") },
+                    onConversationItemLongClick = { onEditConversationItem(conversationItem.conversationType) }
+                )
+            }
         }
 
         conversations.forEach { (conversationFolder, conversationList) ->
@@ -47,7 +54,8 @@ private fun AllConversationContent(
             ) { generalConversation ->
                 GeneralConversationItem(
                     generalConversation = generalConversation,
-                    onConversationItemClick = { onConversationItemClick("someId") }
+                    onConversationItemClick = { onConversationItemClick("someId") },
+                    onConversationItemLongClick = { onEditConversationItem(generalConversation.conversationType) }
                 )
             }
         }

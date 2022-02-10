@@ -27,7 +27,7 @@ class ConversationListViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(ConversationListState())
 
-    val listState: StateFlow<ConversationListState>
+    val state: StateFlow<ConversationListState>
         get() = _state
 
     init {
@@ -52,6 +52,48 @@ class ConversationListViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun muteConversation(id: String) {
+
+    }
+
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun addConversationToFavourites(id: String) {
+
+    }
+
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun moveConversationToFolder(id: String) {
+
+    }
+
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun moveConversationToArchive(id: String) {
+
+    }
+
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun clearConversationContent(id: String) {
+
+    }
+
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun blockUser(id: String) {
+
+    }
+
+    //TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun leaveGroup(id: String) {
+
     }
 
 }

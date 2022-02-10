@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -68,17 +69,19 @@ private fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier 
                     color = MaterialTheme.wireColorScheme.badge,
                     shape = RoundedCornerShape(8.dp)
                 )
-                .padding(
-                    start = 8.dp,
-                    top = 2.dp,
-                    bottom = 2.dp,
-                    end = 8.dp
-                )
                 .height(MaterialTheme.wireDimensions.notificationBadgeHeight)
-                .fillMaxHeight()
-                .wrapContentWidth()
+                .wrapContentWidth(),
+            contentAlignment = Alignment.Center
         ) {
             Text(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(
+                        start = 8.dp,
+                        top = 1.dp,
+                        bottom = 1.dp,
+                        end = 8.dp
+                    ),
                 text = unReadMessageCountStringify(unreadMessageCount),
                 color = Color.White,
                 style = MaterialTheme.wireTypography.label02,

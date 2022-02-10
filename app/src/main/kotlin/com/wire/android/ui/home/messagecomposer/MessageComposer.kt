@@ -5,9 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -88,33 +86,37 @@ private fun MessageComposer(
         focusManager.clearFocus()
     }
 
-    val transition = updateTransition(
-        messageComposerState.messageComposeInputState,
-        label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
-    )
+    Surface {
+        val transition = updateTransition(
+            messageComposerState.messageComposeInputState,
+            label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
+        )
+        // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
+        // constrains to bottom of MessageComposerInput
+        // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
+        ConstraintLayout {
+            val (additionalActions, sendActions, messageInput) = createRefs()
+            // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
+            // CollapseIconButton
+            Column(Modifier.constrainAs(messageInput) {
+                bottom.linkTo(additionalActions.top)
+                top.linkTo(parent.top)
 
-    ConstraintLayout {
-        val (additionalActions, sendActions, messageInput) = createRefs()
-
-        Column(Modifier.constrainAs(messageInput) {
-            bottom.linkTo(additionalActions.top)
-            top.linkTo(parent.top)
-
-            height = Dimension.preferredWrapContent
-        }) {
-            Box(
-                Modifier
-                    .weight(1f)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) {
-                        messageComposerState.toEnabled()
-                    }
-            ) {
-                content()
-            }
-            Surface {
+                height = Dimension.preferredWrapContent
+            }) {
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            messageComposerState.toEnabled()
+                        }
+                ) {
+                    content()
+                }
+                // Column wrapping CollapseIconButton
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -143,7 +145,10 @@ private fun MessageComposer(
                             )
                         }
                     }
-
+                    // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
+                    // when we are in the Fullscreen state, we want to align the TextField to Top of the Row, when other we center it
+                    // vertically. Once we go to Fullscreen, we set the weight to 1f so that it fills the whole Row which is =
+                    // = height of the whole screen - height of TopBar - height of container with additional options
                     Row(
                         verticalAlignment =
                         if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
@@ -166,6 +171,10 @@ private fun MessageComposer(
                             AdditionalOptionButton()
                         }
                         Spacer(Modifier.width(8.dp))
+                        // MessageComposerInput needs a padding on the end of it to give room for the SendOptions components, because
+                        // it is "floating" freely with an absolute x-y position inside of the ConstrainLayout wrapping the whole content
+                        // when in the FullScreen state we are giving it max height, when in active state we limit the height to max 82.dp
+                        // other we let it wrap the content of the height, which will be equivalent to the text
                         MessageComposerInput(
                             messageText = messageComposerState.messageText,
                             onMessageTextChanged = { value ->
@@ -175,18 +184,18 @@ private fun MessageComposer(
                             messageComposerInputState = messageComposerState.messageComposeInputState,
                             onFocusChanged = { messageComposerState.toActive() },
                             modifier = Modifier
-                                .weight(1f)
+                                .fillMaxWidth()
                                 .then(
                                     when (messageComposerState.messageComposeInputState) {
                                         MessageComposeInputState.FullScreen -> Modifier
                                             .fillMaxHeight()
-                                            .padding(end = 80.dp)
+                                            .padding(end = 82.dp)
                                         MessageComposeInputState.Active -> {
                                             Modifier
                                                 .heightIn(
                                                     max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
                                                 )
-                                                .padding(end = 80.dp)
+                                                .padding(end = 82.dp)
                                         }
                                         else -> Modifier.wrapContentHeight()
                                     }
@@ -195,41 +204,45 @@ private fun MessageComposer(
                     }
                 }
             }
-        }
 
-        Box(Modifier.constrainAs(sendActions) {
-            end.linkTo(parent.end)
-            bottom.linkTo(additionalActions.top)
-        }) {
-            Row {
-                if (messageComposerState.sendButtonEnabled) {
-                    ScheduleMessageButton()
-                }
-                transition.AnimatedVisibility(
-                    visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    SendButton(
-                        isEnabled = messageComposerState.sendButtonEnabled,
-                        onSendButtonClicked = onSendButtonClicked
-                    )
+            //Box wrapping the SendActions so that we do not include it in the animationContentSize changed which is applied only for
+            //MessageComposerInput and CollapsingButton
+            Box(Modifier.constrainAs(sendActions) {
+                end.linkTo(parent.end)
+                bottom.linkTo(additionalActions.top)
+            }) {
+                Row {
+                    if (messageComposerState.sendButtonEnabled) {
+                        ScheduleMessageButton()
+                    }
+                    transition.AnimatedVisibility(
+                        visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        SendButton(
+                            isEnabled = messageComposerState.sendButtonEnabled,
+                            onSendButtonClicked = onSendButtonClicked
+                        )
+                    }
                 }
             }
-        }
 
-        Box(Modifier.constrainAs(additionalActions) {
-            bottom.linkTo(parent.bottom)
-            top.linkTo(messageInput.bottom)
-        }) {
-            Divider()
-            transition.AnimatedVisibility(
-                visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                // we are animating the exit, so that the MessageComposeActions go down
-                exit = slideOutVertically(
-                    targetOffsetY = { fullHeight -> fullHeight / 2 }) + fadeOut()
-            ) {
-                MessageComposeActions()
+            //Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
+            //constrain our SendActions to it
+            Box(Modifier.constrainAs(additionalActions) {
+                bottom.linkTo(parent.bottom)
+                top.linkTo(messageInput.bottom)
+            }) {
+                Divider()
+                transition.AnimatedVisibility(
+                    visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
+                    // we are animating the exit, so that the MessageComposeActions go down
+                    exit = slideOutVertically(
+                        targetOffsetY = { fullHeight -> fullHeight / 2 }) + fadeOut()
+                ) {
+                    MessageComposeActions()
+                }
             }
         }
     }

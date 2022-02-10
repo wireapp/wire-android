@@ -5,7 +5,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -113,7 +115,11 @@ private fun MessageComposer(
                 content()
             }
             Surface {
-                Column(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateContentSize()
+                ) {
                     Divider()
                     transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
                         Box(
@@ -152,7 +158,7 @@ private fun MessageComposer(
                                 else
                                     Modifier
                             )
-                            .animateContentSize()
+
                     ) {
                         transition.AnimatedVisibility(
                             visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }

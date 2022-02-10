@@ -26,8 +26,13 @@ class HomeViewModel
 
     fun updateScrollPosition(newScrollIndex: Int) {
         if (newScrollIndex == lastScrollIndex) return
-        _scrollDown.value = newScrollIndex > lastScrollIndex
-        lastScrollIndex = newScrollIndex
+        if (newScrollIndex > lastScrollIndex + 1) {
+            _scrollDown.value = true
+            lastScrollIndex = newScrollIndex
+        } else if (newScrollIndex < lastScrollIndex) {
+            _scrollDown.value = false
+            lastScrollIndex = newScrollIndex
+        }
     }
 
     suspend fun navigateTo(item: NavigationItem) {

@@ -30,10 +30,12 @@ import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.isExternalRoute
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -48,8 +50,6 @@ fun HomeDrawer(
     scope: CoroutineScope,
     viewModel: HomeViewModel
 ) {
-    val bottomItems = listOf(NavigationItem.Settings, NavigationItem.Support)
-
     Column(
         modifier = Modifier
             .padding(
@@ -62,25 +62,33 @@ fun HomeDrawer(
         Logo()
 
         topItems.forEach { item ->
-            DrawerItem(data = item.getDrawerData(),
+            DrawerItem(
+                data = item.getDrawerData(),
                 selected = currentRoute == item.route,
                 onItemClick = {
                     navigateToItemInHome(homeNavController, item)
                     scope.launch { drawerState.close() }
-                })
+                }
+            )
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
+        val bottomItems = listOf(NavigationItem.Settings, NavigationItem.Support)
         bottomItems.forEach { item ->
-            DrawerItem(data = item.getDrawerData(),
+            DrawerItem(
+                data = item.getDrawerData(),
                 selected = currentRoute == item.route,
                 onItemClick = {
                     scope.launch {
-                        viewModel.navigateTo(item)
+                        when (item.isExternalRoute()) {
+                            true -> CustomTabsHelper.launchUrl(homeNavController.context, item.route)
+                            false -> viewModel.navigateTo(item)
+                        }
                         drawerState.close()
                     }
-                })
+                }
+            )
         }
 
         Text(

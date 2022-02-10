@@ -29,7 +29,8 @@ import com.wire.android.ui.theme.wireTypography
 fun CallConversationItem(
     conversationMissedCall: ConversationMissedCall,
     eventType: EventType? = null,
-    onCallItemClick: () -> Unit
+    onCallItemClick: () -> Unit,
+    onCallItemLongClick: () -> Unit
 ) {
     with(conversationMissedCall) {
         when (val conversationType = conversationMissedCall.conversationType) {
@@ -49,7 +50,8 @@ fun CallConversationItem(
                         }
                     },
                     eventType = eventType,
-                    onConversationItemClick = onCallItemClick
+                    onConversationItemClick = onCallItemClick,
+                    onConversationItemLongClick = onCallItemLongClick
                 )
             }
             is ConversationType.PrivateConversation -> {
@@ -68,7 +70,8 @@ fun CallConversationItem(
                         }
                     },
                     eventType = eventType,
-                    onConversationItemClick = onCallItemClick
+                    onConversationItemClick = onCallItemClick,
+                    onConversationItemLongClick = onCallItemLongClick,
                 )
             }
         }

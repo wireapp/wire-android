@@ -79,7 +79,7 @@ internal fun WireTextField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            textStyle = textStyle,
+            textStyle = textStyle.copy(color = colors.textColor(state = state).value),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,
@@ -174,10 +174,14 @@ private fun InnerText(
                     text = placeholderText,
                     style = placeholderTextStyle,
                     color = colors.placeholderColor(state).value,
-                    modifier = Modifier.fillMaxWidth().then(padding)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(padding)
                 )
             Box(
-                modifier = Modifier.fillMaxWidth().then(padding),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(padding),
                 propagateMinConstraints = true
             ) {
                 innerTextField()

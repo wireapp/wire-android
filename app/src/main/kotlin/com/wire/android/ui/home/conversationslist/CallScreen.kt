@@ -12,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
+import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
 
 @Composable
@@ -19,6 +20,7 @@ fun CallScreen(
     missedCalls: List<ConversationMissedCall> = emptyList(),
     callHistory: List<ConversationMissedCall> = emptyList(),
     onCallItemClick: (String) -> Unit,
+    onEditConversationItem: (ConversationType) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {}
 ) {
     val lazyListState = rememberLazyListState()
@@ -28,17 +30,19 @@ fun CallScreen(
         lazyListState = lazyListState,
         missedCalls = missedCalls,
         callHistory = callHistory,
-        onCallItemClick = onCallItemClick
+        onCallItemClick = onCallItemClick,
+        onEditConversationItem = onEditConversationItem
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CallContent(
+    lazyListState: LazyListState,
     missedCalls: List<ConversationMissedCall>,
     callHistory: List<ConversationMissedCall>,
     onCallItemClick: (String) -> Unit,
-    lazyListState: LazyListState
+    onEditConversationItem: (ConversationType) -> Unit
 ) {
     LazyColumn(
         state = lazyListState,
@@ -52,7 +56,8 @@ fun CallContent(
             CallConversationItem(
                 conversationMissedCall = missedCall,
                 eventType = EventType.MissedCall,
-                onCallItemClick = { onCallItemClick("someId") }
+                onCallItemClick = { onCallItemClick("someId") },
+                onCallItemLongClick = { onEditConversationItem(missedCall.conversationType) }
             )
         }
 
@@ -62,7 +67,8 @@ fun CallContent(
         ) { callHistory ->
             CallConversationItem(
                 conversationMissedCall = callHistory,
-                onCallItemClick = { onCallItemClick("someId") }
+                onCallItemClick = { onCallItemClick("someId") },
+                onCallItemLongClick = { onEditConversationItem(callHistory.conversationType) }
             )
         }
     }

@@ -2,6 +2,7 @@ package com.wire.android.ui.home
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,6 +18,7 @@ import com.wire.android.ui.home.archive.ArchiveScreen
 import com.wire.android.ui.home.conversationslist.ConversationRouter
 import com.wire.android.ui.home.vault.VaultScreen
 
+@ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 @Composable
 fun HomeNavigationGraph(
@@ -41,6 +43,7 @@ fun HomeNavigationGraph(
     }
 }
 
+@ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 internal fun navigateToItemInHome(
     navController: NavController,
@@ -57,7 +60,8 @@ internal fun navigateToItemInHome(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 sealed class HomeNavigationItem(
     val route: String,
     @StringRes val title: Int,

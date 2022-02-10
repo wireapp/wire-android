@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.messagecomposer
 
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
@@ -143,6 +145,7 @@ private fun MessageComposerContent(
                 )
             }
         }
+
         Row(
             verticalAlignment =
             if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
@@ -152,15 +155,10 @@ private fun MessageComposerContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .then(
-                    when (messageComposerState.messageComposeInputState) {
-                        MessageComposeInputState.FullScreen -> Modifier.weight(1f)
-                        MessageComposeInputState.Active -> {
-                            Modifier.heightIn(
-                                max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
-                            )
-                        }
-                        else -> Modifier
-                    }
+                    if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                        Modifier.weight(1f)
+                    else
+                        Modifier
                 )
         ) {
             transition.AnimatedVisibility(
@@ -179,8 +177,20 @@ private fun MessageComposerContent(
                 onFocusChanged = { messageComposerState.toActive() },
                 modifier = Modifier
                     .weight(1f)
+                    .then(
+                        when (messageComposerState.messageComposeInputState) {
+                            MessageComposeInputState.FullScreen -> Modifier.fillMaxHeight()
+                            MessageComposeInputState.Active -> {
+                                Modifier.heightIn(
+                                    max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
+                                )
+                            }
+                            else -> Modifier.wrapContentHeight()
+                        }
+                    )
                     .animateContentSize()
             )
+
             Box(modifier = Modifier.align(Alignment.Bottom)) {
                 Row {
                     if (messageComposerState.sendButtonEnabled) {

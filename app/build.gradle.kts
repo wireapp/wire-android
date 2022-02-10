@@ -80,6 +80,7 @@ dependencies {
     implementation(Libraries.visibilityModifiers)
     implementation(Libraries.browser)
     implementation(Libraries.dataStore)
+    implementation(Libraries.splashscreen)
 
     // lifecycle
     // ViewModel

@@ -1,23 +1,22 @@
 package com.wire.android.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun WireTheme(
-    useDarkColors: Boolean = isSystemInDarkTheme(),
     isPreview: Boolean = false,
+    wireColorScheme: WireColorScheme = WireColorSchemeTypes.currentTheme,
+    wireTypography: WireTypography = WireTypographyTypes.currentScreenSize,
+    wireDimensions: WireDimensions = WireDimensionsTypes.currentScreenSize.currentOrientation,
     content: @Composable () -> Unit
 ) {
-    val wireColorScheme = WireColorSchemeTypes.currentTheme
-    val wireTypography = WireTypographyTypes.currentScreenSize
-    val wireDimensions = WireDimensionsTypes.currentScreenSize.currentOrientation
-
+    val systemUiController = rememberSystemUiController()
     CompositionLocalProvider(
         LocalWireColors provides wireColorScheme,
         LocalWireTypography provides wireTypography,
@@ -28,9 +27,9 @@ fun WireTheme(
             typography = wireTypography.toTypography()
         ) {
             if(!isPreview) {
-                val systemUiController = rememberSystemUiController()
-                val backgroundColor = MaterialTheme.colorScheme.background
-                SideEffect { systemUiController.setSystemBarsColor(color = backgroundColor, darkIcons = !useDarkColors) }
+                val backgroundColor = MaterialTheme.wireColorScheme.background
+                val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
+                SideEffect { systemUiController.setSystemBarsColor(color = backgroundColor, darkIcons = darkIcons) }
             }
             content()
         }

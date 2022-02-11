@@ -82,10 +82,6 @@ private fun MessageComposer(
 ) {
     val focusManager = LocalFocusManager.current
 
-    if (messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled) {
-        focusManager.clearFocus()
-    }
-
     Surface {
         val transition = updateTransition(
             messageComposerState.messageComposeInputState,
@@ -111,7 +107,8 @@ private fun MessageComposer(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         ) {
-                            messageComposerState.toEnabled()
+                            focusManager.clearFocus()
+                            messageComposerState.clickOutSideMessageComposer()
                         }
                 ) {
                     content()

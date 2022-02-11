@@ -36,9 +36,14 @@ class MessageComposerState(
                 .isNotBlank()
         }
 
-
-    fun toEnabled() {
+    private fun toEnabled() {
         messageComposeInputState = MessageComposeInputState.Enabled
+    }
+
+    fun clickOutSideMessageComposer() {
+        if (messageText.text.filter { !it.isWhitespace() }.isBlank()) {
+            toEnabled()
+        }
     }
 
     fun toActive() {

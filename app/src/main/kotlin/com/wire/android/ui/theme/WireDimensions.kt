@@ -42,7 +42,7 @@ data class WireDimensions(
     // Message
     val messageImagePortraitModeWidth: Dp,
     // Message composer
-    val messageComposerActiveInputMaxHeight : Dp,
+    val messageComposerActiveInputMaxHeight: Dp,
     // TextFields
     val textFieldMinHeight: Dp,
     val textFieldCornerSize: Dp,

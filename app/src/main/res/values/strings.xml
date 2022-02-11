@@ -112,7 +112,7 @@ username</string>
     <string name="error_no_network_message">Please check your Internet connection</string>
 
     <!-- Animation label -->
-    <string name="animation_label_messagecomposeinput_state_transistion">MessageComposeInputState transition</string>
-    <string name="animation_label_button_rotation_degree_transistion">Collapse button rotation degree transition</string>
+    <string translatable="false" name="animation_label_messagecomposeinput_state_transistion">MessageComposeInputState transition</string>
+    <string translatable="false" name="animation_label_button_rotation_degree_transistion">Collapse button rotation degree transition</string>
 
 </resources>

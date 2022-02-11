@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,5 +35,15 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigateBack()
         }
+    }
+
+    fun onMessageChanged(message: String) {
+        //do something with the message
+        Log.d("TEST", "message being typed: $message")
+    }
+
+    fun sendMessage() {
+        //do something with the message
+        Log.d("TEST", "send message button clicked")
     }
 }

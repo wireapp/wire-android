@@ -50,7 +50,6 @@ fun HomeDrawer(
     scope: CoroutineScope,
     viewModel: HomeViewModel
 ) {
-
     Column(
         modifier = Modifier
             .padding(

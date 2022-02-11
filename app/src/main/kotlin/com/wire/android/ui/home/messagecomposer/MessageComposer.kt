@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.messagecomposer
 
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -54,7 +53,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MessageComposer(
@@ -66,7 +64,7 @@ fun MessageComposer(
 
     MessageComposer(
         content = content,
-        messageComposerState,
+        messageComposerState = messageComposerState,
         onMessageChanged = onMessageChanged,
         onSendButtonClicked = onSendButtonClicked,
     )
@@ -84,7 +82,7 @@ private fun MessageComposer(
 
     Surface {
         val transition = updateTransition(
-            messageComposerState.messageComposeInputState,
+            targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
         )
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
@@ -295,7 +293,8 @@ private fun SendButton(
     onSendButtonClicked: () -> Unit
 ) {
     IconButton(
-        onClick = { if (isEnabled) onSendButtonClicked() }
+        onClick = { if (isEnabled) onSendButtonClicked() },
+        enabled = isEnabled
     ) {
         Box(
             contentAlignment = Alignment.Center,

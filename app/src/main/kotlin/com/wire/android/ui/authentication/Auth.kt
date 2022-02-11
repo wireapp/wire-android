@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.common.UnderConstructionScreen
+import com.wire.kalium.logic.configuration.ServerConfig
 
 @ExperimentalMaterialApi
 @Composable
@@ -16,10 +17,9 @@ fun AuthScreen() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = AuthDestination.start) {
         composable(AuthDestination.welcomeScreen) { WelcomeScreen(navController) }
-        composable(AuthDestination.loginScreen) { LoginScreen() }
+        composable(AuthDestination.loginScreen) { LoginScreen(navController, ServerConfig.STAGING) }
         composable(AuthDestination.createEnterpriseAccount) { UnderConstructionScreen(AuthDestination.createEnterpriseAccount) }
         composable(AuthDestination.createPrivateAccountScreen) { UnderConstructionScreen(AuthDestination.createPrivateAccountScreen) }
-
     }
 }
 

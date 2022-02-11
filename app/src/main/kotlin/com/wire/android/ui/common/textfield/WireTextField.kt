@@ -1,5 +1,6 @@
 package com.wire.android.ui.common.textfield
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.InteractionSource
@@ -43,6 +44,7 @@ import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.Tint
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 
 @Composable
 internal fun WireTextField(
@@ -77,7 +79,7 @@ internal fun WireTextField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            textStyle = textStyle,
+            textStyle = textStyle.copy(color = colors.textColor(state = state).value),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,
@@ -98,15 +100,16 @@ internal fun WireTextField(
         val bottomText = when {
             state is WireTextFieldState.Error -> state.errorText
             !descriptionText.isNullOrEmpty() -> descriptionText
-            else -> null
+            else -> String.EMPTY
         }
-        if (bottomText != null)
+        AnimatedVisibility(visible = bottomText.isNotEmpty()) {
             Text(
                 text = bottomText,
                 style = MaterialTheme.wireTypography.label04,
                 color = colors.descriptionColor(state).value,
                 modifier = Modifier.padding(top = 4.dp)
             )
+        }
     }
 }
 
@@ -171,10 +174,14 @@ private fun InnerText(
                     text = placeholderText,
                     style = placeholderTextStyle,
                     color = colors.placeholderColor(state).value,
-                    modifier = Modifier.fillMaxWidth().then(padding)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(padding)
                 )
             Box(
-                modifier = Modifier.fillMaxWidth().then(padding),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(padding),
                 propagateMinConstraints = true
             ) {
                 innerTextField()

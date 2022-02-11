@@ -1,24 +1,22 @@
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,8 +24,10 @@ import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheet
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
-
+import com.wire.android.ui.theme.wireDimensions
 
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
@@ -67,10 +67,13 @@ private fun ConversationRouter(
     ModalBottomSheetLayout(
         sheetState = conversationState.modalBottomSheetState,
         //TODO: create a shape object inside the materialtheme 3 component
-        sheetShape = MaterialTheme.shapes.large.copy(topStart = CornerSize(12.dp), topEnd = CornerSize(12.dp)),
+        sheetShape = androidx.compose.material.MaterialTheme.shapes.large.copy(
+            topStart = CornerSize(MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner),
+            topEnd = CornerSize(MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner)
+        ),
         sheetContent = {
-            ConversationModalBottomSheetContent(
-                conversationState = conversationState,
+            ConversationSheet(
+                modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
                 muteConversation = muteConversation,
                 addConversationToFavourites = addConversationToFavourites,
                 moveConversationToFolder = moveConversationToFolder,
@@ -82,7 +85,23 @@ private fun ConversationRouter(
         }
     ) {
         Scaffold(
-            floatingActionButton = { FloatingActionButton(stringResource(R.string.label_new), {}) },
+            floatingActionButton = {
+            FloatingActionButton(
+                text = stringResource(R.string.label_new),
+                icon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_conversation),
+                        contentDescription = stringResource(R.string.content_description_new_conversation),
+                        contentScale = ContentScale.FillBounds,
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                        modifier = Modifier
+                            .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
+                            .size(dimensions().fabIconSize)
+                    )
+                },
+                onClick = {}
+            )
+        },
             bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
         ) {
             with(uiState) {
@@ -137,45 +156,4 @@ private fun ConversationNavigationItems(
     }
 }
 
-
-@ExperimentalMaterialApi
-@Composable
-private fun ColumnScope.ConversationModalBottomSheetContent(
-    conversationState: ConversationState,
-    muteConversation: (String) -> Unit,
-    addConversationToFavourites: (String) -> Unit,
-    moveConversationToFolder: (String) -> Unit,
-    moveConversationToArchive: (String) -> Unit,
-    clearConversationContent: (String) -> Unit,
-    blockUser: (String) -> Unit,
-    leaveGroup: (String) -> Unit
-) {
-    Spacer(modifier = Modifier.height(8.dp))
-    Divider(
-        modifier = Modifier
-            .width(width = 48.dp)
-            .align(alignment = Alignment.CenterHorizontally),
-        thickness = 4.dp
-    )
-    when (val contentType = conversationState.modalBottomSheetContentState.value) {
-        is ModalSheetContent.GroupConversationEdit -> GroupConversationSheet(
-            content = contentType,
-            onMuteClick = { muteConversation("someId") },
-            onAddToFavouritesClick = { addConversationToFavourites("someId") },
-            onMoveToFolderClick = { moveConversationToFolder("someId") },
-            onMoveToArchiveClick = { moveConversationToArchive("someId") },
-            onClearContentClick = { clearConversationContent("someId") },
-            onLeaveClick = { leaveGroup("someId") })
-        is ModalSheetContent.PrivateConversationEdit -> PrivateConversationSheet(
-            content = contentType,
-            onMuteClick = { muteConversation("someId") },
-            onAddToFavouritesClick = { addConversationToFavourites("someId") },
-            onMoveToFolderClick = { moveConversationToFolder("someId") },
-            onMoveToArchiveClick = { moveConversationToArchive("someId") },
-            onClearContentClick = { clearConversationContent("someId") },
-            onBlockClick = { blockUser("someId") }
-        )
-        ModalSheetContent.Initial -> CircularProgressIndicator() //TODO: add loading state here
-    }
-}
 

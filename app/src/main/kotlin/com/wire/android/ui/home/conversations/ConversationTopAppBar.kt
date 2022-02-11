@@ -64,6 +64,7 @@ fun ConversationScreenTopAppBar(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_search_icon),
                         contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 },
                 fillMaxWidth = false,

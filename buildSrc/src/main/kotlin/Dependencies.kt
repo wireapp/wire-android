@@ -70,7 +70,8 @@ object Libraries {
         const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
         const val compose = "1.0.5"
-        const val composeMaterial = "1.0.0-alpha03"
+        const val composeMaterial = compose
+        const val composeMaterial3 = "1.0.0-alpha04"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.0-beta02"
         const val accompanist = "0.22.0-rc"
@@ -79,6 +80,9 @@ object Libraries {
         const val lifecycle = "2.4.0"
         const val visibilityModifiers = "1.1.0"
         const val composeHiltNavigation = "1.0.0-alpha03"
+        const val browser = "1.3.0"
+        const val dataStore = "1.0.0"
+        const val splashscreen = "1.0.0-beta01"
     }
 
     // AndroidX Dependencies
@@ -92,12 +96,14 @@ object Libraries {
     const val workManager               = "androidx.work:work-runtime-ktx:${Versions.workManager}"
     const val fragment                  = "androidx.fragment:fragment:${Versions.fragment}"
     const val composeUi                 = "androidx.compose.ui:ui:${Versions.compose}"
-    const val composeMaterial           = "androidx.compose.material3:material3:${Versions.composeMaterial}"
+    const val composeMaterial           = "androidx.compose.material:material:${Versions.composeMaterial}"
+    const val composeMaterial3          = "androidx.compose.material3:material3:${Versions.composeMaterial3}"
     const val composeTooling            = "androidx.compose.ui:ui-tooling:${Versions.compose}"
     const val composeActivity           = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeIcons              = "androidx.compose.material:material-icons-extended:${Versions.compose}"
     const val composeNavigation         = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
+    const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
 
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
@@ -114,6 +120,8 @@ object Libraries {
     const val scarletLifecycle          = "com.tinder.scarlet:lifecycle-android:${Versions.scarlet}"
     const val scarletGson               = "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
     const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
+    const val browser                   = "androidx.browser:browser:${Versions.browser}"
+    const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

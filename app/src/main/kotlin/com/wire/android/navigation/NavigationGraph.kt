@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 @Composable
 fun NavigationGraph(navController: NavHostController) {
     NavigationItem.globalNavigationItems.also { navItems ->
-        NavHost(navController, startDestination = NavigationItem.Authentication.route) {
+        NavHost(navController, startDestination = NavigationItem.Home.route) {
             navItems.forEach { item ->
                 composable(route = item.route, content = item.content, arguments = item.arguments)
             }

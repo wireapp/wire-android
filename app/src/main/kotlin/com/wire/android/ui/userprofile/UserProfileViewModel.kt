@@ -24,7 +24,7 @@ class UserProfileViewModel @Inject constructor(
     private val dataStore: UserDataStore
 ) : ViewModel() {
 
-    var userProfileState by mutableStateOf<SelfUserProfileState>(
+    var userProfileState by mutableStateOf(
         SelfUserProfileState(
             "",
             UserStatus.BUSY,

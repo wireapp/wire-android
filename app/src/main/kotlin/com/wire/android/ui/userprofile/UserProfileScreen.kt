@@ -51,6 +51,7 @@ fun UserProfileScreen(viewModel: UserProfileViewModel) {
             state = this,
             onCloseClick = { viewModel.close() },
             onLogoutClick = { viewModel.logout() },
+            onChangeUserProfilePicture = { viewModel.changeUserProfilePicture() },
             onEditClick = { viewModel.editProfile() },
             onStatusClicked = { viewModel.changeStatusClick(it) },
             onAddAccountClick = { viewModel.addAccount() },
@@ -67,6 +68,7 @@ private fun UserProfileScreen(
     state: SelfUserProfileState,
     onCloseClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
+    onChangeUserProfilePicture: () -> Unit = {},
     onEditClick: () -> Unit = {},
     onStatusClicked: (UserStatus) -> Unit = {},
     onAddAccountClick: () -> Unit = {},
@@ -82,8 +84,8 @@ private fun UserProfileScreen(
     ) {
 
         TopBar(onCloseClick, onLogoutClick)
-        Header(state, onEditClick)
-        StatusesRow(state.status, onStatusClicked)
+        UserProfileInfo(state, onChangeUserProfilePicture, onEditClick)
+        StatusRow(state.status, onStatusClicked)
         OtherAccountsList(state, onAddAccountClick)
     }
 
@@ -92,7 +94,7 @@ private fun UserProfileScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.TopBar(onCloseClick: () -> Unit, onLogoutClick: () -> Unit) {
+private fun TopBar(onCloseClick: () -> Unit, onLogoutClick: () -> Unit) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
@@ -128,8 +130,9 @@ private fun ColumnScope.TopBar(onCloseClick: () -> Unit, onLogoutClick: () -> Un
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.Header(state: SelfUserProfileState, onEditClick: () -> Unit) {
+private fun ColumnScope.UserProfileInfo(state: SelfUserProfileState, onUserProfileClick: () -> Unit, onEditClick: () -> Unit) {
     UserProfileAvatar(
+        onClick = onUserProfileClick,
         modifier = Modifier
             .padding(top = dimensions().spacing16x)
             .align(Alignment.CenterHorizontally),
@@ -200,7 +203,7 @@ private fun ColumnScope.Header(state: SelfUserProfileState, onEditClick: () -> U
 }
 
 @Composable
-private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserStatus) -> Unit) {
+private fun StatusRow(status: UserStatus, onStatusClicked: (UserStatus) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

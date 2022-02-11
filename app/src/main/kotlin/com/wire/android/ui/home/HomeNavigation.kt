@@ -7,6 +7,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -31,15 +32,10 @@ fun HomeNavigationGraph(
         navController = navController,
         startDestination = startDestination ?: HomeNavigationItem.Conversations.route
     ) {
-        HomeNavigationItem.Conversations.run {
-            composable(route = route, content = { ConversationRouter(updateScrollPosition) })
-        }
-        HomeNavigationItem.Archive.run {
-            composable(route = route, content = { ArchiveScreen() })
-        }
-        HomeNavigationItem.Vault.run {
-            composable(route = route, content = { VaultScreen() })
-        }
+        HomeNavigationItem.all
+            .forEach { item ->
+                composable(route = item.route, content = item.content(updateScrollPosition))
+            }
     }
 }
 
@@ -66,24 +62,28 @@ sealed class HomeNavigationItem(
     val route: String,
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
-    val isSwipeable: Boolean = true
+    val isSwipeable: Boolean = true,
+    val content: (UpdateScrollPosition) -> (HomeNavigationContent)
 ) {
 
     object Conversations : HomeNavigationItem(
         route = HomeDestinations.conversations,
         title = R.string.conversations_screen_title,
         isSearchable = true,
-        isSwipeable = false
+        isSwipeable = false,
+        content = { updateScrollPosition -> { ConversationRouter(updateScrollPosition = updateScrollPosition) } }
     )
 
     object Vault : HomeNavigationItem(
         route = HomeDestinations.vault,
-        title = R.string.vault_screen_title
+        title = R.string.vault_screen_title,
+        content = { { VaultScreen() } }
     )
 
     object Archive : HomeNavigationItem(
         route = HomeDestinations.archive,
-        title = R.string.archive_screen_title
+        title = R.string.archive_screen_title,
+        content = { { ArchiveScreen() } }
     )
 
     companion object {
@@ -102,6 +102,9 @@ sealed class HomeNavigationItem(
         }
     }
 }
+
+typealias UpdateScrollPosition = (Int) -> Unit
+typealias HomeNavigationContent = @Composable (NavBackStackEntry) -> Unit
 
 object HomeDestinations {
     const val conversations = "home_conversations"

@@ -44,7 +44,11 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
     ) {
         Box {
             val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-            HomeNavigationGraph(navController = navController, startDestination) { viewModel.updateScrollPosition(it) }
+            HomeNavigationGraph(
+                navController = navController,
+                startDestination = startDestination,
+                updateScrollPosition = { scope.launch { viewModel.updateScrollPosition(it) } }
+            )
 
             topBar()
         }

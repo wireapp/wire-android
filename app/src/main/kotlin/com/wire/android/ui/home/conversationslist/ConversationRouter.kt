@@ -20,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
@@ -37,7 +36,6 @@ fun ConversationRouter(
     viewModel: ConversationListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.state.collectAsState()
-    val navController = rememberNavController()
 
     ConversationRouter(
         uiState = uiState,

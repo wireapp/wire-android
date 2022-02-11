@@ -18,8 +18,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -45,8 +45,8 @@ fun HomeTopBar(
     viewModel: HomeViewModel
 ) {
     val titleText = stringResource(id = title ?: R.string.conversations_screen_title)
-    val scrollDownState = viewModel.scrollDown.observeAsState()
-    val firstLineElevation = if (!isSearchable || scrollDownState.value == true) dimensions().topBarElevationHeight else 0.dp
+    val scrollDownState = viewModel.scrollDownFlow.collectAsState(false)
+    val firstLineElevation = if (!isSearchable || scrollDownState.value) dimensions().topBarElevationHeight else 0.dp
 
     Box(
         Modifier.background(Color.Transparent)
@@ -55,7 +55,7 @@ fun HomeTopBar(
             val searchFieldFullHeightPx = LocalDensity.current.run {
                 (dimensions().topBarSearchFieldHeight + dimensions().topBarElevationHeight).toPx()
             }
-            val searchFieldPosition by animateFloatAsState(if (scrollDownState.value == true) -searchFieldFullHeightPx else 0f)
+            val searchFieldPosition by animateFloatAsState(if (scrollDownState.value) -searchFieldFullHeightPx else 0f)
 
             Surface(
                 modifier = Modifier

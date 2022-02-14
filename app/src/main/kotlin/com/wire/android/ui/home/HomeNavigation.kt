@@ -22,11 +22,7 @@ import com.wire.android.ui.home.vault.VaultScreen
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 @Composable
-fun HomeNavigationGraph(
-    navController: NavHostController,
-    startDestination: String?,
-    updateScrollPosition: (Int) -> Unit = {}
-) {
+fun HomeNavigationGraph(navController: NavHostController, startDestination: String?) {
     NavHost(
         modifier = Modifier.padding(top = dimensions().smallTopBarHeight),
         navController = navController,
@@ -34,7 +30,7 @@ fun HomeNavigationGraph(
     ) {
         HomeNavigationItem.all
             .forEach { item ->
-                composable(route = item.route, content = item.content(updateScrollPosition))
+                composable(route = item.route, content = item.content)
             }
     }
 }
@@ -63,7 +59,7 @@ sealed class HomeNavigationItem(
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
-    val content: (UpdateScrollPosition) -> (HomeNavigationContent)
+    val content: @Composable (NavBackStackEntry) -> Unit
 ) {
 
     object Conversations : HomeNavigationItem(
@@ -71,19 +67,19 @@ sealed class HomeNavigationItem(
         title = R.string.conversations_screen_title,
         isSearchable = true,
         isSwipeable = false,
-        content = { updateScrollPosition -> { ConversationRouter(updateScrollPosition = updateScrollPosition) } }
+        content = { ConversationRouter() }
     )
 
     object Vault : HomeNavigationItem(
         route = HomeDestinations.vault,
         title = R.string.vault_screen_title,
-        content = { { VaultScreen() } }
+        content = { VaultScreen() }
     )
 
     object Archive : HomeNavigationItem(
         route = HomeDestinations.archive,
         title = R.string.archive_screen_title,
-        content = { { ArchiveScreen() } }
+        content = { ArchiveScreen() }
     )
 
     companion object {
@@ -102,9 +98,6 @@ sealed class HomeNavigationItem(
         }
     }
 }
-
-typealias UpdateScrollPosition = (Int) -> Unit
-typealias HomeNavigationContent = @Composable (NavBackStackEntry) -> Unit
 
 object HomeDestinations {
     const val conversations = "home_conversations"

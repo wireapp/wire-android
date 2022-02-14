@@ -31,10 +31,7 @@ import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigat
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 @Composable
-fun ConversationRouter(
-    updateScrollPosition: (Int) -> Unit = {},
-    viewModel: ConversationListViewModel = hiltViewModel()
-) {
+fun ConversationRouter(viewModel: ConversationListViewModel = hiltViewModel()) {
     val uiState by viewModel.state.collectAsState()
 
     ConversationRouter(
@@ -48,7 +45,7 @@ fun ConversationRouter(
         clearConversationContent = { id -> viewModel.clearConversationContent(id) },
         blockUser = { id -> viewModel.blockUser(id) },
         leaveGroup = { id -> viewModel.leaveGroup(id) },
-        updateScrollPosition = updateScrollPosition
+        updateScrollPosition = { position -> viewModel.updateScrollPosition(position) }
     )
 }
 

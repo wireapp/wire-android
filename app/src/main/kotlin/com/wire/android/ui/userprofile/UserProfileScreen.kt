@@ -1,7 +1,10 @@
 package com.wire.android.ui.userprofile
 
+import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
@@ -28,19 +31,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.google.accompanist.permissions.rememberPermissionState
+import androidx.core.content.ContextCompat
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.Icon
@@ -53,38 +54,19 @@ import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
 
+
 @OptIn(ExperimentalMaterial3Api::class, com.google.accompanist.permissions.ExperimentalPermissionsApi::class)
 @Composable
 fun UserProfileScreen(viewModel: UserProfileViewModel) {
-
-    val result = remember { mutableStateOf<Bitmap?>(null) }
-
-    val takePictureLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicturePreview()
-    ) {
-
+    val testFlow = rememberTestFlow {
+        viewModel.changeProfilePicture(it)
     }
-
-    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
 
     UserProfileScreen(
         state = viewModel.userProfileState,
         onCloseClick = { viewModel.close() },
         onLogoutClick = { viewModel.logout() },
-        onChangeUserProfilePicture = {
-            if (cameraPermissionState.shouldShowRationale) {
-                Log.d("TEST", "show rationale dialog here")
-            }
-
-            if (!cameraPermissionState.hasPermission) {
-                cameraPermissionState.launchPermissionRequest()
-            }
-
-            else if (cameraPermissionState.hasPermission) {
-                Log.d("TEST", "permission has been granted")
-                takePictureLauncher.launch()
-            }
-        },
+        onChangeUserProfilePicture = { testFlow.launch() },
         onEditClick = { viewModel.editProfile() },
         onStatusClicked = { viewModel.changeStatusClick(it) },
         onAddAccountClick = { viewModel.addAccount() },
@@ -92,6 +74,54 @@ fun UserProfileScreen(viewModel: UserProfileViewModel) {
         onStatusChange = { viewModel.changeStatus(it) },
         onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) }
     )
+}
+
+@Composable
+fun rememberTestFlow(onPicturePicked: (Bitmap?) -> Unit): PickPictureFlow {
+    val context = LocalContext.current
+
+    val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?> = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicturePreview()
+    ) {
+        //profile picture picked here
+        onPicturePicked(it)
+    }
+
+    val cameraPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                //user granted the permission
+                takePictureLauncher.launch()
+            } else {
+                //denied permission from the user
+                Log.d("TEST", "permission is needed to change the profile picture")
+            }
+        }
+
+    return remember {
+        PickPictureFlow(context, takePictureLauncher, cameraPermissionLauncher)
+    }
+}
+
+class PickPictureFlow(
+    private val context: Context,
+    private val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?>,
+    private val cameraPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>
+) {
+
+    fun launch() {
+        if (context.checkPermission(android.Manifest.permission.CAMERA)) {
+            takePictureLauncher.launch()
+        } else {
+            cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+        }
+    }
+
+}
+
+fun Context.checkPermission(permission: String): Boolean {
+    return ContextCompat.checkSelfPermission(this, permission) ==
+            PackageManager.PERMISSION_GRANTED
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,19 +144,38 @@ private fun UserProfileScreen(
             .fillMaxHeight()
             .background(MaterialTheme.colorScheme.background)
     ) {
-
-        TopBar(onCloseClick, onLogoutClick)
-        UserProfileInfo(state, onChangeUserProfilePicture, onEditClick)
-        StatusRow(state.status, onStatusClicked)
-        OtherAccountsList(state, onAddAccountClick)
+        TopBar(
+            onCloseClick = onCloseClick,
+            onLogoutClick = onLogoutClick
+        )
+        UserProfileInfo(
+            state = state,
+            onUserProfileClick = onChangeUserProfilePicture,
+            onEditClick = onEditClick
+        )
+        StatusRow(
+            status = state.status,
+            onStatusClicked = onStatusClicked
+        )
+        OtherAccountsList(
+            state = state,
+            onAddAccountClick = onAddAccountClick
+        )
     }
-
-    ChangeStatusDialogContent(state.statusDialogData, dismissStatusDialog, onStatusChange, onNotShowRationaleAgainChange)
+    ChangeStatusDialogContent(
+        data = state.statusDialogData,
+        dismiss = dismissStatusDialog,
+        onStatusChange = onStatusChange,
+        onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopBar(onCloseClick: () -> Unit, onLogoutClick: () -> Unit) {
+private fun TopBar(
+    onCloseClick: () -> Unit,
+    onLogoutClick: () -> Unit
+) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
@@ -162,7 +211,11 @@ private fun TopBar(onCloseClick: () -> Unit, onLogoutClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.UserProfileInfo(state: SelfUserProfileState, onUserProfileClick: () -> Unit, onEditClick: () -> Unit) {
+private fun ColumnScope.UserProfileInfo(
+    state: SelfUserProfileState,
+    onUserProfileClick: () -> Unit,
+    onEditClick: () -> Unit
+) {
     UserProfileAvatar(
         onClick = onUserProfileClick,
         modifier = Modifier
@@ -235,7 +288,10 @@ private fun ColumnScope.UserProfileInfo(state: SelfUserProfileState, onUserProfi
 }
 
 @Composable
-private fun StatusRow(status: UserStatus, onStatusClicked: (UserStatus) -> Unit) {
+private fun StatusRow(
+    status: UserStatus,
+    onStatusClicked: (UserStatus) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -297,7 +353,10 @@ private fun StatusRow(status: UserStatus, onStatusClicked: (UserStatus) -> Unit)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.OtherAccountsList(state: SelfUserProfileState, onAddAccountClick: () -> Unit) {
+private fun ColumnScope.OtherAccountsList(
+    state: SelfUserProfileState,
+    onAddAccountClick: () -> Unit
+) {
     Text(
         modifier = Modifier
             .padding(top = dimensions().spacing16x, start = dimensions().spacing16x, bottom = dimensions().spacing4x),
@@ -330,7 +389,10 @@ private fun ColumnScope.OtherAccountsList(state: SelfUserProfileState, onAddAcco
 }
 
 @Composable
-private fun OtherAccountItem(account: OtherAccount, onClick: (String) -> Unit = {}) {
+private fun OtherAccountItem(
+    account: OtherAccount,
+    onClick: (String) -> Unit = {}
+) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()

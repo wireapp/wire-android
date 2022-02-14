@@ -1,7 +1,6 @@
 package com.wire.android.ui.userprofile
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -41,7 +40,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.core.content.ContextCompat
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.Icon
@@ -53,20 +51,17 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.extension.checkPermission
 
 
 @OptIn(ExperimentalMaterial3Api::class, com.google.accompanist.permissions.ExperimentalPermissionsApi::class)
 @Composable
 fun UserProfileScreen(viewModel: UserProfileViewModel) {
-    val testFlow = rememberTestFlow {
-        viewModel.changeProfilePicture(it)
-    }
-
     UserProfileScreen(
         state = viewModel.userProfileState,
         onCloseClick = { viewModel.close() },
         onLogoutClick = { viewModel.logout() },
-        onChangeUserProfilePicture = { testFlow.launch() },
+        onChangeUserProfilePicture = { viewModel.changeProfilePicture(it) },
         onEditClick = { viewModel.editProfile() },
         onStatusClicked = { viewModel.changeStatusClick(it) },
         onAddAccountClick = { viewModel.addAccount() },
@@ -77,20 +72,18 @@ fun UserProfileScreen(viewModel: UserProfileViewModel) {
 }
 
 @Composable
-fun rememberTestFlow(onPicturePicked: (Bitmap?) -> Unit): PickPictureFlow {
+internal fun rememberPickPictureFlow(onPicturePicked: (Bitmap?) -> Unit): PickPictureFlow {
     val context = LocalContext.current
 
     val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?> = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicturePreview()
-    ) {
-        //profile picture picked here
-        onPicturePicked(it)
+    ) { nullableBitmap ->
+        onPicturePicked(nullableBitmap)
     }
 
     val cameraPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                //user granted the permission
                 takePictureLauncher.launch()
             } else {
                 //denied permission from the user
@@ -103,12 +96,11 @@ fun rememberTestFlow(onPicturePicked: (Bitmap?) -> Unit): PickPictureFlow {
     }
 }
 
-class PickPictureFlow(
+internal class PickPictureFlow(
     private val context: Context,
     private val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?>,
     private val cameraPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>
 ) {
-
     fun launch() {
         if (context.checkPermission(android.Manifest.permission.CAMERA)) {
             takePictureLauncher.launch()
@@ -116,12 +108,6 @@ class PickPictureFlow(
             cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
         }
     }
-
-}
-
-fun Context.checkPermission(permission: String): Boolean {
-    return ContextCompat.checkSelfPermission(this, permission) ==
-            PackageManager.PERMISSION_GRANTED
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -130,7 +116,7 @@ private fun UserProfileScreen(
     state: SelfUserProfileState,
     onCloseClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
-    onChangeUserProfilePicture: () -> Unit = {},
+    onChangeUserProfilePicture: (Bitmap) -> Unit = {},
     onEditClick: () -> Unit = {},
     onStatusClicked: (UserStatus) -> Unit = {},
     onAddAccountClick: () -> Unit = {},
@@ -138,36 +124,41 @@ private fun UserProfileScreen(
     onStatusChange: (UserStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        TopBar(
-            onCloseClick = onCloseClick,
-            onLogoutClick = onLogoutClick
-        )
-        UserProfileInfo(
-            state = state,
-            onUserProfileClick = onChangeUserProfilePicture,
-            onEditClick = onEditClick
-        )
-        StatusRow(
-            status = state.status,
-            onStatusClicked = onStatusClicked
-        )
-        OtherAccountsList(
-            state = state,
-            onAddAccountClick = onAddAccountClick
+    with(state) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            TopBar(
+                onCloseClick = onCloseClick,
+                onLogoutClick = onLogoutClick
+            )
+            UserProfileInfo(
+                avatarUrl = avatarUrl,
+                fullName = fullName,
+                userName = userName,
+                teamName = teamName,
+                onUserProfileClick = onChangeUserProfilePicture,
+                onEditClick = onEditClick
+            )
+            CurrentUserStatus(
+                userStatus = userStatus,
+                onStatusClicked = onStatusClicked
+            )
+            OtherAccountsList(
+                otherAccounts = otherAccounts,
+                onAddAccountClick = onAddAccountClick
+            )
+        }
+        ChangeStatusDialogContent(
+            data = statusDialogData,
+            dismiss = dismissStatusDialog,
+            onStatusChange = onStatusChange,
+            onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
         )
     }
-    ChangeStatusDialogContent(
-        data = state.statusDialogData,
-        dismiss = dismissStatusDialog,
-        onStatusChange = onStatusChange,
-        onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -212,27 +203,34 @@ private fun TopBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColumnScope.UserProfileInfo(
-    state: SelfUserProfileState,
-    onUserProfileClick: () -> Unit,
+    avatarUrl: String,
+    fullName: String,
+    userName: String,
+    teamName: String,
+    onUserProfileClick: (Bitmap) -> Unit,
     onEditClick: () -> Unit
 ) {
+    val pickPictureFlow = rememberPickPictureFlow { bitmap ->
+        bitmap?.let { onUserProfileClick(it) }
+    }
+
     UserProfileAvatar(
-        onClick = onUserProfileClick,
+        onClick = { pickPictureFlow.launch() },
         modifier = Modifier
             .padding(top = dimensions().spacing16x)
             .align(Alignment.CenterHorizontally),
         size = dimensions().userAvatarDefaultBigSize,
-        avatarUrl = state.avatarUrl,
+        avatarUrl = avatarUrl,
         status = UserStatus.NONE
     )
 
     ConstraintLayout(modifier = Modifier.align(Alignment.CenterHorizontally)) {
 
-        val (data, editBtn, team) = createRefs()
+        val (userDescription, editButton, teamDescription) = createRefs()
 
         Column(modifier = Modifier
             .padding(horizontal = dimensions().spacing64x)
-            .constrainAs(data) {
+            .constrainAs(userDescription) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
                 start.linkTo(parent.start)
@@ -240,16 +238,15 @@ private fun ColumnScope.UserProfileInfo(
             }) {
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = state.fullName,
+                text = fullName,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 style = MaterialTheme.wireTypography.title02,
                 color = MaterialTheme.colorScheme.onBackground,
             )
-
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = state.userName,
+                text = userName,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.wireTypography.body02,
                 maxLines = 1,
@@ -260,10 +257,10 @@ private fun ColumnScope.UserProfileInfo(
         IconButton(
             modifier = Modifier
                 .padding(start = dimensions().spacing16x)
-                .constrainAs(editBtn) {
-                    top.linkTo(data.top)
-                    bottom.linkTo(data.bottom)
-                    end.linkTo(data.end)
+                .constrainAs(editButton) {
+                    top.linkTo(userDescription.top)
+                    bottom.linkTo(userDescription.bottom)
+                    end.linkTo(userDescription.end)
                 },
             onClick = onEditClick,
             content = Icons.Filled.Edit.Icon()
@@ -273,12 +270,12 @@ private fun ColumnScope.UserProfileInfo(
             modifier = Modifier
                 .padding(top = dimensions().spacing8x)
                 .padding(horizontal = dimensions().spacing16x)
-                .constrainAs(team) {
-                    top.linkTo(data.bottom)
+                .constrainAs(teamDescription) {
+                    top.linkTo(userDescription.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
-            text = state.teamName,
+            text = teamName,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.wireTypography.label01,
@@ -288,8 +285,8 @@ private fun ColumnScope.UserProfileInfo(
 }
 
 @Composable
-private fun StatusRow(
-    status: UserStatus,
+private fun CurrentUserStatus(
+    userStatus: UserStatus,
     onStatusClicked: (UserStatus) -> Unit
 ) {
     Row(
@@ -302,7 +299,7 @@ private fun StatusRow(
             text = stringResource(R.string.user_profile_status_available),
             fillMaxWidth = false,
             minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (status == UserStatus.AVAILABLE) WireButtonState.Selected else WireButtonState.Default,
+            state = if (userStatus == UserStatus.AVAILABLE) WireButtonState.Selected else WireButtonState.Default,
             shape = RoundedCornerShape(topStart = dimensions().corner16x, bottomStart = dimensions().corner16x),
             leadingIcon = {
                 UserStatusIndicator(
@@ -315,7 +312,7 @@ private fun StatusRow(
             text = stringResource(R.string.user_profile_status_busy),
             fillMaxWidth = false,
             minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (status == UserStatus.BUSY) WireButtonState.Selected else WireButtonState.Default,
+            state = if (userStatus == UserStatus.BUSY) WireButtonState.Selected else WireButtonState.Default,
             shape = RoundedCornerShape(0.dp),
             leadingIcon = {
                 UserStatusIndicator(
@@ -328,7 +325,7 @@ private fun StatusRow(
             text = stringResource(R.string.user_profile_status_away),
             fillMaxWidth = false,
             minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (status == UserStatus.AWAY) WireButtonState.Selected else WireButtonState.Default,
+            state = if (userStatus == UserStatus.AWAY) WireButtonState.Selected else WireButtonState.Default,
             shape = RoundedCornerShape(0.dp),
             leadingIcon = {
                 UserStatusIndicator(
@@ -341,7 +338,7 @@ private fun StatusRow(
             text = stringResource(R.string.user_profile_status_none),
             shape = RoundedCornerShape(topEnd = dimensions().corner16x, bottomEnd = dimensions().corner16x),
             minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (status == UserStatus.NONE) WireButtonState.Selected else WireButtonState.Default,
+            state = if (userStatus == UserStatus.NONE) WireButtonState.Selected else WireButtonState.Default,
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.NONE,
@@ -354,7 +351,7 @@ private fun StatusRow(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColumnScope.OtherAccountsList(
-    state: SelfUserProfileState,
+    otherAccounts: List<OtherAccount>,
     onAddAccountClick: () -> Unit
 ) {
     Text(
@@ -372,7 +369,7 @@ private fun ColumnScope.OtherAccountsList(
             .background(MaterialTheme.colorScheme.background)
     ) {
         items(
-            items = state.otherAccounts,
+            items = otherAccounts,
             itemContent = { account -> OtherAccountItem(account) }
         )
     }

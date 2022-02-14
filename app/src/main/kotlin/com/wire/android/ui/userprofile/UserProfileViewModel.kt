@@ -1,6 +1,5 @@
 package com.wire.android.ui.userprofile
 
-import android.Manifest
 import android.graphics.Bitmap
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
@@ -9,7 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.BackStackMode
@@ -89,7 +87,7 @@ class UserProfileViewModel @Inject constructor(
     }
 
     fun changeStatusClick(status: UserStatus) {
-        if (userProfileState.status == status) return
+        if (userProfileState.userStatus == status) return
 
         viewModelScope.launch {
             if (shouldShowStatusRationaleDialog(status)) {

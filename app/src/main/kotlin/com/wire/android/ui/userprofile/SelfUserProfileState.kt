@@ -6,7 +6,7 @@ import com.wire.android.model.UserStatus
 
 data class SelfUserProfileState(
     val avatarUrl: String = "",
-    val status: UserStatus,
+    val userStatus: UserStatus,
     val fullName: String,
     val userName: String,
     val teamName: String, //maybe teamId is better here

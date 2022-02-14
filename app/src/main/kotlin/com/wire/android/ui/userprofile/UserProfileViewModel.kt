@@ -1,6 +1,7 @@
 package com.wire.android.ui.userprofile
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -115,6 +116,6 @@ class UserProfileViewModel @Inject constructor(
 
     //TODO: make a request to the back-end here
     fun changeProfilePicture(it: Bitmap?) {
-
+        Log.d("TEST", "change profile picture ")
     }
 }

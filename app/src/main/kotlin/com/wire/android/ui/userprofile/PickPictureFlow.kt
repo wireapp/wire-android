@@ -2,7 +2,6 @@ package com.wire.android.ui.userprofile
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,7 +13,7 @@ import com.wire.android.util.extension.checkPermission
 
 
 @Composable
-internal fun rememberPickPictureFlow(onPicturePicked: (Bitmap?) -> Unit): PickPictureFlow {
+internal fun rememberPickPictureFlow(onPicturePicked: (Bitmap?) -> Unit, onPermissionDenied: () -> Unit): PickPictureFlow {
     val context = LocalContext.current
 
     val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?> = rememberLauncherForActivityResult(
@@ -28,8 +27,7 @@ internal fun rememberPickPictureFlow(onPicturePicked: (Bitmap?) -> Unit): PickPi
             if (isGranted) {
                 takePictureLauncher.launch()
             } else {
-                //denied permission from the user
-                Log.d("TEST", "permission is needed to change the profile picture")
+                onPermissionDenied()
             }
         }
 

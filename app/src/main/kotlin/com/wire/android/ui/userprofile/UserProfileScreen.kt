@@ -1,6 +1,7 @@
 package com.wire.android.ui.userprofile
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -161,9 +162,10 @@ private fun ColumnScope.UserProfileInfo(
     onUserProfileClick: (Bitmap) -> Unit,
     onEditClick: () -> Unit
 ) {
-    val pickPictureFlow = rememberPickPictureFlow { bitmap ->
-        bitmap?.let { onUserProfileClick(it) }
-    }
+    val pickPictureFlow = rememberPickPictureFlow(
+        onPicturePicked = { nullableBitmap -> nullableBitmap?.let { onUserProfileClick(it) } },
+        onPermissionDenied = { Log.d("TEST","camera permission denied") }
+    )
 
     UserProfileAvatar(
         onClick = { pickPictureFlow.launch() },

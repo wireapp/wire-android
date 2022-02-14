@@ -1,5 +1,10 @@
 package com.wire.android.ui.userprofile
 
+import android.graphics.Bitmap
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -23,6 +28,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.google.accompanist.permissions.rememberPermissionState
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.Icon
@@ -43,23 +53,45 @@ import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, com.google.accompanist.permissions.ExperimentalPermissionsApi::class)
 @Composable
 fun UserProfileScreen(viewModel: UserProfileViewModel) {
-    with(viewModel.userProfileState) {
-        UserProfileScreen(
-            state = this,
-            onCloseClick = { viewModel.close() },
-            onLogoutClick = { viewModel.logout() },
-            onChangeUserProfilePicture = { viewModel.changeUserProfilePicture() },
-            onEditClick = { viewModel.editProfile() },
-            onStatusClicked = { viewModel.changeStatusClick(it) },
-            onAddAccountClick = { viewModel.addAccount() },
-            dismissStatusDialog = { viewModel.dismissStatusDialog() },
-            onStatusChange = { viewModel.changeStatus(it) },
-            onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) }
-        )
+
+    val result = remember { mutableStateOf<Bitmap?>(null) }
+
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicturePreview()
+    ) {
+
     }
+
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+
+    UserProfileScreen(
+        state = viewModel.userProfileState,
+        onCloseClick = { viewModel.close() },
+        onLogoutClick = { viewModel.logout() },
+        onChangeUserProfilePicture = {
+            if (cameraPermissionState.shouldShowRationale) {
+                Log.d("TEST", "show rationale dialog here")
+            }
+
+            if (!cameraPermissionState.hasPermission) {
+                cameraPermissionState.launchPermissionRequest()
+            }
+
+            else if (cameraPermissionState.hasPermission) {
+                Log.d("TEST", "permission has been granted")
+                takePictureLauncher.launch()
+            }
+        },
+        onEditClick = { viewModel.editProfile() },
+        onStatusClicked = { viewModel.changeStatusClick(it) },
+        onAddAccountClick = { viewModel.addAccount() },
+        dismissStatusDialog = { viewModel.dismissStatusDialog() },
+        onStatusChange = { viewModel.changeStatus(it) },
+        onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

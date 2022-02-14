@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.BackStackMode
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@ExperimentalPermissionsApi
 @ExperimentalMaterial3Api
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
@@ -115,6 +113,7 @@ class UserProfileViewModel @Inject constructor(
     private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean =
         dataStore.shouldShowStatusRationaleFlow(status).first()
 
+    //TODO: make a request to the back-end here
     fun changeProfilePicture(it: Bitmap?) {
 
     }

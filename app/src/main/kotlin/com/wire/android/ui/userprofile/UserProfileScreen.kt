@@ -1,12 +1,6 @@
 package com.wire.android.ui.userprofile
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -30,10 +24,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,10 +43,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.extension.checkPermission
 
-
-@OptIn(ExperimentalMaterial3Api::class, com.google.accompanist.permissions.ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(viewModel: UserProfileViewModel) {
     UserProfileScreen(
@@ -69,45 +59,6 @@ fun UserProfileScreen(viewModel: UserProfileViewModel) {
         onStatusChange = { viewModel.changeStatus(it) },
         onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) }
     )
-}
-
-@Composable
-internal fun rememberPickPictureFlow(onPicturePicked: (Bitmap?) -> Unit): PickPictureFlow {
-    val context = LocalContext.current
-
-    val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?> = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicturePreview()
-    ) { nullableBitmap ->
-        onPicturePicked(nullableBitmap)
-    }
-
-    val cameraPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                takePictureLauncher.launch()
-            } else {
-                //denied permission from the user
-                Log.d("TEST", "permission is needed to change the profile picture")
-            }
-        }
-
-    return remember {
-        PickPictureFlow(context, takePictureLauncher, cameraPermissionLauncher)
-    }
-}
-
-internal class PickPictureFlow(
-    private val context: Context,
-    private val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?>,
-    private val cameraPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>
-) {
-    fun launch() {
-        if (context.checkPermission(android.Manifest.permission.CAMERA)) {
-            takePictureLauncher.launch()
-        } else {
-            cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
-        }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -300,7 +251,10 @@ private fun CurrentUserStatus(
             fillMaxWidth = false,
             minHeight = dimensions().userProfileStatusBtnHeight,
             state = if (userStatus == UserStatus.AVAILABLE) WireButtonState.Selected else WireButtonState.Default,
-            shape = RoundedCornerShape(topStart = dimensions().corner16x, bottomStart = dimensions().corner16x),
+            shape = RoundedCornerShape(
+                topStart = dimensions().corner16x,
+                bottomStart = dimensions().corner16x
+            ),
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.AVAILABLE,
@@ -336,7 +290,10 @@ private fun CurrentUserStatus(
         WireSecondaryButton(
             onClick = { onStatusClicked(UserStatus.NONE) },
             text = stringResource(R.string.user_profile_status_none),
-            shape = RoundedCornerShape(topEnd = dimensions().corner16x, bottomEnd = dimensions().corner16x),
+            shape = RoundedCornerShape(
+                topEnd = dimensions().corner16x,
+                bottomEnd = dimensions().corner16x
+            ),
             minHeight = dimensions().userProfileStatusBtnHeight,
             state = if (userStatus == UserStatus.NONE) WireButtonState.Selected else WireButtonState.Default,
             leadingIcon = {
@@ -356,7 +313,11 @@ private fun ColumnScope.OtherAccountsList(
 ) {
     Text(
         modifier = Modifier
-            .padding(top = dimensions().spacing16x, start = dimensions().spacing16x, bottom = dimensions().spacing4x),
+            .padding(
+                top = dimensions().spacing16x,
+                start = dimensions().spacing16x,
+                bottom = dimensions().spacing4x
+            ),
         text = stringResource(id = R.string.user_profile_other_accs).uppercase(),
         style = MaterialTheme.wireTypography.title03,
         color = MaterialTheme.colorScheme.onBackground,
@@ -417,10 +378,16 @@ private fun OtherAccountItem(
                 start.linkTo(avatar.end)
             }) {
 
-            Text(text = account.fullName, style = MaterialTheme.wireTypography.body02)
+            Text(
+                text = account.fullName,
+                style = MaterialTheme.wireTypography.body02
+            )
 
             if (account.teamName != null) {
-                Text(text = account.teamName, style = MaterialTheme.wireTypography.subline01)
+                Text(
+                    text = account.teamName,
+                    style = MaterialTheme.wireTypography.subline01
+                )
             }
         }
     }

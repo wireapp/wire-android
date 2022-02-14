@@ -54,7 +54,7 @@ class LoginViewModel @Inject constructor(
         loginState = loginState.copy(password = newText).updateLoginEnabled()
     }
 
-    fun onDialogDismissed() {
+    fun clearLoginError() {
         loginState = loginState.copy(loginError = LoginError.None)
     }
 

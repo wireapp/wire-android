@@ -8,6 +8,7 @@ import io.github.esentsov.PackagePrivate
 @Immutable
 data class WireDimensions(
     // Top bar
+    val topBarShadowElevation: Dp,
     val smallTopBarHeight: Dp,
     val topBarSearchFieldHeight: Dp,
     val topBarElevationHeight: Dp,
@@ -73,6 +74,10 @@ data class WireDimensions(
     val welcomeButtonVerticalPadding: Dp,
     val welcomeVerticalPadding: Dp,
     val welcomeVerticalSpacing: Dp,
+    // Remove device
+    val removeDeviceHorizontalPadding: Dp,
+    val removeDeviceMessageVerticalPadding: Dp,
+    val removeDeviceLabelVerticalPadding: Dp,
     // Spacing
     val spacing2x: Dp,
     val spacing4x: Dp,
@@ -99,6 +104,7 @@ data class WireDimensions(
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
+    topBarShadowElevation = 4.dp,
     smallTopBarHeight = 64.dp,
     topBarSearchFieldHeight = 64.dp,
     topBarElevationHeight = 8.dp,
@@ -151,6 +157,9 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     welcomeButtonVerticalPadding = 8.dp,
     welcomeVerticalPadding = 56.dp,
     welcomeVerticalSpacing = 40.dp,
+    removeDeviceHorizontalPadding = 16.dp,
+    removeDeviceMessageVerticalPadding = 24.dp,
+    removeDeviceLabelVerticalPadding = 5.dp,
     spacing2x = 2.dp,
     spacing4x = 4.dp,
     spacing8x = 8.dp,

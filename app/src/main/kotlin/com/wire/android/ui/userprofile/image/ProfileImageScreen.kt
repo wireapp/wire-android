@@ -220,10 +220,33 @@ class TestShape : CornerBasedShape(
             val bottomLeftRect = Rect(left = -size.width, top = size.height / 2, right = size.width / 2, bottom = size.height)
             val bottomRightRect = Rect(left = size.width / 2, top = size.height / 2, right = size.width, bottom = size.height)
 
-            arcTo(topLeftRect, startAngleDegrees = 90f, sweepAngleDegrees = -90f, false)
-            arcTo(topRightRect, startAngleDegrees = 180f, sweepAngleDegrees = -90f, false)
-            arcTo(bottomLeftRect, startAngleDegrees = 270f, sweepAngleDegrees = -90f, false)
-            arcTo(bottomRightRect, startAngleDegrees = 0f, sweepAngleDegrees = -90f, false)
+
+            lineTo(topLeftRect.left,topLeftRect.top)
+            lineTo(topLeftRect.top,topLeftRect.right)
+            arcTo(rectangleRect, startAngleDegrees = 180f, sweepAngleDegrees = 90f,false)
+
+//
+            lineTo(topRightRect.left,topLeftRect.top)
+            lineTo(topLeftRect.right,topLeftRect.top)
+            arcTo(rectangleRect, startAngleDegrees = 90f, sweepAngleDegrees = 0f,false)
+
+//            arcTo(rectangleRect, startAngleDegrees = 90f, sweepAngleDegrees = 0f,false)
+//            lineTo(topRightRect.left,topLeftRect.bottom)
+//
+//            arcTo(rectangleRect, startAngleDegrees = 0f, sweepAngleDegrees = -90f,true)
+//            lineTo(topLeftRect.left,topLeftRect.top)
+//
+//
+//            arcTo(rectangleRect, startAngleDegrees = -90f, sweepAngleDegrees = -180f,true)
+//            lineTo(topLeftRect.left,topLeftRect.top)
+
+
+//            arcTo(rectangleRect, startAngleDegrees = 90f, sweepAngleDegrees = 0f,true)
+//            arcTo(rectangleRect, startAngleDegrees = 0f, sweepAngleDegrees = -90f,false)
+//            arcTo(rectangleRect, startAngleDegrees = -90f, sweepAngleDegrees = -180f,false)
+//            arcTo(topRightRect, startAngleDegrees = 0f, sweepAngleDegrees = -90f, false)
+//            arcTo(bottomLeftRect, startAngleDegrees = 0f, sweepAngleDegrees = 90f, false)
+//            arcTo(bottomRightRect, startAngleDegrees = 0f, sweepAngleDegrees = -90f, false)
 
             close()
         }

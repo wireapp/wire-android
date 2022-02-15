@@ -29,7 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val registerClientUseCase: @JvmSuppressWildcards (AuthSession) -> RegisterClientUseCase,  //TODO replace when the final solution is ready in Kalium
+    //TODO replace when the final solution is ready in Kalium
+    private val registerClientUseCase: @JvmSuppressWildcards (AuthSession) -> RegisterClientUseCase,
     private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
 ) : ViewModel() {
@@ -47,7 +48,8 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
             val loginError = if(loginResult is AuthenticationResult.Success)
-                registerClientUseCase(loginResult.userSession)(loginState.password.text, null).toLoginError() // TODO what if user logs in but doesn't register a new device?
+                // TODO what if user logs in but doesn't register a new device?
+                registerClientUseCase(loginResult.userSession)(loginState.password.text, null).toLoginError()
             else loginResult.toLoginError()
             loginState = loginState.copy(loading = false, loginError = loginError).updateLoginEnabled()
             if(loginError is LoginError.None)

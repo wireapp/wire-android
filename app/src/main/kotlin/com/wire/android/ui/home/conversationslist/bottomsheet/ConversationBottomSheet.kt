@@ -42,26 +42,26 @@ fun ConversationSheet(
         menuItems = listOf(
             {
                 MenuBottomSheetItem(
+                    title = stringResource(R.string.label_mute),
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_mute,
                             contentDescription = stringResource(R.string.content_description_mute),
                         )
                     },
-                    title = stringResource(R.string.label_mute),
-                    action = { muteConversation("someId") }
+                    onItemClick = { muteConversation("someId") }
                 )
             },
             {
                 MenuBottomSheetItem(
+                    title = stringResource(R.string.label_add_to_favourites),
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_favourite,
                             contentDescription = stringResource(R.string.content_description_add_to_favourite),
                         )
                     },
-                    title = stringResource(R.string.label_add_to_favourites),
-                    action = { addConversationToFavourites("someId") }
+                    onItemClick = { addConversationToFavourites("someId") }
                 )
             },
             {
@@ -73,7 +73,7 @@ fun ConversationSheet(
                         )
                     },
                     title = stringResource(R.string.label_move_to_folder),
-                    action = { moveConversationToFolder("someId") }
+                    onItemClick = { moveConversationToFolder("someId") }
                 )
             },
             {
@@ -85,7 +85,7 @@ fun ConversationSheet(
                         )
                     },
                     title = stringResource(R.string.label_move_to_archive),
-                    action = { moveConversationToArchive("someId") }
+                    onItemClick = { moveConversationToArchive("someId") }
                 )
             },
             {
@@ -97,7 +97,7 @@ fun ConversationSheet(
                         )
                     },
                     title = stringResource(R.string.label_clear_content),
-                    action = { clearConversationContent("someId") }
+                    onItemClick = { clearConversationContent("someId") }
                 )
             },
             {
@@ -111,7 +111,7 @@ fun ConversationSheet(
                                 )
                             },
                             title = stringResource(R.string.label_block),
-                            action = { blockUser("someId") }
+                            onItemClick = { blockUser("someId") }
                         )
                     }
                 } else {
@@ -124,7 +124,7 @@ fun ConversationSheet(
                                 )
                             },
                             title = stringResource(R.string.label_leave_group),
-                            action = { leaveGroup("someId") }
+                            onItemClick = { leaveGroup("someId") }
                         )
                     }
                 }

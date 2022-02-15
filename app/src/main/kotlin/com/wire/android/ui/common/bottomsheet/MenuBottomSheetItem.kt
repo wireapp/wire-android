@@ -28,7 +28,7 @@ import io.github.esentsov.PackagePrivate
 fun MenuBottomSheetItem(
     title: String,
     icon: @Composable () -> Unit,
-    action: @Composable () -> Unit = {},
+    action: (@Composable () -> Unit)? = null,
     onItemClick: () -> Unit = {}
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
@@ -40,8 +40,10 @@ fun MenuBottomSheetItem(
         icon()
         Spacer(modifier = Modifier.width(12.dp))
         MenuItemTitle(title = title)
-        Spacer(modifier = Modifier.weight(1f))
-        action()
+        if (action != null) {
+            Spacer(modifier = Modifier.weight(1f))
+            action()
+        }
     }
 }
 
@@ -85,3 +87,4 @@ fun MenuItemIcon(
             .then(modifier)
     )
 }
+

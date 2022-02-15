@@ -1,10 +1,13 @@
 package com.wire.android.ui.userprofile.image
 
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
@@ -18,52 +21,108 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterialApi::class)
+class ProfileImageState constructor(
+    val coroutineScope: CoroutineScope,
+    val modalBottomSheetState: ModalBottomSheetState,
+    val takePictureFLow: TakePictureFlow,
+    val openGalleryFlow: OpenGalleryFlow,
+) {
+
+    fun showModalBottomSheet() {
+        coroutineScope.launch { modalBottomSheetState.show() }
+    }
+
+    fun openCamera() {
+        takePictureFLow.launch()
+    }
+
+    fun openGallery() {
+        openGalleryFlow.launch()
+    }
+
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun rememberProfileImageState(
+    onPictureTaken: (Bitmap?) -> Unit,
+    onGalleryItemPicked: (Uri?) -> Unit,
+    onPermissionDenied: () -> Unit,
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
+): ProfileImageState {
+    val takePictureFLow = rememberTakePictureFlow(onPictureTaken, onPermissionDenied)
+    val openGalleryFlow = rememberOpenGalleryFlow(onGalleryItemPicked, onPermissionDenied)
+
+    return remember {
+        ProfileImageState(
+            coroutineScope = coroutineScope,
+            modalBottomSheetState = modalBottomSheetState,
+            takePictureFLow = takePictureFLow,
+            openGalleryFlow = openGalleryFlow,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileImageScreen(avatarUrl: String) {
-    val coroutineScope = rememberCoroutineScope()
-    val modalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val profileImageState = rememberProfileImageState({}, {}, {})
 
     MenuModalSheetLayout(
-        sheetState = modalBottomSheetState,
+        sheetState = profileImageState.modalBottomSheetState,
         headerTitle = "Change Image",
-        menuItems = listOf({
-            MenuBottomSheetItem(
-                title = "Choose from gallery",
-                icon = {
-                    MenuItemIcon(
-                        id = R.drawable.ic_gallery,
-                        contentDescription = ""
-                    )
-                }
-            ) {
-
-            }
-        }, {
-            MenuBottomSheetItem(title = "Take a picture", icon = {
-                MenuItemIcon(
-                    id = R.drawable.ic_take_a_picture,
-                    contentDescription = ""
+        menuItems = listOf(
+            {
+                MenuBottomSheetItem(
+                    title = "Choose from gallery",
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_gallery,
+                            contentDescription = ""
+                        )
+                    },
+                    action = {
+                        ArrowRightIcon()
+                    },
+                    onItemClick = { profileImageState.openGallery() }
                 )
-            }) {
-
+            },
+            {
+                MenuBottomSheetItem(
+                    title = "Take a picture",
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_take_a_picture,
+                            contentDescription = ""
+                        )
+                    },
+                    action = {
+                        ArrowRightIcon()
+                    },
+                    onItemClick = { profileImageState.openCamera() }
+                )
             }
-        })
+        )
     ) {
         Scaffold(topBar = { ProfileImageTopBar() }) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -76,7 +135,7 @@ fun ProfileImageScreen(avatarUrl: String) {
                             .background(MaterialTheme.colorScheme.background)
                             .padding(dimensions().spacing16x),
                         text = "Change Image...",
-                        onClick = { coroutineScope.launch { modalBottomSheetState.show() } }
+                        onClick = { profileImageState.showModalBottomSheet() }
                     )
                 }
             }
@@ -109,4 +168,3 @@ private fun ProfileImageTopBar() {
         },
     )
 }
-

@@ -105,6 +105,7 @@ dependencies {
     implementation(Libraries.composeConstraintLayout)
     implementation(Libraries.accompanistPager)
     implementation(Libraries.accompanistSystemUI)
+    implementation(Libraries.composeRuntimeLiveData)
 
     // dagger/hilt
     implementation(Libraries.Hilt.android)

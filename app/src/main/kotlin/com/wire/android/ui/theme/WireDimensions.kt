@@ -8,7 +8,11 @@ import io.github.esentsov.PackagePrivate
 
 @Immutable
 data class WireDimensions(
+    // Top bar
     val topBarShadowElevation: Dp,
+    val smallTopBarHeight: Dp,
+    val topBarSearchFieldHeight: Dp,
+    val topBarElevationHeight: Dp,
     // Avatar
     val userAvatarDefaultSize: Dp,
     val userAvatarDefaultBigSize: Dp,
@@ -105,6 +109,9 @@ data class WireDimensions(
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     topBarShadowElevation = 4.dp,
+    smallTopBarHeight = 64.dp,
+    topBarSearchFieldHeight = 64.dp,
+    topBarElevationHeight = 8.dp,
     userAvatarDefaultSize = 32.dp,
     userAvatarDefaultBigSize = 160.dp,
     userAvatarClickablePadding = 6.dp,

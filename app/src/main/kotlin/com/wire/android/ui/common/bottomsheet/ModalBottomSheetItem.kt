@@ -40,11 +40,11 @@ fun ModalBottomSheetItem(
 // Add Divider() at the beginning of the list, then keep adding at the end of each items, till last item
 @Composable
 fun buildMenuSheetItems(items: List<@Composable () -> Unit>) {
-    Divider()
+    Divider(thickness = 0.5.dp)
     items.forEachIndexed { index: Int, itemBuilder: @Composable () -> Unit ->
         itemBuilder()
         if (index != items.size) {
-            Divider()
+            Divider(thickness = 0.5.dp)
         }
     }
 }

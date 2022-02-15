@@ -8,14 +8,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,8 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.Tint
@@ -48,10 +50,10 @@ fun WireButton(
     trailingIconAlignment: IconAlignment = IconAlignment.Border,
     text: String? = null,
     fillMaxWidth: Boolean = true,
-    textStyle: TextStyle = if(fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
+    textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
-    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinHeight,
-    minWidth: Dp = MaterialTheme.wireDimensions.buttonMinWidth,
+    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
+    minWidth: Dp = MaterialTheme.wireDimensions.buttonMinSize.width,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     colors: WireButtonColors = wirePrimaryButtonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
@@ -77,9 +79,9 @@ fun WireButton(
     )
     Button(
         onClick = onClick,
-        modifier = modifier.heightIn(minHeight).widthIn(minWidth).let {
-            if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth()
-        },
+        modifier = modifier
+            .let { if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth() }
+            .sizeIn(minHeight = minHeight, minWidth = minWidth),
         enabled = state != WireButtonState.Disabled,
         interactionSource = interactionSource,
         elevation = elevation,
@@ -117,7 +119,7 @@ private fun InnerButtonBox(
     state: WireButtonState = WireButtonState.Default,
     colors: WireButtonColors = wirePrimaryButtonColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    ) {
+) {
     val contentColor = colors.contentColor(state, interactionSource).value
     val leadingItem: (@Composable () -> Unit) = { leadingIcon?.let { Tint(contentColor = contentColor, content = it) } }
     val trailingItem: (@Composable () -> Unit) = {
@@ -163,6 +165,13 @@ private fun InnerButtonBox(
         ) { if (trailingIconAlignment == IconAlignment.Border) trailingItem() }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun getMinTouchMargins(minSize: DpSize) = PaddingValues(
+    horizontal = (LocalViewConfiguration.current.minimumTouchTargetSize.width - minSize.width) / 2,
+    vertical = (LocalViewConfiguration.current.minimumTouchTargetSize.height - minSize.height) / 2
+)
 
 enum class IconAlignment { Border, Center }
 

@@ -13,17 +13,23 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.wire.kalium.logic.configuration.ServerConfig
 
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
+    private val registerClientUseCase: @JvmSuppressWildcards (AuthSession) -> RegisterClientUseCase,  //TODO replace when the final solution is ready in Kalium
     private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
 ) : ViewModel() {
@@ -40,8 +46,12 @@ class LoginViewModel @Inject constructor(
         loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
             val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
-            loginState = loginState.copy(loading = false, loginError = loginResult.toLoginError()).updateLoginEnabled()
-            if(loginResult is AuthenticationResult.Success) navigateToConvScreen()
+            val loginError = if(loginResult is AuthenticationResult.Success)
+                registerClientUseCase(loginResult.userSession)(loginState.password.text, null).toLoginError() // TODO what if user logs in but doesn't register a new device?
+            else loginResult.toLoginError()
+            loginState = loginState.copy(loading = false, loginError = loginError).updateLoginEnabled()
+            if(loginError is LoginError.None)
+                navigateToConvScreen()
         }
     }
 
@@ -67,6 +77,15 @@ class LoginViewModel @Inject constructor(
             is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
             AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
             AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidUserIdentifierError
+            else -> LoginError.None
+        }
+
+    private fun RegisterClientResult.toLoginError() =
+        when(this) {
+            is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
+            is RegisterClientResult.Failure.ProteusFailure -> LoginError.DialogError.GenericError(CoreFailure.Unknown(this.e))
+            RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+            RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
             else -> LoginError.None
         }
 

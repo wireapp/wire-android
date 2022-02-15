@@ -8,6 +8,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Qualifier
@@ -38,4 +40,9 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().login
+
+    @ViewModelScoped
+    @Provides
+    fun registerClientUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic): (AuthSession) -> RegisterClientUseCase =
+        { coreLogic.getSessionScope(it).client.register } //TODO replace when the final solution is ready in Kalium
 }

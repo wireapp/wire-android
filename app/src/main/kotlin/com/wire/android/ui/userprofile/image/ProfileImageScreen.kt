@@ -24,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
+import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
@@ -40,7 +42,28 @@ fun ProfileImageScreen(avatarUrl: String) {
     MenuModalSheetLayout(
         sheetState = modalBottomSheetState,
         headerTitle = "Change Image",
-        menuItems = listOf({  }, {  })
+        menuItems = listOf({
+            MenuBottomSheetItem(
+                title = "Choose from gallery",
+                icon = {
+                    MenuItemIcon(
+                        id = R.drawable.ic_gallery,
+                        contentDescription = ""
+                    )
+                }
+            ) {
+
+            }
+        }, {
+            MenuBottomSheetItem(title = "Take a picture", icon = {
+                MenuItemIcon(
+                    id = R.drawable.ic_take_a_picture,
+                    contentDescription = ""
+                )
+            }) {
+
+            }
+        })
     ) {
         Scaffold(topBar = { ProfileImageTopBar() }) {
             Box(modifier = Modifier.fillMaxSize()) {

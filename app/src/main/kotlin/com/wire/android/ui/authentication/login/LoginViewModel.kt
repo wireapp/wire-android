@@ -41,11 +41,15 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
             loginState = loginState.copy(loading = false, loginError = loginResult.toLoginError()).updateLoginEnabled()
-            if(loginResult is AuthenticationResult.Success) navigateToConvScreen()
+            if (loginResult is AuthenticationResult.Success) navigateToConvScreen()
         }
     }
 
     fun onUserIdentifierChange(newText: TextFieldValue) {
+        // in case an error is showing e.g. inline error is should be cleared
+        if (loginState.loginError !is LoginError.None) {
+            clearLoginError()
+        }
         loginState = loginState.copy(userIdentifier = newText).updateLoginEnabled()
         savedStateHandle.set(USER_IDENTIFIER_SAVED_STATE_KEY, newText.text)
     }
@@ -63,7 +67,7 @@ class LoginViewModel @Inject constructor(
 
     // TODO: login error Mapper ?
     private fun AuthenticationResult.toLoginError() =
-        when(this) {
+        when (this) {
             is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
             AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
             AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidUserIdentifierError

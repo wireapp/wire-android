@@ -14,7 +14,7 @@ import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
-import com.wire.android.ui.userprofile.UserProfileScreen
+import com.wire.android.ui.userprofile.UserProfileRoute
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -57,7 +57,7 @@ sealed class NavigationItem(
 
     object UserProfile : NavigationItem(
         route = "user_profile",
-        content = { UserProfileScreen(hiltViewModel()) },
+        content = { UserProfileRoute(hiltViewModel()) },
     )
 
     object Conversation : NavigationItem(

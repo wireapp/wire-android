@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile
+package com.wire.android.ui.userprofile.image
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -13,7 +13,7 @@ import com.wire.android.util.extension.checkPermission
 
 
 @Composable
-internal fun rememberPickPictureFlow(onPicturePicked: (Bitmap?) -> Unit, onPermissionDenied: () -> Unit): PickPictureFlow {
+fun rememberPickPictureFlow(onPicturePicked: (Bitmap?) -> Unit, onPermissionDenied: () -> Unit): PickPictureFlow {
     val context = LocalContext.current
 
     val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?> = rememberLauncherForActivityResult(
@@ -36,7 +36,7 @@ internal fun rememberPickPictureFlow(onPicturePicked: (Bitmap?) -> Unit, onPermi
     }
 }
 
-internal class PickPictureFlow(
+class PickPictureFlow(
     private val context: Context,
     private val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?>,
     private val cameraPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>

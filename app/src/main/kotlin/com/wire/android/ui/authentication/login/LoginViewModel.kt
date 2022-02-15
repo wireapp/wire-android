@@ -8,6 +8,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -29,8 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    //TODO replace when the final solution is ready in Kalium
-    private val registerClientUseCase: @JvmSuppressWildcards (AuthSession) -> RegisterClientUseCase,
+    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
 ) : ViewModel() {
@@ -47,14 +47,19 @@ class LoginViewModel @Inject constructor(
         loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
             val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
-            val loginError = if(loginResult is AuthenticationResult.Success)
-                // TODO what if user logs in but doesn't register a new device?
-                registerClientUseCase(loginResult.userSession)(loginState.password.text, null).toLoginError()
-            else loginResult.toLoginError()
+            val loginError =
+                if(loginResult is AuthenticationResult.Success) registerClient(loginResult.userSession).toLoginError()
+                else loginResult.toLoginError()
+            // TODO what if user logs in but doesn't register a new device?
             loginState = loginState.copy(loading = false, loginError = loginError).updateLoginEnabled()
             if(loginError is LoginError.None)
                 navigateToConvScreen()
         }
+    }
+
+    private suspend fun registerClient(authSession: AuthSession): RegisterClientResult {
+        val clientScope = clientScopeProviderFactory.create(authSession).clientScope
+        return clientScope.register(loginState.password.text, null)
     }
 
     fun onUserIdentifierChange(newText: TextFieldValue) {

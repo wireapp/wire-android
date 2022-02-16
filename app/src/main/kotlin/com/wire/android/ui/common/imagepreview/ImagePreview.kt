@@ -85,21 +85,21 @@ class BulletHoleShape : Shape {
         val path = Path().apply {
             reset()
             //move the origin point to the middle of the backgroundWrappingRect on the left side
-            moveTo(x = 0f, y = size.height / 2)
+            moveTo(x = 0f, y = backgroundWrappingRect.height / 2)
             //draw a line to from the middle of backgroundWrappingRect to the top on the left side
             lineTo(x = 0f, y = 0f)
             //draw a line from the left edge to the right edge on the top side
-            lineTo(x = size.width, y = 0f)
-            //draw a line from the right edge to the middle of backgroundWrappingRect on the right side
-            lineTo(x = size.width, y = size.height / 2)
+            lineTo(x = backgroundWrappingRect.width, y = 0f)
+            //draw a backgroundWrappingRect from the right edge to the middle of backgroundWrappingRect on the right side
+            lineTo(x = size.width, y = backgroundWrappingRect.height / 2)
             //arc -180 degrees from the start point of backgroundWrappingRect -
             arcTo(backgroundWrappingRect, 0f, -180f, true)
             //draw a line from middle of backgroundWrappingRect to the bottom of backgroundWrappingRect on the left side
-            lineTo(x = 0f, y = size.height)
+            lineTo(x = 0f, y = backgroundWrappingRect.height)
             //draw a line from the bottom edge of backgroundWrappingRect to the right edge on the bottom side
-            lineTo(x = size.width, y = size.height)
+            lineTo(x = backgroundWrappingRect.width, y = backgroundWrappingRect.height)
             //draw a line from the bottom edge of the backgroundWrappingRect to the middle of backgroundWrappingRect on the right side
-            lineTo(x = size.width, y = size.height / 2)
+            lineTo(x = backgroundWrappingRect.width, y = backgroundWrappingRect.height / 2)
             //arc 180 degrees - we are back on middle of the backgroundWrappingRect on the left side now
             arcTo(backgroundWrappingRect, 0f, 180f, true)
             //we drawn the outline, we can close the path now

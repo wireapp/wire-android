@@ -39,43 +39,6 @@ fun rememberTakePictureFlow(
     }
 }
 
-
-//@Composable
-//fun rememberTakePictureFlow(
-//    onPicturePicked: (Bitmap?) -> Unit,
-//    onGalleryItemPicked: (Uri?) -> Unit,
-//    onPermissionDenied: () -> Unit
-//): PickPictureFlow {
-//    val context = LocalContext.current
-//
-//    val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?> = rememberLauncherForActivityResult(
-//        ActivityResultContracts.TakePicturePreview()
-//    ) { nullableBitmap ->
-//        nullableBitmap?.let { onPicturePicked(it) }
-//    }
-//
-//    val openGalleryLauncher: ManagedActivityResultLauncher<String, Uri?> = rememberLauncherForActivityResult(
-//        ActivityResultContracts.GetContent()
-//    ) { nullableUri ->
-//        nullableUri?.let { onGalleryItemPicked(it) }
-//    }
-//
-//    val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
-//        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-//            if (isGranted) {
-//                takePictureLauncher.launch()
-//            } else {
-//                onPermissionDenied()
-//            }
-//        }
-//
-//    return remember {
-//        PickPictureFlow(context, takePictureLauncher, openGalleryLauncher, requestPermissionLauncher)
-//    }
-//}
-//
-
-
 class TakePictureFlow(
     private val context: Context,
     private val takePictureLauncher: ManagedActivityResultLauncher<Void?, Bitmap?>,

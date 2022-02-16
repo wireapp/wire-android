@@ -15,6 +15,7 @@ import com.wire.android.ui.home.conversationslist.model.MentionInfo
 import com.wire.android.ui.home.conversationslist.model.MentionMessage
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.UserInfo
+import com.wire.kalium.logic.data.conversation.ConversationId
 
 val mockConversations1 = listOf(
     GeneralConversation(
@@ -24,7 +25,8 @@ val mockConversations1 = listOf(
                 name = "some test value",
                 membership = Membership.Guest,
                 isLegalHold = true
-            )
+            ),
+            conversationsId = ConversationId("someId", "someDomain")
         )
     ),
     GeneralConversation(
@@ -34,7 +36,8 @@ val mockConversations1 = listOf(
                 name = "some test value",
                 membership = Membership.Guest,
                 isLegalHold = true
-            )
+            ),
+            conversationsId = ConversationId("someId", "someDomain")
         )
     ),
     GeneralConversation(
@@ -44,7 +47,8 @@ val mockConversations1 = listOf(
                 name = "some test value",
                 membership = Membership.Guest,
                 isLegalHold = true
-            )
+            ),
+            conversationsId = ConversationId("someId", "someDomain")
         )
     ),
 )
@@ -57,7 +61,8 @@ val mockConversations2 = listOf(
                 name = "some test value",
                 membership = Membership.External,
                 isLegalHold = true
-            )
+            ),
+            conversationsId = ConversationId("someId", "someDomain")
         )
     ),
     ConversationMissedCall(
@@ -68,14 +73,16 @@ val mockConversations2 = listOf(
                 name = "some test value",
                 membership = Membership.None,
                 isLegalHold = true
-            )
+            ),
+            conversationsId = ConversationId("someId", "someDomain")
         )
     ),
     ConversationUnreadMention(
         mentionInfo = MentionInfo(MentionMessage("Some mention message")),
         conversationType = ConversationType.GroupConversation(
             groupColorValue = 0xFF00FF00,
-            groupName = "Some group name"
+            groupName = "Some group name",
+            conversationsId = ConversationId("someId", "someDomain")
         ),
     )
 )
@@ -86,12 +93,14 @@ val mockConversation = ConversationType.PrivateConversation(
         name = "some test value",
         membership = Membership.Guest,
         isLegalHold = true
-    )
+    ),
+    conversationsId = ConversationId("someId", "someDomain")
 )
 
 val mockGroupConversation = ConversationType.GroupConversation(
     groupColorValue = 0xFFFF0000,
-    groupName = "Some group name"
+    groupName = "Some group name",
+    conversationsId = ConversationId("someId", "someDomain")
 )
 
 val mockGeneralConversation = GeneralConversation(
@@ -101,7 +110,8 @@ val mockGeneralConversation = GeneralConversation(
             name = "some test value",
             membership = Membership.Guest,
             isLegalHold = true
-        )
+        ),
+        conversationsId = ConversationId("someId", "someDomain")
     )
 )
 
@@ -117,6 +127,8 @@ val conversationMockData = mapOf(
                 "VERY VERY VERY VERY VERY LONG NAME"
     ) to mockConversations1
 )
+
+fun conversationMockData(conversations: List<GeneralConversation>) = mapOf(ConversationFolder("REAL CONVERSATIONS HERE") to conversations)
 
 @Suppress("MagicNumber")
 val newActivitiesMockData = listOf(

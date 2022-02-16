@@ -67,6 +67,8 @@ data class WireDimensions(
     val userProfileLogoutBtnHeight: Dp,
     val userProfileStatusBtnHeight: Dp,
     val userProfileOtherAccItemHeight: Dp,
+    // Profile Image
+    val imagePreviewHeight :Dp,
     // Welcome
     val welcomeImageHorizontalPadding: Dp,
     val welcomeTextHorizontalPadding: Dp,
@@ -151,6 +153,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     userProfileLogoutBtnHeight = 32.dp,
     userProfileStatusBtnHeight = 32.dp,
     userProfileOtherAccItemHeight = 56.dp,
+    imagePreviewHeight = 360.dp,
     welcomeImageHorizontalPadding = 64.dp,
     welcomeTextHorizontalPadding = 24.dp,
     welcomeButtonHorizontalPadding = 16.dp,

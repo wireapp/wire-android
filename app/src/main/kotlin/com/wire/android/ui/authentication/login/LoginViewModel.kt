@@ -84,7 +84,7 @@ class LoginViewModel @Inject constructor(
             is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
             AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
             AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidUserIdentifierError
-            else -> LoginError.None
+            is AuthenticationResult.Success -> LoginError.None
         }
 
     private fun RegisterClientResult.toLoginError() =

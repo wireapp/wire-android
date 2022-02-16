@@ -1,6 +1,5 @@
 package com.wire.android.ui.userprofile.image
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -8,10 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
@@ -26,18 +21,18 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -116,7 +111,6 @@ fun ProfileImageScreen(avatarUrl: String) {
 
 @Composable
 private fun ProfileImagePreview(avatarUrl: String) {
-    CircleShape
     Box(
         Modifier
             .fillMaxWidth()
@@ -143,8 +137,6 @@ private fun ProfileImagePreview(avatarUrl: String) {
                 )
             }
 
-            CircleShape
-
             Box(
                 Modifier
                     .fillMaxSize()
@@ -161,96 +153,82 @@ private fun ProfileImagePreview(avatarUrl: String) {
     }
 }
 
-class TestShape : CornerBasedShape(
-    topStart = CornerSize(50),
-    topEnd = CornerSize(50),
-    bottomEnd = CornerSize(50),
-    bottomStart = CornerSize(50)
-) {
+class TestShape : Shape {
 
-    override fun copy(
-        topStart: CornerSize,
-        topEnd: CornerSize,
-        bottomEnd: CornerSize,
-        bottomStart: CornerSize
-    ) = RoundedCornerShape(
-        topStart = topStart,
-        topEnd = topEnd,
-        bottomEnd = bottomEnd,
-        bottomStart = bottomStart
-    )
-
-    override fun createOutline(
-        size: Size,
-        topStart: Float,
-        topEnd: Float,
-        bottomEnd: Float,
-        bottomStart: Float,
-        layoutDirection: LayoutDirection
-    ): Outline {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
         return Outline.Generic(
-            drawTest(size, topStart, topEnd, bottomEnd, bottomStart, layoutDirection)
+            drawTest(size)
         )
     }
 
-    private fun drawTest(
-        size: Size,
-        topStart: Float,
-        topEnd: Float,
-        bottomEnd: Float,
-        bottomStart: Float,
-        layoutDirection: LayoutDirection,
-    ): Path {
-        Log.d("TEST", "drawTest")
+    private fun drawTest(size: Size): Path {
         val path = Path().apply {
             reset()
 
             val rectangleRect = size.toRect()
 
-            val roundRect = RoundRect(
-                size.toRect(),
-                topLeft = CornerRadius(if (layoutDirection == LayoutDirection.Ltr) topStart else topEnd),
-                topRight = CornerRadius(if (layoutDirection == LayoutDirection.Ltr) topEnd else topStart),
-                bottomRight = CornerRadius(if (layoutDirection == LayoutDirection.Ltr) bottomEnd else bottomStart),
-                bottomLeft = CornerRadius(if (layoutDirection == LayoutDirection.Ltr) bottomStart else bottomEnd)
-            )
+//            val topLeftRect = Rect(left = -size.width, top = -size.height, right = size.width / 2, bottom = size.height / 2)
+//            val topRightRect = Rect(left = size.width / 2, top = -size.height, right = size.width, bottom = size.height / 2)
+//            val bottomLeftRect = Rect(left = -size.width, top = size.height / 2, right = size.width / 2, bottom = size.height)
+//            val bottomRightRect = Rect(left = size.width / 2, top = size.height / 2, right = size.width, bottom = size.height)
 
-            val topLeftRect = Rect(left = -size.width, top = -size.height, right = size.width / 2, bottom = size.height / 2)
-            val topRightRect = Rect(left = size.width / 2, top = -size.height, right = size.width, bottom = size.height / 2)
-            val bottomLeftRect = Rect(left = -size.width, top = size.height / 2, right = size.width / 2, bottom = size.height)
-            val bottomRightRect = Rect(left = size.width / 2, top = size.height / 2, right = size.width, bottom = size.height)
+            val upperRect = Rect(left = 0f, top = 0f, right = size.width, bottom = size.height / 2)
+            val bottomRect = Rect(left = -size.width, top = size.height / 2, right = size.width, bottom = size.height)
 
-
-            lineTo(topLeftRect.left,topLeftRect.top)
-            lineTo(topLeftRect.top,topLeftRect.right)
-            arcTo(rectangleRect, startAngleDegrees = 180f, sweepAngleDegrees = 90f,false)
-
+//            addRect(bottomRect)
 //
-            lineTo(topRightRect.left,topLeftRect.top)
-            lineTo(topLeftRect.right,topLeftRect.top)
-            arcTo(rectangleRect, startAngleDegrees = 90f, sweepAngleDegrees = 0f,false)
-
-//            arcTo(rectangleRect, startAngleDegrees = 90f, sweepAngleDegrees = 0f,false)
-//            lineTo(topRightRect.left,topLeftRect.bottom)
+////            top left arc
+//            lineTo(topLeftRect.left, topLeftRect.top)
+//            lineTo(topLeftRect.top, topLeftRect.right)
+//            arcTo(rectangleRect, startAngleDegrees = 180f, sweepAngleDegrees = 90f, false)
 //
-//            arcTo(rectangleRect, startAngleDegrees = 0f, sweepAngleDegrees = -90f,true)
-//            lineTo(topLeftRect.left,topLeftRect.top)
+//            //top right arc
+//            lineTo(topRightRect.left, topRightRect.top)
+//            lineTo(topLeftRect.bottom, topRightRect.top)
+//            arcTo(rectangleRect, startAngleDegrees = 0f, sweepAngleDegrees = 90f, false)
 //
+//            //left bottom arc
+//            lineTo(bottomRightRect.right, bottomRightRect.bottom)
+//            lineTo(bottomRightRect.left, bottomRightRect.bottom)
+//            arcTo(rectangleRect, startAngleDegrees = 0f, sweepAngleDegrees = -90f, false)
 //
-//            arcTo(rectangleRect, startAngleDegrees = -90f, sweepAngleDegrees = -180f,true)
-//            lineTo(topLeftRect.left,topLeftRect.top)
+            //right bottom arc
+
+//            arcTo(rectangleRect, startAngleDegrees = 180f, sweepAngleDegrees = 0f, false)
+//            lineTo(x = 0f, y = upperRect.bottom)
+            moveTo(x = 0f, y = upperRect.bottom)
+            lineTo(x = 0f, y = 0f)
+            lineTo(x = upperRect.right, y = 0f)
+            lineTo(x = upperRect.right, y = upperRect.bottom)
+            arcTo(rectangleRect, 0f, -180f, true)
+
+            lineTo(x = 0f, y = bottomRect.bottom)
+            lineTo(x = bottomRect.right, y = bottomRect.bottom)
+            lineTo(x = bottomRect.right, y = bottomRect.top)
+            arcTo(rectangleRect, 0f, 180f, true)
+/*
+            //middle left  of the rect
+            lineTo( x= 0f, y = bottomRect.left)
+            //bottom of the rect
+            lineTo(x = 0f, y = bottomRect.bottom)
+            //bottom right of the rect
+            lineTo(x = bottomRect.right, y = bottomRect.bottom)
+            //middle right of the rect
+            lineTo(x = bottomRect.right,y = bottomRect.top)*/
 
 
-//            arcTo(rectangleRect, startAngleDegrees = 90f, sweepAngleDegrees = 0f,true)
-//            arcTo(rectangleRect, startAngleDegrees = 0f, sweepAngleDegrees = -90f,false)
-//            arcTo(rectangleRect, startAngleDegrees = -90f, sweepAngleDegrees = -180f,false)
-//            arcTo(topRightRect, startAngleDegrees = 0f, sweepAngleDegrees = -90f, false)
-//            arcTo(bottomLeftRect, startAngleDegrees = 0f, sweepAngleDegrees = 90f, false)
-//            arcTo(bottomRightRect, startAngleDegrees = 0f, sweepAngleDegrees = -90f, false)
+//            lineTo()
 
-            close()
+//            lineTo(x = 0f, y = size.height / 2)
+//            lineTo(x = 0f, y = 0f)
+
+
+//            lineTo(topRightRect.right, rectangleRect.top)
+//            lineTo(topRightRect.top, topRightRect.bottom)
+//            lineTo(topLeftRect.left, topLeftRect.bottom)
+
+//            close()
         }
-
 
 
         return path

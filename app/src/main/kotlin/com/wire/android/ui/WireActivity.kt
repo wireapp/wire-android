@@ -34,7 +34,7 @@ class WireActivity : AppCompatActivity() {
     lateinit var navigationManager: NavigationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+//        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             WireTheme {

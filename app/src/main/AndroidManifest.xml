@@ -14,14 +14,13 @@
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
-            android:theme="@style/AppTheme.SplashScreen">
+            android:theme="@style/AppTheme">
 
         <activity
-            android:name=".ui.WireActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.SplashScreen"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:exported="true">
+                android:name=".ui.WireActivity"
+                android:exported="true"
+                android:screenOrientation="portrait"
+                android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -34,6 +34,7 @@ sealed class NavigationItem(
         content = { AuthScreen() }
     )
 
+    @ExperimentalMaterialApi
     object Home : NavigationItem(
         route = "home/{$HOME_START_TAB_ARGUMENT}",
         content = { HomeScreen(it.arguments?.getString(HOME_START_TAB_ARGUMENT), hiltViewModel()) },
@@ -75,6 +76,7 @@ sealed class NavigationItem(
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
         const val CONVERSATION_ID_ARGUMENT: String = "conversation_id"
 
+        @ExperimentalMaterialApi
         val globalNavigationItems = listOf(
             Authentication,
             Settings,

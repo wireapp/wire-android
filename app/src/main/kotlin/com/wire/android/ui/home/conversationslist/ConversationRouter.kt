@@ -27,7 +27,6 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheet
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
-import com.wire.android.ui.theme.wireDimensions
 
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
@@ -46,6 +45,7 @@ fun ConversationRouter(viewModel: ConversationListViewModel = hiltViewModel()) {
         clearConversationContent = { id -> viewModel.clearConversationContent(id) },
         blockUser = { id -> viewModel.blockUser(id) },
         leaveGroup = { id -> viewModel.leaveGroup(id) },
+        updateScrollPosition = { position -> viewModel.updateScrollPosition(position) }
     )
 }
 
@@ -62,14 +62,15 @@ private fun ConversationRouter(
     moveConversationToArchive: (String) -> Unit,
     clearConversationContent: (String) -> Unit,
     blockUser: (String) -> Unit,
-    leaveGroup: (String) -> Unit
+    leaveGroup: (String) -> Unit,
+    updateScrollPosition: (Int) -> Unit,
 ) {
     ModalBottomSheetLayout(
         sheetState = conversationState.modalBottomSheetState,
         //TODO: create a shape object inside the materialtheme 3 component
         sheetShape = androidx.compose.material.MaterialTheme.shapes.large.copy(
-            topStart = CornerSize(MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner),
-            topEnd = CornerSize(MaterialTheme.wireDimensions.conversationBottomSheetShapeCorner)
+            topStart = CornerSize(dimensions().conversationBottomSheetShapeCorner),
+            topEnd = CornerSize(dimensions().conversationBottomSheetShapeCorner)
         ),
         sheetContent = {
             ConversationSheet(
@@ -86,22 +87,22 @@ private fun ConversationRouter(
     ) {
         Scaffold(
             floatingActionButton = {
-            FloatingActionButton(
-                text = stringResource(R.string.label_new),
-                icon = {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_conversation),
-                        contentDescription = stringResource(R.string.content_description_new_conversation),
-                        contentScale = ContentScale.FillBounds,
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                        modifier = Modifier
-                            .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
-                            .size(dimensions().fabIconSize)
-                    )
-                },
-                onClick = {}
-            )
-        },
+                FloatingActionButton(
+                    text = stringResource(R.string.label_new),
+                    icon = {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_conversation),
+                            contentDescription = stringResource(R.string.content_description_new_conversation),
+                            contentScale = ContentScale.FillBounds,
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                            modifier = Modifier
+                                .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
+                                .size(dimensions().fabIconSize)
+                        )
+                    },
+                    onClick = {}
+                )
+            },
             bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
         ) {
             with(uiState) {
@@ -113,7 +114,8 @@ private fun ConversationRouter(
                                 newActivities = newActivities,
                                 conversations = conversations,
                                 onOpenConversationClick = openConversation,
-                                onEditConversationItem = conversationState::showModalSheet
+                                onEditConversationItem = conversationState::showModalSheet,
+                                onScrollPositionChanged = updateScrollPosition
                             )
                         })
                     composable(
@@ -123,7 +125,8 @@ private fun ConversationRouter(
                                 missedCalls = missedCalls,
                                 callHistory = callHistory,
                                 onCallItemClick = openConversation,
-                                onEditConversationItem = conversationState::showModalSheet
+                                onEditConversationItem = conversationState::showModalSheet,
+                                onScrollPositionChanged = updateScrollPosition
                             )
                         })
                     composable(
@@ -133,7 +136,8 @@ private fun ConversationRouter(
                                 unreadMentions = unreadMentions,
                                 allMentions = allMentions,
                                 onMentionItemClick = openConversation,
-                                onEditConversationItem = conversationState::showModalSheet
+                                onEditConversationItem = conversationState::showModalSheet,
+                                onScrollPositionChanged = updateScrollPosition
                             )
                         }
                     )
@@ -155,5 +159,3 @@ private fun ConversationNavigationItems(
         }
     }
 }
-
-

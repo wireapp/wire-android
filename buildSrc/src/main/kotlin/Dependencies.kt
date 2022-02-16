@@ -103,6 +103,7 @@ object Libraries {
     const val composeIcons              = "androidx.compose.material:material-icons-extended:${Versions.compose}"
     const val composeNavigation         = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
+    const val composeRuntimeLiveData    = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
     const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
 
     // Other dependencies

@@ -114,5 +114,6 @@ username</string>
     <!-- Animation label -->
     <string translatable="false" name="animation_label_messagecomposeinput_state_transistion">MessageComposeInputState transition</string>
     <string translatable="false" name="animation_label_button_rotation_degree_transistion">Collapse button rotation degree transition</string>
+    <string name="content_description_avatar_preview">Image preview of the avatar image</string>
 
 </resources>

@@ -14,15 +14,13 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -59,7 +57,8 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun registerClient(authSession: AuthSession): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(authSession).clientScope
-        return clientScope.register(loginState.password.text, null)
+        val registerClientResult = clientScope.register(loginState.password.text, null)
+        return registerClientResult
     }
 
     fun onUserIdentifierChange(newText: TextFieldValue) {

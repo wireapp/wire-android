@@ -49,7 +49,7 @@ private fun RemoveDeviceItemContent(device: Device, onRemoveDeviceClick: (Device
             Icon(
                 modifier = Modifier.height(18.dp),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_devices),
-                contentDescription = stringResource(R.string.remove_device_item_icon_content_description)
+                contentDescription = stringResource(R.string.content_description_remove_device_item_icon)
             )
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -73,7 +73,7 @@ private fun RemoveDeviceItemContent(device: Device, onRemoveDeviceClick: (Device
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_remove),
-                    contentDescription = stringResource(R.string.remove_device_remove_icon_content_description),
+                    contentDescription = stringResource(R.string.content_description_remove_device_remove_icon),
                 )
             },
             fillMaxWidth = false,

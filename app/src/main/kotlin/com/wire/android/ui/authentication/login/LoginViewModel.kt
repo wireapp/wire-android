@@ -93,7 +93,7 @@ class LoginViewModel @Inject constructor(
             is RegisterClientResult.Failure.ProteusFailure -> LoginError.DialogError.GenericError(CoreFailure.Unknown(this.e))
             RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
             RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
-            else -> LoginError.None
+            is RegisterClientResult.Success -> LoginError.None
         }
 
     private suspend fun navigateToConvScreen() =

@@ -115,5 +115,12 @@ username</string>
     <string translatable="false" name="animation_label_messagecomposeinput_state_transistion">MessageComposeInputState transition</string>
     <string translatable="false" name="animation_label_button_rotation_degree_transistion">Collapse button rotation degree transition</string>
     <string name="content_description_avatar_preview">Image preview of the avatar image</string>
+    <string name="profile_image_top_bar_label">Profile image</string>
+    <string name="profile_image_modal_sheet_header_title">Change Image</string>
+    <string name="profile_image_choose_from_gallery_menu_item">Choose from gallery</string>
+    <string name="profile_image_take_a_picture_menu_item">Take a picture</string>
+    <string name="content_description_choose_from_gallery">Choose from gallery</string>
+    <string name="content_description_take_a_picture">Take a picture</string>
+    <string name="profile_image_change_image_button_label">Change Image...</string>
 
 </resources>

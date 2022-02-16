@@ -2,8 +2,11 @@ package com.wire.android.ui.userprofile.image
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
@@ -18,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -36,15 +40,15 @@ fun ProfileImageScreen(avatarUrl: String) {
 
     MenuModalSheetLayout(
         sheetState = profileImageState.modalBottomSheetState,
-        headerTitle = "Change Image",
+        headerTitle = stringResource(R.string.profile_image_modal_sheet_header_title),
         menuItems = listOf(
             {
                 MenuBottomSheetItem(
-                    title = "Choose from gallery",
+                    title = stringResource(R.string.profile_image_choose_from_gallery_menu_item),
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_gallery,
-                            contentDescription = ""
+                            contentDescription = stringResource(R.string.content_description_choose_from_gallery)
                         )
                     },
                     action = {
@@ -55,11 +59,11 @@ fun ProfileImageScreen(avatarUrl: String) {
             },
             {
                 MenuBottomSheetItem(
-                    title = "Take a picture",
+                    title = stringResource(R.string.profile_image_take_a_picture_menu_item),
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_take_a_picture,
-                            contentDescription = ""
+                            contentDescription = stringResource(R.string.content_description_take_a_picture)
                         )
                     },
                     action = {
@@ -80,10 +84,12 @@ fun ProfileImageScreen(avatarUrl: String) {
                         )
                     }
                 }
+                Divider()
+                Spacer(Modifier.height(4.dp))
                 WirePrimaryButton(
                     modifier = Modifier
                         .padding(dimensions().spacing16x),
-                    text = "Change Image...",
+                    text = stringResource(R.string.profile_image_change_image_button_label),
                     onClick = { profileImageState.showModalBottomSheet() }
                 )
             }
@@ -110,7 +116,7 @@ private fun ProfileImageTopBar() {
         },
         title = {
             Text(
-                text = "Profile image",
+                text = stringResource(R.string.profile_image_top_bar_label),
                 style = MaterialTheme.wireTypography.title01,
             )
         },

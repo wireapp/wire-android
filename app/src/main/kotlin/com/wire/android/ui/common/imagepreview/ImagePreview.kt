@@ -80,6 +80,13 @@ class BulletHoleShape : Shape {
     private fun drawBulletHolePath(size: Size): Path {
         val backgroundWrappingRect = size.toRect()
 
+        val correctionFactor = 100f
+
+        val correctionRect = Rect(
+            top = backgroundWrappingRect.top + correctionFactor, bottom = backgroundWrappingRect.bottom - correctionFactor,
+            left = backgroundWrappingRect.left + correctionFactor, right = backgroundWrappingRect.right - correctionFactor
+        )
+
         //split the rectangle in to two equal rectangle with common "middle" point
         val upperRect = Rect(left = 0f, top = 0f, right = size.width, bottom = size.height / 2)
         val bottomRect = Rect(left = -size.width, top = size.height / 2, right = size.width, bottom = size.height)
@@ -94,8 +101,12 @@ class BulletHoleShape : Shape {
             lineTo(x = upperRect.right, y = 0f)
             //draw a line from the right edge to the middle of backgroundWrappingRect on the right side
             lineTo(x = upperRect.right, y = upperRect.bottom)
-            //arc -180 degrees from the start point - we are middle of the backgroundWrappingRect on the left side now
-            arcTo(backgroundWrappingRect, 0f, -180f, true)
+            //arc -180 degrees from the start point of correctionRect -
+            // we on the -180 degrees of the bullet hole circle made from correctionRect
+            arcTo(correctionRect, 0f, -180f, true)
+            //because we draw inside the correctionRect, we need to draw a line relative to current position
+            //in order to move to the edge of the backgroundWrappingRect
+            relativeLineTo(dx = -correctionFactor, dy = 0f)
             //draw a line from middle of backgroundWrappingRect to the bottom of backgroundWrappingRect on the left side
             lineTo(x = 0f, y = bottomRect.bottom)
             //draw a line from the bottom edge of backgroundWrappingRect to the right edge on the bottom side
@@ -103,7 +114,7 @@ class BulletHoleShape : Shape {
             //draw a line from the bottom edge of the backgroundWrappingRect to the middle of backgroundWrappingRect on the right side
             lineTo(x = bottomRect.right, y = bottomRect.top)
             //arc 180 degrees - we are back on middle of the backgroundWrappingRect on the left side now
-            arcTo(backgroundWrappingRect, 0f, 180f, true)
+            arcTo(correctionRect, 0f, 180f, true)
             //we drawn the outline, we can close the path now
             close()
         }

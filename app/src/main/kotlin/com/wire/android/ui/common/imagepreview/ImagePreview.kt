@@ -74,6 +74,7 @@ fun ImagePreview(avatarUrl: String, contentDescription: String) {
 
 //Custom Shape creating a "hole" around the shape of the provided Composable
 //in case of ImagePreview that would be a rectangular shape, creating an effect of the "hole" around the rectangle
+@Suppress("MagicNumber")
 class BulletHoleShape : Shape {
 
     override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {

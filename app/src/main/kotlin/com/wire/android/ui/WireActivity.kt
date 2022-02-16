@@ -17,7 +17,6 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.userprofile.image.ProfileImageScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
@@ -34,12 +33,19 @@ class WireActivity : AppCompatActivity() {
     lateinit var navigationManager: NavigationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
-//        installSplashScreen()
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             WireTheme {
 
-                ProfileImageScreen("")
+                val scope = rememberCoroutineScope()
+                val navController = rememberNavController()
+
+                setUpNavigation(navController, scope)
+
+                Scaffold {
+                    NavigationGraph(navController = navController)
+                }
             }
         }
     }

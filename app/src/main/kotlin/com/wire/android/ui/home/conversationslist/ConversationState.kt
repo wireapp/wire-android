@@ -43,9 +43,8 @@ class ConversationState(
                 }
             }
         }
-        coroutineScope.launch { modalBottomSheetState.show() }
+        coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
-
 }
 
 @OptIn(ExperimentalMaterialApi::class)

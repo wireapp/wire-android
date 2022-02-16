@@ -43,6 +43,7 @@ fun ConversationRouter(viewModel: ConversationListViewModel = hiltViewModel()) {
         clearConversationContent = { id -> viewModel.clearConversationContent(id) },
         blockUser = { id -> viewModel.blockUser(id) },
         leaveGroup = { id -> viewModel.leaveGroup(id) },
+        updateScrollPosition = { position -> viewModel.updateScrollPosition(position) }
     )
 }
 
@@ -59,7 +60,8 @@ private fun ConversationRouter(
     moveConversationToArchive: (String) -> Unit,
     clearConversationContent: (String) -> Unit,
     blockUser: (String) -> Unit,
-    leaveGroup: (String) -> Unit
+    leaveGroup: (String) -> Unit,
+    updateScrollPosition: (Int) -> Unit,
 ) {
     ConversationSheet(
         sheetState = conversationState.modalBottomSheetState,
@@ -101,7 +103,8 @@ private fun ConversationRouter(
                                 newActivities = newActivities,
                                 conversations = conversations,
                                 onOpenConversationClick = openConversation,
-                                onEditConversationItem = conversationState::showModalSheet
+                                onEditConversationItem = conversationState::showModalSheet,
+                                onScrollPositionChanged = updateScrollPosition
                             )
                         })
                     composable(
@@ -111,7 +114,8 @@ private fun ConversationRouter(
                                 missedCalls = missedCalls,
                                 callHistory = callHistory,
                                 onCallItemClick = openConversation,
-                                onEditConversationItem = conversationState::showModalSheet
+                                onEditConversationItem = conversationState::showModalSheet,
+                                onScrollPositionChanged = updateScrollPosition
                             )
                         })
                     composable(
@@ -121,7 +125,8 @@ private fun ConversationRouter(
                                 unreadMentions = unreadMentions,
                                 allMentions = allMentions,
                                 onMentionItemClick = openConversation,
-                                onEditConversationItem = conversationState::showModalSheet
+                                onEditConversationItem = conversationState::showModalSheet,
+                                onScrollPositionChanged = updateScrollPosition
                             )
                         }
                     )
@@ -143,5 +148,3 @@ private fun ConversationNavigationItems(
         }
     }
 }
-
-

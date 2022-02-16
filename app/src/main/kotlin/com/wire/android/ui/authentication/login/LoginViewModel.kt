@@ -46,11 +46,11 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
             val loginError =
-                if(loginResult is AuthenticationResult.Success) registerClient(loginResult.userSession).toLoginError()
+                if (loginResult is AuthenticationResult.Success) registerClient(loginResult.userSession).toLoginError()
                 else loginResult.toLoginError()
             // TODO what if user logs in but doesn't register a new device?
             loginState = loginState.copy(loading = false, loginError = loginError).updateLoginEnabled()
-            if(loginError is LoginError.None)
+            if (loginError is LoginError.None)
                 navigateToConvScreen()
         }
     }
@@ -62,6 +62,10 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onUserIdentifierChange(newText: TextFieldValue) {
+        // in case an error is showing e.g. inline error is should be cleared
+        if (loginState.loginError !is LoginError.None) {
+            clearLoginError()
+        }
         loginState = loginState.copy(userIdentifier = newText).updateLoginEnabled()
         savedStateHandle.set(USER_IDENTIFIER_SAVED_STATE_KEY, newText.text)
     }
@@ -79,7 +83,7 @@ class LoginViewModel @Inject constructor(
 
     // TODO: login error Mapper ?
     private fun AuthenticationResult.toLoginError() =
-        when(this) {
+        when (this) {
             is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
             AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
             AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidUserIdentifierError

@@ -1,5 +1,6 @@
 package com.wire.android.ui.common.imagepreview
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -24,7 +26,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 
 @Composable
-fun ImagePreview(avatarUrl: String, contentDescription: String) {
+fun ImagePreview(imagePreviewState: ImagePreviewState, contentDescription: String) {
     ConstraintLayout(
         Modifier
             .aspectRatio(1f)
@@ -42,12 +44,20 @@ fun ImagePreview(avatarUrl: String, contentDescription: String) {
                 }
         ) {
             //TODO: fetch image, for now hard-coded
-            Image(
-                painter = painterResource(id = R.drawable.mock_message_image),
-                contentScale = ContentScale.Crop,
-                contentDescription = contentDescription,
-                modifier = Modifier.fillMaxSize()
-            )
+            when (imagePreviewState) {
+                is ImagePreviewState.HasData -> Image(
+                    bitmap = imagePreviewState.bitmap.asImageBitmap(),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.fillMaxSize()
+                )
+                ImagePreviewState.Initial -> Image(
+                    painter = painterResource(id = R.drawable.mock_message_image),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
         Box(
             Modifier
@@ -109,4 +119,9 @@ class BulletHoleShape : Shape {
         return path
     }
 
+}
+
+sealed class ImagePreviewState {
+    object Initial : ImagePreviewState()
+    data class HasData(val bitmap: Bitmap) : ImagePreviewState()
 }

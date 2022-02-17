@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile.image
+package com.wire.android.util.permission
 
 import android.content.Context
 import android.net.Uri

@@ -81,6 +81,8 @@ dependencies {
     implementation(Libraries.browser)
     implementation(Libraries.dataStore)
     implementation(Libraries.splashscreen)
+    implementation(Libraries.coil)
+    implementation(Libraries.coilCompose)
 
     // lifecycle
     // ViewModel

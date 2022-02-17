@@ -36,7 +36,8 @@ import com.wire.android.ui.theme.wireTypography
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileImageScreen(avatarUrl: String) {
-    val profileImageState = rememberProfileImageState({}, {}, {})
+
+    val profileImageState = rememberProfileImageState()
 
     MenuModalSheetLayout(
         sheetState = profileImageState.modalBottomSheetState,
@@ -79,7 +80,7 @@ fun ProfileImageScreen(avatarUrl: String) {
                 Box(Modifier.weight(1f)) {
                     Box(Modifier.align(Alignment.Center)) {
                         ImagePreview(
-                            avatarUrl = "",
+                            profileImageState.previewState,
                             contentDescription = stringResource(R.string.content_description_avatar_preview)
                         )
                     }

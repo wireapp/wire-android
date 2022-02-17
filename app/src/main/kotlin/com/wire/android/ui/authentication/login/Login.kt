@@ -46,6 +46,7 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -92,7 +93,12 @@ private fun LoginContent(
     scope: CoroutineScope
 ) {
     Scaffold(
-        topBar = { LoginTopBar(onBackNavigationPressed = onBackPressed ) }
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                title = stringResource(R.string.login_title),
+                onNavigationPressed = onBackPressed)
+        }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Column(
@@ -182,7 +188,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
     WirePasswordTextField(
         value = password,
         onValueChange = onPasswordChange,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, autoCorrect = false, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = modifier,
     )

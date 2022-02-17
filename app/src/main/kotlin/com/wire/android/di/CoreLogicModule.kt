@@ -63,13 +63,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().login
-
-    @ViewModelScoped
-    @Provides
-    fun registerClient(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentSession currentSession: AuthSession
-    ) = coreLogic.getSessionScope(currentSession).client.register
+    fun loginUseCase(@KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().login
 
 }

@@ -2,22 +2,29 @@ package com.wire.android.ui.home.conversationslist.model
 
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.main.conversationlist.common.UserInfoLabel
+import com.wire.kalium.logic.data.conversation.ConversationId
 
-sealed class ConversationItem(val conversationType: ConversationType)
+sealed class ConversationItem(val conversationType: ConversationType) {
+    val id = conversationType.conversationId
+}
 
 class GeneralConversation(conversationType: ConversationType) : ConversationItem(conversationType)
 class ConversationMissedCall(val callInfo: CallInfo, conversationType: ConversationType) : ConversationItem(conversationType)
 class ConversationUnreadMention(val mentionInfo: MentionInfo, conversationType: ConversationType) : ConversationItem(conversationType)
 
 sealed class ConversationType {
+    abstract val conversationId: ConversationId
+
     data class GroupConversation(
         val groupColorValue: Long,
-        val groupName: String
+        val groupName: String,
+        override val conversationId: ConversationId
     ) : ConversationType()
 
     data class PrivateConversation(
         val userInfo: UserInfo,
-        val conversationInfo: ConversationInfo
+        val conversationInfo: ConversationInfo,
+        override val conversationId: ConversationId
     ) : ConversationType()
 }
 

@@ -14,12 +14,13 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
+import com.wire.kalium.logic.data.conversation.ConversationId
 
 @Composable
 fun CallScreen(
     missedCalls: List<ConversationMissedCall> = emptyList(),
     callHistory: List<ConversationMissedCall> = emptyList(),
-    onCallItemClick: (String) -> Unit,
+    onCallItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationType) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {}
 ) {
@@ -41,13 +42,16 @@ fun CallContent(
     lazyListState: LazyListState,
     missedCalls: List<ConversationMissedCall>,
     callHistory: List<ConversationMissedCall>,
-    onCallItemClick: (String) -> Unit,
+    onCallItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationType) -> Unit
 ) {
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(top = dimensions().topBarSearchFieldHeight)
+        contentPadding = PaddingValues(
+            top = dimensions().topBarSearchFieldHeight,
+            bottom = dimensions().conversationsListBottomPadding
+        )
     ) {
         folderWithElements(
             header = { stringResource(id = R.string.calls_label_missed_calls) },
@@ -56,7 +60,7 @@ fun CallContent(
             CallConversationItem(
                 conversationMissedCall = missedCall,
                 eventType = EventType.MissedCall,
-                onCallItemClick = { onCallItemClick("someId") },
+                onCallItemClick = { onCallItemClick(missedCall.id) },
                 onCallItemLongClick = { onEditConversationItem(missedCall.conversationType) }
             )
         }
@@ -67,7 +71,7 @@ fun CallContent(
         ) { callHistory ->
             CallConversationItem(
                 conversationMissedCall = callHistory,
-                onCallItemClick = { onCallItemClick("someId") },
+                onCallItemClick = { onCallItemClick(callHistory.id) },
                 onCallItemLongClick = { onEditConversationItem(callHistory.conversationType) }
             )
         }

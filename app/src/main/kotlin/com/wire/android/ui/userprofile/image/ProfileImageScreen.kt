@@ -28,13 +28,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.BackNavigationIconButton
+import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.ImagePreview
 import com.wire.android.ui.common.imagepreview.ImagePreviewState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 
@@ -45,7 +48,7 @@ fun ProfileImageScreen(onNavigateBack: () -> Unit, viewModel: ProfileImageViewMo
     val state = viewModel.state
 
     // we want to navigate back once we upload the status correctly
-    // (TODO?) maybe refactor this if any has better idea
+    // TODO?: maybe refactor this if any has better idea
     if (state.uploadStatus == UploadStatus.Success) {
         LaunchedEffect(true) {
             onNavigateBack()
@@ -54,7 +57,8 @@ fun ProfileImageScreen(onNavigateBack: () -> Unit, viewModel: ProfileImageViewMo
 
     ProfileImageContent(
         avatarBitmap = state.avatarBitmap,
-        hasPicked = state.hasPicked,
+        hasPicked = state.hasPickedAvatar,
+        isLoading = state.isLoading,
         onProfileImagePicked = { viewModel.onAvatarPicked(it) },
         onConfirmAvatar = { viewModel.onConfirmAvatar() },
         onBackPressed = onNavigateBack
@@ -66,6 +70,7 @@ fun ProfileImageScreen(onNavigateBack: () -> Unit, viewModel: ProfileImageViewMo
 private fun ProfileImageContent(
     avatarBitmap: Bitmap,
     hasPicked: Boolean,
+    isLoading: Boolean,
     onProfileImagePicked: (Bitmap) -> Unit,
     onConfirmAvatar: () -> Unit,
     onBackPressed: () -> Unit
@@ -117,23 +122,31 @@ private fun ProfileImageContent(
                 onCloseClick = onBackPressed
             )
         }) {
-            Column(Modifier.fillMaxSize()) {
-                Box(Modifier.weight(1f)) {
-                    Box(Modifier.align(Alignment.Center)) {
-                        ImagePreview(
-                            imagePreviewState = ImagePreviewState.HasData(avatarBitmap),
-                            contentDescription = stringResource(R.string.content_description_avatar_preview)
-                        )
+            Box(Modifier.fillMaxSize()) {
+                Column(Modifier.fillMaxSize()) {
+                    Box(Modifier.weight(1f)) {
+                        Box(Modifier.align(Alignment.Center)) {
+                            ImagePreview(
+                                imagePreviewState = ImagePreviewState.HasData(avatarBitmap),
+                                contentDescription = stringResource(R.string.content_description_avatar_preview)
+                            )
+                        }
                     }
+                    Divider()
+                    Spacer(Modifier.height(4.dp))
+                    WirePrimaryButton(
+                        modifier = Modifier.padding(dimensions().spacing16x),
+                        text = if (hasPicked) stringResource(R.string.profile_image_change_image_button_label) else "Choose Image",
+                        state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
+                        onClick = { profileImageState.showModalBottomSheet() }
+                    )
                 }
-                Divider()
-                Spacer(Modifier.height(4.dp))
-                WirePrimaryButton(
-                    modifier = Modifier
-                        .padding(dimensions().spacing16x),
-                    text = if (hasPicked) stringResource(R.string.profile_image_change_image_button_label) else "Choose Image",
-                    onClick = { profileImageState.showModalBottomSheet() }
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        progressColor = MaterialTheme.wireColorScheme.background,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
             }
         }
     }
@@ -162,7 +175,9 @@ private fun ProfileImageTopBar(
                     )
                 }
             } else {
-                BackNavigationIconButton(onConfirmAvatar)
+                BackNavigationIconButton(
+                    onBackButtonClick = onConfirmAvatar
+                )
             }
         },
         title = {

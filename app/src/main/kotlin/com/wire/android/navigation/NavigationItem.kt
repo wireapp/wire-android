@@ -71,10 +71,12 @@ sealed class NavigationItem(
     ) {
         fun createRoute(conversationId: String) = "conversation/$conversationId"
     }
-
     companion object {
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
         const val CONVERSATION_ID_ARGUMENT: String = "conversation_id"
+        //todo: remove when the sealed class as enum object access fixed! Related Ticket Number: AR-1038
+        const val AUTHENTICATION_ROUTE: String = "auth"
+        const val HOME_DEFAULT_START_ROUTE: String = "home/{$HOME_START_TAB_ARGUMENT}"
 
         @ExperimentalMaterialApi
         val globalNavigationItems = listOf(

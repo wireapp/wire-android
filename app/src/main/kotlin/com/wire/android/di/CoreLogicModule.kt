@@ -14,7 +14,6 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.runBlocking
 import java.lang.IllegalStateException
 
@@ -56,6 +55,11 @@ class UseCaseModule {
             }
         }
     }
+
+    @ViewModelScoped
+    @Provides
+    // TODO: kind of redundant to CurrentSession - need to rename CurrentSession
+    fun currentSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().session.currentSession
 
     @ViewModelScoped
     @Provides

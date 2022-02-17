@@ -87,10 +87,7 @@ fun UserProfileRoute(viewModel: UserProfileViewModel) {
         composable(
             route = ProfileImage.route,
             content = {
-                ProfileImageScreen(
-                    avatarBitmap = viewModel.userProfileState.avatarBitmap,
-                    onProfileImagePicked = { avatarBitmap -> viewModel.onAvatarChange(avatarBitmap) }
-                )
+                ProfileImageScreen({ navHostController.popBackStack() })
             }
         )
     }
@@ -137,7 +134,7 @@ private fun UserProfileScreen(
                     onEditClick = onEditClick
                 )
                 CurrentUserStatus(
-                    userStatus = userStatus,
+                    userStatus = status,
                     onStatusClicked = onStatusClicked
                 )
                 OtherAccountsList(
@@ -496,7 +493,7 @@ private fun ChangeStatusDialogPreview() {
 private fun UserProfileScreenPreview() {
     UserProfileScreen(
         SelfUserProfileState(
-            Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
+           "",
             UserStatus.BUSY,
             "Tester Tost long lomng long logn long logn long lonf lonf",
             "@userName",

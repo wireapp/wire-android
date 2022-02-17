@@ -23,7 +23,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 class ProfileImageState constructor(
     val coroutineScope: CoroutineScope,
-    val onPicturePicked: (Bitmap) -> Unit,
     val modalBottomSheetState: ModalBottomSheetState,
     val takePictureFLow: TakePictureFlow,
     val openGalleryFlow: OpenGalleryFlow,
@@ -74,7 +73,6 @@ fun rememberProfileImageState(
     return remember {
         ProfileImageState(
             coroutineScope = coroutineScope,
-            onPicturePicked = onPicturePicked,
             modalBottomSheetState = modalBottomSheetState,
             takePictureFLow = takePictureFLow,
             openGalleryFlow = openGalleryFlow,

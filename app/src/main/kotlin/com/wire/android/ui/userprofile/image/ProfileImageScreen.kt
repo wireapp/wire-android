@@ -19,12 +19,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.BackNavigationIconButton
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
@@ -38,7 +41,35 @@ import com.wire.android.ui.theme.wireTypography
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 //TODO: the input data for ProfileImageScreen will be decided later on after sync with Yamil
-fun ProfileImageScreen(avatarBitmap: Bitmap, onProfileImagePicked: (Bitmap) -> Unit) {
+fun ProfileImageScreen(onNavigateBack: () -> Unit, viewModel: ProfileImageViewModel = hiltViewModel()) {
+    val state = viewModel.state
+
+    // we want to navigate back once we upload the status
+    // maybe refactor this if any has better idea ?
+    if (state.uploadStatus == UploadStatus.Success) {
+        LaunchedEffect(true) {
+            onNavigateBack()
+        }
+    }
+
+    ProfileImageContent(
+        avatarBitmap = state.avatarBitmap,
+        hasPicked = state.hasPicked,
+        onProfileImagePicked = { viewModel.onAvatarPicked(it) },
+        onConfirmAvatar = { viewModel.onConfirmAvatar() },
+        onBackPressed = onNavigateBack
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun ProfileImageContent(
+    avatarBitmap: Bitmap,
+    hasPicked: Boolean,
+    onProfileImagePicked: (Bitmap) -> Unit,
+    onConfirmAvatar: () -> Unit,
+    onBackPressed: () -> Unit
+) {
     val profileImageState = rememberProfileImageState({
         onProfileImagePicked(it)
     })
@@ -79,11 +110,16 @@ fun ProfileImageScreen(avatarBitmap: Bitmap, onProfileImagePicked: (Bitmap) -> U
             }
         )
     ) {
-        Scaffold(topBar = { ProfileImageTopBar() }) {
+        Scaffold(topBar = {
+            ProfileImageTopBar(
+                hasPicked = hasPicked,
+                onConfirmAvatar = onConfirmAvatar,
+                onCloseClick = onBackPressed
+            )
+        }) {
             Column(Modifier.fillMaxSize()) {
                 Box(Modifier.weight(1f)) {
                     Box(Modifier.align(Alignment.Center)) {
-                        //TODO:here we are going to pass the fetched bitmap
                         ImagePreview(
                             imagePreviewState = ImagePreviewState.HasData(avatarBitmap),
                             contentDescription = stringResource(R.string.content_description_avatar_preview)
@@ -95,7 +131,7 @@ fun ProfileImageScreen(avatarBitmap: Bitmap, onProfileImagePicked: (Bitmap) -> U
                 WirePrimaryButton(
                     modifier = Modifier
                         .padding(dimensions().spacing16x),
-                    text = stringResource(R.string.profile_image_change_image_button_label),
+                    text = if (hasPicked) stringResource(R.string.profile_image_change_image_button_label) else "Choose Image",
                     onClick = { profileImageState.showModalBottomSheet() }
                 )
             }
@@ -104,7 +140,11 @@ fun ProfileImageScreen(avatarBitmap: Bitmap, onProfileImagePicked: (Bitmap) -> U
 }
 
 @Composable
-private fun ProfileImageTopBar() {
+private fun ProfileImageTopBar(
+    hasPicked: Boolean,
+    onConfirmAvatar: () -> Unit,
+    onCloseClick: () -> Unit
+) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -112,12 +152,17 @@ private fun ProfileImageTopBar() {
             actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             navigationIconContentColor = MaterialTheme.colorScheme.onSurface
         ),
-        navigationIcon = {
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = stringResource(R.string.user_profile_close_description),
-                )
+        navigationIcon =
+        {
+            if (!hasPicked) {
+                IconButton(onClick = onCloseClick) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.user_profile_close_description),
+                    )
+                }
+            } else {
+                BackNavigationIconButton(onConfirmAvatar)
             }
         },
         title = {

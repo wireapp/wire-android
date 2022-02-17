@@ -116,7 +116,7 @@ username</string>
     <string name="profile_image_modal_sheet_header_title">Change Image</string>
     <string name="profile_image_choose_from_gallery_menu_item">Choose from gallery</string>
     <string name="profile_image_take_a_picture_menu_item">Take a picture</string>
-    <string name="profile_image_change_image_button_label">Change Image...</string>
+    <string name="profile_image_change_image_button_label">Change Image</string>
 
     <!-- errors -->
     <string name="error_unknown_title">Unknown error</string>

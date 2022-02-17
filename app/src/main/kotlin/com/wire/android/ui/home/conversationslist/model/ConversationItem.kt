@@ -5,7 +5,7 @@ import com.wire.android.ui.main.conversationlist.common.UserInfoLabel
 import com.wire.kalium.logic.data.conversation.ConversationId
 
 sealed class ConversationItem(val conversationType: ConversationType) {
-    val id = conversationType.conversationsId
+    val id = conversationType.conversationId
 }
 
 class GeneralConversation(conversationType: ConversationType) : ConversationItem(conversationType)
@@ -13,18 +13,18 @@ class ConversationMissedCall(val callInfo: CallInfo, conversationType: Conversat
 class ConversationUnreadMention(val mentionInfo: MentionInfo, conversationType: ConversationType) : ConversationItem(conversationType)
 
 sealed class ConversationType {
-    abstract val conversationsId: ConversationId
+    abstract val conversationId: ConversationId
 
     data class GroupConversation(
         val groupColorValue: Long,
         val groupName: String,
-        override val conversationsId: ConversationId
+        override val conversationId: ConversationId
     ) : ConversationType()
 
     data class PrivateConversation(
         val userInfo: UserInfo,
         val conversationInfo: ConversationInfo,
-        override val conversationsId: ConversationId
+        override val conversationId: ConversationId
     ) : ConversationType()
 }
 

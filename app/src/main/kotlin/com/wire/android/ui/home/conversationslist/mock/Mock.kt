@@ -26,7 +26,7 @@ val mockConversations1 = listOf(
                 membership = Membership.Guest,
                 isLegalHold = true
             ),
-            conversationsId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain")
         )
     ),
     GeneralConversation(
@@ -37,7 +37,7 @@ val mockConversations1 = listOf(
                 membership = Membership.Guest,
                 isLegalHold = true
             ),
-            conversationsId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain")
         )
     ),
     GeneralConversation(
@@ -48,7 +48,7 @@ val mockConversations1 = listOf(
                 membership = Membership.Guest,
                 isLegalHold = true
             ),
-            conversationsId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain")
         )
     ),
 )
@@ -62,7 +62,7 @@ val mockConversations2 = listOf(
                 membership = Membership.External,
                 isLegalHold = true
             ),
-            conversationsId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain")
         )
     ),
     ConversationMissedCall(
@@ -74,7 +74,7 @@ val mockConversations2 = listOf(
                 membership = Membership.None,
                 isLegalHold = true
             ),
-            conversationsId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain")
         )
     ),
     ConversationUnreadMention(
@@ -82,7 +82,7 @@ val mockConversations2 = listOf(
         conversationType = ConversationType.GroupConversation(
             groupColorValue = 0xFF00FF00,
             groupName = "Some group name",
-            conversationsId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain")
         ),
     )
 )
@@ -94,13 +94,13 @@ val mockConversation = ConversationType.PrivateConversation(
         membership = Membership.Guest,
         isLegalHold = true
     ),
-    conversationsId = ConversationId("someId", "someDomain")
+    conversationId = ConversationId("someId", "someDomain")
 )
 
 val mockGroupConversation = ConversationType.GroupConversation(
     groupColorValue = 0xFFFF0000,
     groupName = "Some group name",
-    conversationsId = ConversationId("someId", "someDomain")
+    conversationId = ConversationId("someId", "someDomain")
 )
 
 val mockGeneralConversation = GeneralConversation(
@@ -111,7 +111,7 @@ val mockGeneralConversation = GeneralConversation(
             membership = Membership.Guest,
             isLegalHold = true
         ),
-        conversationsId = ConversationId("someId", "someDomain")
+        conversationId = ConversationId("someId", "someDomain")
     )
 )
 

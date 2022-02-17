@@ -20,6 +20,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.UserInfo
+import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationId
 import com.wire.kalium.logic.feature.conversation.GetConversationsUseCase
@@ -32,7 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val getConversationUseCase: GetConversationsUseCase,
+    private val getConversations: GetConversationsUseCase,
     homeCommonManager: HomeCommonManager
 ) : ViewModel() {
 
@@ -49,7 +50,7 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getConversationUseCase.invoke()
+            getConversations()
                 .collect { conversations ->
                     state = ConversationListState(
                         newActivities = listOf(),
@@ -128,15 +129,15 @@ class ConversationListViewModel @Inject constructor(
                         membership = Membership.None,
                         isLegalHold = true
                     ),
-                    conversationsId = conversation.id
+                    conversationId = conversation.id
                 )
             )
         } else {
             GeneralConversation(
                 ConversationType.GroupConversation(
-                    groupColorValue = 0xFFFF0000,
+                    groupColorValue = getConversationColor(conversation.id),
                     groupName = conversation.name!!,
-                    conversationsId = conversation.id
+                    conversationId = conversation.id
                 )
             )
         }

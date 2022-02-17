@@ -1,3 +1,7 @@
 package com.wire.android.ui.authentication.devices.model
 
-data class Device(val name: String)
+data class Device(
+    val name: String,
+    val id: String,
+    val additionTime: String
+    )

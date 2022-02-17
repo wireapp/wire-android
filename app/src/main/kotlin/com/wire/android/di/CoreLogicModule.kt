@@ -3,7 +3,6 @@ package com.wire.android.di
 import android.content.Context
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.Module
@@ -13,9 +12,7 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
-import javax.inject.Named
 import javax.inject.Qualifier
 import javax.inject.Singleton
 

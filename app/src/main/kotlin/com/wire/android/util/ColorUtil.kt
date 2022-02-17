@@ -2,6 +2,8 @@ package com.wire.android.util
 
 import com.wire.kalium.logic.data.conversation.ConversationId
 
+// TODO: remove once the solution is implemented
+@Suppress("MagicNumber")
 private val conversationColors = listOf(0xFFFF0000, 0xFF00FF00, 0xFF0000FF)
 
 fun getConversationColor(id: ConversationId): Long {

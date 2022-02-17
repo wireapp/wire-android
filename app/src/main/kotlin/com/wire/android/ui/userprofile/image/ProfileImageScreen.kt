@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile.image
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,15 +30,18 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.ImagePreview
+import com.wire.android.ui.common.imagepreview.ImagePreviewState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ProfileImageScreen(avatarUrl: String) {
-
-    val profileImageState = rememberProfileImageState()
+//TODO: the input data for ProfileImageScreen will be decided later on after sync with Yamil
+fun ProfileImageScreen(avatarBitmap: Bitmap, onProfileImagePicked: (Bitmap) -> Unit) {
+    val profileImageState = rememberProfileImageState({
+        onProfileImagePicked(it)
+    })
 
     MenuModalSheetLayout(
         sheetState = profileImageState.modalBottomSheetState,
@@ -79,8 +83,9 @@ fun ProfileImageScreen(avatarUrl: String) {
             Column(Modifier.fillMaxSize()) {
                 Box(Modifier.weight(1f)) {
                     Box(Modifier.align(Alignment.Center)) {
+                        //TODO:here we are going to pass the fetched bitmap
                         ImagePreview(
-                            profileImageState.previewState,
+                            imagePreviewState = ImagePreviewState.HasData(avatarBitmap),
                             contentDescription = stringResource(R.string.content_description_avatar_preview)
                         )
                     }

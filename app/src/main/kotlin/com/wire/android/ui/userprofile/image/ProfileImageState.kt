@@ -9,14 +9,9 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.wire.android.ui.common.imagepreview.ImagePreviewState
 import com.wire.android.util.permission.OpenGalleryFlow
 import com.wire.android.util.permission.TakePictureFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
@@ -28,7 +23,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 class ProfileImageState constructor(
     val coroutineScope: CoroutineScope,
-    val previewState: ImagePreviewState,
+    val onPicturePicked: (Bitmap) -> Unit,
     val modalBottomSheetState: ModalBottomSheetState,
     val takePictureFLow: TakePictureFlow,
     val openGalleryFlow: OpenGalleryFlow,
@@ -51,19 +46,16 @@ class ProfileImageState constructor(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberProfileImageState(
+    onPicturePicked: (Bitmap) -> Unit,
     onPermissionDenied: () -> Unit = {},
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
 ): ProfileImageState {
     val context = LocalContext.current
 
-    var previewState by remember<MutableState<ImagePreviewState>> {
-        mutableStateOf(ImagePreviewState.Initial)
-    }
-
     val takePictureFLow = rememberTakePictureFlow({ nullableBitmap ->
         nullableBitmap?.let {
-            previewState = ImagePreviewState.HasData(it)
+            onPicturePicked(it)
         }
     }, onPermissionDenied)
 
@@ -76,16 +68,19 @@ fun rememberProfileImageState(
             MediaStore.Images.Media.getBitmap(context.contentResolver, it)
         }
 
-        previewState = ImagePreviewState.HasData(bitmap)
+        onPicturePicked(bitmap)
     }, onPermissionDenied)
 
-    return remember(previewState) {
+    return remember {
         ProfileImageState(
-            previewState = previewState,
             coroutineScope = coroutineScope,
+            onPicturePicked = onPicturePicked,
             modalBottomSheetState = modalBottomSheetState,
             takePictureFLow = takePictureFLow,
             openGalleryFlow = openGalleryFlow,
         )
     }
 }
+
+
+

@@ -1,11 +1,12 @@
 package com.wire.android.ui.userprofile
 
+import android.graphics.Bitmap
 import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 
 data class SelfUserProfileState(
-    val avatarUrl: String = "",
+    val avatarBitmap: Bitmap,
     val userStatus: UserStatus,
     val fullName: String,
     val userName: String,

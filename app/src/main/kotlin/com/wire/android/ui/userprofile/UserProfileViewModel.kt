@@ -1,7 +1,6 @@
 package com.wire.android.ui.userprofile
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +27,7 @@ class UserProfileViewModel @Inject constructor(
 
     var userProfileState by mutableStateOf(
         SelfUserProfileState(
-            "",
+            Bitmap.createBitmap(36,36,Bitmap.Config.ARGB_8888),
             UserStatus.BUSY,
             "Tester Tost_long_long_long long  long  long  long  long  long ",
             "@userName_long_long_long_long_long_long_long_long_long_long",
@@ -114,8 +113,7 @@ class UserProfileViewModel @Inject constructor(
     private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean =
         dataStore.shouldShowStatusRationaleFlow(status).first()
 
-    //TODO: make a request to the back-end here
-    fun changeProfilePicture(it: Bitmap?) {
-        Log.d("TEST", "change profile picture ")
+    fun onAvatarChange(avatarBitmap: Bitmap) {
+        userProfileState = userProfileState.copy(avatarBitmap = avatarBitmap)
     }
 }

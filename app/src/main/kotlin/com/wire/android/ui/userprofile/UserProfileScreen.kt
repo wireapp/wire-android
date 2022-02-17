@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -86,7 +87,10 @@ fun UserProfileRoute(viewModel: UserProfileViewModel) {
         composable(
             route = ProfileImage.route,
             content = {
-                ProfileImageScreen(avatarUrl = viewModel.userProfileState.avatarUrl)
+                ProfileImageScreen(
+                    avatarBitmap = viewModel.userProfileState.avatarBitmap,
+                    onProfileImagePicked = { avatarBitmap -> viewModel.onAvatarChange(avatarBitmap) }
+                )
             }
         )
     }
@@ -125,7 +129,7 @@ private fun UserProfileScreen(
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 UserProfileInfo(
-                    avatarUrl = avatarUrl,
+                    avatarUrl = "",
                     fullName = fullName,
                     userName = userName,
                     teamName = teamName,
@@ -492,7 +496,7 @@ private fun ChangeStatusDialogPreview() {
 private fun UserProfileScreenPreview() {
     UserProfileScreen(
         SelfUserProfileState(
-            "",
+            Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
             UserStatus.BUSY,
             "Tester Tost long lomng long logn long logn long lonf lonf",
             "@userName",

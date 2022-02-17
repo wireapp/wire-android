@@ -26,7 +26,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 
 @Composable
-fun ImagePreview(imagePreviewState: ImagePreviewState, contentDescription: String) {
+fun ImagePreview(imagePreviewState: ImagePreviewState = ImagePreviewState.Initial, contentDescription: String) {
     ConstraintLayout(
         Modifier
             .aspectRatio(1f)

@@ -32,14 +32,19 @@ class ProfileImageState constructor(
         coroutineScope.launch { modalBottomSheetState.show() }
     }
 
-    fun openCamera() {
-        takePictureFLow.launch()
+    fun openImageSource(imageSource: ImageSource) {
+        when (imageSource) {
+            ImageSource.Camera -> takePictureFLow.launch()
+            ImageSource.Gallery -> openGalleryFlow.launch()
+        }
+        coroutineScope.launch { modalBottomSheetState.hide() }
     }
 
-    fun openGallery() {
-        openGalleryFlow.launch()
-    }
+}
 
+sealed class ImageSource {
+    object Camera : ImageSource()
+    object Gallery : ImageSource()
 }
 
 @OptIn(ExperimentalMaterialApi::class)

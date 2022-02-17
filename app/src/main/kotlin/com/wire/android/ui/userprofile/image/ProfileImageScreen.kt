@@ -44,8 +44,8 @@ import com.wire.android.ui.theme.wireTypography
 fun ProfileImageScreen(onNavigateBack: () -> Unit, viewModel: ProfileImageViewModel = hiltViewModel()) {
     val state = viewModel.state
 
-    // we want to navigate back once we upload the status
-    // maybe refactor this if any has better idea ?
+    // we want to navigate back once we upload the status correctly
+    // (TODO?) maybe refactor this if any has better idea
     if (state.uploadStatus == UploadStatus.Success) {
         LaunchedEffect(true) {
             onNavigateBack()
@@ -90,7 +90,7 @@ private fun ProfileImageContent(
                     action = {
                         ArrowRightIcon()
                     },
-                    onItemClick = { profileImageState.openGallery() }
+                    onItemClick = { profileImageState.openImageSource(ImageSource.Gallery) }
                 )
             },
             {
@@ -105,7 +105,7 @@ private fun ProfileImageContent(
                     action = {
                         ArrowRightIcon()
                     },
-                    onItemClick = { profileImageState.openCamera() }
+                    onItemClick = { profileImageState.openImageSource(ImageSource.Camera) }
                 )
             }
         )

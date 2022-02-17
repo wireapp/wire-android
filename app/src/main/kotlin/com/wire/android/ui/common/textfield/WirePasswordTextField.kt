@@ -38,7 +38,7 @@ fun WirePasswordTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     readOnly: Boolean = false,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(autoCorrect = false),
     keyboardActions: KeyboardActions = KeyboardActions(),
     placeholderText: String? = stringResource(R.string.login_password_placeholder),
     labelText: String? = stringResource(R.string.login_password_label),

@@ -1,13 +1,12 @@
 package com.wire.android.ui.authentication.devices
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -16,46 +15,46 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.common.appBarElevation
 
 @Composable
 fun RemoveDeviceScreen(navController: NavController) {
     val viewModel: RemoveDeviceViewModel = hiltViewModel()
     val state: RemoveDeviceState = viewModel.state
-    RemoveDeviceContent(navController = navController, state = state)
+    RemoveDeviceContent(
+        navController = navController,
+        state = state,
+        onItemClicked = viewModel::onItemClicked,
+        )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RemoveDeviceContent(
     navController: NavController,
-    state: RemoveDeviceState
+    state: RemoveDeviceState,
+    onItemClicked: (Device) -> Unit,
 ) {
+    val lazyListState = rememberLazyListState()
     Scaffold(
-        topBar = { RemoveDeviceTopBar(onBackNavigationPressed = { navController.popBackStack() }) }
+        topBar = {
+            RemoveDeviceTopBar(
+                elevation = lazyListState.appBarElevation(),
+                onBackNavigationPressed = { navController.popBackStack() })
+        }
     ) {
-            SurfaceBackgroundWrapper {
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(state.deviceList) { device ->
-                        RemoveDeviceItem(device)
-                    }
+        SurfaceBackgroundWrapper {
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                itemsIndexed(state.deviceList) { index, device ->
+                    RemoveDeviceItem(device, onItemClicked)
+                    if (index < state.deviceList.lastIndex) Divider()
                 }
             }
+        }
     }
-}
-
-@Composable
-private fun RemoveDeviceItem(device: Device) {  //TODO
-    Text(
-        text = device.name,
-        style = MaterialTheme.wireTypography.body02,
-        color = MaterialTheme.wireColorScheme.onBackground,
-        modifier = Modifier.padding(
-            horizontal = MaterialTheme.wireDimensions.removeDeviceHorizontalPadding
-        )
-    )
 }
 
 @Preview
@@ -63,6 +62,7 @@ private fun RemoveDeviceItem(device: Device) {  //TODO
 private fun RemoveDeviceScreenPreview() {
     RemoveDeviceContent(
         navController = rememberNavController(),
-        state = RemoveDeviceState(listOf())
+        state = RemoveDeviceState(listOf()),
+        onItemClicked = {},
     )
 }

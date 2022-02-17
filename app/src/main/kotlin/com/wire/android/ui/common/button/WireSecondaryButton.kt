@@ -38,8 +38,8 @@ fun WireSecondaryButton(
     fillMaxWidth: Boolean = true,
     textStyle: TextStyle = if(fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
-    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinHeight,
-    minWidth: Dp = MaterialTheme.wireDimensions.buttonMinWidth,
+    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
+    minWidth: Dp = MaterialTheme.wireDimensions.buttonMinSize.width,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     colors: WireButtonColors = wireSecondaryButtonColors(),
     elevation: ButtonElevation? = null,
@@ -113,7 +113,7 @@ private fun WireSecondaryButtonSmallOnlyIconsPreview() {
         minHeight = 32.dp,
         minWidth = 40.dp,
         shape = RoundedCornerShape(12.dp),
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
     )
 }
 

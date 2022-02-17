@@ -1,6 +1,7 @@
 package com.wire.android.ui.common
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.LocalContentColor
@@ -12,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
@@ -35,3 +38,10 @@ fun ImageVector.Icon(modifier: Modifier = Modifier): @Composable (() -> Unit) =
 
 @Composable
 internal fun dimensions() = MaterialTheme.wireDimensions
+
+@Composable
+fun LazyListState.appBarElevation(): Dp = MaterialTheme.wireDimensions.topBarShadowElevation.let {  maxElevation ->
+    if (firstVisibleItemIndex == 0) minOf(firstVisibleItemScrollOffset.toFloat().dp, maxElevation)
+    else maxElevation
+}
+

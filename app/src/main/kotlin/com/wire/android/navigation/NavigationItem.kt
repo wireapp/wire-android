@@ -6,94 +6,67 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
 import com.wire.android.ui.authentication.AuthScreen
-import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
-import com.wire.kalium.logic.data.conversation.ConversationId
 
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalMaterialApi::class
 )
-sealed class NavigationItem(
-    open val route: String,
+enum class NavigationItem(
+    private val route: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (NavBackStackEntry) -> Unit
     // TODO add animations here
 ) {
 
-//    object Splash  //TODO
-
-    object Authentication : NavigationItem(
+    Authentication(
         route = "auth",
         content = { AuthScreen() }
-    )
+    ),
 
-    @ExperimentalMaterialApi
-    object Home : NavigationItem(
-        route = "home/{$HOME_START_TAB_ARGUMENT}",
-        content = { HomeScreen(it.arguments?.getString(HOME_START_TAB_ARGUMENT), hiltViewModel()) },
-        arguments = listOf(
-            navArgument(HOME_START_TAB_ARGUMENT) { type = NavType.StringType }
-        )
-    ) {
-        fun navigationRoute(startTabRoute: String = HomeDestinations.conversations): String = "home/$startTabRoute"
-    }
+    Home(
+        route = "home",
+        content = { HomeScreen(it.arguments?.getString(EXTRA_HOME_TAB_ITEM), hiltViewModel()) },
+    ),
 
-    object Settings : NavigationItem(
+    Settings(
         route = "settings",
         content = { SettingsScreen() },
-    )
+    ),
 
-    object Support : NavigationItem(
+    Support(
         route = BuildConfig.SUPPORT_URL,
         content = { },
-    )
+    ),
 
-    object UserProfile : NavigationItem(
+    UserProfile(
         route = "user_profile",
-        content = { UserProfileScreen(hiltViewModel()) },
-    )
+        content = { UserProfileScreen(it.arguments?.getString(EXTRA_USER_ID), hiltViewModel()) },
+    ),
 
-    object Conversation : NavigationItem(
-        route = "conversation/{$CONVERSATION_ID_ARGUMENT}",
+    Conversation(
+        route = "conversation",
         content = {
             ConversationScreen(hiltViewModel())
-        },
-        arguments = listOf(
-            navArgument(CONVERSATION_ID_ARGUMENT) { type = NavType.StringType }
-        )
-    ) {
-        fun createRoute(conversationId: ConversationId) = "conversation/${conversationId}"
-    }
-    companion object {
-        const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
-        const val CONVERSATION_ID_ARGUMENT: String = "conversation_id"
-        //todo: remove when the sealed class as enum object access fixed! Related Ticket Number: AR-1038
-        const val AUTHENTICATION_ROUTE: String = "auth"
-        const val HOME_DEFAULT_START_ROUTE: String = "home/{$HOME_START_TAB_ARGUMENT}"
+        }
+    );
 
-        @ExperimentalMaterialApi
-        val globalNavigationItems = listOf(
-            Authentication,
-            Settings,
-            Support,
-            UserProfile,
-            Home,
-            Conversation
-        )
+    fun getRoute(extraRouteId: String = ""): String = "$route/$extraRouteId}"
+
+    companion object {
+        const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
+        const val EXTRA_USER_ID = "extra_user_id"
 
         @OptIn(ExperimentalMaterialApi::class)
-        private val map: Map<String, NavigationItem> = globalNavigationItems.associateBy { it.route }
+        private val map: Map<String, NavigationItem> = values().associateBy { it.route }
 
         fun fromRoute(route: String?): NavigationItem? = map[route]
     }
 }
 
-fun NavigationItem.isExternalRoute() = this.route.startsWith("http")
+fun NavigationItem.isExternalRoute() = this.getRoute().startsWith("http")

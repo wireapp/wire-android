@@ -100,7 +100,7 @@ class LoginViewModel @Inject constructor(
         }
 
     private suspend fun navigateToConvScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.navigationRoute(), BackStackMode.CLEAR_WHOLE))
+        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRoute(), BackStackMode.CLEAR_WHOLE))
 
     private companion object {
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"

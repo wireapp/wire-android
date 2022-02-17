@@ -31,7 +31,7 @@ class HomeViewModel
     val scrollDownFlow: Flow<Boolean> = scrollBridge.scrollDownFlow
 
     suspend fun navigateTo(item: NavigationItem) {
-        navigationManager.navigate(NavigationCommand(item.route))
+        navigationManager.navigate(NavigationCommand(item.getRoute()))
     }
 
     suspend fun navigateToUserProfile() = navigateTo(NavigationItem.UserProfile)

@@ -50,7 +50,7 @@ class UserProfileViewModel @Inject constructor(
             dataStore.clear() //TODO this should be moved to some service that will clear all the data in the app
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Authentication.route,
+                    NavigationItem.Authentication.getRoute(),
                     BackStackMode.CLEAR_WHOLE
                 )
             )
@@ -63,7 +63,7 @@ class UserProfileViewModel @Inject constructor(
 
     fun editProfile() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.Settings.route))
+            navigationManager.navigate(NavigationCommand(NavigationItem.Settings.getRoute()))
         }
     }
 

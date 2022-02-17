@@ -14,6 +14,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
+import com.wire.android.navigation.HomeNavigationGraph
+import com.wire.android.navigation.HomeNavigationItem
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi

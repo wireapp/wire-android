@@ -45,7 +45,7 @@ import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserProfileScreen(viewModel: UserProfileViewModel) {
+fun UserProfileScreen(userId: String?, viewModel: UserProfileViewModel) {
     with(viewModel.userProfileState) {
         UserProfileScreen(
             state = this,

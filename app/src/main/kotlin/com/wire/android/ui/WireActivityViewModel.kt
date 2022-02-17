@@ -28,7 +28,7 @@ class WireActivityViewModel @Inject constructor(
     private val isUserLoggedIn = currentSession == null
 
     val startNavigationRoute = if (isUserLoggedIn)
-        NavigationItem.AUTHENTICATION_ROUTE
+        NavigationItem.Authentication.getRoute()
     else
-        NavigationItem.HOME_DEFAULT_START_ROUTE
+        NavigationItem.Home.getRoute()
 }

@@ -15,6 +15,7 @@ import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
+import com.wire.kalium.logic.data.conversation.ConversationId
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -69,7 +70,7 @@ sealed class NavigationItem(
             navArgument(CONVERSATION_ID_ARGUMENT) { type = NavType.StringType }
         )
     ) {
-        fun createRoute(conversationId: String) = "conversation/$conversationId"
+        fun createRoute(conversationId: ConversationId) = "conversation/${conversationId}"
     }
     companion object {
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"

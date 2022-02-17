@@ -2,8 +2,10 @@ package com.wire.android.ui
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -26,12 +28,13 @@ import javax.inject.Inject
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class WireActivity : AppCompatActivity() {
 
     @Inject
     lateinit var navigationManager: NavigationManager
-
+    val viewModel: WireActivityViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -44,7 +47,7 @@ class WireActivity : AppCompatActivity() {
                 setUpNavigation(navController, scope)
 
                 Scaffold {
-                    NavigationGraph(navController = navController)
+                    NavigationGraph(navController = navController,viewModel.startNavigationRoute)
                 }
             }
         }

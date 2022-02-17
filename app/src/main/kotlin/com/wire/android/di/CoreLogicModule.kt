@@ -15,6 +15,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import java.lang.IllegalStateException
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -65,6 +66,11 @@ class UseCaseModule {
     @Provides
     fun getConversationsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
         coreLogic.getSessionScope(session).conversations.getConversations
+
+    @ViewModelScoped
+    @Provides
+    // TODO: kind of redundant to CurrentSession - need to rename CurrentSession
+    fun currentSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().session.currentSession
 
     @ViewModelScoped
     @Provides

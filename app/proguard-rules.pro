@@ -21,20 +21,15 @@
 #-renamesourcefileattribute SourceFile
 
 # For E2EE
-#-keep class com.wire.cryptobox.** { *; }
-
--keepclasseswithmembernames,includedescriptorclasses class * {
-    native <methods>;
-}
-
-# For E2EE
 -keep class com.wire.cryptobox.** { *; }
 
 -keepclasseswithmembernames,includedescriptorclasses class * {
     native <methods>;
 }
 
-
+# For SQLCipher
+-keep,includedescriptorclasses class net.sqlcipher.** { *; }
+-keep,includedescriptorclasses interface net.sqlcipher.** { *; }
 
 # protobuf
 #-keep class * extends com.google.protobuf.GeneratedMessageLite { *; }

@@ -1,7 +1,7 @@
 package com.wire.android.ui.userprofile
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -29,6 +31,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,6 +44,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
@@ -87,7 +92,10 @@ fun UserProfileRoute(viewModel: UserProfileViewModel) {
         composable(
             route = ProfileImage.route,
             content = {
-                ProfileImageScreen({ navHostController.popBackStack() })
+                ProfileImageScreen(
+                    onNavigateBack = { navHostController.popBackStack() },
+                    onConfirmAvatar = { avatarBitmap -> viewModel.changeUserProfile(avatarBitmap) }
+                )
             }
         )
     }
@@ -126,6 +134,7 @@ private fun UserProfileScreen(
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 UserProfileInfo(
+                    isLoading = state.isAvatarLoading,
                     avatarUrl = "",
                     fullName = fullName,
                     userName = userName,
@@ -194,6 +203,7 @@ private fun UserProfileTopBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColumnScope.UserProfileInfo(
+    isLoading: Boolean,
     avatarUrl: String,
     fullName: String,
     userName: String,
@@ -201,15 +211,32 @@ private fun ColumnScope.UserProfileInfo(
     onUserProfileClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
-    UserProfileAvatar(
-        onClick = onUserProfileClick,
-        size = dimensions().userAvatarDefaultBigSize,
-        avatarUrl = avatarUrl,
-        status = UserStatus.NONE,
-        modifier = Modifier
+    Box(
+        Modifier
+            .wrapContentSize()
             .padding(top = dimensions().spacing16x)
             .align(Alignment.CenterHorizontally)
-    )
+    ) {
+        UserProfileAvatar(
+            onClick = onUserProfileClick,
+            size = dimensions().userAvatarDefaultBigSize,
+            avatarUrl = avatarUrl,
+            status = UserStatus.NONE,
+        )
+        if (isLoading) {
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .clip(CircleShape)
+                    .background(Color.Gray)
+            ) {
+                CircularProgressIndicator(
+                    progressColor = Color.DarkGray,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+    }
 
     ConstraintLayout(modifier = Modifier.align(Alignment.CenterHorizontally)) {
         val (userDescription, editButton, teamDescription) = createRefs()
@@ -493,7 +520,7 @@ private fun ChangeStatusDialogPreview() {
 private fun UserProfileScreenPreview() {
     UserProfileScreen(
         SelfUserProfileState(
-           "",
+            "",
             UserStatus.BUSY,
             "Tester Tost long lomng long logn long logn long lonf lonf",
             "@userName",

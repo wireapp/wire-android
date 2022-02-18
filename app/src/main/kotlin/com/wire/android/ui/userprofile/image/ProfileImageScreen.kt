@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,55 +27,44 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.BackNavigationIconButton
-import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.ImagePreview
 import com.wire.android.ui.common.imagepreview.ImagePreviewState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 //TODO: the input data for ProfileImageScreen will be decided later on after sync with Yamil
-fun ProfileImageScreen(onNavigateBack: () -> Unit, viewModel: ProfileImageViewModel = hiltViewModel()) {
+fun ProfileImageScreen(
+    onNavigateBack: () -> Unit,
+    onConfirmAvatar: (Bitmap) -> Unit,
+    viewModel: ProfileImageViewModel = hiltViewModel()
+) {
     val state = viewModel.state
 
-    // we want to navigate back once we upload the status correctly
-    // TODO?: maybe refactor this if any has better idea
-    if (state.uploadStatus == UploadStatus.Success) {
-        LaunchedEffect(true) {
-            onNavigateBack()
-        }
-    }
-
     ProfileImageContent(
-        avatarBitmap = state.avatarBitmap,
-        hasPicked = state.hasPickedAvatar,
-        isLoading = state.isLoading,
-        onProfileImagePicked = { viewModel.onAvatarPicked(it) },
-        onConfirmAvatar = { viewModel.onConfirmAvatar() },
-        onBackPressed = onNavigateBack
+        state = state,
+        onAvatarBitmapChange = { viewModel.onAvatarPicked(it) },
+        onConfirmAvatar = { onConfirmAvatar(state.avatarBitmap) },
+        onCloseClick = onNavigateBack
     )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ProfileImageContent(
-    avatarBitmap: Bitmap,
-    hasPicked: Boolean,
-    isLoading: Boolean,
-    onProfileImagePicked: (Bitmap) -> Unit,
+    state: ProfileImageViewModelState,
+    onAvatarBitmapChange: (Bitmap) -> Unit,
     onConfirmAvatar: () -> Unit,
-    onBackPressed: () -> Unit
+    onCloseClick: () -> Unit
 ) {
     val profileImageState = rememberProfileImageState({
-        onProfileImagePicked(it)
+        onAvatarBitmapChange(it)
     })
 
     MenuModalSheetLayout(
@@ -117,9 +105,9 @@ private fun ProfileImageContent(
     ) {
         Scaffold(topBar = {
             ProfileImageTopBar(
-                hasPicked = hasPicked,
+                hasPicked = state.hasPickedAvatar,
                 onConfirmAvatar = onConfirmAvatar,
-                onCloseClick = onBackPressed
+                onCloseClick = onCloseClick
             )
         }) {
             Box(Modifier.fillMaxSize()) {
@@ -127,7 +115,7 @@ private fun ProfileImageContent(
                     Box(Modifier.weight(1f)) {
                         Box(Modifier.align(Alignment.Center)) {
                             ImagePreview(
-                                imagePreviewState = ImagePreviewState.HasData(avatarBitmap),
+                                imagePreviewState = ImagePreviewState.HasData(state.avatarBitmap),
                                 contentDescription = stringResource(R.string.content_description_avatar_preview)
                             )
                         }
@@ -136,15 +124,8 @@ private fun ProfileImageContent(
                     Spacer(Modifier.height(4.dp))
                     WirePrimaryButton(
                         modifier = Modifier.padding(dimensions().spacing16x),
-                        text = if (hasPicked) stringResource(R.string.profile_image_change_image_button_label) else "Choose Image",
-                        state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
+                        text = stringResource(R.string.profile_image_change_image_button_label),
                         onClick = { profileImageState.showModalBottomSheet() }
-                    )
-                }
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        progressColor = MaterialTheme.wireColorScheme.background,
-                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
             }
@@ -176,7 +157,10 @@ private fun ProfileImageTopBar(
                 }
             } else {
                 BackNavigationIconButton(
-                    onBackButtonClick = onConfirmAvatar
+                    onBackButtonClick = {
+                        onCloseClick()
+                        onConfirmAvatar()
+                    }
                 )
             }
         },

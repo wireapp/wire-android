@@ -1,11 +1,13 @@
 package com.wire.android.ui.userprofile
 
+import android.graphics.Bitmap
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.BackStackMode
@@ -13,6 +15,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -111,5 +114,13 @@ class UserProfileViewModel @Inject constructor(
 
     private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean =
         dataStore.shouldShowStatusRationaleFlow(status).first()
+
+    fun changeUserProfile(avatarBitmap: Bitmap) {
+        viewModelScope.launch {
+            userProfileState = userProfileState.copy(isAvatarLoading = true)
+            delay(2000)
+            userProfileState = userProfileState.copy(isAvatarLoading = false)
+        }
+    }
 
 }

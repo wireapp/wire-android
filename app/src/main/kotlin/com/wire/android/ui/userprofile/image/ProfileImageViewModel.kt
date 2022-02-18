@@ -5,11 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ProfileImageViewModel() : ViewModel() {
+@HiltViewModel
+class ProfileImageViewModel @Inject constructor(
+) : ViewModel() {
 
     var state by mutableStateOf(ProfileImageViewModelState())
         private set
@@ -21,25 +22,11 @@ class ProfileImageViewModel() : ViewModel() {
         )
     }
 
-    //TODO:send to back-end
-    fun onConfirmAvatar() {
-        state = state.copy(isLoading = true)
-        viewModelScope.launch {
-            delay(2000)
-            state = state.copy(
-                uploadStatus = UploadStatus.Success,
-                isLoading = false
-            )
-        }
-    }
-
 }
 
 data class ProfileImageViewModelState(
-    val isLoading: Boolean = false,
     val hasPickedAvatar: Boolean = false,
     val avatarBitmap: Bitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
-    val uploadStatus: UploadStatus = UploadStatus.Initial
 )
 
 sealed class UploadStatus {

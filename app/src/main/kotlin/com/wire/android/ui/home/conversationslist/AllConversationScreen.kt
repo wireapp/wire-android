@@ -15,12 +15,13 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.NewActivity
+import com.wire.kalium.logic.data.conversation.ConversationId
 
 @Composable
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onOpenConversationClick: (String) -> Unit,
+    onOpenConversationClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationType) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {}
 ) {
@@ -41,13 +42,16 @@ private fun AllConversationContent(
     lazyListState: LazyListState,
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onConversationItemClick: (String) -> Unit,
+    onConversationItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationType) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(top = dimensions().topBarSearchFieldHeight)
+        contentPadding = PaddingValues(
+            top = dimensions().topBarSearchFieldHeight,
+            bottom = dimensions().conversationsListBottomPadding
+        )
     ) {
         folderWithElements(
             header = { stringResource(id = R.string.conversation_label_new_activity) },
@@ -57,7 +61,7 @@ private fun AllConversationContent(
                 ConversationItemFactory(
                     conversation = conversationItem,
                     eventType = eventType,
-                    onConversationItemClick = { onConversationItemClick("someId") },
+                    onConversationItemClick = { onConversationItemClick(conversationItem.id) },
                     onConversationItemLongClick = { onEditConversationItem(conversationItem.conversationType) }
                 )
             }
@@ -70,7 +74,7 @@ private fun AllConversationContent(
             ) { generalConversation ->
                 GeneralConversationItem(
                     generalConversation = generalConversation,
-                    onConversationItemClick = { onConversationItemClick("someId") },
+                    onConversationItemClick = { onConversationItemClick(generalConversation.id) },
                     onConversationItemLongClick = { onEditConversationItem(generalConversation.conversationType) }
                 )
             }

@@ -15,6 +15,7 @@ import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
+import com.wire.kalium.logic.data.conversation.ConversationId
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -69,12 +70,14 @@ sealed class NavigationItem(
             navArgument(CONVERSATION_ID_ARGUMENT) { type = NavType.StringType }
         )
     ) {
-        fun createRoute(conversationId: String) = "conversation/$conversationId"
+        fun createRoute(conversationId: ConversationId) = "conversation/${conversationId}"
     }
-
     companion object {
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
         const val CONVERSATION_ID_ARGUMENT: String = "conversation_id"
+        //todo: remove when the sealed class as enum object access fixed! Related Ticket Number: AR-1038
+        const val AUTHENTICATION_ROUTE: String = "auth"
+        const val HOME_DEFAULT_START_ROUTE: String = "home/{$HOME_START_TAB_ARGUMENT}"
 
         @ExperimentalMaterialApi
         val globalNavigationItems = listOf(

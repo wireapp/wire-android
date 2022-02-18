@@ -71,7 +71,7 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Conversation.getRoute(extraRouteId = "${conversationId.domain}/${conversationId.value}")
+                    destination = NavigationItem.Conversation.getRoute(extraRouteId = conversationId.value)
                 )
             )
         }

@@ -14,7 +14,7 @@ fun NavigationGraph(navController: NavHostController, startDestination: String) 
     NavigationItem.values().also { navItems ->
         NavHost(navController, startDestination) {
             navItems.forEach { item ->
-                composable(route = item.getRoute(), content = item.content, arguments = item.arguments)
+                composable(route = item.getCanonicalRoute(), content = item.content, arguments = item.arguments)
             }
         }
     }

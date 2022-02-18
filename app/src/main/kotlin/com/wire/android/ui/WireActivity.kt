@@ -40,7 +40,6 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             WireTheme {
-
                 val scope = rememberCoroutineScope()
                 val navController = rememberNavController()
 

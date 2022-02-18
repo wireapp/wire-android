@@ -19,6 +19,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,10 +27,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -63,11 +70,45 @@ import com.wire.android.ui.userprofile.UserProfileNavigation.UserProfile
 import com.wire.android.ui.userprofile.image.ProfileImageScreen
 import io.github.esentsov.PackagePrivate
 
-
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileRoute(viewModel: UserProfileViewModel) {
     val navHostController = rememberNavController()
+    val state = remember(viewModel.userProfileState) {
+        viewModel.userProfileState
+    }
+
+    UserProfileContent(navHostController = navHostController, state = state, onCloseClick = { viewModel.close() },
+        onLogoutClick = { viewModel.logout() },
+        onChangeUserProfilePicture = { navHostController.navigate(ProfileImage.route) },
+        onEditClick = { viewModel.editProfile() },
+        onStatusClicked = { viewModel.changeStatusClick(it) },
+        onAddAccountClick = { viewModel.addAccount() },
+        dismissStatusDialog = { viewModel.dismissStatusDialog() },
+        onStatusChange = { viewModel.changeStatus(it) },
+        onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) },
+        onConfirmAvatar = { avatarBitmap -> viewModel.changeUserProfile(avatarBitmap) }
+    )
+
+}
+
+@Composable
+fun UserProfileContent(
+    navHostController: NavHostController, state: SelfUserProfileState, onCloseClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {},
+    onChangeUserProfilePicture: () -> Unit = {},
+    onEditClick: () -> Unit = {},
+    onStatusClicked: (UserStatus) -> Unit = {},
+    onAddAccountClick: () -> Unit = {},
+    dismissStatusDialog: () -> Unit = {},
+    onStatusChange: (UserStatus) -> Unit = {},
+    onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
+    onConfirmAvatar: (Bitmap) -> Unit
+) {
+
+    val errorMessage = rememberSaveable(state.errorMessage) {
+        state.errorMessage
+    }
 
     NavHost(
         navController = navHostController,
@@ -77,16 +118,17 @@ fun UserProfileRoute(viewModel: UserProfileViewModel) {
             route = UserProfile.route,
             content = {
                 UserProfileScreen(
-                    state = viewModel.userProfileState,
-                    onCloseClick = { viewModel.close() },
-                    onLogoutClick = { viewModel.logout() },
-                    onChangeUserProfilePicture = { navHostController.navigate(ProfileImage.route) },
-                    onEditClick = { viewModel.editProfile() },
-                    onStatusClicked = { viewModel.changeStatusClick(it) },
-                    onAddAccountClick = { viewModel.addAccount() },
-                    dismissStatusDialog = { viewModel.dismissStatusDialog() },
-                    onStatusChange = { viewModel.changeStatus(it) },
-                    onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) }
+                    state = state,
+                    onCloseClick = onCloseClick,
+                    onLogoutClick = onLogoutClick,
+                    onChangeUserProfilePicture = onChangeUserProfilePicture,
+                    onEditClick = onEditClick,
+                    onStatusClicked = onStatusClicked,
+                    onAddAccountClick = onAddAccountClick,
+                    dismissStatusDialog = dismissStatusDialog,
+                    onStatusChange = onStatusChange,
+                    onNotShowRationaleAgainChange = onNotShowRationaleAgainChange,
+                    errorMessage
                 )
             }
         )
@@ -95,7 +137,7 @@ fun UserProfileRoute(viewModel: UserProfileViewModel) {
             content = {
                 ProfileImageScreen(
                     onNavigateBack = { navHostController.popBackStack() },
-                    onConfirmAvatar = { avatarBitmap -> viewModel.changeUserProfile(avatarBitmap) }
+                    onConfirmAvatar = { avatarBitmap -> onConfirmAvatar(avatarBitmap) }
                 )
             }
         )
@@ -119,14 +161,21 @@ private fun UserProfileScreen(
     onAddAccountClick: () -> Unit = {},
     dismissStatusDialog: () -> Unit = {},
     onStatusChange: (UserStatus) -> Unit = {},
-    onNotShowRationaleAgainChange: (Boolean) -> Unit = {}
+    onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
+    errorMessage: String
 ) {
-    Scaffold(topBar = {
-        UserProfileTopBar(
-            onCloseClick = onCloseClick,
-            onLogoutClick = onLogoutClick
-        )
-    }) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val scaffoldStaste = rememberScaffoldState()
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        topBar = {
+            UserProfileTopBar(
+                onCloseClick = onCloseClick,
+                onLogoutClick = onLogoutClick
+            )
+        }) {
         with(state) {
             Column(
                 modifier = Modifier
@@ -160,6 +209,7 @@ private fun UserProfileScreen(
             )
         }
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -497,7 +547,6 @@ fun ChangeStatusDialog(
                 checked = data.isCheckBoxChecked,
                 onCheckedChange = onNotShowRationaleAgainChange
             )
-
             Text(
                 text = stringResource(R.string.user_profile_change_status_dialog_checkbox_text),
                 style = MaterialTheme.wireTypography.body01
@@ -519,12 +568,12 @@ private fun ChangeStatusDialogPreview() {
 private fun UserProfileScreenPreview() {
     UserProfileScreen(
         SelfUserProfileState(
-            Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
-            UserStatus.BUSY,
-            "Tester Tost long lomng long logn long logn long lonf lonf",
-            "@userName",
-            "Best team ever long ",
-            listOf(
+            avatarBitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
+            status = UserStatus.BUSY,
+            fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
+            userName = "@userName_long_long_long_long_long_long_long_long_long_long",
+            teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
+            otherAccounts = listOf(
                 OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "Other Name", "team A"),
@@ -534,6 +583,7 @@ private fun UserProfileScreenPreview() {
                 OtherAccount("someId", "", "New Name")
             ),
             statusDialogData = null
-        )
+        ),
+        errorMessage = "errorMessage"
     )
 }

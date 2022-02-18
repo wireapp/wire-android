@@ -15,9 +15,11 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @ExperimentalMaterial3Api
@@ -30,16 +32,16 @@ class UserProfileViewModel @Inject constructor(
 
     var userProfileState by mutableStateOf(
         SelfUserProfileState(
-            Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
-            UserStatus.BUSY,
-            "Tester Tost_long_long_long long  long  long  long  long  long ",
-            "@userName_long_long_long_long_long_long_long_long_long_long",
-            "Best team ever long  long  long  long  long  long  long  long  long ",
-            listOf(
+            avatarBitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
+            status = UserStatus.BUSY,
+            fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
+            userName = "@userName_long_long_long_long_long_long_long_long_long_long",
+            teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
+            otherAccounts = listOf(
                 OtherAccount("someId", "", "Other Name 0", "team A"),
-//                OtherAccount("someId", "", "Other Name 1", "team B"),
-//                OtherAccount("someId", "", "Other Name 2", "team C"),
-//                OtherAccount("someId", "", "Other Name", "team A"),
+                //                OtherAccount("someId", "", "Other Name 1", "team B"),
+                //                OtherAccount("someId", "", "Other Name 2", "team C"),
+                //                OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "New Name")
             )
         )
@@ -117,23 +119,29 @@ class UserProfileViewModel @Inject constructor(
         dataStore.shouldShowStatusRationaleFlow(status).first()
 
     fun changeUserProfile(avatarBitmap: Bitmap) {
-        changeUserProfile(avatarBitmap, onFailure = {
-            val backupBitmap = userProfileState.avatarBitmap
+        val backupBitmap = userProfileState.avatarBitmap
 
+        changeUserProfile(avatarBitmap, onFailure = {
             userProfileState = userProfileState.copy(
-                avatarBitmap = backupBitmap
+                avatarBitmap = backupBitmap,
+                isAvatarLoading = false,
+                errorMessage = "Something went wrong while updating the profile picture"
             )
         })
     }
 
     private fun changeUserProfile(avatarBitmap: Bitmap, onFailure: () -> Unit) {
         viewModelScope.launch {
-            userProfileState = userProfileState.copy(
-                isAvatarLoading = true,
-                avatarBitmap = avatarBitmap
-            )
-            delay(2000)
-            userProfileState = userProfileState.copy(isAvatarLoading = false)
+            withContext(Dispatchers.IO) {
+                userProfileState = userProfileState.copy(avatarBitmap = avatarBitmap, isAvatarLoading = true)
+
+                delay(500)
+                onFailure()
+//                when (uploadUserAvatarUseCase("image/png", avatarBitmap.toByteArray())) {
+//                    is Either.Left -> onFailure()
+//                    is Either.Right -> userProfileState = userProfileState.copy(isAvatarLoading = false)
+//                }
+            }
         }
     }
 

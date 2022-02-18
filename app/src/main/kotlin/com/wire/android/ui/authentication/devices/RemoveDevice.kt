@@ -5,20 +5,26 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
-import com.wire.android.ui.authentication.devices.mock.mockDevices
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
@@ -30,6 +36,7 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.formatMediumDateTime
+import kotlinx.coroutines.android.awaitFrame
 
 @Composable
 fun RemoveDeviceScreen(navController: NavController) {
@@ -46,7 +53,7 @@ fun RemoveDeviceScreen(navController: NavController) {
         )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun RemoveDeviceContent(
     navController: NavController,
@@ -69,7 +76,7 @@ private fun RemoveDeviceContent(
             is RemoveDeviceState.Success ->
                 RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
             RemoveDeviceState.Loading ->
-                RemoveDeviceItemsList(lazyListState, mockDevices, true, onItemClicked)
+                RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
         }
         //TODO handle list loading errors
         if (state is RemoveDeviceState.Success && state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
@@ -91,6 +98,12 @@ private fun RemoveDeviceContent(
                         type = WireDialogButtonType.Primary,
                     )
                 )
+            }
+        } else {
+            val keyboardController = LocalSoftwareKeyboardController.current
+            LaunchedEffect(state) {
+                awaitFrame() // for some reason keyboard reappears after dialog is dismissed, it's the only way to prevent that
+                keyboardController?.hide()
             }
         }
     }
@@ -116,6 +129,7 @@ private fun RemoveDeviceItemsList(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun RemoveDeviceDialog(
     state: RemoveDeviceDialogState.Visible,
@@ -123,6 +137,7 @@ private fun RemoveDeviceDialog(
     onDialogDismiss: () -> Unit,
     onRemoveConfirm: () -> Unit,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     WireDialog(
         title = stringResource(R.string.remove_device_dialog_title),
         text = state.device.name + "\n" +
@@ -135,7 +150,7 @@ private fun RemoveDeviceDialog(
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDialogDismiss,
             text = stringResource(id = R.string.label_cancel),
-            state = if(state.removeEnabled) WireButtonState.Default else WireButtonState.Disabled
+            state = WireButtonState.Default
         ),
         confirmButtonProperties = WireDialogButtonProperties(
             onClick = onRemoveConfirm,
@@ -153,7 +168,9 @@ private fun RemoveDeviceDialog(
                         WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
                     state.loading -> WireTextFieldState.Disabled
                     else -> WireTextFieldState.Default
-                }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, autoCorrect = false, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
             )
         }
     )
@@ -165,7 +182,7 @@ private fun RemoveDeviceDialog(
 private fun RemoveDeviceScreenPreview() {
     RemoveDeviceContent(
         navController = rememberNavController(),
-        state = RemoveDeviceState.Success(mockDevices, RemoveDeviceDialogState.Hidden),
+        state = RemoveDeviceState.Success(List(10) { Device(name = "device") }, RemoveDeviceDialogState.Hidden),
         onItemClicked = {},
         onPasswordChange = {},
         onRemoveConfirm = {},

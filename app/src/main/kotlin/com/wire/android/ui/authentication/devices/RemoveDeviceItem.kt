@@ -25,7 +25,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.authentication.devices.mock.mockDevices
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.getMinTouchMargins
@@ -95,7 +94,7 @@ private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
         style = MaterialTheme.wireTypography.body02,
         color = MaterialTheme.wireColorScheme.onBackground,
         text = device.name,
-        modifier = Modifier.shimmerPlaceholder(visible = placeholder)
+        modifier = Modifier.fillMaxWidth().shimmerPlaceholder(visible = placeholder)
     )
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
     val details = stringResource(
@@ -107,7 +106,7 @@ private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
         style = MaterialTheme.wireTypography.subline01,
         color = MaterialTheme.wireColorScheme.labelText,
         text = details,
-        modifier = Modifier.shimmerPlaceholder(visible = placeholder)
+        modifier = Modifier.fillMaxWidth().shimmerPlaceholder(visible = placeholder)
     )
 }
 
@@ -115,6 +114,6 @@ private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
 @Composable
 private fun RemoveDeviceItemPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {
-        RemoveDeviceItem(mockDevices[0], false) {}
+        RemoveDeviceItem(Device(name = "device"), false) {}
     }
 }

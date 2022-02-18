@@ -11,20 +11,16 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.authentication.devices.mock.mockDevices
 import com.wire.android.ui.authentication.devices.model.Device
-import com.wire.android.ui.authentication.login.LoginError
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.client.DeleteClientParam
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
-import com.wire.kalium.logic.feature.client.SelfClientsUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
-import com.wire.kalium.logic.feature.client.DeleteClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,7 +34,7 @@ class RemoveDeviceViewModel @Inject constructor(
 ) : ViewModel() {
 
     var state: RemoveDeviceState by mutableStateOf(
-        RemoveDeviceState.Success(deviceList = mockDevices, removeDeviceDialogState = RemoveDeviceDialogState.Hidden)
+        RemoveDeviceState.Success(deviceList = listOf(), removeDeviceDialogState = RemoveDeviceDialogState.Hidden)
     )
         private set
 

@@ -13,6 +13,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -23,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val dataStore: UserDataStore
+    private val dataStore: UserDataStore,
+    private val uploadUserAvatarUseCase: UploadUserAvatarUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(
@@ -115,6 +117,16 @@ class UserProfileViewModel @Inject constructor(
         dataStore.shouldShowStatusRationaleFlow(status).first()
 
     fun changeUserProfile(avatarBitmap: Bitmap) {
+        changeUserProfile(avatarBitmap, onFailure = {
+            val backupBitmap = userProfileState.avatarBitmap
+
+            userProfileState = userProfileState.copy(
+                avatarBitmap = backupBitmap
+            )
+        })
+    }
+
+    private fun changeUserProfile(avatarBitmap: Bitmap, onFailure: () -> Unit) {
         viewModelScope.launch {
             userProfileState = userProfileState.copy(
                 isAvatarLoading = true,

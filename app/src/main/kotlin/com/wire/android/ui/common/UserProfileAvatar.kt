@@ -32,15 +32,14 @@ fun UserProfileAvatar(
     status: UserStatus = UserStatus.NONE,
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
-    isClickable: Boolean = true,
-    onClick: () -> Unit = {}
+    onClick: (() -> Unit)? = null
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .wrapContentSize()
             .clip(CircleShape)
-            .then(if (isClickable) Modifier.clickable { onClick() } else Modifier)
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .wrapContentSize()
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
@@ -66,15 +65,14 @@ fun UserProfileAvatar(
     status: UserStatus = UserStatus.NONE,
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
-    isClickable: Boolean = true,
-    onClick: () -> Unit = {}
+    onClick: (() -> Unit)? = null
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .wrapContentSize()
             .clip(CircleShape)
-            .then(if (isClickable) Modifier.clickable { onClick() } else Modifier)
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .wrapContentSize()
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {

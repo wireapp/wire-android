@@ -27,6 +27,14 @@
     native <methods>;
 }
 
+# For E2EE
+-keep class com.wire.cryptobox.** { *; }
+
+-keepclasseswithmembernames,includedescriptorclasses class * {
+    native <methods>;
+}
+
+
 
 # protobuf
 #-keep class * extends com.google.protobuf.GeneratedMessageLite { *; }

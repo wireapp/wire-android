@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -135,7 +136,7 @@ private fun UserProfileScreen(
             ) {
                 UserProfileInfo(
                     isLoading = state.isAvatarLoading,
-                    avatarUrl = "",
+                    avatarBitmap = state.avatarBitmap,
                     fullName = fullName,
                     userName = userName,
                     teamName = teamName,
@@ -204,7 +205,7 @@ private fun UserProfileTopBar(
 @Composable
 private fun ColumnScope.UserProfileInfo(
     isLoading: Boolean,
-    avatarUrl: String,
+    avatarBitmap: Bitmap,
     fullName: String,
     userName: String,
     teamName: String,
@@ -220,7 +221,7 @@ private fun ColumnScope.UserProfileInfo(
         UserProfileAvatar(
             onClick = onUserProfileClick,
             size = dimensions().userAvatarDefaultBigSize,
-            avatarUrl = avatarUrl,
+            avatarBitmap = avatarBitmap,
             status = UserStatus.NONE,
         )
         if (isLoading) {
@@ -237,7 +238,6 @@ private fun ColumnScope.UserProfileInfo(
             }
         }
     }
-
     ConstraintLayout(modifier = Modifier.align(Alignment.CenterHorizontally)) {
         val (userDescription, editButton, teamDescription) = createRefs()
 
@@ -267,7 +267,6 @@ private fun ColumnScope.UserProfileInfo(
                 color = MaterialTheme.colorScheme.onBackground,
             )
         }
-
         IconButton(
             modifier = Modifier
                 .padding(start = dimensions().spacing16x)
@@ -520,7 +519,7 @@ private fun ChangeStatusDialogPreview() {
 private fun UserProfileScreenPreview() {
     UserProfileScreen(
         SelfUserProfileState(
-            "",
+            Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
             UserStatus.BUSY,
             "Tester Tost long lomng long logn long logn long lonf lonf",
             "@userName",

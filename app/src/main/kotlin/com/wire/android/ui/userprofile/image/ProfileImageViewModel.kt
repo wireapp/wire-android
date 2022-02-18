@@ -15,7 +15,7 @@ class ProfileImageViewModel @Inject constructor(
     var state by mutableStateOf(ProfileImageViewModelState())
         private set
 
-    fun onAvatarPicked(avatarBitmap: Bitmap) {
+    fun onAvatarBitmapChange(avatarBitmap: Bitmap) {
         state = state.copy(
             hasPickedAvatar = true,
             avatarBitmap = avatarBitmap

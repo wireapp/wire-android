@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.BackStackMode
@@ -29,7 +28,7 @@ class UserProfileViewModel @Inject constructor(
 
     var userProfileState by mutableStateOf(
         SelfUserProfileState(
-            "",
+            Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
             UserStatus.BUSY,
             "Tester Tost_long_long_long long  long  long  long  long  long ",
             "@userName_long_long_long_long_long_long_long_long_long_long",
@@ -117,7 +116,10 @@ class UserProfileViewModel @Inject constructor(
 
     fun changeUserProfile(avatarBitmap: Bitmap) {
         viewModelScope.launch {
-            userProfileState = userProfileState.copy(isAvatarLoading = true)
+            userProfileState = userProfileState.copy(
+                isAvatarLoading = true,
+                avatarBitmap = avatarBitmap
+            )
             delay(2000)
             userProfileState = userProfileState.copy(isAvatarLoading = false)
         }

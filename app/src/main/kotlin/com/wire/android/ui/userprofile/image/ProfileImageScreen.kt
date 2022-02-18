@@ -49,7 +49,7 @@ fun ProfileImageScreen(
 
     ProfileImageContent(
         state = state,
-        onAvatarBitmapChange = { viewModel.onAvatarPicked(it) },
+        onAvatarBitmapChange = { viewModel.onAvatarBitmapChange(it) },
         onConfirmAvatar = { onConfirmAvatar(state.avatarBitmap) },
         onCloseClick = onNavigateBack
     )

@@ -1,5 +1,6 @@
 package com.wire.android.ui.common
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.theme.wireDimensions
+
 
 @Composable
 fun UserProfileAvatar(
@@ -48,6 +51,40 @@ fun UserProfileAvatar(
             modifier = Modifier
                 .padding(dimensions().userAvatarStatusBorderSize)
                 .background(Color.Black, CircleShape)
+                .size(size)
+        )
+        UserStatusIndicator(
+            status = status,
+            modifier = Modifier.align(Alignment.BottomEnd)
+        )
+    }
+}
+
+@Composable
+fun UserProfileAvatar(
+    avatarBitmap: Bitmap,
+    status: UserStatus = UserStatus.NONE,
+    size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
+    modifier: Modifier = Modifier,
+    isClickable: Boolean = true,
+    onClick: () -> Unit = {}
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .wrapContentSize()
+            .clip(CircleShape)
+            .then(if (isClickable) Modifier.clickable { onClick() } else Modifier)
+            .wrapContentSize()
+            .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
+    ) {
+        Image(
+            bitmap = avatarBitmap.asImageBitmap(),
+            contentDescription = stringResource(R.string.content_description_user_avatar),
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .padding(dimensions().userAvatarStatusBorderSize)
+                .clip(CircleShape)
                 .size(size)
         )
         UserStatusIndicator(

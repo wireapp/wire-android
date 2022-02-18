@@ -74,13 +74,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun registerClient(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentSession currentSession: AuthSession
-    ) = coreLogic.getSessionScope(currentSession).client.register
-
-    @ViewModelScoped
-    @Provides
     fun selfClientsUseCase(@CurrentSession currentSession: AuthSession, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentSession).clientScope.selfClients
 
@@ -88,7 +81,6 @@ class UseCaseModule {
     @Provides
     fun deleteClientUseCase(@CurrentSession currentSession: AuthSession, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentSession).clientScope.deleteClient
-
 
     @ViewModelScoped
     @Provides

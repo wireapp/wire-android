@@ -13,7 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,9 +32,11 @@ fun WireLabelledCheckbox(
     ) {
         Checkbox(
             checked = checked,
-            onCheckedChange = null
+            onCheckedChange = null // null since we are handling the click on parent
         )
-        Spacer(modifier = Modifier.size(8.dp))
+
+        Spacer(modifier = Modifier.size(MaterialTheme.wireDimensions.spacing8x))
+
         Text(
             text = label,
             style = MaterialTheme.wireTypography.body01

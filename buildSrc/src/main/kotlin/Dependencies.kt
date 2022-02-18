@@ -110,6 +110,7 @@ object Libraries {
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
     const val accompanistPager          = "com.google.accompanist:accompanist-pager:${Versions.accompanist}"
     const val accompanistSystemUI       = "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}"
+    const val accompanistNavAnimation   = "com.google.accompanist:accompanist-navigation-animation:${Versions.accompanist}"
     const val material                  = "com.google.android.material:material:${Versions.material}"
     const val messageProto              = "com.wire:generic-message-proto:${Versions.messageProto}"
     const val okHttpLogging             = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"

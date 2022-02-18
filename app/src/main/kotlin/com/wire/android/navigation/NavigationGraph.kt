@@ -1,20 +1,30 @@
 package com.wire.android.navigation
 
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
 
-@OptIn(ExperimentalMaterialApi::class)
-@ExperimentalMaterial3Api
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun NavigationGraph(navController: NavHostController, startDestination: String) {
     NavigationItem.values().also { navItems ->
-        NavHost(navController, startDestination) {
+        AnimatedNavHost(navController, startDestination) {
             navItems.forEach { item ->
-                composable(route = item.getRoute(), content = item.content, arguments = item.arguments)
+                composable(
+                    route = item.getCanonicalRoute(), arguments = item.arguments, content = item.content,
+                    enterTransition = { slideInHorizontally() },
+                    exitTransition = { slideOutHorizontally() },
+                )
             }
         }
     }

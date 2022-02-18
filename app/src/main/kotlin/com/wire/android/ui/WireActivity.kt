@@ -15,6 +15,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
@@ -40,14 +41,13 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             WireTheme {
-
                 val scope = rememberCoroutineScope()
-                val navController = rememberNavController()
+                val navController = rememberAnimatedNavController()
 
                 setUpNavigation(navController, scope)
 
                 Scaffold {
-                    NavigationGraph(navController = navController,viewModel.startNavigationRoute)
+                    NavigationGraph(navController = navController, viewModel.startNavigationRoute)
                 }
             }
         }

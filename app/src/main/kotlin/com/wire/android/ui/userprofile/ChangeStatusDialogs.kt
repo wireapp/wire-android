@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -54,6 +55,7 @@ private fun ChangeStatusDialog(
             label = stringResource(R.string.user_profile_change_status_dialog_checkbox_text),
             checked = data.isCheckBoxChecked,
             onCheckClicked = onNotShowRationaleAgainChange,
+            horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         )
     }

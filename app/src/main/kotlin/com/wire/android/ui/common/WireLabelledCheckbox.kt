@@ -1,10 +1,12 @@
 package com.wire.android.ui.common
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,13 +24,16 @@ fun WireLabelledCheckbox(
     label: String,
     checked: Boolean,
     onCheckClicked: ((Boolean) -> Unit),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = horizontalArrangement,
         modifier = modifier
             .clickable(onClick = { onCheckClicked(!checked) })
             .requiredHeight(ButtonDefaults.MinHeight)
+            .wrapContentWidth()
     ) {
         Checkbox(
             checked = checked,

@@ -4,7 +4,7 @@ plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
     id(BuildPlugins.kotlinAndroid)
-    //id(BuildPlugins.kotlinAndroidExtensions)
+    // id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinKapt)
     id(BuildPlugins.hilt)
     kotlin(BuildPlugins.kapt)
@@ -28,9 +28,9 @@ android {
         minSdk = AndroidSdk.min
         targetSdk = AndroidSdk.target
         versionCode = AndroidClient.versionCode
-        versionName = "v${AndroidClient.versionName}(${versionCode})"
+        versionName = "v${AndroidClient.versionName}($versionCode)"
         testInstrumentationRunner = AndroidClient.testRunner
-        setProperty("archivesBaseName", "${applicationId}-v${versionName}(${versionCode})")
+        setProperty("archivesBaseName", "$applicationId-v$versionName($versionCode)")
     }
 
     buildFeatures {
@@ -53,15 +53,14 @@ android {
     sourceSets["androidTest"].includeCommonTestSourceDir()
 
     // Remove protobuf-java as dependencies, so we can get protobuf-lite
-    //configurations.implementation.configure {
+    // configurations.implementation.configure {
     //    exclude(module = "protobuf-java")
-    //}
+    // }
 }
 
 kapt {
     correctErrorTypes = true
 }
-
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
@@ -94,7 +93,7 @@ dependencies {
     // Saved state module for ViewModel
     implementation(Libraries.Lifecycle.viewModelSavedState)
 
-    //Compose
+    // Compose
     implementation(Libraries.composeUi)
     implementation(Libraries.composeMaterial3)
     implementation(Libraries.composeMaterial)
@@ -140,6 +139,28 @@ dependencies {
     androidTestImplementation(TestLibraries.kluentAndroid)
 
     // Development dependencies
-    //debugImplementation(DevLibraries.fragmentTesting)
+    // debugImplementation(DevLibraries.fragmentTesting)
     debugImplementation(DevLibraries.leakCanary)
+}
+
+apply(plugin = "com.diffplug.spotless")
+configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    kotlin {
+        target("**/*.kt")
+        ktlint().userData(
+            mapOf(
+                "disabled_rules" to "import-ordering",
+                "max_line_length" to "150"
+            )
+        )
+        trimTrailingWhitespace()
+    }
+    kotlinGradle {
+        target("*.gradle.kts") // default target for kotlinGradle
+        ktlint()
+    }
+    format("xml") {
+        target("**/*.xml")
+        trimTrailingWhitespace()
+    }
 }

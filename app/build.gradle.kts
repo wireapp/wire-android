@@ -14,6 +14,7 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
+    id(ScriptPlugins.spotless)
 }
 
 repositories {
@@ -141,26 +142,4 @@ dependencies {
     // Development dependencies
     // debugImplementation(DevLibraries.fragmentTesting)
     debugImplementation(DevLibraries.leakCanary)
-}
-
-apply(plugin = "com.diffplug.spotless")
-configure<com.diffplug.gradle.spotless.SpotlessExtension> {
-    kotlin {
-        target("**/*.kt")
-        ktlint().userData(
-            mapOf(
-                "disabled_rules" to "import-ordering",
-                "max_line_length" to "150"
-            )
-        )
-        trimTrailingWhitespace()
-    }
-    kotlinGradle {
-        target("*.gradle.kts") // default target for kotlinGradle
-        ktlint()
-    }
-    format("xml") {
-        target("**/*.xml")
-        trimTrailingWhitespace()
-    }
 }

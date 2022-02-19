@@ -3,8 +3,6 @@ package com.wire.android.navigation
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -29,8 +27,8 @@ enum class NavigationItem(
     private val canonicalRoute: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit),
-    open val enterTransition: EnterTransition = slideInHorizontally(),
-    open val exitTransition: ExitTransition = slideOutHorizontally()
+    open val enterTransition: EnterTransition = EnterTransition.None,
+    open val exitTransition: ExitTransition = ExitTransition.None
 ) {
 
     Authentication(
@@ -67,7 +65,8 @@ enum class NavigationItem(
         arguments = listOf(
             navArgument(EXTRA_USER_ID) { type = NavType.StringType }
         ),
-        // TODO: override right to left transition
+        enterTransition = wireSlideInFromRight(),
+        exitTransition = wireSlideOutFromLeft()
     ),
 
     Conversation(
@@ -92,22 +91,6 @@ enum class NavigationItem(
         if (extraRouteId.isEmpty()) primaryRoute else "$primaryRoute/$extraRouteId}"
 
     companion object {
-        const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
-        const val CONVERSATION_ID_ARGUMENT: String = "conversation_id"
-        //todo: remove when the sealed class as enum object access fixed! Related Ticket Number: AR-1038
-        const val AUTHENTICATION_ROUTE: String = "auth"
-        const val HOME_DEFAULT_START_ROUTE: String = "home/{$HOME_START_TAB_ARGUMENT}"
-
-        @ExperimentalMaterialApi
-        val globalNavigationItems = listOf(
-            Authentication,
-            Settings,
-            Support,
-            UserProfile,
-            Home,
-            Conversation
-        )
-
         @OptIn(ExperimentalMaterialApi::class)
         private val map: Map<String, NavigationItem> = values().associateBy { it.canonicalRoute }
 

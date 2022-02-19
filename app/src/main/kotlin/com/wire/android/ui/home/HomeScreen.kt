@@ -1,6 +1,7 @@
 package com.wire.android.ui.home
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
@@ -13,16 +14,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
 import kotlinx.coroutines.launch
 
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
+@OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
-    val navController = rememberNavController()
+    val navController = rememberAnimatedNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val currentItem = HomeNavigationItem.getCurrentNavigationItem(navController)
     val scope = rememberCoroutineScope()

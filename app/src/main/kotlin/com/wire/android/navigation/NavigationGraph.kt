@@ -1,8 +1,6 @@
 package com.wire.android.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -22,8 +20,8 @@ fun NavigationGraph(navController: NavHostController, startDestination: String) 
             navItems.forEach { item ->
                 composable(
                     route = item.getCanonicalRoute(), arguments = item.arguments, content = item.content,
-                    enterTransition = { slideInHorizontally() },
-                    exitTransition = { slideOutHorizontally() },
+                    enterTransition = { item.enterTransition },
+                    exitTransition = { item.exitTransition },
                 )
             }
         }

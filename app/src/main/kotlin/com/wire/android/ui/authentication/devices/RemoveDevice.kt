@@ -12,8 +12,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -49,7 +53,7 @@ fun RemoveDeviceScreen(navController: NavController) {
         onPasswordChange = viewModel::onPasswordChange,
         onRemoveConfirm = viewModel::onRemoveConfirmed,
         onDialogDismiss = viewModel::onDialogDismissed,
-        onErrorDialogDismiss = viewModel::clearDeleteClientError
+        onErrorDialogDismiss = viewModel::clearDeleteClientError,
         )
 }
 
@@ -62,7 +66,7 @@ private fun RemoveDeviceContent(
     onPasswordChange: (TextFieldValue) -> Unit,
     onRemoveConfirm: () -> Unit,
     onDialogDismiss: () -> Unit,
-    onErrorDialogDismiss: () -> Unit
+    onErrorDialogDismiss: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
     Scaffold(
@@ -137,7 +141,6 @@ private fun RemoveDeviceDialog(
     onDialogDismiss: () -> Unit,
     onRemoveConfirm: () -> Unit,
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
     WireDialog(
         title = stringResource(R.string.remove_device_dialog_title),
         text = state.device.name + "\n" +
@@ -160,6 +163,10 @@ private fun RemoveDeviceDialog(
             state = if(state.removeEnabled) WireButtonState.Error else WireButtonState.Disabled
         ),
         content = {
+            // keyboard controller from outside the Dialog doesn't work inside its content so we have to pass the state
+            // to the dialog's content and use keyboard controller from there
+            val keyboardController = LocalSoftwareKeyboardController.current
+            val focusRequester = remember { FocusRequester() }
             WirePasswordTextField(
                 value = state.password,
                 onValueChange = onPasswordChange,
@@ -171,7 +178,14 @@ private fun RemoveDeviceDialog(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, autoCorrect = false, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                modifier = Modifier.focusRequester(focusRequester)
             )
+            SideEffect {
+                if(state.keyboardVisible) {
+                    focusRequester.requestFocus()
+                    keyboardController?.show()
+                } else keyboardController?.hide()
+            }
         }
     )
 }

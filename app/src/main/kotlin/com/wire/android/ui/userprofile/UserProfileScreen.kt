@@ -142,14 +142,16 @@ private fun ColumnScope.Header(state: SelfUserProfileState, onEditClick: () -> U
 
         val (data, editBtn, team) = createRefs()
 
-        Column(modifier = Modifier
-            .padding(horizontal = dimensions().spacing64x)
-            .constrainAs(data) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }) {
+        Column(
+            modifier = Modifier
+                .padding(horizontal = dimensions().spacing64x)
+                .constrainAs(data) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+        ) {
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = state.fullName,
@@ -218,7 +220,8 @@ private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserSt
                     status = UserStatus.AVAILABLE,
                     modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
-            })
+            }
+        )
         WireSecondaryButton(
             onClick = { onStatusClicked(UserStatus.BUSY) },
             text = stringResource(R.string.user_profile_status_busy),
@@ -231,7 +234,8 @@ private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserSt
                     status = UserStatus.BUSY,
                     modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
-            })
+            }
+        )
         WireSecondaryButton(
             onClick = { onStatusClicked(UserStatus.AWAY) },
             text = stringResource(R.string.user_profile_status_away),
@@ -244,10 +248,12 @@ private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserSt
                     status = UserStatus.AWAY,
                     modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
-            })
+            }
+        )
         WireSecondaryButton(
             onClick = { onStatusClicked(UserStatus.NONE) },
             text = stringResource(R.string.user_profile_status_none),
+            fillMaxWidth = false,
             shape = RoundedCornerShape(topEnd = dimensions().corner16x, bottomEnd = dimensions().corner16x),
             minHeight = dimensions().userProfileStatusBtnHeight,
             state = if (status == UserStatus.NONE) WireButtonState.Selected else WireButtonState.Default,
@@ -256,7 +262,8 @@ private fun ColumnScope.StatusesRow(status: UserStatus, onStatusClicked: (UserSt
                     status = UserStatus.NONE,
                     modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
-            })
+            }
+        )
     }
 }
 
@@ -315,13 +322,15 @@ private fun OtherAccountItem(account: OtherAccount, onClick: (String) -> Unit = 
             }
         )
 
-        Column(modifier = Modifier
-            .padding(start = dimensions().spacing8x)
-            .constrainAs(data) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(avatar.end)
-            }) {
+        Column(
+            modifier = Modifier
+                .padding(start = dimensions().spacing8x)
+                .constrainAs(data) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(avatar.end)
+                }
+        ) {
 
             Text(text = account.fullName, style = MaterialTheme.wireTypography.body02)
 

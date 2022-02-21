@@ -13,9 +13,9 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @HiltViewModel
@@ -45,9 +45,9 @@ class UserProfileViewModel @Inject constructor(
     fun close() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun logout() {
-        //TODO
+        // TODO
         viewModelScope.launch {
-            dataStore.clear() //TODO this should be moved to some service that will clear all the data in the app
+            dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
             navigationManager.navigate(
                 NavigationCommand(
                     NavigationItem.Authentication.route,
@@ -58,7 +58,7 @@ class UserProfileViewModel @Inject constructor(
     }
 
     fun addAccount() {
-        //TODO
+        // TODO
     }
 
     fun editProfile() {
@@ -73,7 +73,7 @@ class UserProfileViewModel @Inject constructor(
 
     fun changeStatus(status: UserStatus) {
         setNotShowStatusRationaleAgainIfNeeded(status)
-        //TODO
+        userProfileState = userProfileState.copy(status =  status)
         dismissStatusDialog()
     }
 

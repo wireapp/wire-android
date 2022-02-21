@@ -24,9 +24,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import kotlinx.coroutines.NonDisposableHandle.parent
 
 @Composable
-fun ImagePreview(imagePreviewState: ImagePreviewState = ImagePreviewState.Initial, contentDescription: String) {
+fun BulletHoleImagePreview(imageBitmap: Bitmap, contentDescription: String) {
     ConstraintLayout(
         Modifier
             .aspectRatio(1f)
@@ -43,21 +44,12 @@ fun ImagePreview(imagePreviewState: ImagePreviewState = ImagePreviewState.Initia
                     bottom.linkTo(parent.bottom)
                 }
         ) {
-            //TODO: fetch image, for now hard-coded
-            when (imagePreviewState) {
-                is ImagePreviewState.HasData -> Image(
-                    bitmap = imagePreviewState.bitmap.asImageBitmap(),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = contentDescription,
-                    modifier = Modifier.fillMaxSize()
-                )
-                ImagePreviewState.Initial -> Image(
-                    painter = painterResource(id = R.drawable.mock_message_image),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = contentDescription,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+            Image(
+                bitmap = imageBitmap.asImageBitmap(),
+                contentScale = ContentScale.Crop,
+                contentDescription = contentDescription,
+                modifier = Modifier.fillMaxSize()
+            )
         }
         Box(
             Modifier
@@ -119,9 +111,4 @@ class BulletHoleShape : Shape {
         return path
     }
 
-}
-
-sealed class ImagePreviewState {
-    object Initial : ImagePreviewState()
-    data class HasData(val bitmap: Bitmap) : ImagePreviewState()
 }

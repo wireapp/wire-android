@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.BackNavigationIconButton
@@ -31,8 +30,8 @@ import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.imagepreview.ImagePreview
-import com.wire.android.ui.common.imagepreview.ImagePreviewState
+import com.wire.android.ui.common.imagepreview.BitmapState
+import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
 
@@ -40,35 +39,32 @@ import com.wire.android.ui.theme.wireTypography
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 //TODO: the input data for ProfileImageScreen will be decided later on after sync with Yamil
-fun ProfileImageScreen(
+fun ImagePicker(
+    initialBitmap: Bitmap,
     OnCloseClick: () -> Unit,
-    onConfirmAvatar: (Bitmap) -> Unit,
-    viewModel: ProfileImageViewModel = hiltViewModel()
+    onConfirmPick: (Bitmap) -> Unit
 ) {
-    val state = viewModel.state
+    val state = rememberProfileImageState(initialBitmap)
 
-    ProfileImageContent(
+    ImagePickerContent(
         state = state,
-        onAvatarBitmapChange = { viewModel.onAvatarBitmapChange(it) },
-        onConfirmAvatar = { onConfirmAvatar(state.avatarBitmap) },
-        onCloseClick = OnCloseClick
+        onCloseClick = {
+            when (val avatarImageState = state.picturePickerFlow.bitmapState) {
+                is BitmapState.BitmapPicked -> onConfirmPick(avatarImageState.bitmap)
+                is BitmapState.InitialBitmap -> OnCloseClick()
+            }
+        }
     )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun ProfileImageContent(
-    state: ProfileImageViewModelState,
-    onAvatarBitmapChange: (Bitmap) -> Unit,
-    onConfirmAvatar: () -> Unit,
+private fun ImagePickerContent(
+    state: ImagePickerState,
     onCloseClick: () -> Unit
 ) {
-    val profileImageState = rememberProfileImageState({
-        onAvatarBitmapChange(it)
-    })
-
     MenuModalSheetLayout(
-        sheetState = profileImageState.modalBottomSheetState,
+        sheetState = state.modalBottomSheetState,
         headerTitle = stringResource(R.string.profile_image_modal_sheet_header_title),
         menuItems = listOf(
             {
@@ -83,7 +79,7 @@ private fun ProfileImageContent(
                     action = {
                         ArrowRightIcon()
                     },
-                    onItemClick = { profileImageState.openImageSource(ImageSource.Gallery) }
+                    onItemClick = { state.openImageSource(ImageSource.Gallery) }
                 )
             },
             {
@@ -98,15 +94,14 @@ private fun ProfileImageContent(
                     action = {
                         ArrowRightIcon()
                     },
-                    onItemClick = { profileImageState.openImageSource(ImageSource.Camera) }
+                    onItemClick = { state.openImageSource(ImageSource.Camera) }
                 )
             }
         )
     ) {
         Scaffold(topBar = {
             ProfileImageTopBar(
-                hasPicked = state.hasPickedAvatar,
-                onConfirmAvatar = onConfirmAvatar,
+                hasPicked = (state.picturePickerFlow.bitmapState is BitmapState.BitmapPicked),
                 onCloseClick = onCloseClick
             )
         }) {
@@ -114,8 +109,8 @@ private fun ProfileImageContent(
                 Column(Modifier.fillMaxSize()) {
                     Box(Modifier.weight(1f)) {
                         Box(Modifier.align(Alignment.Center)) {
-                            ImagePreview(
-                                imagePreviewState = ImagePreviewState.HasData(state.avatarBitmap),
+                            BulletHoleImagePreview(
+                                imageBitmap = state.picturePickerFlow.bitmapState.bitmap,
                                 contentDescription = stringResource(R.string.content_description_avatar_preview)
                             )
                         }
@@ -125,7 +120,7 @@ private fun ProfileImageContent(
                     WirePrimaryButton(
                         modifier = Modifier.padding(dimensions().spacing16x),
                         text = stringResource(R.string.profile_image_change_image_button_label),
-                        onClick = { profileImageState.showModalBottomSheet() }
+                        onClick = { state.showModalBottomSheet() }
                     )
                 }
             }
@@ -136,7 +131,6 @@ private fun ProfileImageContent(
 @Composable
 private fun ProfileImageTopBar(
     hasPicked: Boolean,
-    onConfirmAvatar: () -> Unit,
     onCloseClick: () -> Unit
 ) {
     CenterAlignedTopAppBar(
@@ -159,7 +153,6 @@ private fun ProfileImageTopBar(
                 BackNavigationIconButton(
                     onBackButtonClick = {
                         onCloseClick()
-                        onConfirmAvatar()
                     }
                 )
             }

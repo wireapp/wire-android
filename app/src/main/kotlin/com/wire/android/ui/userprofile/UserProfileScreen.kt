@@ -19,7 +19,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,8 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,9 +66,8 @@ import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.UserProfileNavigation.ProfileImage
 import com.wire.android.ui.userprofile.UserProfileNavigation.UserProfile
-import com.wire.android.ui.userprofile.image.ProfileImageScreen
+import com.wire.android.ui.userprofile.image.ImagePicker
 import io.github.esentsov.PackagePrivate
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -136,9 +132,13 @@ fun UserProfileContent(
         composable(
             route = ProfileImage.route,
             content = {
-                ProfileImageScreen(
+                ImagePicker(
+                    state.avatarBitmap,
                     OnCloseClick = { navHostController.popBackStack() },
-                    onConfirmAvatar = { avatarBitmap -> onConfirmAvatar(avatarBitmap) }
+                    onConfirmPick = { avatarBitmap ->
+                        navHostController.popBackStack()
+                        onConfirmAvatar(avatarBitmap)
+                    }
                 )
             }
         )
@@ -167,13 +167,26 @@ private fun UserProfileScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
+    state.errorMessage?.let { message ->
+        LaunchedEffect(message) {
+            snackbarHostState.showSnackbar(message)
+            onMessageShown()
+        }
+    }
+
     Scaffold(
         topBar = {
             UserProfileTopBar(
                 onCloseClick = onCloseClick,
                 onLogoutClick = onLogoutClick
             )
-        }, snackbarHost = { SwipeDismissSnackbarHost(hostState =snackbarHostState) }) {
+        }, snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    ) {
         with(state) {
             Column(
                 modifier = Modifier
@@ -207,15 +220,6 @@ private fun UserProfileScreen(
             )
         }
     }
-
-    state.errorMessage?.let { message ->
-        LaunchedEffect(message) {
-            snackbarHostState.showSnackbar(message)
-            // Notify the view model that the message has been dismissed
-            onMessageShown()
-        }
-    }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -8,6 +8,8 @@ import io.github.esentsov.PackagePrivate
 
 @Immutable
 data class WireDimensions(
+    // Placeholder
+    val placeholderShimmerCornerSize: Dp,
     // Top bar
     val topBarShadowElevation: Dp,
     val smallTopBarHeight: Dp,
@@ -109,6 +111,7 @@ data class WireDimensions(
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
+    placeholderShimmerCornerSize = 8.dp,
     topBarShadowElevation = 4.dp,
     smallTopBarHeight = 64.dp,
     topBarSearchFieldHeight = 64.dp,

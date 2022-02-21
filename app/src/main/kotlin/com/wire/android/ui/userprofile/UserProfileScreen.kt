@@ -281,6 +281,7 @@ private fun ColumnScope.UserProfileInfo(
     ) {
         UserProfileAvatar(
             onClick = onUserProfileClick,
+            isEnabled = !isLoading,
             size = dimensions().userAvatarDefaultBigSize,
             avatarBitmap = avatarBitmap,
             status = UserStatus.NONE,

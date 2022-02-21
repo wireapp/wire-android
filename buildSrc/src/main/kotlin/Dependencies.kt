@@ -123,8 +123,6 @@ object Libraries {
     const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
     const val browser                   = "androidx.browser:browser:${Versions.browser}"
     const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
-    const val coil                      = "io.coil-kt:coil:1.4.0"
-    const val coilCompose               = "io.coil-kt:coil-compose:1.4.0"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

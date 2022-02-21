@@ -63,6 +63,7 @@ fun UserProfileAvatar(
 fun UserProfileAvatar(
     avatarBitmap: Bitmap,
     status: UserStatus = UserStatus.NONE,
+    isEnabled: Boolean = false,
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
@@ -72,7 +73,7 @@ fun UserProfileAvatar(
         modifier = modifier
             .wrapContentSize()
             .clip(CircleShape)
-            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
+            .then(if (onClick != null) Modifier.clickable(isEnabled) { onClick() } else Modifier)
             .wrapContentSize()
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {

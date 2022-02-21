@@ -5,8 +5,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.Message
@@ -17,7 +15,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 fun ConversationScreen(
     conversationViewModel: ConversationViewModel,
 ) {
-    val uiState by conversationViewModel.conversationViewState.collectAsState()
+    val uiState = conversationViewModel.conversationViewState
 
     ConversationScreen(
         conversationViewState = uiState,

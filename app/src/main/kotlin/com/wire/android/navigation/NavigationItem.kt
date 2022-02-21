@@ -9,13 +9,14 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
+import com.wire.android.model.QualifiedIDAssetParamType
+import com.wire.android.model.QualifiedIDReference
 import com.wire.android.ui.authentication.AuthScreen
 import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
-import com.wire.kalium.logic.data.conversation.ConversationId
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -63,14 +64,12 @@ sealed class NavigationItem(
 
     object Conversation : NavigationItem(
         route = "conversation/{$CONVERSATION_ID_ARGUMENT}",
-        content = {
-            ConversationScreen(hiltViewModel())
-        },
+        content = { ConversationScreen(hiltViewModel()) },
         arguments = listOf(
-            navArgument(CONVERSATION_ID_ARGUMENT) { type = NavType.StringType }
+            navArgument(CONVERSATION_ID_ARGUMENT) { type = QualifiedIDAssetParamType() }
         )
     ) {
-        fun createRoute(conversationId: ConversationId) = "conversation/${conversationId}"
+        fun createRoute(conversationId: QualifiedIDReference) = "conversation/${conversationId.toJson()}"
     }
 
     companion object {

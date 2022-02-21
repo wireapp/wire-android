@@ -68,9 +68,12 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun registerClient(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentSession currentSession: AuthSession
-    ) = coreLogic.getSessionScope(currentSession).client.register
+    fun getConversationDetailsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
+        coreLogic.getSessionScope(session).conversations.getConversationDetails
+
+    @ViewModelScoped
+    @Provides
+    fun getMessagesUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
+        coreLogic.getSessionScope(session).messages.getRecentMessages
 
 }

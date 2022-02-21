@@ -14,6 +14,7 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
+    id(ScriptPlugins.parcelize)
 }
 
 repositories {
@@ -81,6 +82,7 @@ dependencies {
     implementation(Libraries.browser)
     implementation(Libraries.dataStore)
     implementation(Libraries.splashscreen)
+    implementation(Libraries.gson)
 
     // lifecycle
     // ViewModel

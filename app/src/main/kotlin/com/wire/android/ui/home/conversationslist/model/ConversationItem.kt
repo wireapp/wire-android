@@ -2,7 +2,7 @@ package com.wire.android.ui.home.conversationslist.model
 
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.main.conversationlist.common.UserInfoLabel
-import com.wire.kalium.logic.data.conversation.ConversationId
+import com.wire.android.model.ConversationId
 
 sealed class ConversationItem(val conversationType: ConversationType) {
     val id = conversationType.conversationId

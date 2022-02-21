@@ -30,6 +30,9 @@ class UserProfileViewModel @Inject constructor(
     private val uploadUserAvatarUseCase: UploadUserAvatarUseCase
 ) : ViewModel() {
 
+
+    val errorMessage by mutableStateOf("")
+
     var userProfileState by mutableStateOf(
         SelfUserProfileState(
             avatarBitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
@@ -125,7 +128,7 @@ class UserProfileViewModel @Inject constructor(
             userProfileState = userProfileState.copy(
                 avatarBitmap = backupBitmap,
                 isAvatarLoading = false,
-                errorMessage = "Something went wrong while updating the profile picture"
+                errorMessage = "This is some error"
             )
         })
     }
@@ -143,6 +146,12 @@ class UserProfileViewModel @Inject constructor(
 //                }
             }
         }
+    }
+
+    fun clearMessage() {
+        userProfileState = userProfileState.copy(
+            errorMessage = null
+        )
     }
 
 }

@@ -41,7 +41,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 //TODO: the input data for ProfileImageScreen will be decided later on after sync with Yamil
 fun ProfileImageScreen(
-    onNavigateBack: () -> Unit,
+    OnCloseClick: () -> Unit,
     onConfirmAvatar: (Bitmap) -> Unit,
     viewModel: ProfileImageViewModel = hiltViewModel()
 ) {
@@ -51,7 +51,7 @@ fun ProfileImageScreen(
         state = state,
         onAvatarBitmapChange = { viewModel.onAvatarBitmapChange(it) },
         onConfirmAvatar = { onConfirmAvatar(state.avatarBitmap) },
-        onCloseClick = onNavigateBack
+        onCloseClick = OnCloseClick
     )
 }
 

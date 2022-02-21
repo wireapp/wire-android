@@ -7,7 +7,7 @@ import com.wire.android.model.UserStatus
 
 data class SelfUserProfileState(
     val avatarBitmap: Bitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
-    val errorMessage : String = "",
+    val errorMessage : String? = null,
     val status: UserStatus,
     val fullName: String,
     val userName: String,

@@ -27,15 +27,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -63,22 +64,24 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.UserProfileNavigation.ProfileImage
 import com.wire.android.ui.userprofile.UserProfileNavigation.UserProfile
 import com.wire.android.ui.userprofile.image.ProfileImageScreen
 import io.github.esentsov.PackagePrivate
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun UserProfileRoute(viewModel: UserProfileViewModel) {
+fun UserProfileRoute(viewModel: UserProfileViewModel = hiltViewModel()) {
     val navHostController = rememberNavController()
-    val state = remember(viewModel.userProfileState) {
-        viewModel.userProfileState
-    }
 
-    UserProfileContent(navHostController = navHostController, state = state, onCloseClick = { viewModel.close() },
+    UserProfileContent(
+        navHostController = navHostController,
+        state = viewModel.userProfileState,
+        onCloseClick = { viewModel.close() },
         onLogoutClick = { viewModel.logout() },
         onChangeUserProfilePicture = { navHostController.navigate(ProfileImage.route) },
         onEditClick = { viewModel.editProfile() },
@@ -87,14 +90,16 @@ fun UserProfileRoute(viewModel: UserProfileViewModel) {
         dismissStatusDialog = { viewModel.dismissStatusDialog() },
         onStatusChange = { viewModel.changeStatus(it) },
         onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) },
-        onConfirmAvatar = { avatarBitmap -> viewModel.changeUserProfile(avatarBitmap) }
+        onConfirmAvatar = { avatarBitmap -> viewModel.changeUserProfile(avatarBitmap) },
+        onMessageShown = { viewModel.clearMessage() }
     )
-
 }
 
 @Composable
 fun UserProfileContent(
-    navHostController: NavHostController, state: SelfUserProfileState, onCloseClick: () -> Unit = {},
+    navHostController: NavHostController,
+    state: SelfUserProfileState,
+    onCloseClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     onChangeUserProfilePicture: () -> Unit = {},
     onEditClick: () -> Unit = {},
@@ -103,13 +108,9 @@ fun UserProfileContent(
     dismissStatusDialog: () -> Unit = {},
     onStatusChange: (UserStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
-    onConfirmAvatar: (Bitmap) -> Unit
+    onConfirmAvatar: (Bitmap) -> Unit,
+    onMessageShown: () -> Unit
 ) {
-
-    val errorMessage = rememberSaveable(state.errorMessage) {
-        state.errorMessage
-    }
-
     NavHost(
         navController = navHostController,
         startDestination = UserProfile.route
@@ -128,7 +129,7 @@ fun UserProfileContent(
                     dismissStatusDialog = dismissStatusDialog,
                     onStatusChange = onStatusChange,
                     onNotShowRationaleAgainChange = onNotShowRationaleAgainChange,
-                    errorMessage
+                    onMessageShown = onMessageShown
                 )
             }
         )
@@ -136,7 +137,7 @@ fun UserProfileContent(
             route = ProfileImage.route,
             content = {
                 ProfileImageScreen(
-                    onNavigateBack = { navHostController.popBackStack() },
+                    OnCloseClick = { navHostController.popBackStack() },
                     onConfirmAvatar = { avatarBitmap -> onConfirmAvatar(avatarBitmap) }
                 )
             }
@@ -162,20 +163,17 @@ private fun UserProfileScreen(
     dismissStatusDialog: () -> Unit = {},
     onStatusChange: (UserStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
-    errorMessage: String
+    onMessageShown: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    val scaffoldStaste = rememberScaffoldState()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             UserProfileTopBar(
                 onCloseClick = onCloseClick,
                 onLogoutClick = onLogoutClick
             )
-        }) {
+        }, snackbarHost = { SwipeDismissSnackbarHost(hostState =snackbarHostState) }) {
         with(state) {
             Column(
                 modifier = Modifier
@@ -207,6 +205,14 @@ private fun UserProfileScreen(
                 onStatusChange = onStatusChange,
                 onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
             )
+        }
+    }
+
+    state.errorMessage?.let { message ->
+        LaunchedEffect(message) {
+            snackbarHostState.showSnackbar(message)
+            // Notify the view model that the message has been dismissed
+            onMessageShown()
         }
     }
 
@@ -584,6 +590,5 @@ private fun UserProfileScreenPreview() {
             ),
             statusDialogData = null
         ),
-        errorMessage = "errorMessage"
     )
 }

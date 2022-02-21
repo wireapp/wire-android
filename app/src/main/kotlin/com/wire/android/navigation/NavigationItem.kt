@@ -12,31 +12,28 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
-import com.wire.android.ui.authentication.AuthScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
+import com.wire.kalium.logic.data.conversation.ConversationId
+import io.github.esentsov.PackagePrivate
 
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalMaterialApi::class
 )
+/**
+ * The class encapsulating the app main navigational items.
+ */
 enum class NavigationItem(
-    private val primaryRoute: String,
+    val primaryRoute: String,
     private val canonicalRoute: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit),
     open val enterTransition: EnterTransition = EnterTransition.None,
     open val exitTransition: ExitTransition = ExitTransition.None
 ) {
-
-    Authentication(
-        primaryRoute = "auth",
-        canonicalRoute = "auth",
-        content = { AuthScreen() }
-    ),
-
     Home(
         primaryRoute = "home",
         canonicalRoute = "home",
@@ -67,7 +64,12 @@ enum class NavigationItem(
         ),
         enterTransition = wireSlideInFromRight(),
         exitTransition = wireSlideOutFromLeft()
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()
+            return if (userProfileId != null) "$primaryRoute/$userProfileId" else primaryRoute
+        }
+    },
 
     Conversation(
         primaryRoute = "conversation",
@@ -76,19 +78,21 @@ enum class NavigationItem(
         arguments = listOf(
             navArgument(EXTRA_CONVERSATION_ID) { type = NavType.StringType }
         )
-    );
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+            return if (conversationId != null) "$primaryRoute/${conversationId.toJson()}" else primaryRoute
+        }
+    };
 
     /**
-     * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder
+     * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder. This should be
+     * only accessed to create the initial navigation graph, not to navigate to
      */
+    @PackagePrivate
     fun getCanonicalRoute() = canonicalRoute
 
-    /**
-     * The item navigational route. If the route includes a route ID, this will be specified by [extraRouteId]
-     */
-    fun getRoute(extraRouteId: String = ""): String =
-        // if the route contains a path ID, append it to the Navigation Item route
-        if (extraRouteId.isEmpty()) primaryRoute else "$primaryRoute/$extraRouteId}"
+    open fun getRouteWithArgs(arguments: List<Any> = emptyList()): String = primaryRoute
 
     companion object {
         @OptIn(ExperimentalMaterialApi::class)
@@ -102,4 +106,4 @@ private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 private const val EXTRA_USER_ID = "extra_user_id"
 private const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 
-fun NavigationItem.isExternalRoute() = this.getRoute().startsWith("http")
+fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")

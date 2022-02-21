@@ -80,11 +80,11 @@ fun HomeDrawer(
         bottomItems.forEach { item ->
             DrawerItem(
                 data = item.getDrawerData(),
-                selected = currentRoute == item.getRoute(),
+                selected = currentRoute == item.getRouteWithArgs(),
                 onItemClick = {
                     scope.launch {
                         when (item.isExternalRoute()) {
-                            true -> CustomTabsHelper.launchUrl(homeNavController.context, item.getRoute())
+                            true -> CustomTabsHelper.launchUrl(homeNavController.context, item.getRouteWithArgs())
                             false -> viewModel.navigateTo(item)
                         }
                         drawerState.close()

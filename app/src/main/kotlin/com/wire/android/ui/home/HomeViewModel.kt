@@ -33,7 +33,7 @@ class HomeViewModel
     suspend fun navigateToUserProfile() = navigateTo(NavigationItem.UserProfile, MY_USER_PROFILE_SUBROUTE)
 
     suspend fun navigateTo(item: NavigationItem, extraRouteId: String = "") {
-        navigationManager.navigate(NavigationCommand(destination = item.getRoute(extraRouteId = extraRouteId)))
+        navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs(listOf(extraRouteId))))
     }
 
     companion object {

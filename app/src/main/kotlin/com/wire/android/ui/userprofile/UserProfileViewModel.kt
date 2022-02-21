@@ -126,7 +126,7 @@ class UserProfileViewModel @Inject constructor(
             userProfileState = userProfileState.copy(
                 avatarBitmap = backupBitmap,
                 isAvatarLoading = false,
-                errorMessage = "We could not update the profile image"
+                errorMessage = "Image could not be uploaded"
             )
         })
     }

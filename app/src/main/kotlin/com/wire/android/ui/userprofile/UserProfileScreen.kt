@@ -36,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -63,6 +62,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.UserProfileNavigation.ProfileImage
 import com.wire.android.ui.userprofile.UserProfileNavigation.UserProfile
@@ -288,11 +289,13 @@ private fun ColumnScope.UserProfileInfo(
             Box(
                 Modifier
                     .matchParentSize()
+                    .align(Alignment.Center)
+                    .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
                     .clip(CircleShape)
-                    .background(Color.Gray)
+                    .background(MaterialTheme.wireColorScheme.onBackground.copy(alpha = 0.7f))
             ) {
                 CircularProgressIndicator(
-                    progressColor = Color.DarkGray,
+                    progressColor = MaterialTheme.wireColorScheme.surface,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }

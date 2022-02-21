@@ -83,4 +83,3 @@ fun MenuItemIcon(
             .then(modifier)
     )
 }
-

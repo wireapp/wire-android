@@ -12,6 +12,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.AuthDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -50,7 +51,7 @@ class UserProfileViewModel @Inject constructor(
             dataStore.clear() //TODO this should be moved to some service that will clear all the data in the app
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Authentication.getRoute(),
+                    AuthDestination.welcomeScreen,
                     BackStackMode.CLEAR_WHOLE
                 )
             )
@@ -63,7 +64,7 @@ class UserProfileViewModel @Inject constructor(
 
     fun editProfile() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.Settings.getRoute()))
+            navigationManager.navigate(NavigationCommand(NavigationItem.Settings.getRouteWithArgs()))
         }
     }
 

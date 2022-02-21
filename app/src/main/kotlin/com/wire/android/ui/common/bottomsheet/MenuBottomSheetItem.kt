@@ -47,15 +47,11 @@ fun MenuBottomSheetItem(
     }
 }
 
-// Add Divider() at the beginning of the list, then keep adding at the end of each items, till last item
 @Composable
 fun buildMenuSheetItems(items: List<@Composable () -> Unit>) {
-    Divider(thickness = 0.5.dp)
-    items.forEachIndexed { index: Int, itemBuilder: @Composable () -> Unit ->
+    items.forEach { itemBuilder ->
+        Divider(thickness = 0.5.dp)
         itemBuilder()
-        if (index != items.size) {
-            Divider(thickness = 0.5.dp)
-        }
     }
 }
 

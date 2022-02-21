@@ -60,7 +60,6 @@ fun rememberPickPictureState(initialBitmap: Bitmap): PicturePickerFlow {
     }
 }
 
-
 sealed class BitmapState(open val bitmap: Bitmap) {
     data class InitialBitmap(override val bitmap: Bitmap) : BitmapState(bitmap)
     data class BitmapPicked(override val bitmap: Bitmap) : BitmapState(bitmap)

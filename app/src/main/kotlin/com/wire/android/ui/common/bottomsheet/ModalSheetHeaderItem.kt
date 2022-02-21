@@ -10,21 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun ModalSheetHeaderItem(title: String, leadingIcon: (@Composable () -> Unit)? = null) {
+fun ModalSheetHeaderItem(title: String, leadingIcon: @Composable () -> Unit = {}) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(
-            start = 8.dp,
-            top = 16.dp,
-            bottom = 8.dp
+            start = dimensions().modalBottomSheetHeaderStartPadding,
+            top = dimensions().modalBottomSheetHeaderTopPadding,
+            bottom = dimensions().modalBottomSheetHeaderBottomPadding
         )
     ) {
-        if (leadingIcon != null) {
-            leadingIcon()
-        }
+        leadingIcon()
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = title,

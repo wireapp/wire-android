@@ -13,10 +13,11 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.extension.toByteArray
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import com.wire.kalium.logic.functional.Either
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -135,12 +136,10 @@ class UserProfileViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 userProfileState = userProfileState.copy(avatarBitmap = avatarBitmap, isAvatarLoading = true)
 
-                delay(500)
-                onFailure()
-//                when (uploadUserAvatarUseCase("image/png", avatarBitmap.toByteArray())) {
-//                    is Either.Left -> onFailure()
-//                    is Either.Right -> userProfileState = userProfileState.copy(isAvatarLoading = false)
-//                }
+                when (uploadUserAvatarUseCase("image/png", avatarBitmap.toByteArray())) {
+                    is Either.Left -> onFailure()
+                    is Either.Right -> userProfileState = userProfileState.copy(isAvatarLoading = false)
+                }
             }
         }
     }

@@ -5,6 +5,9 @@
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
+    <string name="label_cancel">Cancel</string>
+    <string name="label_remove">Remove</string>
+    <string name="label_removing">Removing...</string>
     <string name="label_logging_in">Logging in...</string>
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
@@ -63,8 +66,9 @@ username</string>
     <string name="remove_device_title">Remove a Device</string>
     <string name="remove_device_message">Remove one of your other devices to start using Wire on this one.</string>
     <string name="remove_device_label">YOUR DEVICES</string>
-    <string name="remove_device_id_label">ID: %s</string>
-    <string name="remove_device_adddition_time_label">Added: %s</string>
+    <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
+    <string name="remove_device_dialog_title">Remove the following device?</string>
+    <string name="remove_device_invalid_password">Invalid password</string>
 
     <!-- Home -->
     <string name="home_open_drawer_description">Open drawer</string>

@@ -3,6 +3,7 @@ package com.wire.android.ui.common
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -11,10 +12,15 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.placeholder
+import com.google.accompanist.placeholder.shimmer
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
@@ -45,3 +51,15 @@ fun LazyListState.appBarElevation(): Dp = MaterialTheme.wireDimensions.topBarSha
     else maxElevation
 }
 
+@Composable
+fun Modifier.shimmerPlaceholder(
+    visible: Boolean,
+    color: Color = MaterialTheme.wireColorScheme.background,
+    shimmerColor: Color = MaterialTheme.wireColorScheme.surface,
+    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.placeholderShimmerCornerSize)
+) = this.placeholder(
+    visible = visible,
+    highlight = PlaceholderHighlight.shimmer(shimmerColor),
+    color = color,
+    shape = shape,
+)

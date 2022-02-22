@@ -176,7 +176,7 @@ private fun RemoveDeviceDialog(
                     state.loading -> WireTextFieldState.Disabled
                     else -> WireTextFieldState.Default
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, autoCorrect = false, imeAction = ImeAction.Done),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier.focusRequester(focusRequester)
             )

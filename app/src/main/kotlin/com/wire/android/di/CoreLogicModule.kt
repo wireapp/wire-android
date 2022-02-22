@@ -75,10 +75,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun registerClient(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentSession currentSession: AuthSession
-    ) = coreLogic.getSessionScope(currentSession).client.register
+    fun selfClientsUseCase(@CurrentSession currentSession: AuthSession, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentSession).clientScope.selfClients
 
     @ViewModelScoped
     @Provides
@@ -87,4 +85,13 @@ class UseCaseModule {
         @CurrentSession currentSession: AuthSession
     ): UploadUserAvatarUseCase = coreLogic.getSessionScope(currentSession).users.uploadUserAvatar
 
+    @ViewModelScoped
+    @Provides
+    fun deleteClientUseCase(@CurrentSession currentSession: AuthSession, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentSession).clientScope.deleteClient
+
+    @ViewModelScoped
+    @Provides
+    fun registerClientUseCase(@CurrentSession currentSession: AuthSession, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentSession).clientScope.register
 }

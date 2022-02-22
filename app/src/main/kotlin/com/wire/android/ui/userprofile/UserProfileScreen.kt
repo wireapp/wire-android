@@ -18,19 +18,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -55,9 +50,6 @@ import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -71,7 +63,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.UserProfileNavigation.ProfileImage
 import com.wire.android.ui.userprofile.UserProfileNavigation.UserProfile
 import com.wire.android.ui.userprofile.image.ImagePicker
-import io.github.esentsov.PackagePrivate
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -296,14 +287,15 @@ private fun ColumnScope.UserProfileInfo(
     ConstraintLayout(modifier = Modifier.align(Alignment.CenterHorizontally)) {
         val (userDescription, editButton, teamDescription) = createRefs()
 
-        Column(modifier = Modifier
-            .padding(horizontal = dimensions().spacing64x)
-            .constrainAs(userDescription) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
+        Column(
+            modifier = Modifier
+                .padding(horizontal = dimensions().spacing64x)
+                .constrainAs(userDescription) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
         ) {
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -377,7 +369,8 @@ private fun CurrentUserStatus(
                     status = UserStatus.AVAILABLE,
                     modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
-            })
+            }
+        )
         WireSecondaryButton(
             onClick = { onStatusClicked(UserStatus.BUSY) },
             text = stringResource(R.string.user_profile_status_busy),
@@ -390,7 +383,8 @@ private fun CurrentUserStatus(
                     status = UserStatus.BUSY,
                     modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
-            })
+            }
+        )
         WireSecondaryButton(
             onClick = { onStatusClicked(UserStatus.AWAY) },
             text = stringResource(R.string.user_profile_status_away),
@@ -403,10 +397,12 @@ private fun CurrentUserStatus(
                     status = UserStatus.AWAY,
                     modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
-            })
+            }
+        )
         WireSecondaryButton(
             onClick = { onStatusClicked(UserStatus.NONE) },
             text = stringResource(R.string.user_profile_status_none),
+            fillMaxWidth = false,
             shape = RoundedCornerShape(
                 topEnd = dimensions().corner16x,
                 bottomEnd = dimensions().corner16x
@@ -418,7 +414,8 @@ private fun CurrentUserStatus(
                     status = UserStatus.NONE,
                     modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
-            })
+            }
+        )
     }
 }
 
@@ -487,13 +484,15 @@ private fun OtherAccountItem(
             }
         )
 
-        Column(modifier = Modifier
-            .padding(start = dimensions().spacing8x)
-            .constrainAs(data) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(avatar.end)
-            }) {
+        Column(
+            modifier = Modifier
+                .padding(start = dimensions().spacing8x)
+                .constrainAs(data) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(avatar.end)
+                }
+        ) {
 
             Text(
                 text = account.fullName,
@@ -508,63 +507,6 @@ private fun OtherAccountItem(
             }
         }
     }
-}
-
-@PackagePrivate
-@Composable
-fun ChangeStatusDialogContent(
-    data: StatusDialogData?,
-    dismiss: () -> Unit = {},
-    onStatusChange: (UserStatus) -> Unit = {},
-    onNotShowRationaleAgainChange: (Boolean) -> Unit = {}
-) {
-    if (data != null) {
-        ChangeStatusDialog(data, dismiss, onStatusChange, onNotShowRationaleAgainChange)
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ChangeStatusDialog(
-    data: StatusDialogData,
-    dismiss: () -> Unit = {},
-    onStatusChange: (UserStatus) -> Unit = {},
-    onNotShowRationaleAgainChange: (Boolean) -> Unit = {}
-) {
-    WireDialog(
-        title = stringResource(id = data.title),
-        text = stringResource(id = data.text),
-        onDismiss = dismiss,
-        confirmButtonProperties = WireDialogButtonProperties(
-            onClick = { onStatusChange(data.status) },
-            text = stringResource(id = R.string.label_ok),
-            type = WireDialogButtonType.Primary,
-        ),
-        dismissButtonProperties = WireDialogButtonProperties(
-            onClick = dismiss,
-            text = stringResource(id = android.R.string.cancel),
-            type = WireDialogButtonType.Secondary,
-        )
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(
-                checked = data.isCheckBoxChecked,
-                onCheckedChange = onNotShowRationaleAgainChange
-            )
-            Text(
-                text = stringResource(R.string.user_profile_change_status_dialog_checkbox_text),
-                style = MaterialTheme.wireTypography.body01
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = false)
-@Composable
-private fun ChangeStatusDialogPreview() {
-    ChangeStatusDialogContent(StatusDialogData.StateAvailable())
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

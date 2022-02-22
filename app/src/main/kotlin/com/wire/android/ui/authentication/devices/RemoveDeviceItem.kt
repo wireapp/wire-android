@@ -28,18 +28,20 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.getMinTouchMargins
+import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.formatMediumDateTime
 
 @Composable
-fun RemoveDeviceItem(device: Device, onRemoveDeviceClick: (Device) -> Unit) {
-    RemoveDeviceItemContent(device = device, onRemoveDeviceClick = onRemoveDeviceClick)
+fun RemoveDeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: (Device) -> Unit) {
+    RemoveDeviceItemContent(device = device, placeholder = placeholder, onRemoveDeviceClick = onRemoveDeviceClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RemoveDeviceItemContent(device: Device, onRemoveDeviceClick: (Device) -> Unit) {
+private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemoveDeviceClick: (Device) -> Unit) {
     Row(verticalAlignment = Alignment.Top) {
         Row(
             modifier = Modifier
@@ -47,7 +49,7 @@ private fun RemoveDeviceItemContent(device: Device, onRemoveDeviceClick: (Device
                 .weight(1f)
         ) {
             Icon(
-                modifier = Modifier.height(18.dp),
+                modifier = Modifier.shimmerPlaceholder(visible = placeholder),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_devices),
                 contentDescription = stringResource(R.string.content_description_remove_device_item_icon)
             )
@@ -56,7 +58,7 @@ private fun RemoveDeviceItemContent(device: Device, onRemoveDeviceClick: (Device
                 modifier = Modifier
                     .padding(start = MaterialTheme.wireDimensions.removeDeviceItemPadding)
                     .weight(1f),
-            ) { RemoveDeviceItemTexts(device) }
+            ) { RemoveDeviceItemTexts(device, placeholder) }
         }
         val (buttonTopPadding, buttonEndPadding) = getMinTouchMargins(minSize = MaterialTheme.wireDimensions.buttonSmallMinSize)
             .let {
@@ -67,41 +69,44 @@ private fun RemoveDeviceItemContent(device: Device, onRemoveDeviceClick: (Device
                     MaterialTheme.wireDimensions.removeDeviceItemPadding - it.calculateEndPadding(LocalLayoutDirection.current)
                 )
             }
-        WireSecondaryButton(
-            modifier = Modifier.padding(top = buttonTopPadding, end = buttonEndPadding),
-            onClick = { onRemoveDeviceClick(device) },
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_remove),
-                    contentDescription = stringResource(R.string.content_description_remove_device_remove_icon),
-                )
-            },
-            fillMaxWidth = false,
-            minHeight = MaterialTheme.wireDimensions.buttonSmallMinSize.height,
-            minWidth = MaterialTheme.wireDimensions.buttonSmallMinSize.width,
-            shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
-            contentPadding = PaddingValues(0.dp),
-        )
+        if (!placeholder)
+            WireSecondaryButton(
+                modifier = Modifier.padding(top = buttonTopPadding, end = buttonEndPadding),
+                onClick = { onRemoveDeviceClick(device) },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_remove),
+                        contentDescription = stringResource(R.string.content_description_remove_device_remove_icon),
+                    )
+                },
+                fillMaxWidth = false,
+                minHeight = MaterialTheme.wireDimensions.buttonSmallMinSize.height,
+                minWidth = MaterialTheme.wireDimensions.buttonSmallMinSize.width,
+                shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
+                contentPadding = PaddingValues(0.dp),
+            )
     }
 }
 
 @Composable
-private fun RemoveDeviceItemTexts(device: Device) {
+private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
     Text(
         style = MaterialTheme.wireTypography.body02,
         color = MaterialTheme.wireColorScheme.onBackground,
-        text = device.name
+        text = device.name,
+        modifier = Modifier.fillMaxWidth().shimmerPlaceholder(visible = placeholder)
     )
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
-    Text(
-        style = MaterialTheme.wireTypography.subline01,
-        color = MaterialTheme.wireColorScheme.labelText,
-        text = stringResource(R.string.remove_device_id_label, device.id)
+    val details = stringResource(
+        R.string.remove_device_id_and_time_label,
+        device.clientId.value,
+        device.registrationTime.formatMediumDateTime() ?: ""
     )
     Text(
         style = MaterialTheme.wireTypography.subline01,
         color = MaterialTheme.wireColorScheme.labelText,
-        text = stringResource(R.string.remove_device_adddition_time_label, device.additionTime)
+        text = details,
+        modifier = Modifier.fillMaxWidth().shimmerPlaceholder(visible = placeholder)
     )
 }
 
@@ -109,6 +114,6 @@ private fun RemoveDeviceItemTexts(device: Device) {
 @Composable
 private fun RemoveDeviceItemPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {
-        RemoveDeviceItem(Device("name", "id", "today"), {})
+        RemoveDeviceItem(Device(name = "device"), false) {}
     }
 }

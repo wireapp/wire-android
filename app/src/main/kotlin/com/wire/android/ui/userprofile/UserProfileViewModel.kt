@@ -18,6 +18,7 @@ import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import com.wire.kalium.logic.functional.Either
+import javax.inject.Inject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,9 +53,9 @@ class UserProfileViewModel @Inject constructor(
     fun close() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun logout() {
-        //TODO
+        // TODO
         viewModelScope.launch {
-            dataStore.clear() //TODO this should be moved to some service that will clear all the data in the app
+            dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
             navigationManager.navigate(
                 NavigationCommand(
                     NavigationItem.Authentication.route,
@@ -65,7 +66,7 @@ class UserProfileViewModel @Inject constructor(
     }
 
     fun addAccount() {
-        //TODO
+        // TODO
     }
 
     fun editProfile() {
@@ -80,7 +81,7 @@ class UserProfileViewModel @Inject constructor(
 
     fun changeStatus(status: UserStatus) {
         setNotShowStatusRationaleAgainIfNeeded(status)
-        //TODO
+        userProfileState = userProfileState.copy(status =  status)
         dismissStatusDialog()
     }
 

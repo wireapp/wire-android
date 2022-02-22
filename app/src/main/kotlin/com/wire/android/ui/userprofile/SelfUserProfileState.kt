@@ -5,13 +5,12 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 
-//This is going to be refactored and removed later on
-private const val tempBitmapWidth = 36
-private const val tempBitmapHeight = 36
 
+//Suppress for now after we going to use bitmap from back-end this is not going to be an issue
+@Suppress("MagicNumber")
 data class SelfUserProfileState(
-    val avatarBitmap: Bitmap = Bitmap.createBitmap(tempBitmapWidth, tempBitmapHeight, Bitmap.Config.ARGB_8888),
-    val errorMessage : String? = null,
+    val avatarBitmap: Bitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
+    val errorMessage: String? = null,
     val status: UserStatus,
     val fullName: String,
     val userName: String,

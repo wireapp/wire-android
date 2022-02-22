@@ -23,11 +23,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-//This is going to be refactored and removed later on
-private const val tempBitmapWidth = 36
-private const val tempBitmapHeight = 36
 
-
+//Suppress for now after removing mockMethodForAvatar it should not complain
+@Suppress("TooManyFunctions")
 @ExperimentalMaterial3Api
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
@@ -35,6 +33,10 @@ class UserProfileViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val uploadUserAvatarUseCase: UploadUserAvatarUseCase
 ) : ViewModel() {
+
+    //This is going to be refactored and removed later on
+    private val tempBitmapWidth = 36
+    private val tempBitmapHeight = 36
 
     var userProfileState by mutableStateOf(
         SelfUserProfileState(
@@ -85,7 +87,7 @@ class UserProfileViewModel @Inject constructor(
 
     fun changeStatus(status: UserStatus) {
         setNotShowStatusRationaleAgainIfNeeded(status)
-        userProfileState = userProfileState.copy(status =  status)
+        userProfileState = userProfileState.copy(status = status)
         dismissStatusDialog()
     }
 
@@ -156,7 +158,7 @@ class UserProfileViewModel @Inject constructor(
     }
 
     //!! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!
-    fun mockMethodForAvatar(bitmap: Bitmap){
+    fun mockMethodForAvatar(bitmap: Bitmap) {
         userProfileState = userProfileState.copy(avatarBitmap = bitmap)
     }
 

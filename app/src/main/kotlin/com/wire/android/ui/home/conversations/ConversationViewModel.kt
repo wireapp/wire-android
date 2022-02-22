@@ -8,10 +8,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ConversationId
-import com.wire.android.model.QualifiedIDReference
+import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.Message
+import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.User
+import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,15 +46,8 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             getMessages(conversationId!!) //TODO what if null???
                 .collect { dbMessages ->
-                    val messages = dbMessages.map {
-                        Message(
-                            messageContent = com.wire.android.ui.home.conversations.model.MessageContent.TextMessage(
-                                messageBody = com.wire.android.ui.home.conversations.model.MessageBody(
-                                    it.content ?: ""
-                                )
-                            )
-                        )
-                    }
+                    val messages = dbMessages
+                        .toUIMessages()
                     conversationViewState = conversationViewState.copy(messages = messages)
                 }
         }
@@ -80,14 +77,23 @@ class ConversationViewModel @Inject constructor(
         Log.d("TEST", "send message button clicked")
     }
 
-    private fun List<com.wire.kalium.persistence.dao.message.Message>.toUIMessages(): List<Message> {
-        map { message ->
+    private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(): List<Message> {
+        return map { message ->
             Message(
                 messageContent = com.wire.android.ui.home.conversations.model.MessageContent.TextMessage(
                     messageBody = com.wire.android.ui.home.conversations.model.MessageBody(
-                        message.content ?: ""
+                        (message.content as? MessageContent.Text)?.value ?: "content is not available"
                     )
-                )
+                ),
+                messageHeader = com.wire.android.ui.home.conversations.model.MessageHeader(
+                    "some user",
+                    Membership.None,
+                    true,
+                    message.date,
+                    MessageStatus.Untouched
+                ),
+                user = User(availabilityStatus = UserStatus.NONE)
+
             )
         }
     }

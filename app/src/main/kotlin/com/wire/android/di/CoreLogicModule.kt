@@ -3,6 +3,7 @@ package com.wire.android.di
 import android.content.Context
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.Module
@@ -76,6 +77,13 @@ class UseCaseModule {
     @Provides
     fun selfClientsUseCase(@CurrentSession currentSession: AuthSession, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentSession).clientScope.selfClients
+
+    @ViewModelScoped
+    @Provides
+    fun uploadUserAvatar(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentSession currentSession: AuthSession
+    ): UploadUserAvatarUseCase = coreLogic.getSessionScope(currentSession).users.uploadUserAvatar
 
     @ViewModelScoped
     @Provides

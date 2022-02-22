@@ -81,7 +81,6 @@ dependencies {
     implementation(Libraries.browser)
     implementation(Libraries.dataStore)
     implementation(Libraries.splashscreen)
-
     // lifecycle
     // ViewModel
     implementation(Libraries.Lifecycle.viewModel)
@@ -96,6 +95,7 @@ dependencies {
 
     //Compose
     implementation(Libraries.composeUi)
+    implementation(Libraries.composeFoundation)
     implementation(Libraries.composeMaterial3)
     implementation(Libraries.composeMaterial)
     implementation(Libraries.composeTooling)

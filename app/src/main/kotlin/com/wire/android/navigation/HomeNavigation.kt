@@ -54,36 +54,34 @@ internal fun navigateToItemInHome(
 
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
-sealed class HomeNavigationItem(
+enum class HomeNavigationItem(
     val route: String,
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
     val content: @Composable (NavBackStackEntry) -> Unit
 ) {
-
-    object Conversations : HomeNavigationItem(
+    Conversations(
         route = HomeDestinationsRoutes.conversations,
         title = R.string.conversations_screen_title,
         isSearchable = true,
         isSwipeable = false,
         content = { ConversationRouter() }
-    )
+    ),
 
-    object Vault : HomeNavigationItem(
+    Vault(
         route = HomeDestinationsRoutes.vault,
         title = R.string.vault_screen_title,
         content = { VaultScreen() }
-    )
+    ),
 
-    object Archive : HomeNavigationItem(
+    Archive(
         route = HomeDestinationsRoutes.archive,
         title = R.string.archive_screen_title,
         content = { ArchiveScreen() }
-    )
+    );
 
     companion object {
-
         val all = listOf(Conversations, Archive, Vault)
 
         @Composable
@@ -99,7 +97,7 @@ sealed class HomeNavigationItem(
     }
 }
 
-object HomeDestinationsRoutes {
+private object HomeDestinationsRoutes {
     const val conversations = "home_conversations"
     const val vault = "home_vault"
     const val archive = "home_archive"

@@ -138,9 +138,9 @@ data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int
 @ExperimentalMaterial3Api
 private fun Any.getDrawerData(): DrawerItemData =
     when {
-        this is HomeNavigationItem.Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
-        this is HomeNavigationItem.Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
-        this is HomeNavigationItem.Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
+        this == HomeNavigationItem.Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
+        this == HomeNavigationItem.Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
+        this == HomeNavigationItem.Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
         this == NavigationItem.Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
         this == NavigationItem.Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
         else -> DrawerItemData(null, null)

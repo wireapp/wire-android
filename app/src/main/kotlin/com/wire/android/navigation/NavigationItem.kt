@@ -9,9 +9,18 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ENTERPRISE_ACCOUNT
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PRIVATE_ACCOUNT
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.USER_PROFILE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
+import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
-import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
@@ -37,37 +46,38 @@ enum class NavigationItem(
     // TODO add animations here
 ) {
     Welcome(
-        primaryRoute = "welcome_screen",
-        canonicalRoute = "welcome_screen",
+        primaryRoute = WELCOME,
+        canonicalRoute = WELCOME,
         content = { WelcomeScreen() }
     ),
 
     Login(
-        primaryRoute = "login_screen",
-        canonicalRoute = "login_screen",
+        primaryRoute = LOGIN,
+        canonicalRoute = LOGIN,
         content = { LoginScreen(ServerConfig.STAGING) }
     ),
+
     CreateEnterpriseAccount(
-        primaryRoute = "create_enterprise_account_screen",
-        canonicalRoute = "create_enterprise_account_screen",
-        content = { UnderConstructionScreen("create_enterprise_account_screen") }
+        primaryRoute = CREATE_ENTERPRISE_ACCOUNT,
+        canonicalRoute = CREATE_ENTERPRISE_ACCOUNT,
+        content = { UnderConstructionScreen("Create Enterprise Account Screen") }
     ),
 
     CreatePrivateAccount(
-        primaryRoute = "create_private_account_screen",
-        canonicalRoute = "create_private_account_screen",
-        content = { UnderConstructionScreen("create_private_account_screen") }
+        primaryRoute = CREATE_PRIVATE_ACCOUNT,
+        canonicalRoute = CREATE_PRIVATE_ACCOUNT,
+        content = { UnderConstructionScreen("Create Private Account Screen") }
     ),
 
     RemoveDevices(
-        primaryRoute = "remove_devices_screen",
-        canonicalRoute = "remove_devices_screen",
-        content = { RemoveDeviceScreen()}
+        primaryRoute = REMOVE_DEVICES,
+        canonicalRoute = REMOVE_DEVICES,
+        content = { RemoveDeviceScreen() }
     ),
 
     Home(
-        primaryRoute = "home",
-        canonicalRoute = "home",
+        primaryRoute = HOME,
+        canonicalRoute = HOME,
         content = { HomeScreen(it.arguments?.getString(EXTRA_HOME_TAB_ITEM), hiltViewModel()) },
         arguments = listOf(
             navArgument(EXTRA_HOME_TAB_ITEM) { type = NavType.StringType }
@@ -75,8 +85,8 @@ enum class NavigationItem(
     ),
 
     Settings(
-        primaryRoute = "settings",
-        canonicalRoute = "settings",
+        primaryRoute = SETTINGS,
+        canonicalRoute = SETTINGS,
         content = { SettingsScreen() },
     ),
 
@@ -87,9 +97,12 @@ enum class NavigationItem(
     ),
 
     UserProfile(
-        primaryRoute = "user_profile",
-        canonicalRoute = "user_profile/{$EXTRA_USER_ID}",
-        content = { UserProfileScreen(it.arguments?.getString(EXTRA_USER_ID), hiltViewModel()) }
+        primaryRoute = USER_PROFILE,
+        canonicalRoute = "$USER_PROFILE/{$EXTRA_USER_ID}",
+        content = { UserProfileScreen(it.arguments?.getString(EXTRA_USER_ID), hiltViewModel()) },
+        arguments = listOf(
+            navArgument(EXTRA_USER_ID) { type = NavType.StringType }
+        )
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()
@@ -98,8 +111,8 @@ enum class NavigationItem(
     },
 
     Conversation(
-        primaryRoute = "conversation",
-        canonicalRoute = "conversation/{$EXTRA_CONVERSATION_ID}",
+        primaryRoute = CONVERSATION,
+        canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
         content = { ConversationScreen(hiltViewModel()) },
         arguments = listOf(
             navArgument(EXTRA_CONVERSATION_ID) { type = NavType.StringType }
@@ -126,6 +139,18 @@ enum class NavigationItem(
 
         fun fromRoute(route: String?): NavigationItem? = map[route]
     }
+}
+
+object NavigationItemDestinationsRoutes {
+    const val WELCOME = "welcome_screen"
+    const val LOGIN = "login_screen"
+    const val CREATE_ENTERPRISE_ACCOUNT = "create_enterprise_account_screen"
+    const val CREATE_PRIVATE_ACCOUNT = "create_private_account_screen"
+    const val HOME = "home_landing_screen"
+    const val USER_PROFILE = "user_profile_screen"
+    const val CONVERSATION = "detailed_conversation_screen"
+    const val SETTINGS = "settings_screen"
+    const val REMOVE_DEVICES = "remove_devices_screen"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"

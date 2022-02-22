@@ -5,6 +5,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
             android:name=".WireApplication"
@@ -16,11 +18,11 @@
             android:theme="@style/AppTheme.SplashScreen">
 
         <activity
-            android:name=".ui.WireActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.SplashScreen"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:exported="true">
+                android:name=".ui.WireActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/AppTheme.SplashScreen"
+                android:windowSoftInputMode="adjustResize|stateHidden"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

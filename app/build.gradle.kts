@@ -81,7 +81,6 @@ dependencies {
     implementation(Libraries.browser)
     implementation(Libraries.dataStore)
     implementation(Libraries.splashscreen)
-
     // lifecycle
     // ViewModel
     implementation(Libraries.Lifecycle.viewModel)

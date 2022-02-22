@@ -41,7 +41,7 @@ import com.wire.android.ui.theme.wireTypography
 //TODO: the input data for ProfileImageScreen will be decided later on after sync with Yamil
 fun ImagePicker(
     initialBitmap: Bitmap,
-    OnCloseClick: () -> Unit,
+    onCloseClick: () -> Unit,
     onConfirmPick: (Bitmap) -> Unit
 ) {
     val state = rememberProfileImageState(initialBitmap)
@@ -51,7 +51,7 @@ fun ImagePicker(
         onCloseClick = {
             when (val avatarImageState = state.picturePickerFlow.bitmapState) {
                 is BitmapState.BitmapPicked -> onConfirmPick(avatarImageState.bitmap)
-                is BitmapState.InitialBitmap -> OnCloseClick()
+                is BitmapState.InitialBitmap -> onCloseClick()
             }
         }
     )

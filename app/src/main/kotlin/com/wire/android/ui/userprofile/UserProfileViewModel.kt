@@ -23,6 +23,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+//This is going to be refactored and removed later on
+private const val tempBitmapWidth = 36
+private const val tempBitmapHeight = 36
+
+
 @ExperimentalMaterial3Api
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
@@ -33,7 +38,7 @@ class UserProfileViewModel @Inject constructor(
 
     var userProfileState by mutableStateOf(
         SelfUserProfileState(
-            avatarBitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
+            avatarBitmap = Bitmap.createBitmap(tempBitmapWidth, tempBitmapHeight, Bitmap.Config.ARGB_8888),
             status = UserStatus.BUSY,
             fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
             userName = "@userName_long_long_long_long_long_long_long_long_long_long",

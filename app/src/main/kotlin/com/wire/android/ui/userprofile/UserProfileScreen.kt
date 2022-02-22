@@ -135,7 +135,7 @@ fun UserProfileContent(
             content = {
                 ImagePicker(
                     state.avatarBitmap,
-                    OnCloseClick = { navHostController.popBackStack() },
+                    onCloseClick = { navHostController.popBackStack() },
                     onConfirmPick = { avatarBitmap ->
                         navHostController.popBackStack()
                         onConfirmAvatar(avatarBitmap)

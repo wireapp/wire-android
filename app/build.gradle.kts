@@ -81,7 +81,6 @@ dependencies {
     implementation(Libraries.browser)
     implementation(Libraries.dataStore)
     implementation(Libraries.splashscreen)
-
     // lifecycle
     // ViewModel
     implementation(Libraries.Lifecycle.viewModel)
@@ -105,6 +104,7 @@ dependencies {
     implementation(Libraries.composeConstraintLayout)
     implementation(Libraries.accompanistPager)
     implementation(Libraries.accompanistSystemUI)
+    implementation(Libraries.accompanistPlaceholder)
     implementation(Libraries.composeRuntimeLiveData)
 
     // dagger/hilt

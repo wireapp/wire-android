@@ -13,6 +13,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ENTERPRISE_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PRIVATE_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
@@ -26,6 +27,7 @@ import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
+import com.wire.android.ui.userprofile.image.AvatarPickerScreen
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.conversation.ConversationId
 import io.github.esentsov.PackagePrivate
@@ -99,7 +101,7 @@ enum class NavigationItem(
     UserProfile(
         primaryRoute = USER_PROFILE,
         canonicalRoute = "$USER_PROFILE/{$EXTRA_USER_ID}",
-        content = { UserProfileScreen(it.arguments?.getString(EXTRA_USER_ID), hiltViewModel()) },
+        content = { UserProfileScreen() },
         arguments = listOf(
             navArgument(EXTRA_USER_ID) { type = NavType.StringType }
         )
@@ -109,6 +111,12 @@ enum class NavigationItem(
             return if (userProfileId != null) "$primaryRoute/$userProfileId" else primaryRoute
         }
     },
+
+    ProfileImagePicker(
+        primaryRoute = IMAGE_PICKER,
+        canonicalRoute = IMAGE_PICKER,
+        content = { AvatarPickerScreen(hiltViewModel()) },
+    ),
 
     Conversation(
         primaryRoute = CONVERSATION,
@@ -151,10 +159,12 @@ object NavigationItemDestinationsRoutes {
     const val CONVERSATION = "detailed_conversation_screen"
     const val SETTINGS = "settings_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
+    const val IMAGE_PICKER = "image_picker_screen"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 private const val EXTRA_USER_ID = "extra_user_id"
+private const val EXTRA_INITIAL_BITMAP = "extra_initial_bitmap"
 private const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")

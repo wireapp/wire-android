@@ -57,8 +57,7 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun registerClient(authSession: AuthSession): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(authSession).clientScope
-        val registerClientResult = clientScope.register(loginState.password.text, null)
-        return registerClientResult
+        return clientScope.register(loginState.password.text, null)
     }
 
     fun onUserIdentifierChange(newText: TextFieldValue) {
@@ -79,6 +78,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onTooManyDevicesError() {
+        clearLoginError()
         viewModelScope.launch {
             navigateToRemoveDevicesScreen()
         }

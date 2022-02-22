@@ -20,15 +20,15 @@ class WelcomeViewModel @Inject constructor(
         }
     }
 
-    fun onLoginPressed() {
+    fun goToLogin() {
         navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs()))
     }
 
-    fun onCreateEnterpriseAccountPressed() {
+    fun goToCreateEnterpriseAccount() {
         navigate(NavigationCommand(NavigationItem.CreateEnterpriseAccount.getRouteWithArgs()))
     }
 
-    fun onCreatePrivateAccountPressed() {
+    fun goToCreatePrivateAccount() {
         navigate(NavigationCommand(NavigationItem.CreatePrivateAccount.getRouteWithArgs()))
     }
     private fun navigate(navigationCommand: NavigationCommand) {

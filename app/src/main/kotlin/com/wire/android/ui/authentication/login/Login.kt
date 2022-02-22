@@ -66,10 +66,7 @@ fun LoginScreen(serverConfig: ServerConfig) {
         onBackPressed = { loginViewModel.navigateBack() },
         onPasswordChange = { loginViewModel.onPasswordChange(it) },
         onDialogDismiss = { loginViewModel.clearLoginError() },
-        onRemoveDeviceOpen = {
-            loginViewModel.onTooManyDevicesError()
-            loginViewModel.clearLoginError()
-        },
+        onRemoveDeviceOpen = { loginViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
         scope = scope
     )

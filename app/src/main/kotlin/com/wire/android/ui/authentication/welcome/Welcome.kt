@@ -89,17 +89,17 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                 )
             ) {
                 LoginButton {
-                    viewModel.onLoginPressed()
+                    viewModel.goToLogin()
                 }
                 CreateEnterpriseAccountButton {
-                    viewModel.onCreateEnterpriseAccountPressed()
+                    viewModel.goToCreateEnterpriseAccount()
                 }
             }
 
             WelcomeFooter(modifier = Modifier
                 .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                 onPrivateAccountClick = {
-                    viewModel.onCreatePrivateAccountPressed()
+                    viewModel.goToCreatePrivateAccount()
                 })
         }
     }

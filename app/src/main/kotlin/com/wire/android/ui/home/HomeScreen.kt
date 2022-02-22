@@ -8,6 +8,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawer
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,9 +44,11 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         gesturesEnabled = currentItem.isSwipeable
     ) {
         Box {
-            val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-            HomeNavigationGraph(navController = navController, startDestination = startDestination)
-
+            Scaffold() {
+                val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
+                HomeNavigationGraph(navController = navController, startDestination = startDestination)
+            }
+            // We are not including the topBar in the Scaffold to correctly handle the collapse scroll effect on the search
             topBar()
         }
     }

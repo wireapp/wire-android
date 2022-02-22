@@ -9,10 +9,15 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
+import com.wire.android.ui.authentication.login.LoginScreen
+import com.wire.android.ui.authentication.welcome.WelcomeScreen
+import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
+import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
+import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.conversation.ConversationId
 import io.github.esentsov.PackagePrivate
 
@@ -24,12 +29,42 @@ import io.github.esentsov.PackagePrivate
  * The class encapsulating the app main navigational items.
  */
 enum class NavigationItem(
-    val primaryRoute: String,
+    @PackagePrivate
+    internal val primaryRoute: String,
     private val canonicalRoute: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (NavBackStackEntry) -> Unit
     // TODO add animations here
 ) {
+    Welcome(
+        primaryRoute = "welcome_screen",
+        canonicalRoute = "welcome_screen",
+        content = { WelcomeScreen() }
+    ),
+
+    Login(
+        primaryRoute = "login_screen",
+        canonicalRoute = "login_screen",
+        content = { LoginScreen(ServerConfig.STAGING) }
+    ),
+    CreateEnterpriseAccount(
+        primaryRoute = "create_enterprise_account_screen",
+        canonicalRoute = "create_enterprise_account_screen",
+        content = { UnderConstructionScreen("create_enterprise_account_screen") }
+    ),
+
+    CreatePrivateAccount(
+        primaryRoute = "create_private_account_screen",
+        canonicalRoute = "create_private_account_screen",
+        content = { UnderConstructionScreen("create_private_account_screen") }
+    ),
+
+    RemoveDevices(
+        primaryRoute = "remove_devices_screen",
+        canonicalRoute = "remove_devices_screen",
+        content = { RemoveDeviceScreen()}
+    ),
+
     Home(
         primaryRoute = "home",
         canonicalRoute = "home",
@@ -54,10 +89,7 @@ enum class NavigationItem(
     UserProfile(
         primaryRoute = "user_profile",
         canonicalRoute = "user_profile/{$EXTRA_USER_ID}",
-        content = { UserProfileScreen(it.arguments?.getString(EXTRA_USER_ID), hiltViewModel()) },
-        arguments = listOf(
-            navArgument(EXTRA_USER_ID) { type = NavType.StringType }
-        )
+        content = { UserProfileScreen(it.arguments?.getString(EXTRA_USER_ID), hiltViewModel()) }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()

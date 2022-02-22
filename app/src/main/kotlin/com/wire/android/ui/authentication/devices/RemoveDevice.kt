@@ -11,27 +11,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.appBarElevation
 
 @Composable
-fun RemoveDeviceScreen(navController: NavController) {
+fun RemoveDeviceScreen() {
     val viewModel: RemoveDeviceViewModel = hiltViewModel()
     val state: RemoveDeviceState = viewModel.state
     RemoveDeviceContent(
-        navController = navController,
+        viewModel = viewModel,
         state = state,
         onItemClicked = viewModel::onItemClicked,
-        )
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RemoveDeviceContent(
-    navController: NavController,
+    viewModel: RemoveDeviceViewModel,
     state: RemoveDeviceState,
     onItemClicked: (Device) -> Unit,
 ) {
@@ -40,7 +38,7 @@ private fun RemoveDeviceContent(
         topBar = {
             RemoveDeviceTopBar(
                 elevation = lazyListState.appBarElevation(),
-                onBackNavigationPressed = { navController.popBackStack() })
+                onBackNavigationPressed = { viewModel.navigateBack() })
         }
     ) {
         SurfaceBackgroundWrapper {
@@ -61,7 +59,7 @@ private fun RemoveDeviceContent(
 @Composable
 private fun RemoveDeviceScreenPreview() {
     RemoveDeviceContent(
-        navController = rememberNavController(),
+        viewModel = hiltViewModel(),
         state = RemoveDeviceState(listOf()),
         onItemClicked = {},
     )

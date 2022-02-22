@@ -51,7 +51,7 @@ class UserProfileViewModel @Inject constructor(
             dataStore.clear() //TODO this should be moved to some service that will clear all the data in the app
             navigationManager.navigate(
                 NavigationCommand(
-                    AuthDestination.welcomeScreen,
+                    NavigationItem.Welcome.getRouteWithArgs(),
                     BackStackMode.CLEAR_WHOLE
                 )
             )

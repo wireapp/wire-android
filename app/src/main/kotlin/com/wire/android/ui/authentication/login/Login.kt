@@ -58,21 +58,18 @@ import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
-fun LoginScreen(
-    navController: NavController,
-    serverConfig: ServerConfig
-) {
+fun LoginScreen(serverConfig: ServerConfig) {
     val scope = rememberCoroutineScope()
     val loginViewModel: LoginViewModel = hiltViewModel()
     val loginState: LoginState = loginViewModel.loginState
     LoginContent(
         loginState = loginState,
         onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) },
-        onBackPressed = { navController.popBackStack() },
+        onBackPressed = { loginViewModel.navigateBack() },
         onPasswordChange = { loginViewModel.onPasswordChange(it) },
         onDialogDismiss = { loginViewModel.clearLoginError() },
         onRemoveDeviceOpen = {
-            navController.navigate(AuthDestination.removeDeviceScreen)
+            loginViewModel.onTooManyDevicesError()
             loginViewModel.clearLoginError()
         },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },

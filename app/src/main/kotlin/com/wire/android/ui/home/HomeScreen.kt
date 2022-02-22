@@ -51,7 +51,6 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
     }
 
     BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
-
     NavigationDrawer(
         drawerContainerColor = MaterialTheme.colorScheme.surface,
         drawerTonalElevation = 0.dp,
@@ -61,34 +60,29 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         gesturesEnabled = currentItem.isSwipeable
     ) {
         val homeState = rememberHomeState()
-
-        CompositionLocalProvider(LocalHomeState provides homeState) {
-            val bottomSheetState = homeState.homeBottomSheetState
-            if (bottomSheetState is HomeBottomSheetState.HasBottomSheet) {
-                WireModalSheetLayout(
-                    sheetState = homeState.bottomSheetState,
-                    sheetContent = bottomSheetState.bottomSheetContent
-                ) {
-                    Box {
-                        Scaffold {
-                            val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-                            HomeNavigationGraph(navController = navController, startDestination = startDestination)
-                        }
-                        // We are not including the topBar in the Scaffold to c rrectly handle the collapse scroll effect on the search,
-                        // which will not be possible when using Scaffold topBar argument
-                        topBar()
-                    }
-                }
-            } else {
+        val bottomSheetState = homeState.homeBottomSheetState
+        if (bottomSheetState is HomeBottomSheetState.HasBottomSheet) {
+            WireModalSheetLayout(
+                sheetState = homeState.bottomSheetState,
+                sheetContent = bottomSheetState.bottomSheetContent
+            ) {
                 Box {
                     Scaffold {
                         val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
                         HomeNavigationGraph(navController = navController, startDestination = startDestination)
                     }
-                    // We are not including the topBar in the Scaffold to c rrectly handle the collapse scroll effect on the search,
-                    // which will not be possible when using Scaffold topBar argument
                     topBar()
                 }
+            }
+        } else {
+            Box {
+                Scaffold {
+                    val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
+                    HomeNavigationGraph(navController = navController, startDestination = startDestination)
+                }
+                // We are not including the topBar in the Scaffold to correctly handle the collapse scroll effect on the search,
+                // which will not be possible when using Scaffold topBar argument
+                topBar()
             }
         }
     }
@@ -136,7 +130,6 @@ fun rememberHomeState(
 sealed class HomeBottomSheetState {
     object NoBottomSheet : HomeBottomSheetState()
     class HasBottomSheet(
-
         val bottomSheetContent: @Composable ColumnScope.() -> Unit
     ) : HomeBottomSheetState()
 }

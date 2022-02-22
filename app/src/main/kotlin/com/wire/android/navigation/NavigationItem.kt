@@ -24,7 +24,7 @@ import com.wire.kalium.logic.data.conversation.ConversationId
 sealed class NavigationItem(
     open val route: String,
     val arguments: List<NamedNavArgument> = emptyList(),
-    open val content: @Composable (NavBackStackEntry) -> Unit
+    open val content: @Composable (NavBackStackEntry) -> Unit,
     // TODO add animations here
 ) {
 

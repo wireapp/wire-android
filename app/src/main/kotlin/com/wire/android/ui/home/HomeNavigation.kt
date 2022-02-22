@@ -30,7 +30,7 @@ fun HomeNavigationGraph(navController: NavHostController, startDestination: Stri
     ) {
         HomeNavigationItem.all
             .forEach { item ->
-                composable(route = item.route, content = item.content)
+                composable(route = item.route, content = { item.content("test") })
             }
     }
 }
@@ -52,6 +52,44 @@ internal fun navigateToItemInHome(
     }
 }
 
+// we want to have access to home actions
+
+class TestHome() {
+
+    fun openSheet() {
+
+    }
+}
+
+
+class SomeTest() {
+    var someOtherTest = "String"
+    var someStringTest = "This is test"
+
+    fun test(test: String) {
+        someOtherTest = test
+    }
+
+    fun anotherTest() {
+        someStringTest = "dupa"
+    }
+
+}
+
+class SomeOtherTest() {
+    val someTest = SomeTest()
+
+    fun access(test: SomeTest.() -> Unit) {
+        someTest.test()
+    }
+}
+
+fun dupa() {
+    val someOtherTest = SomeOtherTest()
+
+    someOtherTest.access { test("this is some test") }
+}
+
 
 // one way would be passing
 @ExperimentalMaterialApi
@@ -61,15 +99,21 @@ sealed class HomeNavigationItem(
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
-    val content: @Composable (NavBackStackEntry) -> Unit
+    val hasBottomSheet : Boolean = false,
+    val content: @Composable (String) -> (@Composable (NavBackStackEntry) -> Unit)
 ) {
 
     object Conversations : HomeNavigationItem(
         route = HomeDestinations.conversations,
         title = R.string.conversations_screen_title,
+        hasBottomSheet = true,
         isSearchable = true,
         isSwipeable = false,
-        content = { ConversationRouter() }
+        //it would be nice to have access to home state here inside the lambda
+        //so that we can access the bottomsheet state of the home
+        // and also navigate it from conversationrouter
+        // as well set the content of it
+        content = { { ConversationRouter() } }
     )
 
     object Vault : HomeNavigationItem(

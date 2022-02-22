@@ -59,14 +59,27 @@ fun MenuModalSheetLayout(
     WireModalSheetLayout(
         sheetState = sheetState,
         sheetContent = {
-            ModalSheetHeaderItem(
-                title = headerTitle,
-                leadingIcon = headerIcon
+            MenuModalSheetContent(
+                headerTitle,
+                headerIcon,
+                menuItems
             )
-
-            buildMenuSheetItems(items = menuItems)
         }
     ) {
         content()
     }
+}
+
+@Composable
+fun MenuModalSheetContent(
+    headerTitle: String,
+    headerIcon: @Composable () -> Unit = {},
+    menuItems: List<@Composable () -> Unit>,
+) {
+    ModalSheetHeaderItem(
+        title = headerTitle,
+        leadingIcon = headerIcon
+    )
+
+    buildMenuSheetItems(items = menuItems)
 }

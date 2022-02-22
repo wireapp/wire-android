@@ -30,14 +30,12 @@ fun AllConversationScreen(
     val lazyListState = rememberLazyListState()
     onScrollPositionChanged(lazyListState.firstVisibleItemIndex)
 
-    val homeState = LocalHomeState.current
-    homeState!!.changeBottomSheetContent { Text("THIS IS TEST") }
 
     AllConversationContent(
         lazyListState = lazyListState,
         newActivities = newActivities,
         conversations = conversations,
-        onConversationItemClick = { homeState.expandBottomSheet() },
+        onConversationItemClick = {  },
         onEditConversationItem = onEditConversationItem
     )
 }

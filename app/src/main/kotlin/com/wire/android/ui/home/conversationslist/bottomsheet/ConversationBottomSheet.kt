@@ -17,7 +17,7 @@ import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ConversationSheet(
+fun ConversationSheetContent(
     sheetState: ModalBottomSheetState,
     modalBottomSheetContentState: ModalSheetContent,
     muteConversation: () -> Unit,

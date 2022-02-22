@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 
 //Suppress for now after removing mockMethodForAvatar it should not complain
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions","MagicNumber")
 @ExperimentalMaterial3Api
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(

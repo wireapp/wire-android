@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import java.io.ByteArrayOutputStream
 
 
+@Suppress("MagicNumber")
 fun Bitmap.toByteArray(): ByteArray {
     val bitMapQuality = 100
 

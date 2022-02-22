@@ -9,14 +9,13 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
-import com.wire.android.model.QualifiedIDAssetParamType
-import com.wire.android.model.QualifiedIDReference
 import com.wire.android.ui.authentication.AuthScreen
 import com.wire.android.ui.home.HomeDestinations
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
-import com.wire.android.ui.userprofile.UserProfileScreen
+import com.wire.android.ui.userprofile.UserProfileRoute
+import com.wire.kalium.logic.data.conversation.ConversationId
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -59,22 +58,26 @@ sealed class NavigationItem(
 
     object UserProfile : NavigationItem(
         route = "user_profile",
-        content = { UserProfileScreen(hiltViewModel()) },
+        content = { UserProfileRoute() },
     )
 
     object Conversation : NavigationItem(
         route = "conversation/{$CONVERSATION_ID_ARGUMENT}",
         content = { ConversationScreen(hiltViewModel()) },
         arguments = listOf(
-            navArgument(CONVERSATION_ID_ARGUMENT) { type = QualifiedIDAssetParamType() }
+            navArgument(CONVERSATION_ID_ARGUMENT) { type = NavType.StringType }
         )
     ) {
-        fun createRoute(conversationId: QualifiedIDReference) = "conversation/${conversationId.toJson()}"
+        fun createRoute(conversationId: ConversationId) = "conversation/${conversationId.domain}@${conversationId.value}"
     }
 
     companion object {
         const val HOME_START_TAB_ARGUMENT: String = "start_tab_index"
         const val CONVERSATION_ID_ARGUMENT: String = "conversation_id"
+
+        //todo: remove when the sealed class as enum object access fixed! Related Ticket Number: AR-1038
+        const val AUTHENTICATION_ROUTE: String = "auth"
+        const val HOME_DEFAULT_START_ROUTE: String = "home/{$HOME_START_TAB_ARGUMENT}"
 
         @ExperimentalMaterialApi
         val globalNavigationItems = listOf(

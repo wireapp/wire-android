@@ -22,8 +22,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.android.model.ConversationId
-import com.wire.android.model.toLocalID
+import com.wire.kalium.logic.data.conversation.ConversationId
 import com.wire.kalium.logic.feature.conversation.GetConversationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -130,15 +129,15 @@ class ConversationListViewModel @Inject constructor(
                         membership = Membership.None,
                         isLegalHold = true
                     ),
-                    conversationId = conversation.id.toLocalID()
+                    conversationId = conversation.id
                 )
             )
         } else {
             GeneralConversation(
                 ConversationType.GroupConversation(
-                    groupColorValue = getConversationColor(conversation.id.toLocalID()),
+                    groupColorValue = getConversationColor(conversation.id),
                     groupName = conversation.name!!,
-                    conversationId = conversation.id.toLocalID()
+                    conversationId = conversation.id
                 )
             )
         }

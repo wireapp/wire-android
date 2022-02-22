@@ -15,7 +15,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.NewActivity
-import com.wire.android.model.ConversationId
+import com.wire.kalium.logic.data.conversation.ConversationId
 
 @Composable
 fun AllConversationScreen(

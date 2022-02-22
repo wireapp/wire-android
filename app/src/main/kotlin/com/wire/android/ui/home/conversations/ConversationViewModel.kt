@@ -6,8 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import com.wire.android.model.ConversationId
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -38,9 +39,13 @@ class ConversationViewModel @Inject constructor(
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
 
-    val conversationId = savedStateHandle
-        .getLiveData<ConversationId>(NavigationItem.CONVERSATION_ID_ARGUMENT).value
-        ?.toBaseID()
+    val conversationId: ConversationId? = savedStateHandle
+        .getLiveData<String>(NavigationItem.CONVERSATION_ID_ARGUMENT)
+        .value
+        ?.let {
+            val components = it.split("@")
+            ConversationId(components.last(), components.first())
+        }
 
     init {
         viewModelScope.launch {

@@ -3,9 +3,7 @@ package com.wire.android.ui.home.conversationslist
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,7 +23,7 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheet
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
-import com.wire.android.model.ConversationId
+import com.wire.kalium.logic.data.conversation.ConversationId
 
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
@@ -64,25 +62,16 @@ private fun ConversationRouter(
     leaveGroup: (String) -> Unit,
     updateScrollPosition: (Int) -> Unit,
 ) {
-    ModalBottomSheetLayout(
+    ConversationSheet(
         sheetState = conversationState.modalBottomSheetState,
-        //TODO: create a shape object inside the materialtheme 3 component
-        sheetShape = androidx.compose.material.MaterialTheme.shapes.large.copy(
-            topStart = CornerSize(dimensions().conversationBottomSheetShapeCorner),
-            topEnd = CornerSize(dimensions().conversationBottomSheetShapeCorner)
-        ),
-        sheetContent = {
-            ConversationSheet(
-                modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
-                muteConversation = muteConversation,
-                addConversationToFavourites = addConversationToFavourites,
-                moveConversationToFolder = moveConversationToFolder,
-                moveConversationToArchive = moveConversationToArchive,
-                clearConversationContent = clearConversationContent,
-                blockUser = blockUser,
-                leaveGroup = leaveGroup
-            )
-        }
+        modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
+        muteConversation = { muteConversation("some id") },
+        addConversationToFavourites = { addConversationToFavourites("some id") },
+        moveConversationToFolder = { moveConversationToFolder("some id") },
+        moveConversationToArchive = { moveConversationToArchive("some id") },
+        clearConversationContent = { clearConversationContent("some id") },
+        blockUser = { blockUser("some id") },
+        leaveGroup = { leaveGroup("some id") }
     ) {
         Scaffold(
             floatingActionButton = {

@@ -14,7 +14,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.EventType
-import com.wire.android.model.ConversationId
+import com.wire.kalium.logic.data.conversation.ConversationId
 
 @Composable
 fun MentionScreen(

@@ -150,4 +150,9 @@ class UserProfileViewModel @Inject constructor(
         )
     }
 
+    //!! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!
+    fun mockMethodForAvatar(bitmap: Bitmap){
+        userProfileState = userProfileState.copy(avatarBitmap = bitmap)
+    }
+
 }

@@ -20,7 +20,7 @@ import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun WireModalSheetLayout(
+fun WireModalSheetLayout(
     sheetState: ModalBottomSheetState,
     sheetShape: Shape = androidx.compose.material.MaterialTheme.shapes.large.copy(
         topStart = CornerSize(dimensions().conversationBottomSheetShapeCorner),
@@ -40,7 +40,6 @@ private fun WireModalSheetLayout(
                     .align(alignment = Alignment.CenterHorizontally),
                 thickness = 4.dp
             )
-
             sheetContent()
         }
     ) {

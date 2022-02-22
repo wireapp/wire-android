@@ -134,6 +134,10 @@ dependencies {
     androidTestImplementation(TestLibraries.coroutinesTest)
     androidTestImplementation(TestLibraries.mockkAndroid)
     androidTestImplementation(TestLibraries.kluentAndroid)
+    // Test rules and transitive dependencies:
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.2.0-alpha03")
+// Needed for createComposeRule, but not createAndroidComposeRule:
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-alpha03")
 
     // Development dependencies
     //debugImplementation(DevLibraries.fragmentTesting)

@@ -156,8 +156,10 @@ private suspend fun autoScrollCarousel(
         }
     }
     .collect { (scrollToPage, animate) ->
-        if (animate) pageState.animateScrollToPage(scrollToPage)
-        else pageState.scrollToPage(scrollToPage)
+        if (pageState.pageCount != 0) {
+            if (animate) pageState.animateScrollToPage(scrollToPage)
+            else pageState.scrollToPage(scrollToPage)
+        }
     }
 
 @Composable

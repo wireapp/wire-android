@@ -111,6 +111,8 @@ dependencies {
     implementation(Libraries.Hilt.navigationCompose)
     kapt(Libraries.Hilt.compiler)
 
+    implementation(Libraries.workManager)
+
     // TODO: remove or move to Libraries
     implementation("androidx.appcompat:appcompat:1.4.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.2")

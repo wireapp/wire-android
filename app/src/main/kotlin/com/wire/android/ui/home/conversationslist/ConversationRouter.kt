@@ -8,8 +8,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -25,12 +23,13 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheet
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
+import com.wire.kalium.logic.data.conversation.ConversationId
 
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 @Composable
 fun ConversationRouter(viewModel: ConversationListViewModel = hiltViewModel()) {
-    val uiState by viewModel.state.collectAsState()
+    val uiState = viewModel.state
 
     ConversationRouter(
         uiState = uiState,
@@ -53,7 +52,7 @@ fun ConversationRouter(viewModel: ConversationListViewModel = hiltViewModel()) {
 private fun ConversationRouter(
     uiState: ConversationListState,
     conversationState: ConversationState,
-    openConversation: (String) -> Unit,
+    openConversation: (ConversationId) -> Unit,
     muteConversation: (String) -> Unit,
     addConversationToFavourites: (String) -> Unit,
     moveConversationToFolder: (String) -> Unit,

@@ -2,6 +2,7 @@ package com.wire.android.ui.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import io.github.esentsov.PackagePrivate
 
@@ -39,6 +40,7 @@ data class WireDimensions(
     // Conversation
     val conversationItemRowHeight: Dp,
     val conversationItemPadding: Dp,
+    val conversationsListBottomPadding: Dp,
     // Conversation BottomSheet
     val conversationBottomSheetItemHeight: Dp,
     val conversationBottomSheetItemPadding: Dp,
@@ -52,11 +54,12 @@ data class WireDimensions(
     val textFieldMinHeight: Dp,
     val textFieldCornerSize: Dp,
     // Buttons
-    val buttonMinHeight: Dp,
-    val buttonMinWidth: Dp,
+    val buttonMinSize: DpSize,
+    val buttonSmallMinSize: DpSize,
     val buttonHorizontalContentPadding: Dp,
     val buttonVerticalContentPadding: Dp,
     val buttonCornerSize: Dp,
+    val buttonSmallCornerSize: Dp,
     // Dialog
     val dialogButtonsSpacing: Dp,
     val dialogTextsSpacing: Dp,
@@ -80,6 +83,8 @@ data class WireDimensions(
     val removeDeviceHorizontalPadding: Dp,
     val removeDeviceMessageVerticalPadding: Dp,
     val removeDeviceLabelVerticalPadding: Dp,
+    val removeDeviceItemPadding: Dp,
+    val removeDeviceItemTitleVerticalPadding: Dp,
     // Spacing
     val spacing2x: Dp,
     val spacing4x: Dp,
@@ -139,6 +144,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     bottomNavigationItemPadding = 6.dp,
     conversationItemRowHeight = 56.dp,
     conversationItemPadding = 0.5.dp,
+    conversationsListBottomPadding = 74.dp,
     conversationBottomSheetItemHeight = 48.dp,
     conversationBottomSheetItemPadding = 16.dp,
     conversationBottomSheetShapeCorner = 12.dp,
@@ -147,11 +153,12 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     messageComposerActiveInputMaxHeight = 168.dp,
     textFieldMinHeight = 48.dp,
     textFieldCornerSize = 16.dp,
-    buttonMinHeight = 48.dp,
-    buttonMinWidth = 60.dp,
+    buttonMinSize = DpSize(60.dp, 48.dp),
+    buttonSmallMinSize = DpSize(40.dp, 32.dp),
     buttonHorizontalContentPadding = 16.dp,
     buttonVerticalContentPadding = 8.dp,
     buttonCornerSize = 16.dp,
+    buttonSmallCornerSize = 12.dp,
     dialogButtonsSpacing = 8.dp,
     dialogTextsSpacing = 16.dp,
     dialogContentPadding = 24.dp,
@@ -170,6 +177,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     removeDeviceHorizontalPadding = 16.dp,
     removeDeviceMessageVerticalPadding = 24.dp,
     removeDeviceLabelVerticalPadding = 5.dp,
+    removeDeviceItemPadding = 12.dp,
+    removeDeviceItemTitleVerticalPadding = 8.dp,
     spacing2x = 2.dp,
     spacing4x = 4.dp,
     spacing8x = 8.dp,

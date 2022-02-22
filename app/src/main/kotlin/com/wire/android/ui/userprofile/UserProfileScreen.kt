@@ -64,6 +64,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -237,27 +238,9 @@ private fun UserProfileTopBar(
     onCloseClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            titleContentColor = MaterialTheme.colorScheme.onBackground,
-            actionIconContentColor = MaterialTheme.colorScheme.onBackground,
-            navigationIconContentColor = MaterialTheme.colorScheme.onBackground
-        ),
-        navigationIcon = {
-            IconButton(onClick = onCloseClick) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = stringResource(R.string.user_profile_close_description),
-                )
-            }
-        },
-        title = {
-            Text(
-                text = stringResource(id = R.string.user_profile_title),
-                style = MaterialTheme.wireTypography.title01,
-            )
-        },
+    WireCenterAlignedTopAppBar(
+        onNavigationPressed = onCloseClick,
+        title = stringResource(id = R.string.user_profile_title),
         actions = {
             WireSecondaryButton(
                 onClick = onLogoutClick,

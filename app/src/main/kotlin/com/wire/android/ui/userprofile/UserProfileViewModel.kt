@@ -1,7 +1,6 @@
 package com.wire.android.ui.userprofile
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,30 +13,36 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.extension.toByteArray
+import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import com.wire.kalium.logic.functional.Either
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val dataStore: UserDataStore
+    private val dataStore: UserDataStore,
+    private val uploadUserAvatarUseCase: UploadUserAvatarUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(
         SelfUserProfileState(
-            "",
-            UserStatus.BUSY,
-            "Tester Tost_long_long_long long  long  long  long  long  long ",
-            "@userName_long_long_long_long_long_long_long_long_long_long",
-            "Best team ever long  long  long  long  long  long  long  long  long ",
-            listOf(
+            avatarBitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
+            status = UserStatus.BUSY,
+            fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
+            userName = "@userName_long_long_long_long_long_long_long_long_long_long",
+            teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
+            otherAccounts = listOf(
                 OtherAccount("someId", "", "Other Name 0", "team A"),
-//                OtherAccount("someId", "", "Other Name 1", "team B"),
-//                OtherAccount("someId", "", "Other Name 2", "team C"),
-//                OtherAccount("someId", "", "Other Name", "team A"),
+                //                OtherAccount("someId", "", "Other Name 1", "team B"),
+                //                OtherAccount("someId", "", "Other Name 2", "team C"),
+                //                OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "New Name")
             )
         )
@@ -86,7 +91,7 @@ class UserProfileViewModel @Inject constructor(
     }
 
     fun changeStatusClick(status: UserStatus) {
-        if (userProfileState.userStatus == status) return
+        if (userProfileState.status == status) return
 
         viewModelScope.launch {
             if (shouldShowStatusRationaleDialog(status)) {
@@ -114,8 +119,35 @@ class UserProfileViewModel @Inject constructor(
     private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean =
         dataStore.shouldShowStatusRationaleFlow(status).first()
 
-    //TODO: make a request to the back-end here
-    fun changeProfilePicture(it: Bitmap?) {
-        Log.d("TEST", "change profile picture ")
+    fun changeUserProfile(avatarBitmap: Bitmap) {
+        val backupBitmap = userProfileState.avatarBitmap
+
+        changeUserProfile(avatarBitmap, onFailure = {
+            userProfileState = userProfileState.copy(
+                avatarBitmap = backupBitmap,
+                isAvatarLoading = false,
+                errorMessage = "Image could not be uploaded"
+            )
+        })
     }
+
+    private fun changeUserProfile(avatarBitmap: Bitmap, onFailure: () -> Unit) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                userProfileState = userProfileState.copy(avatarBitmap = avatarBitmap, isAvatarLoading = true)
+
+                when (uploadUserAvatarUseCase("image/png", avatarBitmap.toByteArray())) {
+                    is Either.Left -> onFailure()
+                    is Either.Right -> userProfileState = userProfileState.copy(isAvatarLoading = false)
+                }
+            }
+        }
+    }
+
+    fun clearMessage() {
+        userProfileState = userProfileState.copy(
+            errorMessage = null
+        )
+    }
+
 }

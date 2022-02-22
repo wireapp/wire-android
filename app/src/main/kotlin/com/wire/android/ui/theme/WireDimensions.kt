@@ -68,7 +68,7 @@ data class WireDimensions(
     val userProfileStatusBtnHeight: Dp,
     val userProfileOtherAccItemHeight: Dp,
     // Profile Image
-    val imagePreviewHeight :Dp,
+    val imagePreviewHeight: Dp,
     // Welcome
     val welcomeImageHorizontalPadding: Dp,
     val welcomeTextHorizontalPadding: Dp,
@@ -103,6 +103,13 @@ data class WireDimensions(
     // Notifications
     val notificationBadgeHeight: Dp,
     val notificationBadgeRadius: Dp,
+    // Wire ModalSheetLayout
+    val modalBottomSheetDividerWidth: Dp,
+    val modalBottomSheetHeaderStartPadding: Dp,
+    val modalBottomSheetHeaderTopPadding: Dp,
+    val modalBottomSheetHeaderBottomPadding: Dp,
+    // Divider
+    val dividerThickness: Dp,
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -183,6 +190,11 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     corner16x = 16.dp,
     notificationBadgeHeight = 18.dp,
     notificationBadgeRadius = 6.dp,
+    modalBottomSheetDividerWidth = 48.dp,
+    modalBottomSheetHeaderStartPadding = 8.dp,
+    modalBottomSheetHeaderTopPadding = 16.dp,
+    modalBottomSheetHeaderBottomPadding = 8.dp,
+    dividerThickness = 0.5.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

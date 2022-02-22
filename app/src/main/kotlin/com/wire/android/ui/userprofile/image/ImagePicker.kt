@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile.image
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,22 +25,46 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.BackNavigationIconButton
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.imagepreview.ImagePreview
+import com.wire.android.ui.common.imagepreview.BitmapState
+import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ProfileImageScreen(avatarUrl: String) {
-    val profileImageState = rememberProfileImageState({}, {}, {})
+//TODO: the input data for ProfileImageScreen will be decided later on after sync with Yamil
+fun ImagePicker(
+    initialBitmap: Bitmap,
+    OnCloseClick: () -> Unit,
+    onConfirmPick: (Bitmap) -> Unit
+) {
+    val state = rememberProfileImageState(initialBitmap)
 
+    ImagePickerContent(
+        state = state,
+        onCloseClick = {
+            when (val avatarImageState = state.picturePickerFlow.bitmapState) {
+                is BitmapState.BitmapPicked -> onConfirmPick(avatarImageState.bitmap)
+                is BitmapState.InitialBitmap -> OnCloseClick()
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun ImagePickerContent(
+    state: ImagePickerState,
+    onCloseClick: () -> Unit
+) {
     MenuModalSheetLayout(
-        sheetState = profileImageState.modalBottomSheetState,
+        sheetState = state.modalBottomSheetState,
         headerTitle = stringResource(R.string.profile_image_modal_sheet_header_title),
         menuItems = listOf(
             {
@@ -54,7 +79,7 @@ fun ProfileImageScreen(avatarUrl: String) {
                     action = {
                         ArrowRightIcon()
                     },
-                    onItemClick = { profileImageState.openGallery() }
+                    onItemClick = { state.openImageSource(ImageSource.Gallery) }
                 )
             },
             {
@@ -69,36 +94,45 @@ fun ProfileImageScreen(avatarUrl: String) {
                     action = {
                         ArrowRightIcon()
                     },
-                    onItemClick = { profileImageState.openCamera() }
+                    onItemClick = { state.openImageSource(ImageSource.Camera) }
                 )
             }
         )
     ) {
-        Scaffold(topBar = { ProfileImageTopBar() }) {
-            Column(Modifier.fillMaxSize()) {
-                Box(Modifier.weight(1f)) {
-                    Box(Modifier.align(Alignment.Center)) {
-                        ImagePreview(
-                            avatarUrl = "",
-                            contentDescription = stringResource(R.string.content_description_avatar_preview)
-                        )
+        Scaffold(topBar = {
+            ProfileImageTopBar(
+                hasPicked = (state.picturePickerFlow.bitmapState is BitmapState.BitmapPicked),
+                onCloseClick = onCloseClick
+            )
+        }) {
+            Box(Modifier.fillMaxSize()) {
+                Column(Modifier.fillMaxSize()) {
+                    Box(Modifier.weight(1f)) {
+                        Box(Modifier.align(Alignment.Center)) {
+                            BulletHoleImagePreview(
+                                imageBitmap = state.picturePickerFlow.bitmapState.bitmap,
+                                contentDescription = stringResource(R.string.content_description_avatar_preview)
+                            )
+                        }
                     }
+                    Divider()
+                    Spacer(Modifier.height(4.dp))
+                    WirePrimaryButton(
+                        modifier = Modifier.padding(dimensions().spacing16x),
+                        text = stringResource(R.string.profile_image_change_image_button_label),
+                        onClick = { state.showModalBottomSheet() }
+                    )
                 }
-                Divider()
-                Spacer(Modifier.height(4.dp))
-                WirePrimaryButton(
-                    modifier = Modifier
-                        .padding(dimensions().spacing16x),
-                    text = stringResource(R.string.profile_image_change_image_button_label),
-                    onClick = { profileImageState.showModalBottomSheet() }
-                )
             }
         }
     }
 }
 
 @Composable
-private fun ProfileImageTopBar() {
+private fun ProfileImageTopBar(
+    hasPicked: Boolean,
+    onCloseClick: () -> Unit
+) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -106,11 +140,20 @@ private fun ProfileImageTopBar() {
             actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             navigationIconContentColor = MaterialTheme.colorScheme.onSurface
         ),
-        navigationIcon = {
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = stringResource(R.string.user_profile_close_description),
+        navigationIcon =
+        {
+            if (!hasPicked) {
+                IconButton(onClick = onCloseClick) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.user_profile_close_description),
+                    )
+                }
+            } else {
+                BackNavigationIconButton(
+                    onBackButtonClick = {
+                        onCloseClick()
+                    }
                 )
             }
         },

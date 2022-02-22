@@ -20,13 +20,13 @@ import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 fun ConversationSheet(
     sheetState: ModalBottomSheetState,
     modalBottomSheetContentState: ModalSheetContent,
-    muteConversation: (String) -> Unit,
-    addConversationToFavourites: (String) -> Unit,
-    moveConversationToFolder: (String) -> Unit,
-    moveConversationToArchive: (String) -> Unit,
-    clearConversationContent: (String) -> Unit,
-    blockUser: (String) -> Unit,
-    leaveGroup: (String) -> Unit,
+    muteConversation: () -> Unit,
+    addConversationToFavourites: () -> Unit,
+    moveConversationToFolder: () -> Unit,
+    moveConversationToArchive: () -> Unit,
+    clearConversationContent: () -> Unit,
+    blockUser: () -> Unit,
+    leaveGroup: () -> Unit,
     content: @Composable () -> Unit
 ) {
     MenuModalSheetLayout(
@@ -49,7 +49,7 @@ fun ConversationSheet(
                             contentDescription = stringResource(R.string.content_description_mute),
                         )
                     },
-                    onItemClick = { muteConversation("someId") }
+                    onItemClick = muteConversation
                 )
             },
             {
@@ -61,7 +61,7 @@ fun ConversationSheet(
                             contentDescription = stringResource(R.string.content_description_add_to_favourite),
                         )
                     },
-                    onItemClick = { addConversationToFavourites("someId") }
+                    onItemClick = addConversationToFavourites
                 )
             },
             {
@@ -73,7 +73,7 @@ fun ConversationSheet(
                         )
                     },
                     title = stringResource(R.string.label_move_to_folder),
-                    onItemClick = { moveConversationToFolder("someId") }
+                    onItemClick = moveConversationToFolder
                 )
             },
             {
@@ -85,7 +85,7 @@ fun ConversationSheet(
                         )
                     },
                     title = stringResource(R.string.label_move_to_archive),
-                    onItemClick = { moveConversationToArchive("someId") }
+                    onItemClick = moveConversationToArchive
                 )
             },
             {
@@ -97,7 +97,7 @@ fun ConversationSheet(
                         )
                     },
                     title = stringResource(R.string.label_clear_content),
-                    onItemClick = { clearConversationContent("someId") }
+                    onItemClick = clearConversationContent
                 )
             },
             {
@@ -111,7 +111,7 @@ fun ConversationSheet(
                                 )
                             },
                             title = stringResource(R.string.label_block),
-                            onItemClick = { blockUser("someId") }
+                            onItemClick = blockUser
                         )
                     }
                 } else {
@@ -124,7 +124,7 @@ fun ConversationSheet(
                                 )
                             },
                             title = stringResource(R.string.label_leave_group),
-                            onItemClick = { leaveGroup("someId") }
+                            onItemClick = leaveGroup
                         )
                     }
                 }

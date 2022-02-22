@@ -57,7 +57,7 @@ sealed class NavigationItem(
 
     object UserProfile : NavigationItem(
         route = "user_profile",
-        content = { UserProfileRoute(hiltViewModel()) },
+        content = { UserProfileRoute() },
     )
 
     object Conversation : NavigationItem(

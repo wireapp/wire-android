@@ -1,6 +1,8 @@
 package com.wire.android.ui.userprofile
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -8,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -22,23 +26,30 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
@@ -49,19 +60,54 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.UserProfileNavigation.ProfileImage
 import com.wire.android.ui.userprofile.UserProfileNavigation.UserProfile
-import com.wire.android.ui.userprofile.image.ProfileImageScreen
+import com.wire.android.ui.userprofile.image.ImagePicker
 import io.github.esentsov.PackagePrivate
-
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun UserProfileRoute(viewModel: UserProfileViewModel) {
+fun UserProfileRoute(viewModel: UserProfileViewModel = hiltViewModel()) {
     val navHostController = rememberNavController()
 
+    UserProfileContent(
+        navHostController = navHostController,
+        state = viewModel.userProfileState,
+        onCloseClick = { viewModel.close() },
+        onLogoutClick = { viewModel.logout() },
+        onChangeUserProfilePicture = { navHostController.navigate(ProfileImage.route) },
+        onEditClick = { viewModel.editProfile() },
+        onStatusClicked = { viewModel.changeStatusClick(it) },
+        onAddAccountClick = { viewModel.addAccount() },
+        dismissStatusDialog = { viewModel.dismissStatusDialog() },
+        onStatusChange = { viewModel.changeStatus(it) },
+        onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) },
+        onConfirmAvatar = { avatarBitmap -> viewModel.changeUserProfile(avatarBitmap) },
+        onMessageShown = { viewModel.clearMessage() }
+    )
+}
+
+@Composable
+fun UserProfileContent(
+    navHostController: NavHostController,
+    state: SelfUserProfileState,
+    onCloseClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {},
+    onChangeUserProfilePicture: () -> Unit = {},
+    onEditClick: () -> Unit = {},
+    onStatusClicked: (UserStatus) -> Unit = {},
+    onAddAccountClick: () -> Unit = {},
+    dismissStatusDialog: () -> Unit = {},
+    onStatusChange: (UserStatus) -> Unit = {},
+    onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
+    onConfirmAvatar: (Bitmap) -> Unit,
+    onMessageShown: () -> Unit
+) {
     NavHost(
         navController = navHostController,
         startDestination = UserProfile.route
@@ -70,23 +116,31 @@ fun UserProfileRoute(viewModel: UserProfileViewModel) {
             route = UserProfile.route,
             content = {
                 UserProfileScreen(
-                    state = viewModel.userProfileState,
-                    onCloseClick = { viewModel.close() },
-                    onLogoutClick = { viewModel.logout() },
-                    onChangeUserProfilePicture = { navHostController.navigate(ProfileImage.route) },
-                    onEditClick = { viewModel.editProfile() },
-                    onStatusClicked = { viewModel.changeStatusClick(it) },
-                    onAddAccountClick = { viewModel.addAccount() },
-                    dismissStatusDialog = { viewModel.dismissStatusDialog() },
-                    onStatusChange = { viewModel.changeStatus(it) },
-                    onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) }
+                    state = state,
+                    onCloseClick = onCloseClick,
+                    onLogoutClick = onLogoutClick,
+                    onChangeUserProfilePicture = onChangeUserProfilePicture,
+                    onEditClick = onEditClick,
+                    onStatusClicked = onStatusClicked,
+                    onAddAccountClick = onAddAccountClick,
+                    dismissStatusDialog = dismissStatusDialog,
+                    onStatusChange = onStatusChange,
+                    onNotShowRationaleAgainChange = onNotShowRationaleAgainChange,
+                    onMessageShown = onMessageShown
                 )
             }
         )
         composable(
             route = ProfileImage.route,
             content = {
-                ProfileImageScreen(avatarUrl = viewModel.userProfileState.avatarUrl)
+                ImagePicker(
+                    state.avatarBitmap,
+                    OnCloseClick = { navHostController.popBackStack() },
+                    onConfirmPick = { avatarBitmap ->
+                        navHostController.popBackStack()
+                        onConfirmAvatar(avatarBitmap)
+                    }
+                )
             }
         )
     }
@@ -109,14 +163,31 @@ private fun UserProfileScreen(
     onAddAccountClick: () -> Unit = {},
     dismissStatusDialog: () -> Unit = {},
     onStatusChange: (UserStatus) -> Unit = {},
-    onNotShowRationaleAgainChange: (Boolean) -> Unit = {}
+    onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
+    onMessageShown: () -> Unit = {}
 ) {
-    Scaffold(topBar = {
-        UserProfileTopBar(
-            onCloseClick = onCloseClick,
-            onLogoutClick = onLogoutClick
-        )
-    }) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    state.errorMessage?.let { message ->
+        LaunchedEffect(message) {
+            snackbarHostState.showSnackbar(message)
+            onMessageShown()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            UserProfileTopBar(
+                onCloseClick = onCloseClick,
+                onLogoutClick = onLogoutClick
+            )
+        }, snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    ) {
         with(state) {
             Column(
                 modifier = Modifier
@@ -125,7 +196,8 @@ private fun UserProfileScreen(
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 UserProfileInfo(
-                    avatarUrl = avatarUrl,
+                    isLoading = state.isAvatarLoading,
+                    avatarBitmap = state.avatarBitmap,
                     fullName = fullName,
                     userName = userName,
                     teamName = teamName,
@@ -133,7 +205,7 @@ private fun UserProfileScreen(
                     onEditClick = onEditClick
                 )
                 CurrentUserStatus(
-                    userStatus = userStatus,
+                    userStatus = status,
                     onStatusClicked = onStatusClicked
                 )
                 OtherAccountsList(
@@ -193,23 +265,43 @@ private fun UserProfileTopBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColumnScope.UserProfileInfo(
-    avatarUrl: String,
+    isLoading: Boolean,
+    avatarBitmap: Bitmap,
     fullName: String,
     userName: String,
     teamName: String,
     onUserProfileClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
-    UserProfileAvatar(
-        onClick = onUserProfileClick,
-        size = dimensions().userAvatarDefaultBigSize,
-        avatarUrl = avatarUrl,
-        status = UserStatus.NONE,
-        modifier = Modifier
+    Box(
+        Modifier
+            .wrapContentSize()
             .padding(top = dimensions().spacing16x)
             .align(Alignment.CenterHorizontally)
-    )
-
+    ) {
+        UserProfileAvatar(
+            onClick = onUserProfileClick,
+            isEnabled = !isLoading,
+            size = dimensions().userAvatarDefaultBigSize,
+            avatarBitmap = avatarBitmap,
+            status = UserStatus.NONE,
+        )
+        if (isLoading) {
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .align(Alignment.Center)
+                    .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.wireColorScheme.onBackground.copy(alpha = 0.7f))
+            ) {
+                CircularProgressIndicator(
+                    progressColor = MaterialTheme.wireColorScheme.surface,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+    }
     ConstraintLayout(modifier = Modifier.align(Alignment.CenterHorizontally)) {
         val (userDescription, editButton, teamDescription) = createRefs()
 
@@ -239,7 +331,6 @@ private fun ColumnScope.UserProfileInfo(
                 color = MaterialTheme.colorScheme.onBackground,
             )
         }
-
         IconButton(
             modifier = Modifier
                 .padding(start = dimensions().spacing16x)
@@ -470,7 +561,6 @@ fun ChangeStatusDialog(
                 checked = data.isCheckBoxChecked,
                 onCheckedChange = onNotShowRationaleAgainChange
             )
-
             Text(
                 text = stringResource(R.string.user_profile_change_status_dialog_checkbox_text),
                 style = MaterialTheme.wireTypography.body01
@@ -492,12 +582,12 @@ private fun ChangeStatusDialogPreview() {
 private fun UserProfileScreenPreview() {
     UserProfileScreen(
         SelfUserProfileState(
-            "",
-            UserStatus.BUSY,
-            "Tester Tost long lomng long logn long logn long lonf lonf",
-            "@userName",
-            "Best team ever long ",
-            listOf(
+            avatarBitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
+            status = UserStatus.BUSY,
+            fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
+            userName = "@userName_long_long_long_long_long_long_long_long_long_long",
+            teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
+            otherAccounts = listOf(
                 OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "Other Name", "team A"),
@@ -507,6 +597,6 @@ private fun UserProfileScreenPreview() {
                 OtherAccount("someId", "", "New Name")
             ),
             statusDialogData = null
-        )
+        ),
     )
 }

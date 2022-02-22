@@ -66,13 +66,13 @@ private fun ConversationRouter(
     ConversationSheet(
         sheetState = conversationState.modalBottomSheetState,
         modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
-        muteConversation = muteConversation,
-        addConversationToFavourites = addConversationToFavourites,
-        moveConversationToFolder = moveConversationToFolder,
-        moveConversationToArchive = moveConversationToArchive,
-        clearConversationContent = clearConversationContent,
-        blockUser = blockUser,
-        leaveGroup = leaveGroup
+        muteConversation = { muteConversation("some id") },
+        addConversationToFavourites = { addConversationToFavourites("some id") },
+        moveConversationToFolder = { moveConversationToFolder("some id") },
+        moveConversationToArchive = { moveConversationToArchive("some id") },
+        clearConversationContent = { clearConversationContent("some id") },
+        blockUser = { blockUser("some id") },
+        leaveGroup = { leaveGroup("some id") }
     ) {
         Scaffold(
             floatingActionButton = {

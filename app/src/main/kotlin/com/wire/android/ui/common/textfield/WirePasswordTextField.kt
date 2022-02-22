@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -38,7 +39,7 @@ fun WirePasswordTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     readOnly: Boolean = false,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false),
     keyboardActions: KeyboardActions = KeyboardActions(),
     placeholderText: String? = stringResource(R.string.login_password_placeholder),
     labelText: String? = stringResource(R.string.login_password_label),

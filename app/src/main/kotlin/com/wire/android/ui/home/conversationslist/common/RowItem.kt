@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,13 +11,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.theme.wireDimensions
 
 
 //TODO: added onRowClick only for UI-Design purpose
 @Composable
-fun RowItem(onRowItemClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
+fun RowItem(
+    onRowItemClick: () -> Unit,
+    onRowItemLongClick: () -> Unit,
+    content: @Composable (RowScope.() -> Unit),
+) {
     SurfaceBackgroundWrapper(modifier = Modifier.padding(MaterialTheme.wireDimensions.conversationItemPadding)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -26,7 +32,12 @@ fun RowItem(onRowItemClick: () -> Unit, content: @Composable RowScope.() -> Unit
                 .clickable {
                     onRowItemClick()
                 }
-
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = { onRowItemLongClick() },
+                        onTap = { onRowItemClick() }
+                    )
+                }
         ) {
             content()
         }

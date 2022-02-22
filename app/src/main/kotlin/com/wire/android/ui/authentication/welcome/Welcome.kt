@@ -92,7 +92,7 @@ private fun WelcomeContent(navController: NavController) {
                     navController.navigate(AuthDestination.loginScreen)
                 }
                 CreateEnterpriseAccountButton {
-                    navController.navigate((AuthDestination.createEnterpriseAccount))
+                    navController.navigate((AuthDestination.createEnterpriseAccountScreen))
                 }
             }
 
@@ -255,7 +255,7 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
-    WireTheme(useDarkColors = false, isPreview = true) {
+    WireTheme(isPreview = true) {
         WelcomeContent(rememberNavController())
     }
 }

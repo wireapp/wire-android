@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_version">App version: %s</string>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
+    <string name="label_cancel">Cancel</string>
+    <string name="label_remove">Remove</string>
+    <string name="label_removing">Removing...</string>
     <string name="label_logging_in">Logging in...</string>
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
@@ -13,14 +17,27 @@
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_user_avatar">User avatar</string>
+    <string name="content_description_mute">Mute</string>
+    <string name="content_description_add_to_favourite">Add to favourite</string>
+    <string name="content_description_move_to_folder">Move to folder</string>
+    <string name="content_description_move_to_archive">Move to archive</string>
+    <string name="content_description_block_the_user">Block the user</string>
+    <string name="content_description_leave_the_group">Leave the group</string>
+    <string name="content_description_conversation_video_icon">Conversation video icon</string>
     <string name="content_description_welcome_carousel_item">Welcome image</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_drop_down_icon">Drop down arrow</string>
-    <string name="content_description_conversation_video_icon">Conversation video icon</string>
-    <string name="content_description_back_button">Back button</string>
     <string name="content_description_conversation_search_icon">Conversation search icon</string>
     <string name="content_description_new_conversation">Start a new conversation</string>
-
+    <string name="content_description_back_button">Back button</string>
+    <string name="content_description_close_button">Close button</string>
+    <string name="content_description_menu_button">Menu button</string>
+    <string name="content_description_drop_down_icon">Drop down arrow</string>
+    <string name="content_description_remove_device_item_icon">Devices icon</string>
+    <string name="content_description_remove_device_remove_icon">Remove icon</string>
+    <string name="content_description_avatar_preview">Image preview of the avatar image</string>
+    <string name="content_description_choose_from_gallery">Choose from gallery</string>
+    <string name="content_description_take_a_picture">Take a picture</string>
+    <string name="content_description_right_arrow">Right arrow</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -48,6 +65,14 @@ username</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
 
+    <!-- Remove Device -->
+    <string name="remove_device_title">Remove a Device</string>
+    <string name="remove_device_message">Remove one of your other devices to start using Wire on this one.</string>
+    <string name="remove_device_label">YOUR DEVICES</string>
+    <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
+    <string name="remove_device_dialog_title">Remove the following device?</string>
+    <string name="remove_device_invalid_password">Invalid password</string>
+
     <!-- Home -->
     <string name="home_open_drawer_description">Open drawer</string>
 
@@ -59,7 +84,7 @@ username</string>
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
     <string name="label_message_status_deleted">Deleted</string>
     <string name="label_message_status_edited">Edited</string>
-    <string name="app_version">App version: %s</string>
+    <string name="conetnt_description_conversation_search_icon">Conversation search icon</string>
     <string name="conversations_screen_title">Conversations</string>
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
@@ -87,6 +112,22 @@ username</string>
     <string name="user_profile_change_status_dialog_none_text">You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
     <string name="user_profile_change_status_dialog_checkbox_text">Do not display this information again</string>
 
+    <!-- Conversations BottomSheet -->
+    <string name="label_mute">Mute</string>
+    <string name="label_add_to_favourites">Add to Favourites</string>
+    <string name="label_move_to_folder">Move to Folder</string>
+    <string name="label_move_to_archive">Move to Archive</string>
+    <string name="label_clear_content">Clear Content...</string>
+    <string name="label_block">Block</string>
+    <string name="label_leave_group">Leave Group</string>
+
+    <!--Profile image-->
+    <string name="profile_image_top_bar_label">Profile image</string>
+    <string name="profile_image_modal_sheet_header_title">Change Image</string>
+    <string name="profile_image_choose_from_gallery_menu_item">Choose from gallery</string>
+    <string name="profile_image_take_a_picture_menu_item">Take a picture</string>
+    <string name="profile_image_change_image_button_label">Change Image...</string>
+
     <!-- errors -->
     <string name="error_unknown_title">Unknown error</string>
     <string name="error_unknown_message">Please try again in a moment</string>
@@ -94,4 +135,9 @@ username</string>
     <string name="error_server_miscommunication_message">Please try again in a moment</string>
     <string name="error_no_network_title">No network error</string>
     <string name="error_no_network_message">Please check your Internet connection</string>
+
+    <!-- Animation label -->
+    <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
+    <string name="animation_label_button_rotation_degree_transistion" translatable="false">Collapse button rotation degree transition</string>
+
 </resources>

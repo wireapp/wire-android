@@ -1,13 +1,6 @@
 package com.wire.android.ui.authentication.login
 
 import android.content.Context
-import android.content.Intent
-import android.graphics.BitmapFactory
-import android.net.Uri
-import android.widget.Toast
-import androidx.annotation.ColorInt
-import androidx.browser.customtabs.CustomTabColorSchemeParams
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,8 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -31,7 +23,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -44,9 +35,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.ui.authentication.AuthDestination
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -55,14 +46,17 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
+import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.wire.kalium.logic.configuration.ServerConfig
 
+@ExperimentalMaterialApi
 @Composable
 fun LoginScreen(
     navController: NavController,
@@ -72,11 +66,15 @@ fun LoginScreen(
     val loginViewModel: LoginViewModel = hiltViewModel()
     val loginState: LoginState = loginViewModel.loginState
     LoginContent(
-        navController = navController,
         loginState = loginState,
         onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) },
+        onBackPressed = { navController.popBackStack() },
         onPasswordChange = { loginViewModel.onPasswordChange(it) },
-        onDialogDismiss = { loginViewModel.onDialogDismissed() },
+        onDialogDismiss = { loginViewModel.clearLoginError() },
+        onRemoveDeviceOpen = {
+            navController.navigate(AuthDestination.removeDeviceScreen)
+            loginViewModel.clearLoginError()
+        },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
         scope = scope
     )
@@ -85,16 +83,22 @@ fun LoginScreen(
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun LoginContent(
-    navController: NavController,
     loginState: LoginState,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
+    onBackPressed: () -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
+    onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
     scope: CoroutineScope
 ) {
     Scaffold(
-        topBar = { LoginTopBar(onBackNavigationPressed = { navController.popBackStack() }) }
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                title = stringResource(R.string.login_title),
+                onNavigationPressed = onBackPressed)
+        }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Column(
@@ -153,6 +157,9 @@ private fun LoginContent(
                 )
             )
         }
+        else if (loginState.loginError is LoginError.TooManyDevicesError) {
+            onRemoveDeviceOpen()
+        }
     }
 }
 
@@ -181,7 +188,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
     WirePasswordTextField(
         value = password,
         onValueChange = onPasswordChange,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = modifier,
     )
@@ -191,7 +198,6 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
 private fun ForgotPasswordLabel(modifier: Modifier) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
-        val backgroundColor = MaterialTheme.colorScheme.background
         Text(
             text = stringResource(R.string.login_forgot_password),
             style = MaterialTheme.wireTypography.body02.copy(
@@ -205,30 +211,18 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
                     indication = null,
                     onClick = {
                         // TODO: refactor this to open the browser
-                        openForgotPasswordPage(context, backgroundColor.toArgb())
+                        openForgotPasswordPage(context)
                     }
                 )
         )
     }
 }
 
-private fun openForgotPasswordPage(context: Context, @ColorInt color: Int) {
+private fun openForgotPasswordPage(context: Context) {
     // TODO: get the link from the serverConfig
     val url = "${BuildConfig.ACCOUNTS_URL}/forgot"
 
-    // TODO: extract the custom tab code to it's own destination
-    val builder = CustomTabsIntent.Builder()
-    val colors = CustomTabColorSchemeParams.Builder()
-        .setNavigationBarColor(color)
-        .setToolbarColor(color)
-        .build()
-    builder.setDefaultColorSchemeParams(colors)
-    builder.setCloseButtonIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_close))
-    builder.setShareState(CustomTabsIntent.SHARE_STATE_OFF)
-    builder.setShowTitle(true)
-    val customTabsIntent = builder.build()
-    customTabsIntent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
-    customTabsIntent.launchUrl(context, Uri.parse(url))
+    CustomTabsHelper.launchUrl(context, url)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -252,13 +246,14 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 private fun LoginScreenPreview() {
     val scope = rememberCoroutineScope()
-    WireTheme(useDarkColors = false, isPreview = true) {
+    WireTheme(isPreview = true) {
         LoginContent(
-            navController = rememberNavController(),
             loginState = LoginState(),
             onUserIdentifierChange = { },
+            onBackPressed = { },
             onPasswordChange = { },
             onDialogDismiss = { },
+            onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
             scope = scope
         )

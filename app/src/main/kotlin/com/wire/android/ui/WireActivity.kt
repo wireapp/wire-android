@@ -2,14 +2,17 @@ package com.wire.android.ui
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.navigation.NavigationGraph
@@ -25,13 +28,15 @@ import javax.inject.Inject
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class WireActivity : AppCompatActivity() {
 
     @Inject
     lateinit var navigationManager: NavigationManager
-
+    val viewModel: WireActivityViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             WireTheme {
@@ -42,7 +47,7 @@ class WireActivity : AppCompatActivity() {
                 setUpNavigation(navController, scope)
 
                 Scaffold {
-                    NavigationGraph(navController = navController)
+                    NavigationGraph(navController = navController,viewModel.startNavigationRoute)
                 }
             }
         }
@@ -66,9 +71,6 @@ class WireActivity : AppCompatActivity() {
             navigationManager.navigateBack
                 .onEach { navController.popBackStack() }
                 .launchIn(scope)
-
         }
     }
-
 }
-

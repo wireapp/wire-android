@@ -47,7 +47,7 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.5.31"
+        const val kotlin = "1.6.10"
         const val coroutines = "1.5.0"
         const val cryptobox = "1.1.3"
         const val jetpack = "1.1.0"
@@ -66,14 +66,15 @@ object Libraries {
         const val desugaring = "1.0.10"
         const val paging = "3.0.0"
         const val glide = "4.12.0"
-        const val workManager = "2.6.0"
+        const val workManager = "2.7.1"
         const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
-        const val compose = "1.0.5"
-        const val composeMaterial = "1.0.0-alpha03"
+        const val compose = "1.2.0-alpha03"
+        const val composeMaterial = compose
+        const val composeMaterial3 = "1.0.0-alpha05"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.0-beta02"
-        const val accompanist = "0.22.0-rc"
+        const val accompanist = "0.24.2-alpha"
         const val composeConstraint = "1.0.0-rc02"
         const val hilt = "2.38.1"
         const val lifecycle = "2.4.0"
@@ -81,6 +82,7 @@ object Libraries {
         const val composeHiltNavigation = "1.0.0-alpha03"
         const val browser = "1.3.0"
         const val dataStore = "1.0.0"
+        const val splashscreen = "1.0.0-beta01"
     }
 
     // AndroidX Dependencies
@@ -94,18 +96,22 @@ object Libraries {
     const val workManager               = "androidx.work:work-runtime-ktx:${Versions.workManager}"
     const val fragment                  = "androidx.fragment:fragment:${Versions.fragment}"
     const val composeUi                 = "androidx.compose.ui:ui:${Versions.compose}"
-    const val composeMaterial           = "androidx.compose.material3:material3:${Versions.composeMaterial}"
+    const val composeFoundation         = "androidx.compose.foundation:foundation:${Versions.compose}"
+    const val composeMaterial           = "androidx.compose.material:material:${Versions.composeMaterial}"
+    const val composeMaterial3          = "androidx.compose.material3:material3:${Versions.composeMaterial3}"
     const val composeTooling            = "androidx.compose.ui:ui-tooling:${Versions.compose}"
     const val composeActivity           = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeIcons              = "androidx.compose.material:material-icons-extended:${Versions.compose}"
     const val composeNavigation         = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
+    const val composeRuntimeLiveData    = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
     const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
 
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
     const val accompanistPager          = "com.google.accompanist:accompanist-pager:${Versions.accompanist}"
     const val accompanistSystemUI       = "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}"
+    const val accompanistPlaceholder    = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
     const val material                  = "com.google.android.material:material:${Versions.material}"
     const val messageProto              = "com.wire:generic-message-proto:${Versions.messageProto}"
     const val okHttpLogging             = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"
@@ -118,6 +124,7 @@ object Libraries {
     const val scarletGson               = "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
     const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
     const val browser                   = "androidx.browser:browser:${Versions.browser}"
+    const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

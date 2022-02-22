@@ -96,6 +96,7 @@ dependencies {
 
     //Compose
     implementation(Libraries.composeUi)
+    implementation(Libraries.composeFoundation)
     implementation(Libraries.composeMaterial3)
     implementation(Libraries.composeMaterial)
     implementation(Libraries.composeTooling)

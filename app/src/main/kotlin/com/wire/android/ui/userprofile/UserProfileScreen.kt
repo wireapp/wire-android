@@ -88,7 +88,7 @@ fun UserProfileRoute(viewModel: UserProfileViewModel = hiltViewModel()) {
         onStatusChange = { viewModel.changeStatus(it) },
         onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) },
         onConfirmAvatar = { avatarBitmap -> viewModel.changeUserProfile(avatarBitmap) },
-        onMessageShown = { viewModel.clearMessage() }
+        onMessageShown = { viewModel.clearErrorMessage() }
     )
 }
 

@@ -151,7 +151,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    fun clearMessage() {
+    fun clearErrorMessage() {
         userProfileState = userProfileState.copy(
             errorMessage = null
         )

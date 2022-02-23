@@ -70,9 +70,9 @@ import com.wire.android.ui.userprofile.image.ImagePicker
 fun UserProfileRoute(viewModel: UserProfileViewModel = hiltViewModel()) {
     val navHostController = rememberNavController()
 
-    //TODO: THIS IS GOING TO BE REMOVED LATER ON
+    // TODO: THIS IS GOING TO BE REMOVED LATER ON
     val context = LocalContext.current
-    LaunchedEffect(true) {
+    SideEffect {
         viewModel.mockMethodForAvatar(BitmapFactory.decodeResource(context.resources, R.drawable.mock_message_image))
     }
 
@@ -209,10 +209,12 @@ private fun UserProfileScreen(
                     userStatus = status,
                     onStatusClicked = onStatusClicked
                 )
-                OtherAccountsList(
-                    otherAccounts = otherAccounts,
-                    onAddAccountClick = onAddAccountClick
-                )
+                if (!state.otherAccounts.isNullOrEmpty()) {
+                    OtherAccountsList(
+                        otherAccounts = otherAccounts,
+                        onAddAccountClick = onAddAccountClick,
+                    )
+                }
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
@@ -312,7 +314,7 @@ private fun ColumnScope.UserProfileInfo(
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.wireTypography.body02,
                 maxLines = 1,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.wireColorScheme.labelText,
             )
         }
         IconButton(

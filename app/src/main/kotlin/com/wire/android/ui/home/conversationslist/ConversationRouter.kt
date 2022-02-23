@@ -26,49 +26,50 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetC
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.conversation.ConversationId
 
+
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
+// Since the HomeScreen is responsible for displaying the bottom sheet content,
+// we create a bridge that passes the content of the bottomsheet
+// also we expose the lambda which expands the bottomsheet
 @Composable
 fun ConversationRouterHomeBridge(
     onHomeBottomSheetContent: (@Composable ColumnScope.() -> Unit) -> Unit,
     onExpandHomeBottomSheet: () -> Unit
 ) {
     val conversationState = rememberConversationState()
-    val conversationListViewModel: ConversationListViewModel = hiltViewModel()
+    val viewModel: ConversationListViewModel = hiltViewModel()
 
     onHomeBottomSheetContent {
         ConversationSheetContent(
             modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
-            muteConversation = { conversationListViewModel.muteConversation("someId") },
-            addConversationToFavourites = { conversationListViewModel.addConversationToFavourites("someId") },
-            moveConversationToFolder = { conversationListViewModel.moveConversationToFolder("someId") },
-            moveConversationToArchive = { conversationListViewModel.moveConversationToArchive("someId") },
-            clearConversationContent = { conversationListViewModel.clearConversationContent("someId") },
-            blockUser = { conversationListViewModel.blockUser("someId") },
-            leaveGroup = { conversationListViewModel.leaveGroup("someId") }
+            muteConversation = { viewModel.muteConversation("someId") },
+            addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
+            moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
+            moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
+            clearConversationContent = { viewModel.clearConversationContent("someId") },
+            blockUser = { viewModel.blockUser("someId") },
+            leaveGroup = { viewModel.leaveGroup("someId") }
         )
     }
+
+    ConversationRouter(
+        uiState = viewModel.state,
+        conversationState = conversationState,
+        openConversation = { viewModel.openConversation(it) },
+        updateScrollPosition = { viewModel.updateScrollPosition(it) }
+    )
 }
 
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 @Composable
-private fun ConversationRouterHomeBridge(
+private fun ConversationRouter(
     uiState: ConversationListState,
     conversationState: ConversationState,
     openConversation: (ConversationId) -> Unit,
-    muteConversation: (String) -> Unit,
-    addConversationToFavourites: (String) -> Unit,
-    moveConversationToFolder: (String) -> Unit,
-    moveConversationToArchive: (String) -> Unit,
-    clearConversationContent: (String) -> Unit,
-    blockUser: (String) -> Unit,
-    leaveGroup: (String) -> Unit,
     updateScrollPosition: (Int) -> Unit,
 ) {
-    val state = conversationState.modalBottomSheetContentState.value
-
-
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(

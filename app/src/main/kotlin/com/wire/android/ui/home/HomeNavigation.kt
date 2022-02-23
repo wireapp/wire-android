@@ -30,7 +30,7 @@ fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, 
     ) {
         HomeNavigationItem.all
             .forEach { item ->
-                composable(route = item.route, content = { item.content(homeState) })
+                composable(route = item.route, content = item.content(homeState))
             }
     }
 }
@@ -60,14 +60,12 @@ sealed class HomeNavigationItem(
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
-    val hasBottomSheet: Boolean = false,
-    val content: @Composable (HomeState) -> (@Composable (NavBackStackEntry) -> Unit)
+    val content: (HomeState) -> (@Composable (NavBackStackEntry) -> Unit)
 ) {
 
     object Conversations : HomeNavigationItem(
         route = HomeDestinations.conversations,
         title = R.string.conversations_screen_title,
-        hasBottomSheet = true,
         isSearchable = true,
         isSwipeable = false,
         //it would be nice to have access to home state here inside the lambda

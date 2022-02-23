@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,9 +62,9 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun UserProfileScreen(viewModel: UserProfileViewModel = hiltViewModel()) {
 
-    //TODO: THIS IS GOING TO BE REMOVED LATER ON
+    // TODO: THIS IS GOING TO BE REMOVED LATER ON
     val context = LocalContext.current
-    LaunchedEffect(true) {
+    SideEffect {
         viewModel.mockMethodForAvatar(BitmapFactory.decodeResource(context.resources, R.drawable.mock_message_image))
     }
 

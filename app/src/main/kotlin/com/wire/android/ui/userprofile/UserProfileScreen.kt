@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,9 +62,9 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun UserProfileScreen(viewModel: UserProfileViewModel = hiltViewModel()) {
 
-    //TODO: THIS IS GOING TO BE REMOVED LATER ON
+    // TODO: THIS IS GOING TO BE REMOVED LATER ON
     val context = LocalContext.current
-    LaunchedEffect(true) {
+    SideEffect {
         viewModel.mockMethodForAvatar(BitmapFactory.decodeResource(context.resources, R.drawable.mock_message_image))
     }
 
@@ -113,11 +114,11 @@ private fun UserProfileContent(
                 onLogoutClick = onLogoutClick
             )
         }, snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        SwipeDismissSnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
     ) {
         with(state) {
             Column(
@@ -139,10 +140,12 @@ private fun UserProfileContent(
                     userStatus = status,
                     onStatusClicked = onStatusClicked
                 )
-                OtherAccountsList(
-                    otherAccounts = otherAccounts,
-                    onAddAccountClick = onAddAccountClick
-                )
+                if (state.otherAccounts.isNotEmpty()) {
+                    OtherAccountsList(
+                        otherAccounts = otherAccounts,
+                        onAddAccountClick = onAddAccountClick,
+                    )
+                }
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
@@ -182,7 +185,7 @@ private fun ColumnScope.UserProfileInfo(
     avatarBitmap: Bitmap,
     fullName: String,
     userName: String,
-    teamName: String,
+    teamName: String?,
     onUserProfileClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
@@ -238,11 +241,11 @@ private fun ColumnScope.UserProfileInfo(
             )
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = userName,
+                text = "@$userName",
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.wireTypography.body02,
                 maxLines = 1,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.wireColorScheme.labelText,
             )
         }
         IconButton(
@@ -257,21 +260,23 @@ private fun ColumnScope.UserProfileInfo(
             content = Icons.Filled.Edit.Icon()
         )
 
-        Text(
-            modifier = Modifier
-                .padding(top = dimensions().spacing8x)
-                .padding(horizontal = dimensions().spacing16x)
-                .constrainAs(teamDescription) {
-                    top.linkTo(userDescription.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                },
-            text = teamName,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.wireTypography.label01,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
+        if (teamName != null) {
+            Text(
+                modifier = Modifier
+                    .padding(top = dimensions().spacing8x)
+                    .padding(horizontal = dimensions().spacing16x)
+                    .constrainAs(teamDescription) {
+                        top.linkTo(userDescription.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                text = teamName,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.wireTypography.label01,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+        }
     }
 }
 

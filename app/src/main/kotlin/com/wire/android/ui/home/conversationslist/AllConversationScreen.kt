@@ -29,12 +29,11 @@ fun AllConversationScreen(
     val lazyListState = rememberLazyListState()
     onScrollPositionChanged(lazyListState.firstVisibleItemIndex)
 
-
     AllConversationContent(
         lazyListState = lazyListState,
         newActivities = newActivities,
         conversations = conversations,
-        onConversationItemClick = {  },
+        onConversationItemClick = onOpenConversationClick,
         onEditConversationItem = onEditConversationItem
     )
 }

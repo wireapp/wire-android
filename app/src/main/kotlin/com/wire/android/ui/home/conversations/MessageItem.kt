@@ -136,7 +136,7 @@ fun MessageImage(imageUrl: String = "") {
 private fun MessageBody(messageBody: MessageBody) {
     Text(
         buildAnnotatedString {
-            appendMentionLabel(label = "@Mateusz Pachulski")
+            appendMentionLabel(label = "@John Doe")
             appendBody(messageBody = messageBody)
         }
     )

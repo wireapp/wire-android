@@ -108,7 +108,7 @@ class HomeState(
 @Composable
 fun rememberHomeState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Expanded),
+    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
     bottomSheetContent: @Composable (ColumnScope.() -> Unit)? = null
 ): HomeState {
     return remember {

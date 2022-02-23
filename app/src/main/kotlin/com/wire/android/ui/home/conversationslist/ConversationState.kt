@@ -22,7 +22,7 @@ class ConversationState(
     val modalBottomSheetContentState: MutableState<ModalSheetContent>,
 ) {
 
-    fun showModalSheet(conversationType: ConversationType) {
+    fun changeModalSheetContentState(conversationType: ConversationType) {
         when (conversationType) {
             is ConversationType.GroupConversation -> {
                 with(conversationType) {

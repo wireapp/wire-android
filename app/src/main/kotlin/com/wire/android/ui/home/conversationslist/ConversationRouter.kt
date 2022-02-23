@@ -9,6 +9,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -27,7 +28,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.conversation.ConversationId
 
-
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
@@ -41,17 +41,20 @@ fun ConversationRouterHomeBridge(
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
 
-    onHomeBottomSheetContent {
-        ConversationSheetContent(
-            modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
-            muteConversation = { viewModel.muteConversation("someId") },
-            addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
-            moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
-            moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
-            clearConversationContent = { viewModel.clearConversationContent("someId") },
-            blockUser = { viewModel.blockUser("someId") },
-            leaveGroup = { viewModel.leaveGroup("someId") }
-        )
+    //we want to relaunch the onHomeBottomSheetContent lambda each time the content changes
+    LaunchedEffect(conversationState.modalBottomSheetContentState) {
+        onHomeBottomSheetContent {
+            ConversationSheetContent(
+                modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
+                muteConversation = { viewModel.muteConversation("someId") },
+                addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
+                moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
+                moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
+                clearConversationContent = { viewModel.clearConversationContent("someId") },
+                blockUser = { viewModel.blockUser("someId") },
+                leaveGroup = { viewModel.leaveGroup("someId") }
+            )
+        }
     }
 
     ConversationRouter(
@@ -70,7 +73,7 @@ private fun ConversationRouter(
     uiState: ConversationListState,
     conversationState: ConversationState,
     openConversation: (ConversationId) -> Unit,
-    onEditConversation: (ConversationType) -> Unit,
+    onEditConversation: () -> Unit,
     updateScrollPosition: (Int) -> Unit,
 ) {
     Scaffold(
@@ -93,6 +96,11 @@ private fun ConversationRouter(
         },
         bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
     ) {
+        fun editConversation(conversationType: ConversationType) {
+            conversationState.changeModalSheetContentState(conversationType)
+            onEditConversation()
+        }
+
         with(uiState) {
             NavHost(conversationState.navHostController, startDestination = ConversationsNavigationItem.All.route) {
                 composable(
@@ -102,7 +110,7 @@ private fun ConversationRouter(
                             newActivities = newActivities,
                             conversations = conversations,
                             onOpenConversationClick = openConversation,
-                            onEditConversationItem = onEditConversation,
+                            onEditConversationItem = ::editConversation,
                             onScrollPositionChanged = updateScrollPosition
                         )
                     })
@@ -113,7 +121,7 @@ private fun ConversationRouter(
                             missedCalls = missedCalls,
                             callHistory = callHistory,
                             onCallItemClick = openConversation,
-                            onEditConversationItem = conversationState::showModalSheet,
+                            onEditConversationItem = ::editConversation,
                             onScrollPositionChanged = updateScrollPosition
                         )
                     })
@@ -124,7 +132,7 @@ private fun ConversationRouter(
                             unreadMentions = unreadMentions,
                             allMentions = allMentions,
                             onMentionItemClick = openConversation,
-                            onEditConversationItem = conversationState::showModalSheet,
+                            onEditConversationItem = ::editConversation,
                             onScrollPositionChanged = updateScrollPosition
                         )
                     }

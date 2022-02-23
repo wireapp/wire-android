@@ -52,7 +52,6 @@ internal fun navigateToItemInHome(
     }
 }
 
-// one way would be passing
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 sealed class HomeNavigationItem(

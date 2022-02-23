@@ -133,8 +133,8 @@ enum class NavigationItem(
     };
 
     /**
-     * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder. This should be
-     * only accessed to create the initial navigation graph, not to navigate to
+     * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder.
+     * This should only be accessed to create the initial navigation graph, not as a navigation item route
      */
     @PackagePrivate
     fun getCanonicalRoute() = canonicalRoute

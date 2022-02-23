@@ -16,13 +16,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.archive.ArchiveScreen
-import com.wire.android.ui.home.conversationslist.ConversationRouter
+import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.vault.VaultScreen
 
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 @Composable
-fun HomeNavigationGraph(navController: NavHostController, startDestination: String?) {
+fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, startDestination: String?) {
     NavHost(
         modifier = Modifier.padding(top = dimensions().smallTopBarHeight),
         navController = navController,
@@ -30,7 +30,7 @@ fun HomeNavigationGraph(navController: NavHostController, startDestination: Stri
     ) {
         HomeNavigationItem.all
             .forEach { item ->
-                composable(route = item.route, content = { item.content("test") })
+                composable(route = item.route, content = { item.content(homeState) })
             }
     }
 }
@@ -52,45 +52,6 @@ internal fun navigateToItemInHome(
     }
 }
 
-// we want to have access to home actions
-
-class TestHome() {
-
-    fun openSheet() {
-
-    }
-}
-
-
-class SomeTest() {
-    var someOtherTest = "String"
-    var someStringTest = "This is test"
-
-    fun test(test: String) {
-        someOtherTest = test
-    }
-
-    fun anotherTest() {
-        someStringTest = "dupa"
-    }
-
-}
-
-class SomeOtherTest() {
-    val someTest = SomeTest()
-
-    fun access(test: SomeTest.() -> Unit) {
-        someTest.test()
-    }
-}
-
-fun dupa() {
-    val someOtherTest = SomeOtherTest()
-
-    someOtherTest.access { test("this is some test") }
-}
-
-
 // one way would be passing
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
@@ -99,8 +60,8 @@ sealed class HomeNavigationItem(
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
-    val hasBottomSheet : Boolean = false,
-    val content: @Composable (String) -> (@Composable (NavBackStackEntry) -> Unit)
+    val hasBottomSheet: Boolean = false,
+    val content: @Composable (HomeState) -> (@Composable (NavBackStackEntry) -> Unit)
 ) {
 
     object Conversations : HomeNavigationItem(
@@ -113,19 +74,27 @@ sealed class HomeNavigationItem(
         //so that we can access the bottomsheet state of the home
         // and also navigate it from conversationrouter
         // as well set the content of it
-        content = { { ConversationRouter() } }
+        content = { homeState ->
+            {
+                ConversationRouterHomeBridge({
+                    homeState.changeBottomSheetContent(it)
+                }, {
+                    homeState.expandBottomSheet()
+                })
+            }
+        }
     )
 
     object Vault : HomeNavigationItem(
         route = HomeDestinations.vault,
         title = R.string.vault_screen_title,
-        content = { VaultScreen() }
+        content = { { VaultScreen() } }
     )
 
     object Archive : HomeNavigationItem(
         route = HomeDestinations.archive,
         title = R.string.archive_screen_title,
-        content = { ArchiveScreen() }
+        content = { { ArchiveScreen() } }
     )
 
     companion object {

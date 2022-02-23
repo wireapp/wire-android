@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.LocalHomeState
 import com.wire.android.ui.home.conversations.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationType

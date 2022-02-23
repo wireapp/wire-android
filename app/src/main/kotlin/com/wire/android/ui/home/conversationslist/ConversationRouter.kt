@@ -23,6 +23,7 @@ import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.conversation.ConversationId
 
@@ -31,7 +32,7 @@ import com.wire.kalium.logic.data.conversation.ConversationId
 @ExperimentalMaterialApi
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
 // we create a bridge that passes the content of the bottomsheet
-// also we expose the lambda which expands the bottomsheet
+// also we expose the lambda which expands the bottomsheet from the homescreen
 @Composable
 fun ConversationRouterHomeBridge(
     onHomeBottomSheetContent: (@Composable ColumnScope.() -> Unit) -> Unit,
@@ -57,6 +58,7 @@ fun ConversationRouterHomeBridge(
         uiState = viewModel.state,
         conversationState = conversationState,
         openConversation = { viewModel.openConversation(it) },
+        onEditConversation = { onExpandHomeBottomSheet() },
         updateScrollPosition = { viewModel.updateScrollPosition(it) }
     )
 }
@@ -68,6 +70,7 @@ private fun ConversationRouter(
     uiState: ConversationListState,
     conversationState: ConversationState,
     openConversation: (ConversationId) -> Unit,
+    onEditConversation: (ConversationType) -> Unit,
     updateScrollPosition: (Int) -> Unit,
 ) {
     Scaffold(
@@ -99,7 +102,7 @@ private fun ConversationRouter(
                             newActivities = newActivities,
                             conversations = conversations,
                             onOpenConversationClick = openConversation,
-                            onEditConversationItem = { },
+                            onEditConversationItem = onEditConversation,
                             onScrollPositionChanged = updateScrollPosition
                         )
                     })

@@ -68,10 +68,6 @@ sealed class HomeNavigationItem(
         title = R.string.conversations_screen_title,
         isSearchable = true,
         isSwipeable = false,
-        //it would be nice to have access to home state here inside the lambda
-        //so that we can access the bottomsheet state of the home
-        // and also navigate it from conversationrouter
-        // as well set the content of it
         content = { homeState ->
             {
                 ConversationRouterHomeBridge({

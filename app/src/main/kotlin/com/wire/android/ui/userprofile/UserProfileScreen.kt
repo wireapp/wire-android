@@ -128,7 +128,7 @@ private fun UserProfileContent(
             ) {
                 UserProfileInfo(
                     isLoading = state.isAvatarLoading,
-                    avatarBitmap = state.avatarBitmap ?: loadDefaultImageBitmap(),
+                    avatarBitmap = state.avatarBitmap,
                     fullName = fullName,
                     userName = userName,
                     teamName = teamName,
@@ -442,12 +442,6 @@ private fun OtherAccountItem(
             }
         }
     }
-}
-
-@Composable
-private fun loadDefaultImageBitmap(): Bitmap {
-    val context = LocalContext.current
-    return BitmapFactory.decodeResource(context.resources, R.drawable.mock_message_image)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

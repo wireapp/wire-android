@@ -15,16 +15,16 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.extension.toByteArray
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
+import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import com.wire.kalium.logic.functional.Either
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 //Suppress for now after removing mockMethodForAvatar it should not complain
-@Suppress("TooManyFunctions","MagicNumber")
+@Suppress("TooManyFunctions", "MagicNumber")
 @ExperimentalMaterial3Api
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
@@ -55,7 +55,7 @@ class UserProfileViewModel @Inject constructor(
     )
         private set
 
-    fun close() = viewModelScope.launch { navigationManager.navigateBack() }
+    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun logout() {
         // TODO
@@ -125,35 +125,35 @@ class UserProfileViewModel @Inject constructor(
     private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean =
         dataStore.shouldShowStatusRationaleFlow(status).first()
 
-    fun changeUserProfile(avatarBitmap: Bitmap) {
+    fun changeUserAvatar(avatarBitmap: Bitmap, shouldNavigateBack: Boolean = false) {
         val backupBitmap = userProfileState.avatarBitmap
-
-        changeUserProfile(avatarBitmap, onFailure = {
-            userProfileState = userProfileState.copy(
-                avatarBitmap = backupBitmap,
-                isAvatarLoading = false,
-                errorMessage = "Image could not be uploaded"
-            )
-        })
-    }
-
-    private fun changeUserProfile(avatarBitmap: Bitmap, onFailure: () -> Unit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                // Update the user avatar on the userProfileState object with the local bitmap
                 userProfileState = userProfileState.copy(avatarBitmap = avatarBitmap, isAvatarLoading = true)
 
-                when (uploadUserAvatarUseCase("image/png", avatarBitmap.toByteArray())) {
-                    is Either.Left -> onFailure()
-                    is Either.Right -> userProfileState = userProfileState.copy(isAvatarLoading = false)
+                // Upload the Avatar image
+                userProfileState = when (uploadUserAvatarUseCase("image/png", avatarBitmap.toByteArray())) {
+                    // Fallback
+                    is Either.Left -> {
+                        userProfileState.copy(
+                            avatarBitmap = backupBitmap,
+                            isAvatarLoading = false,
+                            errorMessage = "Image could not be uploaded"
+                        )
+                    }
+
+                    // Happy path
+                    else -> userProfileState.copy(isAvatarLoading = false)
                 }
+
+                if (shouldNavigateBack) navigateBack()
             }
         }
     }
 
     fun clearErrorMessage() {
-        userProfileState = userProfileState.copy(
-            errorMessage = null
-        )
+        userProfileState = userProfileState.copy(errorMessage = null)
     }
 
     //!! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!

@@ -5,7 +5,6 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 
-
 //Suppress for now after we going to use bitmap from back-end this is not going to be an issue
 @Suppress("MagicNumber")
 data class SelfUserProfileState(

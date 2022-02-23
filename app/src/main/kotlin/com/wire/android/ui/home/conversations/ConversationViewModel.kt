@@ -8,8 +8,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.UserStatus
-import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.User
@@ -35,12 +36,9 @@ class ConversationViewModel @Inject constructor(
         private set
 
     val conversationId: ConversationId? = savedStateHandle
-        .getLiveData<String>(NavigationItem.CONVERSATION_ID_ARGUMENT)
+        .getLiveData<String>(EXTRA_CONVERSATION_ID)
         .value
-        ?.let {
-            val components = it.split("@")
-            ConversationId(components.last(), components.first())
-        }
+        ?.parseIntoQualifiedID()
 
     init {
         viewModelScope.launch {

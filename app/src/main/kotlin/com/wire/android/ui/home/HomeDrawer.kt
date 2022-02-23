@@ -29,8 +29,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.navigation.HomeNavigationItem.Archive
+import com.wire.android.navigation.HomeNavigationItem.Conversations
+import com.wire.android.navigation.HomeNavigationItem.Vault
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationItem.Settings
+import com.wire.android.navigation.NavigationItem.Support
 import com.wire.android.navigation.isExternalRoute
+import com.wire.android.navigation.navigateToItemInHome
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
@@ -78,11 +85,11 @@ fun HomeDrawer(
         bottomItems.forEach { item ->
             DrawerItem(
                 data = item.getDrawerData(),
-                selected = currentRoute == item.route,
+                selected = currentRoute == item.getRouteWithArgs(),
                 onItemClick = {
                     scope.launch {
                         when (item.isExternalRoute()) {
-                            true -> CustomTabsHelper.launchUrl(homeNavController.context, item.route)
+                            true -> CustomTabsHelper.launchUrl(homeNavController.context, item.getRouteWithArgs())
                             false -> viewModel.navigateTo(item)
                         }
                         drawerState.close()
@@ -136,10 +143,10 @@ data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int
 @ExperimentalMaterial3Api
 private fun Any.getDrawerData(): DrawerItemData =
     when (this) {
-        is HomeNavigationItem.Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
-        is HomeNavigationItem.Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
-        is HomeNavigationItem.Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
-        is NavigationItem.Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
-        is NavigationItem.Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
+        Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
+        Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
+        Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
+        Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
+        Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
         else -> DrawerItemData(null, null)
     }

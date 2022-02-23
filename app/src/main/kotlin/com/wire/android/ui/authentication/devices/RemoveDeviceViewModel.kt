@@ -58,7 +58,7 @@ class RemoveDeviceViewModel @Inject constructor(
 
     fun onPasswordChange(newText: TextFieldValue) {
         updateStateIfDialogVisible {
-            if(it.password == newText) it
+            if (it.password == newText) it
             else it.copy(password = newText, error = RemoveDeviceError.None, removeEnabled = newText.text.isNotEmpty())
         }
     }
@@ -85,12 +85,12 @@ class RemoveDeviceViewModel @Inject constructor(
                     val deleteClientParam = DeleteClientParam(dialogStateVisible.password.text, dialogStateVisible.device.clientId)
                     val deleteClientResult = deleteClientUseCase(deleteClientParam)
                     val removeDeviceError =
-                        if(deleteClientResult is DeleteClientResult.Success)
+                        if (deleteClientResult is DeleteClientResult.Success)
                             registerClientUseCase(dialogStateVisible.password.text, null).toRemoveDeviceError()
                         else
                             deleteClientResult.toRemoveDeviceError()
                     updateStateIfDialogVisible { it.copy(loading = false, error = removeDeviceError) }
-                    if(removeDeviceError is RemoveDeviceError.None) {
+                    if (removeDeviceError is RemoveDeviceError.None) {
                         updateStateIfDialogVisible { it.copy(keyboardVisible = false) }
                         navigateToConvScreen()
                     }
@@ -100,32 +100,40 @@ class RemoveDeviceViewModel @Inject constructor(
     }
 
     private fun DeleteClientResult.toRemoveDeviceError() =
-        when(this) {
+        when (this) {
             is DeleteClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is DeleteClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             is DeleteClientResult.Success -> RemoveDeviceError.None
+            else -> RemoveDeviceError.None
         }
 
     private fun RegisterClientResult.toRemoveDeviceError() =
-        when(this) {
+        when (this) {
             is RegisterClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             is RegisterClientResult.Failure.ProteusFailure -> RemoveDeviceError.GenericError(CoreFailure.Unknown(this.e))
-            RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
-            RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
+            is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
+            is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
             is RegisterClientResult.Success -> RemoveDeviceError.None
+            else -> RemoveDeviceError.None
         }
 
-private suspend fun navigateToConvScreen() =
-    navigationManager.navigate(NavigationCommand(NavigationItem.Home.navigationRoute(), BackStackMode.CLEAR_WHOLE))
 
-private fun updateStateIfSuccess(newValue: (RemoveDeviceState.Success) -> RemoveDeviceState) =
-    (state as? RemoveDeviceState.Success)?.let { state = newValue(it) }
+    private fun updateStateIfSuccess(newValue: (RemoveDeviceState.Success) -> RemoveDeviceState) =
+        (state as? RemoveDeviceState.Success)?.let { state = newValue(it) }
 
-private fun updateStateIfDialogVisible(newValue: (RemoveDeviceDialogState.Visible) -> RemoveDeviceDialogState) =
-    updateStateIfSuccess { stateSuccess ->
-        if (stateSuccess.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
-            stateSuccess.copy(removeDeviceDialogState = newValue(stateSuccess.removeDeviceDialogState))
-        else stateSuccess
+    private fun updateStateIfDialogVisible(newValue: (RemoveDeviceDialogState.Visible) -> RemoveDeviceDialogState) =
+        updateStateIfSuccess { stateSuccess ->
+            if (stateSuccess.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
+                stateSuccess.copy(removeDeviceDialogState = newValue(stateSuccess.removeDeviceDialogState))
+            else stateSuccess
+        }
+
+    fun navigateBack() {
+        viewModelScope.launch {
+            navigationManager.navigateBack()
+        }
     }
 
+    private suspend fun navigateToConvScreen() =
+        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 }

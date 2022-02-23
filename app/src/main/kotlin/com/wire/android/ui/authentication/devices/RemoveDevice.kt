@@ -26,8 +26,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
@@ -43,24 +41,24 @@ import com.wire.android.util.formatMediumDateTime
 import kotlinx.coroutines.android.awaitFrame
 
 @Composable
-fun RemoveDeviceScreen(navController: NavController) {
+fun RemoveDeviceScreen() {
     val viewModel: RemoveDeviceViewModel = hiltViewModel()
     val state: RemoveDeviceState = viewModel.state
     RemoveDeviceContent(
-        navController = navController,
+        viewModel = viewModel,
         state = state,
         onItemClicked = viewModel::onItemClicked,
         onPasswordChange = viewModel::onPasswordChange,
         onRemoveConfirm = viewModel::onRemoveConfirmed,
         onDialogDismiss = viewModel::onDialogDismissed,
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
-        )
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun RemoveDeviceContent(
-    navController: NavController,
+    viewModel: RemoveDeviceViewModel,
     state: RemoveDeviceState,
     onItemClicked: (Device) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
@@ -73,10 +71,10 @@ private fun RemoveDeviceContent(
         topBar = {
             RemoveDeviceTopBar(
                 elevation = lazyListState.appBarElevation(),
-                onBackNavigationPressed = { navController.popBackStack() }) //TODO logout?
+                onBackNavigationPressed = { viewModel.navigateBack() })
         }
     ) {
-        when(state) {
+        when (state) {
             is RemoveDeviceState.Success ->
                 RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
             RemoveDeviceState.Loading ->
@@ -90,7 +88,7 @@ private fun RemoveDeviceContent(
                 onDialogDismiss = onDialogDismiss,
                 onRemoveConfirm = onRemoveConfirm,
             )
-            if(state.removeDeviceDialogState.error is RemoveDeviceError.GenericError) {
+            if (state.removeDeviceDialogState.error is RemoveDeviceError.GenericError) {
                 val (title, message) = state.removeDeviceDialogState.error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
                 WireDialog(
                     title = title,
@@ -157,10 +155,10 @@ private fun RemoveDeviceDialog(
         ),
         confirmButtonProperties = WireDialogButtonProperties(
             onClick = onRemoveConfirm,
-            text = stringResource(id = if(state.loading) R.string. label_removing else R.string.label_remove),
+            text = stringResource(id = if (state.loading) R.string.label_removing else R.string.label_remove),
             type = WireDialogButtonType.Primary,
             loading = state.loading,
-            state = if(state.removeEnabled) WireButtonState.Error else WireButtonState.Disabled
+            state = if (state.removeEnabled) WireButtonState.Error else WireButtonState.Disabled
         ),
         content = {
             // keyboard controller from outside the Dialog doesn't work inside its content so we have to pass the state
@@ -181,7 +179,7 @@ private fun RemoveDeviceDialog(
                 modifier = Modifier.focusRequester(focusRequester)
             )
             SideEffect {
-                if(state.keyboardVisible) {
+                if (state.keyboardVisible) {
                     focusRequester.requestFocus()
                     keyboardController?.show()
                 } else keyboardController?.hide()
@@ -195,7 +193,7 @@ private fun RemoveDeviceDialog(
 @Composable
 private fun RemoveDeviceScreenPreview() {
     RemoveDeviceContent(
-        navController = rememberNavController(),
+        viewModel = hiltViewModel(),
         state = RemoveDeviceState.Success(List(10) { Device(name = "device") }, RemoveDeviceDialogState.Hidden),
         onItemClicked = {},
         onPasswordChange = {},

@@ -34,16 +34,20 @@ class HomeViewModel
 
     val scrollDownFlow: Flow<Boolean> = scrollBridge.scrollDownFlow
 
-    suspend fun navigateTo(item: NavigationItem) {
-        navigationManager.navigate(NavigationCommand(item.route))
-    }
+    suspend fun navigateToUserProfile() = navigateTo(NavigationItem.UserProfile, MY_USER_PROFILE_SUBROUTE)
 
-    suspend fun navigateToUserProfile() = navigateTo(NavigationItem.UserProfile)
+    suspend fun navigateTo(item: NavigationItem, extraRouteId: String = "") {
+        navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs(listOf(extraRouteId))))
+    }
 
     init {
         //listen for the WebSockets updates and update DB accordingly
         viewModelScope.launch {
             listenToEvents()
         }
+    }
+
+    companion object {
+        const val MY_USER_PROFILE_SUBROUTE = "myUserProfile"
     }
 }

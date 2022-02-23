@@ -202,7 +202,7 @@ private fun UserProfileScreen(
                     userStatus = status,
                     onStatusClicked = onStatusClicked
                 )
-                if (!state.otherAccounts.isNullOrEmpty()) {
+                if (state.otherAccounts.isNotEmpty()) {
                     OtherAccountsList(
                         otherAccounts = otherAccounts,
                         onAddAccountClick = onAddAccountClick,
@@ -247,7 +247,7 @@ private fun ColumnScope.UserProfileInfo(
     avatarBitmap: Bitmap,
     fullName: String,
     userName: String,
-    teamName: String,
+    teamName: String?,
     onUserProfileClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
@@ -303,7 +303,7 @@ private fun ColumnScope.UserProfileInfo(
             )
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = userName,
+                text = "@$userName",
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.wireTypography.body02,
                 maxLines = 1,
@@ -322,21 +322,23 @@ private fun ColumnScope.UserProfileInfo(
             content = Icons.Filled.Edit.Icon()
         )
 
-        Text(
-            modifier = Modifier
-                .padding(top = dimensions().spacing8x)
-                .padding(horizontal = dimensions().spacing16x)
-                .constrainAs(teamDescription) {
-                    top.linkTo(userDescription.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                },
-            text = teamName,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.wireTypography.label01,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
+        if (teamName != null) {
+            Text(
+                modifier = Modifier
+                    .padding(top = dimensions().spacing8x)
+                    .padding(horizontal = dimensions().spacing16x)
+                    .constrainAs(teamDescription) {
+                        top.linkTo(userDescription.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                text = teamName,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.wireTypography.label01,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+        }
     }
 }
 

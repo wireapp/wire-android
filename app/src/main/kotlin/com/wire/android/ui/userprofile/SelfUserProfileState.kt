@@ -14,7 +14,7 @@ data class SelfUserProfileState(
     val status: UserStatus = UserStatus.AVAILABLE,
     val fullName: String = "",
     val userName: String = "",
-    val teamName: String = "", // maybe teamId is better here
+    val teamName: String? = "", // maybe teamId is better here
     val otherAccounts: List<OtherAccount> = emptyList(),
     val statusDialogData: StatusDialogData? = null, // null means no dialog to display
     val isAvatarLoading: Boolean = false

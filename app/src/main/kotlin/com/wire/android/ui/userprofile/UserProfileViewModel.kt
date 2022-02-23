@@ -18,11 +18,11 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "MagicNumber")
@@ -35,14 +35,11 @@ class UserProfileViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase
 ) : ViewModel() {
 
-    // This is going to be refactored and removed later on
-    private val tempBitmapWidth = 36
-    private val tempBitmapHeight = 36
-
     var userProfileState by mutableStateOf(SelfUserProfileState())
         private set
 
     init {
+        // TODO: here we should have a loading state as the first initial state of the screen
         viewModelScope.launch {
             getSelf().collect {
                 userProfileState = SelfUserProfileState(
@@ -50,8 +47,7 @@ class UserProfileViewModel @Inject constructor(
                     status = UserStatus.AVAILABLE,
                     fullName = it.name!!,
                     userName = it.handle!!,
-                    teamName = it.team ?: "",
-                    otherAccounts = emptyList()
+                    teamName = it.team
                 )
             }
         }
@@ -156,10 +152,5 @@ class UserProfileViewModel @Inject constructor(
         userProfileState = userProfileState.copy(
             errorMessage = null
         )
-    }
-
-    // !! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!
-    fun mockMethodForAvatar(bitmap: Bitmap) {
-        userProfileState = userProfileState.copy(avatarBitmap = bitmap)
     }
 }

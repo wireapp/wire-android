@@ -14,7 +14,6 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ConversationSheet(

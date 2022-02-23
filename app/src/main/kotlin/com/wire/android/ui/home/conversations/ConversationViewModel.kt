@@ -6,9 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -16,6 +14,7 @@ import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
@@ -31,10 +30,6 @@ class ConversationViewModel @Inject constructor(
     private val getMessages: GetRecentMessagesUseCase,
     private val getConversationDetails: GetConversationDetailsUseCase
 ) : ViewModel() {
-//    private val _state = MutableStateFlow(ConversationViewState())
-
-//    val conversationViewState: StateFlow<ConversationViewState>
-//        get() = _state
 
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
@@ -51,17 +46,14 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             getMessages(conversationId!!) //TODO what if null???
                 .collect { dbMessages ->
-                    val messages = dbMessages
-                        .toUIMessages()
-                    conversationViewState = conversationViewState.copy(messages = messages)
+                    conversationViewState = conversationViewState.copy(messages = dbMessages.toUIMessages())
                 }
         }
 
         viewModelScope.launch {
             getConversationDetails(conversationId!!)
                 .collect { conversation ->
-                    conversationViewState = conversationViewState.copy(conversationName = conversation.name ?: "")
-
+                    conversationViewState = conversationViewState.copy(conversationName = conversation.name ?: "Some Name")
                 }
         }
     }
@@ -91,7 +83,7 @@ class ConversationViewModel @Inject constructor(
                     )
                 ),
                 messageHeader = com.wire.android.ui.home.conversations.model.MessageHeader(
-                    "some user",
+                    "Cool User",
                     Membership.None,
                     true,
                     message.date,

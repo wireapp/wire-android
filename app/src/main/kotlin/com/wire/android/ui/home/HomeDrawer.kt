@@ -30,7 +30,12 @@ import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.navigation.HomeNavigationItem.Archive
+import com.wire.android.navigation.HomeNavigationItem.Conversations
+import com.wire.android.navigation.HomeNavigationItem.Vault
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationItem.Settings
+import com.wire.android.navigation.NavigationItem.Support
 import com.wire.android.navigation.isExternalRoute
 import com.wire.android.navigation.navigateToItemInHome
 import com.wire.android.ui.common.Logo
@@ -137,11 +142,11 @@ data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int
 @OptIn(ExperimentalMaterialApi::class)
 @ExperimentalMaterial3Api
 private fun Any.getDrawerData(): DrawerItemData =
-    when {
-        this == HomeNavigationItem.Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
-        this == HomeNavigationItem.Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
-        this == HomeNavigationItem.Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
-        this == NavigationItem.Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
-        this == NavigationItem.Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
+    when (this) {
+        Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
+        Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
+        Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
+        Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
+        Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
         else -> DrawerItemData(null, null)
     }

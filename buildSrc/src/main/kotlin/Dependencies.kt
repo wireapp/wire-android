@@ -38,7 +38,6 @@ object ScriptPlugins {
     const val quality = "scripts.quality"
     const val compilation = "scripts.compilation"
     const val testing = "scripts.testing"
-    const val parcelize = "kotlin-parcelize"
 }
 
 object Repositories {

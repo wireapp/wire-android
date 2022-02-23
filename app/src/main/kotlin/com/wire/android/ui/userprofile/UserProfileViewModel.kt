@@ -46,7 +46,7 @@ class UserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             getSelf().collect {
                 userProfileState = SelfUserProfileState(
-                    avatarBitmap = Bitmap.createBitmap(tempBitmapWidth, tempBitmapHeight, Bitmap.Config.ARGB_8888),
+                    avatarBitmap = null,
                     status = UserStatus.AVAILABLE,
                     fullName = it.name!!,
                     userName = it.handle!!,

@@ -28,7 +28,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,12 +68,6 @@ import com.wire.android.ui.userprofile.image.ImagePicker
 @Composable
 fun UserProfileRoute(viewModel: UserProfileViewModel = hiltViewModel()) {
     val navHostController = rememberNavController()
-
-    // TODO: THIS IS GOING TO BE REMOVED LATER ON
-    val context = LocalContext.current
-    SideEffect {
-        viewModel.mockMethodForAvatar(BitmapFactory.decodeResource(context.resources, R.drawable.mock_message_image))
-    }
 
     UserProfileContent(
         navHostController = navHostController,
@@ -135,7 +128,7 @@ fun UserProfileContent(
             route = ProfileImage.route,
             content = {
                 ImagePicker(
-                    state.avatarBitmap,
+                    state.avatarBitmap ?: loadDefaultImageBitmap(),
                     onCloseClick = { navHostController.popBackStack() },
                     onConfirmPick = { avatarBitmap ->
                         navHostController.popBackStack()
@@ -198,7 +191,7 @@ private fun UserProfileScreen(
             ) {
                 UserProfileInfo(
                     isLoading = state.isAvatarLoading,
-                    avatarBitmap = state.avatarBitmap,
+                    avatarBitmap = state.avatarBitmap ?: loadDefaultImageBitmap(),
                     fullName = fullName,
                     userName = userName,
                     teamName = teamName,
@@ -510,6 +503,12 @@ private fun OtherAccountItem(
             }
         }
     }
+}
+
+@Composable
+private fun loadDefaultImageBitmap(): Bitmap {
+    val context = LocalContext.current
+    return BitmapFactory.decodeResource(context.resources, R.drawable.mock_message_image)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

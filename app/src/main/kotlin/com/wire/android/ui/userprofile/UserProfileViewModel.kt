@@ -31,8 +31,8 @@ import kotlinx.coroutines.withContext
 class UserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
-    private val uploadUserAvatarUseCase: UploadUserAvatarUseCase,
-    private val getSelfUseCase: GetSelfUserUseCase
+    private val uploadUserAvatar: UploadUserAvatarUseCase,
+    private val getSelf: GetSelfUserUseCase
 ) : ViewModel() {
 
     // This is going to be refactored and removed later on
@@ -44,7 +44,7 @@ class UserProfileViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getSelfUseCase().collect {
+            getSelf().collect {
                 userProfileState = SelfUserProfileState(
                     avatarBitmap = Bitmap.createBitmap(tempBitmapWidth, tempBitmapHeight, Bitmap.Config.ARGB_8888),
                     status = UserStatus.AVAILABLE,
@@ -144,7 +144,7 @@ class UserProfileViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 userProfileState = userProfileState.copy(avatarBitmap = avatarBitmap, isAvatarLoading = true)
 
-                when (uploadUserAvatarUseCase("image/png", avatarBitmap.toByteArray())) {
+                when (uploadUserAvatar("image/png", avatarBitmap.toByteArray())) {
                     is Either.Left -> onFailure()
                     is Either.Right -> userProfileState = userProfileState.copy(isAvatarLoading = false)
                 }

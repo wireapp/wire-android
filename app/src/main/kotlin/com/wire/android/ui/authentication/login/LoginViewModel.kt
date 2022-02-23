@@ -77,29 +77,43 @@ class LoginViewModel @Inject constructor(
         loginState = loginState.copy(loginError = LoginError.None)
     }
 
+    fun onTooManyDevicesError() {
+        clearLoginError()
+        viewModelScope.launch {
+            navigateToRemoveDevicesScreen()
+        }
+    }
+
+    fun navigateBack() {
+        viewModelScope.launch {
+            navigationManager.navigateBack()
+        }
+    }
+
     private fun LoginState.updateLoginEnabled() =
         copy(loginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !loading)
 
     // TODO: login error Mapper ?
-    private fun AuthenticationResult.toLoginError() =
-        when (this) {
-            is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-            AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-            AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidUserIdentifierError
-            is AuthenticationResult.Success -> LoginError.None
-        }
+    private fun AuthenticationResult.toLoginError() = when (this) {
+        is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
+        is AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+        is AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidUserIdentifierError
+        else -> LoginError.None
+    }
 
-    private fun RegisterClientResult.toLoginError() =
-        when(this) {
-            is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-            is RegisterClientResult.Failure.ProteusFailure -> LoginError.DialogError.GenericError(CoreFailure.Unknown(this.e))
-            RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-            RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
-            is RegisterClientResult.Success -> LoginError.None
-        }
+    private fun RegisterClientResult.toLoginError() = when (this) {
+        is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
+        is RegisterClientResult.Failure.ProteusFailure -> LoginError.DialogError.GenericError(CoreFailure.Unknown(this.e))
+        is RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+        is RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
+        else -> LoginError.None
+    }
+
+    private suspend fun navigateToRemoveDevicesScreen() =
+        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
     private suspend fun navigateToConvScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.navigationRoute(), BackStackMode.CLEAR_WHOLE))
+        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
     private companion object {
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"

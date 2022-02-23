@@ -1,6 +1,5 @@
 package com.wire.android.ui.userprofile.image
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +12,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,24 +34,22 @@ import com.wire.android.ui.common.imagepreview.BitmapState
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.UserProfileViewModel
 
-
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 //TODO: the input data for ProfileImageScreen will be decided later on after sync with Yamil
-fun ImagePicker(
-    initialBitmap: Bitmap,
-    onCloseClick: () -> Unit,
-    onConfirmPick: (Bitmap) -> Unit
+fun AvatarPickerScreen(
+    viewModel: UserProfileViewModel
 ) {
-    val state = rememberProfileImageState(initialBitmap)
+    val state = rememberProfileImageState(viewModel.userProfileState.avatarBitmap)
 
-    ImagePickerContent(
+    AvatarPickerBottomSheet(
         state = state,
         onCloseClick = {
             when (val avatarImageState = state.picturePickerFlow.bitmapState) {
-                is BitmapState.BitmapPicked -> onConfirmPick(avatarImageState.bitmap)
-                is BitmapState.InitialBitmap -> onCloseClick()
+                is BitmapState.BitmapPicked -> viewModel.changeUserAvatar(avatarImageState.bitmap, shouldNavigateBack = true)
+                is BitmapState.InitialBitmap -> viewModel.navigateBack()
             }
         }
     )
@@ -59,7 +57,7 @@ fun ImagePicker(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun ImagePickerContent(
+private fun AvatarPickerBottomSheet(
     state: ImagePickerState,
     onCloseClick: () -> Unit
 ) {
@@ -100,7 +98,7 @@ private fun ImagePickerContent(
         )
     ) {
         Scaffold(topBar = {
-            ProfileImageTopBar(
+            AvatarPickerTopBar(
                 hasPicked = (state.picturePickerFlow.bitmapState is BitmapState.BitmapPicked),
                 onCloseClick = onCloseClick
             )
@@ -129,7 +127,7 @@ private fun ImagePickerContent(
 }
 
 @Composable
-private fun ProfileImageTopBar(
+private fun AvatarPickerTopBar(
     hasPicked: Boolean,
     onCloseClick: () -> Unit
 ) {
@@ -140,8 +138,7 @@ private fun ProfileImageTopBar(
             actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             navigationIconContentColor = MaterialTheme.colorScheme.onSurface
         ),
-        navigationIcon =
-        {
+        navigationIcon = {
             if (!hasPicked) {
                 IconButton(onClick = onCloseClick) {
                     Icon(

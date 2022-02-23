@@ -40,14 +40,13 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             WireTheme {
-
                 val scope = rememberCoroutineScope()
                 val navController = rememberNavController()
 
                 setUpNavigation(navController, scope)
 
                 Scaffold {
-                    NavigationGraph(navController = navController,viewModel.startNavigationRoute)
+                    NavigationGraph(navController = navController, viewModel.startNavigationRoute)
                 }
             }
         }
@@ -61,12 +60,10 @@ class WireActivity : AppCompatActivity() {
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
         LaunchedEffect("key") {
 
-            navigationManager.navigateState
-                .onEach { command ->
-                    if (command == null) return@onEach
-                    navigateToItem(navController, command)
-                }
-                .launchIn(scope)
+            navigationManager.navigateState.onEach { command ->
+                if (command == null) return@onEach
+                navigateToItem(navController, command)
+            }.launchIn(scope)
 
             navigationManager.navigateBack
                 .onEach { navController.popBackStack() }

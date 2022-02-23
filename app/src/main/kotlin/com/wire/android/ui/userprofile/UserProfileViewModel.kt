@@ -18,11 +18,11 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "MagicNumber")
@@ -43,7 +43,6 @@ class UserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             getSelf().collect {
                 userProfileState = SelfUserProfileState(
-                    avatarBitmap = null,
                     status = UserStatus.AVAILABLE,
                     fullName = it.name!!,
                     userName = it.handle!!,
@@ -53,7 +52,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    fun close() = viewModelScope.launch { navigationManager.navigateBack() }
+    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun logout() {
         // TODO
@@ -61,7 +60,7 @@ class UserProfileViewModel @Inject constructor(
             dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Authentication.route,
+                    NavigationItem.Welcome.getRouteWithArgs(),
                     BackStackMode.CLEAR_WHOLE
                 )
             )
@@ -74,7 +73,7 @@ class UserProfileViewModel @Inject constructor(
 
     fun editProfile() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.Settings.route))
+            navigationManager.navigate(NavigationCommand(NavigationItem.Settings.getRouteWithArgs()))
         }
     }
 
@@ -123,34 +122,45 @@ class UserProfileViewModel @Inject constructor(
     private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean =
         dataStore.shouldShowStatusRationaleFlow(status).first()
 
-    fun changeUserProfile(avatarBitmap: Bitmap) {
+    fun changeUserAvatar(avatarBitmap: Bitmap, shouldNavigateBack: Boolean = false) {
         val backupBitmap = userProfileState.avatarBitmap
-
-        changeUserProfile(avatarBitmap, onFailure = {
-            userProfileState = userProfileState.copy(
-                avatarBitmap = backupBitmap,
-                isAvatarLoading = false,
-                errorMessage = "Image could not be uploaded"
-            )
-        })
-    }
-
-    private fun changeUserProfile(avatarBitmap: Bitmap, onFailure: () -> Unit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                // Update the user avatar on the userProfileState object with the local bitmap
                 userProfileState = userProfileState.copy(avatarBitmap = avatarBitmap, isAvatarLoading = true)
 
-                when (uploadUserAvatar("image/png", avatarBitmap.toByteArray())) {
-                    is Either.Left -> onFailure()
-                    is Either.Right -> userProfileState = userProfileState.copy(isAvatarLoading = false)
+                // Upload the Avatar image
+                userProfileState = when (uploadUserAvatar("image/png", avatarBitmap.toByteArray())) {
+                    // Fallback
+                    is Either.Left -> {
+                        userProfileState.copy(
+                            avatarBitmap = backupBitmap,
+                            isAvatarLoading = false,
+                            errorMessage = "Image could not be uploaded"
+                        )
+                    }
+
+                    // Happy path
+                    else -> userProfileState.copy(isAvatarLoading = false)
                 }
+
+                if (shouldNavigateBack) navigateBack()
             }
         }
     }
 
     fun clearErrorMessage() {
-        userProfileState = userProfileState.copy(
-            errorMessage = null
-        )
+        userProfileState = userProfileState.copy(errorMessage = null)
+    }
+
+    fun onChangeProfilePictureClicked() {
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(NavigationItem.ProfileImagePicker.getRouteWithArgs()))
+        }
+    }
+
+    //!! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!
+    fun mockMethodForAvatar(bitmap: Bitmap) {
+        userProfileState = userProfileState.copy(avatarBitmap = bitmap)
     }
 }

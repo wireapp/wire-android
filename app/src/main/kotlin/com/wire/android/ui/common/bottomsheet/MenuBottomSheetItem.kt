@@ -23,7 +23,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import io.github.esentsov.PackagePrivate
 
-
 @Composable
 fun MenuBottomSheetItem(
     title: String,

@@ -34,10 +34,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.ui.authentication.AuthDestination
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -58,23 +56,17 @@ import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
-fun LoginScreen(
-    navController: NavController,
-    serverConfig: ServerConfig
-) {
+fun LoginScreen(serverConfig: ServerConfig) {
     val scope = rememberCoroutineScope()
     val loginViewModel: LoginViewModel = hiltViewModel()
     val loginState: LoginState = loginViewModel.loginState
     LoginContent(
         loginState = loginState,
         onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) },
-        onBackPressed = { navController.popBackStack() },
+        onBackPressed = { loginViewModel.navigateBack() },
         onPasswordChange = { loginViewModel.onPasswordChange(it) },
         onDialogDismiss = { loginViewModel.clearLoginError() },
-        onRemoveDeviceOpen = {
-            navController.navigate(AuthDestination.removeDeviceScreen)
-            loginViewModel.clearLoginError()
-        },
+        onRemoveDeviceOpen = { loginViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
         scope = scope
     )
@@ -97,7 +89,8 @@ private fun LoginContent(
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = stringResource(R.string.login_title),
-                onNavigationPressed = onBackPressed)
+                onNavigationPressed = onBackPressed
+            )
         }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -156,8 +149,7 @@ private fun LoginContent(
                     type = WireDialogButtonType.Primary,
                 )
             )
-        }
-        else if (loginState.loginError is LoginError.TooManyDevicesError) {
+        } else if (loginState.loginError is LoginError.TooManyDevicesError) {
             onRemoveDeviceOpen()
         }
     }

@@ -62,7 +62,7 @@ fun ConversationRouterHomeBridge(
         uiState = viewModel.state,
         conversationState = conversationState,
         openConversation = { viewModel.openConversation(it) },
-        onEditConversation = { onExpandHomeBottomSheet() },
+        onExpandBottomSheet = { onExpandHomeBottomSheet() },
         updateScrollPosition = { viewModel.updateScrollPosition(it) }
     )
 }
@@ -74,7 +74,7 @@ private fun ConversationRouter(
     uiState: ConversationListState,
     conversationState: ConversationState,
     openConversation: (ConversationId) -> Unit,
-    onEditConversation: () -> Unit,
+    onExpandBottomSheet: () -> Unit,
     updateScrollPosition: (Int) -> Unit,
 ) {
     Scaffold(
@@ -97,9 +97,10 @@ private fun ConversationRouter(
         },
         bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
     ) {
+
         fun editConversation(conversationType: ConversationType) {
             conversationState.changeModalSheetContentState(conversationType)
-            onEditConversation()
+            onExpandBottomSheet()
         }
 
         with(uiState) {

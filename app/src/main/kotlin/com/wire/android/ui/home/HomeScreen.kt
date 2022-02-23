@@ -66,20 +66,19 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             }
         }
 
-        val homeScreen: @Composable () -> Unit = {
-            homeState.homeBottomSheetContent?.let {
+        val homeScreen: @Composable () -> Unit = homeState.homeBottomSheetContent?.run {
+            {
                 WireModalSheetLayout(
                     sheetState = homeState.bottomSheetState,
-                    sheetContent = it
+                    sheetContent = this
                 ) {
                     homeContent()
                 }
-            } ?: homeContent()
-        }
+            }
+        } ?: { homeContent() }
 
         homeScreen()
     }
-
     BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
 }
 

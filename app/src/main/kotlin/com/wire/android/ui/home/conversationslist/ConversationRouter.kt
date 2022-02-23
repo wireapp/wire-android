@@ -42,6 +42,7 @@ fun ConversationRouterHomeBridge(
     val viewModel: ConversationListViewModel = hiltViewModel()
 
     //we want to relaunch the onHomeBottomSheetContent lambda each time the content changes
+    //to pass the new Composable
     LaunchedEffect(conversationState.modalBottomSheetContentState) {
         onHomeBottomSheetContent {
             ConversationSheetContent(

@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +17,7 @@ import javax.inject.Inject
 class HomeViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val listenToEventsUseCase: ListenToEventsUseCase,
+    private val listenToEvents: ListenToEventsUseCase,
     private val commonManager: HomeCommonManager
 ) : ViewModel() {
 
@@ -44,7 +43,7 @@ class HomeViewModel
     init {
         //listen for the WebSockets updates and update DB accordingly
         viewModelScope.launch {
-            listenToEventsUseCase.invoke()
+            listenToEvents()
         }
     }
 }

@@ -84,7 +84,6 @@ object Libraries {
         const val browser = "1.3.0"
         const val dataStore = "1.0.0"
         const val splashscreen = "1.0.0-beta01"
-        const val gson = "2.9.0"
     }
 
     // AndroidX Dependencies
@@ -127,7 +126,6 @@ object Libraries {
     const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
     const val browser                   = "androidx.browser:browser:${Versions.browser}"
     const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
-    const val gson                      = "com.google.code.gson:gson:${Versions.gson}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"

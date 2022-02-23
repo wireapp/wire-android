@@ -35,7 +35,7 @@ import com.wire.kalium.logic.data.conversation.ConversationId
 // also we expose the lambda which expands the bottomsheet from the homescreen
 @Composable
 fun ConversationRouterHomeBridge(
-    onHomeBottomSheetContent: (@Composable ColumnScope.() -> Unit) -> Unit,
+    onHomeBottomSheetContentChange: (@Composable ColumnScope.() -> Unit) -> Unit,
     onExpandHomeBottomSheet: () -> Unit
 ) {
     val conversationState = rememberConversationState()
@@ -44,7 +44,7 @@ fun ConversationRouterHomeBridge(
     //we want to relaunch the onHomeBottomSheetContent lambda each time the content changes
     //to pass the new Composable
     LaunchedEffect(conversationState.modalBottomSheetContentState) {
-        onHomeBottomSheetContent {
+        onHomeBottomSheetContentChange {
             ConversationSheetContent(
                 modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
                 muteConversation = { viewModel.muteConversation("someId") },

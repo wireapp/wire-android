@@ -69,11 +69,11 @@ sealed class HomeNavigationItem(
         isSwipeable = false,
         content = { homeState ->
             {
-                ConversationRouterHomeBridge({
-                    homeState.changeBottomSheetContent(it)
-                }, {
-                    homeState.expandBottomSheet()
-                })
+                ConversationRouterHomeBridge(
+                    onHomeBottomSheetContentChange = { bottomSheetContent ->
+                        homeState.changeBottomSheetContent(bottomSheetContent)
+                    },
+                    onExpandHomeBottomSheet = { homeState.expandBottomSheet() })
             }
         }
     )

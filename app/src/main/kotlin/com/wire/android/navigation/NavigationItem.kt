@@ -12,10 +12,26 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ENTERPRISE_ACCOUNT
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PRIVATE_ACCOUNT
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.USER_PROFILE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
+import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
+import com.wire.android.ui.authentication.login.LoginScreen
+import com.wire.android.ui.authentication.welcome.WelcomeScreen
+import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
+import com.wire.android.ui.userprofile.image.AvatarPickerScreen
+import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.conversation.ConversationId
 import io.github.esentsov.PackagePrivate
 
@@ -27,16 +43,47 @@ import io.github.esentsov.PackagePrivate
  * The class encapsulating the app main navigational items.
  */
 enum class NavigationItem(
-    val primaryRoute: String,
+    @PackagePrivate
+    internal val primaryRoute: String,
     private val canonicalRoute: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit),
     open val enterTransition: EnterTransition = EnterTransition.None,
     open val exitTransition: ExitTransition = ExitTransition.None
 ) {
+    Welcome(
+        primaryRoute = WELCOME,
+        canonicalRoute = WELCOME,
+        content = { WelcomeScreen() }
+    ),
+
+    Login(
+        primaryRoute = LOGIN,
+        canonicalRoute = LOGIN,
+        content = { LoginScreen(ServerConfig.STAGING) }
+    ),
+
+    CreateEnterpriseAccount(
+        primaryRoute = CREATE_ENTERPRISE_ACCOUNT,
+        canonicalRoute = CREATE_ENTERPRISE_ACCOUNT,
+        content = { UnderConstructionScreen("Create Enterprise Account Screen") }
+    ),
+
+    CreatePrivateAccount(
+        primaryRoute = CREATE_PRIVATE_ACCOUNT,
+        canonicalRoute = CREATE_PRIVATE_ACCOUNT,
+        content = { UnderConstructionScreen("Create Private Account Screen") }
+    ),
+
+    RemoveDevices(
+        primaryRoute = REMOVE_DEVICES,
+        canonicalRoute = REMOVE_DEVICES,
+        content = { RemoveDeviceScreen() }
+    ),
+
     Home(
-        primaryRoute = "home",
-        canonicalRoute = "home",
+        primaryRoute = HOME,
+        canonicalRoute = HOME,
         content = { HomeScreen(it.arguments?.getString(EXTRA_HOME_TAB_ITEM), hiltViewModel()) },
         arguments = listOf(
             navArgument(EXTRA_HOME_TAB_ITEM) { type = NavType.StringType }
@@ -44,8 +91,8 @@ enum class NavigationItem(
     ),
 
     Settings(
-        primaryRoute = "settings",
-        canonicalRoute = "settings",
+        primaryRoute = SETTINGS,
+        canonicalRoute = SETTINGS,
         content = { SettingsScreen() },
     ),
 
@@ -56,9 +103,9 @@ enum class NavigationItem(
     ),
 
     UserProfile(
-        primaryRoute = "user_profile",
-        canonicalRoute = "user_profile/{$EXTRA_USER_ID}",
-        content = { UserProfileScreen(it.arguments?.getString(EXTRA_USER_ID), hiltViewModel()) },
+        primaryRoute = USER_PROFILE,
+        canonicalRoute = "$USER_PROFILE/{$EXTRA_USER_ID}",
+        content = { UserProfileScreen() },
         arguments = listOf(
             navArgument(EXTRA_USER_ID) { type = NavType.StringType }
         ),
@@ -71,9 +118,15 @@ enum class NavigationItem(
         }
     },
 
+    ProfileImagePicker(
+        primaryRoute = IMAGE_PICKER,
+        canonicalRoute = IMAGE_PICKER,
+        content = { AvatarPickerScreen(hiltViewModel()) },
+    ),
+
     Conversation(
-        primaryRoute = "conversation",
-        canonicalRoute = "conversation/{$EXTRA_CONVERSATION_ID}",
+        primaryRoute = CONVERSATION,
+        canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
         content = { ConversationScreen(hiltViewModel()) },
         arguments = listOf(
             navArgument(EXTRA_CONVERSATION_ID) { type = NavType.StringType }
@@ -102,8 +155,22 @@ enum class NavigationItem(
     }
 }
 
+object NavigationItemDestinationsRoutes {
+    const val WELCOME = "welcome_screen"
+    const val LOGIN = "login_screen"
+    const val CREATE_ENTERPRISE_ACCOUNT = "create_enterprise_account_screen"
+    const val CREATE_PRIVATE_ACCOUNT = "create_private_account_screen"
+    const val HOME = "home_landing_screen"
+    const val USER_PROFILE = "user_profile_screen"
+    const val CONVERSATION = "detailed_conversation_screen"
+    const val SETTINGS = "settings_screen"
+    const val REMOVE_DEVICES = "remove_devices_screen"
+    const val IMAGE_PICKER = "image_picker_screen"
+}
+
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 private const val EXTRA_USER_ID = "extra_user_id"
+private const val EXTRA_INITIAL_BITMAP = "extra_initial_bitmap"
 private const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")

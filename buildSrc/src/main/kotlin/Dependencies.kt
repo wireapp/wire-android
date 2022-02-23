@@ -47,7 +47,7 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.5.31"
+        const val kotlin = "1.6.10"
         const val coroutines = "1.5.0"
         const val cryptobox = "1.1.3"
         const val jetpack = "1.1.0"
@@ -69,12 +69,12 @@ object Libraries {
         const val workManager = "2.7.1"
         const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
-        const val compose = "1.0.5"
+        const val compose = "1.2.0-alpha03"
         const val composeMaterial = compose
-        const val composeMaterial3 = "1.0.0-alpha04"
+        const val composeMaterial3 = "1.0.0-alpha05"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.0-beta02"
-        const val accompanist = "0.22.0-rc"
+        const val accompanist = "0.24.2-alpha"
         const val composeConstraint = "1.0.0-rc02"
         const val hilt = "2.38.1"
         const val lifecycle = "2.4.0"
@@ -96,6 +96,7 @@ object Libraries {
     const val workManager               = "androidx.work:work-runtime-ktx:${Versions.workManager}"
     const val fragment                  = "androidx.fragment:fragment:${Versions.fragment}"
     const val composeUi                 = "androidx.compose.ui:ui:${Versions.compose}"
+    const val composeFoundation         = "androidx.compose.foundation:foundation:${Versions.compose}"
     const val composeMaterial           = "androidx.compose.material:material:${Versions.composeMaterial}"
     const val composeMaterial3          = "androidx.compose.material3:material3:${Versions.composeMaterial3}"
     const val composeTooling            = "androidx.compose.ui:ui-tooling:${Versions.compose}"
@@ -110,6 +111,7 @@ object Libraries {
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
     const val accompanistPager          = "com.google.accompanist:accompanist-pager:${Versions.accompanist}"
     const val accompanistSystemUI       = "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}"
+    const val accompanistPlaceholder    = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
     const val accompanistNavAnimation   = "com.google.accompanist:accompanist-navigation-animation:${Versions.accompanist}"
     const val material                  = "com.google.android.material:material:${Versions.material}"
     const val messageProto              = "com.wire:generic-message-proto:${Versions.messageProto}"

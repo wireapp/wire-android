@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile
 
+import android.graphics.Bitmap
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,31 +13,42 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.authentication.AuthDestination
+import com.wire.android.util.extension.toByteArray
+import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import com.wire.kalium.logic.functional.Either
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+//Suppress for now after removing mockMethodForAvatar it should not complain
+@Suppress("TooManyFunctions","MagicNumber")
 @ExperimentalMaterial3Api
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val dataStore: UserDataStore
+    private val dataStore: UserDataStore,
+    private val uploadUserAvatarUseCase: UploadUserAvatarUseCase
 ) : ViewModel() {
 
-    var userProfileState by mutableStateOf<SelfUserProfileState>(
+    //This is going to be refactored and removed later on
+    private val tempBitmapWidth = 36
+    private val tempBitmapHeight = 36
+
+    var userProfileState by mutableStateOf(
         SelfUserProfileState(
-            "",
-            UserStatus.BUSY,
-            "Tester Tost_long_long_long long  long  long  long  long  long ",
-            "@userName_long_long_long_long_long_long_long_long_long_long",
-            "Best team ever long  long  long  long  long  long  long  long  long ",
-            listOf(
+            avatarBitmap = Bitmap.createBitmap(tempBitmapWidth, tempBitmapHeight, Bitmap.Config.ARGB_8888),
+            status = UserStatus.BUSY,
+            fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
+            userName = "@userName_long_long_long_long_long_long_long_long_long_long",
+            teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
+            otherAccounts = listOf(
                 OtherAccount("someId", "", "Other Name 0", "team A"),
-//                OtherAccount("someId", "", "Other Name 1", "team B"),
-//                OtherAccount("someId", "", "Other Name 2", "team C"),
-//                OtherAccount("someId", "", "Other Name", "team A"),
+                //                OtherAccount("someId", "", "Other Name 1", "team B"),
+                //                OtherAccount("someId", "", "Other Name 2", "team C"),
+                //                OtherAccount("someId", "", "Other Name", "team A"),
                 OtherAccount("someId", "", "New Name")
             )
         )
@@ -46,12 +58,12 @@ class UserProfileViewModel @Inject constructor(
     fun close() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun logout() {
-        //TODO
+        // TODO
         viewModelScope.launch {
-            dataStore.clear() //TODO this should be moved to some service that will clear all the data in the app
+            dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
             navigationManager.navigate(
                 NavigationCommand(
-                    AuthDestination.welcomeScreen,
+                    NavigationItem.Welcome.getRouteWithArgs(),
                     BackStackMode.CLEAR_WHOLE
                 )
             )
@@ -59,7 +71,7 @@ class UserProfileViewModel @Inject constructor(
     }
 
     fun addAccount() {
-        //TODO
+        // TODO
     }
 
     fun editProfile() {
@@ -74,7 +86,7 @@ class UserProfileViewModel @Inject constructor(
 
     fun changeStatus(status: UserStatus) {
         setNotShowStatusRationaleAgainIfNeeded(status)
-        //TODO
+        userProfileState = userProfileState.copy(status = status)
         dismissStatusDialog()
     }
 
@@ -112,4 +124,47 @@ class UserProfileViewModel @Inject constructor(
 
     private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean =
         dataStore.shouldShowStatusRationaleFlow(status).first()
+
+    fun changeUserProfile(avatarBitmap: Bitmap) {
+        val backupBitmap = userProfileState.avatarBitmap
+
+        changeUserProfile(avatarBitmap, onFailure = {
+            userProfileState = userProfileState.copy(
+                avatarBitmap = backupBitmap,
+                isAvatarLoading = false,
+                errorMessage = "Image could not be uploaded"
+            )
+        })
+    }
+
+    private fun changeUserProfile(avatarBitmap: Bitmap, onFailure: () -> Unit) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                userProfileState = userProfileState.copy(avatarBitmap = avatarBitmap, isAvatarLoading = true)
+
+                when (uploadUserAvatarUseCase("image/png", avatarBitmap.toByteArray())) {
+                    is Either.Left -> onFailure()
+                    is Either.Right -> userProfileState = userProfileState.copy(isAvatarLoading = false)
+                }
+            }
+        }
+    }
+
+    fun clearErrorMessage() {
+        userProfileState = userProfileState.copy(
+            errorMessage = null
+        )
+    }
+
+    //!! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!
+    fun mockMethodForAvatar(bitmap: Bitmap) {
+        userProfileState = userProfileState.copy(avatarBitmap = bitmap)
+    }
+
+    fun onChangeProfilePictureClicked() {
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(NavigationItem.ProfileImagePicker.getRouteWithArgs()))
+        }
+    }
+
 }

@@ -57,8 +57,7 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun registerClient(authSession: AuthSession): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(authSession).clientScope
-        val registerClientResult = clientScope.register(loginState.password.text, null)
-        return registerClientResult
+        return clientScope.register(loginState.password.text, null)
     }
 
     fun onUserIdentifierChange(newText: TextFieldValue) {
@@ -78,6 +77,19 @@ class LoginViewModel @Inject constructor(
         loginState = loginState.copy(loginError = LoginError.None)
     }
 
+    fun onTooManyDevicesError() {
+        clearLoginError()
+        viewModelScope.launch {
+            navigateToRemoveDevicesScreen()
+        }
+    }
+
+    fun navigateBack() {
+        viewModelScope.launch {
+            navigationManager.navigateBack()
+        }
+    }
+
     private fun LoginState.updateLoginEnabled() =
         copy(loginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !loading)
 
@@ -87,17 +99,20 @@ class LoginViewModel @Inject constructor(
             is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
             AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
             AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidUserIdentifierError
-            is AuthenticationResult.Success -> LoginError.None
+            else -> LoginError.None
         }
 
     private fun RegisterClientResult.toLoginError() =
-        when(this) {
+        when (this) {
             is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
             is RegisterClientResult.Failure.ProteusFailure -> LoginError.DialogError.GenericError(CoreFailure.Unknown(this.e))
             RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
             RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
-            is RegisterClientResult.Success -> LoginError.None
+            else -> LoginError.None
         }
+
+    private suspend fun navigateToRemoveDevicesScreen() =
+        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
     private suspend fun navigateToConvScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))

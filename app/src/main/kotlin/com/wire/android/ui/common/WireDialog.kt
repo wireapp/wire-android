@@ -130,11 +130,11 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
         Box(modifier = modifier) {
             when (type) {
                 WireDialogButtonType.Primary ->
-                    WirePrimaryButton(onClick = onClick, text = text, state = state, modifier = modifier)
+                    WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
                 WireDialogButtonType.Secondary ->
-                    WireSecondaryButton(onClick = onClick, text = text, state = state, modifier = modifier)
+                    WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
                 WireDialogButtonType.Tertiary ->
-                    WireTertiaryButton(onClick = onClick, text = text, state = state, modifier = modifier)
+                    WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
             }
         }
     }
@@ -177,5 +177,6 @@ data class WireDialogButtonProperties(
     val text: String,
     val onClick: () -> Unit,
     val state: WireButtonState = WireButtonState.Default,
-    val type: WireDialogButtonType = WireDialogButtonType.Secondary
+    val type: WireDialogButtonType = WireDialogButtonType.Secondary,
+    val loading: Boolean = false
 )

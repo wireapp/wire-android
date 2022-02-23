@@ -38,8 +38,6 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         HomeDrawer(drawerState, currentItem.route, navController, HomeNavigationItem.all, scope, viewModel)
     }
 
-    BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
-
     NavigationDrawer(
         drawerContainerColor = MaterialTheme.colorScheme.surface,
         drawerTonalElevation = 0.dp,
@@ -49,6 +47,8 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         gesturesEnabled = currentItem.isSwipeable
     ) {
         Box {
+            BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
+
             val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
             HomeNavigationGraph(navController = navController, startDestination = startDestination)
             topBar()

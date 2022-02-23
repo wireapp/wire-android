@@ -1,6 +1,7 @@
 package com.wire.android.util
 
 import com.wire.kalium.logic.data.conversation.ConversationId
+import kotlin.math.absoluteValue
 
 // TODO: remove once the solution is implemented
 @Suppress("MagicNumber")
@@ -11,4 +12,4 @@ fun getConversationColor(id: ConversationId): Long {
 }
 
 //tmp solution, this color or it's index should come from Kalium
-fun indexedColor(id: ConversationId): Int = id.hashCode() % conversationColors.size
+fun indexedColor(id: ConversationId): Int = (id.hashCode() % conversationColors.size).absoluteValue

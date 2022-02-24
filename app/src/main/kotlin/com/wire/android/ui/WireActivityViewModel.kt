@@ -19,8 +19,8 @@ import javax.inject.Inject
 @ExperimentalMaterial3Api
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
-    private val currentSessionUseCase: CurrentSessionUseCase
+    private val currentSessionUseCase: CurrentSessionUseCase,
+    private val getServerConfigUserCase: GetServerConfigUseCase
 ) : ViewModel() {
 
     private val currentSession: AuthSession? = runBlocking {
@@ -38,16 +38,16 @@ class WireActivityViewModel @Inject constructor(
         else -> NavigationItem.Welcome.getRouteWithArgs()
     }
 
-//    fun loadServerConfig(url: String) = runBlocking {
-//        return@runBlocking when (val result = getServerConfigUserCase.invoke(url)) {
-//            is GetServerConfigResult.Success -> result.serverConfig
-//            else -> ServerConfig.STAGING
-//        }
-//    }
+    fun loadServerConfig(url: String) = runBlocking {
+        return@runBlocking when (val result = getServerConfigUserCase.invoke(url)) {
+            is GetServerConfigResult.Success -> result.serverConfig
+            else -> ServerConfig.STAGING
+        }
+    }
 
     fun handleDeepLink(intent: Intent) {
         intent.data?.getQueryParameter(SERVER_CONFIG_DEEPLINK)?.let {
-            WireApplication.serverConfig = ServerConfig.STAGING
+            WireApplication.serverConfig = loadServerConfig(it)
         }
     }
 

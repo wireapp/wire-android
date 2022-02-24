@@ -25,11 +25,11 @@ class WelcomeViewModel @Inject constructor(
     }
 
     fun goToCreateEnterpriseAccount() {
-        navigate(NavigationCommand(NavigationItem.CreateEnterpriseAccount.getRouteWithArgs()))
+        navigate(NavigationCommand(NavigationItem.CreateTeam.getRouteWithArgs()))
     }
 
     fun goToCreatePrivateAccount() {
-        navigate(NavigationCommand(NavigationItem.CreatePrivateAccount.getRouteWithArgs()))
+        navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs()))
     }
     private fun navigate(navigationCommand: NavigationCommand) {
         viewModelScope.launch {

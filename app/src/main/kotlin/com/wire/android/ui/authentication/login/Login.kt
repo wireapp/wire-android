@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication.login
 
 import android.content.Context
+import android.net.Uri
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,10 +35,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.AuthDestination
+import com.wire.android.ui.authentication.AuthNavigationManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -56,10 +56,9 @@ import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@ExperimentalMaterialApi
 @Composable
 fun LoginScreen(
-    navController: NavController,
+    authNavigationManager: AuthNavigationManager,
     serverConfig: ServerConfig
 ) {
     val scope = rememberCoroutineScope()
@@ -68,14 +67,15 @@ fun LoginScreen(
     LoginContent(
         loginState = loginState,
         onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) },
-        onBackPressed = { navController.popBackStack() },
+        onBackPressed = { authNavigationManager.navigateBack() },
         onPasswordChange = { loginViewModel.onPasswordChange(it) },
         onDialogDismiss = { loginViewModel.clearLoginError() },
         onRemoveDeviceOpen = {
-            navController.navigate(AuthDestination.removeDeviceScreen)
+            authNavigationManager.navigate(AuthDestination.RemoveDevice)
             loginViewModel.clearLoginError()
         },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
+        accountsBaseUrl = serverConfig.accountsBaseUrl,
         scope = scope
     )
 }
@@ -90,6 +90,7 @@ private fun LoginContent(
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
+    accountsBaseUrl: String,
     scope: CoroutineScope
 ) {
     Scaffold(
@@ -123,7 +124,7 @@ private fun LoginContent(
                     onPasswordChange = onPasswordChange
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                ForgotPasswordLabel(modifier = Modifier.fillMaxWidth())
+                ForgotPasswordLabel(modifier = Modifier.fillMaxWidth(), accountsBaseUrl)
             }
 
             LoginButton(
@@ -195,7 +196,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
 }
 
 @Composable
-private fun ForgotPasswordLabel(modifier: Modifier) {
+private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
         Text(
@@ -209,19 +210,14 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = {
-                        // TODO: refactor this to open the browser
-                        openForgotPasswordPage(context)
-                    }
+                    onClick = { openForgotPasswordPage(context, accountsBaseUrl) }
                 )
         )
     }
 }
 
-private fun openForgotPasswordPage(context: Context) {
-    // TODO: get the link from the serverConfig
-    val url = "${BuildConfig.ACCOUNTS_URL}/forgot"
-
+private fun openForgotPasswordPage(context: Context, accountsBaseUrl: String) {
+    val url = "https://${accountsBaseUrl}/forgot"
     CustomTabsHelper.launchUrl(context, url)
 }
 
@@ -255,6 +251,7 @@ private fun LoginScreenPreview() {
             onDialogDismiss = { },
             onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
+            accountsBaseUrl = "",
             scope = scope
         )
     }

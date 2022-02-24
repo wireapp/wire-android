@@ -26,9 +26,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
+import com.wire.android.ui.authentication.AuthNavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
@@ -43,11 +43,11 @@ import com.wire.android.util.formatMediumDateTime
 import kotlinx.coroutines.android.awaitFrame
 
 @Composable
-fun RemoveDeviceScreen(navController: NavController) {
+fun RemoveDeviceScreen(authNavigationManager: AuthNavigationManager) {
     val viewModel: RemoveDeviceViewModel = hiltViewModel()
     val state: RemoveDeviceState = viewModel.state
     RemoveDeviceContent(
-        navController = navController,
+        authNavigationManager = authNavigationManager,
         state = state,
         onItemClicked = viewModel::onItemClicked,
         onPasswordChange = viewModel::onPasswordChange,
@@ -60,7 +60,7 @@ fun RemoveDeviceScreen(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun RemoveDeviceContent(
-    navController: NavController,
+    authNavigationManager: AuthNavigationManager,
     state: RemoveDeviceState,
     onItemClicked: (Device) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
@@ -73,7 +73,7 @@ private fun RemoveDeviceContent(
         topBar = {
             RemoveDeviceTopBar(
                 elevation = lazyListState.appBarElevation(),
-                onBackNavigationPressed = { navController.popBackStack() }) //TODO logout?
+                onBackNavigationPressed = { authNavigationManager.navigateBack() }) //TODO logout?
         }
     ) {
         when(state) {
@@ -195,7 +195,7 @@ private fun RemoveDeviceDialog(
 @Composable
 private fun RemoveDeviceScreenPreview() {
     RemoveDeviceContent(
-        navController = rememberNavController(),
+        authNavigationManager = AuthNavigationManager(rememberNavController()),
         state = RemoveDeviceState.Success(List(10) { Device(name = "device") }, RemoveDeviceDialogState.Hidden),
         onItemClicked = {},
         onPasswordChange = {},

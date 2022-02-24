@@ -45,6 +45,7 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import com.wire.android.ui.authentication.AuthDestination
+import com.wire.android.ui.authentication.AuthNavigationManager
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.WireTheme
@@ -59,13 +60,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
 @Composable
-fun WelcomeScreen(navController: NavController) {
-    WelcomeContent(navController)
+fun WelcomeScreen(authNavigationManager: AuthNavigationManager) {
+    WelcomeContent(authNavigationManager)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WelcomeContent(navController: NavController) {
+private fun WelcomeContent(authNavigationManager: AuthNavigationManager) {
     Scaffold(modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.welcomeVerticalPadding)) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -89,17 +90,17 @@ private fun WelcomeContent(navController: NavController) {
                 horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
             )) {
                 LoginButton {
-                    navController.navigate(AuthDestination.loginScreen)
+                    authNavigationManager.navigate(AuthDestination.Login)
                 }
-                CreateEnterpriseAccountButton {
-                    navController.navigate((AuthDestination.createEnterpriseAccountScreen))
+                CreateTeamButton {
+                    authNavigationManager.navigate(AuthDestination.CreateTeam)
                 }
             }
 
             WelcomeFooter(modifier = Modifier
                 .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                 onPrivateAccountClick = {
-                    navController.navigate(AuthDestination.createPrivateAccountScreen)
+                    authNavigationManager.navigate(AuthDestination.CreatePersonalAccount)
                 })
         }
     }
@@ -197,10 +198,10 @@ private fun LoginButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun CreateEnterpriseAccountButton(onClick: () -> Unit) {
+private fun CreateTeamButton(onClick: () -> Unit) {
     WireSecondaryButton(
         onClick = onClick,
-        text = stringResource(R.string.welcome_button_create_enterprise_account),
+        text = stringResource(R.string.welcome_button_create_team),
         modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
     )
 }
@@ -254,7 +255,7 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 @Composable
 private fun WelcomeScreenPreview() {
     WireTheme(isPreview = true) {
-        WelcomeContent(rememberNavController())
+        WelcomeContent(AuthNavigationManager(rememberNavController()))
     }
 }
 

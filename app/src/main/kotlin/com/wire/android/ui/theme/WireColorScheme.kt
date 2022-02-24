@@ -82,7 +82,7 @@ private val LightWireColorScheme = WireColorScheme(
     tertiaryButtonSelected = WireColorPalette.LightBlue50,         onTertiaryButtonSelected = WireColorPalette.LightBlue500,
     tertiaryButtonSelectedOutline = WireColorPalette.LightBlue300,
     tertiaryButtonRipple = Color.Black,
-    divider = WireColorPalette.Gray40,
+    divider = WireColorPalette.Gray30,
     secondaryText = WireColorPalette.Gray70,
     labelText = WireColorPalette.Gray80,
     badge = WireColorPalette.Gray90,                               onBadge = Color.White
@@ -116,7 +116,7 @@ private val DarkWireColorScheme = WireColorScheme(
     tertiaryButtonSelected = WireColorPalette.DarkBlue50,          onTertiaryButtonSelected = WireColorPalette.DarkBlue500,
     tertiaryButtonSelectedOutline = WireColorPalette.DarkBlue300,
     tertiaryButtonRipple = Color.White,
-    divider = WireColorPalette.Gray70,
+    divider = WireColorPalette.Gray80,
     secondaryText = WireColorPalette.Gray40,
     labelText = WireColorPalette.Gray30,
     badge = WireColorPalette.Gray10,                               onBadge = Color.Black

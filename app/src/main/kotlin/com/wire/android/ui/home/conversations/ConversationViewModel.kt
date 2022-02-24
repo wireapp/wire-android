@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -62,14 +63,12 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onMessageChanged(message: String) {
-        //do something with the message
-        Log.d("TEST", "message being typed: $message")
+    fun onMessageChanged(message: TextFieldValue) {
+        conversationViewState = conversationViewState.copy(messageText = message)
     }
 
     fun sendMessage() {
-        //do something with the message
-        Log.d("TEST", "send message button clicked")
+        conversationViewState = conversationViewState.copy(messageText = TextFieldValue(""))
     }
 
     private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(): List<Message> {

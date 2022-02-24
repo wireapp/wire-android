@@ -70,9 +70,10 @@ class ConversationViewModel @Inject constructor(
 
     fun sendMessage() {
         viewModelScope.launch {
+            val messageText = conversationViewState.messageText
             //TODO what if conversationId is null???
-            sendTextMessage(conversationId!!, conversationViewState.messageText.text)
-            conversationViewState = conversationViewState.copy(messageText = TextFieldValue(""))
+            sendTextMessage(conversationId!!, messageText.text)
+            conversationViewState = conversationViewState.copy(messageText = messageText.copy(""))
         }
     }
 

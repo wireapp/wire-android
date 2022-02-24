@@ -7,6 +7,7 @@ import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -118,4 +119,13 @@ class UseCaseModule {
         @CurrentSession currentSession: AuthSession
     ): GetSelfUserUseCase =
         coreLogic.getSessionScope(currentSession).users.getSelfUser
+
+    @ViewModelScoped
+    @Provides
+    fun providesSendTextMessageUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentSession currentSession: AuthSession
+    ): SendTextMessageUseCase =
+        coreLogic.getSessionScope(currentSession).messages.sendTextMessage
+
 }

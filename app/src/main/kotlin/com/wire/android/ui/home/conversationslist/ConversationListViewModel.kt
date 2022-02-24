@@ -49,17 +49,22 @@ class ConversationListViewModel @Inject constructor(
         private set
 
     init {
-        state = ConversationListState(
-            newActivities = listOf(),
-            conversations = conversationMockData,
-            missedCalls = mockMissedCalls,
-            callHistory = mockCallHistory,
-            unreadMentions = mockUnreadMentionList,
-            allMentions = mockAllMentionList,
-            unreadMentionsCount = 12,
-            missedCallsCount = 100,
-            newActivityCount = 1
-        )
+        viewModelScope.launch {
+            getConversations()
+                .collect { conversations ->
+                    state = ConversationListState(
+                        newActivities = listOf(),
+                        conversations = conversationMockData(conversations.toGeneralConversationList()),
+                        missedCalls = mockMissedCalls,
+                        callHistory = mockCallHistory,
+                        unreadMentions = mockUnreadMentionList,
+                        allMentions = mockAllMentionList,
+                        unreadMentionsCount = 12,
+                        missedCallsCount = 100,
+                        newActivityCount = 1
+                    )
+                }
+        }
     }
 
     fun openConversation(conversationId: ConversationId) {

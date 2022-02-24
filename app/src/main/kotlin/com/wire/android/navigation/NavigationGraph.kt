@@ -11,11 +11,10 @@ import androidx.navigation.compose.composable
 @ExperimentalMaterial3Api
 @Composable
 fun NavigationGraph(navController: NavHostController, startDestination: String) {
-    NavigationItem.globalNavigationItems.also { navItems ->
-        NavHost(navController, startDestination) {
-            navItems.forEach { item ->
-                composable(route = item.route, content = item.content, arguments = item.arguments)
-            }
+    NavHost(navController, startDestination) {
+
+        NavigationItem.values().onEach { item ->
+            composable(route = item.getCanonicalRoute(), content = item.content)
         }
     }
 }

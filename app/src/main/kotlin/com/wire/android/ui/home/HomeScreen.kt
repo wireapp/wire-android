@@ -14,6 +14,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
+import com.wire.android.navigation.HomeNavigationGraph
+import com.wire.android.navigation.HomeNavigationItem
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
@@ -32,8 +34,6 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         HomeDrawer(drawerState, currentItem.route, navController, HomeNavigationItem.all, scope, viewModel)
     }
 
-    BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
-
     NavigationDrawer(
         drawerContainerColor = MaterialTheme.colorScheme.surface,
         drawerTonalElevation = 0.dp,
@@ -43,9 +43,10 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         gesturesEnabled = currentItem.isSwipeable
     ) {
         Box {
+            BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
+
             val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
             HomeNavigationGraph(navController = navController, startDestination = startDestination)
-
             topBar()
         }
     }

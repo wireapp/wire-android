@@ -128,7 +128,7 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return if (conversationId != null) "$primaryRoute/${conversationId.toJson()}" else primaryRoute
+            return if (conversationId != null) "$primaryRoute/" else primaryRoute
         }
     };
 

@@ -1,5 +1,6 @@
 package com.wire.android.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -36,13 +37,9 @@ class WireActivity : AppCompatActivity() {
     lateinit var navigationManager: NavigationManager
     val viewModel: WireActivityViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen().apply {
-            setKeepOnScreenCondition {
-                viewModel.handleDeepLink(intent)
-                false
-            }
-        }
+        installSplashScreen()
         super.onCreate(savedInstanceState)
+        viewModel.handleDeepLink(intent)
         setContent {
             WireTheme {
                 val scope = rememberCoroutineScope()
@@ -51,10 +48,19 @@ class WireActivity : AppCompatActivity() {
                 setUpNavigation(navController, scope)
 
                 Scaffold {
-                    NavigationGraph(navController = navController, viewModel.startNavigationRoute)
+                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), viewModel.serverConfig)
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        intent?.let {
+            recreate()
+            viewModel.handleDeepLink(intent)
+        }
+        super.onNewIntent(intent)
+
     }
 
     @Composable

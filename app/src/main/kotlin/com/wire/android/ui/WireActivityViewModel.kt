@@ -4,7 +4,6 @@ package com.wire.android.ui
 import android.content.Intent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
-import com.wire.android.WireApplication
 import com.wire.android.navigation.NavigationItem
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -31,14 +30,15 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private val isUserLoggedIn = currentSession != null
+    var serverConfig: ServerConfig = ServerConfig.STAGING
 
-    val startNavigationRoute = when {
-        WireApplication.serverConfig.apiBaseUrl != ServerConfig.STAGING.apiBaseUrl -> NavigationItem.Login.getRouteWithArgs()
+    fun startNavigationRoute() = when {
+        serverConfig.apiBaseUrl != ServerConfig.STAGING.apiBaseUrl -> NavigationItem.Login.getRouteWithArgs()
         isUserLoggedIn -> NavigationItem.Home.getRouteWithArgs()
         else -> NavigationItem.Welcome.getRouteWithArgs()
     }
 
-    fun loadServerConfig(url: String) = runBlocking {
+    private fun loadServerConfig(url: String) = runBlocking {
         return@runBlocking when (val result = getServerConfigUserCase.invoke(url)) {
             is GetServerConfigResult.Success -> result.serverConfig
             else -> ServerConfig.STAGING
@@ -47,7 +47,7 @@ class WireActivityViewModel @Inject constructor(
 
     fun handleDeepLink(intent: Intent) {
         intent.data?.getQueryParameter(SERVER_CONFIG_DEEPLINK)?.let {
-            WireApplication.serverConfig = loadServerConfig(it)
+            serverConfig = loadServerConfig(it)
         }
     }
 

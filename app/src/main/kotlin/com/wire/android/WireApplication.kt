@@ -15,9 +15,6 @@ class WireApplication : Application(), Configuration.Provider {
     @Inject
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
-companion object{
-    var serverConfig = ServerConfig.STAGING
-}
 
     override fun getWorkManagerConfiguration(): Configuration {
         val myWorkerFactory = WrapperWorkerFactory(coreLogic)

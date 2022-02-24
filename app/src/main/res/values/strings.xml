@@ -60,8 +60,7 @@
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please try again.</string>
-    <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or
-username</string>
+    <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or username</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
 

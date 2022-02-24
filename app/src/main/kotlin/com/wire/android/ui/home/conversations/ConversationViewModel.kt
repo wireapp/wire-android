@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,7 +31,7 @@ class ConversationViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val getConversationDetails: GetConversationDetailsUseCase,
-    private val sendTextMessageUseCase: SendTextMessageUseCase
+    private val sendTextMessage: SendTextMessageUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -70,7 +69,11 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun sendMessage() {
-        conversationViewState = conversationViewState.copy(messageText = TextFieldValue(""))
+        viewModelScope.launch {
+            //TODO what if conversationId is null???
+            sendTextMessage(conversationId!!, conversationViewState.messageText.text)
+            conversationViewState = conversationViewState.copy(messageText = TextFieldValue(""))
+        }
     }
 
     private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(): List<Message> {

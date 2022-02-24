@@ -68,7 +68,8 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun sendMessage() {
-        conversationViewState = conversationViewState.copy(messageText = TextFieldValue(""))
+        val messageText = conversationViewState.messageText
+        conversationViewState = conversationViewState.copy(messageText = messageText.copy(""))
     }
 
     private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(): List<Message> {

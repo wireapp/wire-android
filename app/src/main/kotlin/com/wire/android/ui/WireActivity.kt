@@ -36,7 +36,12 @@ class WireActivity : AppCompatActivity() {
     lateinit var navigationManager: NavigationManager
     val viewModel: WireActivityViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        installSplashScreen().apply {
+            setKeepOnScreenCondition {
+                viewModel.handleDeepLink(intent)
+                false
+            }
+        }
         super.onCreate(savedInstanceState)
         setContent {
             WireTheme {

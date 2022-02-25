@@ -28,9 +28,9 @@ import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
 import com.wire.android.ui.userprofile.image.AvatarPickerScreen
+import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.conversation.ConversationId
 import io.github.esentsov.PackagePrivate
-import com.wire.kalium.logic.configuration.ServerConfig
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -56,7 +56,7 @@ enum class NavigationItem(
     Login(
         primaryRoute = LOGIN,
         canonicalRoute = LOGIN,
-        content = { LoginScreen(ServerConfig.STAGING) }
+        content = { LoginScreen(ServerConfig.DEFAULT) }
     ),
 
     CreateEnterpriseAccount(

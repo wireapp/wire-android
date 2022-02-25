@@ -2,6 +2,7 @@ package com.wire.android.ui
 
 
 import android.content.Intent
+
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import com.wire.android.navigation.NavigationItem
@@ -9,6 +10,7 @@ import com.wire.kalium.logic.configuration.GetServerConfigResult
 import com.wire.kalium.logic.configuration.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

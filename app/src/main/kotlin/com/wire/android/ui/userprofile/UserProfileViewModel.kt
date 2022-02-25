@@ -14,46 +14,43 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.extension.toByteArray
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-//Suppress for now after removing mockMethodForAvatar it should not complain
+// Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "MagicNumber")
 @ExperimentalMaterial3Api
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
-    private val uploadUserAvatarUseCase: UploadUserAvatarUseCase
+    private val uploadUserAvatar: UploadUserAvatarUseCase,
+    private val getSelf: GetSelfUserUseCase
 ) : ViewModel() {
 
-    //This is going to be refactored and removed later on
-    private val tempBitmapWidth = 36
-    private val tempBitmapHeight = 36
-
-    var userProfileState by mutableStateOf(
-        SelfUserProfileState(
-            avatarBitmap = Bitmap.createBitmap(tempBitmapWidth, tempBitmapHeight, Bitmap.Config.ARGB_8888),
-            status = UserStatus.BUSY,
-            fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
-            userName = "@userName_long_long_long_long_long_long_long_long_long_long",
-            teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
-            otherAccounts = listOf(
-                OtherAccount("someId", "", "Other Name 0", "team A"),
-                //                OtherAccount("someId", "", "Other Name 1", "team B"),
-                //                OtherAccount("someId", "", "Other Name 2", "team C"),
-                //                OtherAccount("someId", "", "Other Name", "team A"),
-                OtherAccount("someId", "", "New Name")
-            )
-        )
-    )
+    var userProfileState by mutableStateOf(SelfUserProfileState())
         private set
+
+    init {
+        // TODO: here we should have a loading state as the first initial state of the screen
+        viewModelScope.launch {
+            getSelf().collect {
+                userProfileState = SelfUserProfileState(
+                    status = UserStatus.AVAILABLE,
+                    fullName = it.name!!,
+                    userName = it.handle!!,
+                    teamName = it.team
+                )
+            }
+        }
+    }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
@@ -133,7 +130,7 @@ class UserProfileViewModel @Inject constructor(
                 userProfileState = userProfileState.copy(avatarBitmap = avatarBitmap, isAvatarLoading = true)
 
                 // Upload the Avatar image
-                userProfileState = when (uploadUserAvatarUseCase("image/png", avatarBitmap.toByteArray())) {
+                userProfileState = when (uploadUserAvatar("image/png", avatarBitmap.toByteArray())) {
                     // Fallback
                     is Either.Left -> {
                         userProfileState.copy(
@@ -156,15 +153,14 @@ class UserProfileViewModel @Inject constructor(
         userProfileState = userProfileState.copy(errorMessage = null)
     }
 
-    //!! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!
-    fun mockMethodForAvatar(bitmap: Bitmap) {
-        userProfileState = userProfileState.copy(avatarBitmap = bitmap)
-    }
-
     fun onChangeProfilePictureClicked() {
         viewModelScope.launch {
             navigationManager.navigate(NavigationCommand(NavigationItem.ProfileImagePicker.getRouteWithArgs()))
         }
     }
 
+    //!! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!
+    fun mockMethodForAvatar(bitmap: Bitmap) {
+        userProfileState = userProfileState.copy(avatarBitmap = bitmap)
+    }
 }

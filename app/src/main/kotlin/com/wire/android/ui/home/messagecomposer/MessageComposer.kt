@@ -57,14 +57,16 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun MessageComposer(
     content: @Composable () -> Unit,
-    onMessageChanged: (String) -> Unit,
+    messageText: TextFieldValue,
+    onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit
 ) {
-    val messageComposerState = rememberMessageComposerState()
+    val messageComposerState = rememberMessageComposerInnerState()
 
     MessageComposer(
         content = content,
         messageComposerState = messageComposerState,
+        messageText = messageText,
         onMessageChanged = onMessageChanged,
         onSendButtonClicked = onSendButtonClicked,
     )
@@ -74,8 +76,9 @@ fun MessageComposer(
 @Composable
 private fun MessageComposer(
     content: @Composable () -> Unit,
-    messageComposerState: MessageComposerState,
-    onMessageChanged: (String) -> Unit,
+    messageComposerState: MessageComposerInnerState,
+    messageText: TextFieldValue,
+    onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -171,10 +174,10 @@ private fun MessageComposer(
                         // when in the FullScreen state we are giving it max height, when in active state we limit the height to max 82.dp
                         // other we let it wrap the content of the height, which will be equivalent to the text
                         MessageComposerInput(
-                            messageText = messageComposerState.messageText,
+                            messageText = messageText,
                             onMessageTextChanged = { value ->
-                                messageComposerState.messageText = value
-                                onMessageChanged(value.text)
+                                onMessageChanged(value)
+                                messageComposerState.messageText = value.text
                             },
                             messageComposerInputState = messageComposerState.messageComposeInputState,
                             onFocusChanged = { messageComposerState.toActive() },
@@ -276,7 +279,7 @@ private fun MessageComposerInput(
 ) {
     BasicTextField(
         value = messageText,
-        onValueChange = onMessageTextChanged,
+        onValueChange = { onMessageTextChanged(it) },
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         textStyle = MaterialTheme.wireTypography.body01,
         modifier = modifier.then(Modifier.onFocusChanged { focusState ->

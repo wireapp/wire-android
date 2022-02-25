@@ -30,6 +30,7 @@ import com.wire.android.ui.userprofile.UserProfileScreen
 import com.wire.android.ui.userprofile.image.AvatarPickerScreen
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.conversation.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
 
 @OptIn(
@@ -128,7 +129,7 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return if (conversationId != null) "$primaryRoute/" else primaryRoute
+            return if (conversationId != null) "$primaryRoute/${conversationId.mapIntoArgumentString()}" else primaryRoute
         }
     };
 
@@ -168,3 +169,10 @@ private const val EXTRA_INITIAL_BITMAP = "extra_initial_bitmap"
 private const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
+
+private fun QualifiedID.mapIntoArgumentString(): String = "$domain@$value"
+
+fun String.parseIntoQualifiedID(): QualifiedID {
+    val components = split("@")
+    return QualifiedID(components.last(), components.first())
+}

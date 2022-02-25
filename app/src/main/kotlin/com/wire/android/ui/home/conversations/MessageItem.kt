@@ -47,7 +47,7 @@ fun MessageItem(
 ) {
     with(message) {
         Row {
-            UserProfileAvatar(status = UserStatus.AVAILABLE)
+            UserProfileAvatar(status = message.user.availabilityStatus)
             Column {
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(6.dp))

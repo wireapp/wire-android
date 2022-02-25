@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import kotlinx.coroutines.CoroutineScope
+import com.wire.android.navigation.HomeNavigationGraph
+import com.wire.android.navigation.HomeNavigationItem
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi

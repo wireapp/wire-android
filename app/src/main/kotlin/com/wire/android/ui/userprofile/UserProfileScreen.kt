@@ -4,6 +4,7 @@ package com.wire.android.ui.userprofile
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -287,6 +288,7 @@ private fun CurrentUserStatus(
     onStatusClicked: (UserStatus) -> Unit
 ) {
     Row(
+        horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
             .padding(dimensions().spacing16x),

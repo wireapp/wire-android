@@ -11,13 +11,13 @@ import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ConversationSheet(
-    sheetState: ModalBottomSheetState,
+fun ConversationSheetContent(
     modalBottomSheetContentState: ModalSheetContent,
     muteConversation: () -> Unit,
     addConversationToFavourites: () -> Unit,
@@ -26,10 +26,8 @@ fun ConversationSheet(
     clearConversationContent: () -> Unit,
     blockUser: () -> Unit,
     leaveGroup: () -> Unit,
-    content: @Composable () -> Unit
 ) {
-    MenuModalSheetLayout(
-        sheetState = sheetState,
+    MenuModalSheetContent(
         headerTitle = modalBottomSheetContentState.title,
         headerIcon = {
             if (modalBottomSheetContentState is ModalSheetContent.GroupConversationEdit) {
@@ -129,9 +127,7 @@ fun ConversationSheet(
                 }
             }
         )
-    ) {
-        content()
-    }
+    )
 }
 
 

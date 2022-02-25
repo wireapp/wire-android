@@ -49,7 +49,7 @@ class UserProfileViewModel @Inject constructor(
                     teamName = it.team,
                     // Add some mocked team
                     otherAccounts = listOf(
-                        OtherAccount("someId", "", "Tommaso", "Wire Swiss GmbH"),
+                        OtherAccount("someId", "", it.name!!, "Wire Swiss GmbH"),
                         OtherAccount("someId", "", "B. A. Baracus", "The A-Team"),
                     )
                 )

@@ -166,7 +166,7 @@ object NavigationItemDestinationsRoutes {
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 private const val EXTRA_USER_ID = "extra_user_id"
 private const val EXTRA_INITIAL_BITMAP = "extra_initial_bitmap"
-private const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
+const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

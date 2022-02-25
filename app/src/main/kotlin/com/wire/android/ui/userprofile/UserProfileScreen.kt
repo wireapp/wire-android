@@ -1,3 +1,4 @@
+
 package com.wire.android.ui.userprofile
 
 import android.graphics.Bitmap

@@ -141,6 +141,9 @@ dependencies {
     androidTestImplementation(TestLibraries.kluentAndroid)
     androidTestImplementation(TestLibraries.composeJunit)
     debugImplementation(TestLibraries.composeManifest)
+    androidTestImplementation(Libraries.Hilt.android)
+    androidTestImplementation(Libraries.Hilt.hiltTest)
+    kaptAndroidTest(Libraries.Hilt.compiler)
 
     // Development dependencies
     //debugImplementation(DevLibraries.fragmentTesting)

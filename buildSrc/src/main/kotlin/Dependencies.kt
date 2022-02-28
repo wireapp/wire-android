@@ -15,7 +15,7 @@ object AndroidClient {
     const val appId = "com.wire.android"
     val versionCode = Versionizer().versionCode
     const val versionName = "0.0.1"
-    const val testRunner = "androidx.test.runner.AndroidJUnitRunner"
+    const val testRunner = "com.wire.android.HiltAwareTestRunner"
 }
 
 object BuildPlugins {
@@ -135,6 +135,7 @@ object Libraries {
         const val compiler = "com.google.dagger:hilt-android-compiler:${Versions.hilt}"
         const val gradlePlugin = "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}"
         const val navigationCompose = "androidx.hilt:hilt-navigation-compose:${Versions.composeHiltNavigation}"
+        const val hiltTest = "com.google.dagger:hilt-android-testing:${Versions.hilt}"
     }
 
     object Lifecycle {

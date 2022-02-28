@@ -143,9 +143,9 @@ dependencies {
     debugImplementation(TestLibraries.composeManifest)
     androidTestImplementation(Libraries.Hilt.android)
     androidTestImplementation(Libraries.Hilt.hiltTest)
+    androidTestImplementation(TestLibraries.workManager)
     kaptAndroidTest(Libraries.Hilt.compiler)
 
     // Development dependencies
-    //debugImplementation(DevLibraries.fragmentTesting)
     debugImplementation(DevLibraries.leakCanary)
 }

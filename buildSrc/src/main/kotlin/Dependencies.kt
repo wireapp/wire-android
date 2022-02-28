@@ -201,21 +201,26 @@ object TestLibraries {
         const val accessibility       = "com.android.support.test.espresso:espresso-accessibility:${Versions.espresso}"
     }
 
-    const val junit4         = "junit:junit:${Versions.junit4}"
-    const val robolectric    = "org.robolectric:robolectric:${Versions.robolectric}"
-    const val testRunner     = "androidx.test:runner:${Versions.testRunner}"
-    const val testExtJunit   = "androidx.test.ext:junit:${Versions.testExtensions}"
-    const val testRules      = "androidx.test:rules:${Versions.testRules}"
-    const val uiAutomator    = "androidx.test.uiautomator:uiautomator:${Versions.uiAutomator}"
-    const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libraries.Versions.coroutines}"
-    const val testCore       = "androidx.arch.core:core-testing:${Versions.testCore}"
-    const val androidCore    = "androidx.test:core:${Versions.androidCore}"
-    const val koinTest       = "io.insert-koin:koin-test:${Libraries.Versions.koin}"
-    const val mockk          = "io.mockk:mockk:${Versions.mockk}"
-    const val mockkAndroid   = "io.mockk:mockk-android:${Versions.mockk}"
-    const val kluent         = "org.amshove.kluent:kluent:${Versions.kluent}"
-    const val kluentAndroid  = "org.amshove.kluent:kluent-android:${Versions.kluent}"
-    const val workManager    = "androidx.work:work-testing:${Libraries.Versions.workManager}"
+    const val junit4            = "junit:junit:${Versions.junit4}"
+    const val robolectric       = "org.robolectric:robolectric:${Versions.robolectric}"
+    const val testRunner        = "androidx.test:runner:${Versions.testRunner}"
+    const val testExtJunit      = "androidx.test.ext:junit:${Versions.testExtensions}"
+    const val testRules         = "androidx.test:rules:${Versions.testRules}"
+    const val uiAutomator       = "androidx.test.uiautomator:uiautomator:${Versions.uiAutomator}"
+    const val coroutinesTest    = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libraries.Versions.coroutines}"
+    const val testCore          = "androidx.arch.core:core-testing:${Versions.testCore}"
+    const val androidCore       = "androidx.test:core:${Versions.androidCore}"
+    const val koinTest          = "io.insert-koin:koin-test:${Libraries.Versions.koin}"
+    const val mockk             = "io.mockk:mockk:${Versions.mockk}"
+    const val mockkAndroid      = "io.mockk:mockk-android:${Versions.mockk}"
+    const val kluent            = "org.amshove.kluent:kluent:${Versions.kluent}"
+    const val kluentAndroid     = "org.amshove.kluent:kluent-android:${Versions.kluent}"
+    const val workManager       = "androidx.work:work-testing:${Libraries.Versions.workManager}"
+
+    // Test rules and transitive dependencies:
+    const val composeJunit      = "androidx.compose.ui:ui-test-junit4:${Libraries.Versions.compose}"
+    // Needed for createComposeRule, but not createAndroidComposeRule:
+    const val composeManifest   = "androidx.compose.ui:ui-test-manifest:${Libraries.Versions.compose}"
 }
 
 object DevLibraries {

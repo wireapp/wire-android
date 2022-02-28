@@ -1,4 +1,4 @@
-package com.wire.android;
+package com.wire.android.ui;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -11,8 +11,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
-import com.wire.android.ui.WireActivity;
-import com.wire.android.ui.authentication.login.LoginKt;
+import com.wire.android.R;
 
 import org.junit.After;
 import org.junit.Before;

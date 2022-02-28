@@ -63,7 +63,7 @@ object Libraries {
         const val viewPager2 = "1.0.0"
         const val sqlLiteJdbc = "3.36.0"
         const val room = "2.3.0"
-        const val desugaring = "1.0.10"
+        const val desugaring = "1.1.5"
         const val paging = "3.0.0"
         const val glide = "4.12.0"
         const val workManager = "2.7.1"

@@ -37,14 +37,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
-import com.wire.android.ui.authentication.AuthDestination
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.WireTheme
@@ -59,13 +57,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
 @Composable
-fun WelcomeScreen(navController: NavController) {
-    WelcomeContent(navController)
+fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
+    WelcomeContent(viewModel)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WelcomeContent(navController: NavController) {
+private fun WelcomeContent(viewModel: WelcomeViewModel) {
     Scaffold(modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.welcomeVerticalPadding)) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -84,22 +82,24 @@ private fun WelcomeContent(navController: NavController) {
                 WelcomeCarousel()
             }
 
-            Column(modifier = Modifier.padding(
-                vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
-                horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
-            )) {
+            Column(
+                modifier = Modifier.padding(
+                    vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
+                    horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
+                )
+            ) {
                 LoginButton {
-                    navController.navigate(AuthDestination.loginScreen)
+                    viewModel.goToLogin()
                 }
                 CreateEnterpriseAccountButton {
-                    navController.navigate((AuthDestination.createEnterpriseAccountScreen))
+                    viewModel.goToCreateEnterpriseAccount()
                 }
             }
 
             WelcomeFooter(modifier = Modifier
                 .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                 onPrivateAccountClick = {
-                    navController.navigate(AuthDestination.createPrivateAccountScreen)
+                    viewModel.goToCreatePrivateAccount()
                 })
         }
     }
@@ -256,7 +256,7 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 @Composable
 private fun WelcomeScreenPreview() {
     WireTheme(isPreview = true) {
-        WelcomeContent(rememberNavController())
+        WelcomeContent(hiltViewModel())
     }
 }
 

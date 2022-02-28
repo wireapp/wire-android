@@ -47,7 +47,7 @@ fun MessageItem(
 ) {
     with(message) {
         Row {
-            UserProfileAvatar(status = UserStatus.AVAILABLE)
+            UserProfileAvatar(status = message.user.availabilityStatus)
             Column {
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(6.dp))
@@ -136,7 +136,7 @@ fun MessageImage(imageUrl: String = "") {
 private fun MessageBody(messageBody: MessageBody) {
     Text(
         buildAnnotatedString {
-            appendMentionLabel(label = "@Mateusz Pachulski")
+            appendMentionLabel(label = "@John Doe")
             appendBody(messageBody = messageBody)
         }
     )

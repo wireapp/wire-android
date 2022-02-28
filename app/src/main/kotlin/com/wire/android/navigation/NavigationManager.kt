@@ -18,8 +18,18 @@ class NavigationManager {
     }
 }
 
+/**
+ * Wrapper class used to specify to the Navigation Manager the new component we want to navigate to.
+ */
 data class NavigationCommand(
+    /**
+     * The destination route of the component we want to navigate to.
+     */
     val destination: String,
+
+    /**
+     * Whether we want to clear the previously added screens on the backstack, only until the current one, or none of them.
+     */
     val backStackMode: BackStackMode = BackStackMode.NONE
     //TODO add in/out animations here
 )

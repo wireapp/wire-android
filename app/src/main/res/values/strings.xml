@@ -6,6 +6,7 @@
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
     <string name="label_cancel">Cancel</string>
+    <string name="label_continue">Continue</string>
     <string name="label_remove">Remove</string>
     <string name="label_removing">Removing...</string>
     <string name="label_logging_in">Logging in...</string>
@@ -59,9 +60,8 @@
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_error_invalid_credentials_title">Invalid information</string>
-    <string name="login_error_invalid_credentials_message">Please validate your input and try again</string>
-    <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or
-username</string>
+    <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please try again.</string>
+    <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or username</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
 
@@ -72,6 +72,11 @@ username</string>
     <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
+
+    <!-- Create Personal Account -->
+    <string name="create_personal_account_title">Create a Personal Account</string>
+    <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
+    <string name="create_personal_account_link">Learn more</string>
 
     <!-- Home -->
     <string name="home_open_drawer_description">Open drawer</string>

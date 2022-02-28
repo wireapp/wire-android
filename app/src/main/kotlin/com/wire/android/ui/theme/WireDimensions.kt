@@ -8,6 +8,8 @@ import io.github.esentsov.PackagePrivate
 
 @Immutable
 data class WireDimensions(
+    // Placeholder
+    val placeholderShimmerCornerSize: Dp,
     // Top bar
     val topBarShadowElevation: Dp,
     val smallTopBarHeight: Dp,
@@ -40,6 +42,7 @@ data class WireDimensions(
     // Conversation
     val conversationItemRowHeight: Dp,
     val conversationItemPadding: Dp,
+    val conversationsListBottomPadding: Dp,
     // Conversation BottomSheet
     val conversationBottomSheetItemHeight: Dp,
     val conversationBottomSheetItemPadding: Dp,
@@ -69,6 +72,8 @@ data class WireDimensions(
     val userProfileLogoutBtnHeight: Dp,
     val userProfileStatusBtnHeight: Dp,
     val userProfileOtherAccItemHeight: Dp,
+    // Profile Image
+    val imagePreviewHeight: Dp,
     // Welcome
     val welcomeImageHorizontalPadding: Dp,
     val welcomeTextHorizontalPadding: Dp,
@@ -105,9 +110,17 @@ data class WireDimensions(
     // Notifications
     val notificationBadgeHeight: Dp,
     val notificationBadgeRadius: Dp,
+    // Wire ModalSheetLayout
+    val modalBottomSheetDividerWidth: Dp,
+    val modalBottomSheetHeaderStartPadding: Dp,
+    val modalBottomSheetHeaderTopPadding: Dp,
+    val modalBottomSheetHeaderBottomPadding: Dp,
+    // Divider
+    val dividerThickness: Dp,
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
+    placeholderShimmerCornerSize = 8.dp,
     topBarShadowElevation = 4.dp,
     smallTopBarHeight = 64.dp,
     topBarSearchFieldHeight = 64.dp,
@@ -134,8 +147,9 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     bottomNavigationItemPadding = 6.dp,
     conversationItemRowHeight = 56.dp,
     conversationItemPadding = 0.5.dp,
+    conversationsListBottomPadding = 74.dp,
     conversationBottomSheetItemHeight = 48.dp,
-    conversationBottomSheetItemPadding = 16.dp,
+    conversationBottomSheetItemPadding = 14.dp,
     conversationBottomSheetShapeCorner = 12.dp,
     conversationBottomSheetItemSize = 16.dp,
     messageImagePortraitModeWidth = 200.dp,
@@ -156,6 +170,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     userProfileLogoutBtnHeight = 32.dp,
     userProfileStatusBtnHeight = 32.dp,
     userProfileOtherAccItemHeight = 56.dp,
+    imagePreviewHeight = 360.dp,
     welcomeImageHorizontalPadding = 64.dp,
     welcomeTextHorizontalPadding = 24.dp,
     welcomeButtonHorizontalPadding = 16.dp,
@@ -187,6 +202,11 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     corner16x = 16.dp,
     notificationBadgeHeight = 18.dp,
     notificationBadgeRadius = 6.dp,
+    modalBottomSheetDividerWidth = 48.dp,
+    modalBottomSheetHeaderStartPadding = 8.dp,
+    modalBottomSheetHeaderTopPadding = 16.dp,
+    modalBottomSheetHeaderBottomPadding = 8.dp,
+    dividerThickness = 0.5.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

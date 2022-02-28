@@ -1,12 +1,19 @@
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.TextField
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.Message
@@ -17,7 +24,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 fun ConversationScreen(
     conversationViewModel: ConversationViewModel,
 ) {
-    val uiState by conversationViewModel.conversationViewState.collectAsState()
+    val uiState = conversationViewModel.conversationViewState
 
     ConversationScreen(
         conversationViewState = uiState,
@@ -31,7 +38,7 @@ fun ConversationScreen(
 @Composable
 private fun ConversationScreen(
     conversationViewState: ConversationViewState,
-    onMessageChanged: (String) -> Unit,
+    onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
     onBackButtonClick: () -> Unit
 ) {
@@ -42,6 +49,7 @@ private fun ConversationScreen(
                 ConversationScreenContent(
                     messages = messages,
                     onMessageChanged = onMessageChanged,
+                    messageText = conversationViewState.messageText,
                     onSendButtonClicked = onSendButtonClicked
                 )
             }
@@ -52,17 +60,22 @@ private fun ConversationScreen(
 @Composable
 private fun ConversationScreenContent(
     messages: List<Message>,
-    onMessageChanged: (String) -> Unit,
+    onMessageChanged: (TextFieldValue) -> Unit,
+    messageText: TextFieldValue,
     onSendButtonClicked: () -> Unit
 ) {
     MessageComposer(
         content = {
-            LazyColumn {
-                items(messages) { message ->
-                    MessageItem(message = message)
-                }
+            LazyColumn(
+                reverseLayout = true,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+            ) {
+                items(messages) { message -> MessageItem(message = message) }
             }
         },
+        messageText = messageText,
         onMessageChanged = onMessageChanged,
         onSendButtonClicked = onSendButtonClicked
     )

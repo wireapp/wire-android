@@ -34,10 +34,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.ui.authentication.AuthDestination
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -58,24 +56,19 @@ import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
-fun LoginScreen(
-    navController: NavController,
-    serverConfig: ServerConfig
-) {
+fun LoginScreen(serverConfig: ServerConfig) {
     val scope = rememberCoroutineScope()
     val loginViewModel: LoginViewModel = hiltViewModel()
     val loginState: LoginState = loginViewModel.loginState
     LoginContent(
         loginState = loginState,
         onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) },
-        onBackPressed = { navController.popBackStack() },
+        onBackPressed = { loginViewModel.navigateBack() },
         onPasswordChange = { loginViewModel.onPasswordChange(it) },
         onDialogDismiss = { loginViewModel.clearLoginError() },
-        onRemoveDeviceOpen = {
-            navController.navigate(AuthDestination.removeDeviceScreen)
-            loginViewModel.clearLoginError()
-        },
+        onRemoveDeviceOpen = { loginViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
+        accountsBaseUrl = serverConfig.accountsBaseUrl,
         scope = scope
     )
 }
@@ -90,6 +83,7 @@ private fun LoginContent(
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
+    accountsBaseUrl: String,
     scope: CoroutineScope
 ) {
     Scaffold(
@@ -97,7 +91,8 @@ private fun LoginContent(
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = stringResource(R.string.login_title),
-                onNavigationPressed = onBackPressed)
+                onNavigationPressed = onBackPressed
+            )
         }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -123,7 +118,7 @@ private fun LoginContent(
                     onPasswordChange = onPasswordChange
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                ForgotPasswordLabel(modifier = Modifier.fillMaxWidth())
+                ForgotPasswordLabel(modifier = Modifier.fillMaxWidth(), accountsBaseUrl)
             }
 
             LoginButton(
@@ -156,8 +151,7 @@ private fun LoginContent(
                     type = WireDialogButtonType.Primary,
                 )
             )
-        }
-        else if (loginState.loginError is LoginError.TooManyDevicesError) {
+        } else if (loginState.loginError is LoginError.TooManyDevicesError) {
             onRemoveDeviceOpen()
         }
     }
@@ -188,14 +182,14 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
     WirePasswordTextField(
         value = password,
         onValueChange = onPasswordChange,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, autoCorrect = false, imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = modifier,
     )
 }
 
 @Composable
-private fun ForgotPasswordLabel(modifier: Modifier) {
+private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
         Text(
@@ -209,19 +203,14 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = {
-                        // TODO: refactor this to open the browser
-                        openForgotPasswordPage(context)
-                    }
+                    onClick = { openForgotPasswordPage(context, accountsBaseUrl) }
                 )
         )
     }
 }
 
-private fun openForgotPasswordPage(context: Context) {
-    // TODO: get the link from the serverConfig
-    val url = "${BuildConfig.ACCOUNTS_URL}/forgot"
-
+private fun openForgotPasswordPage(context: Context, accountsBaseUrl: String) {
+    val url = "https://${accountsBaseUrl}/forgot"
     CustomTabsHelper.launchUrl(context, url)
 }
 
@@ -255,6 +244,7 @@ private fun LoginScreenPreview() {
             onDialogDismiss = { },
             onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
+            accountsBaseUrl = "",
             scope = scope
         )
     }

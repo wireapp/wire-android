@@ -1,4 +1,4 @@
-package com.wire.android.ui.home
+package com.wire.android.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
@@ -15,14 +15,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.HomeState
 import com.wire.android.ui.home.archive.ArchiveScreen
-import com.wire.android.ui.home.conversationslist.ConversationRouter
+import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.vault.VaultScreen
 
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 @Composable
-fun HomeNavigationGraph(navController: NavHostController, startDestination: String?) {
+fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, startDestination: String?) {
     NavHost(
         modifier = Modifier.padding(top = dimensions().smallTopBarHeight),
         navController = navController,
@@ -30,7 +31,7 @@ fun HomeNavigationGraph(navController: NavHostController, startDestination: Stri
     ) {
         HomeNavigationItem.all
             .forEach { item ->
-                composable(route = item.route, content = item.content)
+                composable(route = item.route, content = item.content(homeState))
             }
     }
 }
@@ -54,36 +55,42 @@ internal fun navigateToItemInHome(
 
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
-sealed class HomeNavigationItem(
+enum class HomeNavigationItem(
     val route: String,
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
-    val content: @Composable (NavBackStackEntry) -> Unit
+    val content: (HomeState) -> (@Composable (NavBackStackEntry) -> Unit)
 ) {
-
-    object Conversations : HomeNavigationItem(
-        route = HomeDestinations.conversations,
+    Conversations(
+        route = HomeDestinationsRoutes.conversations,
         title = R.string.conversations_screen_title,
         isSearchable = true,
         isSwipeable = false,
-        content = { ConversationRouter() }
-    )
+        content = { homeState ->
+            {
+                ConversationRouterHomeBridge(
+                    onHomeBottomSheetContentChange = { bottomSheetContent ->
+                        homeState.changeBottomSheetContent(bottomSheetContent)
+                    },
+                    onExpandHomeBottomSheet = { homeState.expandBottomSheet() })
+            }
+        }
+    ),
 
-    object Vault : HomeNavigationItem(
-        route = HomeDestinations.vault,
+    Vault(
+        route = HomeDestinationsRoutes.vault,
         title = R.string.vault_screen_title,
-        content = { VaultScreen() }
-    )
+        content = { { VaultScreen() } }
+    ),
 
-    object Archive : HomeNavigationItem(
-        route = HomeDestinations.archive,
+    Archive(
+        route = HomeDestinationsRoutes.archive,
         title = R.string.archive_screen_title,
-        content = { ArchiveScreen() }
-    )
+        content = { { ArchiveScreen() } }
+    );
 
     companion object {
-
         val all = listOf(Conversations, Archive, Vault)
 
         @Composable
@@ -99,7 +106,7 @@ sealed class HomeNavigationItem(
     }
 }
 
-object HomeDestinations {
+private object HomeDestinationsRoutes {
     const val conversations = "home_conversations"
     const val vault = "home_vault"
     const val archive = "home_archive"

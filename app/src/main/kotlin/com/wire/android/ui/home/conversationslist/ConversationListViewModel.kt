@@ -1,6 +1,9 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
@@ -12,10 +15,16 @@ import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
-import com.wire.android.ui.home.conversationslist.mock.newActivitiesMockData
+import com.wire.android.ui.home.conversationslist.model.ConversationInfo
+import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.GeneralConversation
+import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.UserInfo
+import com.wire.android.util.getConversationColor
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationId
+import com.wire.kalium.logic.feature.conversation.GetConversationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,6 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
+    private val getConversations: GetConversationsUseCase,
     homeCommonManager: HomeCommonManager
 ) : ViewModel() {
 
@@ -35,30 +45,33 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    private val _state = MutableStateFlow(ConversationListState())
-
-    val state: StateFlow<ConversationListState>
-        get() = _state
+    var state by mutableStateOf(ConversationListState())
+        private set
 
     init {
-        _state.value = ConversationListState(
-            newActivities = newActivitiesMockData,
-            conversations = conversationMockData,
-            missedCalls = mockMissedCalls,
-            callHistory = mockCallHistory,
-            unreadMentions = mockUnreadMentionList,
-            allMentions = mockAllMentionList,
-            unreadMentionsCount = 12,
-            missedCallsCount = 100,
-            newActivityCount = 1
-        )
+        viewModelScope.launch {
+            getConversations()
+                .collect { conversations ->
+                    state = ConversationListState(
+                        newActivities = listOf(),
+                        conversations = conversationMockData(conversations.toGeneralConversationList()),
+                        missedCalls = mockMissedCalls,
+                        callHistory = mockCallHistory,
+                        unreadMentions = mockUnreadMentionList,
+                        allMentions = mockAllMentionList,
+                        unreadMentionsCount = 12,
+                        missedCallsCount = 100,
+                        newActivityCount = 1
+                    )
+                }
+        }
     }
 
-    fun openConversation(conversationId: String) {
+    fun openConversation(conversationId: ConversationId) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Conversation.createRoute(conversationId = conversationId)
+                    destination = NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId))
                 )
             )
         }
@@ -105,5 +118,32 @@ class ConversationListViewModel @Inject constructor(
     fun leaveGroup(id: String) {
 
     }
+
+    private fun List<Conversation>.toGeneralConversationList() = map { conversation ->
+        if (isPrivateChat(conversation)) {
+            GeneralConversation(
+                ConversationType.PrivateConversation(
+                    userInfo = UserInfo(),
+                    conversationInfo = ConversationInfo(
+                        name = "Some private chat",
+                        membership = Membership.None,
+                        isLegalHold = true
+                    ),
+                    conversationId = conversation.id
+                )
+            )
+        } else {
+            GeneralConversation(
+                ConversationType.GroupConversation(
+                    groupColorValue = getConversationColor(conversation.id),
+                    groupName = conversation.name!!,
+                    conversationId = conversation.id
+                )
+            )
+        }
+    }
+
+    //TODO
+    private fun isPrivateChat(conversation: Conversation) = conversation.name.isNullOrEmpty()
 
 }

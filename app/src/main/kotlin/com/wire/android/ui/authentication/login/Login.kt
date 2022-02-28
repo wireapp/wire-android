@@ -68,6 +68,7 @@ fun LoginScreen(serverConfig: ServerConfig) {
         onDialogDismiss = { loginViewModel.clearLoginError() },
         onRemoveDeviceOpen = { loginViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
+        accountsBaseUrl = serverConfig.accountsBaseUrl,
         scope = scope
     )
 }
@@ -82,6 +83,7 @@ private fun LoginContent(
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
+    accountsBaseUrl: String,
     scope: CoroutineScope
 ) {
     Scaffold(
@@ -116,7 +118,7 @@ private fun LoginContent(
                     onPasswordChange = onPasswordChange
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                ForgotPasswordLabel(modifier = Modifier.fillMaxWidth())
+                ForgotPasswordLabel(modifier = Modifier.fillMaxWidth(), accountsBaseUrl)
             }
 
             LoginButton(
@@ -187,7 +189,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
 }
 
 @Composable
-private fun ForgotPasswordLabel(modifier: Modifier) {
+private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
         Text(
@@ -201,19 +203,14 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = {
-                        // TODO: refactor this to open the browser
-                        openForgotPasswordPage(context)
-                    }
+                    onClick = { openForgotPasswordPage(context, accountsBaseUrl) }
                 )
         )
     }
 }
 
-private fun openForgotPasswordPage(context: Context) {
-    // TODO: get the link from the serverConfig
-    val url = "${BuildConfig.ACCOUNTS_URL}/forgot"
-
+private fun openForgotPasswordPage(context: Context, accountsBaseUrl: String) {
+    val url = "https://${accountsBaseUrl}/forgot"
     CustomTabsHelper.launchUrl(context, url)
 }
 
@@ -247,6 +244,7 @@ private fun LoginScreenPreview() {
             onDialogDismiss = { },
             onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
+            accountsBaseUrl = "",
             scope = scope
         )
     }

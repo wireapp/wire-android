@@ -10,8 +10,8 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ENTERPRISE_ACCOUNT
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PRIVATE_ACCOUNT
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
@@ -19,6 +19,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVIC
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
+import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
@@ -60,16 +61,16 @@ enum class NavigationItem(
         content = { LoginScreen(ServerConfig.STAGING) }
     ),
 
-    CreateEnterpriseAccount(
-        primaryRoute = CREATE_ENTERPRISE_ACCOUNT,
-        canonicalRoute = CREATE_ENTERPRISE_ACCOUNT,
-        content = { UnderConstructionScreen("Create Enterprise Account Screen") }
+    CreateTeam(
+        primaryRoute = CREATE_TEAM,
+        canonicalRoute = CREATE_TEAM,
+        content = { UnderConstructionScreen("Create Team Screen") }
     ),
 
-    CreatePrivateAccount(
-        primaryRoute = CREATE_PRIVATE_ACCOUNT,
-        canonicalRoute = CREATE_PRIVATE_ACCOUNT,
-        content = { UnderConstructionScreen("Create Private Account Screen") }
+    CreatePersonalAccount(
+        primaryRoute = CREATE_PERSONAL_ACCOUNT,
+        canonicalRoute = CREATE_PERSONAL_ACCOUNT,
+        content = { CreatePersonalAccountScreen(ServerConfig.STAGING) }
     ),
 
     RemoveDevices(
@@ -153,8 +154,8 @@ enum class NavigationItem(
 object NavigationItemDestinationsRoutes {
     const val WELCOME = "welcome_screen"
     const val LOGIN = "login_screen"
-    const val CREATE_ENTERPRISE_ACCOUNT = "create_enterprise_account_screen"
-    const val CREATE_PRIVATE_ACCOUNT = "create_private_account_screen"
+    const val CREATE_TEAM = "create_team_screen"
+    const val CREATE_PERSONAL_ACCOUNT = "create_personal_account_screen"
     const val HOME = "home_landing_screen"
     const val USER_PROFILE = "user_profile_screen"
     const val CONVERSATION = "detailed_conversation_screen"

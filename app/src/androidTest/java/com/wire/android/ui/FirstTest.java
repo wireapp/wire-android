@@ -12,6 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.wire.android.R;
+import com.wire.android.utils.WorkManagerTestRule;
 
 import org.junit.After;
 import org.junit.Before;
@@ -23,7 +24,10 @@ import org.junit.runner.RunWith;
 @LargeTest
 public class FirstTest {
 
-    @Rule
+    @Rule(order = 0)
+    private WorkManagerTestRule workManagerTestRule = new WorkManagerTestRule();
+
+    @Rule(order = 1)
     public ActivityScenarioRule<WireActivity> activityScenarioRule =
             new ActivityScenarioRule<WireActivity>(WireActivity.class);
 

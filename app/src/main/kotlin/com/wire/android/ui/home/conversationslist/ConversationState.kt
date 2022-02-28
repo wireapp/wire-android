@@ -19,12 +19,10 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterialApi
 class ConversationState(
     val navHostController: NavHostController,
-    val modalBottomSheetState: ModalBottomSheetState,
     val modalBottomSheetContentState: MutableState<ModalSheetContent>,
-    private val coroutineScope: CoroutineScope
 ) {
 
-    fun showModalSheet(conversationType: ConversationType) {
+    fun changeModalSheetContentState(conversationType: ConversationType) {
         when (conversationType) {
             is ConversationType.GroupConversation -> {
                 with(conversationType) {
@@ -43,7 +41,6 @@ class ConversationState(
                 }
             }
         }
-        coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 }
 
@@ -51,16 +48,12 @@ class ConversationState(
 @Composable
 fun rememberConversationState(
     navHostController: NavHostController = rememberNavController(),
-    modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
     modalBottomSheetContentState: MutableState<ModalSheetContent> = remember {
         mutableStateOf(ModalSheetContent.Initial)
     },
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
-) = remember(navHostController, modalBottomSheetState, modalBottomSheetContentState, coroutineScope) {
+) = remember(navHostController, modalBottomSheetContentState) {
     ConversationState(
         navHostController,
-        modalBottomSheetState,
         modalBottomSheetContentState,
-        coroutineScope
     )
 }

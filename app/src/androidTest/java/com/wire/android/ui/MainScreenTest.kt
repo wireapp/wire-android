@@ -29,7 +29,8 @@ class MainScreenTest {
     @get:Rule(order = 0)
     var hiltRule = HiltAndroidRule(this)
 
-    // Second, as we are using a WorkManager, in an instrumented test we need to ensure this gets initialized before launching any Compose/Activity Rule
+    // Second, as we are using a WorkManager
+    // In an instrumented test we need to ensure this gets initialized before launching any Compose/Activity Rule
     @get:Rule(order = 1)
     var workManagerTestRule = WorkManagerTestRule()
 

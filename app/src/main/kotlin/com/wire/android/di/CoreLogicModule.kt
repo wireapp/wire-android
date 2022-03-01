@@ -44,6 +44,7 @@ class CoreLogicModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
 class UseCaseModule {
 
     @CurrentSession

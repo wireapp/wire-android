@@ -99,7 +99,7 @@ private fun OverviewTexts(modifier: Modifier, onLearnMoreClick: () -> Unit) {
             modifier = Modifier.fillMaxWidth()
         )
         Text(
-            text = stringResource(R.string.create_personal_account_link),
+            text = stringResource(R.string.label_learn_more),
             style = MaterialTheme.wireTypography.body02.copy(
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.colorScheme.primary

@@ -101,7 +101,7 @@ private fun WireDialogContent(
                 modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
             )
             content?.let {
-                Box(modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
+                Box {
                     it.invoke()
                 }
             }

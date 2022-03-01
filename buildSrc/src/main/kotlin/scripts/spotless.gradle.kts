@@ -12,6 +12,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
             )
         )
         trimTrailingWhitespace()
+        licenseHeaderFile("$rootDir/buildSrc/src/main/kotlin/spotless/class.license")
     }
     kotlinGradle {
         target("*.gradle.kts")

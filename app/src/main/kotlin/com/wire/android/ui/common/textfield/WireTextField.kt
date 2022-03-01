@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -33,9 +34,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -98,7 +101,7 @@ internal fun WireTextField(
             },
         )
         val bottomText = when {
-            state is WireTextFieldState.Error -> state.errorText
+            state is WireTextFieldState.Error && state.errorText != null -> state.errorText
             !descriptionText.isNullOrEmpty() -> descriptionText
             else -> String.EMPTY
         }
@@ -106,6 +109,7 @@ internal fun WireTextField(
             Text(
                 text = bottomText,
                 style = MaterialTheme.wireTypography.label04,
+                textAlign = TextAlign.Start,
                 color = colors.descriptionColor(state).value,
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -266,7 +270,7 @@ private fun WireTextFieldSuccessPreview() {
 
 sealed class WireTextFieldState {
     object Default : WireTextFieldState()
-    data class Error(val errorText: String) : WireTextFieldState()
+    data class Error(val errorText: String? = null) : WireTextFieldState()
     object Success : WireTextFieldState()
     object Disabled : WireTextFieldState()
 

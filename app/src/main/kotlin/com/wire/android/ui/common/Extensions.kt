@@ -1,5 +1,6 @@
 package com.wire.android.ui.common
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.selection.selectable
@@ -49,6 +50,11 @@ internal fun dimensions() = MaterialTheme.wireDimensions
 fun LazyListState.appBarElevation(): Dp = MaterialTheme.wireDimensions.topBarShadowElevation.let {  maxElevation ->
     if (firstVisibleItemIndex == 0) minOf(firstVisibleItemScrollOffset.toFloat().dp, maxElevation)
     else maxElevation
+}
+
+@Composable
+fun ScrollState.appBarElevation(): Dp = MaterialTheme.wireDimensions.topBarShadowElevation.let { maxElevation ->
+    minOf(value.dp, maxElevation)
 }
 
 @Composable

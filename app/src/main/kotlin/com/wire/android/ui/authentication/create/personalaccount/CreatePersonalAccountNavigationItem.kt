@@ -2,7 +2,6 @@ package com.wire.android.ui.authentication.create.personalaccount
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.kalium.logic.configuration.ServerConfig
 
 enum class CreatePersonalAccountNavigationItem(
@@ -15,13 +14,18 @@ enum class CreatePersonalAccountNavigationItem(
     ),
     Email(
         route = CreatePersonalAccountDestinationsRoutes.EMAIL,
-        content = { UnderConstructionScreen(CreatePersonalAccountDestinationsRoutes.EMAIL) }
+        content = { EmailScreen(it.viewModel, it.serverConfig) }
+    ),
+    Details(
+        route = CreatePersonalAccountDestinationsRoutes.DETAILS,
+        content = { DetailsScreen(it.viewModel) }
     )
 }
 
 object CreatePersonalAccountDestinationsRoutes {
     const val OVERVIEW = "create_personal_account_overview_screen"
     const val EMAIL = "create_personal_account_email_screen"
+    const val DETAILS = "create_personal_accounts_details_screen"
 }
 
 data class ContentParams(

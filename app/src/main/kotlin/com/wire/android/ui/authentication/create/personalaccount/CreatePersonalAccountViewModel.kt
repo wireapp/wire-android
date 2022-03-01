@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("MagicNumber")
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreatePersonalAccountViewModel @Inject constructor(
@@ -42,8 +43,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     }
     fun onEmailContinue() {
         state = state.copy(email = state.email.copy(loading = true, continueEnabled = false))
-        viewModelScope.launch {
-            delay(1000) //TODO replace with proper logic
+        viewModelScope.launch { //TODO replace with proper logic
             state = state.copy(email = state.email.copy(loading = false, continueEnabled = true, termsDialogVisible = true))
         }
     }
@@ -65,19 +65,23 @@ class CreatePersonalAccountViewModel @Inject constructor(
     }
     fun onDetailsContinue() {
         state = state.copy(details = state.details.copy(loading = true, continueEnabled = false))
-        viewModelScope.launch {
-            delay(1000) //TODO replace with proper logic
+        viewModelScope.launch { //TODO replace with proper logic
             state = state.copy(details = state.details.copy(
                 loading = false,
                 continueEnabled = true,
                 error = when {
                     state.details.password.text != state.details.confirmPassword.text ->
                         CreatePersonalAccountViewState.DetailsError.PasswordsNotMatchingError
-                    state.details.password.text.length < 8 -> CreatePersonalAccountViewState.DetailsError.InvalidPasswordError
+                    state.details.password.text.length < MIN_PASSWORD_LENGTH ->
+                        CreatePersonalAccountViewState.DetailsError.InvalidPasswordError
                     else -> CreatePersonalAccountViewState.DetailsError.None
                 }
             ))
         }
+    }
+
+    companion object {
+        private const val MIN_PASSWORD_LENGTH = 8
     }
 }
 

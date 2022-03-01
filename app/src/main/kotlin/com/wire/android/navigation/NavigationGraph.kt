@@ -6,19 +6,16 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.wire.android.ui.authentication.login.LoginScreen
-import com.wire.kalium.logic.configuration.ServerConfig
 
 @OptIn(ExperimentalMaterialApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NavigationGraph(navController: NavHostController, startDestination: String, serverConfig: ServerConfig) {
+fun NavigationGraph(navController: NavHostController, startDestination: String, arguments: List<Any> = emptyList()) {
     NavHost(navController, startDestination) {
         NavigationItem.values().onEach { item ->
-            if (item == NavigationItem.Login)
-                composable(route = item.getCanonicalRoute(), content = { LoginScreen(serverConfig) })
-            else
-                composable(route = item.getCanonicalRoute(), content = item.content)
+            composable(
+                route = item.getCanonicalRoute(),
+                content = { navBackStackEntry -> item.content(ContentParams(navBackStackEntry, arguments)) })
         }
     }
 }

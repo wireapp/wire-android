@@ -1,7 +1,6 @@
 package com.wire.android.ui.authentication.login
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -36,7 +34,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
@@ -94,7 +91,7 @@ private fun LoginContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
-                title = "${stringResource(R.string.login_title)} [$serverTitle]",
+                title = "${stringResource(R.string.login_title)} $serverTitle",
                 onNavigationPressed = onBackPressed
             )
         }

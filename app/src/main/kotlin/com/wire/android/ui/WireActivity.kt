@@ -48,7 +48,7 @@ class WireActivity : AppCompatActivity() {
                 setUpNavigation(navController, scope)
 
                 Scaffold {
-                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), viewModel.serverConfig)
+                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), listOf(viewModel.serverConfig))
                 }
             }
         }

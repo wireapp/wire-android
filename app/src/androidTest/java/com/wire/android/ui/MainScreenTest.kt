@@ -1,6 +1,5 @@
 package com.wire.android.ui
 
-import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -12,6 +11,7 @@ import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.WorkManagerTestRule
+import com.wire.android.utils.getViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
@@ -45,7 +45,7 @@ class MainScreenTest {
         // Start the app
         composeTestRule.setContent {
             WireTheme {
-                WelcomeScreen(composeTestRule.activity.viewModels<WelcomeViewModel>().value)
+                WelcomeScreen(composeTestRule.getViewModel(WelcomeViewModel::class))
             }
         }
 

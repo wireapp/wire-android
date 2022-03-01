@@ -101,7 +101,6 @@ class RemoveDeviceViewModel @Inject constructor(
 
     private fun DeleteClientResult.toRemoveDeviceError() =
         when (this) {
-            is DeleteClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is DeleteClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             is DeleteClientResult.Success -> RemoveDeviceError.None
             else -> RemoveDeviceError.None
@@ -110,7 +109,6 @@ class RemoveDeviceViewModel @Inject constructor(
     private fun RegisterClientResult.toRemoveDeviceError() =
         when (this) {
             is RegisterClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
-            is RegisterClientResult.Failure.ProteusFailure -> RemoveDeviceError.GenericError(CoreFailure.Unknown(this.e))
             is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
             is RegisterClientResult.Success -> RemoveDeviceError.None

@@ -1,9 +1,9 @@
 package com.wire.android.ui.home.conversations
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +19,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
+import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,7 +30,8 @@ class ConversationViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
-    private val getConversationDetails: GetConversationDetailsUseCase
+    private val getConversationDetails: GetConversationDetailsUseCase,
+    private val sendTextMessage: SendTextMessageUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -62,14 +64,17 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onMessageChanged(message: String) {
-        //do something with the message
-        Log.d("TEST", "message being typed: $message")
+    fun onMessageChanged(message: TextFieldValue) {
+        conversationViewState = conversationViewState.copy(messageText = message)
     }
 
     fun sendMessage() {
-        //do something with the message
-        Log.d("TEST", "send message button clicked")
+        viewModelScope.launch {
+            val messageText = conversationViewState.messageText
+            //TODO what if conversationId is null???
+            sendTextMessage(conversationId!!, messageText.text)
+            conversationViewState = conversationViewState.copy(messageText = messageText.copy(""))
+        }
     }
 
     private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(): List<Message> {

@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -68,6 +67,9 @@ fun LoginScreen(serverConfig: ServerConfig) {
         onDialogDismiss = { loginViewModel.clearLoginError() },
         onRemoveDeviceOpen = { loginViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
+        accountsBaseUrl = serverConfig.accountsBaseUrl,
+        //todo: temporary to show the remoteConfig
+        serverTitle = serverConfig.title,
         scope = scope
     )
 }
@@ -82,13 +84,15 @@ private fun LoginContent(
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
+    accountsBaseUrl: String,
+    serverTitle: String,
     scope: CoroutineScope
 ) {
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
-                title = stringResource(R.string.login_title),
+                title = "${stringResource(R.string.login_title)} $serverTitle",
                 onNavigationPressed = onBackPressed
             )
         }
@@ -116,7 +120,7 @@ private fun LoginContent(
                     onPasswordChange = onPasswordChange
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                ForgotPasswordLabel(modifier = Modifier.fillMaxWidth())
+                ForgotPasswordLabel(modifier = Modifier.fillMaxWidth(), accountsBaseUrl)
             }
 
             LoginButton(
@@ -187,7 +191,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
 }
 
 @Composable
-private fun ForgotPasswordLabel(modifier: Modifier) {
+private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
         Text(
@@ -201,19 +205,14 @@ private fun ForgotPasswordLabel(modifier: Modifier) {
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = {
-                        // TODO: refactor this to open the browser
-                        openForgotPasswordPage(context)
-                    }
+                    onClick = { openForgotPasswordPage(context, accountsBaseUrl) }
                 )
         )
     }
 }
 
-private fun openForgotPasswordPage(context: Context) {
-    // TODO: get the link from the serverConfig
-    val url = "${BuildConfig.ACCOUNTS_URL}/forgot"
-
+private fun openForgotPasswordPage(context: Context, accountsBaseUrl: String) {
+    val url = "https://${accountsBaseUrl}/forgot"
     CustomTabsHelper.launchUrl(context, url)
 }
 
@@ -247,6 +246,8 @@ private fun LoginScreenPreview() {
             onDialogDismiss = { },
             onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
+            accountsBaseUrl = "",
+            serverTitle = "",
             scope = scope
         )
     }

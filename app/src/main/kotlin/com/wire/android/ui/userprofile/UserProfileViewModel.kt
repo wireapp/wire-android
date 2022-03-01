@@ -46,7 +46,12 @@ class UserProfileViewModel @Inject constructor(
                     status = UserStatus.AVAILABLE,
                     fullName = it.name!!,
                     userName = it.handle!!,
-                    teamName = it.team
+                    teamName = it.team,
+                    // Add some mocked team
+                    otherAccounts = listOf(
+                        OtherAccount("someId", "", it.name!!, "Wire Swiss GmbH"),
+                        OtherAccount("someId", "", "B. A. Baracus", "The A-Team"),
+                    )
                 )
             }
         }
@@ -68,7 +73,9 @@ class UserProfileViewModel @Inject constructor(
     }
 
     fun addAccount() {
-        // TODO
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs()))
+        }
     }
 
     fun editProfile() {

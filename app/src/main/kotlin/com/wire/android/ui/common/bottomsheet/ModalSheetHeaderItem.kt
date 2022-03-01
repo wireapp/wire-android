@@ -27,7 +27,7 @@ fun ModalSheetHeaderItem(title: String, leadingIcon: @Composable () -> Unit = {}
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = title,
-            style = MaterialTheme.wireTypography.body02
+            style = MaterialTheme.wireTypography.title02
         )
     }
 }

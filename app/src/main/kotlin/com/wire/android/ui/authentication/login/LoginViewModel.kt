@@ -103,7 +103,6 @@ class LoginViewModel @Inject constructor(
 
     private fun RegisterClientResult.toLoginError() = when (this) {
         is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-        is RegisterClientResult.Failure.ProteusFailure -> LoginError.DialogError.GenericError(CoreFailure.Unknown(this.e))
         is RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
         is RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
         else -> LoginError.None

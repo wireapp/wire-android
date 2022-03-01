@@ -12,7 +12,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 val mockMessageWithText = Message(
     user = User("", UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
-        username = "Mateusz Pachulski",
+        username = "John Doe",
         membership = Membership.Guest,
         isLegalHold = true,
         time = "12.23pm",
@@ -31,7 +31,7 @@ val mockMessageWithText = Message(
 val mockMessageWithImage = Message(
     user = User("", UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
-        username = "Mateusz Pachulski",
+        username = "John Doe",
         membership = Membership.Guest,
         isLegalHold = true,
         time = "12.23pm",
@@ -44,7 +44,7 @@ val mockMessages = listOf(
     Message(
         user = User("", UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "Mateusz Pachulski",
+            username = "John Doe",
             membership = Membership.Guest,
             isLegalHold = true,
             time = "12.23pm",
@@ -62,7 +62,7 @@ val mockMessages = listOf(
     Message(
         user = User("", UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "Mateusz Pachulski",
+            username = "John Doe",
             membership = Membership.Guest,
             isLegalHold = true,
             time = "12.23pm",
@@ -73,7 +73,7 @@ val mockMessages = listOf(
     Message(
         user = User("", UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "Mateusz Pachulski",
+            username = "John Doe",
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
@@ -84,7 +84,7 @@ val mockMessages = listOf(
     Message(
         user = User("", UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "Mateusz Pachulski",
+            username = "John Doe",
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
@@ -95,7 +95,7 @@ val mockMessages = listOf(
     Message(
         user = User("", UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "Mateusz Pachulski",
+            username = "John Doe",
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
@@ -113,7 +113,7 @@ val mockMessages = listOf(
     Message(
         user = User("", UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "Mateusz Pachulski",
+            username = "John Doe",
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
@@ -124,7 +124,7 @@ val mockMessages = listOf(
     Message(
         user = User("", UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "Mateusz Pachulski",
+            username = "John Doe",
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",

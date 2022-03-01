@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication.devices
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -9,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +38,7 @@ import com.wire.android.ui.common.appBarElevation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.formatMediumDateTime
 import kotlinx.coroutines.android.awaitFrame
@@ -176,7 +179,7 @@ private fun RemoveDeviceDialog(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                modifier = Modifier.focusRequester(focusRequester)
+                modifier = Modifier.focusRequester(focusRequester).padding(bottom = MaterialTheme.wireDimensions.spacing8x)
             )
             SideEffect {
                 if (state.keyboardVisible) {

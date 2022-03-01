@@ -7,6 +7,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+import com.wire.kalium.logic.configuration.ServerConfig
 
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {

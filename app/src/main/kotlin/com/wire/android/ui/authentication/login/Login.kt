@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -69,6 +68,8 @@ fun LoginScreen(serverConfig: ServerConfig) {
         onRemoveDeviceOpen = { loginViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
         accountsBaseUrl = serverConfig.accountsBaseUrl,
+        //todo: temporary to show the remoteConfig
+        serverTitle = serverConfig.title,
         scope = scope
     )
 }
@@ -84,13 +85,14 @@ private fun LoginContent(
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
     accountsBaseUrl: String,
+    serverTitle: String,
     scope: CoroutineScope
 ) {
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
-                title = stringResource(R.string.login_title),
+                title = "${stringResource(R.string.login_title)} $serverTitle",
                 onNavigationPressed = onBackPressed
             )
         }
@@ -245,6 +247,7 @@ private fun LoginScreenPreview() {
             onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
             accountsBaseUrl = "",
+            serverTitle = "",
             scope = scope
         )
     }

@@ -74,7 +74,7 @@ class UserProfileViewModel @Inject constructor(
 
     fun addAccount() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.CreatePrivateAccount.getRouteWithArgs()))
+            navigationManager.navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs()))
         }
     }
 

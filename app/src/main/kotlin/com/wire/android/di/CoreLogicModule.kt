@@ -44,6 +44,7 @@ class CoreLogicModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
 class UseCaseModule {
 
     @CurrentSession
@@ -69,6 +70,12 @@ class UseCaseModule {
     @Provides
     fun getConversationsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
         coreLogic.getSessionScope(session).conversations.getConversations
+
+    @ViewModelScoped
+    @Provides
+    fun getServerConfigUserCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().getServerConfig
+
 
     @ViewModelScoped
     @Provides

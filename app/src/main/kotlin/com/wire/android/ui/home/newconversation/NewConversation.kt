@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.model.UserStatus
-import com.wire.android.ui.common.SearchableTopBar
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
@@ -32,11 +31,14 @@ import com.wire.android.ui.theme.wireTypography
 fun NewConversationScreen(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val state by newConversationViewModel.newConversationState
 
-    NewConversationContent(state)
+    NewConversationContent(
+        state = state,
+        onCloseClick = { newConversationViewModel.close() }
+    )
 }
 
 @Composable
-fun NewConversationContent(state: NewConversationState) {
+fun NewConversationContent(state: NewConversationState, onCloseClick: () -> Unit) {
     val lazyListState = rememberLazyListState()
 
     Box {
@@ -78,10 +80,11 @@ fun NewConversationContent(state: NewConversationState) {
             }
         }
 
-        SearchableTopBar(
+        NewConversationTopBar(
             topBarTitle = "New Conversation",
             searchHint = "Search people",
-            lazyListState.firstVisibleItemIndex
+            scrollPosition = lazyListState.firstVisibleItemIndex,
+            onNavigationPressed = onCloseClick
         )
     }
 }
@@ -92,7 +95,11 @@ private fun ContactItem(
     status: UserStatus,
     avatarUrl: String
 ) {
-    RowItem({}, {}, {
+    RowItem({
+        //TODO: Open Contact Screen
+    }, {
+        //TODO: Show Context Menu ?
+    }, {
         UserProfileAvatar(
             avatarUrl = avatarUrl,
             status = status

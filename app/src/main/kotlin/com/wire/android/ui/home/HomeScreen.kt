@@ -37,63 +37,64 @@ import kotlinx.coroutines.launch
 fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
     val homeState = rememberHomeState()
 
-    val topBar: @Composable () -> Unit = {
-        HomeTopBar(
-            homeState.itemTitle,
-            homeState.isItemSearchable,
-            homeState.scrollPosition,
-            { homeState.coroutineScope.launch { viewModel.navigateToUserProfile() } },
-            { homeState.coroutineScope.launch { homeState.drawerState.open() } })
-    }
-
-    val drawerContent: @Composable ColumnScope.() -> Unit = {
-        HomeDrawer(
-            homeState.drawerState,
-            homeState.itemRoute,
-            homeState.navController,
-            HomeNavigationItem.all,
-            homeState.coroutineScope,
-            viewModel
-        )
-    }
-
-    NavigationDrawer(
-        drawerContainerColor = MaterialTheme.colorScheme.surface,
-        drawerTonalElevation = 0.dp,
-        drawerShape = RectangleShape,
-        drawerState = homeState.drawerState,
-        drawerContent = drawerContent,
-        gesturesEnabled = homeState.isItemSwipeable
-    ) {
-
-        val homeContent: @Composable () -> Unit = {
-            Box {
-                val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-                HomeNavigationGraph(
-                    homeState = homeState,
-                    navController = homeState.navController,
-                    startDestination = startDestination
-                )
-                // We are not including the topBar in the Scaffold to correctly handle the collapse scroll effect on the search,
-                // which will not be possible when using Scaffold topBar argument
-                topBar()
-            }
+    with(homeState) {
+        val drawerContent: @Composable ColumnScope.() -> Unit = {
+            HomeDrawer(
+                drawerState = drawerState,
+                currentRoute = itemRoute,
+                homeNavController = navController,
+                topItems = HomeNavigationItem.all,
+                scope = coroutineScope,
+                viewModel = viewModel
+            )
         }
 
-        val homeScreen: @Composable () -> Unit = homeState.homeBottomSheetContent?.run {
-            {
+        NavigationDrawer(
+            drawerContainerColor = MaterialTheme.colorScheme.surface,
+            drawerTonalElevation = 0.dp,
+            drawerShape = RectangleShape,
+            drawerState = drawerState,
+            drawerContent = drawerContent,
+            gesturesEnabled = isItemSwipeable
+        ) {
+
+            val homeContent: @Composable () -> Unit = {
+                Box {
+                    val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
+
+                    HomeNavigationGraph(
+                        homeState = homeState,
+                        navController = navController,
+                        startDestination = startDestination
+                    )
+
+                    HomeTopBar(
+                        title = itemTitle,
+                        isSearchable = isItemSearchable,
+                        scrollPosition = scrollPosition,
+                        onUserProfileClick = { homeState.coroutineScope.launch { viewModel.navigateToUserProfile() } },
+                        onHamburgerMenuItemCLick = { openDrawer() }
+                    )
+                }
+            }
+
+            val homeBottomSheetContent = homeBottomSheetContent
+
+            if(homeBottomSheetContent != null){
                 WireModalSheetLayout(
-                    sheetState = homeState.bottomSheetState,
-                    sheetContent = this
+                    sheetState = bottomSheetState,
+                    sheetContent = homeBottomSheetContent
                 ) {
                     homeContent()
                 }
+            }else{
+                homeContent()
             }
-        } ?: { homeContent() }
 
-        homeScreen()
+        }
+
+        BackHandler(enabled = drawerState.isOpen) { closeDrawer()  }
     }
-    BackHandler(enabled = homeState.drawerState.isOpen) { homeState.coroutineScope.launch { homeState.drawerState.close() } }
 }
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -125,6 +126,18 @@ class HomeState(
 
     fun updateScrollPosition(newScrollPosition: Int) {
         scrollPosition = newScrollPosition
+    }
+
+    fun closeDrawer() {
+        coroutineScope.launch {
+            drawerState.close()
+        }
+    }
+
+    fun openDrawer() {
+        coroutineScope.launch {
+            drawerState.open()
+        }
     }
 
 }

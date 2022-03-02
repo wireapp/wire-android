@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.SearchBarUI
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
@@ -88,6 +89,7 @@ fun HomeTopBar(
             elevation = if (!isSearchable || isCollapsed) dimensions().topBarElevationHeight else 0.dp,
             title = stringResource(id = title),
             onNavigationPressed = { onHamburgerMenuItemCLick() },
+            navigationIconType = NavigationIconType.Menu,
             actions = {
                 UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
                     onUserProfileClick()

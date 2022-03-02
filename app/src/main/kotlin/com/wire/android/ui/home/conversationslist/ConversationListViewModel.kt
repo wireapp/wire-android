@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.HomeCommonManager
 import com.wire.android.ui.home.conversationslist.mock.conversationMockData
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
@@ -34,16 +33,7 @@ import javax.inject.Inject
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getConversations: GetConversationsUseCase,
-    homeCommonManager: HomeCommonManager
 ) : ViewModel() {
-
-    private val scrollBridge = homeCommonManager.scrollBridge!!
-
-    fun updateScrollPosition(newScrollIndex: Int) {
-        viewModelScope.launch {
-            scrollBridge.updateScrollPosition(newScrollIndex)
-        }
-    }
 
     var state by mutableStateOf(ConversationListState())
         private set

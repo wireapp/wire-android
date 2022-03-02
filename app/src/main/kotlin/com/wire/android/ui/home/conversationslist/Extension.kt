@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import com.wire.android.ui.main.conversationlist.common.FolderHeader
 import io.github.esentsov.PackagePrivate
 
-@PackagePrivate
 inline fun <T> LazyListScope.folderWithElements(
     crossinline header: @Composable () -> String,
     items: List<T>,

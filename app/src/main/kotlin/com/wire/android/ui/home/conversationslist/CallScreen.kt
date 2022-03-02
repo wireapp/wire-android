@@ -49,8 +49,7 @@ fun CallContent(
         state = lazyListState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            top = dimensions().topBarSearchFieldHeight,
-            bottom = dimensions().conversationsListBottomPadding
+            top = dimensions().topBarSearchFieldHeight
         )
     ) {
         folderWithElements(

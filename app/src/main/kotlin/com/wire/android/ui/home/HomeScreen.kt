@@ -3,7 +3,6 @@ package com.wire.android.ui.home
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -19,14 +18,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.dimensions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -38,10 +35,17 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val currentItem = HomeNavigationItem.getCurrentNavigationItem(navController)
     val scope = rememberCoroutineScope()
+    val homeState = rememberHomeState()
 
     val topBar: @Composable () -> Unit = {
-        HomeTopBar(currentItem.title, currentItem.isSearchable, drawerState, scope, viewModel)
+        HomeTopBar(
+            currentItem.title,
+            currentItem.isSearchable,
+            homeState.scrollPosition,
+            { scope.launch { viewModel.navigateToUserProfile() } },
+            { scope.launch { drawerState.open() } })
     }
+
     val drawerContent: @Composable ColumnScope.() -> Unit = {
         HomeDrawer(drawerState, currentItem.route, navController, HomeNavigationItem.all, scope, viewModel)
     }
@@ -54,7 +58,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         drawerContent = drawerContent,
         gesturesEnabled = drawerState.isOpen
     ) {
-        val homeState = rememberHomeState()
+
 
         val homeContent: @Composable () -> Unit = {
             Box {
@@ -94,6 +98,9 @@ class HomeState(
     bottomSheetContent: @Composable (ColumnScope.() -> Unit)?
 ) {
 
+    var scrollPosition by mutableStateOf(0)
+        private set
+
     var homeBottomSheetContent by mutableStateOf(bottomSheetContent)
         private set
 
@@ -103,6 +110,10 @@ class HomeState(
 
     fun changeBottomSheetContent(content: @Composable ColumnScope.() -> Unit) {
         homeBottomSheetContent = content
+    }
+
+    fun updateScrollPosition(newScrollPosition: Int) {
+        scrollPosition = newScrollPosition
     }
 
 }

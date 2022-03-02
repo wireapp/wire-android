@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.model.UserStatus
-import com.wire.android.ui.common.SearchableTopBarTest
+import com.wire.android.ui.common.SearchableTopBar
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
@@ -78,8 +78,8 @@ fun NewConversationContent(state: NewConversationState) {
             }
         }
 
-        SearchableTopBarTest(
-            topBarTitle = "String test",
+        SearchableTopBar(
+            topBarTitle = "New Conversation",
             searchHint = "Search people",
             lazyListState.firstVisibleItemIndex
         )

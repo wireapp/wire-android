@@ -53,6 +53,7 @@ internal fun navigateToItemInHome(
     }
 }
 
+
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 enum class HomeNavigationItem(
@@ -73,7 +74,9 @@ enum class HomeNavigationItem(
                     onHomeBottomSheetContentChange = { bottomSheetContent ->
                         homeState.changeBottomSheetContent(bottomSheetContent)
                     },
-                    onExpandHomeBottomSheet = { homeState.expandBottomSheet() })
+                    onExpandHomeBottomSheet = { homeState.expandBottomSheet() },
+                    onScrollPositionChange = { newScrollPosition -> homeState.updateScrollPosition(newScrollPosition) }
+                )
             }
         }
     ),

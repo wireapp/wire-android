@@ -62,6 +62,7 @@ fun ConversationRouterHomeBridge(
         uiState = viewModel.state,
         conversationState = conversationState,
         openConversation = { viewModel.openConversation(it) },
+        openNewConversation  = { viewModel.openNewConversation() },
         onExpandBottomSheet = { onExpandHomeBottomSheet() },
         updateScrollPosition = { viewModel.updateScrollPosition(it) }
     )
@@ -74,6 +75,7 @@ private fun ConversationRouter(
     uiState: ConversationListState,
     conversationState: ConversationState,
     openConversation: (ConversationId) -> Unit,
+    openNewConversation : () -> Unit,
     onExpandBottomSheet: () -> Unit,
     updateScrollPosition: (Int) -> Unit,
 ) {
@@ -92,7 +94,7 @@ private fun ConversationRouter(
                             .size(dimensions().fabIconSize)
                     )
                 },
-                onClick = {}
+                onClick = openNewConversation
             )
         },
         bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }

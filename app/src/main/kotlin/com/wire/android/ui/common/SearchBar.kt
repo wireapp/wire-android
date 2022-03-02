@@ -95,10 +95,8 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
     )
 }
 
-
-// This composable should have an option to update the scroll position
 @Composable
-fun SearchableTopBarTest(
+fun SearchableTopBar(
     topBarTitle: String,
     searchHint: String,
     scrollPosition: Int

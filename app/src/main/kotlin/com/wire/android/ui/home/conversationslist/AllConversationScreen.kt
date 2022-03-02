@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -25,8 +25,9 @@ fun AllConversationScreen(
     onEditConversationItem: (ConversationType) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {}
 ) {
-    val lazyListState = rememberLazyListState()
-    onScrollPositionChanged(lazyListState.firstVisibleItemIndex)
+    val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
+        onScrollPositionChanged(firstVisibleItemIndex)
+    }
 
     AllConversationContent(
         lazyListState = lazyListState,
@@ -36,6 +37,25 @@ fun AllConversationScreen(
         onEditConversationItem = onEditConversationItem
     )
 }
+
+@Composable
+private fun rememberLazyListState(
+    initialFirstVisibleItemIndex: Int = 0,
+    initialFirstVisibleItemScrollOffset: Int = 0,
+    onScrollPositionChanged: (Int) -> Unit,
+): LazyListState {
+    val state = rememberSaveable(saver = LazyListState.Saver) {
+        LazyListState(
+            initialFirstVisibleItemIndex,
+            initialFirstVisibleItemScrollOffset
+        )
+    }
+
+    onScrollPositionChanged(state.firstVisibleItemIndex)
+
+    return state
+}
+
 
 @Composable
 private fun AllConversationContent(

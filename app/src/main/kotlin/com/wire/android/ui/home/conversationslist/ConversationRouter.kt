@@ -36,7 +36,8 @@ import com.wire.kalium.logic.data.conversation.ConversationId
 @Composable
 fun ConversationRouterHomeBridge(
     onHomeBottomSheetContentChange: (@Composable ColumnScope.() -> Unit) -> Unit,
-    onExpandHomeBottomSheet: () -> Unit
+    onExpandHomeBottomSheet: () -> Unit,
+    onScrollPositionChange: (Int) -> Unit,
 ) {
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
@@ -62,9 +63,9 @@ fun ConversationRouterHomeBridge(
         uiState = viewModel.state,
         conversationState = conversationState,
         openConversation = { viewModel.openConversation(it) },
-        openNewConversation  = { viewModel.openNewConversation() },
+        openNewConversation = { viewModel.openNewConversation() },
         onExpandBottomSheet = { onExpandHomeBottomSheet() },
-        updateScrollPosition = { viewModel.updateScrollPosition(it) }
+        onScrollPositionChanged = onScrollPositionChange
     )
 }
 
@@ -75,9 +76,9 @@ private fun ConversationRouter(
     uiState: ConversationListState,
     conversationState: ConversationState,
     openConversation: (ConversationId) -> Unit,
-    openNewConversation : () -> Unit,
+    openNewConversation: () -> Unit,
     onExpandBottomSheet: () -> Unit,
-    updateScrollPosition: (Int) -> Unit,
+    onScrollPositionChanged: (Int) -> Unit,
 ) {
     Scaffold(
         floatingActionButton = {
@@ -115,7 +116,7 @@ private fun ConversationRouter(
                             conversations = conversations,
                             onOpenConversationClick = openConversation,
                             onEditConversationItem = ::editConversation,
-                            onScrollPositionChanged = updateScrollPosition
+                            onScrollPositionChanged = onScrollPositionChanged
                         )
                     })
                 composable(
@@ -126,7 +127,7 @@ private fun ConversationRouter(
                             callHistory = callHistory,
                             onCallItemClick = openConversation,
                             onEditConversationItem = ::editConversation,
-                            onScrollPositionChanged = updateScrollPosition
+                            onScrollPositionChanged = onScrollPositionChanged
                         )
                     })
                 composable(
@@ -137,7 +138,7 @@ private fun ConversationRouter(
                             allMentions = allMentions,
                             onMentionItemClick = openConversation,
                             onEditConversationItem = ::editConversation,
-                            onScrollPositionChanged = updateScrollPosition
+                            onScrollPositionChanged = onScrollPositionChanged
                         )
                     }
                 )

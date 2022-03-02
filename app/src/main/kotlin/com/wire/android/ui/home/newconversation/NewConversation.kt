@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
@@ -39,16 +40,16 @@ fun NewConversationContent(state: NewConversationState) {
     val lazyListState = rememberLazyListState()
 
     Box {
-        SearchableTopBarTest(
-            topBarTitle = "String test",
-            searchHint = "Search people",
-            lazyListState.firstVisibleItemIndex
-        )
-
-        Column {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(top = dimensions().topBarSearchFieldHeight)
+                .wrapContentSize()
+        ) {
             LazyColumn(
                 state = lazyListState,
                 modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(top = dimensions().topBarSearchFieldHeight)
             ) {
                 folderWithElements(
                     header = { "CONTACTS" },
@@ -76,6 +77,12 @@ fun NewConversationContent(state: NewConversationState) {
                 )
             }
         }
+
+        SearchableTopBarTest(
+            topBarTitle = "String test",
+            searchHint = "Search people",
+            lazyListState.firstVisibleItemIndex
+        )
     }
 }
 

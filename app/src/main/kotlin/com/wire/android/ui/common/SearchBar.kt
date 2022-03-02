@@ -9,9 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -93,63 +90,6 @@ fun SearchBarUI(placeholderText: String, modifier: Modifier = Modifier, onTextTy
         maxLines = 1,
         singleLine = true,
     )
-}
-
-@Composable
-fun SearchableTopBar(
-    topBarTitle: String,
-    searchHint: String,
-    scrollPosition: Int
-) {
-    var isCollapsed: Boolean by remember {
-        mutableStateOf(false)
-    }
-
-    LaunchedEffect(scrollPosition) {
-        snapshotFlow { scrollPosition }
-            .scan(0 to 0) { prevPair, newScrollIndex ->
-                if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
-                else prevPair.second to newScrollIndex
-            }
-            .map { (prevScrollIndex, newScrollIndex) ->
-                newScrollIndex > prevScrollIndex + 1
-            }
-            .distinctUntilChanged().collect {
-                isCollapsed = it
-            }
-    }
-
-    //calculate the animation to hide the searchbar
-    val searchFieldFullHeightPx = LocalDensity.current.run {
-        (dimensions().topBarSearchFieldHeight + dimensions().topBarElevationHeight).toPx()
-    }
-
-    //if collapsed hide the searchField
-    val searchFieldPosition by animateFloatAsState(if (isCollapsed) -searchFieldFullHeightPx else 0f)
-
-    Box(
-        Modifier.background(Color.Transparent)
-    ) {
-
-        Surface(
-            modifier = Modifier
-                .padding(top = dimensions().smallTopBarHeight)
-                .height(dimensions().topBarSearchFieldHeight)
-                .graphicsLayer { translationY = searchFieldPosition },
-            shadowElevation = dimensions().topBarElevationHeight
-        ) {
-            SearchBarUI(
-                modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                placeholderText = searchHint
-            )
-        }
-
-        WireCenterAlignedTopAppBar(
-            elevation = if (isCollapsed) dimensions().topBarElevationHeight else 0.dp,
-            title = topBarTitle,
-            onNavigationPressed = { }
-        )
-    }
 }
 
 @Preview(showBackground = true)

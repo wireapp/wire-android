@@ -2,9 +2,11 @@ package com.wire.android.ui.home.newconversation
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 class NewConversationViewModel : ViewModel() {
+    fun close() {
+        //TODO:close the screen
+    }
 
     val newConversationState = mutableStateOf(
         NewConversationState(

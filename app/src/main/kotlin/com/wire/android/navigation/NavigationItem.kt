@@ -10,11 +10,12 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.USER_PROFILE
@@ -26,6 +27,7 @@ import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.newconversation.NewConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
 import com.wire.android.ui.userprofile.image.AvatarPickerScreen
@@ -135,7 +137,13 @@ enum class NavigationItem(
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
             return if (conversationId != null) "$primaryRoute/${conversationId.mapIntoArgumentString()}" else primaryRoute
         }
-    };
+    },
+
+    NewConversation(
+        primaryRoute = NEW_CONVERSATION,
+        canonicalRoute = NEW_CONVERSATION,
+        content = { NewConversationScreen() }
+    );
 
     /**
      * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder.
@@ -165,6 +173,7 @@ object NavigationItemDestinationsRoutes {
     const val SETTINGS = "settings_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val IMAGE_PICKER = "image_picker_screen"
+    const val NEW_CONVERSATION = "new_conversation"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"

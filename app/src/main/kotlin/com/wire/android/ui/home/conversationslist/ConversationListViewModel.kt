@@ -72,6 +72,17 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
+    fun openNewConversation() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.NewConversation.getRouteWithArgs()
+                )
+            )
+        }
+    }
+
+
     //TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun muteConversation(id: String) {
@@ -140,5 +151,6 @@ class ConversationListViewModel @Inject constructor(
 
     //TODO
     private fun isPrivateChat(conversation: Conversation) = conversation.name.isNullOrEmpty()
+
 
 }

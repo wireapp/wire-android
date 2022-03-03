@@ -157,6 +157,7 @@ private fun PasswordTextFields(
     WirePasswordTextField(
         value = state.password,
         onValueChange = onPasswordChange,
+        labelMandatoryIcon = true,
         descriptionText = stringResource(R.string.create_personal_account_details_password_description),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Next),
         modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x).bringIntoViewOnFocus(coroutineScope),
@@ -167,6 +168,7 @@ private fun PasswordTextFields(
         value = state.confirmPassword,
         onValueChange = onConfirmPasswordChange,
         labelText = stringResource(R.string.create_personal_account_details_confirm_password_label),
+        labelMandatoryIcon = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = Modifier.padding(

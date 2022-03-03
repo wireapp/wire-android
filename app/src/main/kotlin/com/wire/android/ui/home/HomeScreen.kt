@@ -132,7 +132,6 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
     }
 }
 
-
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 class HomeState(
     val coroutineScope: CoroutineScope,

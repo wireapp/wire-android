@@ -55,12 +55,10 @@ fun SearchableWireCenterAlignedTopAppBar(
             }
     }
 
-    //calculate the animation to hide the searchbar
     val searchFieldFullHeightPx = LocalDensity.current.run {
         (dimensions().topBarSearchFieldHeight + dimensions().topBarElevationHeight).toPx()
     }
 
-    //if collapsed hide the searchField
     val searchFieldPosition by animateFloatAsState(if (isCollapsed) -searchFieldFullHeightPx else 0f)
 
     Box(

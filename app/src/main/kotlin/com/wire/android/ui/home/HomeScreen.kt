@@ -14,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,13 +40,14 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         val drawerContent: @Composable ColumnScope.() -> Unit = {
             HomeDrawer(
                 drawerState = drawerState,
-                currentRoute = itemRoute,
+                currentRoute = currentNavigationItem.route,
                 homeNavController = navController,
                 topItems = HomeNavigationItem.all,
                 scope = coroutineScope,
                 viewModel = viewModel
             )
         }
+
 
         NavigationDrawer(
             drawerContainerColor = MaterialTheme.colorScheme.surface,
@@ -58,7 +58,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             gesturesEnabled = drawerState.isOpen
         ) {
 
-            val homeContent: @Composable () -> Unit = {
+        val homeContent: @Composable () -> Unit = {
                 Box {
                     val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
 
@@ -69,10 +69,10 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                     )
 
                     HomeTopBar(
-                        title = itemTitle,
-                        isSearchable = isItemSearchable,
+                        title = currentNavigationItem.title,
+                        isSearchable = currentNavigationItem.isSearchable,
                         scrollPosition = scrollPosition,
-                        onUserProfileClick = { homeState.coroutineScope.launch { viewModel.navigateToUserProfile() } },
+                        onUserProfileClick = { viewModel.navigateToUserProfile() },
                         onHamburgerMenuItemCLick = { openDrawer() }
                     )
                 }
@@ -80,20 +80,20 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
 
             val homeBottomSheetContent = homeBottomSheetContent
 
-            if(homeBottomSheetContent != null){
+            if (homeBottomSheetContent != null) {
                 WireModalSheetLayout(
                     sheetState = bottomSheetState,
                     sheetContent = homeBottomSheetContent
                 ) {
                     homeContent()
                 }
-            }else{
+            } else {
                 homeContent()
             }
 
         }
 
-        BackHandler(enabled = drawerState.isOpen) { closeDrawer()  }
+        BackHandler(enabled = drawerState.isOpen) { closeDrawer() }
     }
 }
 
@@ -104,10 +104,7 @@ class HomeState(
     val drawerState: DrawerState,
     val bottomSheetState: ModalBottomSheetState,
     bottomSheetContent: @Composable (ColumnScope.() -> Unit)?,
-    val itemTitle: Int,
-    val itemRoute: String,
-    val isItemSearchable: Boolean,
-    val isItemSwipeable: Boolean
+    val currentNavigationItem: HomeNavigationItem
 ) {
 
     var scrollPosition by mutableStateOf(0)
@@ -159,27 +156,8 @@ fun rememberHomeState(
         else -> HomeNavigationItem.Conversations
     }
 
-    val itemTitle by remember(navigationItem) {
-        derivedStateOf { navigationItem.title }
-    }
-
-    val isItemSearchable by remember(navigationItem) {
-        derivedStateOf { navigationItem.isSearchable }
-    }
-
-    val itemRoute by remember(navigationItem) {
-        derivedStateOf { navigationItem.route }
-    }
-
-    val isItemSwipeable by remember(navigationItem) {
-        derivedStateOf { navigationItem.isSwipeable }
-    }
-
     val homeState = remember(
-        itemTitle,
-        isItemSearchable,
-        itemRoute,
-        isItemSwipeable
+        navigationItem
     ) {
         HomeState(
             coroutineScope,
@@ -187,10 +165,7 @@ fun rememberHomeState(
             drawerState,
             bottomSheetState,
             bottomSheetContent,
-            itemTitle,
-            itemRoute,
-            isItemSearchable,
-            isItemSwipeable
+            navigationItem
         )
     }
 

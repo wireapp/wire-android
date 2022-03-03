@@ -16,9 +16,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.R
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
@@ -38,7 +41,10 @@ fun NewConversationScreen(newConversationViewModel: NewConversationViewModel = h
 }
 
 @Composable
-fun NewConversationContent(state: NewConversationState, onCloseClick: () -> Unit) {
+fun NewConversationContent(
+    state: NewConversationState,
+    onCloseClick: () -> Unit
+) {
     val lazyListState = rememberLazyListState()
 
     Box {
@@ -54,7 +60,7 @@ fun NewConversationContent(state: NewConversationState, onCloseClick: () -> Unit
                 contentPadding = PaddingValues(top = dimensions().topBarSearchFieldHeight)
             ) {
                 folderWithElements(
-                    header = { "CONTACTS" },
+                    header = { stringResource(R.string.label_contacts) },
                     items = state.contacts
                 ) { contact ->
                     ContactItem(
@@ -67,23 +73,28 @@ fun NewConversationContent(state: NewConversationState, onCloseClick: () -> Unit
             Divider()
             Column(modifier = Modifier.padding(all = 16.dp)) {
                 WirePrimaryButton(
-                    text = "New Group",
-                    onClick = {},
+                    text = stringResource(R.string.label_new_group),
+                    onClick = {
+                        //TODO:open new group screen
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(16.dp))
                 WirePrimaryButton(
-                    text = "New Guestroom",
-                    onClick = {},
+                    text = stringResource(R.string.label_new_guestroom),
+                    onClick = {
+                        //TODO:open new guestroom
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         }
 
         SearchableWireCenterAlignedTopAppBar(
-            topBarTitle = "New Conversation",
-            searchHint = "Search people",
+            topBarTitle = stringResource(R.string.label_new_conversation),
+            searchHint = stringResource(R.string.label_search_people),
             scrollPosition = lazyListState.firstVisibleItemIndex,
+            navigationIconType = NavigationIconType.Close,
             onNavigationPressed = onCloseClick
         )
     }

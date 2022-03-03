@@ -44,12 +44,12 @@ class UserProfileViewModel @Inject constructor(
             getSelf().collect {
                 userProfileState = SelfUserProfileState(
                     status = UserStatus.AVAILABLE,
-                    fullName = it.name!!,
-                    userName = it.handle!!,
+                    fullName = it.name.orEmpty(),
+                    userName = it.handle.orEmpty(),
                     teamName = it.team,
                     // Add some mocked team
                     otherAccounts = listOf(
-                        OtherAccount("someId", "", it.name!!, "Wire Swiss GmbH"),
+                        OtherAccount("someId", "", it.name.orEmpty(), "Wire Swiss GmbH"),
                         OtherAccount("someId", "", "B. A. Baracus", "The A-Team"),
                     )
                 )

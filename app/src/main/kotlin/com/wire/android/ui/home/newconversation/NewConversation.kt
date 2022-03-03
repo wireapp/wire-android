@@ -1,16 +1,18 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,9 +40,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.NavigableSearchBar
+import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.theme.wireTypography
@@ -67,15 +71,10 @@ fun NewConversationContent(
     val lazyListState = rememberLazyListState()
 
     ConstraintLayout(Modifier.fillMaxSize()) {
-
         val (topBar, content) = createRefs()
 
         var isCollapsed by remember {
             mutableStateOf(false)
-        }
-
-        var isTopBarVisible by remember {
-            mutableStateOf(true)
         }
 
         LaunchedEffect(lazyListState.firstVisibleItemIndex) {
@@ -96,7 +95,22 @@ fun NewConversationContent(
             (dimensions().topBarSearchFieldHeight).toPx()
         }
 
-        val searchFieldPosition by animateFloatAsState(if (isCollapsed) 0f else searchFieldFullHeightPx)
+        var isTopBarVisible by remember {
+            mutableStateOf(true)
+        }
+
+        val size = if (isCollapsed) {
+            0f
+        } else {
+
+            if (isTopBarVisible) {
+                searchFieldFullHeightPx
+            } else {
+                searchFieldFullHeightPx / 2
+            }
+        }
+
+        val searchFieldPosition by animateFloatAsState(size)
 
         Box(modifier = Modifier
             .constrainAs(topBar) {
@@ -104,44 +118,8 @@ fun NewConversationContent(
                 bottom.linkTo(content.top)
             }
             .wrapContentSize()) {
-            Test(searchFieldPosition)
+            Test(searchFieldPosition, { isTopBarVisible = !isTopBarVisible }, isTopBarVisible)
         }
-
-//        Box(
-//            Modifier
-//                .background(Color.Red)
-//                .wrapContentSize()
-//        ) {
-//            Surface(
-//                modifier = Modifier
-//                    .height(dimensions().topBarSearchFieldHeight + 32.dp)
-//                    .graphicsLayer { translationY = searchFieldPosition },
-//                shadowElevation = dimensions().topBarElevationHeight
-//            ) {
-//                val interactionSource = remember {
-//                    MutableInteractionSource()
-//                }
-//
-//                if (interactionSource.collectIsPressedAsState().value) {
-//                    isTopBarVisible = !isTopBarVisible
-//                }
-//
-//                NavigableSearchBar(
-//                    placeholderText = "Search people",
-//                    onNavigateBack = { },
-//                    interactionSource = interactionSource
-//                )
-//            }
-//
-//            AnimatedVisibility(visible = isTopBarVisible) {
-//                WireCenterAlignedTopAppBar(
-//                    elevation = if (isCollapsed) dimensions().topBarElevationHeight else 0.dp,
-//                    title = stringResource(R.string.label_new_conversation),
-//                    navigationIconType = NavigationIconType.Close,
-//                    onNavigationPressed = onCloseClick
-//                )
-//            }
-//        }
 
         Column(
             Modifier
@@ -196,11 +174,11 @@ fun NewConversationContent(
 }
 
 @Composable
-fun Test(searchFieldPosition: Float) {
+fun Test(searchFieldPosition: Float, onInputPressed: () -> Unit, isTopBarVisible: Boolean) {
     Box(
         Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
+            .wrapContentHeight()
     ) {
         Surface(
             modifier = Modifier
@@ -216,7 +194,6 @@ fun Test(searchFieldPosition: Float) {
             Box(
                 Modifier
                     .fillMaxSize()
-                    .background(Color.Yellow)
             ) {
                 NavigableSearchBar(
                     placeholderText = "Search people",
@@ -227,19 +204,19 @@ fun Test(searchFieldPosition: Float) {
                 )
             }
 
-//            if (interactionSource.collectIsPressedAsState().value) {
-//                isTopBarVisible = !isTopBarVisible
-//            }
-
+            if (interactionSource.collectIsPressedAsState().value) {
+                onInputPressed()
+            }
         }
-//        AnimatedVisibility(visible = isTopBarVisible) {
-//        WireCenterAlignedTopAppBar(
-//            elevation = 0.dp,
-//            title = stringResource(R.string.label_new_conversation),
-//            navigationIconType = NavigationIconType.Close,
-//            onNavigationPressed = { }
-//        )
-//        }
+
+        AnimatedVisibility(visible = isTopBarVisible) {
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                title = stringResource(R.string.label_new_conversation),
+                navigationIconType = NavigationIconType.Close,
+                onNavigationPressed = { }
+            )
+        }
     }
 }
 

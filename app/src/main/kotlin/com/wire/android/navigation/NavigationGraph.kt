@@ -10,12 +10,12 @@ import androidx.navigation.compose.composable
 @OptIn(ExperimentalMaterialApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NavigationGraph(navController: NavHostController, startDestination: String, arguments: List<Any> = emptyList()) {
+fun NavigationGraph(navController: NavHostController, startDestination: String, appInitialArgs: List<Any> = emptyList()) {
     NavHost(navController, startDestination) {
         NavigationItem.values().onEach { item ->
             composable(
                 route = item.getCanonicalRoute(),
-                content = { navBackStackEntry -> item.content(ContentParams(navBackStackEntry, arguments)) })
+                content = { navBackStackEntry -> item.content(ContentParams(navBackStackEntry, appInitialArgs)) })
         }
     }
 }

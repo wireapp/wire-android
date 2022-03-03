@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversations.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationType
@@ -37,25 +38,6 @@ fun AllConversationScreen(
         onEditConversationItem = onEditConversationItem
     )
 }
-
-@Composable
-private fun rememberLazyListState(
-    initialFirstVisibleItemIndex: Int = 0,
-    initialFirstVisibleItemScrollOffset: Int = 0,
-    onScrollPositionChanged: (Int) -> Unit,
-): LazyListState {
-    val state = rememberSaveable(saver = LazyListState.Saver) {
-        LazyListState(
-            initialFirstVisibleItemIndex,
-            initialFirstVisibleItemScrollOffset
-        )
-    }
-
-    onScrollPositionChanged(state.firstVisibleItemIndex)
-
-    return state
-}
-
 
 @Composable
 private fun AllConversationContent(

@@ -40,8 +40,17 @@ class CreatePersonalAccountViewModel @Inject constructor(
     fun closeForm() { viewModelScope.launch { navigationManager.navigateBack() } }
     override fun goBackToPreviousStep() { viewModelScope.launch { moveBack.emit(Unit) } }
 
+    private fun clearState() {
+        emailState = EmailViewState()
+        detailsState = DetailsViewState()
+        codeState = CodeViewState()
+    }
+
     // Overview
-    override fun onOverviewContinue() { goToStep(CreatePersonalAccountNavigationItem.Email) }
+    override fun onOverviewContinue() {
+        clearState()
+        goToStep(CreatePersonalAccountNavigationItem.Email)
+    }
 
     // Email
     override fun onEmailChange(newText: TextFieldValue) {

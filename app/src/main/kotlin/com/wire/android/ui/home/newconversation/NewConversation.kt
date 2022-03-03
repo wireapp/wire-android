@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.common.NavigableSearchBar
 import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
@@ -92,9 +93,11 @@ fun NewConversationContent(
 
         SearchableWireCenterAlignedTopAppBar(
             topBarTitle = stringResource(R.string.label_new_conversation),
-            searchHint = stringResource(R.string.label_search_people),
             scrollPosition = lazyListState.firstVisibleItemIndex,
             navigationIconType = NavigationIconType.Close,
+            searchBar = {
+                NavigableSearchBar(placeholderText = "Search people", onNavigateBack = { })
+            },
             onNavigationPressed = onCloseClick
         )
     }

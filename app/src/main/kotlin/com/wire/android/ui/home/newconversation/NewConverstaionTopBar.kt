@@ -20,8 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.NavigableSearchBar
 import com.wire.android.ui.common.NavigationIconType
-import com.wire.android.ui.common.SearchBarUI
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -31,11 +31,11 @@ import kotlinx.coroutines.flow.scan
 @Composable
 fun SearchableWireCenterAlignedTopAppBar(
     topBarTitle: String,
-    searchHint: String,
     scrollPosition: Int,
     navigationIconType: NavigationIconType = NavigationIconType.Back,
     onNavigationPressed: () -> Unit,
-    actions: @Composable RowScope.() -> Unit = {}
+    actions: @Composable RowScope.() -> Unit = {},
+    searchBar : @Composable () -> Unit,
 ) {
     var isCollapsed: Boolean by remember {
         mutableStateOf(false)
@@ -71,10 +71,66 @@ fun SearchableWireCenterAlignedTopAppBar(
                 .graphicsLayer { translationY = searchFieldPosition },
             shadowElevation = dimensions().topBarElevationHeight
         ) {
-            SearchBarUI(
-                modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                placeholderText = searchHint
-            )
+            searchBar()
+        }
+
+        WireCenterAlignedTopAppBar(
+            elevation = if (isCollapsed) dimensions().topBarElevationHeight else 0.dp,
+            title = topBarTitle,
+            navigationIconType = navigationIconType,
+            onNavigationPressed = onNavigationPressed,
+            actions = actions
+        )
+    }
+}
+
+
+//this widget will collapse searchbar on scroll
+//this widget will close the topbar when clicked into the inputfield and align the text to the left
+@Composable
+fun SearchableWireCenterAlignedTopAppBarTest(
+    topBarTitle: String,
+    scrollPosition: Int,
+    navigationIconType: NavigationIconType = NavigationIconType.Back,
+    onNavigationPressed: () -> Unit,
+    actions: @Composable RowScope.() -> Unit = {},
+    searchBar : @Composable () -> Unit,
+) {
+    var isCollapsed: Boolean by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(scrollPosition) {
+        snapshotFlow { scrollPosition }
+            .scan(0 to 0) { prevPair, newScrollIndex ->
+                if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
+                else prevPair.second to newScrollIndex
+            }
+            .map { (prevScrollIndex, newScrollIndex) ->
+                newScrollIndex > prevScrollIndex + 1
+            }
+            .distinctUntilChanged().collect {
+                isCollapsed = it
+            }
+    }
+
+    val searchFieldFullHeightPx = LocalDensity.current.run {
+        (dimensions().topBarSearchFieldHeight + dimensions().topBarElevationHeight).toPx()
+    }
+
+    val searchFieldPosition by animateFloatAsState(if (isCollapsed) -searchFieldFullHeightPx else 0f)
+
+    Box(
+        Modifier.background(Color.Transparent)
+    ) {
+        Surface(
+            modifier = Modifier
+                .padding(top = dimensions().smallTopBarHeight)
+                .height(dimensions().topBarSearchFieldHeight)
+                .graphicsLayer { translationY = searchFieldPosition },
+            shadowElevation = dimensions().topBarElevationHeight
+        ) {
+            searchBar()
         }
 
         WireCenterAlignedTopAppBar(

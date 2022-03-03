@@ -15,7 +15,8 @@ fun NavigationGraph(navController: NavHostController, startDestination: String, 
         NavigationItem.values().onEach { item ->
             composable(
                 route = item.getCanonicalRoute(),
-                content = { navBackStackEntry -> item.content(ContentParams(navBackStackEntry, arguments)) })
+                content = { navBackStackEntry -> item.content(ContentParams(navBackStackEntry, arguments)) }, deepLinks = item.deepLinks
+            )
         }
     }
 }

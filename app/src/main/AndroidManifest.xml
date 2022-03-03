@@ -19,22 +19,24 @@
 
         <activity
                 android:name=".ui.WireActivity"
+                android:exported="true"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.SplashScreen"
-                android:windowSoftInputMode="adjustResize|stateHidden"
-                android:launchMode="singleTop"
-                android:exported="true">
+                android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="wire"
-                        android:host="access"/>
+
+                <data
+                        android:host="access"
+                        android:scheme="wire" />
+                <data
+                        android:host="teams.wire.com"
+                        android:scheme="https" />
             </intent-filter>
         </activity>
 

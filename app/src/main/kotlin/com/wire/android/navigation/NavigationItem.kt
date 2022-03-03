@@ -6,14 +6,17 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDeepLink
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.JOIN_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
@@ -46,6 +49,7 @@ enum class NavigationItem(
     internal val primaryRoute: String,
     private val canonicalRoute: String,
     val arguments: List<NamedNavArgument> = emptyList(),
+    val deepLinks: List<NavDeepLink> = emptyList(),
     open val content: @Composable (ContentParams) -> Unit
     // TODO add animations here
 ) {
@@ -69,6 +73,19 @@ enum class NavigationItem(
         canonicalRoute = CREATE_TEAM,
         content = { UnderConstructionScreen("Create Team Screen") }
     ),
+    JoinTeam(
+        primaryRoute = JOIN_TEAM,
+        canonicalRoute = JOIN_TEAM,
+        arguments = listOf(navArgument("team-code") {
+            type = NavType.StringType
+        }),
+        deepLinks = listOf(navDeepLink {
+            uriPattern = "https://teams.wire.com/join/?team-code={team-code}"
+        }),
+        content = { contentParams ->
+            val teamCode = contentParams.navBackStackEntry.arguments?.getString("team-code")
+            UnderConstructionScreen("Join Team Screen via InvitationLink [Your team code is $teamCode")
+        }),
 
     CreatePersonalAccount(
         primaryRoute = CREATE_PERSONAL_ACCOUNT,
@@ -158,6 +175,7 @@ object NavigationItemDestinationsRoutes {
     const val WELCOME = "welcome_screen"
     const val LOGIN = "login_screen"
     const val CREATE_TEAM = "create_team_screen"
+    const val JOIN_TEAM = "join_team_screen"
     const val CREATE_PERSONAL_ACCOUNT = "create_personal_account_screen"
     const val HOME = "home_landing_screen"
     const val USER_PROFILE = "user_profile_screen"

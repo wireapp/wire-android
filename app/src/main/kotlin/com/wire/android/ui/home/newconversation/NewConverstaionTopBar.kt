@@ -171,18 +171,17 @@ fun ClosableSearchTopBar(
     }
 }
 
-
 @Composable
 fun ClosableSearchBar(searchFieldPosition: Float, onInputPressed: () -> Unit, isTopBarVisible: Boolean) {
     Box(
         Modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .background(Color.Transparent)
     ) {
         Surface(
             modifier = Modifier
                 .height(searchFieldPosition.dp)
-                .background(Color.Yellow)
                 .wrapContentWidth(),
             shadowElevation = dimensions().topBarElevationHeight
         ) {

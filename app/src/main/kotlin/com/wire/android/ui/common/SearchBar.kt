@@ -3,6 +3,7 @@ package com.wire.android.ui.common
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -58,6 +59,7 @@ fun NavigableSearchBar(
     placeholderText: String,
     onTextTyped: (String) -> Unit = {},
     onNavigateBack: () -> Unit,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     modifier: Modifier = Modifier
 ) {
     SearchBarTemplate(
@@ -72,6 +74,7 @@ fun NavigableSearchBar(
                 )
             }
         },
+        interactionSource = interactionSource,
         placeholderTextStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
         textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
         onTextTyped = onTextTyped,
@@ -85,6 +88,7 @@ private fun SearchBarTemplate(
     leadingIcon: @Composable () -> Unit,
     onTextTyped: (String) -> Unit = {},
     placeholderTextStyle: TextStyle = LocalTextStyle.current,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = LocalTextStyle.current,
     modifier: Modifier = Modifier
 ) {
@@ -123,6 +127,7 @@ private fun SearchBarTemplate(
                 }
             }
         },
+        interactionSource = interactionSource,
         textStyle = textStyle.copy(fontSize = 14.sp),
         placeholderTextStyle = placeholderTextStyle.copy(fontSize = 14.sp),
         placeholderText = placeholderText,

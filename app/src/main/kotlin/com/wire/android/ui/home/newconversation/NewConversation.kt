@@ -1,9 +1,12 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,12 +15,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension.Companion.fillToConstraints
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.UserStatus
@@ -26,9 +39,13 @@ import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.theme.wireTypography
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.scan
 
 
 @Composable
@@ -48,17 +65,94 @@ fun NewConversationContent(
 ) {
     val lazyListState = rememberLazyListState()
 
-    Box {
+    ConstraintLayout(Modifier.fillMaxSize()) {
+
+        val (topBar, content) = createRefs()
+
+        var isCollapsed by remember {
+            mutableStateOf(false)
+        }
+
+        var isTopBarVisible by remember {
+            mutableStateOf(true)
+        }
+
+        LaunchedEffect(lazyListState.firstVisibleItemIndex) {
+            snapshotFlow { lazyListState.firstVisibleItemIndex }
+                .scan(0 to 0) { prevPair, newScrollIndex ->
+                    if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
+                    else prevPair.second to newScrollIndex
+                }
+                .map { (prevScrollIndex, newScrollIndex) ->
+                    newScrollIndex > prevScrollIndex + 1
+                }
+                .distinctUntilChanged().collect {
+                    isCollapsed = it
+                }
+        }
+
+        val searchFieldFullHeightPx = LocalDensity.current.run {
+            (dimensions().topBarSearchFieldHeight + dimensions().topBarElevationHeight).toPx()
+        }
+
+        val searchFieldPosition by animateFloatAsState(if (isCollapsed) -searchFieldFullHeightPx else 0f)
+
+        Box(modifier = Modifier.constrainAs(topBar) {
+            top.linkTo(parent.top)
+        }) {
+            Test(searchFieldPosition)
+        }
+
+//        Box(
+//            Modifier
+//                .background(Color.Red)
+//                .wrapContentSize()
+//        ) {
+//            Surface(
+//                modifier = Modifier
+//                    .height(dimensions().topBarSearchFieldHeight + 32.dp)
+//                    .graphicsLayer { translationY = searchFieldPosition },
+//                shadowElevation = dimensions().topBarElevationHeight
+//            ) {
+//                val interactionSource = remember {
+//                    MutableInteractionSource()
+//                }
+//
+//                if (interactionSource.collectIsPressedAsState().value) {
+//                    isTopBarVisible = !isTopBarVisible
+//                }
+//
+//                NavigableSearchBar(
+//                    placeholderText = "Search people",
+//                    onNavigateBack = { },
+//                    interactionSource = interactionSource
+//                )
+//            }
+//
+//            AnimatedVisibility(visible = isTopBarVisible) {
+//                WireCenterAlignedTopAppBar(
+//                    elevation = if (isCollapsed) dimensions().topBarElevationHeight else 0.dp,
+//                    title = stringResource(R.string.label_new_conversation),
+//                    navigationIconType = NavigationIconType.Close,
+//                    onNavigationPressed = onCloseClick
+//                )
+//            }
+//        }
+
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(top = dimensions().topBarSearchFieldHeight)
                 .wrapContentSize()
+                .constrainAs(content) {
+                    top.linkTo(topBar.bottom)
+                    bottom.linkTo(parent.bottom)
+
+                    height = fillToConstraints
+                }
         ) {
             LazyColumn(
                 state = lazyListState,
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(top = dimensions().topBarSearchFieldHeight)
             ) {
                 folderWithElements(
                     header = { stringResource(R.string.label_contacts) },
@@ -72,7 +166,11 @@ fun NewConversationContent(
                 }
             }
             Divider()
-            Column(modifier = Modifier.padding(all = 16.dp)) {
+            Column(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(all = 16.dp)
+            ) {
                 WirePrimaryButton(
                     text = stringResource(R.string.label_new_group),
                     onClick = {
@@ -90,18 +188,48 @@ fun NewConversationContent(
                 )
             }
         }
-
-        SearchableWireCenterAlignedTopAppBar(
-            topBarTitle = stringResource(R.string.label_new_conversation),
-            scrollPosition = lazyListState.firstVisibleItemIndex,
-            navigationIconType = NavigationIconType.Close,
-            searchBar = {
-                NavigableSearchBar(placeholderText = "Search people", onNavigateBack = { })
-            },
-            onNavigationPressed = onCloseClick
-        )
     }
 }
+
+
+@Composable
+fun Test(searchFieldPosition: Float) {
+    Box(
+        Modifier
+            .wrapContentSize()
+            .background(Color.Red)
+    ) {
+        Surface(
+            modifier = Modifier
+                .height(searchFieldPosition.dp),
+            shadowElevation = dimensions().topBarElevationHeight
+        ) {
+            val interactionSource = remember {
+                MutableInteractionSource()
+            }
+
+//            if (interactionSource.collectIsPressedAsState().value) {
+//                isTopBarVisible = !isTopBarVisible
+//            }
+
+            NavigableSearchBar(
+                placeholderText = "Search people",
+                onNavigateBack = { },
+                interactionSource = interactionSource
+            )
+        }
+
+//        AnimatedVisibility(visible = isTopBarVisible) {
+        WireCenterAlignedTopAppBar(
+            elevation = 0.dp,
+            title = stringResource(R.string.label_new_conversation),
+            navigationIconType = NavigationIconType.Close,
+            onNavigationPressed = { }
+        )
+//        }
+    }
+}
+
 
 @Composable
 private fun ContactItem(

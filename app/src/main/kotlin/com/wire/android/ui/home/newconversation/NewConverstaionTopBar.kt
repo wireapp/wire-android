@@ -1,12 +1,14 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,7 +37,7 @@ fun SearchableWireCenterAlignedTopAppBar(
     navigationIconType: NavigationIconType = NavigationIconType.Back,
     onNavigationPressed: () -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
-    searchBar : @Composable () -> Unit,
+    searchBar: @Composable () -> Unit,
 ) {
     var isCollapsed: Boolean by remember {
         mutableStateOf(false)
@@ -94,10 +96,13 @@ fun SearchableWireCenterAlignedTopAppBarTest(
     navigationIconType: NavigationIconType = NavigationIconType.Back,
     onNavigationPressed: () -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
-    searchBar : @Composable () -> Unit,
 ) {
     var isCollapsed: Boolean by remember {
         mutableStateOf(false)
+    }
+
+    var isTopBarVisible: Boolean by remember {
+        mutableStateOf(true)
     }
 
     LaunchedEffect(scrollPosition) {
@@ -130,16 +135,30 @@ fun SearchableWireCenterAlignedTopAppBarTest(
                 .graphicsLayer { translationY = searchFieldPosition },
             shadowElevation = dimensions().topBarElevationHeight
         ) {
-            searchBar()
+            val interactionSource = remember {
+                MutableInteractionSource()
+            }
+
+            if (interactionSource.collectIsPressedAsState().value) {
+                isTopBarVisible = !isTopBarVisible
+            }
+
+            NavigableSearchBar(
+                placeholderText = "Search people",
+                onNavigateBack = { },
+                interactionSource = interactionSource
+            )
         }
 
-        WireCenterAlignedTopAppBar(
-            elevation = if (isCollapsed) dimensions().topBarElevationHeight else 0.dp,
-            title = topBarTitle,
-            navigationIconType = navigationIconType,
-            onNavigationPressed = onNavigationPressed,
-            actions = actions
-        )
+        AnimatedVisibility(visible = isTopBarVisible) {
+            WireCenterAlignedTopAppBar(
+                elevation = if (isCollapsed) dimensions().topBarElevationHeight else 0.dp,
+                title = topBarTitle,
+                navigationIconType = navigationIconType,
+                onNavigationPressed = onNavigationPressed,
+                actions = actions
+            )
+        }
     }
 }
 

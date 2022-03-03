@@ -2,17 +2,20 @@ package com.wire.android.ui.home.newconversation
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.NavigationManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class NewConversationViewModel : ViewModel() {
-    fun close() {
-        //TODO:close the screen
-    }
+@HiltViewModel
+class NewConversationViewModel @Inject constructor(private val navigationManager: NavigationManager) : ViewModel() {
 
     val newConversationState = mutableStateOf(
         NewConversationState(
             listOf(
                 Contact(
-                    "test1"
+                    "This is first contact"
                 ), Contact(
                     "test2"
                 ), Contact(
@@ -44,10 +47,16 @@ class NewConversationViewModel : ViewModel() {
                 ), Contact(
                     "test2"
                 ), Contact(
-                    "test3"
+                    "This is last contact"
                 )
             )
         )
     )
+
+    fun close() {
+        viewModelScope.launch {
+            navigationManager.navigateBack()
+        }
+    }
 
 }

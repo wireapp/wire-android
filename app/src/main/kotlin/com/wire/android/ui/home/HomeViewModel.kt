@@ -19,7 +19,7 @@ class HomeViewModel
     private val listenToEvents: ListenToEventsUseCase,
 ) : ViewModel() {
 
-    suspend fun navigateToUserProfile() = navigateTo(NavigationItem.UserProfile, MY_USER_PROFILE_SUBROUTE)
+    fun navigateToUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.UserProfile, MY_USER_PROFILE_SUBROUTE) }
 
     suspend fun navigateTo(item: NavigationItem, extraRouteId: String = "") {
         navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs(listOf(extraRouteId))))

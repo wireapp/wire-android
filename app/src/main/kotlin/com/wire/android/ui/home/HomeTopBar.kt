@@ -46,7 +46,7 @@ fun HomeTopBar(
                 UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
                     onUserProfileClick()
                 }
-            },
+            }
         )
     }
 }

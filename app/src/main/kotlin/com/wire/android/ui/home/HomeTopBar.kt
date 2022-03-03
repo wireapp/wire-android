@@ -47,15 +47,6 @@ fun HomeTopBar(
             }
         )
     } else {
-        WireCenterAlignedTopAppBar(
-            title = topBarTitle,
-            onNavigationPressed = { onHamburgerMenuItemCLick() },
-            navigationIconType = navigationIconType,
-            actions = {
-                UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
-                    onUserProfileClick()
-                }
-            }
-        )
+
     }
 }

@@ -1,6 +1,7 @@
 package com.wire.android.ui.home
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
@@ -19,14 +20,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.wire.android.R
+import com.wire.android.model.UserStatus
 import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.ui.common.NavigationIconType
+import com.wire.android.ui.common.SearchBar
+import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.newconversation.SearchTopBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -56,24 +66,51 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             drawerContent = drawerContent,
             gesturesEnabled = currentNavigationItem.isSwipeable
         ) {
-
             val homeContent: @Composable () -> Unit = {
-                Box {
-                    val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
+                with(currentNavigationItem) {
+                    Box {
+                        val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
 
-                    HomeNavigationGraph(
-                        homeState = homeState,
-                        navController = navController,
-                        startDestination = startDestination
-                    )
+                        HomeNavigationGraph(
+                            homeState = homeState,
+                            navController = navController,
+                            startDestination = startDestination
+                        )
 
-                    HomeTopBar(
-                        title = currentNavigationItem.title,
-                        isSearchable = currentNavigationItem.isSearchable,
-                        scrollPosition = scrollPosition,
-                        onUserProfileClick = { viewModel.navigateToUserProfile() },
-                        onHamburgerMenuItemCLick = { openDrawer() }
-                    )
+                        if (isSearchable) {
+                            SearchTopBar(
+                                topBarTitle = stringResource(id = title),
+                                scrollPosition = scrollPosition,
+                                onNavigationPressed = { openDrawer() },
+                                navigationIconType = NavigationIconType.Menu,
+                                searchBar = {
+                                    SearchBar(
+                                        placeholderText = stringResource(
+                                            R.string.search_bar_hint,
+                                            stringResource(id = title).lowercase()
+                                        ),
+                                        modifier = Modifier.background(MaterialTheme.colorScheme.background)
+                                    )
+                                },
+                                actions = {
+                                    UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
+                                        viewModel.navigateToUserProfile()
+                                    }
+                                }
+                            )
+                        } else {
+                            WireCenterAlignedTopAppBar(
+                                title = stringResource(id = title),
+                                onNavigationPressed = { openDrawer() },
+                                navigationIconType = NavigationIconType.Menu,
+                                actions = {
+                                    UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
+                                        viewModel.navigateToUserProfile()
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
 
@@ -89,12 +126,12 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             } else {
                 homeContent()
             }
-
         }
 
         BackHandler(enabled = drawerState.isOpen) { closeDrawer() }
     }
 }
+
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 class HomeState(

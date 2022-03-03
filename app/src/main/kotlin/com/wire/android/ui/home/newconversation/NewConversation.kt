@@ -80,7 +80,7 @@ fun NewConversationContent(state: NewConversationState, onCloseClick: () -> Unit
             }
         }
 
-        NewConversationTopBar(
+        SearchableWireCenterAlignedTopAppBar(
             topBarTitle = "New Conversation",
             searchHint = "Search people",
             scrollPosition = lazyListState.firstVisibleItemIndex,

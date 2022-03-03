@@ -3,6 +3,7 @@ package com.wire.android.ui.home.newconversation
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.SearchBarUI
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -26,13 +28,14 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
 
-
 @Composable
-fun NewConversationTopBar(
+fun SearchableWireCenterAlignedTopAppBar(
     topBarTitle: String,
     searchHint: String,
     scrollPosition: Int,
+    navigationIconType: NavigationIconType = NavigationIconType.Back,
     onNavigationPressed: () -> Unit,
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     var isCollapsed: Boolean by remember {
         mutableStateOf(false)
@@ -63,7 +66,6 @@ fun NewConversationTopBar(
     Box(
         Modifier.background(Color.Transparent)
     ) {
-
         Surface(
             modifier = Modifier
                 .padding(top = dimensions().smallTopBarHeight)
@@ -80,7 +82,9 @@ fun NewConversationTopBar(
         WireCenterAlignedTopAppBar(
             elevation = if (isCollapsed) dimensions().topBarElevationHeight else 0.dp,
             title = topBarTitle,
-            onNavigationPressed = onNavigationPressed
+            navigationIconType = navigationIconType,
+            onNavigationPressed = onNavigationPressed,
+            actions = actions
         )
     }
 }

@@ -10,8 +10,14 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.create.code.CodeViewModel
+import com.wire.android.ui.authentication.create.code.CodeViewState
+import com.wire.android.ui.authentication.create.details.DetailsViewModel
+import com.wire.android.ui.authentication.create.details.DetailsViewState
+import com.wire.android.ui.authentication.create.email.EmailViewModel
+import com.wire.android.ui.authentication.create.email.EmailViewState
+import com.wire.android.ui.authentication.create.overview.OverviewViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,70 +27,84 @@ import javax.inject.Inject
 @HiltViewModel
 class CreatePersonalAccountViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-) : ViewModel() {
+) : ViewModel(), OverviewViewModel, EmailViewModel, DetailsViewModel, CodeViewModel {
     var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()
-    var state by mutableStateOf(CreatePersonalAccountViewState())
-        private set
+    override var emailState: EmailViewState by mutableStateOf(EmailViewState())
+    override var detailsState: DetailsViewState by mutableStateOf(DetailsViewState())
+    override var codeState: CodeViewState by mutableStateOf(CodeViewState())
+
 
     // Navigation
-    fun goToStep(item: CreatePersonalAccountNavigationItem) { viewModelScope.launch { moveToStep.emit(item) } }
-    fun goBackToPreviousStep() { viewModelScope.launch { moveBack.emit(Unit) } }
+    private fun goToStep(item: CreatePersonalAccountNavigationItem) { viewModelScope.launch { moveToStep.emit(item) } }
     fun closeForm() { viewModelScope.launch { navigationManager.navigateBack() } }
-    fun openLogin() { viewModelScope.launch { navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs())) } }
+    override fun goBackToPreviousStep() { viewModelScope.launch { moveBack.emit(Unit) } }
+
+    // Overview
+    override fun onOverviewContinue() { goToStep(CreatePersonalAccountNavigationItem.Email) }
 
     // Email
-    fun onEmailChange(newText: TextFieldValue) {
-        state = state.copy(email = state.email.copy(
+    override fun onEmailChange(newText: TextFieldValue) {
+        emailState = emailState.copy(
                 email = newText,
-                error = CreatePersonalAccountViewState.EmailError.None,
-                continueEnabled = newText.text.isNotEmpty() && !state.email.loading
-        ))
+                error = EmailViewState.EmailError.None,
+                continueEnabled = newText.text.isNotEmpty() && !emailState.loading)
+        codeState = codeState.copy(email = newText.text)
     }
-    fun onEmailContinue() {
-        state = state.copy(email = state.email.copy(loading = true, continueEnabled = false))
+    override fun onEmailContinue() {
+        emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch { //TODO replace with proper logic
-            state = state.copy(email = state.email.copy(loading = false, continueEnabled = true, termsDialogVisible = true))
+            emailState = emailState.copy(loading = false, continueEnabled = true, termsDialogVisible = true)
         }
     }
-    fun onTermsDialogDismiss() { state = state.copy(email = state.email.copy(termsDialogVisible = false)) }
-    fun onTermsAccepted() { goToStep(CreatePersonalAccountNavigationItem.Details) }
+    override fun onTermsDialogDismiss() { emailState = emailState.copy(termsDialogVisible = false) }
+    override fun onTermsAccepted() { goToStep(CreatePersonalAccountNavigationItem.Details) }
+    override fun openLogin() {
+        viewModelScope.launch { navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs())) }
+    }
 
     // Details
-    fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsFieldType) {
-        state = state.copy(details = when(fieldType) {
-            DetailsFieldType.FirstName -> state.details.copy(firstName = newText)
-                DetailsFieldType.LastName -> state.details.copy(lastName = newText)
-                DetailsFieldType.Password -> state.details.copy(password = newText)
-                DetailsFieldType.ConfirmPassword -> state.details.copy(confirmPassword = newText)
+    override fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsViewModel.DetailsFieldType) {
+        detailsState = when(fieldType) {
+            DetailsViewModel.DetailsFieldType.FirstName -> detailsState.copy(firstName = newText)
+            DetailsViewModel.DetailsFieldType.LastName -> detailsState.copy(lastName = newText)
+            DetailsViewModel.DetailsFieldType.Password -> detailsState.copy(password = newText)
+            DetailsViewModel.DetailsFieldType.ConfirmPassword -> detailsState.copy(confirmPassword = newText)
         }.let { it.copy(
-                error = CreatePersonalAccountViewState.DetailsError.None,
+                error = DetailsViewState.DetailsError.None,
                 continueEnabled = it.fieldsNotEmpty() && !it.loading
             )
-        })
+        }
     }
-    fun onDetailsContinue() {
-        state = state.copy(details = state.details.copy(loading = true, continueEnabled = false))
+    override fun onDetailsContinue() {
+        detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch { //TODO replace with proper logic
-            state = state.copy(details = state.details.copy(
+            detailsState = detailsState.copy(
                 loading = false,
                 continueEnabled = true,
                 error = when {
-                    state.details.password.text != state.details.confirmPassword.text ->
-                        CreatePersonalAccountViewState.DetailsError.PasswordsNotMatchingError
-                    state.details.password.text.length < MIN_PASSWORD_LENGTH ->
-                        CreatePersonalAccountViewState.DetailsError.InvalidPasswordError
-                    else -> CreatePersonalAccountViewState.DetailsError.None
+                    detailsState.password.text != detailsState.confirmPassword.text ->
+                        DetailsViewState.DetailsError.PasswordsNotMatchingError
+                    detailsState.password.text.length < DetailsViewModel.MIN_PASSWORD_LENGTH ->
+                        DetailsViewState.DetailsError.InvalidPasswordError
+                    else -> DetailsViewState.DetailsError.None
                 }
-            ))
+            )
+            if(detailsState.error is DetailsViewState.DetailsError.None)
+                goToStep(CreatePersonalAccountNavigationItem.Code)
         }
     }
 
-    companion object {
-        private const val MIN_PASSWORD_LENGTH = 8
+    // Code
+    override fun onCodeChange(newValue: TextFieldValue) {
+        codeState = codeState.copy(code = newValue, error = CodeViewState.CodeError.None)
+        //TODO perform request when code is filled
     }
-}
+    override fun onResendCodePressed() {
+        //TODO
+    }
 
-enum class DetailsFieldType {
-    FirstName, LastName, Password, ConfirmPassword
+    override fun onCodeContinue() {
+        //TODO
+    }
 }

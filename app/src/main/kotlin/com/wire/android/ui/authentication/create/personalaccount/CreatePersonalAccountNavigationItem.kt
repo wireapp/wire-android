@@ -1,8 +1,11 @@
 package com.wire.android.ui.authentication.create.personalaccount
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.android.ui.authentication.create.overview.OverviewParams
+import com.wire.android.R
 
 enum class CreatePersonalAccountNavigationItem(
     val route: String,
@@ -10,15 +13,33 @@ enum class CreatePersonalAccountNavigationItem(
 ) {
     Overview(
         route = CreatePersonalAccountDestinationsRoutes.OVERVIEW,
-        content = { OverviewScreen(it.viewModel, it.serverConfig) }
+        content = { OverviewScreen(
+            it.viewModel,
+            OverviewParams(
+                title = stringResource(R.string.create_personal_account_title),
+                contentText = stringResource(R.string.create_personal_account_text),
+                contentIconResId = R.drawable.ic_create_personal_account,
+                learnMoreText = stringResource(R.string.label_learn_more),
+                learnMoreUrl = "https://${it.serverConfig.websiteUrl}/pricing"
+            ), ) }
     ),
     Email(
         route = CreatePersonalAccountDestinationsRoutes.EMAIL,
-        content = { EmailScreen(it.viewModel, it.serverConfig) }
+        content = { EmailScreen(
+                it.viewModel,
+                it.serverConfig,
+                stringResource(R.string.create_personal_account_title),
+                stringResource(R.string.create_personal_account_email_text)
+            )
+        }
     ),
     Details(
         route = CreatePersonalAccountDestinationsRoutes.DETAILS,
-        content = { DetailsScreen(it.viewModel) }
+        content = { DetailsScreen(it.viewModel, stringResource(R.string.create_personal_account_title)) }
+    ),
+    Code(
+        route = CreatePersonalAccountDestinationsRoutes.CODE,
+        content = { CodeScreen(it.viewModel, stringResource(R.string.create_personal_account_title)) }
     )
 }
 
@@ -26,6 +47,7 @@ object CreatePersonalAccountDestinationsRoutes {
     const val OVERVIEW = "create_personal_account_overview_screen"
     const val EMAIL = "create_personal_account_email_screen"
     const val DETAILS = "create_personal_accounts_details_screen"
+    const val CODE = "create_personal_accounts_code_screen"
 }
 
 data class ContentParams(

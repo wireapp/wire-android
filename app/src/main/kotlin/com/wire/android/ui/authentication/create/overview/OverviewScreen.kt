@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication.create.personalaccount
 
 import android.content.Context
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.authentication.create.overview.OverviewParams
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
@@ -33,29 +35,22 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.ServerConfig
 
 @Composable
-fun OverviewScreen(
-    viewModel: CreatePersonalAccountViewModel,
-    serverConfig: ServerConfig,
-) {
+fun OverviewScreen(viewModel: CreatePersonalAccountViewModel, overviewParams: OverviewParams) {
     OverviewContent(
-        onBackPressed = { viewModel.goBackToPreviousStep() },
-        onContinuePressed = { viewModel.goToStep(CreatePersonalAccountNavigationItem.Email) },
-        websiteBaseUrl = serverConfig.websiteUrl,
+        onBackPressed = viewModel::goBackToPreviousStep,
+        onContinuePressed = viewModel::onOverviewContinue,
+        overviewParams = overviewParams,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OverviewContent(
-    onBackPressed: () -> Unit,
-    onContinuePressed: () -> Unit,
-    websiteBaseUrl: String,
-) {
+private fun OverviewContent(onBackPressed: () -> Unit, onContinuePressed: () -> Unit, overviewParams: OverviewParams) {
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
-                title = stringResource(R.string.create_personal_account_title),
+                title = overviewParams.title,
                 onNavigationPressed = onBackPressed
             )
         },
@@ -64,7 +59,7 @@ private fun OverviewContent(
             val context = LocalContext.current
             Spacer(modifier = Modifier.weight(1f))
             Image(
-                painter = painterResource(id = R.drawable.ic_create_personal_account),
+                painter = painterResource(id = overviewParams.contentIconResId),
                 contentDescription = "",
                 contentScale = ContentScale.Inside,
                 modifier = Modifier
@@ -75,7 +70,8 @@ private fun OverviewContent(
             )
             OverviewTexts(
                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing24x),
-                onLearnMoreClick = { openLearnMorePage(context, websiteBaseUrl) }
+                onLearnMoreClick = { CustomTabsHelper.launchUrl(context, overviewParams.learnMoreUrl) },
+                overviewParams = overviewParams,
             )
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
@@ -90,16 +86,23 @@ private fun OverviewContent(
 }
 
 @Composable
-private fun OverviewTexts(modifier: Modifier, onLearnMoreClick: () -> Unit) {
+private fun OverviewTexts(overviewParams: OverviewParams, modifier: Modifier, onLearnMoreClick: () -> Unit) {
     Column(modifier = modifier) {
+        if(overviewParams.contentTitle.isNotEmpty())
+            Text(
+                text = overviewParams.contentTitle,
+                style = MaterialTheme.wireTypography.title01,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+            )
         Text(
-            text = stringResource(R.string.create_personal_account_text),
+            text = overviewParams.contentText,
             style = MaterialTheme.wireTypography.body02,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
         Text(
-            text = stringResource(R.string.label_learn_more),
+            text = overviewParams.learnMoreText,
             style = MaterialTheme.wireTypography.body02.copy(
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.colorScheme.primary
@@ -116,17 +119,19 @@ private fun OverviewTexts(modifier: Modifier, onLearnMoreClick: () -> Unit) {
     }
 }
 
-private fun openLearnMorePage(context: Context, websiteBaseUrl: String) {
-    val url = "https://${websiteBaseUrl}/pricing"
-    CustomTabsHelper.launchUrl(context, url)
-}
-
 @Composable
 @Preview
 private fun OverviewScreenPreview() {
     OverviewContent(
         onBackPressed = { },
         onContinuePressed = { },
-        websiteBaseUrl = ""
+        overviewParams = OverviewParams(
+            title ="title",
+            contentTitle = "contentTitle",
+            contentText = "contentText",
+            contentIconResId = R.drawable.ic_create_personal_account,
+            learnMoreText = "learn more",
+            learnMoreUrl = ""
+        )
     )
 }

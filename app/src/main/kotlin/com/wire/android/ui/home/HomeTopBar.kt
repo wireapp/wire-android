@@ -13,7 +13,7 @@ import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.SearchBar
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.newconversation.SearchableWireCenterAlignedTopAppBar
+import com.wire.android.ui.home.newconversation.SearchTopBar
 
 
 @ExperimentalMaterial3Api
@@ -29,7 +29,7 @@ fun HomeTopBar(
     val navigationIconType = NavigationIconType.Menu
 
     if (isSearchable) {
-        SearchableWireCenterAlignedTopAppBar(
+        SearchTopBar(
             topBarTitle = topBarTitle,
             scrollPosition = scrollPosition,
             onNavigationPressed = { onHamburgerMenuItemCLick() },

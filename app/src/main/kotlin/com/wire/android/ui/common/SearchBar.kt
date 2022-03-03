@@ -68,7 +68,7 @@ fun NavigableSearchBar(
         {
             IconButton(onClick = onNavigateBack) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_right),
+                    painter = painterResource(id = R.drawable.ic_arrow_left),
                     contentDescription = stringResource(R.string.content_description_conversation_search_icon),
                     tint = MaterialTheme.wireColorScheme.onBackground
                 )

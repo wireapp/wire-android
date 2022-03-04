@@ -65,18 +65,18 @@ fun SearchBarTemplate(
     textStyle: TextStyle = LocalTextStyle.current,
     modifier: Modifier = Modifier
 ) {
-    var showClearButton by remember { mutableStateOf(false) }
-    var searchQuery by remember(text) { mutableStateOf(TextFieldValue(text)) }
+    val searchInputState = rememberSearchInputState()
 
     WireTextField(
         modifier = modifier
             .padding(bottom = dimensions().spacing16x)
             .padding(horizontal = dimensions().spacing8x),
-        value = searchQuery,
+        value = searchInputState.textFieldValue.copy(text = text),
         onValueChange = {
-            searchQuery = it
-            onTextTyped(it.text)
-            showClearButton = it.text.isNotEmpty()
+            searchInputState.textFieldValue = it
+            if (text != it.text) {
+                onTextTyped(it.text)
+            }
         },
         leadingIcon = {
             leadingIcon()
@@ -84,13 +84,13 @@ fun SearchBarTemplate(
         trailingIcon = {
             Box(modifier = Modifier.size(40.dp)) {
                 AnimatedVisibility(
-                    visible = showClearButton,
+                    visible = searchInputState.clearButtonEnabled,
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
                     IconButton(onClick = {
-                        searchQuery = TextFieldValue()
-                        showClearButton = false
+                        searchInputState.textFieldValue = TextFieldValue("")
+                        onTextTyped("")
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_clear_search),
@@ -109,6 +109,23 @@ fun SearchBarTemplate(
     )
 }
 
+
+@Composable
+fun rememberSearchInputState(): SearchInputState {
+    return remember {
+        SearchInputState()
+    }
+}
+
+class SearchInputState {
+
+    var textFieldValue by mutableStateOf(TextFieldValue(""))
+
+    val clearButtonEnabled: Boolean
+        @Composable get() =
+            textFieldValue.text.filter { !it.isWhitespace() }.isNotBlank()
+
+}
 
 @Preview(showBackground = true)
 @Composable

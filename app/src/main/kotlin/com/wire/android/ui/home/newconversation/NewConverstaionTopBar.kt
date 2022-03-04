@@ -115,9 +115,9 @@ fun ClosableSearchTopBar(
     scrollPosition: Int,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
-    onSearchClicked: () -> Unit,
-    onCloseSearchClicked: () -> Unit,
-    onNavigateBackClicked: () -> Unit,
+    onSearchClicked: () -> Unit = {},
+    onCloseSearchClicked: () -> Unit = {},
+    onNavigateBackClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val searchBarState = rememberSearchbarState(scrollPosition)
@@ -177,6 +177,7 @@ private fun ClosableSearchBarContent(
             val interactionSource = remember {
                 MutableInteractionSource()
             }
+
             Box(
                 Modifier
                     .fillMaxSize()
@@ -199,7 +200,6 @@ private fun ClosableSearchBarContent(
                             } else {
                                 IconButton(onClick = {
                                     focusManager.clearFocus()
-
                                     onBackClicked()
                                 }) {
                                     Icon(

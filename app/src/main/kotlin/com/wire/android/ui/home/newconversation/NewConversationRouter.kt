@@ -32,7 +32,10 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                 newConversationState.searchQuery = it
             },
             onSearchClicked = { newConversationState.navigateToSearch() },
-            onCloseSearchClicked = { newConversationState.navigateToContacts() },
+            onCloseSearchClicked = {
+                newConversationState.clearSearchQuery()
+                newConversationState.navigateToContacts()
+            },
             onNavigateBackClicked = { newConversationViewModel.close() },
             modifier = Modifier.constrainAs(topBarRef) {
                 top.linkTo(parent.top)
@@ -83,6 +86,10 @@ class NewConversationState(
 
     fun navigateToContacts() {
         navController.navigate("contacts")
+    }
+
+    fun clearSearchQuery() {
+        searchQuery = ""
     }
 }
 

@@ -4,17 +4,21 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
+import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.getViewModel
+import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
@@ -25,10 +29,8 @@ import org.junit.Test
     ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class
 )
 @HiltAndroidTest
-class MainScreenTest {
+class LoginScreenTest {
 
-    // Order matters =(
-    // First, we need hilt to be started
     @get:Rule(order = 0)
     var hiltRule = HiltAndroidRule(this)
 
@@ -42,37 +44,41 @@ class MainScreenTest {
     val composeTestRule = createAndroidComposeRule<WireActivity>()
 
     @Test
-    fun iTapLoginButton() {
+    fun iSeeLoginScreen() {
         hiltRule.inject()
 
         // Start the app
         composeTestRule.setContent {
             WireTheme {
-                WelcomeScreen(composeTestRule.getViewModel(WelcomeViewModel::class))
+                LoginScreen(serverConfig = ServerConfig.DEFAULT)
             }
         }
 
-        composeTestRule.onNodeWithText("Login").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Create Enterprise Account").assertIsDisplayed()
+        composeTestRule.onNode(hasTestTag("emailField"), useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNode(hasTestTag("emailField")).performTextClearance()
+        composeTestRule.onNode(hasTestTag("emailField")).performTextInput("mustafa+1@wire.com")
+
+        composeTestRule.onNode(hasTestTag("passwordField"), useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNode(hasTestTag("passwordField")).performTextClearance()
+        composeTestRule.onNode(hasTestTag("passwordField")).performTextInput("123456")
+
+        composeTestRule.onNodeWithText("Login").assertHasClickAction()
         composeTestRule.onNodeWithText("Login").performClick()
-//        composeTestRule.onNode(hasTestTag("passwordField"), useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
-    fun iTapCreateEnterpriseButton() {
+    fun iSeeForgotPasswordScreen() {
         hiltRule.inject()
 
         // Start the app
         composeTestRule.setContent {
             WireTheme {
-                WelcomeScreen(composeTestRule.getViewModel(WelcomeViewModel::class))
+                LoginScreen(serverConfig = ServerConfig.DEFAULT)
             }
         }
 
-        composeTestRule.onNodeWithText("Create Enterprise Account").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Create Enterprise Account").performClick()
-//        composeTestRule.waitForIdle()
-//        composeTestRule.onNodeWithText("Create Enterprise Account Screen is under construction",ignoreCase = true).assertIsDisplayed()
-
+        composeTestRule.onNodeWithText("Forgot password?").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Forgot password?").performClick()
+//        composeTestRule.onNodeWithText("Reset password", ignoreCase = true).assertIsDisplayed()
     }
 }

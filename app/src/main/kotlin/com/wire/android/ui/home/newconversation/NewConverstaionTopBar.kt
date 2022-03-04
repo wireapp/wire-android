@@ -112,8 +112,9 @@ fun SearchTopBar(
 @Composable
 fun ClosableSearchBar(
     scrollPosition: Int,
-    onSearchPressed: () -> Unit,
-    onBackPressed: () -> Unit,
+    onSearchClicked: () -> Unit,
+    onBackClicked: () -> Unit,
+    onCloseClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val searchBarState = rememberSearchbarState(scrollPosition)
@@ -121,13 +122,16 @@ fun ClosableSearchBar(
     ClosableSearchBarContent(
         topBarTotalHeight = searchBarState.size,
         isTopBarVisible = searchBarState.isTopBarVisible,
-        onInputClick = {
+        onInputClicked = {
             searchBarState.hideTopBar()
-            onSearchPressed()
+            onSearchClicked()
         },
-        onBackPressed = {
+        onBackClicked = {
             searchBarState.showTopBar()
-            onBackPressed()
+            onBackClicked()
+        },
+        onCloseClicked = {
+            onCloseClicked()
         },
         modifier = modifier
     )
@@ -138,8 +142,9 @@ fun ClosableSearchBar(
 private fun ClosableSearchBarContent(
     topBarTotalHeight: Float,
     isTopBarVisible: Boolean,
-    onInputClick: () -> Unit,
-    onBackPressed: () -> Unit,
+    onInputClicked: () -> Unit,
+    onBackClicked: () -> Unit,
+    onCloseClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val animatedTopBarTotalHeight by animateFloatAsState(topBarTotalHeight)
@@ -182,7 +187,7 @@ private fun ClosableSearchBarContent(
                                 IconButton(onClick = {
                                     focusManager.clearFocus()
 
-                                    onBackPressed()
+                                    onBackClicked()
                                 }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_arrow_left),
@@ -207,7 +212,7 @@ private fun ClosableSearchBarContent(
             }
 
             if (interactionSource.collectIsPressedAsState().value) {
-                onInputClick()
+                onInputClicked()
             }
         }
 
@@ -219,7 +224,7 @@ private fun ClosableSearchBarContent(
                 elevation = 0.dp,
                 title = stringResource(R.string.label_new_conversation),
                 navigationIconType = NavigationIconType.Close,
-                onNavigationPressed = { }
+                onNavigationPressed = { onCloseClicked() }
             )
         }
     }

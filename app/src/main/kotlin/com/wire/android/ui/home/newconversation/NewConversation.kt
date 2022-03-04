@@ -38,14 +38,14 @@ fun NewConversationScreen(newConversationViewModel: NewConversationViewModel = h
 
     NewConversationContent(
         state = state,
-        onCloseClick = { newConversationViewModel.close() }
+        onCloseClicked = { newConversationViewModel.close() }
     )
 }
 
 @Composable
 fun NewConversationContent(
     state: NewConversationState,
-    onCloseClick: () -> Unit
+    onCloseClicked: () -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     val navController = rememberNavController()
@@ -53,10 +53,16 @@ fun NewConversationContent(
     ConstraintLayout(Modifier.fillMaxSize()) {
         val (topBarRef, contentRef) = createRefs()
 
-        ClosableSearchBar(lazyListState.firstVisibleItemIndex, {}, {}, modifier = Modifier.constrainAs(topBarRef) {
-            top.linkTo(parent.top)
-            bottom.linkTo(contentRef.top)
-        })
+        ClosableSearchBar(
+            scrollPosition = lazyListState.firstVisibleItemIndex,
+            onSearchClicked = {},
+            onBackClicked = {},
+            onCloseClicked = { onCloseClicked() },
+            modifier = Modifier.constrainAs(topBarRef) {
+                top.linkTo(parent.top)
+                bottom.linkTo(contentRef.top)
+            }
+        )
 
         NavHost(navController, startDestination = "test1", modifier = Modifier.constrainAs(contentRef) {
             top.linkTo(topBarRef.bottom)
@@ -115,7 +121,8 @@ fun NewConversationContent(
                 route = "test2",
                 content = {
                     Text("This is test view")
-                })
+                }
+            )
         }
     }
 }

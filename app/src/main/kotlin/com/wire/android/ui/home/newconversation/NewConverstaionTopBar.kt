@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -112,14 +113,20 @@ fun SearchTopBar(
 @Composable
 fun ClosableSearchTopBar(
     scrollPosition: Int,
+    searchQuery: String,
+    onSearchQueryChanged: (String) -> Unit,
     onSearchClicked: () -> Unit,
-    onBackClicked: () -> Unit,
-    onCloseClicked: () -> Unit,
+    onCloseSearchClicked: () -> Unit,
+    onNavigateBackClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val searchBarState = rememberSearchbarState(scrollPosition)
 
     ClosableSearchBarContent(
+        searchQuery = searchQuery,
+        onSearchQueryChanged = {
+            onSearchQueryChanged(it)
+        },
         topBarTotalHeight = searchBarState.size,
         isSearchBarCollapsed = searchBarState.isCollapsed,
         isTopBarVisible = searchBarState.isTopBarVisible,
@@ -129,10 +136,10 @@ fun ClosableSearchTopBar(
         },
         onBackClicked = {
             searchBarState.showTopBar()
-            onBackClicked()
+            onCloseSearchClicked()
         },
         onCloseClicked = {
-            onCloseClicked()
+            onNavigateBackClicked()
         },
         modifier = modifier
     )
@@ -141,6 +148,8 @@ fun ClosableSearchTopBar(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun ClosableSearchBarContent(
+    searchQuery: String,
+    onSearchQueryChanged: (String) -> Unit,
     topBarTotalHeight: Float,
     isSearchBarCollapsed: Boolean,
     isTopBarVisible: Boolean,
@@ -175,6 +184,8 @@ private fun ClosableSearchBarContent(
             ) {
                 SearchBarTemplate(
                     placeholderText = "Search people",
+                    text = searchQuery,
+                    onTextTyped = onSearchQueryChanged,
                     leadingIcon = {
                         AnimatedContent(isTopBarVisible) { isVisible ->
                             if (isVisible) {
@@ -260,11 +271,16 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
         mutableStateOf(true)
     }
 
+    val searchQuery = remember {
+        mutableStateOf("")
+    }
+
     return remember(isCollapsed) {
         SearchBarState(
             searchFieldFullHeightPx,
             isCollapsed,
             isTopBarVisible,
+            searchQuery,
         )
     }
 }
@@ -273,8 +289,11 @@ class SearchBarState(
     private val searchFieldFullHeightPx: Float,
     val isCollapsed: Boolean,
     defaultIsTopBarVisible: MutableState<Boolean>,
+    defaultSearchQuery: MutableState<String>,
 ) {
     var isTopBarVisible by defaultIsTopBarVisible
+
+    var searchQuery by mutableStateOf(TextFieldValue(defaultSearchQuery.value))
 
     val size
         @Composable get() =

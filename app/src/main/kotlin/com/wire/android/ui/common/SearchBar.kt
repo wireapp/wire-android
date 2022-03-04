@@ -17,8 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -60,6 +58,7 @@ fun SearchBar(
 fun SearchBarTemplate(
     placeholderText: String,
     leadingIcon: @Composable () -> Unit,
+    text: String = "",
     onTextTyped: (String) -> Unit = {},
     placeholderTextStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -67,15 +66,15 @@ fun SearchBarTemplate(
     modifier: Modifier = Modifier
 ) {
     var showClearButton by remember { mutableStateOf(false) }
-    var text by remember { mutableStateOf(TextFieldValue()) }
+    var searchQuery by remember(text) { mutableStateOf(TextFieldValue(text)) }
 
     WireTextField(
         modifier = modifier
             .padding(bottom = dimensions().spacing16x)
             .padding(horizontal = dimensions().spacing8x),
-        value = text,
+        value = searchQuery,
         onValueChange = {
-            text = it
+            searchQuery = it
             onTextTyped(it.text)
             showClearButton = it.text.isNotEmpty()
         },
@@ -90,7 +89,7 @@ fun SearchBarTemplate(
                     exit = fadeOut()
                 ) {
                     IconButton(onClick = {
-                        text = TextFieldValue()
+                        searchQuery = TextFieldValue()
                         showClearButton = false
                     }) {
                         Icon(

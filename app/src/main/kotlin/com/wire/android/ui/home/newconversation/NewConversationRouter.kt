@@ -27,9 +27,13 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
 
         ClosableSearchTopBar(
             scrollPosition = newConversationState.scrollPosition,
+            searchQuery = newConversationState.searchQuery,
+            onSearchQueryChanged = {
+                newConversationState.searchQuery = it
+            },
             onSearchClicked = { newConversationState.navigateToSearch() },
-            onBackClicked = { newConversationState.navigateToContacts() },
-            onCloseClicked = { newConversationViewModel.close() },
+            onCloseSearchClicked = { newConversationState.navigateToContacts() },
+            onNavigateBackClicked = { newConversationViewModel.close() },
             modifier = Modifier.constrainAs(topBarRef) {
                 top.linkTo(parent.top)
                 bottom.linkTo(contentRef.top)
@@ -51,7 +55,9 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
             composable(
                 route = "search_people",
                 content = {
-                    SearchPeopleScreen(onScrollPositionChanged = { newConversationState.updateScrollPosition(it) })
+                    SearchPeopleScreen(
+                        searchQuery = newConversationState.searchQuery,
+                        onScrollPositionChanged = { newConversationState.updateScrollPosition(it) })
                 }
             )
         }
@@ -61,6 +67,8 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
 class NewConversationState(
     val navController: NavHostController
 ) {
+
+    var searchQuery by mutableStateOf("")
 
     var scrollPosition by mutableStateOf(0)
         private set

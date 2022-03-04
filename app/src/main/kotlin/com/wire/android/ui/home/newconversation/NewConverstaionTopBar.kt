@@ -40,7 +40,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -132,10 +131,12 @@ fun ClosableSearchTopBar(
         isTopBarVisible = searchBarState.isTopBarVisible,
         onInputClicked = {
             searchBarState.hideTopBar()
+
             onSearchClicked()
         },
         onBackClicked = {
             searchBarState.showTopBar()
+
             onCloseSearchClicked()
         },
         onCloseClicked = {
@@ -200,6 +201,7 @@ private fun ClosableSearchBarContent(
                             } else {
                                 IconButton(onClick = {
                                     focusManager.clearFocus()
+
                                     onBackClicked()
                                 }) {
                                     Icon(
@@ -271,16 +273,11 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
         mutableStateOf(true)
     }
 
-    val searchQuery = remember {
-        mutableStateOf("")
-    }
-
     return remember(isCollapsed) {
         SearchBarState(
             searchFieldFullHeightPx,
             isCollapsed,
             isTopBarVisible,
-            searchQuery,
         )
     }
 }
@@ -289,11 +286,8 @@ class SearchBarState(
     private val searchFieldFullHeightPx: Float,
     val isCollapsed: Boolean,
     defaultIsTopBarVisible: MutableState<Boolean>,
-    defaultSearchQuery: MutableState<String>,
 ) {
     var isTopBarVisible by defaultIsTopBarVisible
-
-    var searchQuery by mutableStateOf(TextFieldValue(defaultSearchQuery.value))
 
     val size
         @Composable get() =

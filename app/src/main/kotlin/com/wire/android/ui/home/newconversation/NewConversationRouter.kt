@@ -71,7 +71,7 @@ class NewConversationState(
     val navController: NavHostController
 ) {
 
-    var searchQuery by mutableStateOf("")
+    var searchQuery by mutableStateOf("This is the initial value")
 
     var scrollPosition by mutableStateOf(0)
         private set

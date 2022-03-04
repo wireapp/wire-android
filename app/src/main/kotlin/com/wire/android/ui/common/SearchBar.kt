@@ -1,5 +1,6 @@
 package com.wire.android.ui.common
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -67,6 +68,12 @@ fun SearchBarTemplate(
 ) {
     val searchInputState = rememberSearchInputState()
 
+    if (searchInputState.clearButtonEnabled) {
+        Log.d("TEST", "statis enmabled")
+    } else {
+        Log.d("TEST", "statis disabled")
+    }
+
     WireTextField(
         modifier = modifier
             .padding(bottom = dimensions().spacing16x)
@@ -74,9 +81,7 @@ fun SearchBarTemplate(
         value = searchInputState.textFieldValue.copy(text = text),
         onValueChange = {
             searchInputState.textFieldValue = it
-            if (text != it.text) {
-                onTextTyped(it.text)
-            }
+            onTextTyped(it.text)
         },
         leadingIcon = {
             leadingIcon()
@@ -89,7 +94,7 @@ fun SearchBarTemplate(
                     exit = fadeOut()
                 ) {
                     IconButton(onClick = {
-                        searchInputState.textFieldValue = TextFieldValue("")
+                        searchInputState.textFieldValue = TextFieldValue()
                         onTextTyped("")
                     }) {
                         Icon(
@@ -109,7 +114,6 @@ fun SearchBarTemplate(
     )
 }
 
-
 @Composable
 fun rememberSearchInputState(): SearchInputState {
     return remember {
@@ -123,7 +127,8 @@ class SearchInputState {
 
     val clearButtonEnabled: Boolean
         @Composable get() =
-            textFieldValue.text.filter { !it.isWhitespace() }.isNotBlank()
+            textFieldValue.text
+                .isNotBlank()
 
 }
 

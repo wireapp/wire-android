@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,8 +39,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.NavigableSearchBar
 import com.wire.android.ui.common.NavigationIconType
@@ -107,129 +105,53 @@ fun SearchTopBar(
     }
 }
 
-//this widget will collapse searchbar on scroll
-//this widget will close the topbar when clicked into the inputfield and align the text to the left
-@Composable
-fun ClosableSearchTopBar(
-    scrollPosition: Int,
-    onInputPressed: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-//    ConstraintLayout(Modifier.fillMaxSize()) {
-//        val (topBarRef, contentRef) = createRefs()
-//
-//        var isCollapsed by remember {
-//            mutableStateOf(false)
-//        }
-//
-//        LaunchedEffect(scrollPosition) {
-//            snapshotFlow { scrollPosition }
-//                .scan(0 to 0) { prevPair, newScrollIndex ->
-//                    if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
-//                    else prevPair.second to newScrollIndex
-//                }
-//                .map { (prevScrollIndex, newScrollIndex) ->
-//                    newScrollIndex > prevScrollIndex + 1
-//                }
-//                .distinctUntilChanged().collect {
-//                    isCollapsed = it
-//                }
-//        }
-//
-//        val searchFieldFullHeightPx = LocalDensity.current.run {
-//            (dimensions().topBarSearchFieldHeight).toPx()
-//        }
-//
-//        var isTopBarVisible by remember {
-//            mutableStateOf(true)
-//        }
-//
-//        val size = if (isCollapsed) {
-//            0f
-//        } else {
-//
-//            if (isTopBarVisible) {
-//                searchFieldFullHeightPx
-//            } else {
-//                searchFieldFullHeightPx / 2
-//            }
-//        }
-//
-//
-//        Box(modifier = Modifier
-//            .constrainAs(topBarRef) {
-//                top.linkTo(parent.top)
-//                bottom.linkTo(contentRef.top)
-//            }
-//            .wrapContentSize()) {
-//            ClosableSearchBar(searchFieldPosition, {
-//                onInputPressed()
-//                isTopBarVisible = false
-//            }, { isTopBarVisible = true }, isTopBarVisible)
-//        }
-//
-//        Box(
-//            Modifier
-//                .fillMaxWidth()
-//                .wrapContentSize()
-//                .constrainAs(contentRef) {
-//                    top.linkTo(topBarRef.bottom)
-//                    bottom.linkTo(parent.bottom)
-//
-//                    height = Dimension.fillToConstraints
-//                }
-//        ) {
-//            content()
-//        }
-//    }
-}
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ClosableSearchBar(
     scrollPosition: Int,
     onInputPressed: () -> Unit,
     onCloseSearch: () -> Unit,
-    modifier : Modifier = Modifier
+    modifier: Modifier = Modifier
 ) {
-    var isCollapsed by remember {
-        mutableStateOf(false)
-    }
+    val searchBarState = rememberSearchbarState(scrollPosition = scrollPosition)
 
-    LaunchedEffect(scrollPosition) {
-        snapshotFlow { scrollPosition }
-            .scan(0 to 0) { prevPair, newScrollIndex ->
-                if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
-                else prevPair.second to newScrollIndex
-            }
-            .map { (prevScrollIndex, newScrollIndex) ->
-                newScrollIndex > prevScrollIndex + 1
-            }
-            .distinctUntilChanged().collect {
-                isCollapsed = it
-            }
-    }
+//    var isCollapsed by remember {
+//        mutableStateOf(false)
+//    }
+//
+//    LaunchedEffect(scrollPosition) {
+//        snapshotFlow { scrollPosition }
+//            .scan(0 to 0) { prevPair, newScrollIndex ->
+//                if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
+//                else prevPair.second to newScrollIndex
+//            }
+//            .map { (prevScrollIndex, newScrollIndex) ->
+//                newScrollIndex > prevScrollIndex + 1
+//            }
+//            .distinctUntilChanged().collect {
+//                isCollapsed = it
+//            }
+//    }
+//
+//    val searchFieldFullHeightPx = LocalDensity.current.run {
+//        (dimensions().topBarSearchFieldHeight).toPx()
+//    }
+//
+//    var isTopBarVisible by remember {
+//        mutableStateOf(true)
+//    }
+//
+//    val size = if (isCollapsed) {
+//        0f
+//    } else {
+//        if (isTopBarVisible) {
+//            searchFieldFullHeightPx
+//        } else {
+//            searchFieldFullHeightPx / 2
+//        }
+//    }
 
-    val searchFieldFullHeightPx = LocalDensity.current.run {
-        (dimensions().topBarSearchFieldHeight).toPx()
-    }
-
-    var isTopBarVisible by remember {
-        mutableStateOf(true)
-    }
-
-    val size = if (isCollapsed) {
-        0f
-    } else {
-
-        if (isTopBarVisible) {
-            searchFieldFullHeightPx
-        } else {
-            searchFieldFullHeightPx / 2
-        }
-    }
-
-    val searchFieldPosition by animateFloatAsState(size)
+    val searchFieldPosition by animateFloatAsState(searchBarState.size)
 
     Box(
         modifier
@@ -254,9 +176,9 @@ fun ClosableSearchBar(
                 NavigableSearchBar(
                     placeholderText = "Search people",
                     leadingIcon = {
-                        AnimatedContent(isTopBarVisible) {
+                        AnimatedContent(searchBarState.isTopBarVisible.value) {
                             if (it) {
-                                IconButton(onClick = { isTopBarVisible = false }) {
+                                IconButton(onClick = { searchBarState.hideTopBar() }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_search_icon),
                                         contentDescription = stringResource(R.string.content_description_conversation_search_icon),
@@ -265,7 +187,7 @@ fun ClosableSearchBar(
                                 }
                             } else {
                                 IconButton(onClick = {
-                                    isTopBarVisible = true
+                                    searchBarState.showTopBar()
                                     onCloseSearch()
                                 }) {
                                     Icon(
@@ -278,10 +200,10 @@ fun ClosableSearchBar(
                         }
 
                     },
-                    placeholderTextStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                    placeholderTextStyle = if (searchBarState.isTopBarVisible.value) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
                         textAlign = TextAlign.Start
                     ),
-                    textStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                    textStyle = if (searchBarState.isTopBarVisible.value) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
                         textAlign = TextAlign.Start
                     ),
                     interactionSource = interactionSource,
@@ -296,7 +218,7 @@ fun ClosableSearchBar(
         }
 
         AnimatedVisibility(
-            visible = isTopBarVisible, enter = expandVertically(),
+            visible = searchBarState.isTopBarVisible.value, enter = expandVertically(),
             exit = shrinkVertically(),
         ) {
             WireCenterAlignedTopAppBar(
@@ -307,4 +229,67 @@ fun ClosableSearchBar(
             )
         }
     }
+}
+
+@Composable
+private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
+    var isCollapsed by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(scrollPosition) {
+        snapshotFlow { scrollPosition }
+            .scan(0 to 0) { prevPair, newScrollIndex ->
+                if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
+                else prevPair.second to newScrollIndex
+            }
+            .map { (prevScrollIndex, newScrollIndex) ->
+                newScrollIndex > prevScrollIndex + 1
+            }
+            .distinctUntilChanged().collect {
+                isCollapsed = it
+            }
+    }
+
+    val searchFieldFullHeightPx = LocalDensity.current.run {
+        (dimensions().topBarSearchFieldHeight).toPx()
+    }
+
+    val isTopBarVisible = remember {
+        mutableStateOf(true)
+    }
+
+    return remember(isCollapsed) {
+        SearchBarState(
+            searchFieldFullHeightPx,
+            isCollapsed,
+            isTopBarVisible,
+        )
+    }
+}
+
+class SearchBarState(
+    searchFieldFullHeightPx: Float,
+    isCollapsed: Boolean,
+    val isTopBarVisible: MutableState<Boolean>,
+) {
+
+    val size: Float = if (isCollapsed) {
+        0f
+    } else {
+        if (isTopBarVisible.value) {
+            searchFieldFullHeightPx
+        } else {
+            searchFieldFullHeightPx / 2
+        }
+    }
+
+    fun hideTopBar() {
+        isTopBarVisible.value = false
+    }
+
+    fun showTopBar() {
+        isTopBarVisible.value = true
+    }
+
 }

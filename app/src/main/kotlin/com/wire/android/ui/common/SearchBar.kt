@@ -82,7 +82,7 @@ fun SearchBarInput(
         trailingIcon = {
             Box(modifier = Modifier.size(40.dp)) {
                 AnimatedVisibility(
-                    visible = searchInputState.textFieldValue.text.isNotBlank(),
+                    visible = text.isNotBlank(),
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {

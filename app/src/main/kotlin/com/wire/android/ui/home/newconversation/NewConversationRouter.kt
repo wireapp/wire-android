@@ -25,7 +25,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
     ConstraintLayout(Modifier.fillMaxSize()) {
         val (topBarRef, contentRef) = createRefs()
 
-        ClosableSearchTopBar(
+        TopBarWithSearch(
             scrollPosition = newConversationState.scrollPosition,
             searchQuery = newConversationState.searchQuery,
             onSearchQueryChanged = {
@@ -34,7 +34,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
             onSearchClicked = { newConversationState.navigateToSearch() },
             onCloseSearchClicked = {
                 newConversationState.clearSearchQuery()
-                newConversationState.navigateToContacts()
+                newConversationState.navigateBack()
             },
             onNavigateBackClicked = { newConversationViewModel.close() },
             modifier = Modifier.constrainAs(topBarRef) {
@@ -84,7 +84,7 @@ class NewConversationState(
         navController.navigate("search_people")
     }
 
-    fun navigateToContacts() {
+    fun navigateBack() {
         navController.navigate("contacts")
     }
 

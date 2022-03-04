@@ -53,7 +53,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
 
 @Composable
-fun SearchTopBar(
+fun DeprecatedSearchTopBar(
     topBarTitle: String,
     scrollPosition: Int,
     navigationIconType: NavigationIconType = NavigationIconType.Back,
@@ -110,7 +110,7 @@ fun SearchTopBar(
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun ClosableSearchTopBar(
+fun TopBarWithSearch(
     scrollPosition: Int,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
@@ -121,7 +121,7 @@ fun ClosableSearchTopBar(
 ) {
     val searchBarState = rememberSearchbarState(scrollPosition)
 
-    ClosableSearchBarContent(
+    TopBarWithSearchContent(
         searchQuery = searchQuery,
         onSearchQueryChanged = {
             onSearchQueryChanged(it)
@@ -146,7 +146,7 @@ fun ClosableSearchTopBar(
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun ClosableSearchBarContent(
+private fun TopBarWithSearchContent(
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
     topBarTotalHeight: Float,

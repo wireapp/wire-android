@@ -36,7 +36,7 @@ import com.wire.android.ui.common.SearchBar
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.newconversation.SearchTopBar
+import com.wire.android.ui.home.newconversation.DeprecatedSearchTopBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -78,7 +78,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                         )
 
                         if (isSearchable) {
-                            SearchTopBar(
+                            DeprecatedSearchTopBar(
                                 topBarTitle = stringResource(id = title),
                                 scrollPosition = scrollPosition,
                                 onNavigationPressed = { openDrawer() },

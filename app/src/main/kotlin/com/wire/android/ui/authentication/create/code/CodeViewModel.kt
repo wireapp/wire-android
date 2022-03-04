@@ -1,15 +1,11 @@
 package com.wire.android.ui.authentication.create.code
 
-import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.ui.common.textfield.CodeFieldValue
 
 interface CodeViewModel {
     val codeState: CodeViewState
-    fun onCodeChange(newValue: TextFieldValue)
-    fun onResendCodePressed()
+    fun onCodeChange(newValue: CodeFieldValue)
+    fun resendCode()
     fun onCodeContinue()
     fun goBackToPreviousStep()
-
-    companion object {
-        const val CODE_LENGTH = 6
-    }
 }

@@ -16,8 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.authentication.create.code.CodeViewModel
 import com.wire.android.ui.authentication.create.code.CodeViewState
+import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -37,7 +38,7 @@ fun CodeScreen(viewModel: CodeViewModel, title: String) {
         state = viewModel.codeState,
         title = title,
         onCodeChange = viewModel::onCodeChange,
-        onResendCodePressed = viewModel::onResendCodePressed,
+        onResendCodePressed = viewModel::resendCode,
         onBackPressed = viewModel::goBackToPreviousStep,
     )
 }
@@ -47,7 +48,7 @@ fun CodeScreen(viewModel: CodeViewModel, title: String) {
 private fun CodeContent(
     state: CodeViewState,
     title: String,
-    onCodeChange: (TextFieldValue) -> Unit,
+    onCodeChange: (CodeFieldValue) -> Unit,
     onResendCodePressed: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
@@ -68,7 +69,7 @@ private fun CodeContent(
             Spacer(modifier = Modifier.weight(1f))
             Column(horizontalAlignment = Alignment.CenterHorizontally,) {
                 CodeTextField(
-                    codeLength = CodeViewModel.CODE_LENGTH,
+                    codeLength = integerResource(id = R.integer.code_length),
                     value = state.code,
                     onValueChange = onCodeChange,
                     state = when(state.error) {

@@ -17,6 +17,7 @@ import com.wire.android.ui.authentication.create.details.DetailsViewState
 import com.wire.android.ui.authentication.create.email.EmailViewModel
 import com.wire.android.ui.authentication.create.email.EmailViewState
 import com.wire.android.ui.authentication.create.overview.OverviewViewModel
+import com.wire.android.ui.common.textfield.CodeFieldValue
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -105,15 +106,15 @@ class CreatePersonalAccountViewModel @Inject constructor(
     }
 
     // Code
-    override fun onCodeChange(newValue: TextFieldValue) {
-        codeState = codeState.copy(code = newValue, error = CodeViewState.CodeError.None)
-        //TODO perform request when code is filled
+    override fun onCodeChange(newValue: CodeFieldValue) {
+        codeState = codeState.copy(code = newValue.text, error = CodeViewState.CodeError.None)
+        if(newValue.isFullyFilled) onCodeContinue()
     }
-    override fun onResendCodePressed() {
+    override fun resendCode() {
         //TODO
     }
 
     override fun onCodeContinue() {
-        //TODO
+        //TODO perform request when code is filled
     }
 }

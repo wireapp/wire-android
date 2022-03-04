@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.flow
 fun CodeTextField(
     codeLength: Int = 6,
     value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
+    onValueChange: (CodeFieldValue) -> Unit,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
     colors: WireTextFieldColors = wireTextFieldColors(),
     textStyle: TextStyle = MaterialTheme.wireTypography.code01,
@@ -69,7 +69,10 @@ fun CodeTextField(
             value = value,
             onValueChange = {
                 val textDigits = it.text.filter { it.isDigit() }
-                onValueChange(TextFieldValue(text = textDigits, selection = TextRange(textDigits.length)))
+                onValueChange(CodeFieldValue(
+                    text = TextFieldValue(text = textDigits, selection = TextRange(textDigits.length)),
+                    isFullyFilled = textDigits.length == codeLength
+                ))
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
@@ -139,3 +142,5 @@ private fun Digit(
         )
     }
 }
+
+data class CodeFieldValue(val text: TextFieldValue, val isFullyFilled: Boolean)

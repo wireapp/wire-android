@@ -27,7 +27,7 @@ import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.newconversation.NewConversationScreen
+import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
 import com.wire.android.ui.userprofile.image.AvatarPickerScreen
@@ -142,7 +142,7 @@ enum class NavigationItem(
     NewConversation(
         primaryRoute = NEW_CONVERSATION,
         canonicalRoute = NEW_CONVERSATION,
-        content = { NewConversationScreen() }
+        content = { NewConversationRouter() }
     );
 
     /**

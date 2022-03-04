@@ -15,8 +15,8 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.extension.toByteArray
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -138,17 +138,16 @@ class UserProfileViewModel @Inject constructor(
 
                 // Upload the Avatar image
                 userProfileState = when (uploadUserAvatar("image/png", avatarBitmap.toByteArray())) {
+                    // Happy path
+                    is UploadAvatarResult.Success -> userProfileState.copy(isAvatarLoading = false)
                     // Fallback
-                    is Either.Left -> {
+                    else -> {
                         userProfileState.copy(
                             avatarBitmap = backupBitmap,
                             isAvatarLoading = false,
                             errorMessage = "Image could not be uploaded"
                         )
                     }
-
-                    // Happy path
-                    else -> userProfileState.copy(isAvatarLoading = false)
                 }
 
                 if (shouldNavigateBack) navigateBack()
@@ -166,7 +165,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    //!! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!
+    // !! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!
     fun mockMethodForAvatar(bitmap: Bitmap) {
         userProfileState = userProfileState.copy(avatarBitmap = bitmap)
     }

@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.NavigationIconType
-import com.wire.android.ui.common.SearchBarTemplate
+import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
@@ -134,14 +134,12 @@ fun ClosableSearchTopBar(
 
             onSearchClicked()
         },
-        onBackClicked = {
+        onCloseSearchClicked = {
             searchBarState.showTopBar()
 
             onCloseSearchClicked()
         },
-        onCloseClicked = {
-            onNavigateBackClicked()
-        },
+        onNavigateBackClicked = onNavigateBackClicked,
         modifier = modifier
     )
 }
@@ -155,8 +153,8 @@ private fun ClosableSearchBarContent(
     isSearchBarCollapsed: Boolean,
     isTopBarVisible: Boolean,
     onInputClicked: () -> Unit,
-    onBackClicked: () -> Unit,
-    onCloseClicked: () -> Unit,
+    onCloseSearchClicked: () -> Unit,
+    onNavigateBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val animatedTopBarTotalHeight by animateFloatAsState(topBarTotalHeight)
@@ -184,7 +182,7 @@ private fun ClosableSearchBarContent(
                     .fillMaxSize()
                     .background(color = MaterialTheme.wireColorScheme.background)
             ) {
-                SearchBarTemplate(
+                SearchBarInput(
                     placeholderText = "Search people",
                     text = searchQuery,
                     onTextTyped = onSearchQueryChanged,
@@ -202,7 +200,7 @@ private fun ClosableSearchBarContent(
                                 IconButton(onClick = {
                                     focusManager.clearFocus()
 
-                                    onBackClicked()
+                                    onCloseSearchClicked()
                                 }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_arrow_left),
@@ -239,7 +237,7 @@ private fun ClosableSearchBarContent(
                 elevation = 0.dp,
                 title = stringResource(R.string.label_new_conversation),
                 navigationIconType = NavigationIconType.Close,
-                onNavigationPressed = { onCloseClicked() }
+                onNavigationPressed = { onNavigateBackClicked() }
             )
         }
     }

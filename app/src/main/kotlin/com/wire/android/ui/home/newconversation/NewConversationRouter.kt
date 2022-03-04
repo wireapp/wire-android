@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 
@@ -25,8 +26,9 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
     ConstraintLayout(Modifier.fillMaxSize()) {
         val (topBarRef, contentRef) = createRefs()
 
-        TopBarWithSearch(
+        AppTopBarWithSearchBar(
             scrollPosition = newConversationState.scrollPosition,
+            navigationIconType = NavigationIconType.Close,
             searchQuery = newConversationState.searchQuery,
             onSearchQueryChanged = {
                 newConversationState.searchQuery = it
@@ -65,6 +67,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
             )
         }
     }
+
 }
 
 class NewConversationState(
@@ -94,7 +97,9 @@ class NewConversationState(
 }
 
 @Composable
-private fun rememberNewConversationState(navController: NavHostController = rememberNavController()): NewConversationState {
+private fun rememberNewConversationState(
+    navController: NavHostController = rememberNavController()
+): NewConversationState {
     return remember {
         NewConversationState(navController)
     }

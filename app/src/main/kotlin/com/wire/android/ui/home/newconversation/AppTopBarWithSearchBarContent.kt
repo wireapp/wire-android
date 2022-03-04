@@ -110,8 +110,9 @@ fun DeprecatedSearchTopBar(
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun TopBarWithSearch(
+fun AppTopBarWithSearchBar(
     scrollPosition: Int,
+    navigationIconType: NavigationIconType,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
     onSearchClicked: () -> Unit = {},
@@ -121,8 +122,9 @@ fun TopBarWithSearch(
 ) {
     val searchBarState = rememberSearchbarState(scrollPosition)
 
-    TopBarWithSearchContent(
+    AppTopBarWithSearchBarContent(
         searchQuery = searchQuery,
+        navigationIconType = navigationIconType,
         onSearchQueryChanged = {
             onSearchQueryChanged(it)
         },
@@ -146,7 +148,8 @@ fun TopBarWithSearch(
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun TopBarWithSearchContent(
+private fun AppTopBarWithSearchBarContent(
+    navigationIconType: NavigationIconType,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
     topBarTotalHeight: Float,
@@ -236,7 +239,7 @@ private fun TopBarWithSearchContent(
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = stringResource(R.string.label_new_conversation),
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = navigationIconType,
                 onNavigationPressed = { onNavigateBackClicked() }
             )
         }

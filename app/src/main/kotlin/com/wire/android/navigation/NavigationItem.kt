@@ -11,6 +11,8 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.wire.android.BuildConfig
+import com.wire.android.navigation.NavigationItemDeepLinks.EXTRA_TEAM_CODE
+import com.wire.android.navigation.NavigationItemDeepLinks.TEAM_INVITATION_URI
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
@@ -73,17 +75,18 @@ enum class NavigationItem(
         canonicalRoute = CREATE_TEAM,
         content = { UnderConstructionScreen("Create Team Screen") }
     ),
+
     JoinTeam(
         primaryRoute = JOIN_TEAM,
         canonicalRoute = JOIN_TEAM,
-        arguments = listOf(navArgument("team-code") {
+        arguments = listOf(navArgument(EXTRA_TEAM_CODE) {
             type = NavType.StringType
         }),
         deepLinks = listOf(navDeepLink {
-            uriPattern = "https://teams.wire.com/join/?team-code={team-code}"
+            uriPattern = TEAM_INVITATION_URI
         }),
         content = { contentParams ->
-            val teamCode = contentParams.navBackStackEntry.arguments?.getString("team-code")
+            val teamCode = contentParams.navBackStackEntry.arguments?.getString(EXTRA_TEAM_CODE)
             UnderConstructionScreen("Join Team Screen via InvitationLink [Your team code is $teamCode")
         }),
 
@@ -183,6 +186,14 @@ object NavigationItemDestinationsRoutes {
     const val SETTINGS = "settings_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val IMAGE_PICKER = "image_picker_screen"
+}
+
+object NavigationItemDeepLinks {
+    const val DEEPLINK_WEB_SCHEME = "https"
+    const val DEEPLINK_APP_SCHEME = "wire"
+
+    const val EXTRA_TEAM_CODE = "team-code"
+    const val TEAM_INVITATION_URI = "$DEEPLINK_WEB_SCHEME://teams.wire.com/join/?$EXTRA_TEAM_CODE={$EXTRA_TEAM_CODE}"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"

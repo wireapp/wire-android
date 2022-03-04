@@ -32,9 +32,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -141,6 +144,9 @@ private fun ClosableSearchBarContent(
 ) {
     val animatedTopBarTotalHeight by animateFloatAsState(topBarTotalHeight)
 
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
     Box(
         modifier
             .fillMaxWidth()
@@ -156,7 +162,6 @@ private fun ClosableSearchBarContent(
             val interactionSource = remember {
                 MutableInteractionSource()
             }
-
             Box(
                 Modifier
                     .fillMaxSize()
@@ -175,6 +180,8 @@ private fun ClosableSearchBarContent(
                                 }
                             } else {
                                 IconButton(onClick = {
+                                    focusManager.clearFocus()
+
                                     onBackPressed()
                                 }) {
                                     Icon(
@@ -185,7 +192,6 @@ private fun ClosableSearchBarContent(
                                 }
                             }
                         }
-
                     },
                     placeholderTextStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
                         textAlign = TextAlign.Start
@@ -196,6 +202,7 @@ private fun ClosableSearchBarContent(
                     interactionSource = interactionSource,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
+                        .focusRequester(focusRequester)
                 )
             }
 

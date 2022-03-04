@@ -17,6 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.UserProfileAvatar
@@ -42,51 +45,64 @@ fun NewConversationContent(
     onCloseClick: () -> Unit
 ) {
     val lazyListState = rememberLazyListState()
+    val navController = rememberNavController()
 
-    ClosableSearchTopBar(lazyListState.firstVisibleItemIndex, {}) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentSize()
-        ) {
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier.weight(1f),
-            ) {
-                folderWithElements(
-                    header = { stringResource(R.string.label_contacts) },
-                    items = state.contacts
-                ) { contact ->
-                    ContactItem(
-                        contact.name,
-                        contact.userStatus,
-                        contact.avatarUrl
-                    )
-                }
-            }
-            Divider()
-            Column(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(all = 16.dp)
-            ) {
-                WirePrimaryButton(
-                    text = stringResource(R.string.label_new_group),
-                    onClick = {
-                        //TODO:open new group screen
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(16.dp))
-                WirePrimaryButton(
-                    text = stringResource(R.string.label_new_guestroom),
-                    onClick = {
-                        //TODO:open new guestroom
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+    ClosableSearchTopBar(lazyListState.firstVisibleItemIndex, { navController.navigate("test2") }) {
+        NavHost(navController, startDestination = "test1") {
+            composable(
+                route = "test1",
+                content = {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentSize()
+                    ) {
+                        LazyColumn(
+                            state = lazyListState,
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            folderWithElements(
+                                header = { stringResource(R.string.label_contacts) },
+                                items = state.contacts
+                            ) { contact ->
+                                ContactItem(
+                                    contact.name,
+                                    contact.userStatus,
+                                    contact.avatarUrl
+                                )
+                            }
+                        }
+                        Divider()
+                        Column(
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .padding(all = 16.dp)
+                        ) {
+                            WirePrimaryButton(
+                                text = stringResource(R.string.label_new_group),
+                                onClick = {
+                                    //TODO:open new group screen
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            WirePrimaryButton(
+                                text = stringResource(R.string.label_new_guestroom),
+                                onClick = {
+                                    //TODO:open new guestroom
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                })
+            composable(
+                route = "test2",
+                content = {
+                    Text("This is test view")
+                })
         }
+
     }
 }
 

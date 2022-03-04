@@ -107,7 +107,6 @@ fun SearchTopBar(
     }
 }
 
-
 //this widget will collapse searchbar on scroll
 //this widget will close the topbar when clicked into the inputfield and align the text to the left
 @Composable
@@ -164,7 +163,10 @@ fun ClosableSearchTopBar(
                 bottom.linkTo(contentRef.top)
             }
             .wrapContentSize()) {
-            ClosableSearchBar(searchFieldPosition, { isTopBarVisible = false }, { isTopBarVisible = true }, isTopBarVisible)
+            ClosableSearchBar(searchFieldPosition, {
+                onInputPressed()
+                isTopBarVisible = false
+            }, { isTopBarVisible = true }, isTopBarVisible)
         }
 
         Box(

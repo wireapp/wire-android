@@ -2,6 +2,7 @@ package com.wire.android.ui.home.newconversation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -47,8 +50,20 @@ fun NewConversationContent(
     val lazyListState = rememberLazyListState()
     val navController = rememberNavController()
 
-    ClosableSearchTopBar(lazyListState.firstVisibleItemIndex, { navController.navigate("test2") }) {
-        NavHost(navController, startDestination = "test1") {
+    ConstraintLayout(Modifier.fillMaxSize()) {
+        val (topBarRef, contentRef) = createRefs()
+
+        ClosableSearchBar(lazyListState.firstVisibleItemIndex, {}, {}, modifier = Modifier.constrainAs(topBarRef) {
+            top.linkTo(parent.top)
+            bottom.linkTo(contentRef.top)
+        })
+
+        NavHost(navController, startDestination = "test1", modifier = Modifier.constrainAs(contentRef) {
+            top.linkTo(topBarRef.bottom)
+            bottom.linkTo(parent.bottom)
+
+            height = Dimension.fillToConstraints
+        }) {
             composable(
                 route = "test1",
                 content = {
@@ -102,10 +117,8 @@ fun NewConversationContent(
                     Text("This is test view")
                 })
         }
-
     }
 }
-
 
 @Composable
 private fun ContactItem(

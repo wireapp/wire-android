@@ -40,8 +40,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.NavigableSearchBar
 import com.wire.android.ui.common.NavigationIconType
+import com.wire.android.ui.common.SearchBarTemplate
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
@@ -109,31 +109,38 @@ fun SearchTopBar(
 @Composable
 fun ClosableSearchBar(
     scrollPosition: Int,
-    onInputPressed: () -> Unit,
-    onCloseSearch: () -> Unit,
+    onSearchPressed: () -> Unit,
+    onBackPressed: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val searchBarState = rememberSearchbarState(scrollPosition = scrollPosition)
+    val searchBarState = rememberSearchbarState(scrollPosition)
 
-    val topBarTotalHeight by animateFloatAsState(searchBarState.size)
-
-    SearchBarWrapper(
-        topBarTotalHeight = topBarTotalHeight,
+    ClosableSearchBarContent(
+        topBarTotalHeight = searchBarState.size,
         isTopBarVisible = searchBarState.isTopBarVisible,
-        onInputPressed = { searchBarState.hideTopBar() },
+        onInputClick = {
+            searchBarState.hideTopBar()
+            onSearchPressed()
+        },
+        onBackPressed = {
+            searchBarState.showTopBar()
+            onBackPressed()
+        },
         modifier = modifier
     )
 }
 
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun SearchBarWrapper(
+private fun ClosableSearchBarContent(
     topBarTotalHeight: Float,
     isTopBarVisible: Boolean,
-    onInputPressed: () -> Unit,
+    onInputClick: () -> Unit,
+    onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val animatedTopBarTotalHeight by animateFloatAsState(topBarTotalHeight)
+
     Box(
         modifier
             .fillMaxWidth()
@@ -142,7 +149,7 @@ private fun SearchBarWrapper(
     ) {
         Surface(
             modifier = Modifier
-                .height(topBarTotalHeight.dp)
+                .height(animatedTopBarTotalHeight.dp)
                 .wrapContentWidth(),
             shadowElevation = dimensions().topBarElevationHeight
         ) {
@@ -154,7 +161,7 @@ private fun SearchBarWrapper(
                 Modifier
                     .fillMaxSize()
             ) {
-                NavigableSearchBar(
+                SearchBarTemplate(
                     placeholderText = "Search people",
                     leadingIcon = {
                         AnimatedContent(isTopBarVisible) {
@@ -168,8 +175,7 @@ private fun SearchBarWrapper(
                                 }
                             } else {
                                 IconButton(onClick = {
-//                                    searchBarState.showTopBar()
-//                                    onCloseSearch()
+                                    onBackPressed()
                                 }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_arrow_left),
@@ -194,7 +200,7 @@ private fun SearchBarWrapper(
             }
 
             if (interactionSource.collectIsPressedAsState().value) {
-                onInputPressed()
+                onInputClick()
             }
         }
 

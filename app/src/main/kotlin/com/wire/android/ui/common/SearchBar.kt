@@ -55,28 +55,7 @@ fun SearchBar(
 }
 
 @Composable
-fun NavigableSearchBar(
-    placeholderText: String,
-    onTextTyped: (String) -> Unit = {},
-    leadingIcon: @Composable () -> Unit,
-    placeholderTextStyle: TextStyle,
-    textStyle: TextStyle,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    modifier: Modifier = Modifier
-) {
-    SearchBarTemplate(
-        placeholderText = placeholderText,
-        leadingIcon = { leadingIcon() },
-        interactionSource = interactionSource,
-        placeholderTextStyle = placeholderTextStyle,
-        textStyle = textStyle,
-        onTextTyped = onTextTyped,
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun SearchBarTemplate(
+fun SearchBarTemplate(
     placeholderText: String,
     leadingIcon: @Composable () -> Unit,
     onTextTyped: (String) -> Unit = {},

@@ -1,7 +1,11 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -14,6 +18,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,7 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -36,6 +46,7 @@ import com.wire.android.ui.common.NavigableSearchBar
 import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.wireColorScheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
@@ -102,6 +113,7 @@ fun SearchTopBar(
 @Composable
 fun ClosableSearchTopBar(
     scrollPosition: Int,
+    onInputPressed: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     ConstraintLayout(Modifier.fillMaxSize()) {
@@ -152,7 +164,7 @@ fun ClosableSearchTopBar(
                 bottom.linkTo(contentRef.top)
             }
             .wrapContentSize()) {
-            ClosableSearchBar(searchFieldPosition, { isTopBarVisible = !isTopBarVisible }, isTopBarVisible)
+            ClosableSearchBar(searchFieldPosition, { isTopBarVisible = false }, { isTopBarVisible = true }, isTopBarVisible)
         }
 
         Box(
@@ -171,8 +183,14 @@ fun ClosableSearchTopBar(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun ClosableSearchBar(searchFieldPosition: Float, onInputPressed: () -> Unit, isTopBarVisible: Boolean) {
+fun ClosableSearchBar(
+    searchFieldPosition: Float,
+    onInputPressed: () -> Unit,
+    onCloseSearch: () -> Unit,
+    isTopBarVisible: Boolean
+) {
     Box(
         Modifier
             .fillMaxWidth()
@@ -195,7 +213,34 @@ fun ClosableSearchBar(searchFieldPosition: Float, onInputPressed: () -> Unit, is
             ) {
                 NavigableSearchBar(
                     placeholderText = "Search people",
-                    onNavigateBack = { },
+                    leadingIcon = {
+                        AnimatedContent(isTopBarVisible) {
+                            if (it) {
+                                IconButton(onClick = { }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_search_icon),
+                                        contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                                        tint = MaterialTheme.wireColorScheme.onBackground
+                                    )
+                                }
+                            } else {
+                                IconButton(onClick = { onCloseSearch() }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_arrow_left),
+                                        contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                                        tint = MaterialTheme.wireColorScheme.onBackground
+                                    )
+                                }
+                            }
+                        }
+
+                    },
+                    placeholderTextStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                        textAlign = TextAlign.Start
+                    ),
+                    textStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                        textAlign = TextAlign.Start
+                    ),
                     interactionSource = interactionSource,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -207,7 +252,10 @@ fun ClosableSearchBar(searchFieldPosition: Float, onInputPressed: () -> Unit, is
             }
         }
 
-        AnimatedVisibility(visible = isTopBarVisible) {
+        AnimatedVisibility(
+            visible = isTopBarVisible, enter = expandVertically(),
+            exit = shrinkVertically(),
+        ) {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = stringResource(R.string.label_new_conversation),

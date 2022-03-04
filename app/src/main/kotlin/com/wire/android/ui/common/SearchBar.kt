@@ -58,25 +58,18 @@ fun SearchBar(
 fun NavigableSearchBar(
     placeholderText: String,
     onTextTyped: (String) -> Unit = {},
-    onNavigateBack: () -> Unit,
+    leadingIcon: @Composable () -> Unit,
+    placeholderTextStyle: TextStyle,
+    textStyle: TextStyle,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     modifier: Modifier = Modifier
 ) {
     SearchBarTemplate(
         placeholderText = placeholderText,
-        leadingIcon =
-        {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_left),
-                    contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                    tint = MaterialTheme.wireColorScheme.onBackground
-                )
-            }
-        },
+        leadingIcon = { leadingIcon() },
         interactionSource = interactionSource,
-        placeholderTextStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
-        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
+        placeholderTextStyle = placeholderTextStyle,
+        textStyle = textStyle,
         onTextTyped = onTextTyped,
         modifier = modifier
     )

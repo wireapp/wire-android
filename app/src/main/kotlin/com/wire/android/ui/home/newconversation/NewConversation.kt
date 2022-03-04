@@ -43,7 +43,7 @@ fun NewConversationContent(
 ) {
     val lazyListState = rememberLazyListState()
 
-    ClosableSearchTopBar(lazyListState.firstVisibleItemIndex) {
+    ClosableSearchTopBar(lazyListState.firstVisibleItemIndex, {}) {
         Column(
             Modifier
                 .fillMaxWidth()

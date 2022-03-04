@@ -110,7 +110,7 @@ fun SearchTopBar(
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun ClosableSearchBar(
+fun ClosableSearchTopBar(
     scrollPosition: Int,
     onSearchClicked: () -> Unit,
     onBackClicked: () -> Unit,
@@ -121,6 +121,7 @@ fun ClosableSearchBar(
 
     ClosableSearchBarContent(
         topBarTotalHeight = searchBarState.size,
+        isSearchBarCollapsed = searchBarState.isCollapsed,
         isTopBarVisible = searchBarState.isTopBarVisible,
         onInputClicked = {
             searchBarState.hideTopBar()
@@ -141,6 +142,7 @@ fun ClosableSearchBar(
 @Composable
 private fun ClosableSearchBarContent(
     topBarTotalHeight: Float,
+    isSearchBarCollapsed: Boolean,
     isTopBarVisible: Boolean,
     onInputClicked: () -> Unit,
     onBackClicked: () -> Unit,
@@ -156,13 +158,12 @@ private fun ClosableSearchBarContent(
         modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(Color.Transparent)
     ) {
         Surface(
             modifier = Modifier
                 .height(animatedTopBarTotalHeight.dp)
                 .wrapContentWidth(),
-            shadowElevation = dimensions().topBarElevationHeight
+            shadowElevation = if (isSearchBarCollapsed) dimensions().topBarElevationHeight else 0.dp
         ) {
             val interactionSource = remember {
                 MutableInteractionSource()
@@ -170,12 +171,13 @@ private fun ClosableSearchBarContent(
             Box(
                 Modifier
                     .fillMaxSize()
+                    .background(color = MaterialTheme.wireColorScheme.background)
             ) {
                 SearchBarTemplate(
                     placeholderText = "Search people",
                     leadingIcon = {
-                        AnimatedContent(isTopBarVisible) {
-                            if (it) {
+                        AnimatedContent(isTopBarVisible) { isVisible ->
+                            if (isVisible) {
                                 IconButton(onClick = { }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_search_icon),
@@ -251,7 +253,7 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
     }
 
     val searchFieldFullHeightPx = LocalDensity.current.run {
-        (dimensions().topBarSearchFieldHeight).toPx()
+        (dimensions().smallTopBarHeight).toPx()
     }
 
     val isTopBarVisible = remember {
@@ -269,7 +271,7 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
 
 class SearchBarState(
     private val searchFieldFullHeightPx: Float,
-    private val isCollapsed: Boolean,
+    val isCollapsed: Boolean,
     defaultIsTopBarVisible: MutableState<Boolean>,
 ) {
     var isTopBarVisible by defaultIsTopBarVisible

@@ -53,7 +53,7 @@ fun NewConversationContent(
     ConstraintLayout(Modifier.fillMaxSize()) {
         val (topBarRef, contentRef) = createRefs()
 
-        ClosableSearchBar(
+        ClosableSearchTopBar(
             scrollPosition = lazyListState.firstVisibleItemIndex,
             onSearchClicked = {},
             onBackClicked = {},

@@ -148,6 +148,5 @@ dependencies {
     kaptAndroidTest(Libraries.Hilt.compiler)
 
     // Development dependencies
-    //debugImplementation(DevLibraries.fragmentTesting)
     debugImplementation(DevLibraries.leakCanary)
 }

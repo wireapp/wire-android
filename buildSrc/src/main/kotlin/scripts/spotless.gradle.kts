@@ -8,7 +8,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         ktlint().userData(
             mapOf(
                 "disabled_rules" to "import-ordering",
-                "max_line_length" to "150"
+                "max_line_length" to "140"
             )
         )
         trimTrailingWhitespace()

@@ -115,44 +115,25 @@ fun ClosableSearchBar(
 ) {
     val searchBarState = rememberSearchbarState(scrollPosition = scrollPosition)
 
-//    var isCollapsed by remember {
-//        mutableStateOf(false)
-//    }
-//
-//    LaunchedEffect(scrollPosition) {
-//        snapshotFlow { scrollPosition }
-//            .scan(0 to 0) { prevPair, newScrollIndex ->
-//                if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
-//                else prevPair.second to newScrollIndex
-//            }
-//            .map { (prevScrollIndex, newScrollIndex) ->
-//                newScrollIndex > prevScrollIndex + 1
-//            }
-//            .distinctUntilChanged().collect {
-//                isCollapsed = it
-//            }
-//    }
-//
-//    val searchFieldFullHeightPx = LocalDensity.current.run {
-//        (dimensions().topBarSearchFieldHeight).toPx()
-//    }
-//
-//    var isTopBarVisible by remember {
-//        mutableStateOf(true)
-//    }
-//
-//    val size = if (isCollapsed) {
-//        0f
-//    } else {
-//        if (isTopBarVisible) {
-//            searchFieldFullHeightPx
-//        } else {
-//            searchFieldFullHeightPx / 2
-//        }
-//    }
+    val topBarTotalHeight by animateFloatAsState(searchBarState.size)
 
-    val searchFieldPosition by animateFloatAsState(searchBarState.size)
+    SearchBarWrapper(
+        topBarTotalHeight = topBarTotalHeight,
+        isTopBarVisible = searchBarState.isTopBarVisible,
+        onInputPressed = { searchBarState.hideTopBar() },
+        modifier = modifier
+    )
+}
 
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun SearchBarWrapper(
+    topBarTotalHeight: Float,
+    isTopBarVisible: Boolean,
+    onInputPressed: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Box(
         modifier
             .fillMaxWidth()
@@ -161,7 +142,7 @@ fun ClosableSearchBar(
     ) {
         Surface(
             modifier = Modifier
-                .height(searchFieldPosition.dp)
+                .height(topBarTotalHeight.dp)
                 .wrapContentWidth(),
             shadowElevation = dimensions().topBarElevationHeight
         ) {
@@ -176,9 +157,9 @@ fun ClosableSearchBar(
                 NavigableSearchBar(
                     placeholderText = "Search people",
                     leadingIcon = {
-                        AnimatedContent(searchBarState.isTopBarVisible.value) {
+                        AnimatedContent(isTopBarVisible) {
                             if (it) {
-                                IconButton(onClick = { searchBarState.hideTopBar() }) {
+                                IconButton(onClick = { }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_search_icon),
                                         contentDescription = stringResource(R.string.content_description_conversation_search_icon),
@@ -187,8 +168,8 @@ fun ClosableSearchBar(
                                 }
                             } else {
                                 IconButton(onClick = {
-                                    searchBarState.showTopBar()
-                                    onCloseSearch()
+//                                    searchBarState.showTopBar()
+//                                    onCloseSearch()
                                 }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_arrow_left),
@@ -200,10 +181,10 @@ fun ClosableSearchBar(
                         }
 
                     },
-                    placeholderTextStyle = if (searchBarState.isTopBarVisible.value) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                    placeholderTextStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
                         textAlign = TextAlign.Start
                     ),
-                    textStyle = if (searchBarState.isTopBarVisible.value) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                    textStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
                         textAlign = TextAlign.Start
                     ),
                     interactionSource = interactionSource,
@@ -218,7 +199,7 @@ fun ClosableSearchBar(
         }
 
         AnimatedVisibility(
-            visible = searchBarState.isTopBarVisible.value, enter = expandVertically(),
+            visible = isTopBarVisible, enter = expandVertically(),
             exit = shrinkVertically(),
         ) {
             WireCenterAlignedTopAppBar(
@@ -269,27 +250,32 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
 }
 
 class SearchBarState(
-    searchFieldFullHeightPx: Float,
-    isCollapsed: Boolean,
-    val isTopBarVisible: MutableState<Boolean>,
+    private val searchFieldFullHeightPx: Float,
+    private val isCollapsed: Boolean,
+    defaultIsTopBarVisible: MutableState<Boolean>,
 ) {
+    var isTopBarVisible by defaultIsTopBarVisible
 
-    val size: Float = if (isCollapsed) {
-        0f
-    } else {
-        if (isTopBarVisible.value) {
-            searchFieldFullHeightPx
-        } else {
-            searchFieldFullHeightPx / 2
-        }
-    }
+    val size
+        @Composable get() =
+            remember(isTopBarVisible, isCollapsed) {
+                if (isCollapsed) {
+                    0f
+                } else {
+                    if (isTopBarVisible) {
+                        searchFieldFullHeightPx
+                    } else {
+                        searchFieldFullHeightPx / 2
+                    }
+                }
+            }
 
     fun hideTopBar() {
-        isTopBarVisible.value = false
+        isTopBarVisible = false
     }
 
     fun showTopBar() {
-        isTopBarVisible.value = true
+        isTopBarVisible = true
     }
 
 }

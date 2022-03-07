@@ -1,7 +1,5 @@
 package com.wire.android.ui.authentication.create.personalaccount
 
-import android.content.Context
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,26 +24,25 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.overview.OverviewParams
+import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewParams
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.configuration.ServerConfig
 
 @Composable
-fun OverviewScreen(viewModel: CreatePersonalAccountViewModel, overviewParams: OverviewParams) {
+fun CreateAccountOverviewScreen(viewModel: CreatePersonalAccountViewModel, overviewParams: CreateAccountOverviewParams) {
     OverviewContent(
         onBackPressed = viewModel::goBackToPreviousStep,
         onContinuePressed = viewModel::onOverviewContinue,
-        overviewParams = overviewParams,
+        overviewParams = overviewParams
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OverviewContent(onBackPressed: () -> Unit, onContinuePressed: () -> Unit, overviewParams: OverviewParams) {
+private fun OverviewContent(onBackPressed: () -> Unit, onContinuePressed: () -> Unit, overviewParams: CreateAccountOverviewParams) {
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -86,7 +83,7 @@ private fun OverviewContent(onBackPressed: () -> Unit, onContinuePressed: () -> 
 }
 
 @Composable
-private fun OverviewTexts(overviewParams: OverviewParams, modifier: Modifier, onLearnMoreClick: () -> Unit) {
+private fun OverviewTexts(overviewParams: CreateAccountOverviewParams, modifier: Modifier, onLearnMoreClick: () -> Unit) {
     Column(modifier = modifier) {
         if(overviewParams.contentTitle.isNotEmpty())
             Text(
@@ -121,11 +118,11 @@ private fun OverviewTexts(overviewParams: OverviewParams, modifier: Modifier, on
 
 @Composable
 @Preview
-private fun OverviewScreenPreview() {
+private fun CreateAccountOverviewScreenPreview() {
     OverviewContent(
         onBackPressed = { },
         onContinuePressed = { },
-        overviewParams = OverviewParams(
+        overviewParams = CreateAccountOverviewParams(
             title ="title",
             contentTitle = "contentTitle",
             contentText = "contentText",

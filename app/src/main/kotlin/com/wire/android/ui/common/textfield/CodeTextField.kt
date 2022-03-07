@@ -30,6 +30,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
@@ -47,7 +49,7 @@ import kotlinx.coroutines.flow.flow
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CodeTextField(
-    codeLength: Int = 6,
+    codeLength: Int = integerResource(id = R.integer.code_length),
     value: TextFieldValue,
     onValueChange: (CodeFieldValue) -> Unit,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
@@ -57,7 +59,7 @@ fun CodeTextField(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     horizontalSpacing: Dp = MaterialTheme.wireDimensions.spacing8x,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -118,7 +120,7 @@ private fun Digit(
     colors: WireTextFieldColors = wireTextFieldColors(),
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
     state: WireTextFieldState = WireTextFieldState.Default,
-    selected: Boolean = false,
+    selected: Boolean = false
 ) {
     val interactionSource = object : InteractionSource {
         private val focusInteraction: FocusInteraction.Focus = FocusInteraction.Focus()

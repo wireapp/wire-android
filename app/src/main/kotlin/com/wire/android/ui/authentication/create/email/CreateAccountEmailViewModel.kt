@@ -2,8 +2,8 @@ package com.wire.android.ui.authentication.create.email
 
 import androidx.compose.ui.text.input.TextFieldValue
 
-interface EmailViewModel {
-    val emailState: EmailViewState
+interface CreateAccountEmailViewModel {
+    val emailState: CreateAccountEmailViewState
     fun onEmailChange(newText: TextFieldValue)
     fun goBackToPreviousStep()
     fun onEmailContinue()

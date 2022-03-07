@@ -23,8 +23,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.code.CodeViewModel
-import com.wire.android.ui.authentication.create.code.CodeViewState
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -33,26 +33,26 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun CodeScreen(viewModel: CodeViewModel, title: String) {
+fun CreateAccountCodeScreen(viewModel: CreateAccountCodeViewModel, title: String) {
     CodeContent(
         state = viewModel.codeState,
         title = title,
         onCodeChange = viewModel::onCodeChange,
         onResendCodePressed = viewModel::resendCode,
-        onBackPressed = viewModel::goBackToPreviousStep,
+        onBackPressed = viewModel::goBackToPreviousStep
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CodeContent(
-    state: CodeViewState,
+    state: CreateAccountCodeViewState,
     title: String,
     onCodeChange: (CodeFieldValue) -> Unit,
     onResendCodePressed: () -> Unit,
-    onBackPressed: () -> Unit,
+    onBackPressed: () -> Unit
 ) {
-    Scaffold(topBar = { WireCenterAlignedTopAppBar(elevation = 0.dp, title = title, onNavigationPressed = onBackPressed) },) {
+    Scaffold(topBar = { WireCenterAlignedTopAppBar(elevation = 0.dp, title = title, onNavigationPressed = onBackPressed) }) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
@@ -69,13 +69,12 @@ private fun CodeContent(
             Spacer(modifier = Modifier.weight(1f))
             Column(horizontalAlignment = Alignment.CenterHorizontally,) {
                 CodeTextField(
-                    codeLength = integerResource(id = R.integer.code_length),
                     value = state.code,
                     onValueChange = onCodeChange,
                     state = when(state.error) {
-                        CodeViewState.CodeError.InvalidCodeError ->
+                        CreateAccountCodeViewState.CodeError.InvalidCodeError ->
                             WireTextFieldState.Error(stringResource(id = R.string.create_personal_account_code_error))
-                        CodeViewState.CodeError.None -> WireTextFieldState.Default
+                        CreateAccountCodeViewState.CodeError.None -> WireTextFieldState.Default
                     }
                 )
                 ResendCodeText(onResendCodePressed = onResendCodePressed)
@@ -109,6 +108,6 @@ private fun ResendCodeText(onResendCodePressed: () -> Unit) {
 
 @Composable
 @Preview
-private fun CodeScreenPreview() {
-    CodeContent(CodeViewState(), "title", {}, {}, {})
+private fun CreateAccountCodeScreenPreview() {
+    CodeContent(CreateAccountCodeViewState(), "title", {}, {}, {})
 }

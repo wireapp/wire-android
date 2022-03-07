@@ -2,7 +2,7 @@ package com.wire.android.ui.authentication.create.code
 
 import androidx.compose.ui.text.input.TextFieldValue
 
-data class CodeViewState(
+data class CreateAccountCodeViewState(
     val code: TextFieldValue = TextFieldValue(""),
     val email: String = "",
     val loading: Boolean = false,

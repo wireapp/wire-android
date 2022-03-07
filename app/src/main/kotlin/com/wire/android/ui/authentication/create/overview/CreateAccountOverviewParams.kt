@@ -2,7 +2,7 @@ package com.wire.android.ui.authentication.create.overview
 
 import androidx.annotation.DrawableRes
 
-data class OverviewParams(
+data class CreateAccountOverviewParams(
     val title: String = "",
     val contentTitle: String = "",
     val contentText: String = "",

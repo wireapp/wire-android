@@ -2,7 +2,7 @@ package com.wire.android.ui.authentication.create.details
 
 import androidx.compose.ui.text.input.TextFieldValue
 
-data class DetailsViewState(
+data class CreateAccountDetailsViewState(
     val firstName: TextFieldValue = TextFieldValue(""),
     val lastName: TextFieldValue = TextFieldValue(""),
     val password: TextFieldValue = TextFieldValue(""),

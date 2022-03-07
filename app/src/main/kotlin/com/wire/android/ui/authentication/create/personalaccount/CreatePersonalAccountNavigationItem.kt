@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.wire.kalium.logic.configuration.ServerConfig
-import com.wire.android.ui.authentication.create.overview.OverviewParams
+import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewParams
 import com.wire.android.R
 
 enum class CreatePersonalAccountNavigationItem(
@@ -13,9 +13,9 @@ enum class CreatePersonalAccountNavigationItem(
 ) {
     Overview(
         route = CreatePersonalAccountDestinationsRoutes.OVERVIEW,
-        content = { OverviewScreen(
+        content = { CreateAccountOverviewScreen(
             it.viewModel,
-            OverviewParams(
+            CreateAccountOverviewParams(
                 title = stringResource(R.string.create_personal_account_title),
                 contentText = stringResource(R.string.create_personal_account_text),
                 contentIconResId = R.drawable.ic_create_personal_account,
@@ -25,7 +25,7 @@ enum class CreatePersonalAccountNavigationItem(
     ),
     Email(
         route = CreatePersonalAccountDestinationsRoutes.EMAIL,
-        content = { EmailScreen(
+        content = { CreateAccountEmailScreen(
                 it.viewModel,
                 it.serverConfig,
                 stringResource(R.string.create_personal_account_title),
@@ -35,11 +35,11 @@ enum class CreatePersonalAccountNavigationItem(
     ),
     Details(
         route = CreatePersonalAccountDestinationsRoutes.DETAILS,
-        content = { DetailsScreen(it.viewModel, stringResource(R.string.create_personal_account_title)) }
+        content = { CreateAccountDetailsScreen(it.viewModel, stringResource(R.string.create_personal_account_title)) }
     ),
     Code(
         route = CreatePersonalAccountDestinationsRoutes.CODE,
-        content = { CodeScreen(it.viewModel, stringResource(R.string.create_personal_account_title)) }
+        content = { CreateAccountCodeScreen(it.viewModel, stringResource(R.string.create_personal_account_title)) }
     )
 }
 

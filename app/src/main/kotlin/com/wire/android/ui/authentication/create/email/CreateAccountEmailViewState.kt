@@ -2,7 +2,7 @@ package com.wire.android.ui.authentication.create.email
 
 import androidx.compose.ui.text.input.TextFieldValue
 
-data class EmailViewState(
+data class CreateAccountEmailViewState(
     val email: TextFieldValue = TextFieldValue(""),
     val termsDialogVisible: Boolean = false,
     val continueEnabled: Boolean = false,

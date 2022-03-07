@@ -2,8 +2,8 @@ package com.wire.android.ui.authentication.create.details
 
 import androidx.compose.ui.text.input.TextFieldValue
 
-interface DetailsViewModel {
-    val detailsState: DetailsViewState
+interface CreateAccountDetailsViewModel {
+    val detailsState: CreateAccountDetailsViewState
     fun goBackToPreviousStep()
     fun onDetailsContinue()
     fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsFieldType)

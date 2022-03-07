@@ -10,13 +10,13 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.authentication.create.code.CodeViewModel
-import com.wire.android.ui.authentication.create.code.CodeViewState
-import com.wire.android.ui.authentication.create.details.DetailsViewModel
-import com.wire.android.ui.authentication.create.details.DetailsViewState
-import com.wire.android.ui.authentication.create.email.EmailViewModel
-import com.wire.android.ui.authentication.create.email.EmailViewState
-import com.wire.android.ui.authentication.create.overview.OverviewViewModel
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState
+import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
+import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewState
+import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
+import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState
+import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,12 +28,12 @@ import javax.inject.Inject
 @HiltViewModel
 class CreatePersonalAccountViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-) : ViewModel(), OverviewViewModel, EmailViewModel, DetailsViewModel, CodeViewModel {
+) : ViewModel(), CreateAccountOverviewViewModel, CreateAccountEmailViewModel, CreateAccountDetailsViewModel, CreateAccountCodeViewModel {
     var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()
-    override var emailState: EmailViewState by mutableStateOf(EmailViewState())
-    override var detailsState: DetailsViewState by mutableStateOf(DetailsViewState())
-    override var codeState: CodeViewState by mutableStateOf(CodeViewState())
+    override var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState())
+    override var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState())
+    override var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState())
 
 
     // Navigation
@@ -42,9 +42,9 @@ class CreatePersonalAccountViewModel @Inject constructor(
     override fun goBackToPreviousStep() { viewModelScope.launch { moveBack.emit(Unit) } }
 
     private fun clearState() {
-        emailState = EmailViewState()
-        detailsState = DetailsViewState()
-        codeState = CodeViewState()
+        emailState = CreateAccountEmailViewState()
+        detailsState = CreateAccountDetailsViewState()
+        codeState = CreateAccountCodeViewState()
     }
 
     // Overview
@@ -57,7 +57,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     override fun onEmailChange(newText: TextFieldValue) {
         emailState = emailState.copy(
                 email = newText,
-                error = EmailViewState.EmailError.None,
+                error = CreateAccountEmailViewState.EmailError.None,
                 continueEnabled = newText.text.isNotEmpty() && !emailState.loading)
         codeState = codeState.copy(email = newText.text)
     }
@@ -74,14 +74,14 @@ class CreatePersonalAccountViewModel @Inject constructor(
     }
 
     // Details
-    override fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsViewModel.DetailsFieldType) {
+    override fun onDetailsChange(newText: TextFieldValue, fieldType: CreateAccountDetailsViewModel.DetailsFieldType) {
         detailsState = when(fieldType) {
-            DetailsViewModel.DetailsFieldType.FirstName -> detailsState.copy(firstName = newText)
-            DetailsViewModel.DetailsFieldType.LastName -> detailsState.copy(lastName = newText)
-            DetailsViewModel.DetailsFieldType.Password -> detailsState.copy(password = newText)
-            DetailsViewModel.DetailsFieldType.ConfirmPassword -> detailsState.copy(confirmPassword = newText)
+            CreateAccountDetailsViewModel.DetailsFieldType.FirstName -> detailsState.copy(firstName = newText)
+            CreateAccountDetailsViewModel.DetailsFieldType.LastName -> detailsState.copy(lastName = newText)
+            CreateAccountDetailsViewModel.DetailsFieldType.Password -> detailsState.copy(password = newText)
+            CreateAccountDetailsViewModel.DetailsFieldType.ConfirmPassword -> detailsState.copy(confirmPassword = newText)
         }.let { it.copy(
-                error = DetailsViewState.DetailsError.None,
+                error = CreateAccountDetailsViewState.DetailsError.None,
                 continueEnabled = it.fieldsNotEmpty() && !it.loading
             )
         }
@@ -94,20 +94,20 @@ class CreatePersonalAccountViewModel @Inject constructor(
                 continueEnabled = true,
                 error = when {
                     detailsState.password.text != detailsState.confirmPassword.text ->
-                        DetailsViewState.DetailsError.PasswordsNotMatchingError
-                    detailsState.password.text.length < DetailsViewModel.MIN_PASSWORD_LENGTH ->
-                        DetailsViewState.DetailsError.InvalidPasswordError
-                    else -> DetailsViewState.DetailsError.None
+                        CreateAccountDetailsViewState.DetailsError.PasswordsNotMatchingError
+                    detailsState.password.text.length < CreateAccountDetailsViewModel.MIN_PASSWORD_LENGTH ->
+                        CreateAccountDetailsViewState.DetailsError.InvalidPasswordError
+                    else -> CreateAccountDetailsViewState.DetailsError.None
                 }
             )
-            if(detailsState.error is DetailsViewState.DetailsError.None)
+            if(detailsState.error is CreateAccountDetailsViewState.DetailsError.None)
                 goToStep(CreatePersonalAccountNavigationItem.Code)
         }
     }
 
     // Code
     override fun onCodeChange(newValue: CodeFieldValue) {
-        codeState = codeState.copy(code = newValue.text, error = CodeViewState.CodeError.None)
+        codeState = codeState.copy(code = newValue.text, error = CreateAccountCodeViewState.CodeError.None)
         if(newValue.isFullyFilled) onCodeContinue()
     }
     override fun resendCode() {

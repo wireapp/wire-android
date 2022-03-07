@@ -34,8 +34,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.email.EmailViewModel
-import com.wire.android.ui.authentication.create.email.EmailViewState
+import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
+import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -52,7 +52,7 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.ServerConfig
 
 @Composable
-fun EmailScreen(viewModel: EmailViewModel, serverConfig: ServerConfig, title: String, subtitle: String) {
+fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel, serverConfig: ServerConfig, title: String, subtitle: String) {
     EmailContent(
         state = viewModel.emailState,
         title = title,
@@ -63,14 +63,14 @@ fun EmailScreen(viewModel: EmailViewModel, serverConfig: ServerConfig, title: St
         onLoginPressed = viewModel::openLogin,
         onTermsDialogDismiss = viewModel::onTermsDialogDismiss,
         onTermsAccepted = viewModel::onTermsAccepted,
-        websiteBaseUrl = serverConfig.websiteUrl,
+        websiteBaseUrl = serverConfig.websiteUrl
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun EmailContent(
-    state: EmailViewState,
+    state: CreateAccountEmailViewState,
     title: String,
     subtitle: String,
     onEmailChange: (TextFieldValue) -> Unit,
@@ -81,7 +81,7 @@ private fun EmailContent(
     onTermsAccepted: () -> Unit,
     websiteBaseUrl: String
 ) {
-    Scaffold(topBar = { WireCenterAlignedTopAppBar(elevation = 0.dp, title = title, onNavigationPressed = onBackPressed) },) {
+    Scaffold(topBar = { WireCenterAlignedTopAppBar(elevation = 0.dp, title = title, onNavigationPressed = onBackPressed) }) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
             val keyboardController = LocalSoftwareKeyboardController.current
             Text(
@@ -98,13 +98,13 @@ private fun EmailContent(
                 onValueChange = onEmailChange,
                 placeholderText = stringResource(R.string.create_personal_account_email_placeholder),
                 labelText = stringResource(R.string.create_personal_account_email_label),
-                state = if(state.error is EmailViewState.EmailError.None) WireTextFieldState.Default
+                state = if(state.error is CreateAccountEmailViewState.EmailError.None) WireTextFieldState.Default
                     else WireTextFieldState.Error(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             )
-            if(state.error is EmailViewState.EmailError.InvalidEmailError) EmailErrorText()
+            if(state.error is CreateAccountEmailViewState.EmailError.InvalidEmailError) EmailErrorText()
             Spacer(modifier = Modifier.weight(1f))
             EmailFooter(state = state, onLoginPressed = onLoginPressed, onContinuePressed = onContinuePressed)
         }
@@ -153,7 +153,7 @@ private fun EmailErrorText() {
 }
 
 @Composable
-private fun EmailFooter(state: EmailViewState, onLoginPressed: () -> Unit, onContinuePressed: () -> Unit) {
+private fun EmailFooter(state: CreateAccountEmailViewState, onLoginPressed: () -> Unit, onContinuePressed: () -> Unit) {
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
@@ -216,6 +216,6 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
 
 @Composable
 @Preview
-private fun EmailScreenPreview() {
-    EmailContent(EmailViewState(), "title", "subtitle", {}, {}, {}, {}, {}, {}, "")
+private fun CreateAccountEmailScreenPreview() {
+    EmailContent(CreateAccountEmailViewState(), "title", "subtitle", {}, {}, {}, {}, {}, {}, "")
 }

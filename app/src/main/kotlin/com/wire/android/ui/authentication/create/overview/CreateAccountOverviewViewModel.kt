@@ -1,5 +1,5 @@
 package com.wire.android.ui.authentication.create.overview
 
-interface OverviewViewModel {
+interface CreateAccountOverviewViewModel {
     fun onOverviewContinue()
 }

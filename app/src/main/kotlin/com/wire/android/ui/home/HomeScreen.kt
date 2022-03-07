@@ -89,7 +89,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 )
             }
 
-            val homeContent: @Composable () -> Unit = {
+            val homeContent = @Composable {
                 with(currentNavigationItem) {
                     if (isSearchable) {
                         AppTopBarWithSearchBarLayout(

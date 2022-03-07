@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -14,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.NavigationIconType
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
@@ -23,11 +25,9 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
 fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val newConversationState = rememberNewConversationState()
 
-    AppTopBarWithSearchBarLayout(
+    AppTopBarWithSearchBarLayoutTest(
         scrollPosition = newConversationState.scrollPosition,
         searchBarHint = stringResource(R.string.label_search_people),
-        topBarTitle = stringResource(R.string.label_new_conversation),
-        navigationIconType = NavigationIconType.Close,
         searchQuery = newConversationState.searchQuery,
         onSearchQueryChanged = {
             newConversationState.searchQuery = it
@@ -37,7 +37,14 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
             newConversationState.clearSearchQuery()
             newConversationState.navigateBack()
         },
-        onNavigateBackClicked = { newConversationViewModel.close() },
+        appTopBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                title = stringResource(R.string.label_new_conversation),
+                navigationIconType = NavigationIconType.Close,
+                onNavigationPressed = { newConversationViewModel.close() }
+            )
+        },
         content = {
             NavHost(newConversationState.navController, startDestination = "contacts") {
                 composable(

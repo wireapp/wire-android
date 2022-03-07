@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -108,7 +109,6 @@ fun DeprecatedSearchTopBar(
     }
 }
 
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppTopBarWithSearchBarLayout(
@@ -159,6 +159,178 @@ fun AppTopBarWithSearchBarLayout(
     }
 
 }
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AppTopBarWithSearchBarLayoutTest(
+    scrollPosition: Int,
+    searchBarHint: String,
+    searchQuery: String,
+    onSearchQueryChanged: (String) -> Unit,
+    onSearchClicked: () -> Unit = {},
+    onCloseSearchClicked: () -> Unit = {},
+    content: @Composable () -> Unit,
+    appTopBar: @Composable () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ConstraintLayout(Modifier.fillMaxSize()) {
+        val (topBarRef, contentRef) = createRefs()
+
+        AppTopBarWithSearchBarTest(
+            scrollPosition,
+            searchBarHint = searchBarHint,
+            searchQuery = searchQuery,
+            onSearchQueryChanged = {
+                onSearchQueryChanged(it)
+            },
+            onSearchClicked = onSearchClicked,
+            onCloseSearchClicked = onCloseSearchClicked,
+            appTopBar = appTopBar,
+            modifier = modifier.constrainAs(topBarRef) {
+                top.linkTo(parent.top)
+                bottom.linkTo(contentRef.top)
+            }
+        )
+
+        Box(
+            Modifier
+                .wrapContentSize()
+                .constrainAs(contentRef) {
+                    top.linkTo(topBarRef.bottom)
+                    bottom.linkTo(parent.bottom)
+
+                    height = Dimension.fillToConstraints
+                }) {
+            content()
+        }
+    }
+
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AppTopBarWithSearchBarTest(
+    scrollPosition: Int,
+    searchBarHint: String,
+    searchQuery: String,
+    onSearchQueryChanged: (String) -> Unit,
+    onSearchClicked: () -> Unit = {},
+    onCloseSearchClicked: () -> Unit = {},
+    appTopBar: @Composable () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val searchBarState = rememberSearchbarState(scrollPosition)
+
+    AppTopBarWithSearchBarContentTest(
+        searchBarState,
+        searchBarHint = searchBarHint,
+        searchQuery = searchQuery,
+        onSearchQueryChanged = {
+            onSearchQueryChanged(it)
+        },
+        onInputClicked = onSearchClicked,
+        onCloseSearchClicked = onCloseSearchClicked,
+        appTopBar = appTopBar,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun AppTopBarWithSearchBarContentTest(
+    searchBarState: SearchBarState,
+    searchBarHint: String,
+    searchQuery: String,
+    onSearchQueryChanged: (String) -> Unit,
+    onInputClicked: () -> Unit,
+    onCloseSearchClicked: () -> Unit,
+    appTopBar: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    with(searchBarState) {
+        val animatedTopBarTotalHeight by animateFloatAsState(size)
+
+        Box(
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            Surface(
+                modifier = Modifier
+                    .height(animatedTopBarTotalHeight.dp)
+                    .wrapContentWidth(),
+                shadowElevation = if (isCollapsed) dimensions().topBarElevationHeight else 0.dp
+            ) {
+                val interactionSource = remember {
+                    MutableInteractionSource()
+                }
+
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.wireColorScheme.background)
+                ) {
+                    val focusManager = LocalFocusManager.current
+
+                    SearchBarInput(
+                        placeholderText = searchBarHint,
+                        text = searchQuery,
+                        onTextTyped = onSearchQueryChanged,
+                        leadingIcon = {
+                            AnimatedContent(isTopBarVisible) { isVisible ->
+                                if (isVisible) {
+                                    IconButton(onClick = { }) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_search_icon),
+                                            contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                                            tint = MaterialTheme.wireColorScheme.onBackground
+                                        )
+                                    }
+                                } else {
+                                    IconButton(onClick = {
+                                        focusManager.clearFocus()
+                                        showTopBar()
+
+                                        onCloseSearchClicked()
+                                    }) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_arrow_left),
+                                            contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                                            tint = MaterialTheme.wireColorScheme.onBackground
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        placeholderTextStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Start
+                        ),
+                        textStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Start
+                        ),
+                        interactionSource = interactionSource,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                    )
+                }
+
+                if (interactionSource.collectIsPressedAsState().value) {
+                    hideTopBar()
+                    onInputClicked()
+                }
+            }
+
+            AnimatedVisibility(
+                visible = isTopBarVisible,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                appTopBar()
+            }
+        }
+    }
+}
+
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable

@@ -36,6 +36,7 @@ import com.wire.android.ui.common.SearchBar
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.newconversation.AppTopBarWithSearchBarLayout
 import com.wire.android.ui.home.newconversation.DeprecatedSearchTopBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -68,6 +69,31 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         ) {
             val homeContent: @Composable () -> Unit = {
                 with(currentNavigationItem) {
+                    AppTopBarWithSearchBarLayout(
+                        scrollPosition = scrollPosition,
+                        searchBarHint = stringResource(R.string.label_search_people),
+                        topBarTitle = stringResource(R.string.label_new_conversation),
+                        navigationIconType = NavigationIconType.Close,
+                        searchQuery = "",
+                        onSearchQueryChanged = {
+
+                        },
+                        onSearchClicked = { },
+                        onCloseSearchClicked = {
+
+                        },
+                        onNavigateBackClicked = {},
+                        content = {
+                            val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
+
+                            HomeNavigationGraph(
+                                homeState = homeState,
+                                navController = navController,
+                                startDestination = startDestination
+                            )
+                        }
+                    )
+
                     Box {
                         val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
 

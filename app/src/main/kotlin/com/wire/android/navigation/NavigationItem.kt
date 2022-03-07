@@ -1,5 +1,6 @@
 package com.wire.android.navigation
 
+import android.net.Uri
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -44,20 +45,18 @@ import io.github.esentsov.PackagePrivate
 enum class NavigationItem(
     @PackagePrivate
     internal val primaryRoute: String,
-    private val canonicalRoute: String,
+    private val canonicalRoute: String = primaryRoute,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (ContentParams) -> Unit
     // TODO add animations here
 ) {
     Welcome(
         primaryRoute = WELCOME,
-        canonicalRoute = WELCOME,
         content = { WelcomeScreen() }
     ),
 
     Login(
         primaryRoute = LOGIN,
-        canonicalRoute = LOGIN,
         content = { contentParams ->
             val serverConfig = contentParams.arguments.filterIsInstance<ServerConfig>().firstOrNull()
             LoginScreen(serverConfig ?: ServerConfig.DEFAULT)
@@ -66,25 +65,21 @@ enum class NavigationItem(
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
-        canonicalRoute = CREATE_TEAM,
         content = { UnderConstructionScreen("Create Team Screen") }
     ),
 
     CreatePersonalAccount(
         primaryRoute = CREATE_PERSONAL_ACCOUNT,
-        canonicalRoute = CREATE_PERSONAL_ACCOUNT,
         content = { CreatePersonalAccountScreen(ServerConfig.STAGING) }
     ),
 
     RemoveDevices(
         primaryRoute = REMOVE_DEVICES,
-        canonicalRoute = REMOVE_DEVICES,
         content = { RemoveDeviceScreen() }
     ),
 
     Home(
         primaryRoute = HOME,
-        canonicalRoute = HOME,
         content = { HomeScreen(it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM), hiltViewModel()) },
         arguments = listOf(
             navArgument(EXTRA_HOME_TAB_ITEM) { type = NavType.StringType }
@@ -93,13 +88,11 @@ enum class NavigationItem(
 
     Settings(
         primaryRoute = SETTINGS,
-        canonicalRoute = SETTINGS,
         content = { SettingsScreen() },
     ),
 
     Support(
         primaryRoute = BuildConfig.SUPPORT_URL,
-        canonicalRoute = BuildConfig.SUPPORT_URL,
         content = { },
     ),
 
@@ -119,21 +112,19 @@ enum class NavigationItem(
 
     ProfileImagePicker(
         primaryRoute = IMAGE_PICKER,
-        canonicalRoute = IMAGE_PICKER,
-        content = { AvatarPickerScreen(hiltViewModel()) },
+        content = {
+            AvatarPickerScreen(hiltViewModel())
+        },
     ),
 
     Conversation(
         primaryRoute = CONVERSATION,
         canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
-        content = { ConversationScreen(hiltViewModel()) },
-        arguments = listOf(
-            navArgument(EXTRA_CONVERSATION_ID) { type = NavType.StringType }
-        )
+        content = { ConversationScreen(hiltViewModel()) }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return if (conversationId != null) "$primaryRoute/${conversationId.mapIntoArgumentString()}" else primaryRoute
+            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
         }
     };
 
@@ -169,7 +160,6 @@ object NavigationItemDestinationsRoutes {
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 private const val EXTRA_USER_ID = "extra_user_id"
-private const val EXTRA_INITIAL_BITMAP = "extra_initial_bitmap"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")

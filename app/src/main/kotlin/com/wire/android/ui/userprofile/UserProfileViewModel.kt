@@ -1,10 +1,14 @@
 package com.wire.android.ui.userprofile
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
+import android.provider.MediaStore
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
@@ -13,16 +17,15 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.util.extension.toByteArray
+import com.wire.android.util.getTempAvatarUri
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "MagicNumber")
@@ -38,22 +41,37 @@ class UserProfileViewModel @Inject constructor(
     var userProfileState by mutableStateOf(SelfUserProfileState())
         private set
 
+//    private var avatarUri = getTempAvatarUri()
+
     init {
         // TODO: here we should have a loading state as the first initial state of the screen
         viewModelScope.launch {
-            getSelf().collect {
-                userProfileState = SelfUserProfileState(
-                    status = UserStatus.AVAILABLE,
-                    fullName = it.name!!,
-                    userName = it.handle!!,
-                    teamName = it.team,
-                    // Add some mocked team
-                    otherAccounts = listOf(
-                        OtherAccount("someId", "", it.name!!, "Wire Swiss GmbH"),
-                        OtherAccount("someId", "", "B. A. Baracus", "The A-Team"),
-                    )
-                )
+            fetchSelfUser()
+            observeAvatarChanges()
+        }
+    }
+
+    private suspend fun observeAvatarChanges() {
+        dataStore.shouldUpdateAvatar.collect { shouldUpdate ->
+            if (shouldUpdate) {
+//                getCurrentAvatarUri(LocalContext.current).path
             }
+        }
+    }
+
+    private suspend fun fetchSelfUser() {
+        getSelf().collect {
+            userProfileState = SelfUserProfileState(
+                status = UserStatus.AVAILABLE,
+                fullName = it.name!!,
+                userName = it.handle!!,
+                teamName = it.team,
+                // Add some mocked team
+                otherAccounts = listOf(
+                    OtherAccount("someId", "", it.name!!, "Wire Swiss GmbH"),
+                    OtherAccount("someId", "", "B. A. Baracus", "The A-Team"),
+                )
+            )
         }
     }
 
@@ -129,45 +147,23 @@ class UserProfileViewModel @Inject constructor(
     private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean =
         dataStore.shouldShowStatusRationaleFlow(status).first()
 
-    fun changeUserAvatar(avatarBitmap: Bitmap, shouldNavigateBack: Boolean = false) {
-        val backupBitmap = userProfileState.avatarBitmap
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                // Update the user avatar on the userProfileState object with the local bitmap
-                userProfileState = userProfileState.copy(avatarBitmap = avatarBitmap, isAvatarLoading = true)
-
-                // Upload the Avatar image
-                userProfileState = when (uploadUserAvatar("image/png", avatarBitmap.toByteArray())) {
-                    // Fallback
-                    is Either.Left -> {
-                        userProfileState.copy(
-                            avatarBitmap = backupBitmap,
-                            isAvatarLoading = false,
-                            errorMessage = "Image could not be uploaded"
-                        )
-                    }
-
-                    // Happy path
-                    else -> userProfileState.copy(isAvatarLoading = false)
-                }
-
-                if (shouldNavigateBack) navigateBack()
-            }
-        }
-    }
-
     fun clearErrorMessage() {
         userProfileState = userProfileState.copy(errorMessage = null)
     }
 
-    fun onChangeProfilePictureClicked() {
+    fun onChangeProfilePictureClicked(ctx: Context) {
         viewModelScope.launch {
             navigationManager.navigate(NavigationCommand(NavigationItem.ProfileImagePicker.getRouteWithArgs()))
         }
+    }
+
+    fun changeAvatar() {
+        userProfileState = userProfileState.copy(isAvatarLoading = true)
     }
 
     //!! TODO: this method is made only to pass the mock bitmap, later on we will not need it !!
     fun mockMethodForAvatar(bitmap: Bitmap) {
         userProfileState = userProfileState.copy(avatarBitmap = bitmap)
     }
+
 }

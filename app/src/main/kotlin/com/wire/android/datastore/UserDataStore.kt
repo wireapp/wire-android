@@ -24,6 +24,7 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
         private val SHOW_STATUS_RATIONALE_BUSY = booleanPreferencesKey("show_status_rationale_busy")
         private val SHOW_STATUS_RATIONALE_AWAY = booleanPreferencesKey("show_status_rationale_away")
         private val SHOW_STATUS_RATIONALE_NONE = booleanPreferencesKey("show_status_rationale_none")
+        private val HAS_USER_AVATAR_CHANGED = booleanPreferencesKey("has_user_avatar_changed")
     }
 
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
@@ -38,6 +39,17 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
         .map { preferences ->
             preferences[getStatusKey(status)] ?: true
         }
+
+    val shouldUpdateAvatar: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[HAS_USER_AVATAR_CHANGED] ?: false
+        }
+
+    suspend fun updateUserAvatarChanged(hasChanged: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[HAS_USER_AVATAR_CHANGED] = hasChanged
+        }
+    }
 
     suspend fun clear() {
         context.dataStore.edit { it.clear() }

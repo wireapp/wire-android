@@ -11,6 +11,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawer
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +32,7 @@ import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.newconversation.AppTopBarWithSearchBarLayout
 import kotlinx.coroutines.CoroutineScope
@@ -62,72 +64,52 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             drawerContent = drawerContent,
             gesturesEnabled = currentNavigationItem.isSwipeable
         ) {
+
+            val homeNavigationGraph = @Composable {
+                val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
+
+                HomeNavigationGraph(
+                    homeState = homeState,
+                    navController = navController,
+                    startDestination = startDestination
+                )
+            }
+
+            val homeTopBar = @Composable {
+                WireCenterAlignedTopAppBar(
+                    title = stringResource(id = currentNavigationItem.title),
+                    onNavigationPressed = { openDrawer() },
+                    navigationIconType = NavigationIconType.Menu,
+                    actions = {
+                        UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
+                            viewModel.navigateToUserProfile()
+                        }
+                    },
+                    elevation = if (currentNavigationItem.isSearchable) 0.dp else dimensions().topBarElevationHeight,
+                )
+            }
+
             val homeContent: @Composable () -> Unit = {
                 with(currentNavigationItem) {
-                    AppTopBarWithSearchBarLayout(
-                        scrollPosition = scrollPosition,
-                        searchBarHint = stringResource(R.string.label_search_people),
-                        searchQuery = "",
-                        onSearchQueryChanged = {},
-                        onSearchClicked = { },
-                        onCloseSearchClicked = {},
-                        appTopBar = {
-                            WireCenterAlignedTopAppBar(
-                                title = stringResource(id = title),
-                                onNavigationPressed = { openDrawer() },
-                                navigationIconType = NavigationIconType.Menu,
-                                actions = {
-                                    UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
-                                        viewModel.navigateToUserProfile()
-                                    }
-                                },
-                                elevation = 0.dp,
-                            )
-                        },
-                        content = {
-                            val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-
-                            HomeNavigationGraph(
-                                homeState = homeState,
-                                navController = navController,
-                                startDestination = startDestination
-                            )
+                    if (isSearchable) {
+                        AppTopBarWithSearchBarLayout(
+                            scrollPosition = scrollPosition,
+                            searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
+                            //TODO: implement the search for home once we work on it, for now we do not care
+                            searchQuery = "",
+                            onSearchQueryChanged = {},
+                            onSearchClicked = { },
+                            onCloseSearchClicked = {},
+                            appTopBar = homeTopBar,
+                            content = {
+                                homeNavigationGraph()
+                            }
+                        )
+                    } else {
+                        Scaffold(topBar = homeTopBar) {
+                            homeNavigationGraph()
                         }
-                    )
-
-//                        if (isSearchable) {
-//                            DeprecatedSearchTopBar(
-//                                topBarTitle = stringResource(id = title),
-//                                scrollPosition = scrollPosition,
-//                                onNavigationPressed = { openDrawer() },
-//                                navigationIconType = NavigationIconType.Menu,
-//                                searchBar = {
-//                                    SearchBar(
-//                                        placeholderText = stringResource(
-//                                            R.string.search_bar_hint,
-//                                            stringResource(id = title).lowercase()
-//                                        ),
-//                                        modifier = Modifier.background(MaterialTheme.colorScheme.background)
-//                                    )
-//                                },
-//                                actions = {
-//                                    UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
-//                                        viewModel.navigateToUserProfile()
-//                                    }
-//                                }
-//                            )
-//                        } else {
-//                            WireCenterAlignedTopAppBar(
-//                                title = stringResource(id = title),
-//                                onNavigationPressed = { openDrawer() },
-//                                navigationIconType = NavigationIconType.Menu,
-//                                actions = {
-//                                    UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
-//                                        viewModel.navigateToUserProfile()
-//                                    }
-//                                }
-//                            )
-//                        }
+                    }
                 }
             }
 

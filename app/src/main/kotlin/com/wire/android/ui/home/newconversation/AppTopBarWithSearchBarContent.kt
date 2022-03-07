@@ -86,7 +86,8 @@ fun AppTopBarWithSearchBarLayout(
                     bottom.linkTo(parent.bottom)
 
                     height = Dimension.fillToConstraints
-                }) {
+                }
+        ) {
             content()
         }
     }

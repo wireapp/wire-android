@@ -120,27 +120,15 @@ fun AppTopBarWithSearchBar(
     onNavigateBackClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val searchBarState = rememberSearchbarState(scrollPosition)
-
     AppTopBarWithSearchBarContent(
+        scrollPosition = scrollPosition,
         searchQuery = searchQuery,
         navigationIconType = navigationIconType,
         onSearchQueryChanged = {
             onSearchQueryChanged(it)
         },
-        topBarTotalHeight = searchBarState.size,
-        isSearchBarCollapsed = searchBarState.isCollapsed,
-        isTopBarVisible = searchBarState.isTopBarVisible,
-        onInputClicked = {
-            searchBarState.hideTopBar()
-
-            onSearchClicked()
-        },
-        onCloseSearchClicked = {
-            searchBarState.showTopBar()
-
-            onCloseSearchClicked()
-        },
+        onInputClicked = onSearchClicked,
+        onCloseSearchClicked = onCloseSearchClicked,
         onNavigateBackClicked = onNavigateBackClicked,
         modifier = modifier
     )
@@ -149,21 +137,21 @@ fun AppTopBarWithSearchBar(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun AppTopBarWithSearchBarContent(
+    scrollPosition: Int,
     navigationIconType: NavigationIconType,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
-    topBarTotalHeight: Float,
-    isSearchBarCollapsed: Boolean,
-    isTopBarVisible: Boolean,
     onInputClicked: () -> Unit,
     onCloseSearchClicked: () -> Unit,
     onNavigateBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val animatedTopBarTotalHeight by animateFloatAsState(topBarTotalHeight)
-
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+
+    val searchBarState = rememberSearchbarState(scrollPosition)
+
+    val animatedTopBarTotalHeight by animateFloatAsState(searchBarState.size)
 
     Box(
         modifier
@@ -174,7 +162,7 @@ private fun AppTopBarWithSearchBarContent(
             modifier = Modifier
                 .height(animatedTopBarTotalHeight.dp)
                 .wrapContentWidth(),
-            shadowElevation = if (isSearchBarCollapsed) dimensions().topBarElevationHeight else 0.dp
+            shadowElevation = if (searchBarState.isCollapsed) dimensions().topBarElevationHeight else 0.dp
         ) {
             val interactionSource = remember {
                 MutableInteractionSource()
@@ -190,7 +178,7 @@ private fun AppTopBarWithSearchBarContent(
                     text = searchQuery,
                     onTextTyped = onSearchQueryChanged,
                     leadingIcon = {
-                        AnimatedContent(isTopBarVisible) { isVisible ->
+                        AnimatedContent(searchBarState.isTopBarVisible) { isVisible ->
                             if (isVisible) {
                                 IconButton(onClick = { }) {
                                     Icon(
@@ -202,6 +190,7 @@ private fun AppTopBarWithSearchBarContent(
                             } else {
                                 IconButton(onClick = {
                                     focusManager.clearFocus()
+                                    searchBarState.showTopBar()
 
                                     onCloseSearchClicked()
                                 }) {
@@ -214,10 +203,10 @@ private fun AppTopBarWithSearchBarContent(
                             }
                         }
                     },
-                    placeholderTextStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                    placeholderTextStyle = if (searchBarState.isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
                         textAlign = TextAlign.Start
                     ),
-                    textStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                    textStyle = if (searchBarState.isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
                         textAlign = TextAlign.Start
                     ),
                     interactionSource = interactionSource,
@@ -228,12 +217,13 @@ private fun AppTopBarWithSearchBarContent(
             }
 
             if (interactionSource.collectIsPressedAsState().value) {
+                searchBarState.hideTopBar()
                 onInputClicked()
             }
         }
 
         AnimatedVisibility(
-            visible = isTopBarVisible, enter = expandVertically(),
+            visible = searchBarState.isTopBarVisible, enter = expandVertically(),
             exit = shrinkVertically(),
         ) {
             WireCenterAlignedTopAppBar(
@@ -313,3 +303,4 @@ class SearchBarState(
     }
 
 }
+

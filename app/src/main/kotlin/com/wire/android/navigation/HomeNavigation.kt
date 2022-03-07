@@ -43,9 +43,7 @@ fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, 
                     route = item.route,
                     content = item.content(homeState),
                     enterTransition = { item.enterTransition },
-                    exitTransition = { item.exitTransition },
-                    popEnterTransition = { item.enterTransition }, // should create a structure to hold the animations per item ?
-                    popExitTransition = { item.exitTransition } // should create a structure to hold the animations per item ?
+                    exitTransition = { item.exitTransition }
                 )
             }
     }

@@ -6,7 +6,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -58,15 +57,21 @@ fun AppTopBarWithSearchBarLayout(
     content: @Composable () -> Unit,
     appTopBar: @Composable () -> Unit,
 ) {
-    ConstraintLayout(Modifier.fillMaxSize()) {
-        val (topBarRef, contentRef) = createRefs()
 
-        Box(modifier = Modifier
-            .wrapContentSize()
-            .constrainAs(topBarRef) {
-                top.linkTo(parent.top)
-                bottom.linkTo(contentRef.top)
-            }) {
+    ConstraintLayout(
+        Modifier
+            .fillMaxSize()
+    ) {
+        val (topBarRef, contentRef, testRef) = createRefs()
+
+        Box(
+            Modifier
+                .wrapContentSize()
+                .constrainAs(topBarRef) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(contentRef.top)
+                }
+        ) {
             AppTopBarWithSearchBar(
                 scrollPosition = scrollPosition,
                 searchBarHint = searchBarHint,
@@ -90,6 +95,18 @@ fun AppTopBarWithSearchBarLayout(
         ) {
             content()
         }
+//
+//        Box(
+//            Modifier
+//                .height(64.dp)
+//                .fillMaxWidth()
+//                .background(Color.Transparent)
+//                .shadow(4.dp)
+//                .constrainAs(testRef) {
+//                    top.linkTo(topBarRef.bottom)
+//                }
+//        )
+
     }
 }
 
@@ -110,9 +127,7 @@ private fun AppTopBarWithSearchBar(
         searchBarState = searchBarState,
         searchBarHint = searchBarHint,
         searchQuery = searchQuery,
-        onSearchQueryChanged = {
-            onSearchQueryChanged(it)
-        },
+        onSearchQueryChanged = onSearchQueryChanged,
         onInputClicked = onSearchClicked,
         onCloseSearchClicked = onCloseSearchClicked,
         appTopBar = appTopBar
@@ -151,7 +166,6 @@ private fun AppTopBarWithSearchBarContent(
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .background(color = MaterialTheme.wireColorScheme.background)
                 ) {
                     val focusManager = LocalFocusManager.current
 
@@ -208,16 +222,12 @@ private fun AppTopBarWithSearchBarContent(
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
-                Surface(
-                    modifier = Modifier.wrapContentSize(),
-                    shadowElevation = if (isSearchBarCollapsed) dimensions().topBarElevationHeight else 0.dp,
-                ) {
-                    appTopBar()
-                }
+                appTopBar()
             }
         }
     }
 }
+
 
 @Composable
 private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {

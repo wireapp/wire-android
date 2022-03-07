@@ -10,29 +10,20 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun SearchPeopleScreen(
-    searchPeopleViewModel: SearchPeopleViewModel = hiltViewModel(),
-    searchQuery: String,
+    searchPeopleState: SearchPeopleState,
     onScrollPositionChanged: (Int) -> Unit
 ) {
-    val state = searchPeopleViewModel.state
-
-    LaunchedEffect(searchQuery) {
-        searchPeopleViewModel.search(searchQuery)
-    }
-
     SearchPeopleScreenContent(
-        searchQuery = state.searchQuery,
+        searchQuery = searchPeopleState.searchQuery,
         onScrollPositionChanged = onScrollPositionChanged
     )
 }

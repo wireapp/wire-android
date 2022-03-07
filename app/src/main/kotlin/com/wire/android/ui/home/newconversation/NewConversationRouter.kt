@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.newconversation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,6 +16,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
+import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
 
 
 @Composable
@@ -47,9 +49,16 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                 composable(
                     route = "search_people",
                     content = {
+                        val searchPeopleViewModel: SearchPeopleViewModel = hiltViewModel()
+
+                        LaunchedEffect(newConversationState.searchQuery) {
+                            searchPeopleViewModel.search(newConversationState.searchQuery)
+                        }
+
                         SearchPeopleScreen(
-                            searchQuery = newConversationState.searchQuery,
-                            onScrollPositionChanged = { newConversationState.updateScrollPosition(it) })
+                            searchPeopleState = searchPeopleViewModel.state,
+                            onScrollPositionChanged = { newConversationState.updateScrollPosition(it) }
+                        )
                     }
                 )
             }

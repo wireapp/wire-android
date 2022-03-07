@@ -80,7 +80,8 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                                     UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
                                         viewModel.navigateToUserProfile()
                                     }
-                                }
+                                },
+                                elevation = 0.dp,
                             )
                         },
                         content = {

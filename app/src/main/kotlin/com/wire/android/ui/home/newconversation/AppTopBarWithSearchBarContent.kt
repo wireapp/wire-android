@@ -108,7 +108,6 @@ fun DeprecatedSearchTopBar(
     }
 }
 
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppTopBarWithSearchBarLayout(
@@ -153,7 +152,6 @@ fun AppTopBarWithSearchBarLayout(
             content()
         }
     }
-
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -171,7 +169,7 @@ private fun AppTopBarWithSearchBar(
     val searchBarState = rememberSearchbarState(scrollPosition)
 
     AppTopBarWithSearchBarContent(
-        searchBarState,
+        searchBarState = searchBarState,
         searchBarHint = searchBarHint,
         searchQuery = searchQuery,
         onSearchQueryChanged = {
@@ -274,7 +272,11 @@ private fun AppTopBarWithSearchBarContent(
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
-                appTopBar()
+                Surface(
+                    shadowElevation = if(isCollapsed) dimensions().topBarElevationHeight else 0.dp,
+                ) {
+                    appTopBar()
+                }
             }
         }
     }

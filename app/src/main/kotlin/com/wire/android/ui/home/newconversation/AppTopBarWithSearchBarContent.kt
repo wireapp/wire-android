@@ -117,8 +117,10 @@ fun AppTopBarWithSearchBar(
     onNavigateBackClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val searchBarState = rememberSearchbarState(scrollPosition)
+
     AppTopBarWithSearchBarContent(
-        scrollPosition = scrollPosition,
+        searchBarState,
         searchQuery = searchQuery,
         navigationIconType = navigationIconType,
         onSearchQueryChanged = {
@@ -134,7 +136,7 @@ fun AppTopBarWithSearchBar(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun AppTopBarWithSearchBarContent(
-    scrollPosition: Int,
+    searchBarState: SearchBarState,
     navigationIconType: NavigationIconType,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
@@ -143,10 +145,6 @@ private fun AppTopBarWithSearchBarContent(
     onNavigateBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val focusManager = LocalFocusManager.current
-
-    val searchBarState = rememberSearchbarState(scrollPosition)
-
     val animatedTopBarTotalHeight by animateFloatAsState(searchBarState.size)
 
     Box(
@@ -169,6 +167,8 @@ private fun AppTopBarWithSearchBarContent(
                     .fillMaxSize()
                     .background(color = MaterialTheme.wireColorScheme.background)
             ) {
+                val focusManager = LocalFocusManager.current
+
                 SearchBarInput(
                     placeholderText = "Search people",
                     text = searchQuery,

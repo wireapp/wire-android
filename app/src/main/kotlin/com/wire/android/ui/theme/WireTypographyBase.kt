@@ -105,10 +105,19 @@ object WireTypographyBase {
         lineHeight = 16.sp,
         textAlign = TextAlign.Center
     )
+    val Label05 = Label04.copy(
+        fontWeight = FontWeight.W700
+    )
     val Badge01 = TextStyle(
         fontWeight = FontWeight.W700,
         fontSize = 10.sp,
         lineHeight = 11.72.sp,
+        textAlign = TextAlign.Center
+    )
+    val Code01 = TextStyle(
+        fontWeight = FontWeight.W500,
+        fontSize = 24.sp,
+        lineHeight = 28.13.sp,
         textAlign = TextAlign.Center
     )
 }

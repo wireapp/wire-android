@@ -19,13 +19,16 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.HomeState
 import com.wire.android.ui.home.archive.ArchiveScreen
-import com.wire.android.ui.home.conversationslist.ConversationRouter
+import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.vault.VaultScreen
 
 @OptIn(
@@ -34,20 +37,18 @@ import com.wire.android.ui.home.vault.VaultScreen
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeNavigationGraph(navController: NavHostController, startDestination: String?) {
-    AnimatedNavHost(
+fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, startDestination: String?) {
+    NavHost(
         modifier = Modifier.padding(top = dimensions().smallTopBarHeight),
         navController = navController,
         startDestination = startDestination ?: HomeNavigationItem.Conversations.route
     ) {
         HomeNavigationItem.all
             .forEach { item ->
-                composable(
-                    route = item.route,
-                    content = item.content,
+                composable(route = item.route,
+                    content = item.content(homeState),
                     enterTransition = { item.enterTransition },
-                    exitTransition = { item.exitTransition }
-                )
+                    exitTransition = { item.exitTransition })
             }
     }
 }
@@ -76,7 +77,7 @@ enum class HomeNavigationItem(
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
-    val content: @Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit),
+    val content: (HomeState) -> (@Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit)),
     open val enterTransition: EnterTransition = EnterTransition.None,
     open val exitTransition: ExitTransition = ExitTransition.None
 ) {
@@ -85,19 +86,27 @@ enum class HomeNavigationItem(
         title = R.string.conversations_screen_title,
         isSearchable = true,
         isSwipeable = false,
-        content = { ConversationRouter() }
+        content = { homeState ->
+            {
+                ConversationRouterHomeBridge(
+                    onHomeBottomSheetContentChange = { bottomSheetContent ->
+                        homeState.changeBottomSheetContent(bottomSheetContent)
+                    },
+                    onExpandHomeBottomSheet = { homeState.expandBottomSheet() })
+            }
+        }
     ),
 
     Vault(
         route = HomeDestinationsRoutes.vault,
         title = R.string.vault_screen_title,
-        content = { VaultScreen() }
+        content = { { VaultScreen() } }
     ),
 
     Archive(
         route = HomeDestinationsRoutes.archive,
         title = R.string.archive_screen_title,
-        content = { ArchiveScreen() }
+        content = { { ArchiveScreen() } }
     );
 
     companion object {

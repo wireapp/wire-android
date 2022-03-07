@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -8,18 +9,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 
 @Composable
-fun rememberMessageComposerState(
-    defaultMessageText: TextFieldValue = TextFieldValue(""),
+fun rememberMessageComposerInnerState(
+    defaultMessageText: String = "",
     defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled
-) = remember {
-    MessageComposerState(
-        defaultMessageText,
-        defaultMessageComposeInputState
-    )
+): MessageComposerInnerState {
+
+    return remember {
+        MessageComposerInnerState(
+            defaultMessageText,
+            defaultMessageComposeInputState
+        )
+    }
 }
 
-class MessageComposerState(
-    defaultMessageText: TextFieldValue,
+class MessageComposerInnerState(
+    defaultMessageText: String,
     defaultMessageComposeInputState: MessageComposeInputState,
 ) {
 
@@ -32,7 +36,7 @@ class MessageComposerState(
         @Composable get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
             false
         } else {
-            messageText.text.filter { !it.isWhitespace() }
+            messageText.filter { !it.isWhitespace() }
                 .isNotBlank()
         }
 
@@ -41,7 +45,7 @@ class MessageComposerState(
     }
 
     fun clickOutSideMessageComposer() {
-        if (messageText.text.filter { !it.isWhitespace() }.isBlank()) {
+        if (messageText.filter { !it.isWhitespace() }.isBlank()) {
             toEnabled()
         }
     }

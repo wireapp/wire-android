@@ -1,5 +1,6 @@
 package com.wire.android.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -14,17 +15,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
@@ -39,6 +39,7 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        viewModel.handleDeepLink(intent)
         setContent {
             WireTheme {
                 val scope = rememberCoroutineScope()
@@ -47,10 +48,18 @@ class WireActivity : AppCompatActivity() {
                 setUpNavigation(navController, scope)
 
                 Scaffold {
-                    NavigationGraph(navController = navController, viewModel.startNavigationRoute)
+                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), listOf(viewModel.serverConfig))
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        intent?.let {
+            recreate()
+            viewModel.handleDeepLink(intent)
+        }
+        super.onNewIntent(intent)
     }
 
     @Composable

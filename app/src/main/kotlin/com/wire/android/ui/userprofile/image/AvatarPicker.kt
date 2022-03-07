@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile.image
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -48,8 +49,8 @@ fun AvatarPickerScreen(
         state = state,
         onCloseClick = {
             when (val avatarImageState = state.picturePickerFlow.bitmapState) {
-                is BitmapState.BitmapPicked -> viewModel.changeUserProfile(avatarImageState.bitmap)
-                is BitmapState.InitialBitmap -> viewModel.close()
+                is BitmapState.BitmapPicked -> viewModel.changeUserAvatar(avatarImageState.bitmap, shouldNavigateBack = true)
+                is BitmapState.InitialBitmap -> viewModel.navigateBack()
             }
         }
     )

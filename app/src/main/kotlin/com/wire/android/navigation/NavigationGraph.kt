@@ -14,11 +14,12 @@ import com.google.accompanist.navigation.animation.composable
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun NavigationGraph(navController: NavHostController, startDestination: String) {
+fun NavigationGraph(navController: NavHostController, startDestination: String, arguments: List<Any> = emptyList()) {
     AnimatedNavHost(navController, startDestination) {
         NavigationItem.values().onEach { item ->
             composable(
-                route = item.getCanonicalRoute(), content = item.content,
+                route = item.getCanonicalRoute(),
+                content = { navBackStackEntry -> item.content(ContentParams(navBackStackEntry, arguments)) },
                 enterTransition = { item.enterTransition },
                 exitTransition = { item.exitTransition },
             )

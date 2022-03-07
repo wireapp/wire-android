@@ -15,9 +15,10 @@ data class WireTypography(
     val title01: TextStyle,  val title02: TextStyle,  val title03: TextStyle,  val title04: TextStyle,
     val body01: TextStyle,   val body02: TextStyle,   val body03: TextStyle,   val body04: TextStyle,
     val button01: TextStyle, val button02: TextStyle, val button03: TextStyle, val button04: TextStyle, val button05: TextStyle,
-    val label01: TextStyle,  val label02: TextStyle,  val label03: TextStyle,  val label04: TextStyle,
+    val label01: TextStyle,  val label02: TextStyle,  val label03: TextStyle,  val label04: TextStyle, val label05: TextStyle,
     val badge01: TextStyle,
     val subline01: TextStyle,
+    val code01: TextStyle,
 ) {
     fun toTypography() = Typography(
         titleLarge = title01,  titleMedium = title02, titleSmall = title03,
@@ -44,8 +45,10 @@ private val DefaultWireTypography = WireTypography(
     label02 = WireTypographyBase.Label02,
     label03 = WireTypographyBase.Label03,
     label04 = WireTypographyBase.Label04,
+    label05 = WireTypographyBase.Label05,
     badge01 = WireTypographyBase.Badge01,
     subline01 = WireTypographyBase.SubLine01,
+    code01 = WireTypographyBase.Code01
 )
 
 @PackagePrivate

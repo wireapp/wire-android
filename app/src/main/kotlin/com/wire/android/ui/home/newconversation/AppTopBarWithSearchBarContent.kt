@@ -57,26 +57,26 @@ fun AppTopBarWithSearchBarLayout(
     onCloseSearchClicked: () -> Unit = {},
     content: @Composable () -> Unit,
     appTopBar: @Composable () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     ConstraintLayout(Modifier.fillMaxSize()) {
         val (topBarRef, contentRef) = createRefs()
 
-        AppTopBarWithSearchBar(
-            scrollPosition,
-            searchBarHint = searchBarHint,
-            searchQuery = searchQuery,
-            onSearchQueryChanged = {
-                onSearchQueryChanged(it)
-            },
-            onSearchClicked = onSearchClicked,
-            onCloseSearchClicked = onCloseSearchClicked,
-            appTopBar = appTopBar,
-            modifier = modifier.constrainAs(topBarRef) {
+        Box(modifier = Modifier
+            .wrapContentSize()
+            .constrainAs(topBarRef) {
                 top.linkTo(parent.top)
                 bottom.linkTo(contentRef.top)
-            }
-        )
+            }) {
+            AppTopBarWithSearchBar(
+                scrollPosition = scrollPosition,
+                searchBarHint = searchBarHint,
+                searchQuery = searchQuery,
+                onSearchQueryChanged = onSearchQueryChanged,
+                onSearchClicked = onSearchClicked,
+                onCloseSearchClicked = onCloseSearchClicked,
+                appTopBar = appTopBar
+            )
+        }
 
         Box(
             Modifier
@@ -103,7 +103,6 @@ private fun AppTopBarWithSearchBar(
     onSearchClicked: () -> Unit = {},
     onCloseSearchClicked: () -> Unit = {},
     appTopBar: @Composable () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val searchBarState = rememberSearchbarState(scrollPosition)
 
@@ -116,8 +115,7 @@ private fun AppTopBarWithSearchBar(
         },
         onInputClicked = onSearchClicked,
         onCloseSearchClicked = onCloseSearchClicked,
-        appTopBar = appTopBar,
-        modifier = modifier
+        appTopBar = appTopBar
     )
 }
 

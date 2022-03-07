@@ -24,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,8 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -146,7 +143,6 @@ private fun AppTopBarWithSearchBarContent(
     onNavigateBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
     val searchBarState = rememberSearchbarState(scrollPosition)
@@ -212,7 +208,6 @@ private fun AppTopBarWithSearchBarContent(
                     interactionSource = interactionSource,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .focusRequester(focusRequester)
                 )
             }
 
@@ -256,19 +251,15 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
             }
     }
 
-    val searchFieldFullHeightPx = LocalDensity.current.run {
-        (dimensions().smallTopBarHeight).toPx()
-    }
-
-    val isTopBarVisible = remember {
-        mutableStateOf(true)
-    }
+    val searchFieldFullHeightPx: Float =
+        LocalDensity.current.run {
+            (dimensions().smallTopBarHeight).toPx()
+        }
 
     return remember(isCollapsed) {
         SearchBarState(
             searchFieldFullHeightPx,
             isCollapsed,
-            isTopBarVisible,
         )
     }
 }
@@ -276,9 +267,10 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
 class SearchBarState(
     private val searchFieldFullHeightPx: Float,
     val isCollapsed: Boolean,
-    defaultIsTopBarVisible: MutableState<Boolean>,
 ) {
-    var isTopBarVisible by defaultIsTopBarVisible
+
+    var isTopBarVisible by mutableStateOf(true)
+        private set
 
     val size
         @Composable get() =

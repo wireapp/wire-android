@@ -1,15 +1,12 @@
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversations.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
@@ -49,10 +46,7 @@ private fun AllConversationContent(
 ) {
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            top = dimensions().topBarSearchFieldHeight,
-        )
+        modifier = Modifier.fillMaxSize()
     ) {
         folderWithElements(
             header = { stringResource(id = R.string.conversation_label_new_activity) },

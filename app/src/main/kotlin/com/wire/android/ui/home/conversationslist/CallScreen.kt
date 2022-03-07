@@ -1,16 +1,13 @@
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
@@ -48,10 +45,7 @@ fun CallContent(
 ) {
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            top = dimensions().topBarSearchFieldHeight
-        )
+        modifier = Modifier.fillMaxSize()
     ) {
         folderWithElements(
             header = { stringResource(id = R.string.calls_label_missed_calls) },

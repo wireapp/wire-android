@@ -25,7 +25,7 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
 fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val newConversationState = rememberNewConversationState()
 
-    AppTopBarWithSearchBarLayoutTest(
+    AppTopBarWithSearchBarLayout(
         scrollPosition = newConversationState.scrollPosition,
         searchBarHint = stringResource(R.string.label_search_people),
         searchQuery = newConversationState.searchQuery,

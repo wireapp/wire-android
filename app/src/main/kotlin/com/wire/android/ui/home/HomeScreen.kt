@@ -1,8 +1,6 @@
 package com.wire.android.ui.home
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
@@ -20,7 +18,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -32,12 +29,10 @@ import com.wire.android.model.UserStatus
 import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.ui.common.NavigationIconType
-import com.wire.android.ui.common.SearchBar
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.newconversation.AppTopBarWithSearchBarLayout
-import com.wire.android.ui.home.newconversation.DeprecatedSearchTopBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -72,17 +67,22 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                     AppTopBarWithSearchBarLayout(
                         scrollPosition = scrollPosition,
                         searchBarHint = stringResource(R.string.label_search_people),
-                        topBarTitle = stringResource(R.string.label_new_conversation),
-                        navigationIconType = NavigationIconType.Close,
                         searchQuery = "",
-                        onSearchQueryChanged = {
-
-                        },
+                        onSearchQueryChanged = {},
                         onSearchClicked = { },
-                        onCloseSearchClicked = {
-
+                        onCloseSearchClicked = {},
+                        appTopBar = {
+                            WireCenterAlignedTopAppBar(
+                                title = stringResource(id = title),
+                                onNavigationPressed = { openDrawer() },
+                                navigationIconType = NavigationIconType.Menu,
+                                actions = {
+                                    UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
+                                        viewModel.navigateToUserProfile()
+                                    }
+                                }
+                            )
                         },
-                        onNavigateBackClicked = {},
                         content = {
                             val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
 
@@ -94,49 +94,39 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                         }
                     )
 
-                    Box {
-                        val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-
-                        HomeNavigationGraph(
-                            homeState = homeState,
-                            navController = navController,
-                            startDestination = startDestination
-                        )
-
-                        if (isSearchable) {
-                            DeprecatedSearchTopBar(
-                                topBarTitle = stringResource(id = title),
-                                scrollPosition = scrollPosition,
-                                onNavigationPressed = { openDrawer() },
-                                navigationIconType = NavigationIconType.Menu,
-                                searchBar = {
-                                    SearchBar(
-                                        placeholderText = stringResource(
-                                            R.string.search_bar_hint,
-                                            stringResource(id = title).lowercase()
-                                        ),
-                                        modifier = Modifier.background(MaterialTheme.colorScheme.background)
-                                    )
-                                },
-                                actions = {
-                                    UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
-                                        viewModel.navigateToUserProfile()
-                                    }
-                                }
-                            )
-                        } else {
-                            WireCenterAlignedTopAppBar(
-                                title = stringResource(id = title),
-                                onNavigationPressed = { openDrawer() },
-                                navigationIconType = NavigationIconType.Menu,
-                                actions = {
-                                    UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
-                                        viewModel.navigateToUserProfile()
-                                    }
-                                }
-                            )
-                        }
-                    }
+//                        if (isSearchable) {
+//                            DeprecatedSearchTopBar(
+//                                topBarTitle = stringResource(id = title),
+//                                scrollPosition = scrollPosition,
+//                                onNavigationPressed = { openDrawer() },
+//                                navigationIconType = NavigationIconType.Menu,
+//                                searchBar = {
+//                                    SearchBar(
+//                                        placeholderText = stringResource(
+//                                            R.string.search_bar_hint,
+//                                            stringResource(id = title).lowercase()
+//                                        ),
+//                                        modifier = Modifier.background(MaterialTheme.colorScheme.background)
+//                                    )
+//                                },
+//                                actions = {
+//                                    UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
+//                                        viewModel.navigateToUserProfile()
+//                                    }
+//                                }
+//                            )
+//                        } else {
+//                            WireCenterAlignedTopAppBar(
+//                                title = stringResource(id = title),
+//                                onNavigationPressed = { openDrawer() },
+//                                navigationIconType = NavigationIconType.Menu,
+//                                actions = {
+//                                    UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
+//                                        viewModel.navigateToUserProfile()
+//                                    }
+//                                }
+//                            )
+//                        }
                 }
             }
 

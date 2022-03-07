@@ -6,6 +6,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -62,26 +63,7 @@ fun AppTopBarWithSearchBarLayout(
         Modifier
             .fillMaxSize()
     ) {
-        val (topBarRef, contentRef, testRef) = createRefs()
-
-        Box(
-            Modifier
-                .wrapContentSize()
-                .constrainAs(topBarRef) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(contentRef.top)
-                }
-        ) {
-            AppTopBarWithSearchBar(
-                scrollPosition = scrollPosition,
-                searchBarHint = searchBarHint,
-                searchQuery = searchQuery,
-                onSearchQueryChanged = onSearchQueryChanged,
-                onSearchClicked = onSearchClicked,
-                onCloseSearchClicked = onCloseSearchClicked,
-                appTopBar = appTopBar
-            )
-        }
+        val (topBarRef, contentRef) = createRefs()
 
         Box(
             Modifier
@@ -95,18 +77,27 @@ fun AppTopBarWithSearchBarLayout(
         ) {
             content()
         }
-//
-//        Box(
-//            Modifier
-//                .height(64.dp)
-//                .fillMaxWidth()
-//                .background(Color.Transparent)
-//                .shadow(4.dp)
-//                .constrainAs(testRef) {
-//                    top.linkTo(topBarRef.bottom)
-//                }
-//        )
 
+        Box(
+            Modifier
+                .wrapContentSize()
+                .constrainAs(topBarRef) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(contentRef.top)
+                }
+        ) {
+            Surface(shadowElevation = 16.dp) {
+                AppTopBarWithSearchBar(
+                    scrollPosition = scrollPosition,
+                    searchBarHint = searchBarHint,
+                    searchQuery = searchQuery,
+                    onSearchQueryChanged = onSearchQueryChanged,
+                    onSearchClicked = onSearchClicked,
+                    onCloseSearchClicked = onCloseSearchClicked,
+                    appTopBar = appTopBar
+                )
+            }
+        }
     }
 }
 
@@ -166,6 +157,7 @@ private fun AppTopBarWithSearchBarContent(
                 Box(
                     Modifier
                         .fillMaxSize()
+                        .background(MaterialTheme.wireColorScheme.background)
                 ) {
                     val focusManager = LocalFocusManager.current
 

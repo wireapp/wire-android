@@ -28,6 +28,8 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
 
         AppTopBarWithSearchBar(
             scrollPosition = newConversationState.scrollPosition,
+            searchBarHint = "Search People",
+            topBarTitle = "This is test",
             navigationIconType = NavigationIconType.Close,
             searchQuery = newConversationState.searchQuery,
             onSearchQueryChanged = {

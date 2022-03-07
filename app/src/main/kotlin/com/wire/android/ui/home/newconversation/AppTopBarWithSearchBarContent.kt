@@ -110,6 +110,8 @@ fun DeprecatedSearchTopBar(
 fun AppTopBarWithSearchBar(
     scrollPosition: Int,
     navigationIconType: NavigationIconType,
+    searchBarHint: String,
+    topBarTitle: String,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
     onSearchClicked: () -> Unit = {},
@@ -121,8 +123,10 @@ fun AppTopBarWithSearchBar(
 
     AppTopBarWithSearchBarContent(
         searchBarState,
-        searchQuery = searchQuery,
         navigationIconType = navigationIconType,
+        searchBarHint = searchBarHint,
+        topBarTitle = topBarTitle,
+        searchQuery = searchQuery,
         onSearchQueryChanged = {
             onSearchQueryChanged(it)
         },
@@ -138,6 +142,8 @@ fun AppTopBarWithSearchBar(
 private fun AppTopBarWithSearchBarContent(
     searchBarState: SearchBarState,
     navigationIconType: NavigationIconType,
+    searchBarHint: String,
+    topBarTitle: String,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
     onInputClicked: () -> Unit,
@@ -171,7 +177,7 @@ private fun AppTopBarWithSearchBarContent(
                     val focusManager = LocalFocusManager.current
 
                     SearchBarInput(
-                        placeholderText = "Search people",
+                        placeholderText = searchBarHint,
                         text = searchQuery,
                         onTextTyped = onSearchQueryChanged,
                         leadingIcon = {
@@ -225,7 +231,7 @@ private fun AppTopBarWithSearchBarContent(
             ) {
                 WireCenterAlignedTopAppBar(
                     elevation = 0.dp,
-                    title = stringResource(R.string.label_new_conversation),
+                    title = topBarTitle,
                     navigationIconType = navigationIconType,
                     onNavigationPressed = { onNavigateBackClicked() }
                 )

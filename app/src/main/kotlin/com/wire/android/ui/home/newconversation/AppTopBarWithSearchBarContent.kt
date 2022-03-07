@@ -145,88 +145,91 @@ private fun AppTopBarWithSearchBarContent(
     onNavigateBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val animatedTopBarTotalHeight by animateFloatAsState(searchBarState.size)
+    with(searchBarState) {
+        val animatedTopBarTotalHeight by animateFloatAsState(size)
 
-    Box(
-        modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
-        Surface(
-            modifier = Modifier
-                .height(animatedTopBarTotalHeight.dp)
-                .wrapContentWidth(),
-            shadowElevation = if (searchBarState.isCollapsed) dimensions().topBarElevationHeight else 0.dp
+        Box(
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
         ) {
-            val interactionSource = remember {
-                MutableInteractionSource()
-            }
-
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.wireColorScheme.background)
+            Surface(
+                modifier = Modifier
+                    .height(animatedTopBarTotalHeight.dp)
+                    .wrapContentWidth(),
+                shadowElevation = if (isCollapsed) dimensions().topBarElevationHeight else 0.dp
             ) {
-                val focusManager = LocalFocusManager.current
+                val interactionSource = remember {
+                    MutableInteractionSource()
+                }
 
-                SearchBarInput(
-                    placeholderText = "Search people",
-                    text = searchQuery,
-                    onTextTyped = onSearchQueryChanged,
-                    leadingIcon = {
-                        AnimatedContent(searchBarState.isTopBarVisible) { isVisible ->
-                            if (isVisible) {
-                                IconButton(onClick = { }) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_search_icon),
-                                        contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                                        tint = MaterialTheme.wireColorScheme.onBackground
-                                    )
-                                }
-                            } else {
-                                IconButton(onClick = {
-                                    focusManager.clearFocus()
-                                    searchBarState.showTopBar()
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.wireColorScheme.background)
+                ) {
+                    val focusManager = LocalFocusManager.current
 
-                                    onCloseSearchClicked()
-                                }) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_arrow_left),
-                                        contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                                        tint = MaterialTheme.wireColorScheme.onBackground
-                                    )
+                    SearchBarInput(
+                        placeholderText = "Search people",
+                        text = searchQuery,
+                        onTextTyped = onSearchQueryChanged,
+                        leadingIcon = {
+                            AnimatedContent(isTopBarVisible) { isVisible ->
+                                if (isVisible) {
+                                    IconButton(onClick = { }) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_search_icon),
+                                            contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                                            tint = MaterialTheme.wireColorScheme.onBackground
+                                        )
+                                    }
+                                } else {
+                                    IconButton(onClick = {
+                                        focusManager.clearFocus()
+                                        showTopBar()
+
+                                        onCloseSearchClicked()
+                                    }) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_arrow_left),
+                                            contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                                            tint = MaterialTheme.wireColorScheme.onBackground
+                                        )
+                                    }
                                 }
                             }
-                        }
-                    },
-                    placeholderTextStyle = if (searchBarState.isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
-                        textAlign = TextAlign.Start
-                    ),
-                    textStyle = if (searchBarState.isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
-                        textAlign = TextAlign.Start
-                    ),
-                    interactionSource = interactionSource,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
+                        },
+                        placeholderTextStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Start
+                        ),
+                        textStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Start
+                        ),
+                        interactionSource = interactionSource,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                    )
+                }
+
+                if (interactionSource.collectIsPressedAsState().value) {
+                    hideTopBar()
+                    onInputClicked()
+                }
+            }
+
+            AnimatedVisibility(
+                visible = isTopBarVisible,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                WireCenterAlignedTopAppBar(
+                    elevation = 0.dp,
+                    title = stringResource(R.string.label_new_conversation),
+                    navigationIconType = navigationIconType,
+                    onNavigationPressed = { onNavigateBackClicked() }
                 )
             }
-
-            if (interactionSource.collectIsPressedAsState().value) {
-                searchBarState.hideTopBar()
-                onInputClicked()
-            }
-        }
-
-        AnimatedVisibility(
-            visible = searchBarState.isTopBarVisible, enter = expandVertically(),
-            exit = shrinkVertically(),
-        ) {
-            WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
-                title = stringResource(R.string.label_new_conversation),
-                navigationIconType = navigationIconType,
-                onNavigationPressed = { onNavigateBackClicked() }
-            )
         }
     }
 }

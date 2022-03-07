@@ -10,6 +10,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 
+class ItemAnimationConfig {
+    var enterAnimation = wireSlideInFromRight()
+    var exitAnimation = wireSlideOutFromLeft()
+    var popEnterAnimation = wireSlideInFromRight()
+    var popExitAnimation = wireSlideOutFromLeft()
+}
+
 /**
  * Examples of animations on
  * https://developer.android.com/reference/kotlin/androidx/compose/animation/package-summary

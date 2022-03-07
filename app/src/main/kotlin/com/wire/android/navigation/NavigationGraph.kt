@@ -1,6 +1,9 @@
 package com.wire.android.navigation
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -20,10 +23,18 @@ fun NavigationGraph(navController: NavHostController, startDestination: String, 
             composable(
                 route = item.getCanonicalRoute(),
                 content = { navBackStackEntry -> item.content(ContentParams(navBackStackEntry, arguments)) },
-                enterTransition = { item.enterTransition },
-                exitTransition = { item.exitTransition },
-                popEnterTransition = { item.enterTransition }, // should create a structure to hold the animations per item ?
-                popExitTransition = { item.exitTransition } // should create a structure to hold the animations per item ?
+                enterTransition = {
+                    if (item.enterTransition != EnterTransition.None) item.enterTransition
+                    else slideIntoContainer(
+                        AnimatedContentScope.SlideDirection.Right, animationSpec = tween(200)
+                    )
+                },
+                exitTransition = {
+                    if (item.exitTransition != EnterTransition.None) item.exitTransition
+                    else slideOutOfContainer(
+                        AnimatedContentScope.SlideDirection.Left, animationSpec = tween(200)
+                    )
+                }
             )
         }
     }

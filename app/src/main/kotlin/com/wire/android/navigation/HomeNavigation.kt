@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -93,8 +92,7 @@ enum class HomeNavigationItem(
                     onExpandHomeBottomSheet = { homeState.expandBottomSheet() }
                 )
             }
-        },
-        enterTransition = slideInHorizontally()
+        }
     ),
 
     Vault(

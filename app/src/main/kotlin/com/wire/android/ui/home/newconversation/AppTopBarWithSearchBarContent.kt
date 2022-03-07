@@ -273,7 +273,7 @@ private fun AppTopBarWithSearchBarContent(
                 exit = shrinkVertically(),
             ) {
                 Surface(
-                    shadowElevation = if(isCollapsed) dimensions().topBarElevationHeight else 0.dp,
+                    shadowElevation = if (isCollapsed) dimensions().topBarElevationHeight else 0.dp,
                 ) {
                     appTopBar()
                 }
@@ -284,13 +284,13 @@ private fun AppTopBarWithSearchBarContent(
 
 @Composable
 private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
+    val searchFieldFullHeightPx = LocalDensity.current.run {
+        (dimensions().smallTopBarHeight).toPx()
+    }
 
-    val searchFieldFullHeightPx: Float =
-        LocalDensity.current.run {
-            (dimensions().smallTopBarHeight).toPx()
-        }
-
-    val searchBarState = SearchBarState(searchFieldFullHeightPx)
+    val searchBarState = remember {
+        SearchBarState(searchFieldFullHeightPx)
+    }
 
     LaunchedEffect(scrollPosition) {
         snapshotFlow { scrollPosition }
@@ -306,9 +306,7 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
             }
     }
 
-    return remember {
-        searchBarState
-    }
+    return searchBarState
 }
 
 class SearchBarState(

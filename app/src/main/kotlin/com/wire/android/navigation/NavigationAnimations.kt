@@ -23,8 +23,8 @@ fun wireSlideInFromRight(): EnterTransition {
 }
 
 fun wireSlideOutFromLeft(): ExitTransition {
-    return slideOutHorizontally(animationSpec = spring(stiffness = Spring.StiffnessHigh)) {
-        200
+    return slideOutHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) {
+        +200
     } + fadeOut(
         animationSpec = tween(durationMillis = 200)
     )

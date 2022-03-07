@@ -22,6 +22,8 @@ fun NavigationGraph(navController: NavHostController, startDestination: String, 
                 content = { navBackStackEntry -> item.content(ContentParams(navBackStackEntry, arguments)) },
                 enterTransition = { item.enterTransition },
                 exitTransition = { item.exitTransition },
+                popEnterTransition = { item.enterTransition }, // should create a structure to hold the animations per item ?
+                popExitTransition = { item.exitTransition } // should create a structure to hold the animations per item ?
             )
         }
     }

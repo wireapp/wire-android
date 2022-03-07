@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
@@ -16,8 +17,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
 import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
@@ -28,6 +29,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.conversation.ConversationId
 
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
@@ -41,8 +43,8 @@ fun ConversationRouterHomeBridge(
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
 
-    //we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
-    //to pass the new Composable
+    // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
+    // to pass the new Composable
     LaunchedEffect(conversationState.modalBottomSheetContentState) {
         onHomeBottomSheetContentChange {
             ConversationSheetContent(
@@ -67,6 +69,7 @@ fun ConversationRouterHomeBridge(
     )
 }
 
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 @Composable
@@ -104,7 +107,7 @@ private fun ConversationRouter(
         }
 
         with(uiState) {
-            NavHost(conversationState.navHostController, startDestination = ConversationsNavigationItem.All.route) {
+            AnimatedNavHost(conversationState.navHostController, startDestination = ConversationsNavigationItem.All.route) {
                 composable(
                     route = ConversationsNavigationItem.All.route,
                     content = {

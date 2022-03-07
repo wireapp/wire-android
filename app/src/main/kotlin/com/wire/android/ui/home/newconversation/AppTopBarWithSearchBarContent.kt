@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +40,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.SearchBarInput
@@ -103,6 +106,58 @@ fun DeprecatedSearchTopBar(
             actions = actions
         )
     }
+}
+
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AppTopBarWithSearchBarLayout(
+    scrollPosition: Int,
+    navigationIconType: NavigationIconType,
+    searchBarHint: String,
+    topBarTitle: String,
+    searchQuery: String,
+    onSearchQueryChanged: (String) -> Unit,
+    onSearchClicked: () -> Unit = {},
+    onCloseSearchClicked: () -> Unit = {},
+    onNavigateBackClicked: () -> Unit = {},
+    content: @Composable () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ConstraintLayout(Modifier.fillMaxSize()) {
+        val (topBarRef, contentRef) = createRefs()
+
+        AppTopBarWithSearchBar(
+            scrollPosition,
+            navigationIconType = navigationIconType,
+            searchBarHint = searchBarHint,
+            topBarTitle = topBarTitle,
+            searchQuery = searchQuery,
+            onSearchQueryChanged = {
+                onSearchQueryChanged(it)
+            },
+            onSearchClicked = onSearchClicked,
+            onCloseSearchClicked = onCloseSearchClicked,
+            onNavigateBackClicked = onNavigateBackClicked,
+            modifier = modifier.constrainAs(topBarRef) {
+                top.linkTo(parent.top)
+                bottom.linkTo(contentRef.top)
+            }
+        )
+
+        Box(
+            Modifier
+                .wrapContentSize()
+                .constrainAs(contentRef) {
+                    top.linkTo(topBarRef.bottom)
+                    bottom.linkTo(parent.bottom)
+
+                    height = Dimension.fillToConstraints
+                }) {
+            content()
+        }
+    }
+
 }
 
 @OptIn(ExperimentalAnimationApi::class)

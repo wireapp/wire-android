@@ -8,7 +8,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class NewConversationViewModel @Inject constructor(private val navigationManager: NavigationManager) : ViewModel() {
+class NewConversationViewModel
+@Inject constructor(
+    private val navigationManager: NavigationManager
+) : ViewModel() {
 
     fun close() {
         viewModelScope.launch {

@@ -58,7 +58,6 @@ fun AppTopBarWithSearchBarLayout(
     content: @Composable () -> Unit,
     appTopBar: @Composable () -> Unit,
 ) {
-
     ConstraintLayout(
         Modifier
             .fillMaxSize()
@@ -86,17 +85,15 @@ fun AppTopBarWithSearchBarLayout(
                     bottom.linkTo(contentRef.top)
                 }
         ) {
-            Surface(shadowElevation = 16.dp) {
-                AppTopBarWithSearchBar(
-                    scrollPosition = scrollPosition,
-                    searchBarHint = searchBarHint,
-                    searchQuery = searchQuery,
-                    onSearchQueryChanged = onSearchQueryChanged,
-                    onSearchClicked = onSearchClicked,
-                    onCloseSearchClicked = onCloseSearchClicked,
-                    appTopBar = appTopBar
-                )
-            }
+            AppTopBarWithSearchBar(
+                scrollPosition = scrollPosition,
+                searchBarHint = searchBarHint,
+                searchQuery = searchQuery,
+                onSearchQueryChanged = onSearchQueryChanged,
+                onSearchClicked = onSearchClicked,
+                onCloseSearchClicked = onCloseSearchClicked,
+                appTopBar = appTopBar
+            )
         }
     }
 }
@@ -135,17 +132,17 @@ private fun AppTopBarWithSearchBarContent(
     onInputClicked: () -> Unit,
     onCloseSearchClicked: () -> Unit,
     appTopBar: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     with(searchBarState) {
         val animatedTopBarTotalHeight by animateFloatAsState(size)
 
-        Box(
-            modifier
+        Surface(
+            modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
+                .wrapContentHeight(),
+            shadowElevation = if (isTopBarVisible) 8.dp else 0.dp
         ) {
-            Surface(
+            Box(
                 modifier = Modifier
                     .height(animatedTopBarTotalHeight.dp)
                     .wrapContentWidth(),
@@ -205,6 +202,7 @@ private fun AppTopBarWithSearchBarContent(
 
                 if (interactionSource.collectIsPressedAsState().value) {
                     hideTopBar()
+
                     onInputClicked()
                 }
             }

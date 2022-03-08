@@ -166,7 +166,7 @@ private fun AppTopBarWithSearchBarContent(
                 }
             }
 
-            AnimatedVisibility(isSearchBarCollapsed) {
+            AnimatedVisibility(!isSearchBarCollapsed) {
                 Box(
                     modifier = Modifier
                         .wrapContentHeight()

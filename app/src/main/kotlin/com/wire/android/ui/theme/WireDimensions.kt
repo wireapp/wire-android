@@ -55,6 +55,8 @@ data class WireDimensions(
     // TextFields
     val textFieldMinHeight: Dp,
     val textFieldCornerSize: Dp,
+    val codeFieldItemWidth: Dp,
+    val codeFieldItemHeight: Dp,
     // Buttons
     val buttonMinSize: DpSize,
     val buttonSmallMinSize: DpSize,
@@ -156,6 +158,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     messageComposerActiveInputMaxHeight = 168.dp,
     textFieldMinHeight = 48.dp,
     textFieldCornerSize = 16.dp,
+    codeFieldItemWidth = 44.dp,
+    codeFieldItemHeight = 60.dp,
     buttonMinSize = DpSize(60.dp, 48.dp),
     buttonSmallMinSize = DpSize(40.dp, 32.dp),
     buttonHorizontalContentPadding = 16.dp,

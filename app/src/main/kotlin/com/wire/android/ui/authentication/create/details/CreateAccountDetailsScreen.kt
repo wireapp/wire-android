@@ -27,10 +27,13 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
+import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewState
 import com.wire.android.ui.common.appBarElevation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
@@ -44,28 +47,30 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun DetailsScreen(viewModel: CreatePersonalAccountViewModel) {
+fun CreateAccountDetailsScreen(viewModel: CreatePersonalAccountViewModel, title: String) {
     DetailsContent(
-        state = viewModel.state.details,
-        onFirstNameChange = { viewModel.onDetailsChange(it, DetailsFieldType.FirstName) },
-        onLastNameChange = { viewModel.onDetailsChange(it, DetailsFieldType.LastName) },
-        onPasswordChange = { viewModel.onDetailsChange(it, DetailsFieldType.Password) },
-        onConfirmPasswordChange = { viewModel.onDetailsChange(it, DetailsFieldType.ConfirmPassword) },
+        state = viewModel.detailsState,
+        title = title,
+        onFirstNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.FirstName) },
+        onLastNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.LastName) },
+        onPasswordChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.Password) },
+        onConfirmPasswordChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.ConfirmPassword) },
         onBackPressed = viewModel::goBackToPreviousStep,
-        onContinuePressed = viewModel::onDetailsContinue,
+        onContinuePressed = viewModel::onDetailsContinue
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun DetailsContent(
-    state: CreatePersonalAccountViewState.Details,
+    state: CreateAccountDetailsViewState,
+    title: String,
     onFirstNameChange: (TextFieldValue) -> Unit,
     onLastNameChange: (TextFieldValue) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
     onConfirmPasswordChange: (TextFieldValue) -> Unit,
     onBackPressed: () -> Unit,
-    onContinuePressed: () -> Unit,
+    onContinuePressed: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -73,7 +78,7 @@ private fun DetailsContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.appBarElevation(),
-                title = stringResource(R.string.create_personal_account_title),
+                title = title,
                 onNavigationPressed = onBackPressed
             )
         },
@@ -109,11 +114,12 @@ private fun DetailsContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NameTextFields(
-    state: CreatePersonalAccountViewState.Details,
+    state: CreateAccountDetailsViewState,
     onFirstNameChange: (TextFieldValue) -> Unit,
     onLastNameChange: (TextFieldValue) -> Unit,
     coroutineScope: CoroutineScope
 ) {
+    val keyboardOptions = KeyboardOptions(KeyboardCapitalization.Words, true, KeyboardType.Text, ImeAction.Next)
     WireTextField(
         value = state.firstName,
         onValueChange = onFirstNameChange,
@@ -121,7 +127,7 @@ private fun NameTextFields(
         labelText = stringResource(R.string.create_personal_account_details_first_name_label),
         labelMandatoryIcon = true,
         state = WireTextFieldState.Default,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+        keyboardOptions = keyboardOptions,
         modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x).bringIntoViewOnFocus(coroutineScope)
     )
     WireTextField(
@@ -131,7 +137,7 @@ private fun NameTextFields(
         labelText = stringResource(R.string.create_personal_account_details_last_name_label),
         labelMandatoryIcon = true,
         state = WireTextFieldState.Default,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+        keyboardOptions = keyboardOptions,
         modifier = Modifier.padding(
                 horizontal = MaterialTheme.wireDimensions.spacing16x,
                 vertical = MaterialTheme.wireDimensions.spacing16x
@@ -142,7 +148,7 @@ private fun NameTextFields(
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun PasswordTextFields(
-    state: CreatePersonalAccountViewState.Details,
+    state: CreateAccountDetailsViewState,
     onPasswordChange: (TextFieldValue) -> Unit,
     onConfirmPasswordChange: (TextFieldValue) -> Unit,
     coroutineScope: CoroutineScope
@@ -151,16 +157,18 @@ private fun PasswordTextFields(
     WirePasswordTextField(
         value = state.password,
         onValueChange = onPasswordChange,
+        labelMandatoryIcon = true,
         descriptionText = stringResource(R.string.create_personal_account_details_password_description),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Next),
         modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x).bringIntoViewOnFocus(coroutineScope),
-        state = if(state.error is CreatePersonalAccountViewState.DetailsError.None) WireTextFieldState.Default
+        state = if(state.error is CreateAccountDetailsViewState.DetailsError.None) WireTextFieldState.Default
                 else WireTextFieldState.Error()
     )
     WirePasswordTextField(
         value = state.confirmPassword,
         onValueChange = onConfirmPasswordChange,
         labelText = stringResource(R.string.create_personal_account_details_confirm_password_label),
+        labelMandatoryIcon = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = Modifier.padding(
@@ -168,10 +176,10 @@ private fun PasswordTextFields(
                 vertical = MaterialTheme.wireDimensions.spacing16x
             ).bringIntoViewOnFocus(coroutineScope),
         state = when(state.error) {
-            CreatePersonalAccountViewState.DetailsError.None ->  WireTextFieldState.Default
-            CreatePersonalAccountViewState.DetailsError.PasswordsNotMatchingError ->
+            CreateAccountDetailsViewState.DetailsError.None ->  WireTextFieldState.Default
+            CreateAccountDetailsViewState.DetailsError.PasswordsNotMatchingError ->
                 WireTextFieldState.Error(stringResource(id = R.string.create_personal_account_details_password_not_matching_error))
-            CreatePersonalAccountViewState.DetailsError.InvalidPasswordError ->
+            CreateAccountDetailsViewState.DetailsError.InvalidPasswordError ->
                 WireTextFieldState.Error(stringResource(id = R.string.create_personal_account_details_password_error))
         }
     )
@@ -187,4 +195,4 @@ private fun Modifier.bringIntoViewOnFocus(coroutineScope: CoroutineScope): Modif
 
 @Composable
 @Preview
-private fun DetailsScreenPreview() { DetailsContent(CreatePersonalAccountViewState.Details(), {}, {}, {}, {}, {}, {},) }
+private fun CreateAccountDetailsScreenPreview() { DetailsContent(CreateAccountDetailsViewState(), "title", {}, {}, {}, {}, {}, {},) }

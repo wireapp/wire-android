@@ -94,7 +94,9 @@
     <string name="create_personal_account_details_password_error">Invalid password</string>
     <string name="create_personal_account_details_password_not_matching_error">Passwords do not match</string>
     <string name="create_personal_account_details_confirm_password_label">CONFIRM PASSWORD</string>
-
+    <string name="create_personal_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
+    <string name="create_personal_account_code_resend">Resend code</string>
+    <string name="create_personal_account_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
 
     <!-- Home -->
     <string name="home_open_drawer_description">Open drawer</string>

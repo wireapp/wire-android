@@ -44,12 +44,13 @@ class CreateAccountUsernameViewModel @Inject constructor(
         viewModelScope.launch {
             //TODO change username request
             state = state.copy(loading = false)
-            val navigationCommand = when(type) {
-                CreateAccountFlowType.CreatePersonalAccount,
-                CreateAccountFlowType.CreateTeam -> NavigationCommand(NavigationItem.CreateSummary.getRouteWithArgs(listOf(type)))
-                CreateAccountFlowType.None -> NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE)
-            }
-            navigationManager.navigate(navigationCommand)
+            navigationManager.navigate(
+                when (type) {
+                    CreateAccountFlowType.CreatePersonalAccount,
+                    CreateAccountFlowType.CreateTeam -> NavigationCommand(NavigationItem.CreateSummary.getRouteWithArgs(listOf(type)))
+                    CreateAccountFlowType.None -> NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE)
+                }
+            )
         }
     }
 }

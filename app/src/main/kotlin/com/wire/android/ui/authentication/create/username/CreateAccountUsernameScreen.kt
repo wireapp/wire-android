@@ -95,6 +95,8 @@ private fun UsernameContent(
                     CreateAccountUsernameViewState.UsernameError.None -> WireTextFieldState.Default
                     CreateAccountUsernameViewState.UsernameError.UsernameTakenError ->
                         WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error))
+                    CreateAccountUsernameViewState.UsernameError.UsernameInvalidError ->
+                        WireTextFieldState.Error(stringResource(id = R.string.create_account_username_invalid_error))
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),

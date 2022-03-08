@@ -13,5 +13,6 @@ data class CreateAccountUsernameViewState(
     sealed class UsernameError {
         object None : UsernameError()
         object UsernameTakenError : UsernameError()
+        object UsernameInvalidError : UsernameError()
     }
 }

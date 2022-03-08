@@ -34,7 +34,7 @@ class CreateAccountSummaryViewModel @Inject constructor(
 
     fun navigateHome() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
     }
 }

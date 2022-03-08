@@ -89,8 +89,7 @@ enum class HomeNavigationItem(
                     onExpandHomeBottomSheet = { homeState.expandBottomSheet() }
                 )
             }
-        },
-        animationConfig = NavigationAnimationConfig.DefaultAnimationConfig
+        }
     ),
 
     Vault(

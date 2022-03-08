@@ -1,8 +1,5 @@
-
 package com.wire.android.ui.userprofile
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -67,14 +64,14 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = hiltViewModel()) {
     // TODO: THIS IS GOING TO BE REMOVED LATER ON
     val context = LocalContext.current
     SideEffect {
-        viewModel.mockMethodForAvatar(BitmapFactory.decodeResource(context.resources, R.drawable.mock_message_image))
+//        viewModel.getUserAvatarByteArray(context)
     }
 
     UserProfileContent(
         state = viewModel.userProfileState,
         onCloseClick = { viewModel.navigateBack() },
         onLogoutClick = { viewModel.logout() },
-        onChangeUserProfilePicture = { viewModel.onChangeProfilePictureClicked(context) },
+        onChangeUserProfilePicture = { viewModel.onChangeProfilePictureClicked() },
         onEditClick = { viewModel.editProfile() },
         onStatusClicked = { viewModel.changeStatusClick(it) },
         onAddAccountClick = { viewModel.addAccount() },
@@ -116,11 +113,11 @@ private fun UserProfileContent(
                 onLogoutClick = onLogoutClick
             )
         }, snackbarHost = {
-        SwipeDismissSnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
+            SwipeDismissSnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     ) {
         with(state) {
             Column(
@@ -131,7 +128,7 @@ private fun UserProfileContent(
             ) {
                 UserProfileInfo(
                     isLoading = state.isAvatarLoading,
-                    avatarBitmap = state.avatarBitmap,
+                    avatarAssetByteArray = state.avatarAssetByteArray,
                     fullName = fullName,
                     userName = userName,
                     teamName = teamName,
@@ -184,7 +181,7 @@ private fun UserProfileTopBar(
 @Composable
 private fun ColumnScope.UserProfileInfo(
     isLoading: Boolean,
-    avatarBitmap: Bitmap,
+    avatarAssetByteArray: ByteArray?,
     fullName: String,
     userName: String,
     teamName: String?,
@@ -201,7 +198,7 @@ private fun ColumnScope.UserProfileInfo(
             onClick = onUserProfileClick,
             isEnabled = !isLoading,
             size = dimensions().userAvatarDefaultBigSize,
-            avatarBitmap = avatarBitmap,
+            avatarAssetByteArray = avatarAssetByteArray,
             status = UserStatus.NONE,
         )
         if (isLoading) {
@@ -415,7 +412,6 @@ private fun OtherAccountItem(
         val (avatar, data) = createRefs()
 
         UserProfileAvatar(
-            avatarUrl = account.avatarUrl,
             modifier = Modifier.constrainAs(avatar) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
@@ -454,7 +450,6 @@ private fun OtherAccountItem(
 private fun UserProfileScreenPreview() {
     UserProfileContent(
         SelfUserProfileState(
-            avatarBitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
             status = UserStatus.BUSY,
             fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
             userName = "@userName_long_long_long_long_long_long_long_long_long_long",

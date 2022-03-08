@@ -21,10 +21,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.UserStatus
-import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.SearchBarUI
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -71,7 +71,7 @@ fun HomeTopBar(
             navigationIconType = NavigationIconType.Menu,
             onNavigationPressed = { scope.launch { drawerState.open() } },
             actions = {
-                UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
+                UserProfileAvatar(isEnabled = true, status = UserStatus.AVAILABLE) {
                     scope.launch { viewModel.navigateToUserProfile() }
                 }
             },

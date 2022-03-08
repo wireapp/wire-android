@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile.image
 
+import android.net.Uri
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -31,7 +32,6 @@ class AvatarPickerState(
     val modalBottomSheetState: ModalBottomSheetState,
     val avatarPickerFlow: AvatarPickerFlow,
 ) {
-
     fun showModalBottomSheet() {
         coroutineScope.launch { modalBottomSheetState.show() }
     }

@@ -5,31 +5,19 @@ import android.content.Context
 import android.net.Uri
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
+import androidx.core.content.FileProvider
+import com.wire.android.BuildConfig
+import com.wire.android.R
 import java.io.File
 
-fun saveAvatarToInternalStorage(avatarUri: Uri, context: Context): Boolean {
-    val defaultAvatarDir = getAvatarFile(context)
-    try {
-        context.applicationContext.contentResolver.openInputStream(avatarUri).use { input ->
-            defaultAvatarDir.outputStream().use { output ->
-                input?.copyTo(output)
-            }
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-    return true
+fun getTempAvatarUri(context: Context): Uri {
+    val file = File(context.cacheDir, AVATAR_PATH)
+    file.setWritable(true, false)
+    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
 }
 
-fun getTempAvatarUri(context: Context): Uri =
-    Uri.parse(File(context.filesDir, AVATAR_PATH).path)
-
-private fun getAvatarFile(context: Context): File {
-    val newDir = File(context.filesDir, AVATAR_PATH)
-    val pFile = newDir.parentFile
-    pFile?.mkdirs()
-
-    return newDir
+fun Uri.toByteArray(context: Context): ByteArray {
+    return context.contentResolver.openInputStream(this)?.readBytes() ?: ByteArray(16)
 }
 
 /**
@@ -38,7 +26,7 @@ private fun getAvatarFile(context: Context): File {
  * @param drawableId - drawable res id
  * @return - uri
  */
-fun getUriToDrawable(
+fun getUriFromDrawable(
     @NonNull context: Context,
     @AnyRes drawableId: Int
 ): Uri {
@@ -48,6 +36,10 @@ fun getUriToDrawable(
                 + '/' + context.resources.getResourceTypeName(drawableId)
                 + '/' + context.resources.getResourceEntryName(drawableId)
     )
+}
+
+fun getDefaultAvatarUri(context: Context): Uri {
+    return getUriFromDrawable(context, R.drawable.ic_launcher_foreground)
 }
 
 private const val AVATAR_PATH = "temp_avatar_path.jpg"

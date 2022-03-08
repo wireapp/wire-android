@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.model.UserStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,7 +25,7 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
         private val SHOW_STATUS_RATIONALE_BUSY = booleanPreferencesKey("show_status_rationale_busy")
         private val SHOW_STATUS_RATIONALE_AWAY = booleanPreferencesKey("show_status_rationale_away")
         private val SHOW_STATUS_RATIONALE_NONE = booleanPreferencesKey("show_status_rationale_none")
-        private val HAS_USER_AVATAR_CHANGED = booleanPreferencesKey("has_user_avatar_changed")
+        private val USER_AVATAR_ASSET_ID = stringPreferencesKey("user_avatar_asset_id")
     }
 
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
@@ -40,14 +41,14 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
             preferences[getStatusKey(status)] ?: true
         }
 
-    val shouldUpdateAvatar: Flow<Boolean> = context.dataStore.data
+    val avatarAssetId: Flow<String> = context.dataStore.data
         .map { preferences ->
-            preferences[HAS_USER_AVATAR_CHANGED] ?: false
+            preferences[USER_AVATAR_ASSET_ID] ?: ""
         }
 
-    suspend fun updateUserAvatarChanged(hasChanged: Boolean) {
+    suspend fun updateUserAvatarAssetId(newAssetId: String) {
         context.dataStore.edit { preferences ->
-            preferences[HAS_USER_AVATAR_CHANGED] = hasChanged
+            preferences[USER_AVATAR_ASSET_ID] = newAssetId
         }
     }
 

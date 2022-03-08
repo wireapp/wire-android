@@ -7,10 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.wire.android.R
 import com.wire.android.ui.userprofile.image.ImageSource
+import com.wire.android.util.getDefaultAvatarUri
 import com.wire.android.util.getTempAvatarUri
-import com.wire.android.util.getUriToDrawable
 import com.wire.android.util.permission.OpenGalleryFlow
 import com.wire.android.util.permission.TakePictureFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
@@ -33,7 +32,7 @@ class AvatarPickerFlow(
 fun rememberPickPictureState(): AvatarPickerFlow {
     val context = LocalContext.current
     var pictureState: PictureState by remember {
-        mutableStateOf(PictureState.Initial(avatarUri = getUriToDrawable(context, R.drawable.ic_launcher_foreground)))
+        mutableStateOf(PictureState.Initial(getDefaultAvatarUri(context)))
     }
     val onChosenPictureUri = getTempAvatarUri(context)
     val takePictureFLow = rememberTakePictureFlow(

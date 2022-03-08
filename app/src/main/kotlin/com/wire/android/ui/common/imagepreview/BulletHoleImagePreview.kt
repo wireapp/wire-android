@@ -103,7 +103,7 @@ class BulletHoleShape : Shape {
             lineTo(x = backgroundWrappingRect.width, y = backgroundWrappingRect.height / 2)
             //arc 180 degrees - we are back on middle of the backgroundWrappingRect on the left side now
             arcTo(backgroundWrappingRect, 0f, 180f, true)
-            //we drawn the outline, we can close the path now
+            //we drew the outline, we can close the path now
             close()
         }
         return path

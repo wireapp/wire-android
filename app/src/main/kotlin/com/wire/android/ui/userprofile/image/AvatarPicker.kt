@@ -1,6 +1,5 @@
 package com.wire.android.ui.userprofile.image
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

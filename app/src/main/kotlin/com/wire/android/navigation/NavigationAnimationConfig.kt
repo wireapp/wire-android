@@ -36,6 +36,7 @@ sealed class NavigationAnimationConfig(
 /**
  * Animation that allows a smooth transition from rtl, adding a fade in effect
  */
+@Suppress("MagicNumber")
 fun smoothSlideInFromRight(): EnterTransition {
     return slideInHorizontally(animationSpec = tween(durationMillis = 200)) { fullWidth ->
         fullWidth / 3
@@ -47,6 +48,7 @@ fun smoothSlideInFromRight(): EnterTransition {
 /**
  * Animation that allows a smooth transition from ltr, adding a fade out effect
  */
+@Suppress("MagicNumber")
 fun smoothSlideOutFromLeft(): ExitTransition {
     return slideOutHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) {
         +200

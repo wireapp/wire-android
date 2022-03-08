@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation
+package com.wire.android.ui.common.topappbar
 
 import android.util.Log
 import androidx.compose.animation.AnimatedContent

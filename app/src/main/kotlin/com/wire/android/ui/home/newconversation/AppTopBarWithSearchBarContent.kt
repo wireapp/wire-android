@@ -3,7 +3,7 @@ package com.wire.android.ui.home.newconversation
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
@@ -132,12 +132,11 @@ private fun AppTopBarWithSearchBarContent(
     appTopBar: @Composable () -> Unit,
 ) {
     with(searchBarState) {
-        val animatedTopBarTotalHeight by animateFloatAsState(size)
-
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight(),
+                .wrapContentHeight()
+                .animateContentSize(),
             shadowElevation = if (isTopBarVisible) 8.dp else 0.dp
         ) {
             ConstraintLayout(Modifier.wrapContentSize()) {
@@ -148,7 +147,7 @@ private fun AppTopBarWithSearchBarContent(
                         .wrapContentHeight()
                         .fillMaxWidth()
                         .constrainAs(searchInputRef) {
-                            if (isSearchBarCollapsed) {
+                            if (!isSearchBarCollapsed) {
                                 top.linkTo(topBarRef.bottom)
                             } else {
                                 top.linkTo(parent.top)
@@ -223,7 +222,6 @@ private fun AppTopBarWithSearchBarContent(
                         appTopBar()
                     }
                 }
-
             }
         }
     }

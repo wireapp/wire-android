@@ -42,7 +42,7 @@ fun ContactsScreenContent(
     state: ContactsState,
     onScrollPositionChanged: (Int) -> Unit
 ) {
-    val lazyListState = rememberLazyListState { it ->
+    val lazyListState = rememberLazyListState {
         onScrollPositionChanged(it)
     }
 

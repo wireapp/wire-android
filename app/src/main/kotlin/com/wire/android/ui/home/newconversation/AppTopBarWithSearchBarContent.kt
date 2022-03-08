@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -11,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -109,12 +111,21 @@ private fun AppTopBarWithSearchBar(
     val searchBarState = rememberSearchbarState(scrollPosition)
 
     AppTopBarWithSearchBarContent(
-        searchBarState = searchBarState,
+        isSearchBarCollapsed = searchBarState.isSearchBarCollapsed,
+        isTopBarVisible = searchBarState.isTopBarVisible,
         searchBarHint = searchBarHint,
         searchQuery = searchQuery,
         onSearchQueryChanged = onSearchQueryChanged,
-        onInputClicked = onSearchClicked,
-        onCloseSearchClicked = onCloseSearchClicked,
+        onInputClicked = {
+            searchBarState.hideTopBar()
+
+            onSearchClicked()
+        },
+        onCloseSearchClicked = {
+            onCloseSearchClicked()
+
+            searchBarState.showTopBar()
+        },
         appTopBar = appTopBar
     )
 }
@@ -122,7 +133,8 @@ private fun AppTopBarWithSearchBar(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun AppTopBarWithSearchBarContent(
-    searchBarState: SearchBarState,
+    isSearchBarCollapsed: Boolean,
+    isTopBarVisible: Boolean,
     searchBarHint: String,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
@@ -130,28 +142,35 @@ private fun AppTopBarWithSearchBarContent(
     onCloseSearchClicked: () -> Unit,
     appTopBar: @Composable () -> Unit,
 ) {
-    with(searchBarState) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .animateContentSize(animationSpec = snap()),
-            shadowElevation = if (isTopBarVisible) 8.dp else 0.dp
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        shadowElevation = if (isTopBarVisible) 8.dp else 0.dp
+    ) {
+        Column(
+            Modifier
+                .wrapContentSize()
+                .animateContentSize(animationSpec = snap())
         ) {
-            ConstraintLayout(Modifier.wrapContentSize()) {
-                val (searchInputRef, topBarRef) = createRefs()
+            AnimatedVisibility(
+                visible = isTopBarVisible,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                Box(
+                    Modifier
+                        .wrapContentSize()
+                ) {
+                    appTopBar()
+                }
+            }
 
+            AnimatedVisibility(isSearchBarCollapsed) {
                 Box(
                     modifier = Modifier
                         .wrapContentHeight()
                         .fillMaxWidth()
-                        .constrainAs(searchInputRef) {
-                            if (!isSearchBarCollapsed) {
-                                top.linkTo(topBarRef.bottom)
-                            } else {
-                                top.linkTo(parent.top)
-                            }
-                        }
                         .background(MaterialTheme.wireColorScheme.background)
                 ) {
                     val interactionSource = remember {
@@ -177,7 +196,6 @@ private fun AppTopBarWithSearchBarContent(
                                 } else {
                                     IconButton(onClick = {
                                         focusManager.clearFocus()
-                                        showTopBar()
 
                                         onCloseSearchClicked()
                                     }) {
@@ -201,25 +219,7 @@ private fun AppTopBarWithSearchBarContent(
                     )
 
                     if (interactionSource.collectIsPressedAsState().value) {
-                        hideTopBar()
-
                         onInputClicked()
-                    }
-                }
-
-                Box(
-                    Modifier
-                        .wrapContentSize()
-                        .constrainAs(topBarRef) {
-                            top.linkTo(parent.top)
-                        }
-                ) {
-                    AnimatedVisibility(
-                        visible = isTopBarVisible,
-                        enter = expandVertically(),
-                        exit = shrinkVertically(),
-                    ) {
-                        appTopBar()
                     }
                 }
             }
@@ -230,6 +230,7 @@ private fun AppTopBarWithSearchBarContent(
 @Composable
 private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
     val searchBarState = remember {
+        Log.d("TEST", "inside remember")
         SearchBarState()
     }
 
@@ -243,6 +244,8 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
                 newScrollIndex > prevScrollIndex + 1
             }
             .distinctUntilChanged().collect {
+//                Log.d("TEST", "current state of searchbarState: ${searchBarState.isSearchBarCollapsed}")
+//                Log.d("TEST", "new state of searchbarState: $it}")
                 searchBarState.isSearchBarCollapsed = it
             }
     }

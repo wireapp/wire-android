@@ -5,7 +5,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,9 +67,7 @@ fun SearchBarInput(
     val searchInputState = rememberSearchInputState()
 
     WireTextField(
-        modifier = modifier
-            .padding(bottom = dimensions().spacing16x)
-            .padding(horizontal = dimensions().spacing8x),
+        modifier = modifier,
         value = searchInputState.textFieldValue.copy(text = text),
         onValueChange = {
             searchInputState.textFieldValue = it

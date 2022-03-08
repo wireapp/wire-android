@@ -7,9 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.create.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
@@ -115,6 +117,13 @@ class CreatePersonalAccountViewModel @Inject constructor(
     }
 
     override fun onCodeContinue() {
-        //TODO perform request when code is filled
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.CreateUsername.getRouteWithArgs(listOf(CreateAccountFlowType.CreatePersonalAccount)),
+                    BackStackMode.CLEAR_TILL_START
+                )
+            )
+        }
     }
 }

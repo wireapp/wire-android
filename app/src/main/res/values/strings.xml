@@ -7,6 +7,7 @@
     <string name="label_ok">OK</string>
     <string name="label_cancel">Cancel</string>
     <string name="label_continue">Continue</string>
+    <string name="label_start_using_wire">Start using Wire</string>
     <string name="label_remove">Remove</string>
     <string name="label_learn_more">Learn more</string>
     <string name="label_removing">Removing...</string>
@@ -40,6 +41,8 @@
     <string name="content_description_choose_from_gallery">Choose from gallery</string>
     <string name="content_description_take_a_picture">Take a picture</string>
     <string name="content_description_right_arrow">Right arrow</string>
+    <string name="content_description_mention_icon">Mention icon</string>
+    <string name="content_description_create_account_summary">Summary image</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -97,6 +100,12 @@
     <string name="create_personal_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="create_personal_account_code_resend">Resend code</string>
     <string name="create_personal_account_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
+    <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
+    <string name="set_username_title">Set a Username</string>
+    <string name="create_account_username_placeholder">jane.doe</string>
+    <string name="create_account_username_label">USERNAME</string>
+    <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
+    <string name="create_account_username_taken_error">Username is already taken. Please enter another one.</string>
 
     <!-- Home -->
     <string name="home_open_drawer_description">Open drawer</string>

@@ -22,6 +22,8 @@ import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.io.InvalidClassException
+import java.lang.IllegalStateException
 import javax.inject.Inject
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -102,8 +104,9 @@ class RemoveDeviceViewModel @Inject constructor(
     private fun DeleteClientResult.toRemoveDeviceError() =
         when (this) {
             is DeleteClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
-            is DeleteClientResult.Success -> RemoveDeviceError.None
-            else -> RemoveDeviceError.None
+            DeleteClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
+            DeleteClientResult.Success -> RemoveDeviceError.None
+            else -> RemoveDeviceError.GenericError(CoreFailure.Unknown(IllegalStateException()))
         }
 
     private fun RegisterClientResult.toRemoveDeviceError() =
@@ -112,7 +115,7 @@ class RemoveDeviceViewModel @Inject constructor(
             is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
             is RegisterClientResult.Success -> RemoveDeviceError.None
-            else -> RemoveDeviceError.None
+            else -> RemoveDeviceError.GenericError(CoreFailure.Unknown(IllegalStateException()))
         }
 
 

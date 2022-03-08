@@ -44,6 +44,16 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
 
+
+/**
+ * AppTopBarWithSearchBarLayout is a "wrapper" around the [content] that should have a TopBar with a SearchBar
+ * on the Top of the [content]. To collapse the searchbar when the user scrolls down on the list within the [content]
+ * it is necessary to pass a [scrollPosition] usually it is a firstVisibleItemIndex coming out of the list within the content.
+ * AppTopBarWithSearchBarLayout also exposes [searchQuery] as well as [onSearchQueryChanged] so that we are able to manipulate
+ * the [searchQuery] outside of the AppTopBarWithSearchBarLayout for example a ViewModel. Beside collapsing the searchbar when scrolling
+ * through the list, AppTopBarWithSearchBarLayout also hides/shows the TopBar whenever the SearchBarInput is clicked so that we
+ * can transit to the state where we provide the search query to the searchbar.
+ */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppTopBarWithSearchBarLayout(

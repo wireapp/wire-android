@@ -14,11 +14,43 @@ class ContactsViewModel @Inject constructor(private val navigationManager: Navig
 
     val contactsState by mutableStateOf(
         ContactsState(
-            buildList {
-                Contact("This is first contact")
-                (1..13).map { Contact("test $it") }
-                Contact("This is last contact")
-            }
+            contacts = listOf(
+                Contact(
+                    "This is first contact"
+                ), Contact(
+                    "test2"
+                ), Contact(
+                    "test3"
+                ),
+                Contact(
+                    "test1"
+                ), Contact(
+                    "test2"
+                ), Contact(
+                    "test3"
+                ),
+                Contact(
+                    "test1"
+                ), Contact(
+                    "test2"
+                ), Contact(
+                    "test3"
+                ),
+                Contact(
+                    "test1"
+                ), Contact(
+                    "test2"
+                ), Contact(
+                    "test3"
+                ),
+                Contact(
+                    "test1"
+                ), Contact(
+                    "test2"
+                ), Contact(
+                    "This is last contact"
+                )
+            )
         )
     )
 

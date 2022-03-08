@@ -29,25 +29,21 @@ class AvatarPickerViewModel @Inject constructor(
     private val uploadUserAvatar: UploadUserAvatarUseCase,
 ) : ViewModel() {
 
-    var avatarImageByteArray by mutableStateOf<ByteArray?>(null)
+    var avatarByteArray by mutableStateOf<ByteArray?>(null)
         private set
 
     init {
         viewModelScope.launch {
-            avatarImageByteArray = getAvatarAsByteArrayOrNull(dataStore.avatarAssetId.first())
+            avatarByteArray = loadAvatar(dataStore.avatarAssetId.first())
         }
     }
 
-    suspend fun getAvatarAsByteArrayOrNull(avatarAssetId: UserAssetId?): ByteArray? {
-        return try {
-            avatarAssetId?.let {
-                (getUserAvatar(it) as PublicAssetResult.Success).asset
-            }
+    private suspend fun loadAvatar(avatarAssetId: UserAssetId): ByteArray? =
+        try {
+            (getUserAvatar(avatarAssetId) as PublicAssetResult.Success).asset
         } catch (e: Exception) {
-            e.printStackTrace()
             null
         }
-    }
 
     fun uploadNewPickedAvatarAndBack(chosenImgUri: Uri, context: Context) {
         viewModelScope.launch {

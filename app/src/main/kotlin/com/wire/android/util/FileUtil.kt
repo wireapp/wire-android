@@ -6,19 +6,10 @@ import android.net.Uri
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import java.io.File
-
-fun getTempAvatarUri(context: Context): Uri {
-    val file = File(context.cacheDir, AVATAR_PATH)
-    file.setWritable(true, false)
-    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
-}
-
-fun Uri.toByteArray(context: Context): ByteArray {
-    return context.contentResolver.openInputStream(this)?.readBytes() ?: ByteArray(16)
-}
 
 /**
  * Gets the uri of any drawable or given resource
@@ -38,8 +29,28 @@ fun getUriFromDrawable(
     )
 }
 
+fun getTempAvatarUri(context: Context): Uri {
+    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", getTempAvatarFile(context))
+}
+
+fun Uri.toByteArray(context: Context): ByteArray {
+    return context.contentResolver.openInputStream(this)?.readBytes() ?: ByteArray(16)
+}
+
+fun getAvatarUri(avatarRaw: ByteArray, context: Context): Uri {
+    val file = getTempAvatarFile(context)
+    file.writeBytes(avatarRaw)
+    return file.toUri()
+}
+
 fun getDefaultAvatarUri(context: Context): Uri {
     return getUriFromDrawable(context, R.drawable.ic_launcher_foreground)
 }
 
-private const val AVATAR_PATH = "temp_avatar_path.jpg"
+private fun getTempAvatarFile(context: Context): File {
+    val file = File(context.cacheDir, TEMP_AVATAR_FILENAME)
+    file.setWritable(true, false)
+    return file
+}
+
+private const val TEMP_AVATAR_FILENAME = "temp_avatar_path.jpg"

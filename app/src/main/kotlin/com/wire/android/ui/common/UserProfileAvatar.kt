@@ -44,11 +44,12 @@ fun UserProfileAvatar(
             .wrapContentSize()
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
-        val bitmap = avatarAssetByteArray?.run {
+        val avatarResource = avatarAssetByteArray?.run {
             BitmapFactory.decodeByteArray(avatarAssetByteArray, 0, avatarAssetByteArray.size)
         } ?: getDefaultAvatarUri(LocalContext.current)
+
         Image(
-            painter = rememberAsyncImagePainter(model = bitmap),
+            painter = rememberAsyncImagePainter(model = avatarResource),
             contentDescription = stringResource(R.string.content_description_user_avatar),
             contentScale = ContentScale.Crop,
             modifier = Modifier

@@ -29,10 +29,10 @@ class AvatarPickerFlow(
 }
 
 @Composable
-fun rememberPickPictureState(): AvatarPickerFlow {
+fun rememberPickPictureState(initialUri: Uri?): AvatarPickerFlow {
     val context = LocalContext.current
     var pictureState: PictureState by remember {
-        mutableStateOf(PictureState.Initial(getDefaultAvatarUri(context)))
+        mutableStateOf(PictureState.Initial(avatarUri = initialUri ?: getDefaultAvatarUri(context)))
     }
     val onChosenPictureUri = getTempAvatarUri(context)
     val takePictureFLow = rememberTakePictureFlow(

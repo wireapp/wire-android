@@ -1,6 +1,5 @@
 package com.wire.android.ui.userprofile.image
 
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,12 +31,13 @@ import com.wire.android.ui.common.imagepreview.PictureState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.BackNavigationIconButton
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.getDefaultAvatarUri
+import com.wire.android.util.getAvatarUri
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
-    val state = rememberAvatarPickerState()
+    val initialAvatarUri = viewModel.avatarByteArray?.let { getAvatarUri(it, LocalContext.current) }
+    val state = rememberAvatarPickerState(initialAvatarUri)
     val context = LocalContext.current
 
     AvatarPickerContent(

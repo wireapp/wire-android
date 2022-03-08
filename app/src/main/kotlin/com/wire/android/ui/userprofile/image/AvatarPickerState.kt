@@ -16,10 +16,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberAvatarPickerState(
+    initialUri: Uri?,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 ): AvatarPickerState {
-    val pickPictureState = rememberPickPictureState()
+    val pickPictureState = rememberPickPictureState(initialUri)
 
     return remember(pickPictureState) {
         AvatarPickerState(coroutineScope, modalBottomSheetState, pickPictureState)

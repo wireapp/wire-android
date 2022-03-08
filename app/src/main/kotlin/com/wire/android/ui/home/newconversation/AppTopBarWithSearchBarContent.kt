@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
@@ -12,6 +13,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
@@ -27,8 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,7 +38,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.SearchBarInput
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -136,7 +135,7 @@ private fun AppTopBarWithSearchBarContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .animateContentSize(),
+                .animateContentSize(animationSpec = snap()),
             shadowElevation = if (isTopBarVisible) 8.dp else 0.dp
         ) {
             ConstraintLayout(Modifier.wrapContentSize()) {
@@ -153,7 +152,7 @@ private fun AppTopBarWithSearchBarContent(
                                 top.linkTo(parent.top)
                             }
                         }
-                        .background(Color.Green)
+                        .background(MaterialTheme.wireColorScheme.background)
                 ) {
                     val interactionSource = remember {
                         MutableInteractionSource()
@@ -198,6 +197,7 @@ private fun AppTopBarWithSearchBarContent(
                             textAlign = TextAlign.Start
                         ),
                         interactionSource = interactionSource,
+                        modifier = Modifier.padding(8.dp)
                     )
 
                     if (interactionSource.collectIsPressedAsState().value) {
@@ -229,12 +229,8 @@ private fun AppTopBarWithSearchBarContent(
 
 @Composable
 private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
-    val searchFieldFullHeightPx = LocalDensity.current.run {
-        (dimensions().topBarSearchFieldHeight).toPx()
-    }
-
     val searchBarState = remember {
-        SearchBarState(searchFieldFullHeightPx)
+        SearchBarState()
     }
 
     LaunchedEffect(scrollPosition) {
@@ -254,28 +250,12 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
     return searchBarState
 }
 
-class SearchBarState(
-    private val searchFieldFullHeightPx: Float
-) {
+class SearchBarState {
 
     var isSearchBarCollapsed by mutableStateOf(false)
 
     var isTopBarVisible by mutableStateOf(true)
         private set
-
-    val size
-        @Composable get() =
-            remember(isTopBarVisible, isSearchBarCollapsed) {
-                if (isSearchBarCollapsed) {
-                    0f
-                } else {
-                    if (isTopBarVisible) {
-                        searchFieldFullHeightPx
-                    } else {
-                        searchFieldFullHeightPx / 2
-                    }
-                }
-            }
 
     fun hideTopBar() {
         isTopBarVisible = false

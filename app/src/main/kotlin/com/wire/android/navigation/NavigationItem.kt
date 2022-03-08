@@ -88,7 +88,8 @@ enum class NavigationItem(
         arguments = listOf(navArgument(EXTRA_CREATE_ACCOUNT_FLOW_TYPE) { type = NavType.StringType })
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val type: CreateAccountFlowType = arguments.filterIsInstance<CreateAccountFlowType>().firstOrNull() ?: CreateAccountFlowType.None
+            val type: CreateAccountFlowType =
+                arguments.filterIsInstance<CreateAccountFlowType>().firstOrNull() ?: CreateAccountFlowType.None
             return "$primaryRoute/${type.routeArg}"
         }
     },
@@ -100,7 +101,8 @@ enum class NavigationItem(
         arguments = listOf(navArgument(EXTRA_CREATE_ACCOUNT_FLOW_TYPE) { type = NavType.StringType })
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val type: CreateAccountFlowType = arguments.filterIsInstance<CreateAccountFlowType>().firstOrNull() ?: CreateAccountFlowType.None
+            val type: CreateAccountFlowType =
+                arguments.filterIsInstance<CreateAccountFlowType>().firstOrNull() ?: CreateAccountFlowType.None
             return "$primaryRoute/${type.routeArg}"
         }
     },

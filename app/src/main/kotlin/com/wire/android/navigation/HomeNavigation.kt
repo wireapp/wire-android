@@ -71,7 +71,7 @@ enum class HomeNavigationItem(
                         homeState.changeBottomSheetContent(bottomSheetContent)
                     },
                     onExpandHomeBottomSheet = { homeState.expandBottomSheet() },
-                    onScrollPositionChange = { newScrollPosition -> homeState.updateScrollPosition(newScrollPosition) }
+                    onScrollPositionChanged = { newScrollPosition -> homeState.updateScrollPosition(newScrollPosition) }
                 )
             }
         }

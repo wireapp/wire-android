@@ -173,7 +173,7 @@ object NavigationItemDestinationsRoutes {
     const val SETTINGS = "settings_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val IMAGE_PICKER = "image_picker_screen"
-    const val NEW_CONVERSATION = "new_conversation"
+    const val NEW_CONVERSATION = "new_conversation_screen"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"

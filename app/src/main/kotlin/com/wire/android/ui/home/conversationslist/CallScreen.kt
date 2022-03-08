@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
@@ -21,7 +22,7 @@ fun CallScreen(
     onEditConversationItem: (ConversationType) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {}
 ) {
-    val lazyListState = com.wire.android.ui.common.extension.rememberLazyListState { firstVisibleItemIndex ->
+    val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
     }
 

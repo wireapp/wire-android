@@ -22,7 +22,7 @@ import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.folderWithElements
-import com.wire.android.ui.home.newconversation.ContactsState
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 
@@ -70,7 +70,7 @@ fun ContactsScreenContent(
         Column(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(all = 16.dp)
+                .padding(all = MaterialTheme.wireDimensions.spacing16x)
         ) {
             WirePrimaryButton(
                 text = stringResource(R.string.label_new_group),

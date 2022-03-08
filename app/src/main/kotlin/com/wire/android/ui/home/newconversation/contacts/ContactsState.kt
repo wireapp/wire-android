@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation
+package com.wire.android.ui.home.newconversation.contacts
 
 import com.wire.android.model.UserStatus
 

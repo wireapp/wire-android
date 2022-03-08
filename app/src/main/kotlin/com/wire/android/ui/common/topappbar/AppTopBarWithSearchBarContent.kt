@@ -1,6 +1,5 @@
 package com.wire.android.ui.common.topappbar
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -230,7 +229,6 @@ private fun AppTopBarWithSearchBarContent(
 @Composable
 private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
     val searchBarState = remember {
-        Log.d("TEST", "inside remember")
         SearchBarState()
     }
 
@@ -243,10 +241,8 @@ private fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
             .map { (prevScrollIndex, newScrollIndex) ->
                 newScrollIndex > prevScrollIndex + 1
             }
-            .distinctUntilChanged().collect {
-//                Log.d("TEST", "current state of searchbarState: ${searchBarState.isSearchBarCollapsed}")
-//                Log.d("TEST", "new state of searchbarState: $it}")
-                searchBarState.isSearchBarCollapsed = it
+            .distinctUntilChanged().collect { shouldCollapse ->
+                searchBarState.isSearchBarCollapsed = shouldCollapse
             }
     }
 

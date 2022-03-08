@@ -33,8 +33,8 @@ import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.topappbar.AppTopBarWithSearchBarLayout
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.newconversation.AppTopBarWithSearchBarLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

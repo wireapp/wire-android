@@ -1,7 +1,5 @@
 package com.wire.android.navigation
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -12,8 +10,8 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
@@ -49,8 +47,7 @@ enum class NavigationItem(
     private val canonicalRoute: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (ContentParams) -> Unit,
-    open val enterTransition: EnterTransition = EnterTransition.None,
-    open val exitTransition: ExitTransition = ExitTransition.None
+    open val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimationConfig
     // TODO add animations here
 ) {
     Welcome(
@@ -114,8 +111,7 @@ enum class NavigationItem(
         arguments = listOf(
             navArgument(EXTRA_USER_ID) { type = NavType.StringType }
         ),
-        enterTransition = wireSlideInFromRight(),
-        exitTransition = wireSlideOutFromLeft()
+        animationConfig = NavigationAnimationConfig.CustomAnimationConfig(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()

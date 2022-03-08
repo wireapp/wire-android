@@ -10,18 +10,33 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 
-class ItemAnimationConfig {
-    var enterAnimation = wireSlideInFromRight()
-    var exitAnimation = wireSlideOutFromLeft()
-    var popEnterAnimation = wireSlideInFromRight()
-    var popExitAnimation = wireSlideOutFromLeft()
+sealed class NavigationAnimationConfig(
+    open val enterAnimation: EnterTransition,
+    open val exitAnimation: ExitTransition,
+    open val popEnterAnimation: EnterTransition = enterAnimation,
+    open val popExitAnimation: ExitTransition = exitAnimation,
+) {
+    object NoAnimationConfig : NavigationAnimationConfig(
+        enterAnimation = EnterTransition.None,
+        exitAnimation = ExitTransition.None
+    )
+
+    object DefaultAnimationConfig :
+        NavigationAnimationConfig(
+            enterAnimation = slideInHorizontally(),
+            exitAnimation = slideOutHorizontally()
+        )
+
+    class CustomAnimationConfig(
+        override val enterAnimation: EnterTransition,
+        override val exitAnimation: ExitTransition
+    ) : NavigationAnimationConfig(enterAnimation = enterAnimation, exitAnimation = exitAnimation)
 }
 
 /**
- * Examples of animations on
- * https://developer.android.com/reference/kotlin/androidx/compose/animation/package-summary
+ * Animation that allows a smooth transition from rtl, adding a fade in effect
  */
-fun wireSlideInFromRight(): EnterTransition {
+fun smoothSlideInFromRight(): EnterTransition {
     return slideInHorizontally(animationSpec = tween(durationMillis = 200)) { fullWidth ->
         fullWidth / 3
     } + fadeIn(
@@ -29,7 +44,10 @@ fun wireSlideInFromRight(): EnterTransition {
     )
 }
 
-fun wireSlideOutFromLeft(): ExitTransition {
+/**
+ * Animation that allows a smooth transition from ltr, adding a fade out effect
+ */
+fun smoothSlideOutFromLeft(): ExitTransition {
     return slideOutHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) {
         +200
     } + fadeOut(

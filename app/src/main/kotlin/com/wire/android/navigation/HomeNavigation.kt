@@ -2,8 +2,6 @@ package com.wire.android.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
@@ -41,8 +39,8 @@ fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, 
                 composable(
                     route = item.route,
                     content = item.content(homeState),
-                    enterTransition = { item.enterTransition },
-                    exitTransition = { item.exitTransition }
+                    enterTransition = { item.animationConfig.enterAnimation },
+                    exitTransition = { item.animationConfig.exitAnimation }
                 )
             }
     }
@@ -75,8 +73,7 @@ enum class HomeNavigationItem(
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
     val content: (HomeState) -> (@Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit)),
-    open val enterTransition: EnterTransition = EnterTransition.None,
-    open val exitTransition: ExitTransition = ExitTransition.None
+    open val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimationConfig
 ) {
     Conversations(
         route = HomeDestinationsRoutes.conversations,
@@ -92,7 +89,8 @@ enum class HomeNavigationItem(
                     onExpandHomeBottomSheet = { homeState.expandBottomSheet() }
                 )
             }
-        }
+        },
+        animationConfig = NavigationAnimationConfig.DefaultAnimationConfig
     ),
 
     Vault(

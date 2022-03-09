@@ -128,7 +128,7 @@ private fun SearchResult(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            
+
             item(key = "contact") {
                 SearchResultContent(
                     headerTitle = stringResource(id = R.string.label_contacts),
@@ -153,7 +153,7 @@ private fun SearchResult(
                         .animateItemPlacement()
                 )
             }
-            
+
             item(key = "backend") {
                 SearchResultContent(
                     headerTitle = stringResource(R.string.label_public_wire),
@@ -178,7 +178,7 @@ private fun SearchResult(
                         .animateItemPlacement()
                 )
             }
-            
+
             item(key = "federate") {
                 SearchResultContent(
                     headerTitle = stringResource(R.string.label_federated_backends),
@@ -203,7 +203,7 @@ private fun SearchResult(
                         .animateItemPlacement()
                 )
             }
-            
+
         }
     }
 }
@@ -283,7 +283,7 @@ private fun ShowButton(
 
                     isShowAll = !isShowAll
                 },
-                minHeight =  dimensions().showAllCollapseButtonMinHeight,
+                minHeight = dimensions().showAllCollapseButtonMinHeight,
                 fillMaxWidth = false,
             )
         }

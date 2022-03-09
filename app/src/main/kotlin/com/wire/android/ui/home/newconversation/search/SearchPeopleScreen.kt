@@ -100,6 +100,7 @@ private fun EmptySearchQueryScreen() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SearchResult(
     searchQuery: String,
@@ -119,9 +120,10 @@ private fun SearchResult(
 
         LazyColumn(
             state = lazyListState,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
         ) {
-            item {
+            item(key = "contact") {
                 SearchResultContent(
                     headerTitle = stringResource(id = R.string.label_contacts),
                     totalSearchResultCount = contactSearchResult.size.toString(),
@@ -142,9 +144,10 @@ private fun SearchResult(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight else 320.dp)
+                        .animateItemPlacement()
                 )
             }
-            item {
+            item(key = "backend") {
                 SearchResultContent(
                     headerTitle = stringResource(R.string.label_public_wire),
                     totalSearchResultCount = publicWire.size.toString(),
@@ -165,9 +168,10 @@ private fun SearchResult(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(if (searchPeopleScreenState.publicResultsCollapsed) fullHeight else 320.dp)
+                        .animateItemPlacement()
                 )
             }
-            item {
+            item(key = "federate") {
                 SearchResultContent(
                     headerTitle = stringResource(R.string.label_federated_backends),
                     totalSearchResultCount = federatedBackend.size.toString(),
@@ -188,6 +192,7 @@ private fun SearchResult(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(if (searchPeopleScreenState.federatedBackendResultsCollapsed) fullHeight else 320.dp)
+                        .animateItemPlacement()
                 )
             }
         }
@@ -265,7 +270,7 @@ private fun ShowButton(
             WireSecondaryButton(
                 text = if (showAll) "Show All ($totalSearchResultCount)" else "Show Less",
                 onClick = {
-                    if (isShowAll) onShowLessClicked() else onShowAllClicked()
+                    if (isShowAll) onShowAllClicked() else onShowLessClicked()
 
                     isShowAll = !isShowAll
                 },

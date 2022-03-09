@@ -11,10 +11,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -42,9 +42,11 @@ fun HomeTopBar(
     val scrollDownState = viewModel.scrollDownFlow.collectAsState(false)
     val firstLineElevation = if (!isSearchable || scrollDownState.value) dimensions().topBarElevationHeight else 0.dp
 
-    Box(
-        Modifier.background(Color.Transparent)
-    ) {
+    LaunchedEffect(viewModel) {
+        viewModel.loadUserAvatar()
+    }
+
+    Box {
         if (isSearchable) {
             val searchFieldFullHeightPx = LocalDensity.current.run {
                 (dimensions().topBarSearchFieldHeight + dimensions().topBarElevationHeight).toPx()
@@ -71,7 +73,7 @@ fun HomeTopBar(
             navigationIconType = NavigationIconType.Menu,
             onNavigationPressed = { scope.launch { drawerState.open() } },
             actions = {
-                UserProfileAvatar(isEnabled = true, status = UserStatus.AVAILABLE) {
+                UserProfileAvatar(avatarAssetByteArray = viewModel.userAvatar, isEnabled = true, status = UserStatus.AVAILABLE) {
                     scope.launch { viewModel.navigateToUserProfile() }
                 }
             },

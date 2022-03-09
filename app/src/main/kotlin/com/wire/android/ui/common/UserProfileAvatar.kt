@@ -51,11 +51,12 @@ fun UserProfileAvatar(
         Image(
             painter = rememberAsyncImagePainter(model = avatarResource),
             contentDescription = stringResource(R.string.content_description_user_avatar),
-            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .padding(dimensions().userAvatarStatusBorderSize)
                 .background(Color.Companion.Black, CircleShape)
                 .size(size)
+                .clip(CircleShape),
+            contentScale = ContentScale.FillBounds,
         )
         UserStatusIndicator(
             status = status,
@@ -67,5 +68,5 @@ fun UserProfileAvatar(
 @Preview
 @Composable
 fun UserProfileAvatarPreview() {
-    UserProfileAvatar(avatarAssetByteArray = null, status = UserStatus.BUSY) {}
+    UserProfileAvatar(status = UserStatus.BUSY) {}
 }

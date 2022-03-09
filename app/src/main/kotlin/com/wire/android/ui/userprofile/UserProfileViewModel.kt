@@ -1,7 +1,6 @@
 package com.wire.android.ui.userprofile
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,12 +17,9 @@ import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
@@ -33,7 +29,7 @@ import javax.inject.Inject
 class UserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
-    private val getUserAvatar: GetPublicAssetUseCase,
+    private val getPublicAssetUseCase: GetPublicAssetUseCase,
     private val getSelf: GetSelfUserUseCase
 ) : ViewModel() {
 
@@ -91,7 +87,7 @@ class UserProfileViewModel @Inject constructor(
 
     private suspend fun getAvatarAsByteArrayOrNull(avatarAssetId: UserAssetId): ByteArray? =
         try {
-            (getUserAvatar(avatarAssetId) as PublicAssetResult.Success).asset
+            (getPublicAssetUseCase(avatarAssetId) as PublicAssetResult.Success).asset
         } catch (e: Exception) {
             null
         }

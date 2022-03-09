@@ -398,7 +398,7 @@ private fun OtherAccountItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensions().userProfileOtherAccItemHeight)
-            .padding(bottom = 1.dp)
+            .padding(start = dimensions().spacing8x, bottom = 1.dp)
             .background(MaterialTheme.colorScheme.surface)
             .selectableBackground(true) { onClick(account.id) }
     ) {

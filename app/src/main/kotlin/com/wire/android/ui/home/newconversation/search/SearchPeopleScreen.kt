@@ -40,7 +40,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.model.UserStatus
-import com.wire.android.ui.common.AddContactIcon
+import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -280,6 +280,7 @@ fun SearchResultContent(
                 onShowLessClicked = onShowLessClicked,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
+                    .padding(end = dimensions().spacing8x)
             )
         }
     }
@@ -336,7 +337,7 @@ fun ExternalContactResultItem(
                     searchQuery = searchQuery
                 )
             },
-            actions = { AddContactIcon({}) },
+            actions = { AddContactButton({ }) },
             onRowItemClicked = {},
             onRowItemLongClicked = {},
         )
@@ -369,6 +370,7 @@ private fun ContactSearchResultItem(
                     searchQuery = searchQuery
                 )
             },
+            eventType = eventType,
             onRowItemClicked = {},
             onRowItemLongClicked = {},
             modifier = modifier

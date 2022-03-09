@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.newconversation.contacts.Contact
 import com.wire.android.ui.home.newconversation.contacts.ExternalContact
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +28,8 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
                 ), Contact(
                     id = 2,
                     "test2",
-                    label = "test23"
+                    label = "test23",
+                    eventType = EventType.UnreadMention
                 ), Contact(
                     id = 3,
                     "test3",
@@ -36,7 +38,8 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
                 Contact(
                     id = 4,
                     "test1",
-                    label = "test23"
+                    label = "test23",
+                    eventType = EventType.MissedCall
                 ), Contact(
                     id = 5,
                     "test2",
@@ -44,40 +47,49 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
                 ), Contact(
                     id = 6,
                     "test3",
-                    label = "test23"
+                    label = "test23",
+                    eventType = EventType.MissedCall
                 ),
                 Contact(
                     id = 7,
                     "test1",
-                    label = "test23"
+                    label = "test23",
+                    eventType = EventType.MissedCall
                 ), Contact(
                     id = 8,
                     "test2",
-                    label = "test23"
+                    label = "test23",
+                    eventType = EventType.MissedCall
                 ), Contact(
                     id = 9,
                     "test3",
-                    label = "test23"
+                    label = "test23",
+                    eventType = EventType.MissedCall
                 ),
                 Contact(
                     id = 10,
-                    "test1"
+                    "test1",
+                    eventType = EventType.UnreadReply
                 ), Contact(
                     id = 11,
                     "test2",
-                    label = "test235"
+                    label = "test235",
+                    eventType = EventType.UnreadReply
                 ), Contact(
                     id = 12,
                     "test3",
-                    label = "test234"
+                    label = "test234",
+                    eventType = EventType.UnreadReply
                 ),
                 Contact(
                     id = 13,
-                    "test1"
+                    "test1",
+                    eventType = EventType.UnreadMessage(20)
                 ), Contact(
                     id = 14,
                     "test2",
-                    label = "test23"
+                    label = "test23",
+                    eventType = EventType.UnreadMessage(300)
                 ), Contact(
                     id = 15,
                     "This is last contact",

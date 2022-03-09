@@ -39,6 +39,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.SearchBarInput
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -155,7 +156,7 @@ private fun AppTopBarWithSearchBarContent(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
-        shadowElevation = if (isTopBarVisible) 8.dp else 0.dp
+        shadowElevation = if (isTopBarVisible) dimensions().spacing8x else 0.dp
     ) {
         Column(
             Modifier

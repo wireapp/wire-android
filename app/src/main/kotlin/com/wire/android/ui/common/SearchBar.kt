@@ -105,9 +105,9 @@ fun SearchBarInput(
 }
 
 @Composable
-fun rememberSearchInputState(): SearchInputState = remember { SearchInputState() }
+private fun rememberSearchInputState(): SearchInputState = remember { SearchInputState() }
 
-class SearchInputState {
+private class SearchInputState {
 
     var textFieldValue by mutableStateOf(TextFieldValue(""))
 

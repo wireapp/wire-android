@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -121,10 +122,15 @@ private fun SearchResult(
         SearchPeopleScreenState()
     }
 
+    val lazyListState = rememberLazyListState()
+
+    val coroutineScope = rememberCoroutineScope()
+
     BoxWithConstraints {
         val fullHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
 
         LazyColumn(
+            state = lazyListState,
             modifier = Modifier
                 .fillMaxSize()
         ) {
@@ -145,7 +151,12 @@ private fun SearchResult(
                             }
                         }
                     },
-                    onShowAllClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = true },
+                    onShowAllClicked = {
+                        searchPeopleScreenState.contactsAllResultsCollapsed = true
+                        coroutineScope.launch {
+                            lazyListState.animateScrollToItem(0)
+                        }
+                    },
                     onShowLessClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = false },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -170,7 +181,12 @@ private fun SearchResult(
                             }
                         }
                     },
-                    onShowAllClicked = { searchPeopleScreenState.publicResultsCollapsed = true },
+                    onShowAllClicked = {
+                        searchPeopleScreenState.publicResultsCollapsed = true
+                        coroutineScope.launch {
+                            lazyListState.animateScrollToItem(1)
+                        }
+                    },
                     onShowLessClicked = { searchPeopleScreenState.publicResultsCollapsed = false },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -195,7 +211,12 @@ private fun SearchResult(
                             }
                         }
                     },
-                    onShowAllClicked = { searchPeopleScreenState.federatedBackendResultsCollapsed = true },
+                    onShowAllClicked = {
+                        searchPeopleScreenState.federatedBackendResultsCollapsed = true
+                        coroutineScope.launch {
+                            lazyListState.animateScrollToItem(2)
+                        }
+                    },
                     onShowLessClicked = { searchPeopleScreenState.federatedBackendResultsCollapsed = false },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -203,7 +224,6 @@ private fun SearchResult(
                         .animateItemPlacement()
                 )
             }
-
         }
     }
 }

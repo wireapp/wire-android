@@ -1,5 +1,7 @@
 package com.wire.android.ui.home.newconversation.search
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,9 +29,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.contacts.Contact
@@ -127,15 +132,85 @@ fun SearchResultContent(
     contactSearchResult: List<Contact>,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier) {
-        FolderHeader(name = stringResource(R.string.label_contacts))
-        LazyColumn {
-            items(items = contactSearchResult, key = { contact -> contact.id }) { contact ->
-                ContactSearchResultItem(
-                    contactSearchResult = contact,
-                    searchQuery = searchQuery,
-                )
+    ConstraintLayout(modifier) {
+        val (headerRef, columnRef, buttonRef) = createRefs()
+
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .constrainAs(headerRef) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(columnRef.top)
+                }
+        ) {
+            FolderHeader(name = stringResource(R.string.label_contacts))
+        }
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .constrainAs(columnRef) {
+                    top.linkTo(headerRef.bottom)
+                    bottom.linkTo(buttonRef.top)
+
+                    height = Dimension.fillToConstraints
+                }) {
+            LazyColumn(
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                items(items = contactSearchResult) { contact ->
+                    ContactSearchResultItem(
+                        contactSearchResult = contact,
+                        searchQuery = searchQuery,
+                    )
+                }
             }
+        }
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .constrainAs(buttonRef) {
+                    top.linkTo(columnRef.bottom)
+                    bottom.linkTo(parent.bottom)
+                }
+        ) {
+            ShowButton(
+                itemsCount = 120,
+                onShowAllClicked = {},
+                onShowLessClicked = {},
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun ShowButton(
+    itemsCount: Int,
+    onShowAllClicked: () -> Unit,
+    onShowLessClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isShowAll by remember { mutableStateOf(true) }
+
+    Box(modifier) {
+        AnimatedContent(isShowAll) { showAll ->
+            WireSecondaryButton(
+                text = if (showAll) "Show All ($itemsCount)" else "Show Less",
+                onClick = {
+                    if (isShowAll) onShowLessClicked() else onShowAllClicked()
+
+                    isShowAll = !isShowAll
+                },
+                minHeight = 32.dp,
+                fillMaxWidth = false,
+            )
         }
     }
 }
@@ -146,24 +221,31 @@ private fun ContactSearchResultItem(
     searchQuery: String,
     modifier: Modifier = Modifier
 ) {
-    ConversationItemTemplate(
-        leadingIcon = { UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) },
-        title = {
-            HighLightName(
-                name = contactSearchResult.name,
-                searchQuery = searchQuery
-            )
-        },
-        subTitle = {
-            HighLightSubTitle(
-                subTitle = contactSearchResult.label,
-                searchQuery = searchQuery
-            )
-        },
-        onConversationItemClick = {},
-        onConversationItemLongClick = {},
-        modifier = modifier
-    )
+    with(contactSearchResult) {
+        ConversationItemTemplate(
+            leadingIcon = {
+                UserProfileAvatar(
+                    avatarUrl = "",
+                    status = UserStatus.AVAILABLE
+                )
+            },
+            title = {
+                HighLightName(
+                    name = name,
+                    searchQuery = searchQuery
+                )
+            },
+            subTitle = {
+                HighLightSubTitle(
+                    subTitle = label,
+                    searchQuery = searchQuery
+                )
+            },
+            onConversationItemClick = {},
+            onConversationItemLongClick = {},
+            modifier = modifier
+        )
+    }
 }
 
 @Composable

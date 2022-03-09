@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -38,7 +39,7 @@ class ConversationState(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, androidx.compose.animation.ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun rememberConversationState(
     navHostController: NavHostController = rememberAnimatedNavController(),

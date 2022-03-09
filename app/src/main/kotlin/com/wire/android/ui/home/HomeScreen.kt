@@ -50,7 +50,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         drawerShape = RectangleShape,
         drawerState = drawerState,
         drawerContent = drawerContent,
-        gesturesEnabled = currentItem.isSwipeable
+        gesturesEnabled = drawerState.isOpen
     ) {
         val homeState = rememberHomeState()
 

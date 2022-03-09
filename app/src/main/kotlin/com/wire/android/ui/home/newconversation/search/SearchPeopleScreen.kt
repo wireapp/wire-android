@@ -5,6 +5,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -36,6 +38,7 @@ import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.contacts.Contact
@@ -105,69 +108,88 @@ private fun SearchResult(
     federatedBackend: List<FederatedBackend> = emptyList(),
     onScrollPositionChanged: (Int) -> Unit = {}
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        item {
-            SearchResultContent(
-                headerTitle = stringResource(id = R.string.label_contacts),
-                totalSearchResultCount = contactSearchResult.size.toString(),
-                searchResult = {
-                    LazyColumn(
-                        Modifier.fillMaxSize()
-                    ) {
-                        items(items = contactSearchResult) { contact ->
-                            ContactSearchResultItem(
-                                contactSearchResult = contact,
-                                searchQuery = searchQuery,
-                            )
+    val lazyListState = rememberLazyListState { scrollPosition -> onScrollPositionChanged(scrollPosition) }
+
+    val searchPeopleScreenState = remember {
+        SearchPeopleScreenState()
+    }
+
+    BoxWithConstraints {
+        val fullHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
+
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                SearchResultContent(
+                    headerTitle = stringResource(id = R.string.label_contacts),
+                    totalSearchResultCount = contactSearchResult.size.toString(),
+                    searchResult = {
+                        LazyColumn(
+                            Modifier.fillMaxSize()
+                        ) {
+                            items(items = contactSearchResult) { contact ->
+                                ContactSearchResultItem(
+                                    contactSearchResult = contact,
+                                    searchQuery = searchQuery,
+                                )
+                            }
                         }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(320.dp)
-            )
-        }
-        item {
-            SearchResultContent(
-                headerTitle = stringResource(R.string.label_public_wire),
-                totalSearchResultCount = publicWire.size.toString(),
-                searchResult = {
-                    LazyColumn(
-                        Modifier.fillMaxSize()
-                    ) {
-                        items(items = contactSearchResult) { contact ->
-                            ContactSearchResultItem(
-                                contactSearchResult = contact,
-                                searchQuery = searchQuery,
-                            )
+                    },
+                    onShowAllClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = true },
+                    onShowLessClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight else 320.dp)
+                )
+            }
+            item {
+                SearchResultContent(
+                    headerTitle = stringResource(R.string.label_public_wire),
+                    totalSearchResultCount = publicWire.size.toString(),
+                    searchResult = {
+                        LazyColumn(
+                            Modifier.fillMaxSize()
+                        ) {
+                            items(items = contactSearchResult) { contact ->
+                                ContactSearchResultItem(
+                                    contactSearchResult = contact,
+                                    searchQuery = searchQuery,
+                                )
+                            }
                         }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(420.dp)
-            )
-        }
-        item {
-            SearchResultContent(
-                headerTitle = stringResource(R.string.label_federated_backends),
-                totalSearchResultCount = federatedBackend.size.toString(),
-                searchResult = {
-                    LazyColumn(
-                        Modifier.fillMaxSize()
-                    ) {
-                        items(items = contactSearchResult) { contact ->
-                            ContactSearchResultItem(
-                                contactSearchResult = contact,
-                                searchQuery = searchQuery,
-                            )
+                    },
+                    onShowAllClicked = { searchPeopleScreenState.publicResultsCollapsed = true },
+                    onShowLessClicked = { searchPeopleScreenState.publicResultsCollapsed = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(if (searchPeopleScreenState.publicResultsCollapsed) fullHeight else 320.dp)
+                )
+            }
+            item {
+                SearchResultContent(
+                    headerTitle = stringResource(R.string.label_federated_backends),
+                    totalSearchResultCount = federatedBackend.size.toString(),
+                    searchResult = {
+                        LazyColumn(
+                            Modifier.fillMaxSize()
+                        ) {
+                            items(items = contactSearchResult) { contact ->
+                                ContactSearchResultItem(
+                                    contactSearchResult = contact,
+                                    searchQuery = searchQuery,
+                                )
+                            }
                         }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(420.dp)
-            )
+                    },
+                    onShowAllClicked = { searchPeopleScreenState.federatedBackendResultsCollapsed = true },
+                    onShowLessClicked = { searchPeopleScreenState.federatedBackendResultsCollapsed = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(if (searchPeopleScreenState.federatedBackendResultsCollapsed) fullHeight else 320.dp)
+                )
+            }
         }
     }
 }
@@ -178,6 +200,8 @@ fun SearchResultContent(
     headerTitle: String,
     totalSearchResultCount: String,
     searchResult: @Composable () -> Unit,
+    onShowAllClicked: () -> Unit,
+    onShowLessClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     ConstraintLayout(modifier) {
@@ -217,8 +241,8 @@ fun SearchResultContent(
         ) {
             ShowButton(
                 totalSearchResultCount = totalSearchResultCount,
-                onShowAllClicked = {},
-                onShowLessClicked = {},
+                onShowAllClicked = onShowAllClicked,
+                onShowLessClicked = onShowLessClicked,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
             )
@@ -391,4 +415,14 @@ private fun HighLightName(
             style = MaterialTheme.wireTypography.title02
         )
     }
+}
+
+class SearchPeopleScreenState {
+
+    var contactsAllResultsCollapsed: Boolean by mutableStateOf(false)
+
+    var publicResultsCollapsed: Boolean by mutableStateOf(false)
+
+    var federatedBackendResultsCollapsed: Boolean by mutableStateOf(false)
+
 }

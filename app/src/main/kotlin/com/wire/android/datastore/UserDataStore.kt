@@ -41,9 +41,9 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
             preferences[getStatusKey(status)] ?: true
         }
 
-    val avatarAssetId: Flow<String> = context.dataStore.data
+    val avatarAssetId: Flow<String?> = context.dataStore.data
         .map { preferences ->
-            preferences[USER_AVATAR_ASSET_ID] ?: ""
+            preferences[USER_AVATAR_ASSET_ID]
         }
 
     suspend fun updateUserAvatarAssetId(newAssetId: String) {

@@ -27,12 +27,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,12 +58,6 @@ import com.wire.android.ui.theme.wireTypography
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(viewModel: UserProfileViewModel = hiltViewModel()) {
-
-    // TODO: THIS IS GOING TO BE REMOVED LATER ON
-    val context = LocalContext.current
-    SideEffect {
-//        viewModel.getUserAvatarByteArray(context)
-    }
 
     UserProfileContent(
         state = viewModel.userProfileState,

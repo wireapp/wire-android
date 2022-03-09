@@ -1,6 +1,5 @@
 package com.wire.android.navigation
 
-import android.net.Uri
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -11,8 +10,8 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN

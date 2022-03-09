@@ -29,28 +29,28 @@ fun getUriFromDrawable(
     )
 }
 
-fun getTempAvatarUri(context: Context): Uri {
-    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", getTempAvatarFile(context))
-}
-
 fun Uri.toByteArray(context: Context): ByteArray {
     return context.contentResolver.openInputStream(this)?.readBytes() ?: ByteArray(16)
 }
 
-fun getAvatarUri(avatarRaw: ByteArray, context: Context): Uri {
-    val file = getTempAvatarFile(context)
-    file.writeBytes(avatarRaw)
-    return file.toUri()
+fun getShareableAvatarUri(context: Context): Uri {
+    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", getTempAvatarFile(context))
 }
 
-fun getDefaultAvatarUri(context: Context): Uri {
-    return getUriFromDrawable(context, R.drawable.ic_launcher_foreground)
+fun getTempAvatarUri(imageData: ByteArray, context: Context): Uri {
+    val file = getTempAvatarFile(context)
+    file.writeBytes(imageData)
+    return file.toUri()
 }
 
 private fun getTempAvatarFile(context: Context): File {
     val file = File(context.cacheDir, TEMP_AVATAR_FILENAME)
     file.setWritable(true, false)
     return file
+}
+
+fun getDefaultAvatarUri(context: Context): Uri {
+    return getUriFromDrawable(context, R.drawable.ic_launcher_foreground)
 }
 
 private const val TEMP_AVATAR_FILENAME = "temp_avatar_path.jpg"

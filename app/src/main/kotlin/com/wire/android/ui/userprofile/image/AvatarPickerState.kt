@@ -1,6 +1,5 @@
 package com.wire.android.ui.userprofile.image
 
-import android.net.Uri
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -16,11 +15,10 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberAvatarPickerState(
-    initialUri: Uri?,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 ): AvatarPickerState {
-    val pickPictureState = rememberPickPictureState(initialUri)
+    val pickPictureState = rememberPickPictureState()
 
     return remember(pickPictureState) {
         AvatarPickerState(coroutineScope, modalBottomSheetState, pickPictureState)

@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,14 +32,19 @@ import com.wire.android.ui.common.imagepreview.PictureState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.BackNavigationIconButton
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.getAvatarUri
+import com.wire.android.util.getTempAvatarUri
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
-    val initialAvatarUri = viewModel.avatarByteArray?.let { getAvatarUri(it, LocalContext.current) }
-    val state = rememberAvatarPickerState(initialAvatarUri)
     val context = LocalContext.current
+    val state = rememberAvatarPickerState()
+
+    // We need to launch an effect to update the initial avatar uri whenever the pickerVM updates successfully the raw image
+    LaunchedEffect(viewModel.avatarRaw) {
+        val currentAvatarUri = getTempAvatarUri(viewModel.avatarRaw ?: ByteArray(16), context)
+        state.avatarPickerFlow.pictureState = PictureState.Initial(currentAvatarUri)
+    }
 
     AvatarPickerContent(
         state = state,

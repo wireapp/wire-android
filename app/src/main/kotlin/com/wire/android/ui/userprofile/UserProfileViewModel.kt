@@ -60,16 +60,14 @@ class UserProfileViewModel @Inject constructor(
     }
 
     private suspend fun getAvatarAsByteArrayOrNull(avatarAssetId: UserAssetId?): ByteArray? {
-        return try {
-            avatarAssetId?.let {
+        val result = avatarAssetId?.let {
+            try {
+                dataStore.updateUserAvatarAssetId(it)
                 (getUserAvatar(it) as PublicAssetResult.Success).asset
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            } catch (e: Exception) { null }
         }
+        return result
     }
-
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 

@@ -9,14 +9,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.ui.userprofile.image.ImageSource
 import com.wire.android.util.getDefaultAvatarUri
-import com.wire.android.util.getTempAvatarUri
+import com.wire.android.util.getShareableAvatarUri
 import com.wire.android.util.permission.OpenGalleryFlow
 import com.wire.android.util.permission.TakePictureFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 
 class AvatarPickerFlow(
-    val pictureState: PictureState,
+    var pictureState: PictureState,
     private val takePictureFlow: TakePictureFlow,
     private val openGalleryFlow: OpenGalleryFlow
 ) {
@@ -29,12 +29,12 @@ class AvatarPickerFlow(
 }
 
 @Composable
-fun rememberPickPictureState(initialUri: Uri?): AvatarPickerFlow {
+fun rememberPickPictureState(): AvatarPickerFlow {
     val context = LocalContext.current
     var pictureState: PictureState by remember {
-        mutableStateOf(PictureState.Initial(avatarUri = initialUri ?: getDefaultAvatarUri(context)))
+        mutableStateOf(PictureState.Initial(getDefaultAvatarUri(context)))
     }
-    val onChosenPictureUri = getTempAvatarUri(context)
+    val onChosenPictureUri = getShareableAvatarUri(context)
     val takePictureFLow = rememberTakePictureFlow(
         shouldPersistUri = { wasSaved ->
             if (wasSaved)

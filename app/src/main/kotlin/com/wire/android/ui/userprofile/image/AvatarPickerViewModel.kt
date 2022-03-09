@@ -29,12 +29,13 @@ class AvatarPickerViewModel @Inject constructor(
     private val uploadUserAvatar: UploadUserAvatarUseCase,
 ) : ViewModel() {
 
-    var avatarByteArray by mutableStateOf<ByteArray?>(null)
+    var avatarRaw by mutableStateOf<ByteArray?>(null)
         private set
 
     init {
         viewModelScope.launch {
-            avatarByteArray = loadAvatar(dataStore.avatarAssetId.first())
+            val assetId = dataStore.avatarAssetId.first()
+            avatarRaw = assetId?.let { loadAvatar(it) }
         }
     }
 

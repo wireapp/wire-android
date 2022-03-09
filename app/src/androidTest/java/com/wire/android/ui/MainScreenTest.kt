@@ -17,6 +17,7 @@ import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.getViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -41,8 +42,8 @@ class MainScreenTest {
     @get:Rule(order = 2)
     val composeTestRule = createAndroidComposeRule<WireActivity>()
 
-    @Test
-    fun iTapLoginButton() {
+    @Before
+    fun testPrep(){
         hiltRule.inject()
 
         // Start the app
@@ -51,6 +52,10 @@ class MainScreenTest {
                 WelcomeScreen(composeTestRule.getViewModel(WelcomeViewModel::class))
             }
         }
+    }
+
+    @Test
+    fun iTapLoginButton() {
 
         composeTestRule.onNodeWithText("Login").assertIsDisplayed()
         composeTestRule.onNodeWithText("Create Enterprise Account").assertIsDisplayed()
@@ -60,19 +65,10 @@ class MainScreenTest {
 
     @Test
     fun iTapCreateEnterpriseButton() {
-        hiltRule.inject()
-
-        // Start the app
-        composeTestRule.setContent {
-            WireTheme {
-                WelcomeScreen(composeTestRule.getViewModel(WelcomeViewModel::class))
-            }
-        }
 
         composeTestRule.onNodeWithText("Create Enterprise Account").assertIsDisplayed()
         composeTestRule.onNodeWithText("Create Enterprise Account").performClick()
-//        composeTestRule.waitForIdle()
+        composeTestRule.waitForIdle()
 //        composeTestRule.onNodeWithText("Create Enterprise Account Screen is under construction",ignoreCase = true).assertIsDisplayed()
-
     }
 }

@@ -232,7 +232,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
             state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             loading = loading,
             interactionSource = interactionSource,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("loginButton")
         )
     }
 }

@@ -47,7 +47,7 @@ enum class NavigationItem(
     private val canonicalRoute: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (ContentParams) -> Unit,
-    open val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimationConfig
+    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimationConfig
 ) {
     Welcome(
         primaryRoute = WELCOME,

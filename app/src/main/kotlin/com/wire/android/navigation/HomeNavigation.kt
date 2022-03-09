@@ -73,7 +73,7 @@ enum class HomeNavigationItem(
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
     val content: (HomeState) -> (@Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit)),
-    open val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimationConfig
+    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimationConfig
 ) {
     Conversations(
         route = HomeDestinationsRoutes.conversations,

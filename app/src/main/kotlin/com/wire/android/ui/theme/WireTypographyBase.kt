@@ -114,4 +114,10 @@ object WireTypographyBase {
         lineHeight = 11.72.sp,
         textAlign = TextAlign.Center
     )
+    val Code01 = TextStyle(
+        fontWeight = FontWeight.W500,
+        fontSize = 24.sp,
+        lineHeight = 28.13.sp,
+        textAlign = TextAlign.Center
+    )
 }

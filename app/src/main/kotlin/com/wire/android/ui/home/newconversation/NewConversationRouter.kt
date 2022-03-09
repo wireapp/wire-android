@@ -65,7 +65,6 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
 
                         SearchPeopleScreen(
                             searchPeopleState = searchPeopleViewModel.state,
-                            onScrollPositionChanged = { newConversationState.updateScrollPosition(it) }
                         )
                     }
                 )

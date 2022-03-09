@@ -3,10 +3,12 @@ package com.wire.android.ui.home.newconversation.search
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -38,7 +41,7 @@ import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.common.extension.rememberLazyListState
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.contacts.Contact
@@ -53,12 +56,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun SearchPeopleScreen(
     searchPeopleState: SearchPeopleState,
-    onScrollPositionChanged: (Int) -> Unit
 ) {
     SearchPeopleScreenContent(
         searchQuery = searchPeopleState.searchQuery,
         contactSearchResult = searchPeopleState.contactSearchResult,
-        onScrollPositionChanged = onScrollPositionChanged
     )
 }
 
@@ -66,7 +67,6 @@ fun SearchPeopleScreen(
 private fun SearchPeopleScreenContent(
     searchQuery: String,
     contactSearchResult: List<Contact>,
-    onScrollPositionChanged: (Int) -> Unit = {}
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -74,7 +74,6 @@ private fun SearchPeopleScreenContent(
         SearchResult(
             searchQuery = searchQuery,
             contactSearchResult = contactSearchResult,
-            onScrollPositionChanged = onScrollPositionChanged
         )
     }
 }
@@ -92,9 +91,20 @@ private fun EmptySearchQueryScreen() {
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "Search for user with their display name of their @username",
+                text = stringResource(R.string.label_search_people_instruction),
                 style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
                 textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(dimensions().spacing16x))
+            Text(
+                text = stringResource(R.string.label_learn_more_searching_user),
+                style = MaterialTheme.wireTypography.body02.copy(
+                    textDecoration = TextDecoration.Underline,
+                    color = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier.clickable {
+                    //TODO: redirect to somewhere ?
+                }
             )
         }
     }
@@ -107,10 +117,7 @@ private fun SearchResult(
     contactSearchResult: List<Contact>,
     publicWire: List<PublicWire> = emptyList(),
     federatedBackend: List<FederatedBackend> = emptyList(),
-    onScrollPositionChanged: (Int) -> Unit = {}
 ) {
-    val lazyListState = rememberLazyListState { scrollPosition -> onScrollPositionChanged(scrollPosition) }
-
     val searchPeopleScreenState = remember {
         SearchPeopleScreenState()
     }
@@ -119,7 +126,6 @@ private fun SearchResult(
         val fullHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
 
         LazyColumn(
-            state = lazyListState,
             modifier = Modifier
                 .fillMaxSize()
         ) {

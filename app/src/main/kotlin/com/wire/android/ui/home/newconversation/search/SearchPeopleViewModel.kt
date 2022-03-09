@@ -20,39 +20,52 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
             searchQuery = searchQuery,
             contactSearchResult = listOf(
                 Contact(
-                    "This is first contact"
+                    "This is first contact",
+                    label = "test23"
                 ), Contact(
-                    "test2"
+                    "test2",
+                    label = "test23"
                 ), Contact(
-                    "test3"
+                    "test3",
+                    label = "test23"
+                ),
+                Contact(
+                    "test1",
+                    label = "test23"
+                ), Contact(
+                    "test2",
+                    label = "test23"
+                ), Contact(
+                    "test3",
+                    label = "test23"
+                ),
+                Contact(
+                    "test1",
+                    label = "test23"
+                ), Contact(
+                    "test2",
+                    label = "test23"
+                ), Contact(
+                    "test3",
+                    label = "test23"
                 ),
                 Contact(
                     "test1"
                 ), Contact(
-                    "test2"
+                    "test2",
+                    label = "test235"
                 ), Contact(
-                    "test3"
+                    "test3",
+                    label = "test234"
                 ),
                 Contact(
                     "test1"
                 ), Contact(
-                    "test2"
+                    "test2",
+                    label = "test23"
                 ), Contact(
-                    "test3"
-                ),
-                Contact(
-                    "test1"
-                ), Contact(
-                    "test2"
-                ), Contact(
-                    "test3"
-                ),
-                Contact(
-                    "test1"
-                ), Contact(
-                    "test2"
-                ), Contact(
-                    "This is last contact"
+                    "This is last contact",
+                    label = "test2"
                 )
             )
         )

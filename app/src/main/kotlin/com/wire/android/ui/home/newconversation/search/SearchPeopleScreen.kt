@@ -24,10 +24,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.UserStatus
+import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.extension.rememberLazyListState
-import com.wire.android.ui.home.conversationslist.common.RowItem
+import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.contacts.Contact
 import com.wire.android.ui.theme.wireColorScheme
@@ -108,23 +111,39 @@ private fun SearchResult(
                 header = { stringResource(R.string.label_contacts) },
                 items = searchResult
             ) { contactSearchResult ->
-                RowItem(
-                    onRowItemClick = { /*TODO*/ },
-                    onRowItemLongClick = { /*TODO*/ }
-                ) {
-                    HighLightLabel(
-                        text = contactSearchResult.name,
-                        searchQuery = searchQuery
-                    )
-                }
+                ContactSearchResultItem(contactSearchResult, searchQuery)
             }
         }
     }
 }
 
 @Composable
-private fun HighLightLabel(
-    text: String,
+private fun ContactSearchResultItem(
+    contactSearchResult: Contact,
+    searchQuery: String
+) {
+    ConversationItemTemplate(
+        leadingIcon = { UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) },
+        title = {
+            HighLightName(
+                name = contactSearchResult.name,
+                searchQuery = searchQuery
+            )
+        },
+        subTitle = {
+            HighLightSubTitle(
+                subTitle = contactSearchResult.label,
+                searchQuery = searchQuery
+            )
+        },
+        onConversationItemClick = {},
+        onConversationItemLongClick = {}
+    )
+}
+
+@Composable
+private fun HighLightSubTitle(
+    subTitle: String,
     searchQuery: String,
 ) {
     val scope = rememberCoroutineScope()
@@ -137,7 +156,7 @@ private fun HighLightLabel(
         scope.launch {
             highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
                 matchText = searchQuery,
-                text = text
+                text = subTitle
             )
         }
     }
@@ -145,19 +164,88 @@ private fun HighLightLabel(
     if (highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
-                append(text)
+                withStyle(
+                    style = SpanStyle(
+                        color = MaterialTheme.wireColorScheme.secondaryText,
+                        fontWeight = MaterialTheme.wireTypography.subline01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.subline01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.subline01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.subline01.fontStyle
+                    )
+                ) {
+                    append(subTitle)
+                }
 
                 highlightIndexes
                     .forEach { highLightIndexes ->
                         addStyle(
-                            SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(0.5f)),
-                            highLightIndexes.startIndex,
-                            highLightIndexes.endIndex
+                            style = SpanStyle(
+                                background = MaterialTheme.wireColorScheme.highLight.copy(0.5f),
+                            ),
+                            start = highLightIndexes.startIndex,
+                            end = highLightIndexes.endIndex
                         )
                     }
             }
         )
     } else {
-        Text(text)
+        Text(
+            text = subTitle,
+            style = MaterialTheme.wireTypography.subline01,
+            color = MaterialTheme.wireColorScheme.secondaryText
+        )
+    }
+}
+
+
+@Composable
+private fun HighLightName(
+    name: String,
+    searchQuery: String,
+) {
+    val scope = rememberCoroutineScope()
+
+    var highlightIndexes by remember {
+        mutableStateOf(emptyList<MatchQueryResult>())
+    }
+
+    SideEffect {
+        scope.launch {
+            highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
+                matchText = searchQuery,
+                text = name
+            )
+        }
+    }
+
+    if (highlightIndexes.isNotEmpty()) {
+        Text(
+            buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        fontWeight = MaterialTheme.wireTypography.title02.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.title02.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.title02.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.title02.fontStyle
+                    )
+                ) {
+                    append(name)
+                }
+
+                highlightIndexes
+                    .forEach { highLightIndexes ->
+                        addStyle(
+                            style = SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(0.5f)),
+                            start = highLightIndexes.startIndex,
+                            end = highLightIndexes.endIndex
+                        )
+                    }
+            }
+        )
+    } else {
+        Text(
+            text = name,
+            style = MaterialTheme.wireTypography.title02
+        )
     }
 }

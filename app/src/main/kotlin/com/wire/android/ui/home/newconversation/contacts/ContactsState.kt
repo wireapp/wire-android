@@ -8,4 +8,5 @@ data class Contact(
     val name: String,
     val userStatus: UserStatus = UserStatus.AVAILABLE,
     val avatarUrl: String = "",
+    val label: String = "",
 )

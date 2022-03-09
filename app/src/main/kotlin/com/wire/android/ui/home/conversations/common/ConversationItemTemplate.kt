@@ -19,11 +19,13 @@ fun ConversationItemTemplate(
     subTitle: @Composable () -> Unit = {},
     eventType: EventType? = null,
     onConversationItemClick: () -> Unit,
-    onConversationItemLongClick: () -> Unit
+    onConversationItemLongClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     RowItem(
         onRowItemClick = onConversationItemClick,
-        onRowItemLongClick = onConversationItemLongClick
+        onRowItemLongClick = onConversationItemLongClick,
+        modifier = modifier
     ) {
         leadingIcon()
         Column(

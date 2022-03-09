@@ -21,7 +21,7 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.home.conversationslist.common.RowItem
-import com.wire.android.ui.home.conversationslist.folderWithElements
+import com.wire.android.ui.home.conversationslist.folderWithElementsAndRegularHeader
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -55,7 +55,7 @@ fun ContactsScreenContent(
             state = lazyListState,
             modifier = Modifier.weight(1f),
         ) {
-            folderWithElements(
+            folderWithElementsAndRegularHeader(
                 header = { stringResource(R.string.label_contacts) },
                 items = state.contacts
             ) { contact ->
@@ -101,7 +101,7 @@ private fun ContactItem(
         //TODO: Open Contact Screen
     }, {
         //TODO: Show Context Menu ?
-    }, {
+    }) {
         UserProfileAvatar(
             avatarUrl = avatarUrl,
             status = status
@@ -110,6 +110,6 @@ private fun ContactItem(
             text = name,
             style = MaterialTheme.wireTypography.title02,
         )
-    })
+    }
 }
 

@@ -34,7 +34,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
@@ -86,7 +85,7 @@ private fun EmptySearchQueryScreen() {
                 .align(Alignment.Center)
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(horizontal = 48.dp),
+                .padding(horizontal = dimensions().spacing48x),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -129,6 +128,7 @@ private fun SearchResult(
             modifier = Modifier
                 .fillMaxSize()
         ) {
+
             item(key = "contact") {
                 SearchResultContent(
                     headerTitle = stringResource(id = R.string.label_contacts),
@@ -149,10 +149,11 @@ private fun SearchResult(
                     onShowLessClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = false },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight else 320.dp)
+                        .height(if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
                         .animateItemPlacement()
                 )
             }
+
             item(key = "backend") {
                 SearchResultContent(
                     headerTitle = stringResource(R.string.label_public_wire),
@@ -173,10 +174,11 @@ private fun SearchResult(
                     onShowLessClicked = { searchPeopleScreenState.publicResultsCollapsed = false },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(if (searchPeopleScreenState.publicResultsCollapsed) fullHeight else 320.dp)
+                        .height(if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
                         .animateItemPlacement()
                 )
             }
+
             item(key = "federate") {
                 SearchResultContent(
                     headerTitle = stringResource(R.string.label_federated_backends),
@@ -197,10 +199,11 @@ private fun SearchResult(
                     onShowLessClicked = { searchPeopleScreenState.federatedBackendResultsCollapsed = false },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(if (searchPeopleScreenState.federatedBackendResultsCollapsed) fullHeight else 320.dp)
+                        .height(if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
                         .animateItemPlacement()
                 )
             }
+
         }
     }
 }
@@ -280,7 +283,7 @@ private fun ShowButton(
 
                     isShowAll = !isShowAll
                 },
-                minHeight = 32.dp,
+                minHeight = dimensions().showAllCollapseButtonMinHeight,
                 fillMaxWidth = false,
             )
         }

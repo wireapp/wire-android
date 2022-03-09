@@ -2,4 +2,5 @@
 <resources>
     <integer name="welcome_carousel_item_time_ms">3000</integer>
     <integer name="splashscreen_animation_ms">1000</integer>
+    <integer name="code_length">6</integer>
 </resources>

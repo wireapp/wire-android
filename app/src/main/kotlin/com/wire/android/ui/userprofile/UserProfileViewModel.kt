@@ -1,6 +1,7 @@
 package com.wire.android.ui.userprofile
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -17,8 +18,12 @@ import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
@@ -36,38 +41,60 @@ class UserProfileViewModel @Inject constructor(
         private set
 
     init {
-        // TODO: here we should have a loading state as the first initial state of the screen
         viewModelScope.launch {
             fetchSelfUser()
         }
     }
 
     private suspend fun fetchSelfUser() {
-        getSelf().collect {
-            userProfileState = SelfUserProfileState(
-                avatarAssetByteArray = getAvatarAsByteArrayOrNull(it.completePicture),
-                status = UserStatus.AVAILABLE,
-                fullName = it.name.orEmpty(),
-                userName = it.handle.orEmpty(),
-                teamName = it.team,
-                // Add some mocked team
-                otherAccounts = listOf(
-                    OtherAccount("someId", "", it.name.orEmpty(), "Wire Swiss GmbH"),
-                    OtherAccount("someId", "", "B. A. Baracus", "The A-Team"),
-                )
-            )
+        // Show progress bar on initial load
+        showLoadingAvatar(true)
+
+        viewModelScope.launch {
+            getSelf().collect { selfUser ->
+                with(selfUser) {
+                    // Load user avatar raw image data
+                    val avatarAssetRaw = completePicture?.let { getAvatarAsByteArrayOrNull(it) }
+
+                    // Update avatar asset id on user data store
+                    completePicture?.apply { dataStore.updateUserAvatarAssetId(this) }
+
+                    // Hide progress bar
+                    showLoadingAvatar(false)
+
+                    // Update user data state
+                    userProfileState = SelfUserProfileState(
+                        avatarAssetByteArray = avatarAssetRaw,
+                        status = UserStatus.AVAILABLE,
+                        fullName = name.orEmpty(),
+                        userName = handle.orEmpty(),
+                        teamName = team,
+
+                        // TODO: remove mocked team when other accounts functionality is ready
+                        otherAccounts = listOf(
+                            OtherAccount("someId", "", name.orEmpty(), "Wire Swiss GmbH"),
+                            OtherAccount("someId", "", "B. A. Baracus", "The A-Team"),
+                        )
+                    )
+                }
+            }
         }
+
+        // TODO: Handle the case the slowSyncWorker fails. In the meanwhile we mimic a timeout when fetching the avatar picture
+        delay(LOAD_AVATAR_TIMEOUT_MS)
+        showLoadingAvatar(false)
     }
 
-    private suspend fun getAvatarAsByteArrayOrNull(avatarAssetId: UserAssetId?): ByteArray? {
-        val result = avatarAssetId?.let {
-            try {
-                dataStore.updateUserAvatarAssetId(it)
-                (getUserAvatar(it) as PublicAssetResult.Success).asset
-            } catch (e: Exception) { null }
-        }
-        return result
+    private fun showLoadingAvatar(show: Boolean) {
+        userProfileState = userProfileState.copy(isAvatarLoading = show)
     }
+
+    private suspend fun getAvatarAsByteArrayOrNull(avatarAssetId: UserAssetId): ByteArray? =
+        try {
+            (getUserAvatar(avatarAssetId) as PublicAssetResult.Success).asset
+        } catch (e: Exception) {
+            null
+        }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
@@ -149,5 +176,9 @@ class UserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(NavigationCommand(NavigationItem.ProfileImagePicker.getRouteWithArgs()))
         }
+    }
+
+    companion object {
+        private const val LOAD_AVATAR_TIMEOUT_MS = 5000L
     }
 }

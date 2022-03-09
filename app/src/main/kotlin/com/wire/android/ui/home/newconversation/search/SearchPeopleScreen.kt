@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.newconversation.search
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,13 +12,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -29,6 +32,9 @@ import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.contacts.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.MatchQueryResult
+import com.wire.android.util.QueryMatchExtractor
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchPeopleScreen(
@@ -102,14 +108,13 @@ private fun SearchResult(
                 header = { stringResource(R.string.label_contacts) },
                 items = searchResult
             ) { contactSearchResult ->
-
-                RowItem(onRowItemClick = { /*TODO*/ }, onRowItemLongClick = { /*TODO*/ }) {
+                RowItem(
+                    onRowItemClick = { /*TODO*/ },
+                    onRowItemLongClick = { /*TODO*/ }
+                ) {
                     HighLightLabel(
-                        contactSearchResult.name,
-                        highLightIndexes = extractHighLightIndexes(
-                            toHighLightText = searchQuery,
-                            text = contactSearchResult.name
-                        )
+                        text = contactSearchResult.name,
+                        searchQuery = searchQuery
                     )
                 }
             }
@@ -120,20 +125,34 @@ private fun SearchResult(
 @Composable
 private fun HighLightLabel(
     text: String,
-    highLightIndexes: List<HighLightResult> = emptyList()
+    searchQuery: String,
 ) {
-    if (highLightIndexes.isNotEmpty()) {
+    val scope = rememberCoroutineScope()
+
+    var highlightIndexes by remember {
+        mutableStateOf(emptyList<MatchQueryResult>())
+    }
+
+    SideEffect {
+        scope.launch {
+            highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
+                matchText = searchQuery,
+                text = text
+            )
+        }
+    }
+
+    if (highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
                 append(text)
 
-                highLightIndexes
+                highlightIndexes
                     .forEach { highLightIndexes ->
-                        Log.d("TEST", "thiss is test index ${highLightIndexes.startIndex} end : ${highLightIndexes.endIndex}")
                         addStyle(
-                            SpanStyle(fontWeight = FontWeight.Bold, color = Color.Red),
-                            highLightIndexes.endIndex - 1,
-                            highLightIndexes.startIndex - 1
+                            SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(0.5f)),
+                            highLightIndexes.startIndex,
+                            highLightIndexes.endIndex
                         )
                     }
             }
@@ -142,24 +161,3 @@ private fun HighLightLabel(
         Text(text)
     }
 }
-
-private fun extractHighLightIndexes(
-    results: List<HighLightResult> = emptyList(),
-    toHighLightText: String,
-    text: String
-): List<HighLightResult> {
-    val index = text.indexOf(toHighLightText, ignoreCase = true)
-
-    return if (index != -1) {
-        extractHighLightIndexes(
-            results = results + HighLightResult(index, index + toHighLightText.length),
-            toHighLightText = toHighLightText,
-            text = text.removeRange(index, index + toHighLightText.length)
-        )
-    } else {
-        results
-    }
-}
-
-data class HighLightResult(val startIndex: Int, val endIndex: Int)
-

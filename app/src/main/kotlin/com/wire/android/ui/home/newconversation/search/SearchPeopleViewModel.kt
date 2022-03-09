@@ -60,5 +60,3 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
 
 }
 
-
-

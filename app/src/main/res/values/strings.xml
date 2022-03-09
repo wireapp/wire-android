@@ -169,5 +169,7 @@
     <string name="label_new_guestroom">New Guestroom</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
+    <string name="label_federated_backends">FEDERATED BACKENDS</string>
+    <string name="label_public_wire">PUBLIC WIRE</string>
 
 </resources>

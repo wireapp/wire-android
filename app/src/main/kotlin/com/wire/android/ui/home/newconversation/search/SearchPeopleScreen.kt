@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -104,32 +105,79 @@ private fun SearchResult(
     federatedBackend: List<FederatedBackend> = emptyList(),
     onScrollPositionChanged: (Int) -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        SearchResultContent(
-            searchQuery = searchQuery,
-            contactSearchResult = contactSearchResult,
-            modifier = Modifier.weight(1f)
-        )
-        SearchResultContent(
-            searchQuery = searchQuery,
-            contactSearchResult = contactSearchResult,
-            modifier = Modifier.weight(1f)
-        )
-        SearchResultContent(
-            searchQuery = searchQuery,
-            contactSearchResult = contactSearchResult,
-            modifier = Modifier.weight(1f)
-        )
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item {
+            SearchResultContent(
+                headerTitle = stringResource(id = R.string.label_contacts),
+                totalSearchResultCount = contactSearchResult.size.toString(),
+                searchResult = {
+                    LazyColumn(
+                        Modifier.fillMaxSize()
+                    ) {
+                        items(items = contactSearchResult) { contact ->
+                            ContactSearchResultItem(
+                                contactSearchResult = contact,
+                                searchQuery = searchQuery,
+                            )
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(320.dp)
+            )
+        }
+        item {
+            SearchResultContent(
+                headerTitle = stringResource(R.string.label_public_wire),
+                totalSearchResultCount = publicWire.size.toString(),
+                searchResult = {
+                    LazyColumn(
+                        Modifier.fillMaxSize()
+                    ) {
+                        items(items = contactSearchResult) { contact ->
+                            ContactSearchResultItem(
+                                contactSearchResult = contact,
+                                searchQuery = searchQuery,
+                            )
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(420.dp)
+            )
+        }
+        item {
+            SearchResultContent(
+                headerTitle = stringResource(R.string.label_federated_backends),
+                totalSearchResultCount = federatedBackend.size.toString(),
+                searchResult = {
+                    LazyColumn(
+                        Modifier.fillMaxSize()
+                    ) {
+                        items(items = contactSearchResult) { contact ->
+                            ContactSearchResultItem(
+                                contactSearchResult = contact,
+                                searchQuery = searchQuery,
+                            )
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(420.dp)
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchResultContent(
-    searchQuery: String,
-    contactSearchResult: List<Contact>,
+    headerTitle: String,
+    totalSearchResultCount: String,
+    searchResult: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
     ConstraintLayout(modifier) {
@@ -144,7 +192,7 @@ fun SearchResultContent(
                     bottom.linkTo(columnRef.top)
                 }
         ) {
-            FolderHeader(name = stringResource(R.string.label_contacts))
+            FolderHeader(name = headerTitle)
         }
         Box(
             Modifier
@@ -156,18 +204,7 @@ fun SearchResultContent(
 
                     height = Dimension.fillToConstraints
                 }) {
-            LazyColumn(
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                items(items = contactSearchResult) { contact ->
-                    ContactSearchResultItem(
-                        contactSearchResult = contact,
-                        searchQuery = searchQuery,
-                    )
-                }
-            }
+            searchResult()
         }
         Box(
             Modifier
@@ -179,7 +216,7 @@ fun SearchResultContent(
                 }
         ) {
             ShowButton(
-                itemsCount = 120,
+                totalSearchResultCount = totalSearchResultCount,
                 onShowAllClicked = {},
                 onShowLessClicked = {},
                 modifier = Modifier
@@ -192,7 +229,7 @@ fun SearchResultContent(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun ShowButton(
-    itemsCount: Int,
+    totalSearchResultCount: String,
     onShowAllClicked: () -> Unit,
     onShowLessClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -202,7 +239,7 @@ private fun ShowButton(
     Box(modifier) {
         AnimatedContent(isShowAll) { showAll ->
             WireSecondaryButton(
-                text = if (showAll) "Show All ($itemsCount)" else "Show Less",
+                text = if (showAll) "Show All ($totalSearchResultCount)" else "Show Less",
                 onClick = {
                     if (isShowAll) onShowLessClicked() else onShowAllClicked()
 

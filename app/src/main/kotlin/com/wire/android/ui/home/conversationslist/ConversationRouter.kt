@@ -17,8 +17,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
@@ -107,7 +107,8 @@ private fun ConversationRouter(
         }
 
         with(uiState) {
-            AnimatedNavHost(conversationState.navHostController, startDestination = ConversationsNavigationItem.All.route) {
+            // Change to a AnimatedNavHost and composable from accompanist lib to add transitions animations
+            NavHost(conversationState.navHostController, startDestination = ConversationsNavigationItem.All.route) {
                 composable(
                     route = ConversationsNavigationItem.All.route,
                     content = {
@@ -118,7 +119,8 @@ private fun ConversationRouter(
                             onEditConversationItem = ::editConversation,
                             onScrollPositionChanged = updateScrollPosition
                         )
-                    })
+                    }
+                )
                 composable(
                     route = ConversationsNavigationItem.Calls.route,
                     content = {
@@ -129,7 +131,8 @@ private fun ConversationRouter(
                             onEditConversationItem = ::editConversation,
                             onScrollPositionChanged = updateScrollPosition
                         )
-                    })
+                    }
+                )
                 composable(
                     route = ConversationsNavigationItem.Mentions.route,
                     content = {

@@ -39,8 +39,8 @@ fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, 
                 composable(
                     route = item.route,
                     content = item.content(homeState),
-                    enterTransition = { item.animationConfig.enterAnimation },
-                    exitTransition = { item.animationConfig.exitAnimation }
+                    enterTransition = { item.animationConfig.enterTransition },
+                    exitTransition = { item.animationConfig.exitTransition }
                 )
             }
     }
@@ -73,7 +73,7 @@ enum class HomeNavigationItem(
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
     val content: (HomeState) -> (@Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit)),
-    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimationConfig
+    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
 ) {
     Conversations(
         route = HomeDestinationsRoutes.conversations,

@@ -47,7 +47,7 @@ enum class NavigationItem(
     private val canonicalRoute: String,
     val arguments: List<NamedNavArgument> = emptyList(),
     open val content: @Composable (ContentParams) -> Unit,
-    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimationConfig
+    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
 ) {
     Welcome(
         primaryRoute = WELCOME,
@@ -110,7 +110,7 @@ enum class NavigationItem(
         arguments = listOf(
             navArgument(EXTRA_USER_ID) { type = NavType.StringType }
         ),
-        animationConfig = NavigationAnimationConfig.CustomAnimationConfig(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()

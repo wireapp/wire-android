@@ -20,8 +20,8 @@ fun NavigationGraph(navController: NavHostController, startDestination: String, 
             composable(
                 route = item.getCanonicalRoute(),
                 content = { navBackStackEntry -> item.content(ContentParams(navBackStackEntry, arguments)) },
-                enterTransition = { item.animationConfig.enterAnimation },
-                exitTransition = { item.animationConfig.exitAnimation }
+                enterTransition = { item.animationConfig.enterTransition },
+                exitTransition = { item.animationConfig.exitTransition }
             )
         }
     }

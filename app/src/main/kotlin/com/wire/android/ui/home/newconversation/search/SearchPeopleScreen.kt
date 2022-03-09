@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
@@ -39,18 +40,19 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.common.AddContactIcon
+import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.contacts.Contact
-import com.wire.android.ui.home.newconversation.contacts.FederatedBackend
-import com.wire.android.ui.home.newconversation.contacts.PublicWire
+import com.wire.android.ui.home.newconversation.contacts.ExternalContact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.MatchQueryResult
 import com.wire.android.util.QueryMatchExtractor
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -60,6 +62,8 @@ fun SearchPeopleScreen(
     SearchPeopleScreenContent(
         searchQuery = searchPeopleState.searchQuery,
         contactSearchResult = searchPeopleState.contactSearchResult,
+        publicSearchResult = searchPeopleState.publicContactSearchResult,
+        federatedBackendResult = searchPeopleState.federatedContactSearchResult
     )
 }
 
@@ -67,6 +71,8 @@ fun SearchPeopleScreen(
 private fun SearchPeopleScreenContent(
     searchQuery: String,
     contactSearchResult: List<Contact>,
+    publicSearchResult: List<ExternalContact>,
+    federatedBackendResult: List<ExternalContact>,
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -74,6 +80,8 @@ private fun SearchPeopleScreenContent(
         SearchResult(
             searchQuery = searchQuery,
             contactSearchResult = contactSearchResult,
+            publicSearchResult = publicSearchResult,
+            federatedBackendResult = federatedBackendResult
         )
     }
 }
@@ -115,114 +123,107 @@ private fun EmptySearchQueryScreen() {
 private fun SearchResult(
     searchQuery: String,
     contactSearchResult: List<Contact>,
-    publicWire: List<PublicWire> = emptyList(),
-    federatedBackend: List<FederatedBackend> = emptyList(),
+    publicSearchResult: List<ExternalContact>,
+    federatedBackendResult: List<ExternalContact>,
 ) {
-    val searchPeopleScreenState = remember {
-        SearchPeopleScreenState()
-    }
-
-    val lazyListState = rememberLazyListState()
-
-    val coroutineScope = rememberCoroutineScope()
+    val searchPeopleScreenState = rememberSearchPeopleScreenState()
 
     BoxWithConstraints {
         val fullHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
 
         LazyColumn(
-            state = lazyListState,
+            state = searchPeopleScreenState.lazyListState,
             modifier = Modifier
                 .fillMaxSize()
         ) {
 
-            item(key = "contact") {
-                SearchResultContent(
-                    headerTitle = stringResource(id = R.string.label_contacts),
-                    totalSearchResultCount = contactSearchResult.size.toString(),
-                    searchResult = {
-                        LazyColumn(
-                            Modifier.fillMaxSize()
-                        ) {
-                            items(items = contactSearchResult) { contact ->
-                                ContactSearchResultItem(
-                                    contactSearchResult = contact,
-                                    searchQuery = searchQuery,
-                                )
+            if (contactSearchResult.isNotEmpty()) {
+                item(key = "contact") {
+                    SearchResultContent(
+                        headerTitle = stringResource(id = R.string.label_contacts),
+                        totalSearchResultCount = contactSearchResult.size.toString(),
+                        searchResult = {
+                            LazyColumn(
+                                Modifier.fillMaxSize()
+                            ) {
+                                items(items = contactSearchResult) { contact ->
+                                    ContactSearchResultItem(
+                                        contactSearchResult = contact,
+                                        searchQuery = searchQuery,
+                                    )
+                                }
                             }
-                        }
-                    },
-                    onShowAllClicked = {
-                        searchPeopleScreenState.contactsAllResultsCollapsed = true
-                        coroutineScope.launch {
-                            lazyListState.animateScrollToItem(0)
-                        }
-                    },
-                    onShowLessClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = false },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
-                        .animateItemPlacement()
-                )
+                        },
+                        onShowAllClicked = {
+                            searchPeopleScreenState.showAllContactsResult()
+                        },
+                        onShowLessClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
+                            .animateItemPlacement()
+                    )
+                }
             }
 
-            item(key = "backend") {
-                SearchResultContent(
-                    headerTitle = stringResource(R.string.label_public_wire),
-                    totalSearchResultCount = publicWire.size.toString(),
-                    searchResult = {
-                        LazyColumn(
-                            Modifier.fillMaxSize()
-                        ) {
-                            items(items = contactSearchResult) { contact ->
-                                ContactSearchResultItem(
-                                    contactSearchResult = contact,
-                                    searchQuery = searchQuery,
-                                )
+            if (publicSearchResult.isNotEmpty()) {
+                item(key = "backend") {
+                    SearchResultContent(
+                        headerTitle = stringResource(R.string.label_public_wire),
+                        totalSearchResultCount = publicSearchResult.size.toString(),
+                        searchResult = {
+                            LazyColumn(
+                                Modifier.fillMaxSize()
+                            ) {
+                                items(items = publicSearchResult) { contact ->
+                                    ExternalContactResultItem(
+                                        externalContactSearchResult = contact,
+                                        searchQuery = searchQuery,
+                                    )
+                                }
                             }
-                        }
-                    },
-                    onShowAllClicked = {
-                        searchPeopleScreenState.publicResultsCollapsed = true
-                        coroutineScope.launch {
-                            lazyListState.animateScrollToItem(1)
-                        }
-                    },
-                    onShowLessClicked = { searchPeopleScreenState.publicResultsCollapsed = false },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(if (searchPeopleScreenState.publicResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
-                        .animateItemPlacement()
-                )
+                        },
+                        onShowAllClicked = {
+                            searchPeopleScreenState.showAllPublicResult()
+                        },
+                        onShowLessClicked = { searchPeopleScreenState.publicResultsCollapsed = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(if (searchPeopleScreenState.publicResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
+                            .animateItemPlacement()
+                    )
+                }
             }
 
-            item(key = "federate") {
-                SearchResultContent(
-                    headerTitle = stringResource(R.string.label_federated_backends),
-                    totalSearchResultCount = federatedBackend.size.toString(),
-                    searchResult = {
-                        LazyColumn(
-                            Modifier.fillMaxSize()
-                        ) {
-                            items(items = contactSearchResult) { contact ->
-                                ContactSearchResultItem(
-                                    contactSearchResult = contact,
-                                    searchQuery = searchQuery,
-                                )
+            if (federatedBackendResult.isNotEmpty()) {
+                item(key = "federate") {
+                    SearchResultContent(
+                        headerTitle = stringResource(R.string.label_federated_backends),
+                        totalSearchResultCount = federatedBackendResult.size.toString(),
+                        searchResult = {
+                            LazyColumn(
+                                Modifier.fillMaxSize()
+                            ) {
+                                items(items = federatedBackendResult) { contact ->
+                                    ExternalContactResultItem(
+                                        externalContactSearchResult = contact,
+                                        searchQuery = searchQuery,
+                                    )
+                                }
                             }
-                        }
-                    },
-                    onShowAllClicked = {
-                        searchPeopleScreenState.federatedBackendResultsCollapsed = true
-                        coroutineScope.launch {
-                            lazyListState.animateScrollToItem(2)
-                        }
-                    },
-                    onShowLessClicked = { searchPeopleScreenState.federatedBackendResultsCollapsed = false },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(if (searchPeopleScreenState.federatedBackendResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
-                        .animateItemPlacement()
-                )
+                        },
+                        onShowAllClicked = {
+                            searchPeopleScreenState.showFederatedBackendResult()
+                        },
+                        onShowLessClicked = {
+                            searchPeopleScreenState.federatedBackendResultsCollapsed = false
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(if (searchPeopleScreenState.federatedBackendResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
+                            .animateItemPlacement()
+                    )
+                }
             }
         }
     }
@@ -311,13 +312,12 @@ private fun ShowButton(
 }
 
 @Composable
-private fun ContactSearchResultItem(
-    contactSearchResult: Contact,
-    searchQuery: String,
-    modifier: Modifier = Modifier
+fun ExternalContactResultItem(
+    externalContactSearchResult: ExternalContact,
+    searchQuery: String
 ) {
-    with(contactSearchResult) {
-        ConversationItemTemplate(
+    with(externalContactSearchResult) {
+        RowItemTemplate(
             leadingIcon = {
                 UserProfileAvatar(
                     avatarUrl = "",
@@ -336,8 +336,41 @@ private fun ContactSearchResultItem(
                     searchQuery = searchQuery
                 )
             },
-            onConversationItemClick = {},
-            onConversationItemLongClick = {},
+            actions = { AddContactIcon({}) },
+            onRowItemClicked = {},
+            onRowItemLongClicked = {},
+        )
+    }
+}
+
+@Composable
+private fun ContactSearchResultItem(
+    contactSearchResult: Contact,
+    searchQuery: String,
+    modifier: Modifier = Modifier
+) {
+    with(contactSearchResult) {
+        RowItemTemplate(
+            leadingIcon = {
+                UserProfileAvatar(
+                    avatarUrl = "",
+                    status = UserStatus.AVAILABLE
+                )
+            },
+            title = {
+                HighLightName(
+                    name = name,
+                    searchQuery = searchQuery
+                )
+            },
+            subTitle = {
+                HighLightSubTitle(
+                    subTitle = label,
+                    searchQuery = searchQuery
+                )
+            },
+            onRowItemClicked = {},
+            onRowItemLongClicked = {},
             modifier = modifier
         )
     }
@@ -375,7 +408,7 @@ private fun HighLightSubTitle(
                         fontStyle = MaterialTheme.wireTypography.subline01.fontStyle
                     )
                 ) {
-                    append(subTitle)
+                    append("@$subTitle")
                 }
 
                 highlightIndexes
@@ -392,7 +425,7 @@ private fun HighLightSubTitle(
         )
     } else {
         Text(
-            text = subTitle,
+            text = "@$subTitle",
             style = MaterialTheme.wireTypography.subline01,
             color = MaterialTheme.wireColorScheme.secondaryText
         )
@@ -451,12 +484,51 @@ private fun HighLightName(
     }
 }
 
-class SearchPeopleScreenState {
+@Composable
+private fun rememberSearchPeopleScreenState(
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    lazyListState: LazyListState = rememberLazyListState()
+): SearchPeopleScreenState {
+    return remember {
+        SearchPeopleScreenState(
+            coroutineScope = coroutineScope,
+            lazyListState = lazyListState
+        )
+    }
+}
+
+class SearchPeopleScreenState(
+    val coroutineScope: CoroutineScope,
+    val lazyListState: LazyListState,
+) {
 
     var contactsAllResultsCollapsed: Boolean by mutableStateOf(false)
 
+
     var publicResultsCollapsed: Boolean by mutableStateOf(false)
 
+
     var federatedBackendResultsCollapsed: Boolean by mutableStateOf(false)
+
+    fun showAllContactsResult() {
+        contactsAllResultsCollapsed = true
+        coroutineScope.launch {
+            lazyListState.animateScrollToItem(0)
+        }
+    }
+
+    fun showAllPublicResult() {
+        publicResultsCollapsed = true
+        coroutineScope.launch {
+            lazyListState.animateScrollToItem(1)
+        }
+    }
+
+    fun showFederatedBackendResult() {
+        federatedBackendResultsCollapsed = true
+        coroutineScope.launch {
+            lazyListState.animateScrollToItem(2)
+        }
+    }
 
 }

@@ -12,16 +12,8 @@ data class Contact(
     val label: String = "",
 )
 
-
-data class PublicWire(
-    val name: String,
-    val userStatus: UserStatus = UserStatus.AVAILABLE,
-    val avatarUrl: String = "",
-    val label: String = "",
-)
-
-
-data class FederatedBackend(
+data class ExternalContact(
+    val id: Int,
     val name: String,
     val userStatus: UserStatus = UserStatus.AVAILABLE,
     val avatarUrl: String = "",

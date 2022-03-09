@@ -3,8 +3,6 @@ package com.wire.android
 import android.app.Application
 import androidx.work.Configuration
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.kalium.logger.KaliumLogLevel
-import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
@@ -18,10 +16,6 @@ class WireApplication : Application(), Configuration.Provider {
     lateinit var coreLogic: CoreLogic
 
     override fun getWorkManagerConfiguration(): Configuration {
-        CoreLogger.setLoggingLevel(
-            level = KaliumLogLevel.DEBUG
-        )
-
         val myWorkerFactory = WrapperWorkerFactory(coreLogic)
 
         return Configuration.Builder()

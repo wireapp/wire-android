@@ -104,7 +104,8 @@ private fun UserProfileContent(
                 onCloseClick = onCloseClick,
                 onLogoutClick = onLogoutClick
             )
-        }, snackbarHost = {
+        },
+        snackbarHost = {
             SwipeDismissSnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier.fillMaxWidth()

@@ -39,9 +39,10 @@ fun rememberPickPictureState(): AvatarPickerFlow {
         shouldPersistUri = { wasSaved ->
             if (wasSaved)
                 pictureState = PictureState.Picked(onChosenPictureUri)
-
         },
-        onPermissionDenied = { },
+        onPermissionDenied = {
+            // TODO: Implement denied permission rationale
+        },
         onPictureTakenUri = onChosenPictureUri
     )
 

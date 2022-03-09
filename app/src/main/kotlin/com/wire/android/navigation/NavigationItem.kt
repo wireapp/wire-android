@@ -111,9 +111,7 @@ enum class NavigationItem(
 
     ProfileImagePicker(
         primaryRoute = IMAGE_PICKER,
-        content = {
-            AvatarPickerScreen(hiltViewModel())
-        },
+        content = { AvatarPickerScreen(hiltViewModel()) },
     ),
 
     Conversation(

@@ -4,10 +4,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_SUMMARY
@@ -49,20 +46,17 @@ import io.github.esentsov.PackagePrivate
 enum class NavigationItem(
     @PackagePrivate
     internal val primaryRoute: String,
-    private val canonicalRoute: String,
-    val arguments: List<NamedNavArgument> = emptyList(),
+    private val canonicalRoute: String = primaryRoute,
     open val content: @Composable (ContentParams) -> Unit,
     val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
 ) {
     Welcome(
         primaryRoute = WELCOME,
-        canonicalRoute = WELCOME,
         content = { WelcomeScreen() }
     ),
 
     Login(
         primaryRoute = LOGIN,
-        canonicalRoute = LOGIN,
         content = { contentParams ->
             val serverConfig = contentParams.arguments.filterIsInstance<ServerConfig>().firstOrNull()
             LoginScreen(serverConfig ?: ServerConfig.DEFAULT)
@@ -71,13 +65,11 @@ enum class NavigationItem(
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
-        canonicalRoute = CREATE_TEAM,
         content = { UnderConstructionScreen("Create Team Screen") }
     ),
 
     CreatePersonalAccount(
         primaryRoute = CREATE_PERSONAL_ACCOUNT,
-        canonicalRoute = CREATE_PERSONAL_ACCOUNT,
         content = { CreatePersonalAccountScreen(ServerConfig.STAGING) }
     ),
 
@@ -109,28 +101,21 @@ enum class NavigationItem(
 
     RemoveDevices(
         primaryRoute = REMOVE_DEVICES,
-        canonicalRoute = REMOVE_DEVICES,
         content = { RemoveDeviceScreen() }
     ),
 
     Home(
         primaryRoute = HOME,
-        canonicalRoute = HOME,
         content = { HomeScreen(it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM), hiltViewModel()) },
-        arguments = listOf(
-            navArgument(EXTRA_HOME_TAB_ITEM) { type = NavType.StringType }
-        )
     ),
 
     Settings(
         primaryRoute = SETTINGS,
-        canonicalRoute = SETTINGS,
         content = { SettingsScreen() },
     ),
 
     Support(
         primaryRoute = BuildConfig.SUPPORT_URL,
-        canonicalRoute = BuildConfig.SUPPORT_URL,
         content = { },
     ),
 
@@ -138,9 +123,6 @@ enum class NavigationItem(
         primaryRoute = USER_PROFILE,
         canonicalRoute = "$USER_PROFILE/{$EXTRA_USER_ID}",
         content = { UserProfileScreen() },
-        arguments = listOf(
-            navArgument(EXTRA_USER_ID) { type = NavType.StringType }
-        ),
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
@@ -151,21 +133,17 @@ enum class NavigationItem(
 
     ProfileImagePicker(
         primaryRoute = IMAGE_PICKER,
-        canonicalRoute = IMAGE_PICKER,
         content = { AvatarPickerScreen(hiltViewModel()) },
     ),
 
     Conversation(
         primaryRoute = CONVERSATION,
         canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
-        content = { ConversationScreen(hiltViewModel()) },
-        arguments = listOf(
-            navArgument(EXTRA_CONVERSATION_ID) { type = NavType.StringType }
-        )
+        content = { ConversationScreen(hiltViewModel()) }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return if (conversationId != null) "$primaryRoute/${conversationId.mapIntoArgumentString()}" else primaryRoute
+            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
         }
     };
 
@@ -203,7 +181,6 @@ object NavigationItemDestinationsRoutes {
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 private const val EXTRA_USER_ID = "extra_user_id"
-private const val EXTRA_INITIAL_BITMAP = "extra_initial_bitmap"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 

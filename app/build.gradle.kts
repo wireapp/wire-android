@@ -62,6 +62,15 @@ kapt {
     correctErrorTypes = true
 }
 
+configurations {
+    all {
+        resolutionStrategy {
+            // Force dependencies to resolve coroutines versions to native-mt variant
+            force(Libraries.Kotlin.coroutinesCore)
+            force(Libraries.Kotlin.coroutinesAndroid)
+        }
+    }
+}
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
@@ -81,7 +90,12 @@ dependencies {
     implementation(Libraries.browser)
     implementation(Libraries.dataStore)
     implementation(Libraries.splashscreen)
-    // lifecycle
+
+    // Image handling
+    implementation(Libraries.coil)
+    implementation(Libraries.coilCompose)
+
+    /** lifecycle **/
     // ViewModel
     implementation(Libraries.Lifecycle.viewModel)
     // ViewModel utilities for Compose

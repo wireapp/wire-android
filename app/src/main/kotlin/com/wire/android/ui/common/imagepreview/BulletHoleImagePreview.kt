@@ -1,6 +1,6 @@
 package com.wire.android.ui.common.imagepreview
 
-import android.graphics.Bitmap
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,19 +15,16 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.wire.android.R
+import coil.compose.rememberAsyncImagePainter
 import com.wire.android.ui.common.dimensions
-import kotlinx.coroutines.NonDisposableHandle.parent
 
 @Composable
-fun BulletHoleImagePreview(imageBitmap: Bitmap, contentDescription: String) {
+fun BulletHoleImagePreview(imageUri: Uri, contentDescription: String) {
     ConstraintLayout(
         Modifier
             .aspectRatio(1f)
@@ -45,7 +42,9 @@ fun BulletHoleImagePreview(imageBitmap: Bitmap, contentDescription: String) {
                 }
         ) {
             Image(
-                bitmap = imageBitmap.asImageBitmap(),
+                painter = rememberAsyncImagePainter(
+                    model = imageUri
+                ),
                 contentScale = ContentScale.Crop,
                 contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize()
@@ -104,11 +103,9 @@ class BulletHoleShape : Shape {
             lineTo(x = backgroundWrappingRect.width, y = backgroundWrappingRect.height / 2)
             //arc 180 degrees - we are back on middle of the backgroundWrappingRect on the left side now
             arcTo(backgroundWrappingRect, 0f, 180f, true)
-            //we drawn the outline, we can close the path now
+            //we drew the outline, we can close the path now
             close()
         }
-
         return path
     }
-
 }

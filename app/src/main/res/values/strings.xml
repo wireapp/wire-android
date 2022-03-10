@@ -170,6 +170,7 @@
     <string name="error_server_miscommunication_message">Please try again in a moment</string>
     <string name="error_no_network_title">No network error</string>
     <string name="error_no_network_message">Please check your Internet connection</string>
+    <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>

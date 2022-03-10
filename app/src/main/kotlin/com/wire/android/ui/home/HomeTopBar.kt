@@ -42,6 +42,7 @@ fun HomeTopBar(
     val scrollDownState = viewModel.scrollDownFlow.collectAsState(false)
     val firstLineElevation = if (!isSearchable || scrollDownState.value) dimensions().topBarElevationHeight else 0.dp
 
+    // Only load the user avatar once, i.e. on viewModel creation
     LaunchedEffect(viewModel) {
         viewModel.loadUserAvatar()
     }

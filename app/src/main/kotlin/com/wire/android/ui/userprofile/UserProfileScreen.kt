@@ -54,6 +54,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.UserProfileViewModel.Companion.GENERIC_DOWNLOAD_USER_INFO_ERROR
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -91,9 +92,11 @@ private fun UserProfileContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    state.errorMessage?.let { message ->
-        LaunchedEffect(message) {
-            snackbarHostState.showSnackbar(message)
+    // Error handling
+    state.errorMessageCode?.let { errorCode ->
+        val errorMessage = mapErrorCodeToString(errorCode)
+        LaunchedEffect(errorMessage) {
+            snackbarHostState.showSnackbar(errorMessage)
             onMessageShown()
         }
     }
@@ -146,6 +149,15 @@ private fun UserProfileContent(
                 onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
             )
         }
+    }
+}
+
+@Composable
+fun mapErrorCodeToString(errorCode: Int): String {
+    return when (errorCode) {
+        GENERIC_DOWNLOAD_USER_INFO_ERROR -> stringResource(R.string.error_downloading_user_info)
+        // Add more future errors for a more granular error handling
+        else -> stringResource(R.string.error_unknown_title)
     }
 }
 

@@ -50,9 +50,11 @@ class HomeViewModel
 
     fun loadUserAvatar() {
         viewModelScope.launch {
-            dataStore.avatarAssetId.first()?.let {
-                userAvatar = (getPublicAssetUseCase(it) as PublicAssetResult.Success).asset
-            }
+            try {
+                dataStore.avatarAssetId.first()?.let {
+                    userAvatar = (getPublicAssetUseCase(it) as PublicAssetResult.Success).asset
+                }
+            } catch (_: ClassCastException) {}
         }
     }
 

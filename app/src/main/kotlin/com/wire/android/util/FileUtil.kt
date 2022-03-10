@@ -28,7 +28,7 @@ fun getUriFromDrawable(
                 + '/' + context.resources.getResourceEntryName(drawableId)
     )
 }
-
+@Suppress("MagicNumber")
 fun Uri.toByteArray(context: Context): ByteArray {
     return context.contentResolver.openInputStream(this)?.readBytes() ?: ByteArray(16)
 }

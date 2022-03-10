@@ -45,16 +45,18 @@ class AvatarPickerViewModel @Inject constructor(
     private suspend fun loadAvatar(avatarAssetId: UserAssetId): ByteArray? =
         try {
             (getUserAvatar(avatarAssetId) as PublicAssetResult.Success).asset
-        } catch (e: Exception) {
+        } catch (e: ClassCastException) {
             null
         }
 
-    fun uploadNewPickedAvatarAndBack(chosenImgUri: Uri, context: Context) {
+    fun uploadNewPickedAvatarAndBack(imgUri: Uri, context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val data = chosenImgUri.toByteArray(context)
-                val fileExtension = MimeTypeMap.getFileExtensionFromUrl(chosenImgUri.path)
-                val mimeType = "image/$fileExtension"
+                val data = imgUri.toByteArray(context)
+                val extension = MimeTypeMap.getFileExtensionFromUrl(imgUri.path)
+                val mimeType = context.contentResolver.getType(imgUri)
+                    ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+                    ?: "image/$extension"
                 uploadUserAvatar(mimeType = mimeType, imageData = data)
                 navigateBack()
             }

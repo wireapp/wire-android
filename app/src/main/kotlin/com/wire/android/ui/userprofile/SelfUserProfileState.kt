@@ -6,7 +6,7 @@ import com.wire.android.model.UserStatus
 
 data class SelfUserProfileState(
     val avatarAssetByteArray: ByteArray? = null,
-    val errorMessage: String? = null,
+    val errorMessageCode: Int? = null,
     val status: UserStatus = UserStatus.AVAILABLE,
     val fullName: String = "",
     val userName: String = "",

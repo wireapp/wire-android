@@ -53,7 +53,7 @@ fun UserProfileAvatar(
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
                 .padding(dimensions().userAvatarStatusBorderSize)
-                .background(Color.Companion.Black, CircleShape)
+                .background(Color.Black, CircleShape)
                 .size(size)
                 .clip(CircleShape),
             contentScale = ContentScale.FillBounds,

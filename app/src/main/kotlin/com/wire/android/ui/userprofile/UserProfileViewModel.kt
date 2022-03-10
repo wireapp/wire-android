@@ -43,24 +43,14 @@ class UserProfileViewModel @Inject constructor(
     }
 
     private suspend fun fetchSelfUser() {
-        // Show progress bar on initial load
-        showLoadingAvatar(true)
-
         viewModelScope.launch {
             getSelf().collect { selfUser ->
                 with(selfUser) {
                     // Load user avatar raw image data
-                    val avatarAssetRaw = completePicture?.let { getAvatarAsByteArrayOrNull(it) }
-
-                    // Update avatar asset id on user data store
-                    completePicture?.apply { dataStore.updateUserAvatarAssetId(this) }
-
-                    // Hide progress bar
-                    showLoadingAvatar(false)
+                    completePicture?.let { updateUserAvatar(it) }
 
                     // Update user data state
                     userProfileState = SelfUserProfileState(
-                        avatarAssetByteArray = avatarAssetRaw,
                         status = UserStatus.AVAILABLE,
                         fullName = name.orEmpty(),
                         userName = handle.orEmpty(),
@@ -75,22 +65,36 @@ class UserProfileViewModel @Inject constructor(
                 }
             }
         }
+    }
 
-        // TODO: Handle the case the slowSyncWorker fails. In the meanwhile we mimic a timeout when fetching the avatar picture
-        delay(LOAD_AVATAR_TIMEOUT_MS)
-        showLoadingAvatar(false)
+    private fun showErrorMessage() {
+        userProfileState = userProfileState.copy(errorMessageCode = GENERIC_DOWNLOAD_USER_INFO_ERROR)
     }
 
     private fun showLoadingAvatar(show: Boolean) {
         userProfileState = userProfileState.copy(isAvatarLoading = show)
     }
 
-    private suspend fun getAvatarAsByteArrayOrNull(avatarAssetId: UserAssetId): ByteArray? =
-        try {
-            (getPublicAssetUseCase(avatarAssetId) as PublicAssetResult.Success).asset
-        } catch (e: Exception) {
-            null
+    private fun updateUserAvatar(avatarAssetId: UserAssetId) {
+        // We try to download the user avatar on a separate thread so that we don't block the display of the user's info
+        viewModelScope.launch {
+            try {
+                showLoadingAvatar(true)
+                userProfileState = userProfileState.copy(
+                    avatarAssetByteArray = (getPublicAssetUseCase(avatarAssetId) as PublicAssetResult.Success).asset
+                )
+
+                // Update avatar asset id on user data store
+                // TODO: obtain the asset id through a useCase once we also store assets ids
+                dataStore.updateUserAvatarAssetId(avatarAssetId)
+            } catch (e: ClassCastException) {
+                // Show error snackbar if avatar download fails
+                showErrorMessage()
+            } finally {
+                showLoadingAvatar(false)
+            }
         }
+    }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
@@ -165,7 +169,7 @@ class UserProfileViewModel @Inject constructor(
         dataStore.shouldShowStatusRationaleFlow(status).first()
 
     fun clearErrorMessage() {
-        userProfileState = userProfileState.copy(errorMessage = null)
+        userProfileState = userProfileState.copy(errorMessageCode = null)
     }
 
     fun onChangeProfilePictureClicked() {
@@ -175,6 +179,6 @@ class UserProfileViewModel @Inject constructor(
     }
 
     companion object {
-        private const val LOAD_AVATAR_TIMEOUT_MS = 5000L
+        const val GENERIC_DOWNLOAD_USER_INFO_ERROR = 10
     }
 }

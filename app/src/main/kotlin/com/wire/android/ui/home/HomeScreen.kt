@@ -7,11 +7,11 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawer
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,76 +21,94 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import kotlinx.coroutines.CoroutineScope
 import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 @Composable
 fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
-    val navController = rememberNavController()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val currentItem = HomeNavigationItem.getCurrentNavigationItem(navController)
-    val scope = rememberCoroutineScope()
+    val homeState = rememberHomeState()
 
-    val topBar: @Composable () -> Unit = {
-        HomeTopBar(currentItem.title, currentItem.isSearchable, drawerState, scope, viewModel)
-    }
-    val drawerContent: @Composable ColumnScope.() -> Unit = {
-        HomeDrawer(drawerState, currentItem.route, navController, HomeNavigationItem.all, scope, viewModel)
-    }
-
-    NavigationDrawer(
-        drawerContainerColor = MaterialTheme.colorScheme.surface,
-        drawerTonalElevation = 0.dp,
-        drawerShape = RectangleShape,
-        drawerState = drawerState,
-        drawerContent = drawerContent,
-        gesturesEnabled = drawerState.isOpen
-    ) {
-        val homeState = rememberHomeState()
-
-        val homeContent: @Composable () -> Unit = {
-            Box {
-                val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-                HomeNavigationGraph(
-                    homeState = homeState,
-                    navController = navController,
-                    startDestination = startDestination
-                )
-                // We are not including the topBar in the Scaffold to correctly handle the collapse scroll effect on the search,
-                // which will not be possible when using Scaffold topBar argument
-                topBar()
-            }
+    with(homeState) {
+        val drawerContent: @Composable ColumnScope.() -> Unit = {
+            HomeDrawer(
+                drawerState = drawerState,
+                currentRoute = currentNavigationItem.route,
+                homeNavController = navController,
+                topItems = HomeNavigationItem.all,
+                scope = coroutineScope,
+                viewModel = viewModel
+            )
         }
 
-        val homeScreen: @Composable () -> Unit = homeState.homeBottomSheetContent?.run {
-            {
+
+        NavigationDrawer(
+            drawerContainerColor = MaterialTheme.colorScheme.surface,
+            drawerTonalElevation = 0.dp,
+            drawerShape = RectangleShape,
+            drawerState = drawerState,
+            drawerContent = drawerContent,
+            gesturesEnabled = drawerState.isOpen
+        ) {
+
+        val homeContent: @Composable () -> Unit = {
+                Box {
+                    val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
+
+                    HomeNavigationGraph(
+                        homeState = homeState,
+                        navController = navController,
+                        startDestination = startDestination
+                    )
+
+                    HomeTopBar(
+                        title = currentNavigationItem.title,
+                        isSearchable = currentNavigationItem.isSearchable,
+                        scrollPosition = scrollPosition,
+                        onUserProfileClick = { viewModel.navigateToUserProfile() },
+                        onHamburgerMenuItemCLick = { openDrawer() }
+                    )
+                }
+            }
+
+            val homeBottomSheetContent = homeBottomSheetContent
+
+            if (homeBottomSheetContent != null) {
                 WireModalSheetLayout(
-                    sheetState = homeState.bottomSheetState,
-                    sheetContent = this
+                    sheetState = bottomSheetState,
+                    sheetContent = homeBottomSheetContent
                 ) {
                     homeContent()
                 }
+            } else {
+                homeContent()
             }
-        } ?: { homeContent() }
 
-        homeScreen()
+        }
+
+        BackHandler(enabled = drawerState.isOpen) { closeDrawer() }
     }
-    BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
 }
 
-
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 class HomeState(
-    private val coroutineScope: CoroutineScope,
+    val coroutineScope: CoroutineScope,
+    val navController: NavHostController,
+    val drawerState: DrawerState,
     val bottomSheetState: ModalBottomSheetState,
-    bottomSheetContent: @Composable (ColumnScope.() -> Unit)?
+    bottomSheetContent: @Composable (ColumnScope.() -> Unit)?,
+    val currentNavigationItem: HomeNavigationItem
 ) {
+
+    var scrollPosition by mutableStateOf(0)
+        private set
 
     var homeBottomSheetContent by mutableStateOf(bottomSheetContent)
         private set
@@ -103,20 +121,53 @@ class HomeState(
         homeBottomSheetContent = content
     }
 
+    fun updateScrollPosition(newScrollPosition: Int) {
+        scrollPosition = newScrollPosition
+    }
+
+    fun closeDrawer() {
+        coroutineScope.launch {
+            drawerState.close()
+        }
+    }
+
+    fun openDrawer() {
+        coroutineScope.launch {
+            drawerState.open()
+        }
+    }
+
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun rememberHomeState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    navController: NavHostController = rememberNavController(),
+    drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
     bottomSheetContent: @Composable (ColumnScope.() -> Unit)? = null
 ): HomeState {
-    return remember {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    val navigationItem = when (navBackStackEntry?.destination?.route) {
+        HomeNavigationItem.Archive.route -> HomeNavigationItem.Archive
+        HomeNavigationItem.Vault.route -> HomeNavigationItem.Vault
+        else -> HomeNavigationItem.Conversations
+    }
+
+    val homeState = remember(
+        navigationItem
+    ) {
         HomeState(
             coroutineScope,
+            navController,
+            drawerState,
             bottomSheetState,
-            bottomSheetContent
+            bottomSheetContent,
+            navigationItem
         )
     }
+
+    return homeState
 }

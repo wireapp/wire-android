@@ -24,8 +24,9 @@ fun CallScreen(
     onEditConversationItem: (ConversationType) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {}
 ) {
-    val lazyListState = rememberLazyListState()
-    onScrollPositionChanged(lazyListState.firstVisibleItemIndex)
+    val lazyListState = com.wire.android.ui.common.extension.rememberLazyListState { firstVisibleItemIndex ->
+        onScrollPositionChanged(firstVisibleItemIndex)
+    }
 
     CallContent(
         lazyListState = lazyListState,
@@ -49,8 +50,7 @@ fun CallContent(
         state = lazyListState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            top = dimensions().topBarSearchFieldHeight,
-            bottom = dimensions().conversationsListBottomPadding
+            top = dimensions().topBarSearchFieldHeight
         )
     ) {
         folderWithElements(

@@ -17,9 +17,10 @@ import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
@@ -29,7 +30,7 @@ import javax.inject.Inject
 class UserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
-    private val getPublicAssetUseCase: GetPublicAssetUseCase,
+    private val getPublicAsset: GetPublicAssetUseCase,
     private val getSelf: GetSelfUserUseCase
 ) : ViewModel() {
 
@@ -78,20 +79,22 @@ class UserProfileViewModel @Inject constructor(
     private fun updateUserAvatar(avatarAssetId: UserAssetId) {
         // We try to download the user avatar on a separate thread so that we don't block the display of the user's info
         viewModelScope.launch {
-            try {
-                showLoadingAvatar(true)
-                userProfileState = userProfileState.copy(
-                    avatarAssetByteArray = (getPublicAssetUseCase(avatarAssetId) as PublicAssetResult.Success).asset
-                )
+            withContext(Dispatchers.IO) {
+                try {
+                    showLoadingAvatar(true)
+                    userProfileState = userProfileState.copy(
+                        avatarAssetByteArray = (getPublicAsset(avatarAssetId) as PublicAssetResult.Success).asset
+                    )
 
-                // Update avatar asset id on user data store
-                // TODO: obtain the asset id through a useCase once we also store assets ids
-                dataStore.updateUserAvatarAssetId(avatarAssetId)
-            } catch (e: ClassCastException) {
-                // Show error snackbar if avatar download fails
-                showErrorMessage()
-            } finally {
-                showLoadingAvatar(false)
+                    // Update avatar asset id on user data store
+                    // TODO: obtain the asset id through a useCase once we also store assets ids
+                    dataStore.updateUserAvatarAssetId(avatarAssetId)
+                } catch (e: ClassCastException) {
+                    // Show error snackbar if avatar download fails
+                    showErrorMessage()
+                } finally {
+                    showLoadingAvatar(false)
+                }
             }
         }
     }

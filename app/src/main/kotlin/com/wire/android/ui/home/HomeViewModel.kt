@@ -26,7 +26,7 @@ class HomeViewModel
     private val navigationManager: NavigationManager,
     private val listenToEvents: ListenToEventsUseCase,
     private val dataStore: UserDataStore,
-    private val getPublicAssetUseCase: GetPublicAssetUseCase,
+    private val getPublicAsset: GetPublicAssetUseCase,
     private val commonManager: HomeCommonManager
 ) : ViewModel() {
 
@@ -52,7 +52,7 @@ class HomeViewModel
         viewModelScope.launch {
             try {
                 dataStore.avatarAssetId.first()?.let {
-                    userAvatar = (getPublicAssetUseCase(it) as PublicAssetResult.Success).asset
+                    userAvatar = (getPublicAsset(it) as PublicAssetResult.Success).asset
                 }
             } catch (_: ClassCastException) {}
         }

@@ -36,18 +36,16 @@ class AvatarPickerViewModel @Inject constructor(
         private set
 
     init {
-        viewModelScope.launch {
-            val assetId = dataStore.avatarAssetId.first()
-            avatarRaw = assetId?.let { loadAvatar(it) }
-        }
+        loadAvatar()
     }
 
-    private suspend fun loadAvatar(avatarAssetId: UserAssetId): ByteArray? =
+    private fun loadAvatar() = viewModelScope.launch {
         try {
-            (getUserAvatar(avatarAssetId) as PublicAssetResult.Success).asset
-        } catch (e: ClassCastException) {
-            null
-        }
+            dataStore.avatarAssetId.first()?.apply {
+                avatarRaw = (getUserAvatar(this) as PublicAssetResult.Success).asset
+            }
+        } catch (_: ClassCastException) { }
+    }
 
     fun uploadNewPickedAvatarAndBack(imgUri: Uri, context: Context) {
         viewModelScope.launch {

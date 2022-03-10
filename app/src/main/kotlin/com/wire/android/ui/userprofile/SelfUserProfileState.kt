@@ -3,10 +3,11 @@ package com.wire.android.ui.userprofile
 import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes
 
 data class SelfUserProfileState(
     val avatarAssetByteArray: ByteArray? = null,
-    val errorMessageCode: Int? = null,
+    val errorMessageCode: ErrorCodes? = null,
     val status: UserStatus = UserStatus.AVAILABLE,
     val fullName: String = "",
     val userName: String = "",

@@ -69,7 +69,7 @@ class UserProfileViewModel @Inject constructor(
     }
 
     private fun showErrorMessage() {
-        userProfileState = userProfileState.copy(errorMessageCode = GENERIC_DOWNLOAD_USER_INFO_ERROR)
+        userProfileState = userProfileState.copy(errorMessageCode = ErrorCodes.DownloadUserInfoError)
     }
 
     private fun showLoadingAvatar(show: Boolean) {
@@ -181,7 +181,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    companion object {
-        const val GENERIC_DOWNLOAD_USER_INFO_ERROR = 10
+    sealed class ErrorCodes {
+        object DownloadUserInfoError: ErrorCodes()
     }
 }

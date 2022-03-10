@@ -54,7 +54,8 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.UserProfileViewModel.Companion.GENERIC_DOWNLOAD_USER_INFO_ERROR
+import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes
+import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes.DownloadUserInfoError
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -153,9 +154,9 @@ private fun UserProfileContent(
 }
 
 @Composable
-fun mapErrorCodeToString(errorCode: Int): String {
+fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     return when (errorCode) {
-        GENERIC_DOWNLOAD_USER_INFO_ERROR -> stringResource(R.string.error_downloading_user_info)
+        DownloadUserInfoError -> stringResource(R.string.error_downloading_user_info)
         // Add more future errors for a more granular error handling
         else -> stringResource(R.string.error_unknown_title)
     }

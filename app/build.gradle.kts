@@ -120,6 +120,7 @@ dependencies {
     implementation(Libraries.accompanistPager)
     implementation(Libraries.accompanistSystemUI)
     implementation(Libraries.accompanistPlaceholder)
+    implementation(Libraries.accompanistNavAnimation)
     implementation(Libraries.composeRuntimeLiveData)
 
     // dagger/hilt

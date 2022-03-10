@@ -2,6 +2,7 @@ package com.wire.android.ui.home
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -47,7 +48,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeDrawer(
     drawerState: DrawerState,
@@ -139,7 +140,8 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
 
 data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int?)
 
-@OptIn(ExperimentalMaterialApi::class)
+@ExperimentalAnimationApi
+@ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 private fun Any.getDrawerData(): DrawerItemData =
     when (this) {

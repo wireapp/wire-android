@@ -1,15 +1,13 @@
 package com.wire.android.ui.userprofile
 
-import android.graphics.Bitmap
 import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes
 
-// Suppress for now after we going to use bitmap from back-end this is not going to be an issue
-@Suppress("MagicNumber")
 data class SelfUserProfileState(
-    val avatarBitmap: Bitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
-    val errorMessage: String? = null,
+    val avatarAssetByteArray: ByteArray? = null,
+    val errorMessageCode: ErrorCodes? = null,
     val status: UserStatus = UserStatus.AVAILABLE,
     val fullName: String = "",
     val userName: String = "",

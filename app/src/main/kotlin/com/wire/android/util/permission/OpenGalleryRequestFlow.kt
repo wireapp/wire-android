@@ -19,8 +19,8 @@ fun rememberOpenGalleryFlow(
 
     val openGalleryLauncher: ManagedActivityResultLauncher<String, Uri?> = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
-    ) { nullableUri ->
-        nullableUri?.let { onGalleryItemPicked(it) }
+    ) { onChosenPictureUri ->
+        onChosenPictureUri?.let { onGalleryItemPicked(it) }
     }
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =

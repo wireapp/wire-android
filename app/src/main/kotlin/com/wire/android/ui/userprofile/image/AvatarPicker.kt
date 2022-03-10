@@ -9,47 +9,50 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.BackNavigationIconButton
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.imagepreview.BitmapState
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
+import com.wire.android.ui.common.imagepreview.PictureState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.topappbar.BackNavigationIconButton
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.UserProfileViewModel
+import com.wire.android.util.getTempAvatarUri
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-//TODO: the input data for ProfileImageScreen will be decided later on after sync with Yamil
-fun AvatarPickerScreen(
-    viewModel: UserProfileViewModel
-) {
-    val state = rememberProfileImageState(viewModel.userProfileState.avatarBitmap)
+fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
+    val context = LocalContext.current
+    val state = rememberAvatarPickerState()
 
-    AvatarPickerBottomSheet(
+    // We need to launch an effect to update the initial avatar uri whenever the pickerVM updates successfully the raw image
+    LaunchedEffect(viewModel.avatarRaw) {
+        val currentAvatarUri = getTempAvatarUri(viewModel.avatarRaw ?: ByteArray(16), context)
+        state.avatarPickerFlow.pictureState = PictureState.Initial(currentAvatarUri)
+    }
+
+    AvatarPickerContent(
         state = state,
         onCloseClick = {
-            when (val avatarImageState = state.picturePickerFlow.bitmapState) {
-                is BitmapState.BitmapPicked -> viewModel.changeUserAvatar(avatarImageState.bitmap, shouldNavigateBack = true)
-                is BitmapState.InitialBitmap -> viewModel.navigateBack()
+            if (state.avatarPickerFlow.pictureState is PictureState.Picked) {
+                viewModel.uploadNewPickedAvatarAndBack(state.avatarPickerFlow.pictureState.avatarUri, context)
+            } else {
+                viewModel.navigateBack()
             }
         }
     )
@@ -57,8 +60,8 @@ fun AvatarPickerScreen(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun AvatarPickerBottomSheet(
-    state: ImagePickerState,
+private fun AvatarPickerContent(
+    state: AvatarPickerState,
     onCloseClick: () -> Unit
 ) {
     MenuModalSheetLayout(
@@ -74,41 +77,33 @@ private fun AvatarPickerBottomSheet(
                             contentDescription = stringResource(R.string.content_description_choose_from_gallery)
                         )
                     },
-                    action = {
-                        ArrowRightIcon()
-                    },
+                    action = { ArrowRightIcon() },
                     onItemClick = { state.openImageSource(ImageSource.Gallery) }
                 )
-            },
-            {
+            }, {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.profile_image_take_a_picture_menu_item),
                     icon = {
                         MenuItemIcon(
-                            id = R.drawable.ic_take_a_picture,
+                            id = R.drawable.ic_camera,
                             contentDescription = stringResource(R.string.content_description_take_a_picture)
                         )
                     },
-                    action = {
-                        ArrowRightIcon()
-                    },
+                    action = { ArrowRightIcon() },
                     onItemClick = { state.openImageSource(ImageSource.Camera) }
                 )
             }
         )
     ) {
         Scaffold(topBar = {
-            AvatarPickerTopBar(
-                hasPicked = (state.picturePickerFlow.bitmapState is BitmapState.BitmapPicked),
-                onCloseClick = onCloseClick
-            )
+            AvatarPickerTopBar(onCloseClick = onCloseClick)
         }) {
             Box(Modifier.fillMaxSize()) {
                 Column(Modifier.fillMaxSize()) {
                     Box(Modifier.weight(1f)) {
                         Box(Modifier.align(Alignment.Center)) {
                             BulletHoleImagePreview(
-                                imageBitmap = state.picturePickerFlow.bitmapState.bitmap,
+                                imageUri = state.avatarPickerFlow.pictureState.avatarUri,
                                 contentDescription = stringResource(R.string.content_description_avatar_preview)
                             )
                         }
@@ -127,10 +122,7 @@ private fun AvatarPickerBottomSheet(
 }
 
 @Composable
-private fun AvatarPickerTopBar(
-    hasPicked: Boolean,
-    onCloseClick: () -> Unit
-) {
+private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -139,20 +131,11 @@ private fun AvatarPickerTopBar(
             navigationIconContentColor = MaterialTheme.colorScheme.onSurface
         ),
         navigationIcon = {
-            if (!hasPicked) {
-                IconButton(onClick = onCloseClick) {
-                    Icon(
-                        imageVector = Icons.Filled.Close,
-                        contentDescription = stringResource(R.string.user_profile_close_description),
-                    )
+            BackNavigationIconButton(
+                onBackButtonClick = {
+                    onCloseClick()
                 }
-            } else {
-                BackNavigationIconButton(
-                    onBackButtonClick = {
-                        onCloseClick()
-                    }
-                )
-            }
+            )
         },
         title = {
             Text(

@@ -62,7 +62,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             drawerShape = RectangleShape,
             drawerState = drawerState,
             drawerContent = drawerContent,
-            gesturesEnabled = currentNavigationItem.isSwipeable
+            gesturesEnabled = drawerState.isOpen
         ) {
 
             val homeNavigationGraph = @Composable {

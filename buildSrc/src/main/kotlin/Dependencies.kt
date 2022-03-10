@@ -112,6 +112,7 @@ object Libraries {
     const val accompanistPager          = "com.google.accompanist:accompanist-pager:${Versions.accompanist}"
     const val accompanistSystemUI       = "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}"
     const val accompanistPlaceholder    = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
+    const val accompanistNavAnimation   = "com.google.accompanist:accompanist-navigation-animation:${Versions.accompanist}"
     const val material                  = "com.google.android.material:material:${Versions.material}"
     const val messageProto              = "com.wire:generic-message-proto:${Versions.messageProto}"
     const val okHttpLogging             = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"

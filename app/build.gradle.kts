@@ -62,6 +62,15 @@ kapt {
     correctErrorTypes = true
 }
 
+configurations {
+    all {
+        resolutionStrategy {
+            // Force dependencies to resolve coroutines versions to native-mt variant
+            force(Libraries.Kotlin.coroutinesCore)
+            force(Libraries.Kotlin.coroutinesAndroid)
+        }
+    }
+}
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")

@@ -37,7 +37,7 @@ import com.wire.kalium.logic.data.conversation.ConversationId
 fun ConversationRouterHomeBridge(
     onHomeBottomSheetContentChange: (@Composable ColumnScope.() -> Unit) -> Unit,
     onExpandHomeBottomSheet: () -> Unit,
-    onScrollPositionChanged: (Int) -> Unit
+    onScrollPositionChanged: (Int) -> Unit,
 ) {
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()

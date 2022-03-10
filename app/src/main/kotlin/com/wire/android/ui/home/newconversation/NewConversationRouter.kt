@@ -74,7 +74,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
     )
 }
 
-class NewConversationState(
+class NewConversationScreenState(
     val navController: NavHostController
 ) {
 
@@ -103,8 +103,8 @@ class NewConversationState(
 @Composable
 private fun rememberNewConversationState(
     navController: NavHostController = rememberNavController()
-): NewConversationState {
+): NewConversationScreenState {
     return remember {
-        NewConversationState(navController)
+        NewConversationScreenState(navController)
     }
 }

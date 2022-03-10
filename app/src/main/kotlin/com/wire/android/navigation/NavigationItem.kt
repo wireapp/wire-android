@@ -10,8 +10,8 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
@@ -27,7 +27,7 @@ import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.newconversation.NewConversationRouter
+import com.wire.android.ui.home.newconversation.NewConversationScreen
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
 import com.wire.android.ui.userprofile.image.AvatarPickerScreen
@@ -142,7 +142,7 @@ enum class NavigationItem(
     NewConversation(
         primaryRoute = NEW_CONVERSATION,
         canonicalRoute = NEW_CONVERSATION,
-        content = { NewConversationRouter() }
+        content = { NewConversationScreen() }
     );
 
     /**

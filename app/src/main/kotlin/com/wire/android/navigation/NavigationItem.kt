@@ -51,8 +51,8 @@ enum class NavigationItem(
     internal val primaryRoute: String,
     private val canonicalRoute: String,
     val arguments: List<NamedNavArgument> = emptyList(),
-    open val content: @Composable (ContentParams) -> Unit
-    // TODO add animations here
+    open val content: @Composable (ContentParams) -> Unit,
+    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
 ) {
     Welcome(
         primaryRoute = WELCOME,
@@ -140,7 +140,8 @@ enum class NavigationItem(
         content = { UserProfileScreen() },
         arguments = listOf(
             navArgument(EXTRA_USER_ID) { type = NavType.StringType }
-        )
+        ),
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()

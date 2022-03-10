@@ -84,6 +84,7 @@ object Libraries {
         const val dataStore = "1.0.0"
         const val splashscreen = "1.0.0-beta01"
         const val coil = "2.0.0-rc01"
+        const val exif = "1.3.3"
     }
 
     // AndroidX Dependencies
@@ -107,6 +108,7 @@ object Libraries {
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
     const val composeRuntimeLiveData    = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
     const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
+    const val exifInterface                      = "androidx.exifinterface:exifinterface:${Versions.exif}"
 
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"

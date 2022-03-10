@@ -3,6 +3,7 @@ package com.wire.android.util
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
@@ -10,6 +11,7 @@ import androidx.core.net.toUri
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import java.io.File
+import java.io.InputStream
 
 /**
  * Gets the uri of any drawable or given resource
@@ -33,6 +35,10 @@ fun Uri.toByteArray(context: Context): ByteArray {
     return context.contentResolver.openInputStream(this)?.readBytes() ?: ByteArray(16)
 }
 
+fun Uri.toInputStream(context: Context): InputStream? {
+    return context.contentResolver.openInputStream(this)
+}
+
 fun getShareableAvatarUri(context: Context): Uri {
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", getTempAvatarFile(context))
 }
@@ -51,6 +57,12 @@ private fun getTempAvatarFile(context: Context): File {
 
 fun getDefaultAvatarUri(context: Context): Uri {
     return getUriFromDrawable(context, R.drawable.ic_launcher_foreground)
+}
+
+fun Uri.getMimeType(context: Context): String? {
+    val extension = MimeTypeMap.getFileExtensionFromUrl(path)
+    return context.contentResolver.getType(this)
+        ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 }
 
 private const val TEMP_AVATAR_FILENAME = "temp_avatar_path.jpg"

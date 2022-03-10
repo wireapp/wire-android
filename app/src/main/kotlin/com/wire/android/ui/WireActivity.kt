@@ -15,16 +15,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
@@ -43,7 +43,7 @@ class WireActivity : AppCompatActivity() {
         setContent {
             WireTheme {
                 val scope = rememberCoroutineScope()
-                val navController = rememberNavController()
+                val navController = rememberAnimatedNavController()
 
                 setUpNavigation(navController, scope)
 
@@ -60,7 +60,6 @@ class WireActivity : AppCompatActivity() {
             viewModel.handleDeepLink(intent)
         }
         super.onNewIntent(intent)
-
     }
 
     @Composable

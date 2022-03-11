@@ -6,5 +6,5 @@ import com.wire.android.ui.common.UserProfileAvatar
 
 @Composable
 fun ConversationUserAvatar(avatarUrl: String) {
-    UserProfileAvatar(avatarUrl = avatarUrl, status = UserStatus.AVAILABLE)
+    UserProfileAvatar(status = UserStatus.AVAILABLE)
 }

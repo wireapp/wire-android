@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
-import com.wire.android.util.extension.toByteArray
+import java.io.ByteArrayOutputStream
 
 /**
  * Rotates the image to a [ExifInterface.ORIENTATION_NORMAL] in case it's rotated with a different orientation
@@ -14,8 +14,8 @@ import com.wire.android.util.extension.toByteArray
  * @param exif Exif interface for of the image to rotate
  * @return Bitmap the rotated bitmap or the same in case there is no rotation performed
  */
-private fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface): Bitmap {
-    val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+private fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface?): Bitmap {
+    val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
     val matrix = Matrix()
     when (orientation) {
         ExifInterface.ORIENTATION_NORMAL -> return this
@@ -36,16 +36,41 @@ private fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface): Bitmap {
 
 /**
  * Given an image [uri] rotates the image to a [ExifInterface.ORIENTATION_NORMAL] and overwrite the original un-rotated image
+ * Also compress the data to have an efficient data management, without losing quality
+ *
+ * In case of failure, just use the same picture, do nothing
  *
  * @param uri the image location on which the operation will be performed
  * @param context
  */
-fun rotateImageIfNeeded(uri: Uri, context: Context) {
-    val rawImage = uri.toByteArray(context)
-    val avatarBitmap = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.size)
+fun postProcessCapturedAvatar(uri: Uri, context: Context) {
+    try {
+        val rawImage = uri.toByteArray(context)
+        val avatarBitmap = rawImage.toBitmap() ?: return
 
-    val normalizedAvatar = avatarBitmap.rotateImageToNormalOrientation(ExifInterface(uri.toInputStream(context)!!))
-    if (normalizedAvatar != avatarBitmap) {
-        getTempAvatarUri(normalizedAvatar.toByteArray(), context)
+        // Rotate if needed
+        val exifInterface = context.contentResolver.openInputStream(uri).use { inputStream ->
+            return@use inputStream?.let { ExifInterface(it) }
+        }
+        val normalizedAvatar = avatarBitmap.rotateImageToNormalOrientation(exifInterface)
+
+        // Compress image
+        val rawCompressedImage = compressImage(normalizedAvatar)
+
+        // Save to fixed path
+        rawCompressedImage?.let { getWritableTempAvatarUri(it, context) }
+    } catch (exception: Exception) {
+        // NOOP: None post process op performed
     }
 }
+
+/**
+ * Compress image to save some disk space and memory
+ */
+private fun compressImage(imageBitmap: Bitmap): ByteArray? {
+    val byteArrayOutputStream = ByteArrayOutputStream()
+    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream)
+    return byteArrayOutputStream.use { return@use it.toByteArray() }
+}
+
+fun ByteArray.toBitmap(): Bitmap? = BitmapFactory.decodeByteArray(this, 0, this.size)

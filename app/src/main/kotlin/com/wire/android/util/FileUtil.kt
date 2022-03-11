@@ -11,7 +11,6 @@ import androidx.core.net.toUri
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import java.io.File
-import java.io.InputStream
 
 /**
  * Gets the uri of any drawable or given resource
@@ -25,25 +24,22 @@ fun getUriFromDrawable(
 ): Uri {
     return Uri.parse(
         ContentResolver.SCHEME_ANDROID_RESOURCE +
-                "://" + context.resources.getResourcePackageName(drawableId)
-                + '/' + context.resources.getResourceTypeName(drawableId)
-                + '/' + context.resources.getResourceEntryName(drawableId)
+            "://" + context.resources.getResourcePackageName(drawableId) +
+            '/' + context.resources.getResourceTypeName(drawableId) +
+            '/' + context.resources.getResourceEntryName(drawableId)
     )
 }
+
 @Suppress("MagicNumber")
 fun Uri.toByteArray(context: Context): ByteArray {
     return context.contentResolver.openInputStream(this)?.readBytes() ?: ByteArray(16)
-}
-
-fun Uri.toInputStream(context: Context): InputStream? {
-    return context.contentResolver.openInputStream(this)
 }
 
 fun getShareableAvatarUri(context: Context): Uri {
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", getTempAvatarFile(context))
 }
 
-fun getTempAvatarUri(imageData: ByteArray, context: Context): Uri {
+fun getWritableTempAvatarUri(imageData: ByteArray, context: Context): Uri {
     val file = getTempAvatarFile(context)
     file.writeBytes(imageData)
     return file.toUri()

@@ -11,7 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.getMimeType
-import com.wire.android.util.rotateImageIfNeeded
+import com.wire.android.util.postProcessCapturedAvatar
 import com.wire.android.util.toByteArray
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
@@ -50,7 +50,7 @@ class AvatarPickerViewModel @Inject constructor(
     fun uploadNewPickedAvatarAndBack(imgUri: Uri, context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                rotateImageIfNeeded(imgUri, context)
+                postProcessCapturedAvatar(imgUri, context)
                 val data = imgUri.toByteArray(context)
                 val mimeType = imgUri.getMimeType(context) ?: "image/jpg"
                 uploadUserAvatar(mimeType = mimeType, imageData = data)

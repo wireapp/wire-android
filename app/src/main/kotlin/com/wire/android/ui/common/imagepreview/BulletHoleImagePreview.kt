@@ -1,7 +1,6 @@
 package com.wire.android.ui.common.imagepreview
 
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -20,6 +19,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.constraintlayout.compose.ConstraintLayout
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.ui.common.dimensions
 
@@ -41,13 +41,14 @@ fun BulletHoleImagePreview(imageUri: Uri, contentDescription: String) {
                     bottom.linkTo(parent.bottom)
                 }
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(
-                    model = imageUri
-                ),
-                contentScale = ContentScale.Crop,
+            AsyncImage(
+                model = imageUri,
+                contentScale = ContentScale.FillWidth,
                 contentDescription = contentDescription,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                onSuccess = { it.result.drawable.apply { this.invalidateSelf() } },
+                onError = { it.result.drawable?.invalidateSelf() }, // handle error when not possible to load preview
+                error = rememberAsyncImagePainter(model = imageUri) // retry, fallback to load image when error
             )
         }
         Box(
@@ -69,8 +70,8 @@ fun BulletHoleImagePreview(imageUri: Uri, contentDescription: String) {
     }
 }
 
-//Custom Shape creating a "hole" around the shape of the provided Composable
-//in case of ImagePreview that would be a rectangular shape, creating an effect of the "hole" around the rectangle
+// Custom Shape creating a "hole" around the shape of the provided Composable
+// in case of ImagePreview that would be a rectangular shape, creating an effect of the "hole" around the rectangle
 @Suppress("MagicNumber")
 class BulletHoleShape : Shape {
 
@@ -85,25 +86,25 @@ class BulletHoleShape : Shape {
 
         val path = Path().apply {
             reset()
-            //move the origin point to the middle of the backgroundWrappingRect on the left side
+            // move the origin point to the middle of the backgroundWrappingRect on the left side
             moveTo(x = 0f, y = backgroundWrappingRect.height / 2)
-            //draw a line to from the middle of backgroundWrappingRect to the top on the left side
+            // draw a line to from the middle of backgroundWrappingRect to the top on the left side
             lineTo(x = 0f, y = 0f)
-            //draw a line from the left edge to the right edge on the top side
+            // draw a line from the left edge to the right edge on the top side
             lineTo(x = backgroundWrappingRect.width, y = 0f)
-            //draw a backgroundWrappingRect from the right edge to the middle of backgroundWrappingRect on the right side
+            // draw a backgroundWrappingRect from the right edge to the middle of backgroundWrappingRect on the right side
             lineTo(x = size.width, y = backgroundWrappingRect.height / 2)
-            //arc -180 degrees from the start point of backgroundWrappingRect -
+            // arc -180 degrees from the start point of backgroundWrappingRect -
             arcTo(backgroundWrappingRect, 0f, -180f, true)
-            //draw a line from middle of backgroundWrappingRect to the bottom of backgroundWrappingRect on the left side
+            // draw a line from middle of backgroundWrappingRect to the bottom of backgroundWrappingRect on the left side
             lineTo(x = 0f, y = backgroundWrappingRect.height)
-            //draw a line from the bottom edge of backgroundWrappingRect to the right edge on the bottom side
+            // draw a line from the bottom edge of backgroundWrappingRect to the right edge on the bottom side
             lineTo(x = backgroundWrappingRect.width, y = backgroundWrappingRect.height)
-            //draw a line from the bottom edge of the backgroundWrappingRect to the middle of backgroundWrappingRect on the right side
+            // draw a line from the bottom edge of the backgroundWrappingRect to the middle of backgroundWrappingRect on the right side
             lineTo(x = backgroundWrappingRect.width, y = backgroundWrappingRect.height / 2)
-            //arc 180 degrees - we are back on middle of the backgroundWrappingRect on the left side now
+            // arc 180 degrees - we are back on middle of the backgroundWrappingRect on the left side now
             arcTo(backgroundWrappingRect, 0f, 180f, true)
-            //we drew the outline, we can close the path now
+            // we drew the outline, we can close the path now
             close()
         }
         return path

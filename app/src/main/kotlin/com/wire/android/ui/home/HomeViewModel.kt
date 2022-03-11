@@ -7,11 +7,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.create.CreateAccountUsernameFlowType
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +30,7 @@ class HomeViewModel
     private val listenToEvents: ListenToEventsUseCase,
     private val dataStore: UserDataStore,
     private val getPublicAsset: GetPublicAssetUseCase,
+    private val getSelf: GetSelfUserUseCase,
     private val commonManager: HomeCommonManager
 ) : ViewModel() {
 
@@ -66,6 +70,17 @@ class HomeViewModel
         //listen for the WebSockets updates and update DB accordingly
         viewModelScope.launch {
             listenToEvents()
+        }
+
+        //check if the user set the handle and open the corresponding screen if not
+        viewModelScope.launch {
+            getSelf().collect {
+                if(it.handle.isNullOrEmpty())
+                    navigationManager.navigate(NavigationCommand(
+                            NavigationItem.CreateUsername.getRouteWithArgs(listOf(CreateAccountUsernameFlowType.AppStart)),
+                        BackStackMode.CLEAR_WHOLE
+                    ))
+            }
         }
     }
 

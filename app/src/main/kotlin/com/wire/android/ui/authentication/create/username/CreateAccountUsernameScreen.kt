@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.create.username
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.CreateAccountFlowType
+import com.wire.android.ui.authentication.create.CreateAccountUsernameFlowType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
@@ -34,6 +35,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import kotlinx.coroutines.launch
 
 @Composable
 fun CreateAccountUsernameScreen() {
@@ -41,9 +43,9 @@ fun CreateAccountUsernameScreen() {
     UsernameContent(
         state = viewModel.state,
         onUsernameChange = viewModel::onUsernameChange,
-        onBackPressed = viewModel::navigateBack,
         onContinuePressed = viewModel::onContinue
     )
+    BackHandler(enabled = true) { /* don' allow to go back */ }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -51,7 +53,6 @@ fun CreateAccountUsernameScreen() {
 private fun UsernameContent(
     state: CreateAccountUsernameViewState,
     onUsernameChange: (TextFieldValue) -> Unit,
-    onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit
 ) {
     Scaffold(
@@ -59,7 +60,7 @@ private fun UsernameContent(
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = stringResource(id = state.type.titleResId),
-                onNavigationPressed = onBackPressed
+                onNavigationPressed = {  }
             )
         },
     ) {
@@ -118,5 +119,5 @@ private fun UsernameContent(
 @Composable
 @Preview
 private fun CreateAccountUsernameScreenPreview() {
-    UsernameContent(CreateAccountUsernameViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {})
+    UsernameContent(CreateAccountUsernameViewState(CreateAccountUsernameFlowType.CreatePersonalAccount), {}, {})
 }

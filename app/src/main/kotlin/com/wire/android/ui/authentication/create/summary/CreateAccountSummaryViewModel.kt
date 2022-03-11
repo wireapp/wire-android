@@ -23,8 +23,9 @@ class CreateAccountSummaryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager
 ) : ViewModel() {
-    private val type: CreateAccountFlowType =
-        CreateAccountFlowType.fromString(savedStateHandle.getLiveData<String>(EXTRA_CREATE_ACCOUNT_FLOW_TYPE).value)
+    private val type: CreateAccountFlowType = checkNotNull(
+        CreateAccountFlowType.fromRouteArg(savedStateHandle.getLiveData<String>(EXTRA_CREATE_ACCOUNT_FLOW_TYPE).value)
+    ) { "Unknown CreateAccountFlowType" }
     var state: CreateAccountSummaryViewState by mutableStateOf(CreateAccountSummaryViewState(type))
         private set
 

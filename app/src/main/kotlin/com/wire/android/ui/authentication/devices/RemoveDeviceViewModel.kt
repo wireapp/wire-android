@@ -106,7 +106,6 @@ class RemoveDeviceViewModel @Inject constructor(
             is DeleteClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             DeleteClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             DeleteClientResult.Success -> RemoveDeviceError.None
-            else -> RemoveDeviceError.GenericError(CoreFailure.Unknown(IllegalStateException()))
         }
 
     private fun RegisterClientResult.toRemoveDeviceError() =
@@ -115,7 +114,6 @@ class RemoveDeviceViewModel @Inject constructor(
             is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
             is RegisterClientResult.Success -> RemoveDeviceError.None
-            else -> RemoveDeviceError.GenericError(CoreFailure.Unknown(IllegalStateException()))
         }
 
 

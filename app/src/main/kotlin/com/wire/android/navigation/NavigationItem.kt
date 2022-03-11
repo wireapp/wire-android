@@ -19,6 +19,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.CreateAccountFlowType
+import com.wire.android.ui.authentication.create.CreateAccountUsernameFlowType
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryScreen
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameScreen
@@ -70,18 +71,20 @@ enum class NavigationItem(
 
     CreatePersonalAccount(
         primaryRoute = CREATE_PERSONAL_ACCOUNT,
-        content = { CreatePersonalAccountScreen(ServerConfig.STAGING) }
+        content = { CreatePersonalAccountScreen(ServerConfig.STAGING) },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     CreateUsername(
         primaryRoute = CREATE_ACCOUNT_USERNAME,
-        canonicalRoute = "$CREATE_ACCOUNT_USERNAME/{$EXTRA_CREATE_ACCOUNT_FLOW_TYPE}",
+        canonicalRoute = "$CREATE_ACCOUNT_USERNAME/{$EXTRA_CREATE_ACCOUNT_USERNAME_FLOW_TYPE}",
         content = { CreateAccountUsernameScreen() },
-        arguments = listOf(navArgument(EXTRA_CREATE_ACCOUNT_FLOW_TYPE) { type = NavType.StringType })
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val type: CreateAccountFlowType =
-                arguments.filterIsInstance<CreateAccountFlowType>().firstOrNull() ?: CreateAccountFlowType.None
+            val type: CreateAccountUsernameFlowType =
+                checkNotNull(arguments.filterIsInstance<CreateAccountUsernameFlowType>().firstOrNull())
+                { "Unknown CreateAccountUsernameFlowType" }
             return "$primaryRoute/${type.routeArg}"
         }
     },
@@ -90,11 +93,12 @@ enum class NavigationItem(
         primaryRoute = CREATE_ACCOUNT_SUMMARY,
         canonicalRoute = "$CREATE_ACCOUNT_SUMMARY/{$EXTRA_CREATE_ACCOUNT_FLOW_TYPE}",
         content = { CreateAccountSummaryScreen() },
-        arguments = listOf(navArgument(EXTRA_CREATE_ACCOUNT_FLOW_TYPE) { type = NavType.StringType })
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val type: CreateAccountFlowType =
-                arguments.filterIsInstance<CreateAccountFlowType>().firstOrNull() ?: CreateAccountFlowType.None
+                checkNotNull(arguments.filterIsInstance<CreateAccountFlowType>().firstOrNull())
+                { "Unknown CreateAccountFlowType" }
             return "$primaryRoute/${type.routeArg}"
         }
     },
@@ -183,6 +187,7 @@ private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 private const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
+const val EXTRA_CREATE_ACCOUNT_USERNAME_FLOW_TYPE = "extra_create_account_username_flow_type"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

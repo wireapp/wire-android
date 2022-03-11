@@ -48,7 +48,7 @@ object Repositories {
 object Libraries {
     object Versions {
         const val kotlin = "1.6.10"
-        const val coroutines = "1.5.0"
+        const val coroutines = "1.6.0-native-mt"
         const val cryptobox = "1.1.3"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
@@ -83,6 +83,7 @@ object Libraries {
         const val browser = "1.3.0"
         const val dataStore = "1.0.0"
         const val splashscreen = "1.0.0-beta01"
+        const val coil = "2.0.0-rc01"
     }
 
     // AndroidX Dependencies
@@ -112,6 +113,7 @@ object Libraries {
     const val accompanistPager          = "com.google.accompanist:accompanist-pager:${Versions.accompanist}"
     const val accompanistSystemUI       = "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}"
     const val accompanistPlaceholder    = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
+    const val accompanistNavAnimation   = "com.google.accompanist:accompanist-navigation-animation:${Versions.accompanist}"
     const val material                  = "com.google.android.material:material:${Versions.material}"
     const val messageProto              = "com.wire:generic-message-proto:${Versions.messageProto}"
     const val okHttpLogging             = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"
@@ -125,6 +127,8 @@ object Libraries {
     const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
     const val browser                   = "androidx.browser:browser:${Versions.browser}"
     const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
+    const val coil                      = "io.coil-kt:coil:${Versions.coil}"
+    const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
 
     object Crypto {
         const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"
@@ -145,15 +149,6 @@ object Libraries {
         const val runtime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
         const val viewModelSavedState = "androidx.lifecycle:lifecycle-viewmodel-savedstate:${Versions.lifecycle}"
     }
-
-
-    /*
-    bject Koin {
-        const val androidCore  = "io.insert-koin:koin-android:${Versions.koin}"
-        const val viewModel    = "io.insert-koin:koin-android-viewmodel:${Versions.koin}"
-        const val workManager  = "io.insert-koin:koin-androidx-workmanager:${Versions.koin}"
-    }
-     */
 
     object Kotlin {
         const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"

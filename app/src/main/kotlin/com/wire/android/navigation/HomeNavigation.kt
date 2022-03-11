@@ -1,6 +1,8 @@
 package com.wire.android.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,9 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeState
@@ -20,22 +22,31 @@ import com.wire.android.ui.home.archive.ArchiveScreen
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.vault.VaultScreen
 
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
+@OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, startDestination: String?) {
-    NavHost(
+    AnimatedNavHost(
         modifier = Modifier.padding(top = dimensions().smallTopBarHeight),
         navController = navController,
         startDestination = startDestination ?: HomeNavigationItem.Conversations.route
     ) {
         HomeNavigationItem.all
             .forEach { item ->
-                composable(route = item.route, content = item.content(homeState))
+                composable(
+                    route = item.route,
+                    content = item.content(homeState),
+                    enterTransition = { item.animationConfig.enterTransition },
+                    exitTransition = { item.animationConfig.exitTransition }
+                )
             }
     }
 }
 
+@ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 internal fun navigateToItemInHome(
@@ -55,12 +66,14 @@ internal fun navigateToItemInHome(
 
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
+@ExperimentalAnimationApi
 enum class HomeNavigationItem(
     val route: String,
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
-    val content: (HomeState) -> (@Composable (NavBackStackEntry) -> Unit)
+    val content: (HomeState) -> (@Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit)),
+    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
 ) {
     Conversations(
         route = HomeDestinationsRoutes.conversations,
@@ -73,7 +86,8 @@ enum class HomeNavigationItem(
                     onHomeBottomSheetContentChange = { bottomSheetContent ->
                         homeState.changeBottomSheetContent(bottomSheetContent)
                     },
-                    onExpandHomeBottomSheet = { homeState.expandBottomSheet() })
+                    onExpandHomeBottomSheet = { homeState.expandBottomSheet() }
+                )
             }
         }
     ),

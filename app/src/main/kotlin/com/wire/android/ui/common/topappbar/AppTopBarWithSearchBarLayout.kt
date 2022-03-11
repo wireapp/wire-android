@@ -195,26 +195,18 @@ private fun AppTopBarWithSearchBarContent(
                         onTextTyped = onSearchQueryChanged,
                         leadingIcon = {
                             AnimatedContent(isTopBarVisible) { isVisible ->
-                                if (isVisible) {
-                                    IconButton(onClick = { }) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_search_icon),
-                                            contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                                            tint = MaterialTheme.wireColorScheme.onBackground
-                                        )
-                                    }
-                                } else {
-                                    IconButton(onClick = {
+                                IconButton(onClick = {
+                                    if (isVisible) {
                                         focusManager.clearFocus()
 
                                         onCloseSearchClicked()
-                                    }) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_arrow_left),
-                                            contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                                            tint = MaterialTheme.wireColorScheme.onBackground
-                                        )
                                     }
+                                }) {
+                                    Icon(
+                                        painter = if (isVisible) painterResource(id = R.drawable.ic_search_icon) else painterResource(id = R.drawable.ic_arrow_left),
+                                        contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                                        tint = MaterialTheme.wireColorScheme.onBackground
+                                    )
                                 }
                             }
                         },

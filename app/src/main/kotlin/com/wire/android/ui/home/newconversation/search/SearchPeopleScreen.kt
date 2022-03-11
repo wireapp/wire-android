@@ -3,21 +3,15 @@ package com.wire.android.ui.home.newconversation.search
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,16 +27,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
-import com.wire.android.model.UserStatus
-import com.wire.android.ui.common.AddContactButton
-import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
@@ -52,7 +40,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.MatchQueryResult
 import com.wire.android.util.QueryMatchExtractor
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -83,38 +70,6 @@ private fun SearchPeopleScreenContent(
             publicSearchResult = publicSearchResult,
             federatedBackendResult = federatedBackendResult
         )
-    }
-}
-
-@Composable
-private fun EmptySearchQueryScreen() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(horizontal = dimensions().spacing48x),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = stringResource(R.string.label_search_people_instruction),
-                style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(dimensions().spacing16x))
-            Text(
-                text = stringResource(R.string.label_learn_more_searching_user),
-                style = MaterialTheme.wireTypography.body02.copy(
-                    textDecoration = TextDecoration.Underline,
-                    color = MaterialTheme.colorScheme.primary
-                ),
-                modifier = Modifier.clickable {
-                    //TODO: redirect to somewhere ?
-                }
-            )
-        }
     }
 }
 
@@ -313,73 +268,7 @@ private fun ShowButton(
 }
 
 @Composable
-fun ExternalContactResultItem(
-    externalContactSearchResult: ExternalContact,
-    searchQuery: String
-) {
-    with(externalContactSearchResult) {
-        RowItemTemplate(
-            leadingIcon = {
-                UserProfileAvatar(
-                    avatarUrl = "",
-                    status = UserStatus.AVAILABLE
-                )
-            },
-            title = {
-                HighLightName(
-                    name = name,
-                    searchQuery = searchQuery
-                )
-            },
-            subTitle = {
-                HighLightSubTitle(
-                    subTitle = label,
-                    searchQuery = searchQuery
-                )
-            },
-            actions = { AddContactButton({ }) },
-            onRowItemClicked = {},
-            onRowItemLongClicked = {},
-        )
-    }
-}
-
-@Composable
-private fun ContactSearchResultItem(
-    contactSearchResult: Contact,
-    searchQuery: String,
-    modifier: Modifier = Modifier
-) {
-    with(contactSearchResult) {
-        RowItemTemplate(
-            leadingIcon = {
-                UserProfileAvatar(
-                    avatarUrl = "",
-                    status = UserStatus.AVAILABLE
-                )
-            },
-            title = {
-                HighLightName(
-                    name = name,
-                    searchQuery = searchQuery
-                )
-            },
-            subTitle = {
-                HighLightSubTitle(
-                    subTitle = label,
-                    searchQuery = searchQuery
-                )
-            },
-            eventType = eventType,
-            onRowItemClicked = {},
-            onRowItemLongClicked = {},
-            modifier = modifier
-        )
-    }
-}
-
-@Composable
-private fun HighLightSubTitle(
+fun HighLightSubTitle(
     subTitle: String,
     searchQuery: String,
 ) {
@@ -435,7 +324,7 @@ private fun HighLightSubTitle(
 }
 
 @Composable
-private fun HighLightName(
+fun HighLightName(
     name: String,
     searchQuery: String,
 ) {
@@ -484,53 +373,4 @@ private fun HighLightName(
             style = MaterialTheme.wireTypography.title02
         )
     }
-}
-
-@Composable
-private fun rememberSearchPeopleScreenState(
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    lazyListState: LazyListState = rememberLazyListState()
-): SearchPeopleScreenState {
-    return remember {
-        SearchPeopleScreenState(
-            coroutineScope = coroutineScope,
-            lazyListState = lazyListState
-        )
-    }
-}
-
-class SearchPeopleScreenState(
-    val coroutineScope: CoroutineScope,
-    val lazyListState: LazyListState,
-) {
-
-    var contactsAllResultsCollapsed: Boolean by mutableStateOf(false)
-
-
-    var publicResultsCollapsed: Boolean by mutableStateOf(false)
-
-
-    var federatedBackendResultsCollapsed: Boolean by mutableStateOf(false)
-
-    fun showAllContactsResult() {
-        contactsAllResultsCollapsed = true
-        coroutineScope.launch {
-            lazyListState.animateScrollToItem(0)
-        }
-    }
-
-    fun showAllPublicResult() {
-        publicResultsCollapsed = true
-        coroutineScope.launch {
-            lazyListState.animateScrollToItem(1)
-        }
-    }
-
-    fun showFederatedBackendResult() {
-        federatedBackendResultsCollapsed = true
-        coroutineScope.launch {
-            lazyListState.animateScrollToItem(2)
-        }
-    }
-
 }

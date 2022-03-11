@@ -5,12 +5,11 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.WorkManagerTestRule
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.android.utils.getViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -42,9 +41,8 @@ class ConversationsScreenTest {
         // Start the app
         composeTestRule.setContent {
             WireTheme {
- //               ConversationScreen()
+                ConversationScreen(composeTestRule.getViewModel(ConversationViewModel::class))
             }
         }
     }
-
 }

@@ -21,6 +21,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.utils.WAIT_TIMEOUT
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -96,10 +97,9 @@ class LoginScreenTest {
         composeTestRule.onNodeWithText("Logging in...").assertIsDisplayed()
         composeTestRule.waitForIdle()
 
-        //    composeTestRule.waitUntil(3000) { loginButton.assertDoesNotExist() }
-        Thread.sleep(5000)
-        loginButton.assertDoesNotExist()
-        composeTestRule.onNodeWithText("Conversations").assertIsDisplayed()
+        // TODO: later we should wait using another approach
+        Thread.sleep(WAIT_TIMEOUT)
+        composeTestRule.onNodeWithText("Invalid information").assertDoesNotExist()
     }
 
     @Test
@@ -111,7 +111,7 @@ class LoginScreenTest {
         passwordField.assertIsDisplayed()
         passwordField.onChildren()[1].performTextClearance()
         passwordField.onChildren()[1].performTextInput("123456")
-        //Click on show password icon and check password is visible
+        // Click on show password icon and check password is visible
         hidePassword.performClick()
         passwordField.onChildren()[1].assertTextEquals("123456")
 
@@ -121,9 +121,9 @@ class LoginScreenTest {
         composeTestRule.onNodeWithText("Logging in...").assertIsDisplayed()
         composeTestRule.waitForIdle()
 
-//        composeTestRule.waitUntil(8000) { okButton.toString().contains("OK") }
-        Thread.sleep(3000)
-        composeTestRule.onNodeWithText("Server error").assertIsDisplayed()
+        // TODO: later we should wait using another approach
+        Thread.sleep(WAIT_TIMEOUT)
+        composeTestRule.onNodeWithText("Invalid information").assertIsDisplayed()
         okButton.assertIsDisplayed()
         okButton.performClick()
     }

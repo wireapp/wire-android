@@ -306,10 +306,11 @@ fun HighLightSubTitle(
                     .forEach { highLightIndexes ->
                         addStyle(
                             style = SpanStyle(
-                                background = MaterialTheme.wireColorScheme.highLight.copy(0.5f),
+                                background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f),
                             ),
-                            start = highLightIndexes.startIndex,
-                            end = highLightIndexes.endIndex
+                            // add 1 because of the "@" prefix
+                            start = highLightIndexes.startIndex + 1,
+                            end = highLightIndexes.endIndex + 1
                         )
                     }
             }

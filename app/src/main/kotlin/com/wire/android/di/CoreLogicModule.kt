@@ -2,8 +2,6 @@ package com.wire.android.di
 
 import android.content.Context
 import com.wire.android.util.DeviceLabel
-import com.wire.kalium.logger.KaliumLogLevel
-import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
@@ -41,17 +39,11 @@ class CoreLogicModule {
         val proteusPath = context.getDir("proteus", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
 
-        val coreLogic = CoreLogic(
+        return CoreLogic(
             applicationContext = context,
             rootProteusDirectoryPath = proteusPath,
             clientLabel = deviceLabel
         )
-
-        CoreLogger.setLoggingLevel(
-            level = KaliumLogLevel.DEBUG
-        )
-
-        return coreLogic
     }
 }
 

@@ -360,7 +360,7 @@ fun HighLightName(
                 highlightIndexes
                     .forEach { highLightIndexes ->
                         addStyle(
-                            style = SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(0.5f)),
+                            style = SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f)),
                             start = highLightIndexes.startIndex,
                             end = highLightIndexes.endIndex
                         )

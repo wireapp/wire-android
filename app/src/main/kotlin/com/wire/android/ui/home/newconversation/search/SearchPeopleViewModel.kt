@@ -20,212 +20,60 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
     fun search(searchQuery: String) {
         state = state.copy(
             searchQuery = searchQuery,
-            contactSearchResult = listOf(
-                Contact(
-                    id = 1,
-                    "This is first contact",
-                    label = "test23"
-                ), Contact(
-                    id = 2,
-                    "test2",
-                    label = "test23",
-                    eventType = EventType.UnreadMention
-                ), Contact(
-                    id = 3,
-                    "test3",
-                    label = "test23"
-                ),
-                Contact(
-                    id = 4,
-                    "test1",
-                    label = "test23",
-                    eventType = EventType.MissedCall
-                ), Contact(
-                    id = 5,
-                    "test2",
-                    label = "test23"
-                ), Contact(
-                    id = 6,
-                    "test3",
-                    label = "test23",
-                    eventType = EventType.MissedCall
-                ),
-                Contact(
-                    id = 7,
-                    "test1",
-                    label = "test23",
-                    eventType = EventType.MissedCall
-                ), Contact(
-                    id = 8,
-                    "test2",
-                    label = "test23",
-                    eventType = EventType.MissedCall
-                ), Contact(
-                    id = 9,
-                    "test3",
-                    label = "test23",
-                    eventType = EventType.MissedCall
-                ),
-                Contact(
-                    id = 10,
-                    "test1",
-                    eventType = EventType.UnreadReply
-                ), Contact(
-                    id = 11,
-                    "test2",
-                    label = "test235",
-                    eventType = EventType.UnreadReply
-                ), Contact(
-                    id = 12,
-                    "test3",
-                    label = "test234",
-                    eventType = EventType.UnreadReply
-                ),
-                Contact(
-                    id = 13,
-                    "test1",
-                    eventType = EventType.UnreadMessage(20)
-                ), Contact(
-                    id = 14,
-                    "test2",
-                    label = "test23",
-                    eventType = EventType.UnreadMessage(300)
-                ), Contact(
-                    id = 15,
-                    "This is last contact",
-                    label = "test2"
-                )
-            ),
-            publicContactSearchResult = listOf(
-                ExternalContact(
-                    id = 1,
-                    "This is first contact",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 2,
-                    "test2",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 3,
-                    "test3",
-                    label = "test23"
-                ),
-                ExternalContact(
-                    id = 4,
-                    "test1",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 5,
-                    "test2",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 6,
-                    "test3",
-                    label = "test23"
-                ),
-                ExternalContact(
-                    id = 7,
-                    "test1",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 8,
-                    "test2",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 9,
-                    "test3",
-                    label = "test23"
-                ),
-                ExternalContact(
-                    id = 10,
-                    "test1"
-                ), ExternalContact(
-                    id = 11,
-                    "test2",
-                    label = "test235"
-                ), ExternalContact(
-                    id = 12,
-                    "test3",
-                    label = "test234"
-                ),
-                ExternalContact(
-                    id = 13,
-                    "test1"
-                ), ExternalContact(
-                    id = 14,
-                    "test2",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 15,
-                    "This is last contact",
-                    label = "test2"
-                )
-            ),
-            federatedContactSearchResult = listOf(
-                ExternalContact(
-                    id = 1,
-                    "This is first contact",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 2,
-                    "test2",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 3,
-                    "test3",
-                    label = "test23"
-                ),
-                ExternalContact(
-                    id = 4,
-                    "test1",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 5,
-                    "test2",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 6,
-                    "test3",
-                    label = "test23"
-                ),
-                ExternalContact(
-                    id = 7,
-                    "test1",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 8,
-                    "test2",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 9,
-                    "test3",
-                    label = "test23"
-                ),
-                ExternalContact(
-                    id = 10,
-                    "test1"
-                ), ExternalContact(
-                    id = 11,
-                    "test2",
-                    label = "test235"
-                ), ExternalContact(
-                    id = 12,
-                    "test3",
-                    label = "test234"
-                ),
-                ExternalContact(
-                    id = 13,
-                    "test1"
-                ), ExternalContact(
-                    id = 14,
-                    "test2",
-                    label = "test23"
-                ), ExternalContact(
-                    id = 15,
-                    "This is last contact",
-                    label = "test2"
-                )
-            ),
+            contactSearchResult = buildList {
+                for (i in 1..5) {
+                    add(
+                        Contact(
+                            id = i,
+                            "test$i",
+                            label = "test$i",
+                            eventType = EventType.UnreadMention
+                        )
+                    )
+                }
+                for (i in 1..5) {
+                    add(
+                        Contact(
+                            id = i,
+                            "test$i",
+                            label = "test$i",
+                            eventType = EventType.MissedCall
+                        )
+                    )
+                }
+                for (i in 1..5) {
+                    add(
+                        Contact(
+                            id = i,
+                            "test$i",
+                            label = "test$i",
+                            eventType = EventType.UnreadMessage(i)
+                        )
+                    )
+                }
+            },
+            publicContactSearchResult = buildList {
+                for (i in 1..15) {
+                    add(
+                        ExternalContact(
+                            id = i,
+                            "test$i",
+                            label = "test$i",
+                        )
+                    )
+                }
+            },
+            federatedContactSearchResult = buildList {
+                for (i in 1..15) {
+                    add(
+                        ExternalContact(
+                            id = i,
+                            "test$i",
+                            label = "test$i",
+                        )
+                    )
+                }
+            }
         )
     }
 

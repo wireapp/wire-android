@@ -22,7 +22,6 @@ private fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface): Bitmap {
         ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
         ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
         ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
-        ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.setScale(-1f, 1f)
         else -> return this
     }
 

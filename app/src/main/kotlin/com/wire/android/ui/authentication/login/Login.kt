@@ -210,7 +210,7 @@ private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = { openForgotPasswordPage(context, accountsBaseUrl) }
-                )
+                ).testTag("Forgot password?")
         )
     }
 }

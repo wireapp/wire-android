@@ -4,17 +4,25 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import com.wire.android.ui.authentication.login.LoginScreen
+import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.WorkManagerTestRule
+import com.wire.android.utils.getViewModel
 import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
@@ -42,9 +50,16 @@ class ConversationsScreenTest {
         // Start the app
         composeTestRule.setContent {
             WireTheme {
- //               ConversationScreen()
+                ConversationScreen(composeTestRule.getViewModel(ConversationViewModel::class))
             }
         }
+    }
+
+    @Test
+    fun userSearchesConversation() {
+        composeTestRule.onNodeWithText("Conversations").assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Conversation search icon").assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Conversation search icon").performTextInput("Conv")
     }
 
 }

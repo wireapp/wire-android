@@ -63,9 +63,10 @@ class LoginScreenTest {
     val emailField = composeTestRule.onNode(hasTestTag("emailField"))
     val loginButton = composeTestRule.onNode(hasTestTag("loginButton"))
     val okButton = composeTestRule.onNodeWithText("OK")
-    val forgotPassword = composeTestRule.onNodeWithText("Forgot password?")
+    val forgotPassword = composeTestRule.onNode(hasTestTag("Forgot password?"))
     val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"),useUnmergedTree = true)
 
+    val loginErrorText = "Please enter a valid format for your email or username"
     val email = "mustafa+1@wire.com"
 
     @Before
@@ -82,7 +83,6 @@ class LoginScreenTest {
 
     @Test
     fun loginSucessfully() {
-
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
         emailField.onChildren()[1].performTextInput(email)
@@ -98,15 +98,14 @@ class LoginScreenTest {
         composeTestRule.waitForIdle()
 
         //    composeTestRule.waitUntil(3000) { loginButton.assertDoesNotExist() }
-        Thread.sleep(5000)
-        loginButton.assertDoesNotExist()
-        composeTestRule.onNodeWithText("Conversations").assertIsDisplayed()
+        Thread.sleep(10000)
+ //       loginButton.assertDoesNotExist()
+        composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
 
     }
 
     @Test
     fun TryToLoginWithWrongEmailPassword() {
-
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
         emailField.onChildren()[1].performTextInput(email)
@@ -126,14 +125,13 @@ class LoginScreenTest {
 
 //        composeTestRule.waitUntil(8000) { okButton.toString().contains("OK") }
         Thread.sleep(3000)
-        composeTestRule.onNodeWithText("Server error").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Invalid information").assertIsDisplayed()
         okButton.assertIsDisplayed()
         okButton.performClick()
     }
 
     @Test
     fun TryToLoginWithWrongEmailFormat() {
-
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
         emailField.onChildren()[1].performTextInput("m")
@@ -145,13 +143,12 @@ class LoginScreenTest {
         loginButton.assertHasClickAction()
         loginButton.performClick()
 
-        composeTestRule.onNodeWithText("Please enter a valid format for your email or username").assertIsDisplayed()
+        composeTestRule.onNodeWithText(loginErrorText).assertIsDisplayed()
         composeTestRule.waitForIdle()
     }
 
     @Test
     fun checkLoginButtonIsDisabled() {
-
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextInput(email)
 
@@ -170,7 +167,6 @@ class LoginScreenTest {
 
     @Test
     fun iSeeForgotPasswordScreen() {
-
         forgotPassword.assertIsDisplayed()
         forgotPassword.performClick()
 //        composeTestRule.onNodeWithText("Change Password", ignoreCase = true).assertIsDisplayed()

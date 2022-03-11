@@ -19,9 +19,10 @@ private fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface): Bitmap {
     val matrix = Matrix()
     when (orientation) {
         ExifInterface.ORIENTATION_NORMAL -> return this
-        ExifInterface.ORIENTATION_ROTATE_180 -> matrix.setRotate(180f)
-        ExifInterface.ORIENTATION_ROTATE_90 -> matrix.setRotate(90f)
-        ExifInterface.ORIENTATION_ROTATE_270 -> matrix.setRotate(-90f)
+        ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+        ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+        ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+        ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.setScale(-1f, 1f)
         else -> return this
     }
 

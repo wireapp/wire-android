@@ -56,7 +56,7 @@ fun UserProfileAvatar(
                 .background(Color.Black, CircleShape)
                 .size(size)
                 .clip(CircleShape),
-            contentScale = ContentScale.FillBounds,
+            contentScale = ContentScale.FillWidth,
         )
         UserStatusIndicator(
             status = status,

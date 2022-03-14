@@ -45,7 +45,7 @@ fun CreateAccountUsernameScreen() {
         onUsernameChange = viewModel::onUsernameChange,
         onContinuePressed = viewModel::onContinue
     )
-    BackHandler(enabled = true) { /* don' allow to go back */ }
+//    BackHandler(enabled = true) { /* don' allow to go back */ }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -60,7 +60,7 @@ private fun UsernameContent(
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = stringResource(id = state.type.titleResId),
-                onNavigationPressed = {  }
+                navigationIconType = null
             )
         },
     ) {

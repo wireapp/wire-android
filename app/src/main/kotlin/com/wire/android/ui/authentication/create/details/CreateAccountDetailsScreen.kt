@@ -1,4 +1,4 @@
-package com.wire.android.ui.authentication.create.personalaccount
+package com.wire.android.ui.authentication.create.details
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -32,8 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
-import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewState
+import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountViewModel
 import com.wire.android.ui.common.appBarElevation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField

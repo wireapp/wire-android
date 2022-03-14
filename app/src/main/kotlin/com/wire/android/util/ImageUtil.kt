@@ -1,5 +1,7 @@
 package com.wire.android.util
 
+import android.content.ContentResolver.SCHEME_CONTENT
+import android.content.ContentResolver.SCHEME_FILE
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,6 +12,46 @@ import java.io.ByteArrayOutputStream
 
 const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
 const val IMAGE_COMPRESSION_RATIO = 75
+
+class ImageUtil {
+    companion object {
+        /**
+         * Given an image [uri] rotates the image to a [ExifInterface.ORIENTATION_NORMAL] and overwrite the original un-rotated image
+         * Also compress the data to have an efficient data management, without losing quality
+         *
+         * In case of failure, just use the same picture without post processing
+         *
+         * @param uri the image location on which the operation will be performed
+         * @param context
+         */
+        fun postProcessCapturedAvatar(uri: Uri, context: Context) {
+            try {
+                val avatarBitmap = uri.toBitmap(context)
+
+                // Rotate if needed
+                val exifInterface = context.contentResolver.openInputStream(uri).use { stream -> stream?.let { ExifInterface(it) } }
+                val normalizedAvatar = avatarBitmap?.rotateImageToNormalOrientation(exifInterface)
+
+                // Compress image
+                val rawCompressedImage = normalizedAvatar?.let { compressImage(it) }
+
+                // Save to fixed path
+                rawCompressedImage?.let { getWritableTempAvatarUri(it, context) }
+            } catch (exception: Exception) {
+                // NOOP: None post process op performed
+            }
+        }
+
+        /**
+         * Compress image to save some disk space and memory
+         */
+        fun compressImage(imageBitmap: Bitmap): ByteArray? {
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, IMAGE_COMPRESSION_RATIO, byteArrayOutputStream)
+            return byteArrayOutputStream.use { it.toByteArray() }
+        }
+    }
+}
 
 /**
  * Rotates the image to its [ExifInterface.ORIENTATION_NORMAL] in case it's rotated with a different orientation than landscape or portrait
@@ -39,40 +81,16 @@ private fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface?): Bitmap 
 }
 
 /**
- * Given an image [uri] rotates the image to a [ExifInterface.ORIENTATION_NORMAL] and overwrite the original un-rotated image
- * Also compress the data to have an efficient data management, without losing quality
- *
- * In case of failure, just use the same picture, do nothing
- *
- * @param uri the image location on which the operation will be performed
- * @param context
+ * Converts a ByteArray into a Bitmap
  */
-fun postProcessCapturedAvatar(uri: Uri, context: Context) {
-    try {
-        val rawImage = uri.toByteArray(context)
-        val avatarBitmap = rawImage.toBitmap() ?: return
-
-        // Rotate if needed
-        val exifInterface = context.contentResolver.openInputStream(uri).use { stream -> stream?.let { ExifInterface(it) } }
-        val normalizedAvatar = avatarBitmap.rotateImageToNormalOrientation(exifInterface)
-
-        // Compress image
-        val rawCompressedImage = compressImage(normalizedAvatar)
-
-        // Save to fixed path
-        rawCompressedImage?.let { getWritableTempAvatarUri(it, context) }
-    } catch (exception: Exception) {
-        // NOOP: None post process op performed
-    }
-}
+fun ByteArray.toBitmap(): Bitmap? = BitmapFactory.decodeByteArray(this, 0, this.size)
 
 /**
- * Compress image to save some disk space and memory
+ * Converts a Uri in the formats [SCHEME_CONTENT] or [SCHEME_FILE] into a Bitmap
  */
-fun compressImage(imageBitmap: Bitmap): ByteArray? {
-    val byteArrayOutputStream = ByteArrayOutputStream()
-    imageBitmap.compress(Bitmap.CompressFormat.JPEG, IMAGE_COMPRESSION_RATIO, byteArrayOutputStream)
-    return byteArrayOutputStream.use { it.toByteArray() }
+fun Uri.toBitmap(context: Context): Bitmap? {
+    return when (scheme == SCHEME_CONTENT || scheme == SCHEME_FILE) {
+        true -> context.contentResolver.openInputStream(this).use { stream -> BitmapFactory.decodeStream(stream) }
+        false -> null // we don't want to convert app assets (ie: default avatar icon) into bitmap
+    }
 }
-
-fun ByteArray.toBitmap(): Bitmap? = BitmapFactory.decodeByteArray(this, 0, this.size)

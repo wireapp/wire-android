@@ -12,17 +12,16 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.DEFAULT_IMAGE_MIME_TYPE
 import com.wire.android.util.getMimeType
-import com.wire.android.util.postProcessCapturedAvatar
 import com.wire.android.util.toByteArray
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @HiltViewModel
@@ -51,7 +50,6 @@ class AvatarPickerViewModel @Inject constructor(
     fun uploadNewPickedAvatarAndBack(imgUri: Uri, context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                postProcessCapturedAvatar(imgUri, context)
                 val data = imgUri.toByteArray(context)
                 val mimeType = imgUri.getMimeType(context) ?: DEFAULT_IMAGE_MIME_TYPE
                 uploadUserAvatar(mimeType = mimeType, imageData = data)

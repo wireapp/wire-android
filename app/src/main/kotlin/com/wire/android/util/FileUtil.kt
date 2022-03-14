@@ -32,7 +32,7 @@ fun getUriFromDrawable(
 
 @Suppress("MagicNumber")
 fun Uri.toByteArray(context: Context): ByteArray {
-    return context.contentResolver.openInputStream(this)?.readBytes() ?: ByteArray(16)
+    return context.contentResolver.openInputStream(this)?.use { it.readBytes() } ?: ByteArray(16)
 }
 
 fun getShareableAvatarUri(context: Context): Uri {

@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -23,6 +24,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.util.toBitmap
 
 @Composable
 fun BulletHoleImagePreview(imageUri: Uri, contentDescription: String) {
@@ -43,12 +45,10 @@ fun BulletHoleImagePreview(imageUri: Uri, contentDescription: String) {
                 }
         ) {
             AsyncImage(
-                model = imageUri,
-                contentScale = ContentScale.FillWidth,
+                model = imageUri.toBitmap(LocalContext.current) ?: imageUri,
+                contentScale = ContentScale.Crop,
                 contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(),
-                onSuccess = { it.result.drawable.apply { this.invalidateSelf() } },
-                onError = { it.result.drawable?.invalidateSelf() }, // handle error when not possible to load preview
                 error = painterResource(R.drawable.ic_launcher_foreground)
             )
         }

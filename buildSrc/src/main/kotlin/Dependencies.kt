@@ -108,7 +108,7 @@ object Libraries {
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
     const val composeRuntimeLiveData    = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
     const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
-    const val exifInterface                      = "androidx.exifinterface:exifinterface:${Versions.exif}"
+    const val exifInterface             = "androidx.exifinterface:exifinterface:${Versions.exif}"
 
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"

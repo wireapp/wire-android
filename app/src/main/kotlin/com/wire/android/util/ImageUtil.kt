@@ -8,13 +8,17 @@ import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
 
+const val IMAGE_MIME_TYPE = "image/jpeg"
+const val IMAGE_COMPRESSION_RATIO = 75
+
 /**
  * Rotates the image to a [ExifInterface.ORIENTATION_NORMAL] in case it's rotated with a different orientation
+ * See more about exif interface at: https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface
  *
  * @param exif Exif interface for of the image to rotate
  * @return Bitmap the rotated bitmap or the same in case there is no rotation performed
  */
-private fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface?): Bitmap {
+private fun Bitmap.rotateImageToPortrait(exif: ExifInterface?): Bitmap {
     val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
     val matrix = Matrix()
     when (orientation) {
@@ -49,10 +53,8 @@ fun postProcessCapturedAvatar(uri: Uri, context: Context) {
         val avatarBitmap = rawImage.toBitmap() ?: return
 
         // Rotate if needed
-        val exifInterface = context.contentResolver.openInputStream(uri).use { inputStream ->
-            return@use inputStream?.let { ExifInterface(it) }
-        }
-        val normalizedAvatar = avatarBitmap.rotateImageToNormalOrientation(exifInterface)
+        val exifInterface = context.contentResolver.openInputStream(uri).use { stream -> stream?.let { ExifInterface(it) } }
+        val normalizedAvatar = avatarBitmap.rotateImageToPortrait(exifInterface)
 
         // Compress image
         val rawCompressedImage = compressImage(normalizedAvatar)
@@ -67,10 +69,10 @@ fun postProcessCapturedAvatar(uri: Uri, context: Context) {
 /**
  * Compress image to save some disk space and memory
  */
-private fun compressImage(imageBitmap: Bitmap): ByteArray? {
+fun compressImage(imageBitmap: Bitmap): ByteArray? {
     val byteArrayOutputStream = ByteArrayOutputStream()
-    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream)
-    return byteArrayOutputStream.use { return@use it.toByteArray() }
+    imageBitmap.compress(Bitmap.CompressFormat.JPEG, IMAGE_COMPRESSION_RATIO, byteArrayOutputStream)
+    return byteArrayOutputStream.use { it.toByteArray() }
 }
 
 fun ByteArray.toBitmap(): Bitmap? = BitmapFactory.decodeByteArray(this, 0, this.size)

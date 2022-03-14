@@ -12,13 +12,13 @@ const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
 const val IMAGE_COMPRESSION_RATIO = 75
 
 /**
- * Rotates the image to a [ExifInterface.ORIENTATION_NORMAL] in case it's rotated with a different orientation
+ * Rotates the image to its [ExifInterface.ORIENTATION_NORMAL] in case it's rotated with a different orientation than landscape or portrait
  * See more about exif interface at: https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface
  *
  * @param exif Exif interface for of the image to rotate
  * @return Bitmap the rotated bitmap or the same in case there is no rotation performed
  */
-private fun Bitmap.rotateImageToPortrait(exif: ExifInterface?): Bitmap {
+private fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface?): Bitmap {
     val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
     val matrix = Matrix()
     when (orientation) {
@@ -54,7 +54,7 @@ fun postProcessCapturedAvatar(uri: Uri, context: Context) {
 
         // Rotate if needed
         val exifInterface = context.contentResolver.openInputStream(uri).use { stream -> stream?.let { ExifInterface(it) } }
-        val normalizedAvatar = avatarBitmap.rotateImageToPortrait(exifInterface)
+        val normalizedAvatar = avatarBitmap.rotateImageToNormalOrientation(exifInterface)
 
         // Compress image
         val rawCompressedImage = compressImage(normalizedAvatar)

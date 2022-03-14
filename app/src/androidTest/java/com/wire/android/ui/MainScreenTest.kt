@@ -43,7 +43,7 @@ class MainScreenTest {
     val composeTestRule = createAndroidComposeRule<WireActivity>()
 
     @Before
-    fun testPrep(){
+    fun setUp(){
         hiltRule.inject()
 
         // Start the app

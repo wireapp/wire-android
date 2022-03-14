@@ -17,7 +17,6 @@ import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.getViewModel
-import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -44,7 +43,7 @@ class ConversationsScreenTest {
     val composeTestRule = createAndroidComposeRule<WireActivity>()
 
     @Before
-    fun testPrep() {
+    fun setUp() {
         hiltRule.inject()
 
         // Start the app

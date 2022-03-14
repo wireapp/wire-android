@@ -1,50 +1,45 @@
 package com.wire.android.ui
 
-import android.util.Log
+import android.content.Intent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertHasClickAction
-import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onChildren
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.printToLog
-import androidx.compose.ui.test.printToString
-import com.wire.android.R
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import com.wire.android.ui.authentication.login.LoginScreen
-import com.wire.android.ui.authentication.welcome.WelcomeScreen
-import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.utils.WAIT_TIMEOUT
 import com.wire.android.utils.WorkManagerTestRule
-import com.wire.android.utils.getViewModel
 import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import junit.framework.Assert.assertTrue
-import kotlinx.coroutines.delay
+import org.hamcrest.core.AllOf.allOf
+import org.junit.After
 import org.junit.Before
+import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runners.MethodSorters
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
     ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class
 )
 @HiltAndroidTest
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class LoginScreenTest {
 
     @get:Rule(order = 0)
@@ -70,8 +65,9 @@ class LoginScreenTest {
     val email = "mustafa+1@wire.com"
 
     @Before
-    fun testPrep() {
+    fun setUp() {
         hiltRule.inject()
+        Intents.init()
 
         // Start the app
         composeTestRule.setContent {
@@ -81,8 +77,13 @@ class LoginScreenTest {
         }
     }
 
+    @After
+    fun tearDown() {
+        Intents.release()
+    }
+
     @Test
-    fun loginSucessfully() {
+    fun login_success_case() {
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
         emailField.onChildren()[1].performTextInput(email)
@@ -97,15 +98,13 @@ class LoginScreenTest {
         composeTestRule.onNodeWithText("Logging in...").assertIsDisplayed()
         composeTestRule.waitForIdle()
 
-        //    composeTestRule.waitUntil(3000) { loginButton.assertDoesNotExist() }
-        Thread.sleep(10000)
- //       loginButton.assertDoesNotExist()
-        composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
-
+        // TODO: later we should wait using another approach
+        Thread.sleep(WAIT_TIMEOUT)
+        composeTestRule.onNodeWithText("Invalid information").assertDoesNotExist()
     }
 
     @Test
-    fun TryToLoginWithWrongEmailPassword() {
+    fun login_error_WrongEmailPassword() {
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
         emailField.onChildren()[1].performTextInput(email)
@@ -113,7 +112,7 @@ class LoginScreenTest {
         passwordField.assertIsDisplayed()
         passwordField.onChildren()[1].performTextClearance()
         passwordField.onChildren()[1].performTextInput("123456")
-        //Click on show password icon and check password is visible
+        // Click on show password icon and check password is visible
         hidePassword.performClick()
         passwordField.onChildren()[1].assertTextEquals("123456")
 
@@ -123,15 +122,16 @@ class LoginScreenTest {
         composeTestRule.onNodeWithText("Logging in...").assertIsDisplayed()
         composeTestRule.waitForIdle()
 
-//        composeTestRule.waitUntil(8000) { okButton.toString().contains("OK") }
-        Thread.sleep(3000)
+        // TODO: later we should wait using another approach
+        Thread.sleep(WAIT_TIMEOUT)
         composeTestRule.onNodeWithText("Invalid information").assertIsDisplayed()
         okButton.assertIsDisplayed()
         okButton.performClick()
     }
 
     @Test
-    fun TryToLoginWithWrongEmailFormat() {
+    fun login_error_WrongEmailFormat() {
+
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
         emailField.onChildren()[1].performTextInput("m")
@@ -148,7 +148,8 @@ class LoginScreenTest {
     }
 
     @Test
-    fun checkLoginButtonIsDisabled() {
+    fun login_state_loginButtonIsDisabled() {
+
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextInput(email)
 
@@ -166,9 +167,11 @@ class LoginScreenTest {
     }
 
     @Test
-    fun iSeeForgotPasswordScreen() {
+    fun login_navigation_ForgotPasswordScreen() {
         forgotPassword.assertIsDisplayed()
         forgotPassword.performClick()
-//        composeTestRule.onNodeWithText("Change Password", ignoreCase = true).assertIsDisplayed()
+
+        // Change to espresso intents assertion, since we are displaying a chrome custom tab component (not a composable one)
+        Intents.intending(allOf(hasAction(Intent.ACTION_VIEW), hasData("https://wire-account-staging.zinfra.io/forgot")))
     }
 }

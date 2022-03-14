@@ -8,7 +8,7 @@ import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
 
-const val IMAGE_MIME_TYPE = "image/jpeg"
+const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
 const val IMAGE_COMPRESSION_RATIO = 75
 
 /**

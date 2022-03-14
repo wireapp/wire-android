@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.util.IMAGE_MIME_TYPE
+import com.wire.android.util.DEFAULT_IMAGE_MIME_TYPE
 import com.wire.android.util.getMimeType
 import com.wire.android.util.postProcessCapturedAvatar
 import com.wire.android.util.toByteArray
@@ -53,7 +53,7 @@ class AvatarPickerViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 postProcessCapturedAvatar(imgUri, context)
                 val data = imgUri.toByteArray(context)
-                val mimeType = imgUri.getMimeType(context) ?: IMAGE_MIME_TYPE
+                val mimeType = imgUri.getMimeType(context) ?: DEFAULT_IMAGE_MIME_TYPE
                 uploadUserAvatar(mimeType = mimeType, imageData = data)
                 navigateBack()
             }

@@ -45,7 +45,6 @@ fun CreateAccountUsernameScreen() {
         onUsernameChange = viewModel::onUsernameChange,
         onContinuePressed = viewModel::onContinue
     )
-//    BackHandler(enabled = true) { /* don' allow to go back */ }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)

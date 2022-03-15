@@ -55,7 +55,7 @@ private fun SummaryContent(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.weight(1f))
             Image(
-                painter = painterResource(id = state.type.summaryIconResId),
+                painter = painterResource(id = state.type.summaryResources.summaryIconResId),
                 contentDescription = stringResource(id = R.string.content_description_create_account_summary),
                 contentScale = ContentScale.Inside,
                 modifier = Modifier.padding(
@@ -64,7 +64,7 @@ private fun SummaryContent(
                     )
             )
             Text(
-                text = stringResource(id = state.type.summaryTextResId),
+                text = stringResource(id = state.type.summaryResources.summaryTextResId),
                 style = MaterialTheme.wireTypography.body02,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = MaterialTheme.wireDimensions.spacing24x)

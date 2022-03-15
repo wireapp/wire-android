@@ -38,10 +38,10 @@ fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel, serve
         onContinuePressed = viewModel::onOverviewContinue,
         overviewParams = CreateAccountOverviewParams(
             title = stringResource(id = viewModel.type.titleResId),
-            contentTitle = viewModel.type.overviewContentTitleResId?.let { stringResource(id = it) } ?: "",
-            contentText = stringResource(id = viewModel.type.overviewContentTextResId),
-            contentIconResId = viewModel.type.overviewContentIconResId,
-            learnMoreText = stringResource(id = viewModel.type.overviewLearnMoreTextResId),
+            contentTitle = viewModel.type.overviewResources.overviewContentTitleResId?.let { stringResource(id = it) } ?: "",
+            contentText = stringResource(id = viewModel.type.overviewResources.overviewContentTextResId),
+            contentIconResId = viewModel.type.overviewResources.overviewContentIconResId,
+            learnMoreText = stringResource(id = viewModel.type.overviewResources.overviewLearnMoreTextResId),
             learnMoreUrl = "https://${serverConfig.websiteUrl}/pricing"
         )
     )

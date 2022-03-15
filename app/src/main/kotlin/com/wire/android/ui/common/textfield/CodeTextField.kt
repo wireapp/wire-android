@@ -45,6 +45,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.lang.Integer.min
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -71,7 +72,8 @@ fun CodeTextField(
         BasicTextField(
             value = value,
             onValueChange = {
-                val textDigits = it.text.filter { it.isDigit() }
+                val textDigits = it.text.filter { it.isDigit() } // don't allow characters other than digits to be entered
+                    .let { it.substring(0, min(codeLength, it.length)) } // don't allow more digits than required
                 onValueChange(CodeFieldValue(
                     text = TextFieldValue(text = textDigits, selection = TextRange(textDigits.length)),
                     isFullyFilled = textDigits.length == codeLength

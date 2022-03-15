@@ -53,7 +53,8 @@ enum class NavigationItem(
 ) {
     Welcome(
         primaryRoute = WELCOME,
-        content = { WelcomeScreen() }
+        content = { WelcomeScreen() },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     Login(
@@ -61,7 +62,8 @@ enum class NavigationItem(
         content = { contentParams ->
             val serverConfig = contentParams.arguments.filterIsInstance<ServerConfig>().firstOrNull()
             LoginScreen(serverConfig ?: ServerConfig.DEFAULT)
-        }
+        },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     CreateTeam(
@@ -106,7 +108,8 @@ enum class NavigationItem(
 
     RemoveDevices(
         primaryRoute = REMOVE_DEVICES,
-        content = { RemoveDeviceScreen() }
+        content = { RemoveDeviceScreen() },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     Home(

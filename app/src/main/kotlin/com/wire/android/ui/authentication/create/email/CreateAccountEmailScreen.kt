@@ -86,7 +86,7 @@ private fun EmailContent(
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
             val keyboardController = LocalSoftwareKeyboardController.current
             Text(
-                text = stringResource(id = state.type.emailSubtitleResId),
+                text = stringResource(id = state.type.emailResources.emailSubtitleResId),
                 style = MaterialTheme.wireTypography.body01,
                 modifier = Modifier.fillMaxWidth()
                     .padding(

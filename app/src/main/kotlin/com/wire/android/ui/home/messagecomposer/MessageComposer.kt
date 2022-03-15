@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.messagecomposer
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -9,12 +10,14 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,6 +27,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
@@ -34,8 +39,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -48,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
+import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -82,6 +91,7 @@ private fun MessageComposer(
     onSendButtonClicked: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+    var additionalInfoDisplayed by remember { mutableStateOf(false) }
 
     Surface {
         val transition = updateTransition(
@@ -92,15 +102,17 @@ private fun MessageComposer(
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout {
-            val (additionalActions, sendActions, messageInput) = createRefs()
+            val (additionalActions, sendActions, messageInput, additionalOptionsContent) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
             // CollapseIconButton
-            Column(Modifier.constrainAs(messageInput) {
-                bottom.linkTo(additionalActions.top)
-                top.linkTo(parent.top)
+            Column(
+                Modifier.constrainAs(messageInput) {
+                    bottom.linkTo(additionalActions.top)
+                    top.linkTo(parent.top)
 
-                height = Dimension.preferredWrapContent
-            }) {
+                    height = Dimension.preferredWrapContent
+                }
+            ) {
                 Box(
                     Modifier
                         .weight(1f)
@@ -166,7 +178,7 @@ private fun MessageComposer(
                         transition.AnimatedVisibility(
                             visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
                         ) {
-                            AdditionalOptionButton()
+                            AdditionalOptionButton { additionalInfoDisplayed = !additionalInfoDisplayed }
                         }
                         Spacer(Modifier.width(8.dp))
                         // MessageComposerInput needs a padding on the end of it to give room for the SendOptions components, because
@@ -185,9 +197,10 @@ private fun MessageComposer(
                                 .fillMaxWidth()
                                 .then(
                                     when (messageComposerState.messageComposeInputState) {
-                                        MessageComposeInputState.FullScreen -> Modifier
-                                            .fillMaxHeight()
-                                            .padding(end = 82.dp)
+                                        MessageComposeInputState.FullScreen ->
+                                            Modifier
+                                                .fillMaxHeight()
+                                                .padding(end = 82.dp)
                                         MessageComposeInputState.Active -> {
                                             Modifier
                                                 .heightIn(
@@ -203,12 +216,14 @@ private fun MessageComposer(
                 }
             }
 
-            //Box wrapping the SendActions so that we do not include it in the animationContentSize changed which is applied only for
-            //MessageComposerInput and CollapsingButton
-            Box(Modifier.constrainAs(sendActions) {
-                end.linkTo(parent.end)
-                bottom.linkTo(additionalActions.top)
-            }) {
+            // Box wrapping the SendActions so that we do not include it in the animationContentSize changed which is applied only for
+            // MessageComposerInput and CollapsingButton
+            Box(
+                Modifier.constrainAs(sendActions) {
+                    end.linkTo(parent.end)
+                    bottom.linkTo(additionalActions.top)
+                }
+            ) {
                 Row {
                     if (messageComposerState.sendButtonEnabled) {
                         ScheduleMessageButton()
@@ -226,20 +241,36 @@ private fun MessageComposer(
                 }
             }
 
-            //Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
-            //constrain our SendActions to it
-            Box(Modifier.constrainAs(additionalActions) {
-                bottom.linkTo(parent.bottom)
-                top.linkTo(messageInput.bottom)
-            }) {
+            // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
+            // constrain our SendActions to it
+            Box(
+                Modifier.constrainAs(additionalActions) {
+                    bottom.linkTo(additionalOptionsContent.bottom)
+                    top.linkTo(messageInput.bottom)
+                }
+            ) {
                 Divider()
                 transition.AnimatedVisibility(
                     visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
                     // we are animating the exit, so that the MessageComposeActions go down
                     exit = slideOutVertically(
-                        targetOffsetY = { fullHeight -> fullHeight / 2 }) + fadeOut()
+                        targetOffsetY = { fullHeight -> fullHeight / 2 }
+                    ) + fadeOut()
                 ) {
-                    MessageComposeActions()
+                    MessageComposeActions { additionalInfoDisplayed = !additionalInfoDisplayed }
+                }
+            }
+
+            // Box wrapping for additional options content
+            Box(
+                Modifier.constrainAs(additionalOptionsContent) {
+                    bottom.linkTo(parent.bottom)
+                    top.linkTo(additionalActions.bottom)
+                }
+            ) {
+                if (additionalInfoDisplayed) {
+                    Divider()
+                    AdditionalOptionsContent()
                 }
             }
         }
@@ -282,12 +313,44 @@ private fun MessageComposerInput(
         onValueChange = { onMessageTextChanged(it) },
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         textStyle = MaterialTheme.wireTypography.body01,
-        modifier = modifier.then(Modifier.onFocusChanged { focusState ->
-            if (focusState.isFocused) {
-                onFocusChanged()
+        modifier = modifier.then(
+            Modifier.onFocusChanged { focusState ->
+                if (focusState.isFocused) {
+                    onFocusChanged()
+                }
             }
-        })
+        )
     )
+}
+
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@Composable
+private fun AdditionalOptionsContent() {
+//    val keyboardController = LocalSoftwareKeyboardController.current
+//    keyboardController?.hide()
+
+    LazyVerticalGrid(
+        cells = GridCells.Fixed(4),
+        contentPadding = PaddingValues(45.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // TODO: Change this to dynamic way of building using "items"
+        item {
+            AttachmentButton("Attach File", R.drawable.ic_attach_file) { Log.d("AttachmentButton", "attach file clicked") }
+        }
+        item {
+            AttachmentButton("Attach Image", R.drawable.ic_gallery) { Log.d("AttachmentButton", "attach image clicked") }
+        }
+        item {
+            AttachmentButton("Take Photo", R.drawable.ic_take_a_picture) { Log.d("AttachmentButton", "take photo clicked") }
+        }
+        item {
+            AttachmentButton("Take Photo", R.drawable.ic_video_icon) { Log.d("AttachmentButton", "take video clicked") }
+        }
+        item {
+            AttachmentButton("Voice Message", R.drawable.ic_mic_on) { Log.d("AttachmentButton", "voice message clicked") }
+        }
+    }
 }
 
 @Composable
@@ -323,13 +386,13 @@ private fun SendButton(
 }
 
 @Composable
-private fun MessageComposeActions() {
+private fun MessageComposeActions(onAdditionalOptionsClicked: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxWidth()
     ) {
-        AdditionalOptionButton()
+        AdditionalOptionButton { onAdditionalOptionsClicked() }
         RichTextEditingAction()
         AddEmojiAction()
         AddGifAction()
@@ -338,9 +401,9 @@ private fun MessageComposeActions() {
 }
 
 @Composable
-private fun AdditionalOptionButton() {
+private fun AdditionalOptionButton(onAdditionalOptionsClicked: () -> Unit) {
     WireSecondaryButton(
-        onClick = { },
+        onClick = { onAdditionalOptionsClicked() },
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_add),

@@ -1,7 +1,5 @@
 package com.wire.android.ui.common
 
-import android.graphics.BitmapFactory
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,11 +18,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.getDefaultAvatarUri
+import com.wire.android.util.toBitmap
 
 @Composable
 fun UserProfileAvatar(
@@ -44,19 +43,15 @@ fun UserProfileAvatar(
             .wrapContentSize()
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
-        val avatarResource = avatarAssetByteArray?.run {
-            BitmapFactory.decodeByteArray(avatarAssetByteArray, 0, avatarAssetByteArray.size)
-        } ?: getDefaultAvatarUri(LocalContext.current)
-
-        Image(
-            painter = rememberAsyncImagePainter(model = avatarResource),
+        AsyncImage(
+            model = avatarAssetByteArray?.toBitmap() ?: getDefaultAvatarUri(LocalContext.current),
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
                 .padding(dimensions().userAvatarStatusBorderSize)
                 .background(Color.Black, CircleShape)
                 .size(size)
                 .clip(CircleShape),
-            contentScale = ContentScale.FillBounds,
+            contentScale = ContentScale.Crop
         )
         UserStatusIndicator(
             status = status,

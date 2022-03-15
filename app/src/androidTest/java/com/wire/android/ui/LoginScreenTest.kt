@@ -54,16 +54,6 @@ class LoginScreenTest {
     @get:Rule(order = 2)
     val composeTestRule = createAndroidComposeRule<WireActivity>()
 
-    val passwordField = composeTestRule.onNode(hasTestTag("passwordField"))
-    val emailField = composeTestRule.onNode(hasTestTag("emailField"))
-    val loginButton = composeTestRule.onNode(hasTestTag("loginButton"))
-    val okButton = composeTestRule.onNodeWithText("OK")
-    val forgotPassword = composeTestRule.onNode(hasTestTag("Forgot password?"))
-    val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"),useUnmergedTree = true)
-
-    val loginErrorText = "Please enter a valid format for your email or username"
-    val email = "mustafa+1@wire.com"
-
     @Before
     fun setUp() {
         hiltRule.inject()
@@ -81,6 +71,16 @@ class LoginScreenTest {
     fun tearDown() {
         Intents.release()
     }
+
+    val passwordField = composeTestRule.onNode(hasTestTag("passwordField"))
+    val emailField = composeTestRule.onNode(hasTestTag("emailField"))
+    val loginButton = composeTestRule.onNode(hasTestTag("loginButton"))
+    val okButton = composeTestRule.onNodeWithText("OK")
+    val forgotPassword = composeTestRule.onNode(hasTestTag("Forgot password?"))
+    val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"),useUnmergedTree = true)
+
+    val loginErrorText = "Please enter a valid format for your email or username"
+    val email = "mustafa+1@wire.com"
 
     @Test
     fun login_success_case() {
@@ -104,7 +104,7 @@ class LoginScreenTest {
     }
 
     @Test
-    fun login_error_WrongEmailPassword() {
+    fun login_error_wrongPassword() {
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
         emailField.onChildren()[1].performTextInput(email)
@@ -130,7 +130,7 @@ class LoginScreenTest {
     }
 
     @Test
-    fun login_error_WrongEmailFormat() {
+    fun login_error_wrongEmailFormat() {
 
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
@@ -167,7 +167,7 @@ class LoginScreenTest {
     }
 
     @Test
-    fun login_navigation_ForgotPasswordScreen() {
+    fun login_navigation_forgotPasswordScreen() {
         forgotPassword.assertIsDisplayed()
         forgotPassword.performClick()
 

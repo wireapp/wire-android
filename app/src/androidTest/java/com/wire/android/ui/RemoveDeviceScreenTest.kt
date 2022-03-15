@@ -5,8 +5,11 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.authentication.devices.RemoveDeviceViewModel
 import com.wire.android.ui.authentication.login.LoginScreen
@@ -52,8 +55,34 @@ class RemoveDeviceScreenTest {
         }
     }
 
+    val backButton = composeTestRule.onNodeWithText("Back button")
+    val removeDeviceButton = composeTestRule.onNode(hasTestTag("remove device button"))
+    val remove = composeTestRule.onNodeWithContentDescription("Remove icon")
+    val removeDeviceText = composeTestRule.onNodeWithText("Remove the following device?")
+    val removeButton = composeTestRule.onNodeWithContentDescription("Remove")
+
     @Test
     fun removeDeviceSucessfully() {
         composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
+        removeDeviceButton.performClick()
+        removeDeviceText.assertIsDisplayed()
+        removeButton.performClick()
+
+    }
+
+    @Test
+    fun removeDevice_error_wrongPassword() {
+        composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
+        removeDeviceButton.performClick()
+        removeDeviceText.assertIsDisplayed()
+        removeButton.performClick()
+    }
+
+    @Test
+    fun removeDevice_cancel() {
+        composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
+        removeDeviceButton.performClick()
+        removeDeviceText.assertIsDisplayed()
+        removeButton.performClick()
     }
 }

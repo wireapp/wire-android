@@ -22,6 +22,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -179,7 +180,7 @@ private fun RemoveDeviceDialog(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                modifier = Modifier.focusRequester(focusRequester).padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+                modifier = Modifier.focusRequester(focusRequester).padding(bottom = MaterialTheme.wireDimensions.spacing8x).testTag("remove device password field")
             )
             SideEffect {
                 if (state.keyboardVisible) {

@@ -14,7 +14,7 @@ internal fun navigateToItem(
     navController.navigate(command.destination) {
         if (command.backStackMode.shouldClear()) {
             navController.run {
-                backQueue.getOrNull(0)?.let { entry ->
+                backQueue.firstOrNull { it.destination.route != null }?.let { entry ->
                     val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
                     val startId = entry.destination.id
 

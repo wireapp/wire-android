@@ -37,7 +37,7 @@ import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.image.AvatarPickerViewModel.ErrorCodes
-import com.wire.android.util.getTempAvatarUri
+import com.wire.android.util.getWritableTempAvatarUri
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +47,7 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
 
     // We need to launch an effect to update the initial avatar uri whenever the pickerVM updates successfully the raw image
     LaunchedEffect(viewModel.avatarRaw) {
-        val currentAvatarUri = getTempAvatarUri(viewModel.avatarRaw ?: ByteArray(16), context)
+        val currentAvatarUri = getWritableTempAvatarUri(viewModel.avatarRaw ?: ByteArray(16), context)
         state.avatarPickerFlow.pictureState = PictureState.Initial(currentAvatarUri)
     }
 

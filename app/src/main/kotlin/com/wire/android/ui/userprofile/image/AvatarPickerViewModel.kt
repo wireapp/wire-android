@@ -2,7 +2,6 @@ package com.wire.android.ui.userprofile.image
 
 import android.content.Context
 import android.net.Uri
-import android.webkit.MimeTypeMap
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +10,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.DEFAULT_IMAGE_MIME_TYPE
+import com.wire.android.util.getMimeType
 import com.wire.android.util.toByteArray
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
@@ -55,10 +56,7 @@ class AvatarPickerViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val data = imgUri.toByteArray(context)
-                val extension = MimeTypeMap.getFileExtensionFromUrl(imgUri.path)
-                val mimeType = context.contentResolver.getType(imgUri)
-                    ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-                    ?: "image/$extension"
+                val mimeType = imgUri.getMimeType(context) ?: DEFAULT_IMAGE_MIME_TYPE
                 val result = uploadUserAvatar(mimeType = mimeType, imageData = data)
                 if (result is UploadAvatarResult.Success) {
                     navigateBack()

@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream
 const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
 const val IMAGE_COMPRESSION_RATIO = 75
 
-class ImageUtil {
+class ImageUtil private constructor() {
     companion object {
         /**
          * Given an image [uri] rotates the image to a [ExifInterface.ORIENTATION_NORMAL] and overwrite the original un-rotated image
@@ -24,6 +24,7 @@ class ImageUtil {
          * @param uri the image location on which the operation will be performed
          * @param context
          */
+        @Suppress("TooGenericExceptionCaught")
         fun postProcessCapturedAvatar(uri: Uri, context: Context) {
             try {
                 val avatarBitmap = uri.toBitmap(context)
@@ -60,6 +61,7 @@ class ImageUtil {
  * @param exif Exif interface for of the image to rotate
  * @return Bitmap the rotated bitmap or the same in case there is no rotation performed
  */
+@Suppress("MagicNumber", "TooGenericExceptionCaught")
 private fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface?): Bitmap {
     val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
     val matrix = Matrix()

@@ -1,8 +1,10 @@
 package com.wire.android.ui.authentication.create.email
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 
 data class CreateAccountEmailViewState(
+    val type: CreateAccountFlowType,
     val email: TextFieldValue = TextFieldValue(""),
     val termsDialogVisible: Boolean = false,
     val continueEnabled: Boolean = false,

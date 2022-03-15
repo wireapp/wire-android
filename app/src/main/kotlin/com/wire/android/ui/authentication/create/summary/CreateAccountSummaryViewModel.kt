@@ -12,7 +12,7 @@ import com.wire.android.navigation.EXTRA_CREATE_ACCOUNT_FLOW_TYPE
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.authentication.create.CreateAccountFlowType
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

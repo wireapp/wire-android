@@ -1,7 +1,7 @@
 package com.wire.android.ui.authentication.create.username
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.android.ui.authentication.create.CreateAccountUsernameFlowType
+import com.wire.android.ui.authentication.create.common.CreateAccountUsernameFlowType
 
 data class CreateAccountUsernameViewState(
     val type: CreateAccountUsernameFlowType,

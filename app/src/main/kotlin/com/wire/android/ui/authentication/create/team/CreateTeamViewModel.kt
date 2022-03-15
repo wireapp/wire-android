@@ -1,4 +1,4 @@
-package com.wire.android.ui.authentication.create.personalaccount
+package com.wire.android.ui.authentication.create.team
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.viewModelScope
@@ -17,20 +17,21 @@ import javax.inject.Inject
 @Suppress("MagicNumber", "TooManyFunctions")
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
-class CreatePersonalAccountViewModel @Inject constructor(
-    private val navigationManager: NavigationManager
-) : CreateAccountBaseViewModel(navigationManager, CreateAccountFlowType.CreatePersonalAccount) {
-    var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()
+class CreateTeamViewModel @Inject constructor(
+    private val navigationManager: NavigationManager,
+) : CreateAccountBaseViewModel(navigationManager, CreateAccountFlowType.CreateTeam) {
+    var moveToStep = MutableSharedFlow<CreateTeamNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()
 
-    private fun goToStep(item: CreatePersonalAccountNavigationItem) { viewModelScope.launch { moveToStep.emit(item) } }
+    // Navigation
+    private fun goToStep(item: CreateTeamNavigationItem) { viewModelScope.launch { moveToStep.emit(item) } }
     override fun goBackToPreviousStep() { viewModelScope.launch { moveBack.emit(Unit) } }
-    override fun onOverviewSuccess() { goToStep(CreatePersonalAccountNavigationItem.Email) }
-    override fun onTermsSuccess() { goToStep(CreatePersonalAccountNavigationItem.Details) }
-    override fun onDetailsSuccess() { goToStep(CreatePersonalAccountNavigationItem.Code) }
+    override fun onOverviewSuccess() { goToStep(CreateTeamNavigationItem.Email) }
+    override fun onTermsSuccess() { goToStep(CreateTeamNavigationItem.Details) }
+    override fun onDetailsSuccess() { goToStep(CreateTeamNavigationItem.Code) }
     override fun onCodeSuccess() {
         viewModelScope.launch { navigationManager.navigate(NavigationCommand(
-            NavigationItem.CreateUsername.getRouteWithArgs(listOf(CreateAccountUsernameFlowType.CreatePersonalAccount)),
+            NavigationItem.CreateUsername.getRouteWithArgs(listOf(CreateAccountUsernameFlowType.CreateTeam)),
             BackStackMode.CLEAR_TILL_START
         )) }
     }

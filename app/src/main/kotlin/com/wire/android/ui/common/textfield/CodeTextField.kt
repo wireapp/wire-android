@@ -63,6 +63,7 @@ fun CodeTextField(
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val enabled = state !is WireTextFieldState.Disabled
     Column(
         horizontalAlignment = horizontalAlignment,
         modifier = modifier,
@@ -76,6 +77,7 @@ fun CodeTextField(
                     isFullyFilled = textDigits.length == codeLength
                 ))
             },
+            enabled = enabled,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
             modifier = Modifier.focusRequester(focusRequester),
@@ -89,7 +91,8 @@ fun CodeTextField(
                             shape = shape,
                             colors = colors,
                             textStyle = textStyle,
-                            selected = index == value.text.length
+                            selected = index == value.text.length,
+                            state = state
                         )
                     }
                 }

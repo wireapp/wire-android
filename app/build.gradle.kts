@@ -91,6 +91,7 @@ dependencies {
     implementation(Libraries.browser)
     implementation(Libraries.dataStore)
     implementation(Libraries.splashscreen)
+    implementation(Libraries.exifInterface)
 
     // Image handling
     implementation(Libraries.coil)

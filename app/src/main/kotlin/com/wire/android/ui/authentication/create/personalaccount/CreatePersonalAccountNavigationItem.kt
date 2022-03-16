@@ -6,6 +6,10 @@ import androidx.navigation.NavController
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewParams
 import com.wire.android.R
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeScreen
+import com.wire.android.ui.authentication.create.details.CreateAccountDetailsScreen
+import com.wire.android.ui.authentication.create.email.CreateAccountEmailScreen
+import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewScreen
 
 enum class CreatePersonalAccountNavigationItem(
     val route: String,

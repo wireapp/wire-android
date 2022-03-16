@@ -197,7 +197,7 @@ private fun AppTopBarWithSearchBarContent(
                         leadingIcon = {
                             AnimatedContent(isTopBarVisible) { isVisible ->
                                 IconButton(onClick = {
-                                    if (isVisible) {
+                                    if (!isVisible) {
                                         focusManager.clearFocus()
 
                                         onCloseSearchClicked()

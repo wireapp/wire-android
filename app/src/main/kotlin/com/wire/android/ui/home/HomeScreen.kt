@@ -4,27 +4,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.HomeNavigationGraph
@@ -35,8 +22,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.AppTopBarWithSearchBar
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+
 
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
@@ -64,144 +50,101 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             drawerContent = drawerContent,
             gesturesEnabled = drawerState.isOpen
         ) {
-
-            val homeNavigationGraph = @Composable {
-                val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-
-                HomeNavigationGraph(
-                    homeState = homeState,
-                    navController = navController,
-                    startDestination = startDestination
-                )
-            }
-
-            val homeTopBar = @Composable {
-                WireCenterAlignedTopAppBar(
-                    title = stringResource(id = currentNavigationItem.title),
-                    onNavigationPressed = { openDrawer() },
-                    navigationIconType = NavigationIconType.Menu,
-                    actions = {
-                        UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
-                            viewModel.navigateToUserProfile()
-                        }
-                    },
-                    elevation = if (currentNavigationItem.isSearchable) 0.dp else dimensions().topBarElevationHeight,
-                )
-            }
-
-            val homeContent = @Composable {
-                with(currentNavigationItem) {
-                    if (isSearchable) {
-                        AppTopBarWithSearchBar(
-                            scrollPosition = scrollPosition,
-                            searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
-                            //TODO: implement the search for home once we work on it, for now we do not care
-                            searchQuery = "",
-                            onSearchQueryChanged = {},
-                            onSearchClicked = { },
-                            onCloseSearchClicked = {},
-                            appTopBar = homeTopBar,
-                            content = {
-                                homeNavigationGraph()
-                            }
-                        )
-                    } else {
-                        Scaffold(topBar = homeTopBar) {
-                            homeNavigationGraph()
-                        }
-                    }
-                }
-            }
-
-            val homeBottomSheetContent = homeBottomSheetContent
-
-            if (homeBottomSheetContent != null) {
-                WireModalSheetLayout(
-                    sheetState = bottomSheetState,
-                    sheetContent = homeBottomSheetContent
-                ) {
-                    homeContent()
-                }
-            } else {
-                homeContent()
-            }
+            HomeContent(
+                scrollPosition = homeState.scrollPosition,
+                homeBottomSheetContent = homeState.homeBottomSheetContent,
+                homeBottomSheetState = homeState.bottomSheetState,
+                homeTopBar = {
+                    HomeTopBar(
+                        currentNavigationItem = homeState.currentNavigationItem,
+                        onOpenDrawerClicked = { openDrawer() },
+                        onNavigateToUserProfile = { viewModel.navigateToUserProfile() },
+                    )
+                },
+                currentNavigationItem = homeState.currentNavigationItem,
+                homeNavigationGraph = { HomeNavigationGraph(homeState = homeState, startScreen = startScreen) }
+            )
         }
 
         BackHandler(enabled = drawerState.isOpen) { closeDrawer() }
     }
 }
 
+
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
-class HomeState(
-    val coroutineScope: CoroutineScope,
-    val navController: NavHostController,
-    val drawerState: DrawerState,
-    val bottomSheetState: ModalBottomSheetState,
-    bottomSheetContent: @Composable (ColumnScope.() -> Unit)?,
-    val currentNavigationItem: HomeNavigationItem
+@Composable
+fun HomeContent(
+    scrollPosition: Int,
+    homeBottomSheetState: ModalBottomSheetState,
+    homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)?,
+    currentNavigationItem: HomeNavigationItem,
+    homeNavigationGraph: @Composable () -> Unit,
+    homeTopBar: @Composable () -> Unit
 ) {
+    with(currentNavigationItem) {
+        val homeContent = @Composable {
+            if (isSearchable) {
+                AppTopBarWithSearchBar(
+                    scrollPosition = scrollPosition,
+                    searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
+                    //TODO: implement the search for home once we work on it, for now we do not care
+                    searchQuery = "",
+                    onSearchQueryChanged = {},
+                    onSearchClicked = { },
+                    onCloseSearchClicked = { },
+                    appTopBar = homeTopBar,
+                    content = {
+                        homeNavigationGraph()
+                    }
+                )
+            } else {
+                Scaffold(topBar = homeTopBar) {
+                    homeNavigationGraph()
+                }
+            }
+        }
 
-    var scrollPosition by mutableStateOf(0)
-        private set
-
-    var homeBottomSheetContent by mutableStateOf(bottomSheetContent)
-        private set
-
-    fun expandBottomSheet() {
-        coroutineScope.launch { bottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
-    }
-
-    fun changeBottomSheetContent(content: @Composable ColumnScope.() -> Unit) {
-        homeBottomSheetContent = content
-    }
-
-    fun updateScrollPosition(newScrollPosition: Int) {
-        scrollPosition = newScrollPosition
-    }
-
-    fun closeDrawer() {
-        coroutineScope.launch {
-            drawerState.close()
+        if (homeBottomSheetContent != null) {
+            WireModalSheetLayout(
+                sheetState = homeBottomSheetState,
+                sheetContent = homeBottomSheetContent
+            ) {
+                homeContent()
+            }
+        } else {
+            homeContent()
         }
     }
-
-    fun openDrawer() {
-        coroutineScope.launch {
-            drawerState.open()
-        }
-    }
-
 }
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun rememberHomeState(
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    navController: NavHostController = rememberNavController(),
-    drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
-    bottomSheetContent: @Composable (ColumnScope.() -> Unit)? = null
-): HomeState {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
+fun HomeNavigationGraph(startScreen: String?, homeState: HomeState) {
+    val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
 
-    val navigationItem = when (navBackStackEntry?.destination?.route) {
-        HomeNavigationItem.Archive.route -> HomeNavigationItem.Archive
-        HomeNavigationItem.Vault.route -> HomeNavigationItem.Vault
-        else -> HomeNavigationItem.Conversations
-    }
+    HomeNavigationGraph(
+        homeState = homeState,
+        navController = homeState.navController,
+        startDestination = startDestination
+    )
+}
 
-    val homeState = remember(
-        navigationItem
-    ) {
-        HomeState(
-            coroutineScope,
-            navController,
-            drawerState,
-            bottomSheetState,
-            bottomSheetContent,
-            navigationItem
-        )
-    }
-
-    return homeState
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun HomeTopBar(
+    currentNavigationItem: HomeNavigationItem,
+    onOpenDrawerClicked: () -> Unit,
+    onNavigateToUserProfile: () -> Unit
+) {
+    WireCenterAlignedTopAppBar(
+        title = stringResource(id = currentNavigationItem.title),
+        onNavigationPressed = onOpenDrawerClicked,
+        navigationIconType = NavigationIconType.Menu,
+        actions = {
+            UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
+                onNavigateToUserProfile()
+            }
+        },
+        elevation = if (currentNavigationItem.isSearchable) 0.dp else dimensions().topBarElevationHeight,
+    )
 }

@@ -6,11 +6,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.theme.WireTheme
@@ -56,16 +60,45 @@ class MainScreenTest {
         }
     }
 
+    private var logo = composeTestRule.onNodeWithContentDescription("Wire")
+    private var images = logo.onSiblings()[0]
+    private var loginButton = logo.onSiblings()[1]
+    private var createEnterpriseAccountButton = composeTestRule.onNodeWithText("Create Enterprise Account")
+    private var privateAccountText = logo.onSiblings()[3]
+    private var privateAccountLink = composeTestRule.onNodeWithText("Create a private account for free")
+
     @Test
     fun iTapLoginButton() {
-        composeTestRule.onNodeWithText("Login").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Create Enterprise Account").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Login").performClick()
+        loginButton.assertIsDisplayed()
+        createEnterpriseAccountButton.assertIsDisplayed()
+        loginButton.performClick()
     }
 
     @Test
     fun iTapCreateEnterpriseButton() {
-        composeTestRule.onNodeWithText("Create Enterprise Account").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Create Enterprise Account").performClick()
+        createEnterpriseAccountButton.assertIsDisplayed()
+        createEnterpriseAccountButton.performClick()
+    }
+
+    @Test
+    fun check_UI() {
+        logo.assertIsDisplayed()
+        images.assertIsDisplayed()
+        privateAccountLink.assertIsDisplayed()
+        privateAccountText.assertTextEquals("Want to chat with friends and family?")
+    }
+
+    @Test
+    fun scroll_Images() {
+        images.performScrollToIndex(1)
+        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(1).onChildren()[1].assertTextEquals("Welcome to Wire, the most secure collaboration platform!")
+        images.performScrollToIndex(2)
+        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(2).onChildren()[1].assertTextEquals("Absolute confidence your information is secure")
+        images.performScrollToIndex(3)
+        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(3).onChildren()[1].assertTextEquals("Encrypted audio & video conferencing with up to 50 participants")
+        images.performScrollToIndex(4)
+        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(4).onChildren()[1].assertTextEquals("Secure file sharing with teams and clients")
+        images.performScrollToIndex(5)
+        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(5).onChildren()[1].assertTextEquals("Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant")
     }
 }

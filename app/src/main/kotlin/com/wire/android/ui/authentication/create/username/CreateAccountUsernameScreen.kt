@@ -102,7 +102,7 @@ private fun UsernameContent(
             )
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
-                text = stringResource(R.string.label_continue),
+                text = stringResource(R.string.label_confirm),
                 onClick = onContinuePressed,
                 fillMaxWidth = true,
                 loading = state.loading,

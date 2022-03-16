@@ -7,6 +7,7 @@
     <string name="label_ok">OK</string>
     <string name="label_cancel">Cancel</string>
     <string name="label_continue">Continue</string>
+    <string name="label_confirm">Confirm</string>
     <string name="label_start_using_wire">Start using Wire</string>
     <string name="label_remove">Remove</string>
     <string name="label_learn_more">Learn more</string>

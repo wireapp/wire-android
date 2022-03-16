@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.DEFAULT_IMAGE_MIME_TYPE
 import com.wire.android.util.getMimeType
@@ -49,6 +50,7 @@ class AvatarPickerViewModel @Inject constructor(
                 avatarRaw = (getUserAvatar(this) as PublicAssetResult.Success).asset
             }
         } catch (e: ClassCastException) {
+            appLogger.e("There was an error loading the user avatar", e)
         }
     }
 

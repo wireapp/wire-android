@@ -8,7 +8,6 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountBaseViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountUsernameFlowType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -28,10 +27,12 @@ class CreateTeamViewModel @Inject constructor(
     override fun onOverviewSuccess() { goToStep(CreateTeamNavigationItem.Email) }
     override fun onTermsSuccess() { goToStep(CreateTeamNavigationItem.Details) }
     override fun onDetailsSuccess() { goToStep(CreateTeamNavigationItem.Code) }
-    override fun onCodeSuccess() {
-        viewModelScope.launch { navigationManager.navigate(NavigationCommand(
-            NavigationItem.CreateUsername.getRouteWithArgs(listOf(CreateAccountUsernameFlowType.CreateTeam)),
-            BackStackMode.CLEAR_TILL_START
-        )) }
+    override fun onCodeSuccess() { goToStep(CreateTeamNavigationItem.Summary) }
+    override fun onSummarySuccess() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(NavigationItem.CreateUsername.getRouteWithArgs(), BackStackMode.CLEAR_TILL_START)
+            )
+        }
     }
 }

@@ -113,12 +113,12 @@
     <string name="create_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="create_account_code_resend">Resend code</string>
     <string name="create_account_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
+    <string name="create_account_username_title">Your User Name</string>
     <string name="create_account_username_placeholder">jane.doe</string>
     <string name="create_account_username_label">USERNAME</string>
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">Username is already taken. Please enter another one.</string>
-    <string name="create_account_username_invalid_error">Please enter a valid format for your username.</string>
-    <string name="set_username_title">Set a Username</string>
+    <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
 
     <!-- Home -->
     <string name="home_open_drawer_description">Open drawer</string>

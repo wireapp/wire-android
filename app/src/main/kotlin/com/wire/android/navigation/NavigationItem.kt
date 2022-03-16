@@ -7,7 +7,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_SUMMARY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_USERNAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
@@ -18,10 +17,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVIC
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountUsernameFlowType
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
-import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryScreen
 import com.wire.android.ui.authentication.create.team.CreateTeamScreen
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameScreen
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
@@ -80,31 +76,9 @@ enum class NavigationItem(
 
     CreateUsername(
         primaryRoute = CREATE_ACCOUNT_USERNAME,
-        canonicalRoute = "$CREATE_ACCOUNT_USERNAME/{$EXTRA_CREATE_ACCOUNT_USERNAME_FLOW_TYPE}",
         content = { CreateAccountUsernameScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
-    ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val type: CreateAccountUsernameFlowType =
-                checkNotNull(arguments.filterIsInstance<CreateAccountUsernameFlowType>().firstOrNull())
-                { "Unknown CreateAccountUsernameFlowType" }
-            return "$primaryRoute/${type.routeArg}"
-        }
-    },
-
-    CreateSummary(
-        primaryRoute = CREATE_ACCOUNT_SUMMARY,
-        canonicalRoute = "$CREATE_ACCOUNT_SUMMARY/{$EXTRA_CREATE_ACCOUNT_FLOW_TYPE}",
-        content = { CreateAccountSummaryScreen() },
-        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
-    ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val type: CreateAccountFlowType =
-                checkNotNull(arguments.filterIsInstance<CreateAccountFlowType>().firstOrNull())
-                { "Unknown CreateAccountFlowType" }
-            return "$primaryRoute/${type.routeArg}"
-        }
-    },
+    ),
 
     RemoveDevices(
         primaryRoute = REMOVE_DEVICES,
@@ -178,7 +152,6 @@ object NavigationItemDestinationsRoutes {
     const val CREATE_TEAM = "create_team_screen"
     const val CREATE_PERSONAL_ACCOUNT = "create_personal_account_screen"
     const val CREATE_ACCOUNT_USERNAME = "create_account_username_screen"
-    const val CREATE_ACCOUNT_SUMMARY = "create_account_summary_screen"
     const val HOME = "home_landing_screen"
     const val USER_PROFILE = "user_profile_screen"
     const val CONVERSATION = "detailed_conversation_screen"
@@ -190,8 +163,6 @@ object NavigationItemDestinationsRoutes {
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 private const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
-const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
-const val EXTRA_CREATE_ACCOUNT_USERNAME_FLOW_TYPE = "extra_create_account_username_flow_type"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

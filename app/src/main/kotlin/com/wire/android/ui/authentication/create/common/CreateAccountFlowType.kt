@@ -61,16 +61,3 @@ data class SummaryResources(
     @DrawableRes val summaryIconResId: Int
 )
 data class EmailResources(@StringRes val emailSubtitleResId: Int)
-
-
-enum class CreateAccountUsernameFlowType(
-    val routeArg: String = "",
-    @StringRes val titleResId: Int
-) {
-    CreatePersonalAccount("create_personal_account", R.string.create_personal_account_title),
-    CreateTeam("create_team", R.string.create_team_title),
-    AppStart("", R.string.set_username_title);
-    companion object {
-        fun fromRouteArg(routeArg: String?) = values().firstOrNull { it.routeArg == routeArg }
-    }
-}

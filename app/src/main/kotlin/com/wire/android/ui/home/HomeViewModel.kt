@@ -11,7 +11,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.authentication.create.common.CreateAccountUsernameFlowType
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -77,7 +76,7 @@ class HomeViewModel
             getSelf().collect {
                 if(it.handle.isNullOrEmpty())
                     navigationManager.navigate(NavigationCommand(
-                            NavigationItem.CreateUsername.getRouteWithArgs(listOf(CreateAccountUsernameFlowType.AppStart)),
+                        NavigationItem.CreateUsername.getRouteWithArgs(),
                         BackStackMode.CLEAR_WHOLE
                     ))
             }

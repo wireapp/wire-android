@@ -27,12 +27,11 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun CreateAccountSummaryScreen() {
-    val viewModel: CreateAccountSummaryViewModel = hiltViewModel()
+fun CreateAccountSummaryScreen(viewModel: CreateAccountSummaryViewModel) {
     SummaryContent(
-        state = viewModel.state,
-        onBackPressed = viewModel::navigateBack,
-        onContinuePressed = viewModel::navigateHome
+        state = viewModel.summaryState,
+        onBackPressed = viewModel::goBackToPreviousStep,
+        onContinuePressed = viewModel::onSummaryContinue
     )
 }
 

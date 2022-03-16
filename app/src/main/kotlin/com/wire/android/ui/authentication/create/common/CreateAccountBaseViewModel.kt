@@ -18,6 +18,8 @@ import com.wire.android.ui.authentication.create.details.CreateAccountDetailsVie
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
+import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModel
+import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewState
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -27,10 +29,17 @@ import kotlinx.coroutines.launch
 abstract class CreateAccountBaseViewModel(
     private val navigationManager: NavigationManager,
     final override val type: CreateAccountFlowType
-) : ViewModel(), CreateAccountOverviewViewModel, CreateAccountEmailViewModel, CreateAccountDetailsViewModel, CreateAccountCodeViewModel {
+) : ViewModel(),
+    CreateAccountOverviewViewModel,
+    CreateAccountEmailViewModel,
+    CreateAccountDetailsViewModel,
+    CreateAccountCodeViewModel,
+    CreateAccountSummaryViewModel
+{
     override var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(type))
     override var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(type))
     override var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(type))
+    override val summaryState: CreateAccountSummaryViewState by mutableStateOf(CreateAccountSummaryViewState(type))
     override val hideKeyboard: MutableSharedFlow<Unit> = MutableSharedFlow()
 
     fun closeForm() { viewModelScope.launch { navigationManager.navigateBack() } }
@@ -126,4 +135,7 @@ abstract class CreateAccountBaseViewModel(
         }
     }
     abstract fun onCodeSuccess()
+
+    override fun onSummaryContinue() { onSummarySuccess() }
+    abstract fun onSummarySuccess()
 }

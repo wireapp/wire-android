@@ -20,8 +20,8 @@ import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.topappbar.AppTopBarWithSearchBar
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 
 
 @ExperimentalMaterialApi

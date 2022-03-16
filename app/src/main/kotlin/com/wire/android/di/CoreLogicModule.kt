@@ -4,6 +4,7 @@ import android.content.Context
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
+import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -38,7 +39,12 @@ class CoreLogicModule {
     fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
         val proteusPath = context.getDir("proteus", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
-        return CoreLogic(applicationContext = context, rootProteusDirectoryPath = proteusPath, clientLabel = deviceLabel)
+
+        return CoreLogic(
+            applicationContext = context,
+            rootProteusDirectoryPath = proteusPath,
+            clientLabel = deviceLabel
+        )
     }
 }
 
@@ -76,7 +82,6 @@ class UseCaseModule {
     fun getServerConfigUserCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getAuthenticationScope().getServerConfig
 
-
     @ViewModelScoped
     @Provides
     // TODO: kind of redundant to CurrentSession - need to rename CurrentSession
@@ -86,6 +91,13 @@ class UseCaseModule {
     @Provides
     fun selfClientsUseCase(@CurrentSession currentSession: AuthSession, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentSession).clientScope.selfClients
+
+    @ViewModelScoped
+    @Provides
+    fun getPublicAsset(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentSession currentSession: AuthSession
+    ): GetPublicAssetUseCase = coreLogic.getSessionScope(currentSession).users.getPublicAsset
 
     @ViewModelScoped
     @Provides

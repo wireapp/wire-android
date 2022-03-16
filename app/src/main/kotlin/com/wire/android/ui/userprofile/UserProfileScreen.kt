@@ -1,8 +1,5 @@
-
 package com.wire.android.ui.userprofile
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,12 +27,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,16 +54,12 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes
+import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes.DownloadUserInfoError
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(viewModel: UserProfileViewModel = hiltViewModel()) {
-
-    // TODO: THIS IS GOING TO BE REMOVED LATER ON
-    val context = LocalContext.current
-    SideEffect {
-        viewModel.mockMethodForAvatar(BitmapFactory.decodeResource(context.resources, R.drawable.mock_message_image))
-    }
 
     UserProfileContent(
         state = viewModel.userProfileState,
@@ -102,9 +93,11 @@ private fun UserProfileContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    state.errorMessage?.let { message ->
-        LaunchedEffect(message) {
-            snackbarHostState.showSnackbar(message)
+    // Error handling
+    state.errorMessageCode?.let { errorCode ->
+        val errorMessage = mapErrorCodeToString(errorCode)
+        LaunchedEffect(errorMessage) {
+            snackbarHostState.showSnackbar(errorMessage)
             onMessageShown()
         }
     }
@@ -115,12 +108,13 @@ private fun UserProfileContent(
                 onCloseClick = onCloseClick,
                 onLogoutClick = onLogoutClick
             )
-        }, snackbarHost = {
-        SwipeDismissSnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
+        },
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     ) {
         with(state) {
             Column(
@@ -131,7 +125,7 @@ private fun UserProfileContent(
             ) {
                 UserProfileInfo(
                     isLoading = state.isAvatarLoading,
-                    avatarBitmap = state.avatarBitmap,
+                    avatarAssetByteArray = state.avatarAssetByteArray,
                     fullName = fullName,
                     userName = userName,
                     teamName = teamName,
@@ -156,6 +150,15 @@ private fun UserProfileContent(
                 onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
             )
         }
+    }
+}
+
+@Composable
+fun mapErrorCodeToString(errorCode: ErrorCodes): String {
+    return when (errorCode) {
+        DownloadUserInfoError -> stringResource(R.string.error_downloading_user_info)
+        // Add more future errors for a more granular error handling
+        else -> stringResource(R.string.error_unknown_title)
     }
 }
 
@@ -184,7 +187,7 @@ private fun UserProfileTopBar(
 @Composable
 private fun ColumnScope.UserProfileInfo(
     isLoading: Boolean,
-    avatarBitmap: Bitmap,
+    avatarAssetByteArray: ByteArray?,
     fullName: String,
     userName: String,
     teamName: String?,
@@ -201,7 +204,7 @@ private fun ColumnScope.UserProfileInfo(
             onClick = onUserProfileClick,
             isEnabled = !isLoading,
             size = dimensions().userAvatarDefaultBigSize,
-            avatarBitmap = avatarBitmap,
+            avatarAssetByteArray = avatarAssetByteArray,
             status = UserStatus.NONE,
         )
         if (isLoading) {
@@ -408,14 +411,13 @@ private fun OtherAccountItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensions().userProfileOtherAccItemHeight)
-            .padding(bottom = 1.dp)
+            .padding(start = dimensions().spacing8x, bottom = 1.dp)
             .background(MaterialTheme.colorScheme.surface)
             .selectableBackground(true) { onClick(account.id) }
     ) {
         val (avatar, data) = createRefs()
 
         UserProfileAvatar(
-            avatarUrl = account.avatarUrl,
             modifier = Modifier.constrainAs(avatar) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
@@ -454,7 +456,6 @@ private fun OtherAccountItem(
 private fun UserProfileScreenPreview() {
     UserProfileContent(
         SelfUserProfileState(
-            avatarBitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888),
             status = UserStatus.BUSY,
             fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
             userName = "@userName_long_long_long_long_long_long_long_long_long_long",

@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
@@ -28,6 +29,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.conversation.ConversationId
 
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
@@ -41,8 +43,8 @@ fun ConversationRouterHomeBridge(
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
 
-    //we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
-    //to pass the new Composable
+    // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
+    // to pass the new Composable
     LaunchedEffect(conversationState.modalBottomSheetContentState) {
         onHomeBottomSheetContentChange {
             ConversationSheetContent(
@@ -67,6 +69,7 @@ fun ConversationRouterHomeBridge(
     )
 }
 
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 @Composable
@@ -104,6 +107,7 @@ private fun ConversationRouter(
         }
 
         with(uiState) {
+            // Change to a AnimatedNavHost and composable from accompanist lib to add transitions animations
             NavHost(conversationState.navHostController, startDestination = ConversationsNavigationItem.All.route) {
                 composable(
                     route = ConversationsNavigationItem.All.route,
@@ -115,7 +119,8 @@ private fun ConversationRouter(
                             onEditConversationItem = ::editConversation,
                             onScrollPositionChanged = updateScrollPosition
                         )
-                    })
+                    }
+                )
                 composable(
                     route = ConversationsNavigationItem.Calls.route,
                     content = {
@@ -126,7 +131,8 @@ private fun ConversationRouter(
                             onEditConversationItem = ::editConversation,
                             onScrollPositionChanged = updateScrollPosition
                         )
-                    })
+                    }
+                )
                 composable(
                     route = ConversationsNavigationItem.Mentions.route,
                     content = {

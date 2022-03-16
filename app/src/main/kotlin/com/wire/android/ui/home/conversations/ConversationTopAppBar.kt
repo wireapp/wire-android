@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.BackNavigationIconButton
+import com.wire.android.ui.common.topappbar.BackNavigationIconButton
 import com.wire.android.ui.common.OnDropDownIconButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.theme.wireTypography

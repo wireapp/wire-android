@@ -102,10 +102,18 @@ private fun SearchResult(
                                 Modifier.fillMaxSize()
                             ) {
                                 items(items = contactSearchResult) { contact ->
-                                    ContactSearchResultItem(
-                                        contactSearchResult = contact,
-                                        searchQuery = searchQuery,
-                                    )
+                                    with(contact) {
+                                        ContactSearchResultItem(
+                                            avatarUrl = avatarUrl,
+                                            userStatus = userStatus,
+                                            name = name,
+                                            label = label,
+                                            searchQuery = searchQuery,
+                                            source = Source.Internal(eventType),
+                                            onRowItemClicked = {},
+                                            onRowItemLongClicked = {}
+                                        )
+                                    }
                                 }
                             }
                         },
@@ -131,9 +139,11 @@ private fun SearchResult(
                                 Modifier.fillMaxSize()
                             ) {
                                 items(items = publicSearchResult) { contact ->
-                                    ExternalContactResultItem(
-                                        externalContactSearchResult = contact,
+                                    ExternalSearchResultItem(
                                         searchQuery = searchQuery,
+                                        externalContact = contact,
+                                        onRowItemClicked = {},
+                                        oRowItemLongClicked = {}
                                     )
                                 }
                             }
@@ -160,9 +170,11 @@ private fun SearchResult(
                                 Modifier.fillMaxSize()
                             ) {
                                 items(items = federatedBackendResult) { contact ->
-                                    ExternalContactResultItem(
-                                        externalContactSearchResult = contact,
-                                        searchQuery = searchQuery,
+                                    ExternalSearchResultItem(
+                                        searchQuery,
+                                        contact,
+                                        {},
+                                        {}
                                     )
                                 }
                             }
@@ -372,6 +384,27 @@ fun HighLightName(
         Text(
             text = name,
             style = MaterialTheme.wireTypography.title02
+        )
+    }
+}
+
+@Composable
+private fun ExternalSearchResultItem(
+    searchQuery: String,
+    externalContact: ExternalContact,
+    onRowItemClicked: () -> Unit,
+    oRowItemLongClicked: () -> Unit
+) {
+    with(externalContact) {
+        ContactSearchResultItem(
+            avatarUrl = "",
+            userStatus = userStatus,
+            name = name,
+            label = label,
+            searchQuery = searchQuery,
+            source = Source.External,
+            onRowItemClicked = onRowItemClicked,
+            onRowItemLongClicked = oRowItemLongClicked
         )
     }
 }

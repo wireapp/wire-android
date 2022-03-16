@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -57,7 +58,7 @@ import kotlinx.coroutines.flow.scan
  */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AppTopBarWithSearchBarLayout(
+fun AppTopBarWithSearchBar(
     scrollPosition: Int,
     searchBarHint: String,
     searchQuery: String,
@@ -203,19 +204,15 @@ private fun AppTopBarWithSearchBarContent(
                                     }
                                 }) {
                                     Icon(
-                                        painter = if (isVisible) painterResource(id = R.drawable.ic_search_icon) else painterResource(id = R.drawable.ic_arrow_left),
+                                        painter = painterResource(id = if (isVisible) R.drawable.ic_search_icon else R.drawable.ic_arrow_left),
                                         contentDescription = stringResource(R.string.content_description_conversation_search_icon),
                                         tint = MaterialTheme.wireColorScheme.onBackground
                                     )
                                 }
                             }
                         },
-                        placeholderTextStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
-                            textAlign = TextAlign.Start
-                        ),
-                        textStyle = if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
-                            textAlign = TextAlign.Start
-                        ),
+                        placeholderTextStyle = textStyleAlignment(isTopBarVisible = isTopBarVisible),
+                        textStyle = textStyleAlignment(isTopBarVisible = isTopBarVisible),
                         interactionSource = interactionSource,
                         modifier = Modifier.padding(8.dp)
                     )
@@ -227,6 +224,13 @@ private fun AppTopBarWithSearchBarContent(
             }
         }
     }
+}
+
+@Composable
+private fun textStyleAlignment(isTopBarVisible: Boolean): TextStyle {
+    return if (isTopBarVisible) LocalTextStyle.current.copy(textAlign = TextAlign.Center) else LocalTextStyle.current.copy(
+        textAlign = TextAlign.Start
+    )
 }
 
 @Composable

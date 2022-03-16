@@ -64,13 +64,15 @@ fun SearchBarInput(
     textStyle: TextStyle = LocalTextStyle.current,
     modifier: Modifier = Modifier
 ) {
-    val searchInputState = rememberSearchInputState()
+    var searchTextFieldValue by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
 
     WireTextField(
         modifier = modifier,
-        value = searchInputState.textFieldValue.copy(text = text),
+        value = searchTextFieldValue.copy(text = text),
         onValueChange = {
-            searchInputState.textFieldValue = it
+            searchTextFieldValue = it
             onTextTyped(it.text)
         },
         leadingIcon = {
@@ -84,7 +86,7 @@ fun SearchBarInput(
                     exit = fadeOut()
                 ) {
                     IconButton(onClick = {
-                        searchInputState.textFieldValue = TextFieldValue()
+                        searchTextFieldValue = TextFieldValue()
                         onTextTyped("")
                     }) {
                         Icon(
@@ -102,15 +104,6 @@ fun SearchBarInput(
         maxLines = 1,
         singleLine = true,
     )
-}
-
-@Composable
-private fun rememberSearchInputState(): SearchInputState = remember { SearchInputState() }
-
-private class SearchInputState {
-
-    var textFieldValue by mutableStateOf(TextFieldValue(""))
-
 }
 
 @Preview(showBackground = true)

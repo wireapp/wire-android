@@ -15,7 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.NavigationIconType
-import com.wire.android.ui.common.topappbar.AppTopBarWithSearchBarLayout
+import com.wire.android.ui.common.topappbar.AppTopBarWithSearchBar
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
@@ -26,7 +26,7 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
 fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val newConversationState = rememberNewConversationState()
 
-    AppTopBarWithSearchBarLayout(
+    AppTopBarWithSearchBar(
         scrollPosition = newConversationState.scrollPosition,
         searchBarHint = stringResource(R.string.label_search_people),
         searchQuery = newConversationState.searchQuery,

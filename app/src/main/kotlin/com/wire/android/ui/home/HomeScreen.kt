@@ -33,7 +33,7 @@ import com.wire.android.ui.common.NavigationIconType
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.topappbar.AppTopBarWithSearchBarLayout
+import com.wire.android.ui.common.topappbar.AppTopBarWithSearchBar
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -92,7 +92,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             val homeContent = @Composable {
                 with(currentNavigationItem) {
                     if (isSearchable) {
-                        AppTopBarWithSearchBarLayout(
+                        AppTopBarWithSearchBar(
                             scrollPosition = scrollPosition,
                             searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
                             //TODO: implement the search for home once we work on it, for now we do not care

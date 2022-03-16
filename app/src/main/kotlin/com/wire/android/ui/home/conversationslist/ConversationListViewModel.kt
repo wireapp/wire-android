@@ -58,7 +58,6 @@ viewModelScope.launch {
 }
     }
 
-
     fun openConversation(conversationId: ConversationId) {
         viewModelScope.launch {
             navigationManager.navigate(

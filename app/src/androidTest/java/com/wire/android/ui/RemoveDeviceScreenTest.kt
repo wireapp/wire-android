@@ -7,17 +7,16 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
-import com.wire.android.ui.authentication.devices.RemoveDeviceViewModel
-import com.wire.android.ui.authentication.login.LoginScreen
-import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.utils.WAIT_TIMEOUT
 import com.wire.android.utils.WorkManagerTestRule
-import com.wire.android.utils.getViewModel
-import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -56,33 +55,41 @@ class RemoveDeviceScreenTest {
     }
 
     val backButton = composeTestRule.onNodeWithText("Back button")
-    val removeDeviceButton = composeTestRule.onNode(hasTestTag("remove device button"))
+    val removeDeviceButton = composeTestRule.onAllNodes(hasTestTag("remove device button"))
     val remove = composeTestRule.onNodeWithContentDescription("Remove icon")
     val removeDeviceText = composeTestRule.onNodeWithText("Remove the following device?")
-    val removeButton = composeTestRule.onNodeWithContentDescription("Remove")
+    val removeButton = composeTestRule.onNodeWithText("Remove")
+    val cancelButton = composeTestRule.onNodeWithText("Cancel")
+    val passwordField = composeTestRule.onNode(hasTestTag("remove device password field"))
 
     @Test
-    fun removeDeviceSucessfully() {
+    fun removeDevice_Successfully() {
         composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
-        removeDeviceButton.performClick()
+        Thread.sleep(WAIT_TIMEOUT)
+        removeDeviceButton[1].performClick()
         removeDeviceText.assertIsDisplayed()
+        passwordField.onChildren()[1].performTextClearance()
+        passwordField.onChildren()[1].performTextInput("Mustafastaging1!")
         removeButton.performClick()
-
     }
 
     @Test
     fun removeDevice_error_wrongPassword() {
         composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
-        removeDeviceButton.performClick()
+        Thread.sleep(WAIT_TIMEOUT)
+        removeDeviceButton[1].performClick()
         removeDeviceText.assertIsDisplayed()
+        passwordField.onChildren()[1].performTextClearance()
+        passwordField.onChildren()[1].performTextInput("BAD PASSWORD")
         removeButton.performClick()
     }
 
     @Test
     fun removeDevice_cancel() {
         composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
-        removeDeviceButton.performClick()
+        Thread.sleep(WAIT_TIMEOUT)
+        removeDeviceButton[1].performClick()
         removeDeviceText.assertIsDisplayed()
-        removeButton.performClick()
+        cancelButton.performClick()
     }
 }

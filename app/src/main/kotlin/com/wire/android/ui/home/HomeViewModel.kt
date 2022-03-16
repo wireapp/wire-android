@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -58,7 +59,9 @@ class HomeViewModel
                 dataStore.avatarAssetId.first()?.let {
                     userAvatar = (getPublicAsset(it) as PublicAssetResult.Success).asset
                 }
-            } catch (_: ClassCastException) {}
+            } catch (e: ClassCastException) {
+                appLogger.e("There was an error loading the user avatar", e)
+            }
         }
     }
 

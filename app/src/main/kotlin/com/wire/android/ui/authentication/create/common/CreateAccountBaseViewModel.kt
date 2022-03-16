@@ -22,7 +22,7 @@ import com.wire.android.ui.common.textfield.CodeFieldValue
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
-@Suppress("MagicNumber", "TooManyFunctions")
+@Suppress("TooManyFunctions")
 @OptIn(ExperimentalMaterialApi::class)
 abstract class CreateAccountBaseViewModel(
     private val navigationManager: NavigationManager,

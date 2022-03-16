@@ -7,10 +7,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
@@ -37,7 +38,7 @@ fun AttachmentButton(
     Column(
         modifier = Modifier
             .width(dimensions().attachmentButtonSize)
-            .fillMaxWidth(),
+            .wrapContentWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
@@ -60,6 +61,7 @@ fun AttachmentButton(
         Text(
             text = text,
             maxLines = 2,
+            textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.wireTypography.title03,
             color = MaterialTheme.wireColorScheme.onBackground,
@@ -67,7 +69,7 @@ fun AttachmentButton(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentButton() {
     AttachmentButton("Attach File", R.drawable.ic_attach_file) {

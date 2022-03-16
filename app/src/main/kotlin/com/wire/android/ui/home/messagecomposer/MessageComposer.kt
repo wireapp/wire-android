@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.messagecomposer
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -10,14 +9,12 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -27,8 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
@@ -43,7 +38,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -56,8 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
-import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -272,7 +266,7 @@ private fun MessageComposer(
             ) {
                 if (additionalInfoDisplayed) {
                     Divider()
-                    AdditionalOptionsContent()
+                    AttachmentOptionsComponent()
                 }
             }
         }
@@ -324,36 +318,6 @@ private fun MessageComposerInput(
             }
         )
     )
-}
-
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
-@Composable
-private fun AdditionalOptionsContent() {
-//    val keyboardController = LocalSoftwareKeyboardController.current
-//    keyboardController?.hide()
-
-    LazyVerticalGrid(
-        cells = GridCells.Fixed(4),
-        contentPadding = PaddingValues(45.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        // TODO: Change this to dynamic way of building using "items"
-        item {
-            AttachmentButton("Attach File", R.drawable.ic_attach_file) { Log.d("AttachmentButton", "attach file clicked") }
-        }
-        item {
-            AttachmentButton("Attach Image", R.drawable.ic_gallery) { Log.d("AttachmentButton", "attach image clicked") }
-        }
-        item {
-            AttachmentButton("Take Photo", R.drawable.ic_camera) { Log.d("AttachmentButton", "take photo clicked") }
-        }
-        item {
-            AttachmentButton("Take Photo", R.drawable.ic_video_icon) { Log.d("AttachmentButton", "take video clicked") }
-        }
-        item {
-            AttachmentButton("Voice Message", R.drawable.ic_mic_on) { Log.d("AttachmentButton", "voice message clicked") }
-        }
-    }
 }
 
 @Composable

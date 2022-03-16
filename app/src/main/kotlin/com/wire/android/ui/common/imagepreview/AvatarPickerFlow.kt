@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.ui.userprofile.image.ImageSource
+import com.wire.android.util.ImageUtil.Companion.postProcessCapturedAvatar
 import com.wire.android.util.getDefaultAvatarUri
 import com.wire.android.util.getShareableAvatarUri
 import com.wire.android.util.permission.OpenGalleryFlow
@@ -37,8 +38,10 @@ fun rememberPickPictureState(): AvatarPickerFlow {
     val onChosenPictureUri = getShareableAvatarUri(context)
     val takePictureFLow = rememberTakePictureFlow(
         shouldPersistUri = { wasSaved ->
-            if (wasSaved)
+            if (wasSaved) {
+                postProcessCapturedAvatar(onChosenPictureUri, context)
                 pictureState = PictureState.Picked(onChosenPictureUri)
+            }
         },
         onPermissionDenied = {
             // TODO: Implement denied permission rationale
@@ -52,7 +55,8 @@ fun rememberPickPictureState(): AvatarPickerFlow {
         },
         onPermissionDenied = {
             // TODO: Implement denied permission rationale
-        })
+        }
+    )
 
     return remember(pictureState) {
         AvatarPickerFlow(pictureState, takePictureFLow, openGalleryFlow)

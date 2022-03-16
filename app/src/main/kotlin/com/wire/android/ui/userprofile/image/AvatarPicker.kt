@@ -32,7 +32,7 @@ import com.wire.android.ui.common.imagepreview.PictureState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.BackNavigationIconButton
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.getTempAvatarUri
+import com.wire.android.util.getWritableTempAvatarUri
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +42,7 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
 
     // We need to launch an effect to update the initial avatar uri whenever the pickerVM updates successfully the raw image
     LaunchedEffect(viewModel.avatarRaw) {
-        val currentAvatarUri = getTempAvatarUri(viewModel.avatarRaw ?: ByteArray(16), context)
+        val currentAvatarUri = getWritableTempAvatarUri(viewModel.avatarRaw ?: ByteArray(16), context)
         state.avatarPickerFlow.pictureState = PictureState.Initial(currentAvatarUri)
     }
 
@@ -81,18 +81,18 @@ private fun AvatarPickerContent(
                     onItemClick = { state.openImageSource(ImageSource.Gallery) }
                 )
             }, {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.profile_image_take_a_picture_menu_item),
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_camera,
-                            contentDescription = stringResource(R.string.content_description_take_a_picture)
-                        )
-                    },
-                    action = { ArrowRightIcon() },
-                    onItemClick = { state.openImageSource(ImageSource.Camera) }
-                )
-            }
+            MenuBottomSheetItem(
+                title = stringResource(R.string.profile_image_take_a_picture_menu_item),
+                icon = {
+                    MenuItemIcon(
+                        id = R.drawable.ic_camera,
+                        contentDescription = stringResource(R.string.content_description_take_a_picture)
+                    )
+                },
+                action = { ArrowRightIcon() },
+                onItemClick = { state.openImageSource(ImageSource.Camera) }
+            )
+        }
         )
     ) {
         Scaffold(topBar = {

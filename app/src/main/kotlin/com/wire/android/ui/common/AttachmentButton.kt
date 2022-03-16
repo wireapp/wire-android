@@ -8,9 +8,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -36,13 +37,11 @@ fun AttachmentButton(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .width(dimensions().attachmentButtonSize)
-            .wrapContentWidth(),
+        modifier = modifier.width(dimensions().attachmentButtonSize),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .size(dimensions().attachmentButtonSize)
                 .background(MaterialTheme.wireColorScheme.primaryButtonEnabled, CircleShape)
                 .padding(dimensions().userAvatarStatusBorderSize)
@@ -63,8 +62,9 @@ fun AttachmentButton(
             maxLines = 2,
             textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.wireTypography.title03,
+            style = MaterialTheme.wireTypography.button03,
             color = MaterialTheme.wireColorScheme.onBackground,
+            modifier = Modifier.requiredSizeIn(minWidth = 40.dp, maxWidth = 60.dp)
         )
     }
 }

@@ -125,6 +125,14 @@
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
 
+    <!-- Attachment options -->
+    <string name="attachment_share_file">Attach File</string>
+    <string name="attachment_share_image">Attach Image</string>
+    <string name="attachment_take_photo">Take Photo</string>
+    <string name="attachment_record_video">Record Video</string>
+    <string name="attachment_voice_message">Voice Message</string>
+    <string name="attachment_share_location">Share Location</string>
+
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>

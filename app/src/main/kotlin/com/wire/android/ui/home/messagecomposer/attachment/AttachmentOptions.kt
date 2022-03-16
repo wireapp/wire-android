@@ -11,17 +11,20 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.AttachmentButton
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalComposeUiApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun AttachmentOptionsComponent() {
-//    val keyboardController = LocalSoftwareKeyboardController.current
-//    keyboardController?.hide()
-
+    val viewModel: AttachmentOptionsViewModel = hiltViewModel()
     LazyVerticalGrid(
         cells = GridCells.Fixed(4),
         contentPadding = PaddingValues(32.dp),
@@ -29,24 +32,40 @@ fun AttachmentOptionsComponent() {
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
-        // TODO: Change this to dynamic way of building using "items"
+        // First row options
         item {
-            AttachmentButton("Attach File", R.drawable.ic_attach_file) { Log.d("AttachmentButton", "attach file clicked") }
+            AttachmentButton(stringResource(R.string.attachment_share_file), R.drawable.ic_attach_file) {
+                Log.d("AttachmentButton", "attach file clicked")
+            }
         }
         item {
-            AttachmentButton("Attach Image", R.drawable.ic_gallery) { Log.d("AttachmentButton", "attach image clicked") }
+            AttachmentButton(stringResource(R.string.attachment_share_image), R.drawable.ic_gallery) {
+                Log.d("AttachmentButton", "attach image clicked")
+            }
         }
         item {
-            AttachmentButton("Take Photo", R.drawable.ic_camera) { Log.d("AttachmentButton", "take photo clicked") }
+            AttachmentButton(stringResource(R.string.attachment_take_photo), R.drawable.ic_camera) {
+                Log.d("AttachmentButton", "take photo clicked")
+            }
         }
         item {
-            AttachmentButton("Take Photo", R.drawable.ic_video_icon) { Log.d("AttachmentButton", "take video clicked") }
+            AttachmentButton(stringResource(R.string.attachment_record_video), R.drawable.ic_video_icon) {
+                Log.d("AttachmentButton", "take video clicked")
+            }
+        }
+        // Second row options
+        item {
+            AttachmentButton(
+                stringResource(R.string.attachment_voice_message), R.drawable.ic_mic_on, modifier = Modifier.padding(top = 32.dp)
+            ) {
+                Log.d("AttachmentButton", "voice message clicked")
+            }
         }
         item {
             AttachmentButton(
-                "Voice Message", R.drawable.ic_mic_on, modifier = Modifier.padding(top = 24.dp)
+                stringResource(R.string.attachment_share_location), R.drawable.ic_location, modifier = Modifier.padding(top = 32.dp)
             ) {
-                Log.d("AttachmentButton", "voice message clicked")
+                Log.d("AttachmentButton", "share location clicked")
             }
         }
     }

@@ -154,7 +154,7 @@ private fun UserProfileContent(
 }
 
 @Composable
-fun mapErrorCodeToString(errorCode: ErrorCodes): String {
+private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     return when (errorCode) {
         DownloadUserInfoError -> stringResource(R.string.error_downloading_user_info)
         // Add more future errors for a more granular error handling

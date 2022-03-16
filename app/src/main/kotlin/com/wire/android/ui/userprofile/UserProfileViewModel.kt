@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.appLogger
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -90,6 +91,7 @@ class UserProfileViewModel @Inject constructor(
                     // TODO: obtain the asset id through a useCase once we also store assets ids
                     dataStore.updateUserAvatarAssetId(avatarAssetId)
                 } catch (e: ClassCastException) {
+                    appLogger.e("There was an error while uploading the user avatar", e)
                     // Show error snackbar if avatar download fails
                     showErrorMessage()
                 } finally {

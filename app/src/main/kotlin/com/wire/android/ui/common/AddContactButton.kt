@@ -26,6 +26,7 @@ fun AddContactButton(onIconClicked: () -> Unit, modifier: Modifier = Modifier) {
             )
         },
         leadingIconAlignment = IconAlignment.Center,
+        //TODO: remove this after the merge into the develop as they are not needed anymore
         fillMaxWidth = false,
         minHeight = 32.dp,
         minWidth = 40.dp,

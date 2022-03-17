@@ -22,9 +22,11 @@ class ContactsViewModel @Inject constructor(private val navigationManager: Navig
                     )
                 )
                 for (i in 2..11) {
-                    Contact(
-                        id = 1,
-                        "This is $i contact"
+                    add(
+                        Contact(
+                            id = 1,
+                            "This is $i contact"
+                        )
                     )
                 }
                 add(
@@ -33,7 +35,6 @@ class ContactsViewModel @Inject constructor(private val navigationManager: Navig
                         "This is last contact"
                     )
                 )
-
             }
         )
     )

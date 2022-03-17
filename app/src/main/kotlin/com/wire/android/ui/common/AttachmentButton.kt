@@ -1,6 +1,5 @@
 package com.wire.android.ui.common
 
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -50,7 +48,7 @@ fun AttachmentButton(
             Image(
                 painter = painterResource(icon),
                 contentDescription = stringResource(R.string.content_description_user_avatar),
-                contentScale = ContentScale.FillBounds,
+                contentScale = ContentScale.Inside,
                 modifier = Modifier
                     .padding(dimensions().userAvatarClickablePadding)
                     .align(Alignment.Center),
@@ -64,7 +62,7 @@ fun AttachmentButton(
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.wireTypography.button03,
             color = MaterialTheme.wireColorScheme.onBackground,
-            modifier = Modifier.requiredSizeIn(minWidth = 40.dp, maxWidth = 60.dp)
+            modifier = Modifier.requiredSizeIn(minWidth = dimensions().spacing40x, maxWidth = dimensions().spacing64x)
         )
     }
 }
@@ -72,7 +70,5 @@ fun AttachmentButton(
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentButton() {
-    AttachmentButton("Attach File", R.drawable.ic_attach_file) {
-        Log.d("AttachmentButton", ">> Clicked")
-    }
+    AttachmentButton("Attach File", R.drawable.ic_attach_file) { }
 }

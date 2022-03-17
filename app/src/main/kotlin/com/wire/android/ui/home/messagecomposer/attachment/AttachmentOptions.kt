@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.messagecomposer.attachment
 
-import android.util.Log
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,10 +14,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.AttachmentButton
+import com.wire.android.ui.common.dimensions
 
 @OptIn(
     ExperimentalComposeUiApi::class,
@@ -25,51 +26,53 @@ import com.wire.android.ui.common.AttachmentButton
 @Composable
 fun AttachmentOptionsComponent() {
     val viewModel: AttachmentOptionsViewModel = hiltViewModel()
+    val attachmentOptions = buildAttachmentOptionItems()
     LazyVerticalGrid(
-        cells = GridCells.Fixed(4),
-        contentPadding = PaddingValues(32.dp),
+        cells = GridCells.Adaptive(dimensions().spacing64x),
+        contentPadding = PaddingValues(start = dimensions().spacing32x, end = dimensions().spacing32x, top = dimensions().spacing32x),
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
-        // First row options
-        item {
-            AttachmentButton(stringResource(R.string.attachment_share_file), R.drawable.ic_attach_file) {
-                Log.d("AttachmentButton", "attach file clicked")
-            }
-        }
-        item {
-            AttachmentButton(stringResource(R.string.attachment_share_image), R.drawable.ic_gallery) {
-                Log.d("AttachmentButton", "attach image clicked")
-            }
-        }
-        item {
-            AttachmentButton(stringResource(R.string.attachment_take_photo), R.drawable.ic_camera) {
-                Log.d("AttachmentButton", "take photo clicked")
-            }
-        }
-        item {
-            AttachmentButton(stringResource(R.string.attachment_record_video), R.drawable.ic_video_icon) {
-                Log.d("AttachmentButton", "take video clicked")
-            }
-        }
-        // Second row options
-        item {
-            AttachmentButton(
-                stringResource(R.string.attachment_voice_message), R.drawable.ic_mic_on, modifier = Modifier.padding(top = 32.dp)
-            ) {
-                Log.d("AttachmentButton", "voice message clicked")
-            }
-        }
-        item {
-            AttachmentButton(
-                stringResource(R.string.attachment_share_location), R.drawable.ic_location, modifier = Modifier.padding(top = 32.dp)
-            ) {
-                Log.d("AttachmentButton", "share location clicked")
+        attachmentOptions.forEach { option ->
+            item {
+                AttachmentButton(
+                    stringResource(option.text), option.icon,
+                    modifier = Modifier.padding(bottom = dimensions().spacing24x)
+                ) {
+                    option.onClick()
+                }
             }
         }
     }
 }
+
+private fun buildAttachmentOptionItems() = listOf(
+    AttachmentOptionItem(R.string.attachment_share_file, R.drawable.ic_attach_file) {
+        // TODO: implement attach file options
+    },
+    AttachmentOptionItem(R.string.attachment_share_image, R.drawable.ic_gallery) {
+        // TODO: implement attach image options
+    },
+    AttachmentOptionItem(R.string.attachment_take_photo, R.drawable.ic_camera) {
+        // TODO: implement take photo options
+    },
+    AttachmentOptionItem(R.string.attachment_record_video, R.drawable.ic_video_icon) {
+        // TODO: implement record video options
+    },
+    AttachmentOptionItem(R.string.attachment_voice_message, R.drawable.ic_mic_on) {
+        // TODO: implement voice message options
+    },
+    AttachmentOptionItem(R.string.attachment_share_location, R.drawable.ic_location) {
+        // TODO: implement share location options
+    }
+)
+
+private data class AttachmentOptionItem(
+    @StringRes val text: Int,
+    @DrawableRes val icon: Int,
+    val onClick: () -> Unit
+)
 
 @Preview(showBackground = true)
 @Composable

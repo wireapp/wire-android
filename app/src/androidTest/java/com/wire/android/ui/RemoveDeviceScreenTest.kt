@@ -7,19 +7,17 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
-import com.wire.android.ui.authentication.devices.RemoveDeviceViewModel
-import com.wire.android.ui.authentication.login.LoginScreen
-import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.PASSWORD
 import com.wire.android.utils.WorkManagerTestRule
-import com.wire.android.utils.getViewModel
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.android.utils.waitForExecution
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -60,31 +58,36 @@ class RemoveDeviceScreenTest {
 
     val title = composeTestRule.onNodeWithText("Remove a Device")
     val backButton = composeTestRule.onNodeWithText("Back button")
-    val removeDeviceButton = composeTestRule.onNode(hasTestTag("remove device button"))
+    val removeDeviceButton = composeTestRule.onAllNodes(hasTestTag("remove device button"))
     val remove = composeTestRule.onNodeWithContentDescription("Remove icon")
     val removeDeviceText = composeTestRule.onNodeWithText("Remove the following device?")
-    val removeButton = composeTestRule.onNodeWithContentDescription("Remove")
+    val removeButton = composeTestRule.onNodeWithText("Remove")
     val cancelButton = composeTestRule.onNodeWithText("Cancel")
-    val removeDevicePasswordField = composeTestRule.onNode(hasTestTag("remove device password field"))
+    val passwordField = composeTestRule.onNode(hasTestTag("remove device password field"))
 
     val invalidPasswordText = "Invalid password"
 
     @Test
-    fun removeDeviceSucessfully() {
+    fun removeDevice_Successfully() {
         title.assertIsDisplayed()
-        removeDeviceButton.performClick()
-        removeDeviceText.assertIsDisplayed()
-        removeDevicePasswordField.performTextInput(PASSWORD)
+        composeTestRule.waitForExecution {
+            removeDeviceButton[1].performClick()
+            removeDeviceText.assertIsDisplayed()
+        }
+        passwordField.onChildren()[1].performTextClearance()
+        passwordField.onChildren()[1].performTextInput("Mustafastaging1!")
         removeButton.performClick()
-
     }
 
     @Test
     fun removeDevice_error_wrongPassword() {
         title.assertIsDisplayed()
-        removeDeviceButton.performClick()
-        removeDeviceText.assertIsDisplayed()
-        removeDevicePasswordField.performTextInput("123456")
+        composeTestRule.waitForExecution {
+            removeDeviceButton[1].performClick()
+            removeDeviceText.assertIsDisplayed()
+        }
+        passwordField.onChildren()[1].performTextClearance()
+        passwordField.onChildren()[1].performTextInput("BAD PASSWORD")
         removeButton.performClick()
         composeTestRule.onNodeWithText("invalidPasswordText").assertIsDisplayed()
     }
@@ -92,11 +95,12 @@ class RemoveDeviceScreenTest {
     @Test
     fun removeDevice_cancel() {
         title.assertIsDisplayed()
-        removeDeviceButton.performClick()
-        removeDeviceText.assertIsDisplayed()
-        removeDevicePasswordField.performTextInput(PASSWORD)
+        composeTestRule.waitForExecution {
+            removeDeviceButton[1].performClick()
+            removeDeviceText.assertIsDisplayed()
+        }
         cancelButton.performClick()
         title.assertIsDisplayed()
-        removeDeviceButton.assertIsDisplayed()
+        removeDeviceButton[1].assertIsDisplayed()
     }
 }

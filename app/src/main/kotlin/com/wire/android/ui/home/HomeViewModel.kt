@@ -53,9 +53,11 @@ class HomeViewModel
                     )
             }
         }
+
+        loadUserAvatar()
     }
 
-    fun loadUserAvatar() {
+    private fun loadUserAvatar() {
         viewModelScope.launch {
             try {
                 dataStore.avatarAssetId.first()?.let {

@@ -45,7 +45,6 @@ enum class CreateAccountFlowType(
             summaryIconResId = R.drawable.ic_create_team_success
         )
     );
-
     companion object {
         fun fromRouteArg(routeArg: String?) = values().firstOrNull { it.routeArg == routeArg }
     }
@@ -57,10 +56,8 @@ data class OverviewResources(
     @DrawableRes val overviewContentIconResId: Int,
     @StringRes val overviewLearnMoreTextResId: Int
 )
-
 data class SummaryResources(
     @StringRes val summaryTextResId: Int,
     @DrawableRes val summaryIconResId: Int
 )
-
 data class EmailResources(@StringRes val emailSubtitleResId: Int)

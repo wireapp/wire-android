@@ -52,7 +52,6 @@ abstract class CreateAccountBaseViewModel(
         codeState = CreateAccountCodeViewState(type)
         onOverviewSuccess()
     }
-
     abstract fun onOverviewSuccess()
 
     // Email
@@ -64,7 +63,6 @@ abstract class CreateAccountBaseViewModel(
         )
         codeState = codeState.copy(email = newText.text)
     }
-
     final override fun onEmailContinue() {
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch { //TODO replace with proper logic
@@ -108,7 +106,6 @@ abstract class CreateAccountBaseViewModel(
             )
         }
     }
-
     final override fun onDetailsContinue() {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch { //TODO replace with proper logic
@@ -126,7 +123,6 @@ abstract class CreateAccountBaseViewModel(
             if (detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onDetailsSuccess()
         }
     }
-
     abstract fun onDetailsSuccess()
 
     // Code
@@ -151,7 +147,6 @@ abstract class CreateAccountBaseViewModel(
             }
         }
     }
-
     abstract fun onCodeSuccess()
 
     override fun onSummaryContinue() {

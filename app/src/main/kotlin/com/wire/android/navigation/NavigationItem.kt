@@ -27,7 +27,7 @@ import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.newconversation.NewConversationScreen
+import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.UserProfileScreen
 import com.wire.android.ui.userprofile.image.AvatarPickerScreen
@@ -142,7 +142,7 @@ enum class NavigationItem(
     NewConversation(
         primaryRoute = NEW_CONVERSATION,
         canonicalRoute = NEW_CONVERSATION,
-        content = { NewConversationScreen() }
+        content = { NewConversationRouter() }
     );
 
     /**
@@ -173,7 +173,7 @@ object NavigationItemDestinationsRoutes {
     const val SETTINGS = "settings_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val IMAGE_PICKER = "image_picker_screen"
-    const val NEW_CONVERSATION = "new_conversation"
+    const val NEW_CONVERSATION = "new_conversation_screen"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"

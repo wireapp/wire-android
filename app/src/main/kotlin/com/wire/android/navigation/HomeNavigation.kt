@@ -1,12 +1,10 @@
 package com.wire.android.navigation
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -14,7 +12,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.R
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeState
 import com.wire.android.ui.home.archive.ArchiveScreen
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
@@ -25,7 +22,6 @@ import com.wire.android.ui.home.vault.VaultScreen
 @Composable
 fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, startDestination: String?) {
     NavHost(
-        modifier = Modifier.padding(top = dimensions().smallTopBarHeight),
         navController = navController,
         startDestination = startDestination ?: HomeNavigationItem.Conversations.route
     ) {
@@ -75,7 +71,7 @@ enum class HomeNavigationItem(
                         homeState.changeBottomSheetContent(bottomSheetContent)
                     },
                     onExpandHomeBottomSheet = { homeState.expandBottomSheet() },
-                    onScrollPositionChange = { newScrollPosition -> homeState.updateScrollPosition(newScrollPosition) }
+                    onScrollPositionChanged = { newScrollPosition -> homeState.updateScrollPosition(newScrollPosition) }
                 )
             }
         }

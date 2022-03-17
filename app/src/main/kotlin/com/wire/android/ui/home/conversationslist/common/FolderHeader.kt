@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversationlist.common
+package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -15,10 +15,11 @@ import com.wire.android.ui.theme.wireTypography
 fun FolderHeader(name: String) {
     Text(
         text = name,
-        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
+        modifier = Modifier
+            .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         style = MaterialTheme.wireTypography.title03,
-        color = MaterialTheme.wireColorScheme.labelText
+        color = MaterialTheme.wireColorScheme.labelText,
     )
 }

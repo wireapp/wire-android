@@ -61,7 +61,6 @@ class HomeState(
             drawerState.open()
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)

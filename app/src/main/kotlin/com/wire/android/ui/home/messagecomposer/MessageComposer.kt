@@ -5,6 +5,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -170,9 +173,7 @@ private fun MessageComposer(
                             visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
                         ) {
                             Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
-                                AdditionalOptionButton {
-                                    messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
-                                }
+                                AdditionalOptionButton(messageComposerState)
                             }
                         }
                         Spacer(Modifier.width(8.dp))
@@ -252,9 +253,7 @@ private fun MessageComposer(
                         targetOffsetY = { fullHeight -> fullHeight / 2 }
                     ) + fadeOut()
                 ) {
-                    MessageComposeActions {
-                        messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
-                    }
+                    MessageComposeActions(messageComposerState)
                 }
             }
 
@@ -354,13 +353,13 @@ private fun SendButton(
 }
 
 @Composable
-private fun MessageComposeActions(onAdditionalOptionsClicked: () -> Unit) {
+private fun MessageComposeActions(messageComposerInnerState: MessageComposerInnerState) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxWidth()
     ) {
-        AdditionalOptionButton { onAdditionalOptionsClicked() }
+        AdditionalOptionButton(messageComposerInnerState)
         RichTextEditingAction()
         AddEmojiAction()
         AddGifAction()
@@ -369,13 +368,20 @@ private fun MessageComposeActions(onAdditionalOptionsClicked: () -> Unit) {
 }
 
 @Composable
-private fun AdditionalOptionButton(onAdditionalOptionsClicked: () -> Unit) {
+private fun AdditionalOptionButton(messageComposerInnerState: MessageComposerInnerState) {
+    val rotationAngle by animateFloatAsState(
+        if (messageComposerInnerState.attachmentOptionsDisplayed) -90f else 0f,
+        animationSpec = tween(durationMillis = 300)
+    )
     WireSecondaryButton(
-        onClick = { onAdditionalOptionsClicked() },
+        onClick = {
+            messageComposerInnerState.attachmentOptionsDisplayed = !messageComposerInnerState.attachmentOptionsDisplayed
+        },
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_add),
                 contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                modifier = Modifier.graphicsLayer(rotationZ = rotationAngle)
             )
         },
         fillMaxWidth = false,

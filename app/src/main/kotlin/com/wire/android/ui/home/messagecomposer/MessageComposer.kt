@@ -371,7 +371,7 @@ private fun MessageComposeActions(messageComposerInnerState: MessageComposerInne
 private fun AdditionalOptionButton(messageComposerInnerState: MessageComposerInnerState) {
     val rotationAngle by animateFloatAsState(
         if (messageComposerInnerState.attachmentOptionsDisplayed) -90f else 0f,
-        animationSpec = tween(durationMillis = 300)
+        animationSpec = tween(durationMillis = 400)
     )
     WireSecondaryButton(
         onClick = {

@@ -21,6 +21,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.utils.PASSWORD
 import com.wire.android.utils.WAIT_TIMEOUT
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.kalium.logic.configuration.ServerConfig
@@ -90,7 +91,7 @@ class LoginScreenTest {
 
         passwordField.assertIsDisplayed()
         passwordField.onChildren()[1].performTextClearance()
-        passwordField.onChildren()[1].performTextInput("Mustafastaging1!")
+        passwordField.onChildren()[1].performTextInput(PASSWORD)
 
         loginButton.assertHasClickAction()
         loginButton.performClick()

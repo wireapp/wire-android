@@ -206,7 +206,7 @@ private fun AppTopBarWithSearchBarContent(
                         placeholderTextStyle = textStyleAlignment(isTopBarVisible = isTopBarVisible),
                         textStyle = textStyleAlignment(isTopBarVisible = isTopBarVisible),
                         interactionSource = interactionSource,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(dimensions().spacing8x)
                     )
 
                     if (interactionSource.collectIsPressedAsState().value) {

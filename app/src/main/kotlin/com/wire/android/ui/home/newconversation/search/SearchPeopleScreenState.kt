@@ -32,9 +32,7 @@ class SearchPeopleScreenState(
 
     var contactsAllResultsCollapsed: Boolean by mutableStateOf(false)
 
-
     var publicResultsCollapsed: Boolean by mutableStateOf(false)
-
 
     var federatedBackendResultsCollapsed: Boolean by mutableStateOf(false)
 
@@ -58,5 +56,4 @@ class SearchPeopleScreenState(
             lazyListState.animateScrollToItem(2)
         }
     }
-
 }

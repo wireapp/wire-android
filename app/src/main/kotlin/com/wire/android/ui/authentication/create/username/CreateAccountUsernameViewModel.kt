@@ -12,6 +12,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,7 +21,8 @@ import javax.inject.Inject
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreateAccountUsernameViewModel @Inject constructor(
-    private val navigationManager: NavigationManager
+    private val navigationManager: NavigationManager,
+    private val validateUserHandleUseCase: ValidateUserHandleUseCase
 ): ViewModel() {
     var state: CreateAccountUsernameViewState by mutableStateOf(CreateAccountUsernameViewState())
         private set
@@ -31,12 +34,19 @@ class CreateAccountUsernameViewModel @Inject constructor(
             continueEnabled = newText.text.isNotEmpty() && !state.loading)
     }
 
+    fun onErrorDismiss() {
+        state = state.copy(error = CreateAccountUsernameViewState.UsernameError.None)
+    }
+
     fun onContinue() {
-        state = state.copy(loading = true)
+        state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
+            val usernameError = if(validateUserHandleUseCase(state.username.text.trim())) CreateAccountUsernameViewState.UsernameError.None
+            else CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError
             //TODO change username request
-            state = state.copy(loading = false)
-            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+            state = state.copy(loading = false, continueEnabled = true, error = usernameError)
+            if(usernameError is CreateAccountUsernameViewState.UsernameError.None)
+                navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
     }
 }

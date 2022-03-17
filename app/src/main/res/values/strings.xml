@@ -8,7 +8,6 @@
     <string name="label_cancel">Cancel</string>
     <string name="label_confirm">Confirm</string>
     <string name="label_continue">Continue</string>
-    <string name="label_confirm">Confirm</string>
     <string name="label_start_using_wire">Start using Wire</string>
     <string name="label_remove">Remove</string>
     <string name="label_learn_more">Learn more</string>
@@ -69,7 +68,7 @@
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please try again.</string>
-    <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or username</string>
+    <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or username.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
 
@@ -100,7 +99,9 @@
     <string name="create_account_email_terms_dialog_title">Terms &amp; Conditions</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms &amp; Conditions and Privacy Policy.</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToC and Privacy Policy</string>
-    <string name="create_account_email_error">The email address you provided has already been registered.</string>
+    <string name="create_account_email_already_in_use_error">The email address you provided has already been registered.</string>
+    <string name="create_account_email_blacklisted_error">The email address you provided has been blacklisted due to a permanent bounce or a complaint.</string>
+    <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
     <string name="create_account_email_domain_blocked_error">You can´t create this account as your email domain is intentionally blocked.\nPlease ask your team admin to invite you via email.</string>
     <string name="create_account_details_first_name_placeholder">Jane</string>
     <string name="create_account_details_first_name_label">FIRST NAME</string>
@@ -115,6 +116,10 @@
     <string name="create_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="create_account_code_resend">Resend code</string>
     <string name="create_account_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
+    <string name="create_account_code_error_title">Invalid information</string>
+    <string name="create_account_code_error_team_members_limit_reached">This team has reached its membership limit.</string>
+    <string name="create_account_code_error_personal_account_creation_restricted">This application version does not allow creation of personal accounts.</string>
+    <string name="create_account_code_error_team_creation_restricted">This application version does not allow creation of teams.</string>
     <string name="create_account_username_title">Your User Name</string>
     <string name="create_account_username_placeholder">jane.doe</string>
     <string name="create_account_username_label">USERNAME</string>

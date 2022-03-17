@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.create.email
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +41,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -56,10 +58,11 @@ fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel, serverConfi
         state = viewModel.emailState,
         onEmailChange = viewModel::onEmailChange,
         onBackPressed = viewModel::goBackToPreviousStep,
-        onContinuePressed = viewModel::onEmailContinue,
+        onContinuePressed = { viewModel.onEmailContinue(serverConfig) },
         onLoginPressed = viewModel::openLogin,
         onTermsDialogDismiss = viewModel::onTermsDialogDismiss,
-        onTermsAccept = viewModel::onTermsAccept,
+        onTermsAccept = { viewModel.onTermsAccept(serverConfig) },
+        onErrorDismiss = viewModel::onEmailErrorDismiss,
         websiteBaseUrl = serverConfig.websiteUrl
     )
 }
@@ -74,6 +77,7 @@ private fun EmailContent(
     onLoginPressed: () -> Unit,
     onTermsDialogDismiss: () -> Unit,
     onTermsAccept: () -> Unit,
+    onErrorDismiss: () -> Unit,
     websiteBaseUrl: String
 ) {
     Scaffold(topBar = {
@@ -88,8 +92,7 @@ private fun EmailContent(
             Text(
                 text = stringResource(id = state.type.emailResources.emailSubtitleResId),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.fillMaxWidth()
-                    .padding(
+                modifier = Modifier.fillMaxWidth().padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
                     )
@@ -105,7 +108,9 @@ private fun EmailContent(
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             )
-            if(state.error is CreateAccountEmailViewState.EmailError.InvalidEmailError) EmailErrorText()
+            AnimatedVisibility(visible = state.error !is CreateAccountEmailViewState.EmailError.None) {
+                EmailErrorText(state.error)
+            }
             Spacer(modifier = Modifier.weight(1f))
             EmailFooter(state = state, onLoginPressed = onLoginPressed, onContinuePressed = onContinuePressed)
         }
@@ -118,31 +123,48 @@ private fun EmailContent(
             onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, "https://${websiteBaseUrl}/legal") }
         )
     }
+    if (state.error is CreateAccountEmailViewState.EmailError.DialogError.GenericError)
+        CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
 }
 
 @Composable
-private fun EmailErrorText() {
+private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
     val learnMoreTag = "learn_more"
     val context = LocalContext.current
     val learnMoreUrl = "https://support.wire.com/hc/en-us/articles/115004082129" //TODO should we keep it in a different way?
     val learnMoreText = stringResource(id = R.string.label_learn_more)
     val annotatedText = buildAnnotatedString {
-        append("${stringResource(R.string.create_account_email_error)} ")
-        pushStringAnnotation(tag = learnMoreTag, annotation = learnMoreUrl)
-        withStyle(style = SpanStyle(
-                color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                fontWeight = MaterialTheme.wireTypography.label05.fontWeight,
-                fontSize = MaterialTheme.wireTypography.label05.fontSize,
-                textDecoration = TextDecoration.Underline
-            )
-        ) { append(learnMoreText) }
-        pop()
+        append(
+            if(error is CreateAccountEmailViewState.EmailError.TextFieldError) when(error) {
+                    CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError ->
+                        stringResource(R.string.create_account_email_already_in_use_error)
+                    CreateAccountEmailViewState.EmailError.TextFieldError.BlacklistedEmailError ->
+                        stringResource(R.string.create_account_email_blacklisted_error)
+                    CreateAccountEmailViewState.EmailError.TextFieldError.DomainBlockedError ->
+                        stringResource(R.string.create_account_email_domain_blocked_error)
+                    CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError ->
+                        stringResource(R.string.create_account_email_invalid_error)
+            } else ""
+        )
+        if(error is CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError) {
+            append(" ")
+            pushStringAnnotation(tag = learnMoreTag, annotation = learnMoreUrl)
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                    fontWeight = MaterialTheme.wireTypography.label05.fontWeight,
+                    fontSize = MaterialTheme.wireTypography.label05.fontSize,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) { append(learnMoreText) }
+            pop()
+        }
     }
     ClickableText(
         modifier = Modifier.fillMaxWidth().padding(
-            vertical = MaterialTheme.wireDimensions.spacing8x,
-            horizontal = MaterialTheme.wireDimensions.spacing16x
-        ),
+                vertical = MaterialTheme.wireDimensions.spacing8x,
+                horizontal = MaterialTheme.wireDimensions.spacing16x
+            ),
         style = MaterialTheme.wireTypography.label04.copy(color = MaterialTheme.wireColorScheme.error, textAlign = TextAlign.Start),
         text = annotatedText,
         onClick = { offset ->
@@ -218,5 +240,5 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
 @Composable
 @Preview
 private fun CreateAccountEmailScreenPreview() {
-    EmailContent(CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, {}, "")
+    EmailContent(CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, {}, {},"")
 }

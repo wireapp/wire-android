@@ -21,14 +21,26 @@ import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewV
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModel
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewState
 import com.wire.android.ui.common.textfield.CodeFieldValue
+import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
+import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
+import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
+import com.wire.kalium.logic.feature.register.RegisterParam
+import com.wire.kalium.logic.feature.register.RegisterResult
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions")
 @OptIn(ExperimentalMaterialApi::class)
 abstract class CreateAccountBaseViewModel(
+    final override val type: CreateAccountFlowType,
     private val navigationManager: NavigationManager,
-    final override val type: CreateAccountFlowType
+    private val validateEmailUseCase: ValidateEmailUseCase,
+    private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val requestActivationCodeUseCase: RequestActivationCodeUseCase,
+    private val registerAccountUseCase: RegisterAccountUseCase
 ) : ViewModel(),
     CreateAccountOverviewViewModel,
     CreateAccountEmailViewModel,
@@ -62,15 +74,44 @@ abstract class CreateAccountBaseViewModel(
         )
         codeState = codeState.copy(email = newText.text)
     }
-    final override fun onEmailContinue() {
+    final override fun onEmailErrorDismiss() {
+        emailState = emailState.copy(error = CreateAccountEmailViewState.EmailError.None)
+    }
+    final override fun onEmailContinue(serverConfig: ServerConfig) {
         emailState = emailState.copy(loading = true, continueEnabled = false)
-        viewModelScope.launch { //TODO replace with proper logic
-            emailState = emailState.copy(loading = false, continueEnabled = true, termsDialogVisible = true)
+        viewModelScope.launch {
+            val emailError =
+                if (validateEmailUseCase(emailState.email.text.trim())) CreateAccountEmailViewState.EmailError.None
+                else CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
+            emailState = emailState.copy(
+                loading = false,
+                continueEnabled = true,
+                termsDialogVisible = !emailState.termsAccepted && emailError is CreateAccountEmailViewState.EmailError.None,
+                error = emailError
+            )
+            if(emailState.termsAccepted) onTermsAccept(serverConfig)
         }
     }
-    final override fun onTermsAccept() {
-        onTermsDialogDismiss()
-        onTermsSuccess()
+    final override fun onTermsAccept(serverConfig: ServerConfig) {
+        emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
+        viewModelScope.launch {
+            val emailError = when (val res = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig)) {
+                RequestActivationCodeResult.Failure.AlreadyInUse ->
+                    CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError
+                RequestActivationCodeResult.Failure.BlacklistedEmail ->
+                    CreateAccountEmailViewState.EmailError.TextFieldError.BlacklistedEmailError
+                RequestActivationCodeResult.Failure.DomainBlocked ->
+                    CreateAccountEmailViewState.EmailError.TextFieldError.DomainBlockedError
+                RequestActivationCodeResult.Failure.InvalidEmail ->
+                    CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
+                is RequestActivationCodeResult.Failure.Generic ->
+                    CreateAccountEmailViewState.EmailError.DialogError.GenericError(res.failure)
+                RequestActivationCodeResult.Success -> CreateAccountEmailViewState.EmailError.None
+            }
+            emailState = emailState.copy(loading = false, continueEnabled = true, error = emailError)
+            if(emailError is CreateAccountEmailViewState.EmailError.None) onTermsSuccess()
+        }
+
     }
     final override fun onTermsDialogDismiss() { emailState = emailState.copy(termsDialogVisible = false) }
     abstract fun onTermsSuccess()
@@ -96,19 +137,23 @@ abstract class CreateAccountBaseViewModel(
             )
         }
     }
-    final override fun onDetailsContinue() {
+    final override fun onDetailsErrorDismiss() {
+        detailsState = detailsState.copy(error = CreateAccountDetailsViewState.DetailsError.None)
+    }
+    final override fun onDetailsContinue(serverConfig: ServerConfig) {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
-        viewModelScope.launch { //TODO replace with proper logic
+        viewModelScope.launch {
+            val detailsError = when {
+                !validatePasswordUseCase(detailsState.password.text) ->
+                    CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError
+                detailsState.password.text != detailsState.confirmPassword.text ->
+                    CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError
+                else -> CreateAccountDetailsViewState.DetailsError.None
+            }
             detailsState = detailsState.copy(
                 loading = false,
                 continueEnabled = true,
-                error = when {
-                    detailsState.password.text != detailsState.confirmPassword.text ->
-                        CreateAccountDetailsViewState.DetailsError.PasswordsNotMatchingError
-                    detailsState.password.text.length < CreateAccountDetailsViewModel.MIN_PASSWORD_LENGTH ->
-                        CreateAccountDetailsViewState.DetailsError.InvalidPasswordError
-                    else -> CreateAccountDetailsViewState.DetailsError.None
-                }
+                error = detailsError
             )
             if(detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onDetailsSuccess()
         }
@@ -116,19 +161,59 @@ abstract class CreateAccountBaseViewModel(
     abstract fun onDetailsSuccess()
 
     // Code
-    final override fun onCodeChange(newValue: CodeFieldValue) {
-        codeState = codeState.copy(code = newValue.text, error = CreateAccountCodeViewState.CodeError.None)
-        if (newValue.isFullyFilled) onCodeContinue()
+    final override fun onCodeChange(newValue: CodeFieldValue, serverConfig: ServerConfig) {
+        codeState = codeState.copy(code = newValue, error = CreateAccountCodeViewState.CodeError.None)
+        if(newValue.isFullyFilled) onCodeContinue(serverConfig)
     }
-    override fun resendCode() {/* TODO */ }
-    final override fun onCodeContinue() {
+    final override fun onCodeErrorDismiss() {
+        codeState = codeState.copy(error = CreateAccountCodeViewState.CodeError.None)
+    }
+    final override fun resendCode(serverConfig: ServerConfig) {
+        codeState = codeState.copy(loading = true, inputEnabled = false)
+        viewModelScope.launch {
+            when (val res = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig)) {
+                RequestActivationCodeResult.Failure.AlreadyInUse ->
+                    CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError
+                RequestActivationCodeResult.Failure.BlacklistedEmail ->
+                    CreateAccountEmailViewState.EmailError.TextFieldError.BlacklistedEmailError
+                RequestActivationCodeResult.Failure.DomainBlocked ->
+                    CreateAccountEmailViewState.EmailError.TextFieldError.DomainBlockedError
+                RequestActivationCodeResult.Failure.InvalidEmail ->
+                    CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
+                is RequestActivationCodeResult.Failure.Generic ->
+                    CreateAccountEmailViewState.EmailError.DialogError.GenericError(res.failure)
+                RequestActivationCodeResult.Success -> CreateAccountEmailViewState.EmailError.None
+            }
+        }
+    }
+    private fun onCodeContinue(serverConfig: ServerConfig) {
         codeState = codeState.copy(loading = true)
-        viewModelScope.launch { //TODO replace with proper logic
-            val codeError =
-                if(codeState.code.text == "111111") CreateAccountCodeViewState.CodeError.None
-                else CreateAccountCodeViewState.CodeError.InvalidCodeError
+        viewModelScope.launch {
+            val registerParam = when(type) {
+                CreateAccountFlowType.CreatePersonalAccount ->
+                    RegisterParam.PrivateAccount(
+                        firstName = detailsState.firstName.text.trim(),
+                        lastName = detailsState.lastName.text.trim(),
+                        password = detailsState.password.text,
+                        email = emailState.email.text.trim(),
+                        emailActivationCode = codeState.code.text.text
+                    )
+                CreateAccountFlowType.CreateTeam -> TODO()
+            }
+            val codeError = when (val registerResult = registerAccountUseCase(registerParam, serverConfig)) {
+                RegisterResult.Failure.InvalidActivationCode ->
+                    CreateAccountCodeViewState.CodeError.TextFieldError.InvalidActivationCodeError
+                RegisterResult.Failure.AccountAlreadyExists -> CreateAccountCodeViewState.CodeError.DialogError.AccountAlreadyExistsError
+                RegisterResult.Failure.BlackListed -> CreateAccountCodeViewState.CodeError.DialogError.BlackListedError
+                RegisterResult.Failure.EmailDomainBlocked -> CreateAccountCodeViewState.CodeError.DialogError.EmailDomainBlockedError
+                RegisterResult.Failure.InvalidEmail -> CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
+                RegisterResult.Failure.TeamMembersLimitReached -> CreateAccountCodeViewState.CodeError.DialogError.TeamMembersLimitError
+                RegisterResult.Failure.UserCreationRestricted -> CreateAccountCodeViewState.CodeError.DialogError.CreationRestrictedError
+                is RegisterResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(registerResult.failure)
+                is RegisterResult.Success -> CreateAccountCodeViewState.CodeError.None
+            }
             codeState = codeState.copy(loading = false, error = codeError)
-            if(codeError is CreateAccountCodeViewState.CodeError.None) {
+            if(codeError is CreateAccountCodeViewState.CodeError.None) { //TODO register client / sync
                 hideKeyboard.emit(Unit)
                 onCodeSuccess()
             }
@@ -136,6 +221,7 @@ abstract class CreateAccountBaseViewModel(
     }
     abstract fun onCodeSuccess()
 
+    // Summary
     override fun onSummaryContinue() { onSummarySuccess() }
     abstract fun onSummarySuccess()
 }

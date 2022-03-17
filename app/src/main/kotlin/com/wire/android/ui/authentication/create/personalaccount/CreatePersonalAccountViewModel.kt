@@ -8,6 +8,11 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountBaseViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
+import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
+import com.wire.kalium.logic.feature.register.VerifyActivationCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -16,8 +21,19 @@ import javax.inject.Inject
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreatePersonalAccountViewModel @Inject constructor(
-    private val navigationManager: NavigationManager
-) : CreateAccountBaseViewModel(navigationManager, CreateAccountFlowType.CreatePersonalAccount) {
+    private val navigationManager: NavigationManager,
+    validateEmailUseCase: ValidateEmailUseCase,
+    validatePasswordUseCase: ValidatePasswordUseCase,
+    requestActivationCodeUseCase: RequestActivationCodeUseCase,
+    registerAccountUseCase: RegisterAccountUseCase
+) : CreateAccountBaseViewModel(
+    CreateAccountFlowType.CreatePersonalAccount,
+    navigationManager,
+    validateEmailUseCase,
+    validatePasswordUseCase,
+    requestActivationCodeUseCase,
+    registerAccountUseCase
+) {
     var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()
 

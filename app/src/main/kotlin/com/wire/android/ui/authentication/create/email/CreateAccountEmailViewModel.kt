@@ -9,5 +9,5 @@ interface CreateAccountEmailViewModel {
     fun onEmailContinue()
     fun openLogin()
     fun onTermsDialogDismiss()
-    fun onTermsAccepted()
+    fun onTermsAccept()
 }

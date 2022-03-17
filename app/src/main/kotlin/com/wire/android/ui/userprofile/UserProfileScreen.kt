@@ -40,10 +40,10 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.UserStatus
-import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
+import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -216,7 +216,7 @@ private fun ColumnScope.UserProfileInfo(
                     .clip(CircleShape)
                     .background(MaterialTheme.wireColorScheme.onBackground.copy(alpha = 0.7f))
             ) {
-                CircularProgressIndicator(
+                WireCircularProgressIndicator(
                     progressColor = MaterialTheme.wireColorScheme.surface,
                     modifier = Modifier.align(Alignment.Center)
                 )

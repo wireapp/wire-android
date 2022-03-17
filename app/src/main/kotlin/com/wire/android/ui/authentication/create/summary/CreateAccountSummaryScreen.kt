@@ -20,19 +20,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.CreateAccountFlowType
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun CreateAccountSummaryScreen() {
-    val viewModel: CreateAccountSummaryViewModel = hiltViewModel()
+fun CreateAccountSummaryScreen(viewModel: CreateAccountSummaryViewModel) {
     SummaryContent(
-        state = viewModel.state,
-        onBackPressed = viewModel::navigateBack,
-        onContinuePressed = viewModel::navigateHome
+        state = viewModel.summaryState,
+        onBackPressed = viewModel::goBackToPreviousStep,
+        onContinuePressed = viewModel::onSummaryContinue
     )
 }
 
@@ -55,7 +54,7 @@ private fun SummaryContent(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.weight(1f))
             Image(
-                painter = painterResource(id = state.type.summaryIconResId),
+                painter = painterResource(id = state.type.summaryResources.summaryIconResId),
                 contentDescription = stringResource(id = R.string.content_description_create_account_summary),
                 contentScale = ContentScale.Inside,
                 modifier = Modifier.padding(
@@ -64,7 +63,7 @@ private fun SummaryContent(
                     )
             )
             Text(
-                text = stringResource(id = state.type.summaryTextResId),
+                text = stringResource(id = state.type.summaryResources.summaryTextResId),
                 style = MaterialTheme.wireTypography.body02,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = MaterialTheme.wireDimensions.spacing24x)

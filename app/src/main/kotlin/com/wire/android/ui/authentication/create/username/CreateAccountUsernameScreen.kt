@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.create.username
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.CreateAccountUsernameFlowType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
@@ -35,7 +33,6 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.launch
 
 @Composable
 fun CreateAccountUsernameScreen() {
@@ -58,7 +55,7 @@ private fun UsernameContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
-                title = stringResource(id = state.type.titleResId),
+                title = stringResource(id = R.string.create_account_username_title),
                 navigationIconType = null
             )
         },
@@ -96,15 +93,16 @@ private fun UsernameContent(
                     CreateAccountUsernameViewState.UsernameError.UsernameTakenError ->
                         WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error))
                     CreateAccountUsernameViewState.UsernameError.UsernameInvalidError ->
-                        WireTextFieldState.Error(stringResource(id = R.string.create_account_username_invalid_error))
+                        WireTextFieldState.Error(stringResource(id = R.string.create_account_username_description))
                 },
+                descriptionText = stringResource(id = R.string.create_account_username_description),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             )
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
-                text = stringResource(R.string.label_continue),
+                text = stringResource(R.string.label_confirm),
                 onClick = onContinuePressed,
                 fillMaxWidth = true,
                 loading = state.loading,
@@ -118,5 +116,5 @@ private fun UsernameContent(
 @Composable
 @Preview
 private fun CreateAccountUsernameScreenPreview() {
-    UsernameContent(CreateAccountUsernameViewState(CreateAccountUsernameFlowType.CreatePersonalAccount), {}, {})
+    UsernameContent(CreateAccountUsernameViewState(), {}, {})
 }

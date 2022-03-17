@@ -3,10 +3,12 @@ package com.wire.android.navigation
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -14,6 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.wire.android.R
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeState
 import com.wire.android.ui.home.archive.ArchiveScreen
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
@@ -27,6 +30,7 @@ import com.wire.android.ui.home.vault.VaultScreen
 @Composable
 fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, startDestination: String?) {
     AnimatedNavHost(
+        modifier = Modifier.padding(top = dimensions().smallTopBarHeight),
         navController = navController,
         startDestination = startDestination ?: HomeNavigationItem.Conversations.route
     ) {
@@ -59,7 +63,6 @@ internal fun navigateToItemInHome(
         restoreState = true
     }
 }
-
 
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api

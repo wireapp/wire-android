@@ -62,7 +62,6 @@ fun ContactsScreenContent(
                 ContactItem(
                     contact.name,
                     contact.userStatus,
-                    contact.avatarUrl
                 )
             }
         }
@@ -95,7 +94,6 @@ fun ContactsScreenContent(
 private fun ContactItem(
     name: String,
     status: UserStatus,
-    avatarUrl: String
 ) {
     RowItem({
         //TODO: Open Contact Screen
@@ -103,7 +101,6 @@ private fun ContactItem(
         //TODO: Show Context Menu ?
     }) {
         UserProfileAvatar(
-            avatarUrl = avatarUrl,
             status = status
         )
         Text(

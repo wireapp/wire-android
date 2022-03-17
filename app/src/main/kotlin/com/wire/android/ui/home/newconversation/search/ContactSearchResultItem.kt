@@ -17,6 +17,7 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 
 @Composable
 fun ContactSearchResultItem(
+    //TODO : this will need refactor we are not using avatarUrl
     avatarUrl: String = "",
     userStatus: UserStatus,
     name: String,
@@ -30,7 +31,6 @@ fun ContactSearchResultItem(
     RowItemTemplate(
         leadingIcon = {
             UserProfileAvatar(
-                avatarUrl = avatarUrl,
                 status = userStatus
             )
         },

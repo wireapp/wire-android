@@ -54,8 +54,8 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 homeBottomSheetState = homeState.bottomSheetState,
                 homeTopBar = {
                     HomeTopBar(
-                        currentNavigationItem = homeState.currentNavigationItem,
                         avatarAssetByteArray = viewModel.userAvatar,
+                        currentNavigationItem = homeState.currentNavigationItem,
                         onOpenDrawerClicked = { openDrawer() },
                         onNavigateToUserProfile = { viewModel.navigateToUserProfile() },
                     )

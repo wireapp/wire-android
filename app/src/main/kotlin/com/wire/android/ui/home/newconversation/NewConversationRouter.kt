@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -10,9 +11,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -21,6 +22,7 @@ import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val newConversationState = rememberNewConversationState()
@@ -46,7 +48,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
             )
         },
         content = {
-            NavHost(newConversationState.navController, startDestination = "contacts") {
+            AnimatedNavHost(newConversationState.navController, startDestination = "contacts") {
                 composable(
                     route = "contacts",
                     content = {
@@ -98,9 +100,10 @@ class NewConversationStateScreen(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun rememberNewConversationState(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberAnimatedNavController()
 ): NewConversationStateScreen {
     return remember {
         NewConversationStateScreen(navController)

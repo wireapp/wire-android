@@ -9,7 +9,7 @@ interface CreateAccountDetailsViewModel {
     fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsFieldType)
 
     enum class DetailsFieldType {
-        FirstName, LastName, Password, ConfirmPassword
+        FirstName, LastName, Password, ConfirmPassword, TeamName
     }
 
     companion object {

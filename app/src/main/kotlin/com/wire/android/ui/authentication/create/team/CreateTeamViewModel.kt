@@ -1,4 +1,4 @@
-package com.wire.android.ui.authentication.create.personalaccount
+package com.wire.android.ui.authentication.create.team
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.viewModelScope
@@ -15,18 +15,19 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
-class CreatePersonalAccountViewModel @Inject constructor(
-    private val navigationManager: NavigationManager
-) : CreateAccountBaseViewModel(navigationManager, CreateAccountFlowType.CreatePersonalAccount) {
-    var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()
+class CreateTeamViewModel @Inject constructor(
+    private val navigationManager: NavigationManager,
+) : CreateAccountBaseViewModel(navigationManager, CreateAccountFlowType.CreateTeam) {
+    var moveToStep = MutableSharedFlow<CreateTeamNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()
 
-    private fun goToStep(item: CreatePersonalAccountNavigationItem) { viewModelScope.launch { moveToStep.emit(item) } }
+    // Navigation
+    private fun goToStep(item: CreateTeamNavigationItem) { viewModelScope.launch { moveToStep.emit(item) } }
     override fun goBackToPreviousStep() { viewModelScope.launch { moveBack.emit(Unit) } }
-    override fun onOverviewSuccess() { goToStep(CreatePersonalAccountNavigationItem.Email) }
-    override fun onTermsSuccess() { goToStep(CreatePersonalAccountNavigationItem.Details) }
-    override fun onDetailsSuccess() { goToStep(CreatePersonalAccountNavigationItem.Code) }
-    override fun onCodeSuccess() { goToStep(CreatePersonalAccountNavigationItem.Summary) }
+    override fun onOverviewSuccess() { goToStep(CreateTeamNavigationItem.Email) }
+    override fun onTermsSuccess() { goToStep(CreateTeamNavigationItem.Details) }
+    override fun onDetailsSuccess() { goToStep(CreateTeamNavigationItem.Code) }
+    override fun onCodeSuccess() { goToStep(CreateTeamNavigationItem.Summary) }
     override fun onSummarySuccess() {
         viewModelScope.launch {
             navigationManager.navigate(

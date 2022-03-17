@@ -16,7 +16,7 @@ import androidx.compose.ui.test.performTextInput
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.WorkManagerTestRule
-import com.wire.android.utils.waitForExecute
+import com.wire.android.utils.waitForExecution
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -65,7 +65,7 @@ class RemoveDeviceScreenTest {
     @Test
     fun removeDevice_Successfully() {
         composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
-        composeTestRule.waitForExecute {
+        composeTestRule.waitForExecution {
             removeDeviceButton[1].performClick()
             removeDeviceText.assertIsDisplayed()
         }
@@ -77,7 +77,7 @@ class RemoveDeviceScreenTest {
     @Test
     fun removeDevice_error_wrongPassword() {
         composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
-        composeTestRule.waitForExecute {
+        composeTestRule.waitForExecution {
             removeDeviceButton[1].performClick()
             removeDeviceText.assertIsDisplayed()
         }
@@ -89,7 +89,7 @@ class RemoveDeviceScreenTest {
     @Test
     fun removeDevice_cancel() {
         composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
-        composeTestRule.waitForExecute {
+        composeTestRule.waitForExecution {
             removeDeviceButton[1].performClick()
             removeDeviceText.assertIsDisplayed()
         }

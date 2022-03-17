@@ -17,7 +17,7 @@ AndroidComposeTestRule<R, A>.getViewModel(viewModel: KClass<VM>): VM {
     return this.activity.viewModels<VM>().value
 }
 
-fun ComposeTestRule.waitForExecute(timeoutMillis: Long = WAIT_TIMEOUT, block: () -> Unit) {
+fun ComposeTestRule.waitForExecution(timeoutMillis: Long = WAIT_TIMEOUT, block: () -> Unit) {
     waitUntil(timeoutMillis) {
         try {
             block()

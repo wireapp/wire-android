@@ -22,7 +22,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.WorkManagerTestRule
-import com.wire.android.utils.waitForExecute
+import com.wire.android.utils.waitForExecution
 import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -97,7 +97,7 @@ class LoginScreenTest {
 
         composeTestRule.onNodeWithText("Logging in...").assertIsDisplayed()
 
-        composeTestRule.waitForExecute {
+        composeTestRule.waitForExecution {
             composeTestRule.onNodeWithText("Invalid information").assertDoesNotExist()
         }
     }
@@ -119,7 +119,7 @@ class LoginScreenTest {
         loginButton.performClick()
 
         composeTestRule.onNodeWithText("Logging in...").assertIsDisplayed()
-        composeTestRule.waitForExecute {
+        composeTestRule.waitForExecution {
             composeTestRule.onNodeWithText("Invalid information").assertIsDisplayed()
         }
 

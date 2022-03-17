@@ -4,12 +4,10 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_USERNAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -21,10 +19,11 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
+import com.wire.android.ui.authentication.create.team.CreateTeamScreen
+import com.wire.android.ui.authentication.create.username.CreateAccountUsernameScreen
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
-import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
@@ -46,62 +45,61 @@ import io.github.esentsov.PackagePrivate
 enum class NavigationItem(
     @PackagePrivate
     internal val primaryRoute: String,
-    private val canonicalRoute: String,
-    val arguments: List<NamedNavArgument> = emptyList(),
-    open val content: @Composable (ContentParams) -> Unit
-    // TODO add animations here
+    private val canonicalRoute: String = primaryRoute,
+    open val content: @Composable (ContentParams) -> Unit,
+    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
 ) {
     Welcome(
         primaryRoute = WELCOME,
-        canonicalRoute = WELCOME,
-        content = { WelcomeScreen() }
+        content = { WelcomeScreen() },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     Login(
         primaryRoute = LOGIN,
-        canonicalRoute = LOGIN,
         content = { contentParams ->
             val serverConfig = contentParams.arguments.filterIsInstance<ServerConfig>().firstOrNull()
             LoginScreen(serverConfig ?: ServerConfig.DEFAULT)
-        }
+        },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
-        canonicalRoute = CREATE_TEAM,
-        content = { UnderConstructionScreen("Create Team Screen") }
+        content = { CreateTeamScreen(ServerConfig.STAGING) },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     CreatePersonalAccount(
         primaryRoute = CREATE_PERSONAL_ACCOUNT,
-        canonicalRoute = CREATE_PERSONAL_ACCOUNT,
-        content = { CreatePersonalAccountScreen(ServerConfig.STAGING) }
+        content = { CreatePersonalAccountScreen(ServerConfig.STAGING) },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+    ),
+
+    CreateUsername(
+        primaryRoute = CREATE_ACCOUNT_USERNAME,
+        content = { CreateAccountUsernameScreen() },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     RemoveDevices(
         primaryRoute = REMOVE_DEVICES,
-        canonicalRoute = REMOVE_DEVICES,
-        content = { RemoveDeviceScreen() }
+        content = { RemoveDeviceScreen() },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     Home(
         primaryRoute = HOME,
-        canonicalRoute = HOME,
         content = { HomeScreen(it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM), hiltViewModel()) },
-        arguments = listOf(
-            navArgument(EXTRA_HOME_TAB_ITEM) { type = NavType.StringType }
-        )
     ),
 
     Settings(
         primaryRoute = SETTINGS,
-        canonicalRoute = SETTINGS,
         content = { SettingsScreen() },
     ),
 
     Support(
         primaryRoute = BuildConfig.SUPPORT_URL,
-        canonicalRoute = BuildConfig.SUPPORT_URL,
         content = { },
     ),
 
@@ -109,9 +107,7 @@ enum class NavigationItem(
         primaryRoute = USER_PROFILE,
         canonicalRoute = "$USER_PROFILE/{$EXTRA_USER_ID}",
         content = { UserProfileScreen() },
-        arguments = listOf(
-            navArgument(EXTRA_USER_ID) { type = NavType.StringType }
-        )
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()
@@ -121,21 +117,17 @@ enum class NavigationItem(
 
     ProfileImagePicker(
         primaryRoute = IMAGE_PICKER,
-        canonicalRoute = IMAGE_PICKER,
         content = { AvatarPickerScreen(hiltViewModel()) },
     ),
 
     Conversation(
         primaryRoute = CONVERSATION,
         canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
-        content = { ConversationScreen(hiltViewModel()) },
-        arguments = listOf(
-            navArgument(EXTRA_CONVERSATION_ID) { type = NavType.StringType }
-        )
+        content = { ConversationScreen(hiltViewModel()) }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return if (conversationId != null) "$primaryRoute/${conversationId.mapIntoArgumentString()}" else primaryRoute
+            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
         }
     },
 
@@ -167,6 +159,7 @@ object NavigationItemDestinationsRoutes {
     const val LOGIN = "login_screen"
     const val CREATE_TEAM = "create_team_screen"
     const val CREATE_PERSONAL_ACCOUNT = "create_personal_account_screen"
+    const val CREATE_ACCOUNT_USERNAME = "create_account_username_screen"
     const val HOME = "home_landing_screen"
     const val USER_PROFILE = "user_profile_screen"
     const val CONVERSATION = "detailed_conversation_screen"
@@ -178,7 +171,6 @@ object NavigationItemDestinationsRoutes {
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 private const val EXTRA_USER_ID = "extra_user_id"
-private const val EXTRA_INITIAL_BITMAP = "extra_initial_bitmap"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")

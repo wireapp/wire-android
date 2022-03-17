@@ -1,8 +1,10 @@
 package com.wire.android.ui.authentication.create.code
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 
 data class CreateAccountCodeViewState(
+    val type: CreateAccountFlowType,
     val code: TextFieldValue = TextFieldValue(""),
     val email: String = "",
     val loading: Boolean = false,

@@ -1,5 +1,6 @@
-package com.wire.android.ui.authentication.create.personalaccount
+package com.wire.android.ui.authentication.create.code
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -15,53 +16,60 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
-import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun CreateAccountCodeScreen(viewModel: CreateAccountCodeViewModel, title: String) {
+fun CreateAccountCodeScreen(viewModel: CreateAccountCodeViewModel) {
     CodeContent(
         state = viewModel.codeState,
-        title = title,
         onCodeChange = viewModel::onCodeChange,
         onResendCodePressed = viewModel::resendCode,
         onBackPressed = viewModel::goBackToPreviousStep
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun CodeContent(
     state: CreateAccountCodeViewState,
-    title: String,
     onCodeChange: (CodeFieldValue) -> Unit,
     onResendCodePressed: () -> Unit,
     onBackPressed: () -> Unit
 ) {
-    Scaffold(topBar = { WireCenterAlignedTopAppBar(elevation = 0.dp, title = title, onNavigationPressed = onBackPressed) }) {
+    Scaffold(topBar = {
+        WireCenterAlignedTopAppBar(
+            elevation = 0.dp,
+            title = stringResource(id = state.type.titleResId),
+            onNavigationPressed = onBackPressed
+        )
+    }) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
             modifier = Modifier.fillMaxHeight()
         ) {
             Text(
-                text = stringResource(R.string.create_personal_account_code_text, state.email),
+                text = stringResource(R.string.create_account_code_text, state.email),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.fillMaxWidth().padding(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
                     )
@@ -71,13 +79,21 @@ private fun CodeContent(
                 CodeTextField(
                     value = state.code,
                     onValueChange = onCodeChange,
-                    state = when(state.error) {
-                        CreateAccountCodeViewState.CodeError.InvalidCodeError ->
-                            WireTextFieldState.Error(stringResource(id = R.string.create_personal_account_code_error))
-                        CreateAccountCodeViewState.CodeError.None -> WireTextFieldState.Default
-                    }
+                    state = when {
+                        state.loading -> WireTextFieldState.Disabled
+                        state.error is CreateAccountCodeViewState.CodeError.InvalidCodeError ->
+                            WireTextFieldState.Error(stringResource(id = R.string.create_account_code_error))
+                        else -> WireTextFieldState.Default
+                    },
                 )
-                ResendCodeText(onResendCodePressed = onResendCodePressed)
+                AnimatedVisibility(visible = state.loading) {
+                    WireCircularProgressIndicator(
+                        progressColor = MaterialTheme.wireColorScheme.primary,
+                        size = MaterialTheme.wireDimensions.spacing24x,
+                        modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing16x)
+                    )
+                }
+                ResendCodeText(onResendCodePressed = onResendCodePressed, clickEnabled = !state.loading)
             }
             Spacer(modifier = Modifier.weight(1f))
         }
@@ -85,23 +101,24 @@ private fun CodeContent(
 }
 
 @Composable
-private fun ResendCodeText(onResendCodePressed: () -> Unit) {
+private fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolean) {
     Text(
-        text = stringResource(R.string.create_personal_account_code_resend),
+        text = stringResource(R.string.create_account_code_resend),
         style = MaterialTheme.wireTypography.body02.copy(
             textDecoration = TextDecoration.Underline,
             color = MaterialTheme.colorScheme.primary
         ),
         textAlign = TextAlign.Center,
         modifier = Modifier
-            .padding(
-                horizontal = MaterialTheme.wireDimensions.spacing16x,
-                vertical = MaterialTheme.wireDimensions.spacing24x
-            )
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
+                enabled = clickEnabled,
                 onClick = onResendCodePressed
+            )
+            .padding(
+                horizontal = MaterialTheme.wireDimensions.spacing16x,
+                vertical = MaterialTheme.wireDimensions.spacing24x
             )
     )
 }
@@ -109,5 +126,5 @@ private fun ResendCodeText(onResendCodePressed: () -> Unit) {
 @Composable
 @Preview
 private fun CreateAccountCodeScreenPreview() {
-    CodeContent(CreateAccountCodeViewState(), "title", {}, {}, {})
+    CodeContent(CreateAccountCodeViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {})
 }

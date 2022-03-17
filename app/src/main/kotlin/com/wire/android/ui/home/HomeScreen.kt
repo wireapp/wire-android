@@ -1,6 +1,7 @@
 package com.wire.android.ui.home
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
@@ -13,19 +14,16 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.model.UserStatus
 import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
-import com.wire.android.ui.common.NavigationIconType
-import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 
-
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
+@OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
     val homeState = rememberHomeState()
@@ -57,6 +55,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 homeTopBar = {
                     HomeTopBar(
                         currentNavigationItem = homeState.currentNavigationItem,
+                        avatarAssetByteArray = viewModel.userAvatar,
                         onOpenDrawerClicked = { openDrawer() },
                         onNavigateToUserProfile = { viewModel.navigateToUserProfile() },
                     )
@@ -71,7 +70,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
 }
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeContent(
     scrollPosition: Int,
@@ -117,7 +116,7 @@ fun HomeContent(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeNavigationGraph(startScreen: String?, homeState: HomeState) {
     val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
@@ -126,25 +125,5 @@ fun HomeNavigationGraph(startScreen: String?, homeState: HomeState) {
         homeState = homeState,
         navController = homeState.navController,
         startDestination = startDestination
-    )
-}
-
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun HomeTopBar(
-    currentNavigationItem: HomeNavigationItem,
-    onOpenDrawerClicked: () -> Unit,
-    onNavigateToUserProfile: () -> Unit
-) {
-    WireCenterAlignedTopAppBar(
-        title = stringResource(id = currentNavigationItem.title),
-        onNavigationPressed = onOpenDrawerClicked,
-        navigationIconType = NavigationIconType.Menu,
-        actions = {
-            UserProfileAvatar(avatarUrl = "", status = UserStatus.AVAILABLE) {
-                onNavigateToUserProfile()
-            }
-        },
-        elevation = if (currentNavigationItem.isSearchable) 0.dp else dimensions().topBarElevationHeight,
     )
 }

@@ -139,7 +139,7 @@ private fun MessageComposer(
 
                             CollapseIconButton(
                                 onCollapseClick = { messageComposerState.toggleFullScreen() },
-                                modifier = Modifier.rotate(degrees = collapseButtonRotationDegree)
+                                collapseRotation = collapseButtonRotationDegree
                             )
                         }
                     }
@@ -166,7 +166,9 @@ private fun MessageComposer(
                         transition.AnimatedVisibility(
                             visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
                         ) {
-                            AdditionalOptionButton()
+                            Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
+                                AdditionalOptionButton()
+                            }
                         }
                         Spacer(Modifier.width(8.dp))
                         // MessageComposerInput needs a padding on the end of it to give room for the SendOptions components, because
@@ -193,7 +195,7 @@ private fun MessageComposer(
                                                 .heightIn(
                                                     max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
                                                 )
-                                                .padding(end = 82.dp)
+                                                .padding(bottom = MaterialTheme.wireDimensions.spacing16x, end = 82.dp)
                                         }
                                         else -> Modifier.wrapContentHeight()
                                     }
@@ -247,14 +249,15 @@ private fun MessageComposer(
 }
 
 @Composable
-private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier = Modifier, collapseRotation: Float = 0f) {
     IconButton(
-        onClick = onCollapseClick
+        onClick = onCollapseClick,
+        modifier = modifier.size(20.dp)
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_collapse),
             contentDescription = stringResource(R.string.content_description_drop_down_icon),
-            modifier = modifier
+            modifier = Modifier.rotate(collapseRotation)
         )
     }
 }

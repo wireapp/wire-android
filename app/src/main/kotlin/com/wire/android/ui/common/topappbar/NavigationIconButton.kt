@@ -1,4 +1,4 @@
-package com.wire.android.ui.common
+package com.wire.android.ui.common.topappbar
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons

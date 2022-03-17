@@ -1,4 +1,4 @@
-package com.wire.android.ui.authentication.create.personalaccount
+package com.wire.android.ui.authentication.create.overview
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -24,19 +24,26 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewParams
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.configuration.ServerConfig
 
 @Composable
-fun CreateAccountOverviewScreen(viewModel: CreatePersonalAccountViewModel, overviewParams: CreateAccountOverviewParams) {
+fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel, serverConfig: ServerConfig) {
     OverviewContent(
         onBackPressed = viewModel::goBackToPreviousStep,
         onContinuePressed = viewModel::onOverviewContinue,
-        overviewParams = overviewParams
+        overviewParams = CreateAccountOverviewParams(
+            title = stringResource(id = viewModel.type.titleResId),
+            contentTitle = viewModel.type.overviewResources.overviewContentTitleResId?.let { stringResource(id = it) } ?: "",
+            contentText = stringResource(id = viewModel.type.overviewResources.overviewContentTextResId),
+            contentIconResId = viewModel.type.overviewResources.overviewContentIconResId,
+            learnMoreText = stringResource(id = viewModel.type.overviewResources.overviewLearnMoreTextResId),
+            learnMoreUrl = "https://${serverConfig.websiteUrl}/pricing"
+        )
     )
 }
 
@@ -90,7 +97,9 @@ private fun OverviewTexts(overviewParams: CreateAccountOverviewParams, modifier:
                 text = overviewParams.contentTitle,
                 style = MaterialTheme.wireTypography.title01,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
             )
         Text(
             text = overviewParams.contentText,

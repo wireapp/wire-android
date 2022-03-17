@@ -12,7 +12,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
-import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
@@ -102,8 +101,8 @@ class RemoveDeviceViewModel @Inject constructor(
     private fun DeleteClientResult.toRemoveDeviceError() =
         when (this) {
             is DeleteClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
-            is DeleteClientResult.Success -> RemoveDeviceError.None
-            else -> RemoveDeviceError.None
+            DeleteClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
+            DeleteClientResult.Success -> RemoveDeviceError.None
         }
 
     private fun RegisterClientResult.toRemoveDeviceError() =
@@ -112,7 +111,6 @@ class RemoveDeviceViewModel @Inject constructor(
             is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
             is RegisterClientResult.Success -> RemoveDeviceError.None
-            else -> RemoveDeviceError.None
         }
 
 

@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalAnimationApi::class)
+
 package com.wire.android.ui.home
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState

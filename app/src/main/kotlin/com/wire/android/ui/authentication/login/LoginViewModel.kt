@@ -14,7 +14,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -109,7 +108,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private suspend fun navigateToRemoveDevicesScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.NONE))
 
     private suspend fun navigateToConvScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))

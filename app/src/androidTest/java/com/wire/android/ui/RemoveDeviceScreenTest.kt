@@ -15,8 +15,8 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.utils.WAIT_TIMEOUT
 import com.wire.android.utils.WorkManagerTestRule
+import com.wire.android.utils.waitForExecute
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -65,9 +65,10 @@ class RemoveDeviceScreenTest {
     @Test
     fun removeDevice_Successfully() {
         composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
-        Thread.sleep(WAIT_TIMEOUT)
-        removeDeviceButton[1].performClick()
-        removeDeviceText.assertIsDisplayed()
+        composeTestRule.waitForExecute {
+            removeDeviceButton[1].performClick()
+            removeDeviceText.assertIsDisplayed()
+        }
         passwordField.onChildren()[1].performTextClearance()
         passwordField.onChildren()[1].performTextInput("Mustafastaging1!")
         removeButton.performClick()
@@ -76,9 +77,10 @@ class RemoveDeviceScreenTest {
     @Test
     fun removeDevice_error_wrongPassword() {
         composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
-        Thread.sleep(WAIT_TIMEOUT)
-        removeDeviceButton[1].performClick()
-        removeDeviceText.assertIsDisplayed()
+        composeTestRule.waitForExecute {
+            removeDeviceButton[1].performClick()
+            removeDeviceText.assertIsDisplayed()
+        }
         passwordField.onChildren()[1].performTextClearance()
         passwordField.onChildren()[1].performTextInput("BAD PASSWORD")
         removeButton.performClick()
@@ -87,9 +89,10 @@ class RemoveDeviceScreenTest {
     @Test
     fun removeDevice_cancel() {
         composeTestRule.onNodeWithText("Remove a Device").assertIsDisplayed()
-        Thread.sleep(WAIT_TIMEOUT)
-        removeDeviceButton[1].performClick()
-        removeDeviceText.assertIsDisplayed()
+        composeTestRule.waitForExecute {
+            removeDeviceButton[1].performClick()
+            removeDeviceText.assertIsDisplayed()
+        }
         cancelButton.performClick()
     }
 }

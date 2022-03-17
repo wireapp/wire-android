@@ -3,6 +3,7 @@ package com.wire.android.utils
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.lifecycle.ViewModel
 import kotlin.reflect.KClass
 import org.junit.rules.TestRule
@@ -15,3 +16,16 @@ AndroidComposeTestRule<R, A>.getViewModel(viewModel: KClass<VM>): VM {
     println("Getting test instance of ViewModel: $viewModel")
     return this.activity.viewModels<VM>().value
 }
+
+fun ComposeTestRule.waitForExecute(timeoutMillis: Long = WAIT_TIMEOUT, block: () -> Unit) {
+    waitUntil(timeoutMillis) {
+        try {
+            block()
+            true
+        } catch (exception: Throwable) {
+            false
+        }
+    }
+}
+
+const val WAIT_TIMEOUT = 3000L

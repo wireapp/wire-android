@@ -21,8 +21,8 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.utils.WAIT_TIMEOUT
 import com.wire.android.utils.WorkManagerTestRule
+import com.wire.android.utils.waitForExecute
 import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -77,7 +77,7 @@ class LoginScreenTest {
     val loginButton = composeTestRule.onNode(hasTestTag("loginButton"))
     val okButton = composeTestRule.onNodeWithText("OK")
     val forgotPassword = composeTestRule.onNode(hasTestTag("Forgot password?"))
-    val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"),useUnmergedTree = true)
+    val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"), useUnmergedTree = true)
 
     val loginErrorText = "Please enter a valid format for your email or username"
     val email = "mustafa+1@wire.com"
@@ -96,11 +96,10 @@ class LoginScreenTest {
         loginButton.performClick()
 
         composeTestRule.onNodeWithText("Logging in...").assertIsDisplayed()
-        composeTestRule.waitForIdle()
 
-        // TODO: later we should wait using another approach
-        Thread.sleep(WAIT_TIMEOUT)
-        composeTestRule.onNodeWithText("Invalid information").assertDoesNotExist()
+        composeTestRule.waitForExecute {
+            composeTestRule.onNodeWithText("Invalid information").assertDoesNotExist()
+        }
     }
 
     @Test
@@ -120,11 +119,10 @@ class LoginScreenTest {
         loginButton.performClick()
 
         composeTestRule.onNodeWithText("Logging in...").assertIsDisplayed()
-        composeTestRule.waitForIdle()
+        composeTestRule.waitForExecute {
+            composeTestRule.onNodeWithText("Invalid information").assertIsDisplayed()
+        }
 
-        // TODO: later we should wait using another approach
-        Thread.sleep(WAIT_TIMEOUT)
-        composeTestRule.onNodeWithText("Invalid information").assertIsDisplayed()
         okButton.assertIsDisplayed()
         okButton.performClick()
     }
@@ -144,7 +142,6 @@ class LoginScreenTest {
         loginButton.performClick()
 
         composeTestRule.onNodeWithText(loginErrorText).assertIsDisplayed()
-        composeTestRule.waitForIdle()
     }
 
     @Test

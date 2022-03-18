@@ -33,7 +33,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountViewModel
 import com.wire.android.ui.common.appBarElevation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
@@ -86,15 +85,19 @@ private fun DetailsContent(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier.fillMaxHeight().verticalScroll(scrollState)
+            modifier = Modifier
+                .fillMaxHeight()
+                .verticalScroll(scrollState)
         ) {
             Text(
                 text = stringResource(R.string.create_personal_account_details_text),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.fillMaxWidth().padding(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
-                )
+                    )
             )
             NameTextFields(state, onFirstNameChange, onLastNameChange, onTeamNameChange, coroutineScope)
             PasswordTextFields(state, onPasswordChange, onConfirmPasswordChange, coroutineScope)
@@ -105,7 +108,9 @@ private fun DetailsContent(
                 fillMaxWidth = true,
                 loading = state.loading,
                 state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-                modifier = Modifier.fillMaxWidth().padding(MaterialTheme.wireDimensions.spacing16x),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(MaterialTheme.wireDimensions.spacing16x),
             )
         }
     }
@@ -129,11 +134,13 @@ private fun NameTextFields(
         labelMandatoryIcon = true,
         state = WireTextFieldState.Default,
         keyboardOptions = keyboardOptions,
-        modifier = Modifier.padding(
-            start = MaterialTheme.wireDimensions.spacing16x,
-            end = MaterialTheme.wireDimensions.spacing16x,
-            bottom = MaterialTheme.wireDimensions.spacing16x
-        ).bringIntoViewOnFocus(coroutineScope)
+        modifier = Modifier
+            .padding(
+                start = MaterialTheme.wireDimensions.spacing16x,
+                end = MaterialTheme.wireDimensions.spacing16x,
+                bottom = MaterialTheme.wireDimensions.spacing16x
+            )
+            .bringIntoViewOnFocus(coroutineScope)
     )
     WireTextField(
         value = state.lastName,
@@ -143,13 +150,15 @@ private fun NameTextFields(
         labelMandatoryIcon = true,
         state = WireTextFieldState.Default,
         keyboardOptions = keyboardOptions,
-        modifier = Modifier.padding(
-            start = MaterialTheme.wireDimensions.spacing16x,
-            end = MaterialTheme.wireDimensions.spacing16x,
-            bottom = MaterialTheme.wireDimensions.spacing16x
-        ).bringIntoViewOnFocus(coroutineScope)
+        modifier = Modifier
+            .padding(
+                start = MaterialTheme.wireDimensions.spacing16x,
+                end = MaterialTheme.wireDimensions.spacing16x,
+                bottom = MaterialTheme.wireDimensions.spacing16x
+            )
+            .bringIntoViewOnFocus(coroutineScope)
     )
-    if(state.type == CreateAccountFlowType.CreateTeam)
+    if (state.type == CreateAccountFlowType.CreateTeam)
         WireTextField(
             value = state.teamName,
             onValueChange = onTeamNameChange,
@@ -158,11 +167,13 @@ private fun NameTextFields(
             labelMandatoryIcon = true,
             state = WireTextFieldState.Default,
             keyboardOptions = keyboardOptions,
-            modifier = Modifier.padding(
-                start = MaterialTheme.wireDimensions.spacing16x,
-                end = MaterialTheme.wireDimensions.spacing16x,
-                bottom = MaterialTheme.wireDimensions.spacing16x
-            ).bringIntoViewOnFocus(coroutineScope)
+            modifier = Modifier
+                .padding(
+                    start = MaterialTheme.wireDimensions.spacing16x,
+                    end = MaterialTheme.wireDimensions.spacing16x,
+                    bottom = MaterialTheme.wireDimensions.spacing16x
+                )
+                .bringIntoViewOnFocus(coroutineScope)
         )
 }
 
@@ -181,9 +192,11 @@ private fun PasswordTextFields(
         labelMandatoryIcon = true,
         descriptionText = stringResource(R.string.create_account_details_password_description),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Next),
-        modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x).bringIntoViewOnFocus(coroutineScope),
-        state = if(state.error is CreateAccountDetailsViewState.DetailsError.None) WireTextFieldState.Default
-                else WireTextFieldState.Error()
+        modifier = Modifier
+            .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+            .bringIntoViewOnFocus(coroutineScope),
+        state = if (state.error is CreateAccountDetailsViewState.DetailsError.None) WireTextFieldState.Default
+        else WireTextFieldState.Error()
     )
     WirePasswordTextField(
         value = state.confirmPassword,
@@ -192,12 +205,14 @@ private fun PasswordTextFields(
         labelMandatoryIcon = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-        modifier = Modifier.padding(
+        modifier = Modifier
+            .padding(
                 horizontal = MaterialTheme.wireDimensions.spacing16x,
                 vertical = MaterialTheme.wireDimensions.spacing16x
-            ).bringIntoViewOnFocus(coroutineScope),
-        state = when(state.error) {
-            CreateAccountDetailsViewState.DetailsError.None ->  WireTextFieldState.Default
+            )
+            .bringIntoViewOnFocus(coroutineScope),
+        state = when (state.error) {
+            CreateAccountDetailsViewState.DetailsError.None -> WireTextFieldState.Default
             CreateAccountDetailsViewState.DetailsError.PasswordsNotMatchingError ->
                 WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
             CreateAccountDetailsViewState.DetailsError.InvalidPasswordError ->
@@ -210,11 +225,13 @@ private fun PasswordTextFields(
 @OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.bringIntoViewOnFocus(coroutineScope: CoroutineScope): Modifier {
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    return this.bringIntoViewRequester(bringIntoViewRequester)
+    return this
+        .bringIntoViewRequester(bringIntoViewRequester)
         .onFocusEvent { if (it.isFocused) coroutineScope.launch { bringIntoViewRequester.bringIntoView() } }
 }
 
 @Composable
 @Preview
 private fun CreateAccountDetailsScreenPreview() {
-    DetailsContent(CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam), {}, {}, {}, {}, {}, {}, {}) }
+    DetailsContent(CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam), {}, {}, {}, {}, {}, {}, {})
+}

@@ -21,12 +21,30 @@ class CreatePersonalAccountViewModel @Inject constructor(
     var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()
 
-    private fun goToStep(item: CreatePersonalAccountNavigationItem) { viewModelScope.launch { moveToStep.emit(item) } }
-    override fun goBackToPreviousStep() { viewModelScope.launch { moveBack.emit(Unit) } }
-    override fun onOverviewSuccess() { goToStep(CreatePersonalAccountNavigationItem.Email) }
-    override fun onTermsSuccess() { goToStep(CreatePersonalAccountNavigationItem.Details) }
-    override fun onDetailsSuccess() { goToStep(CreatePersonalAccountNavigationItem.Code) }
-    override fun onCodeSuccess() { goToStep(CreatePersonalAccountNavigationItem.Summary) }
+    private fun goToStep(item: CreatePersonalAccountNavigationItem) {
+        viewModelScope.launch { moveToStep.emit(item) }
+    }
+
+    override fun goBackToPreviousStep() {
+        viewModelScope.launch { moveBack.emit(Unit) }
+    }
+
+    override fun onOverviewSuccess() {
+        goToStep(CreatePersonalAccountNavigationItem.Email)
+    }
+
+    override fun onTermsSuccess() {
+        goToStep(CreatePersonalAccountNavigationItem.Details)
+    }
+
+    override fun onDetailsSuccess() {
+        goToStep(CreatePersonalAccountNavigationItem.Code)
+    }
+
+    override fun onCodeSuccess() {
+        goToStep(CreatePersonalAccountNavigationItem.Summary)
+    }
+
     override fun onSummarySuccess() {
         viewModelScope.launch {
             navigationManager.navigate(

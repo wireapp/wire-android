@@ -31,7 +31,7 @@ fun CreateTeamScreen(serverConfig: ServerConfig) {
             CreateTeamNavigationItem.values().forEach { destination ->
                 composable(
                     route = destination.route,
-                    enterTransition = {smoothSlideInFromRight() },
+                    enterTransition = { smoothSlideInFromRight() },
                     exitTransition = { smoothSlideOutFromLeft() },
                     content = { destination.content(ContentParams(viewModel, serverConfig)) }
                 )

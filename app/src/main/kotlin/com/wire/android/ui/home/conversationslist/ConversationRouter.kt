@@ -38,7 +38,8 @@ import com.wire.kalium.logic.data.conversation.ConversationId
 @Composable
 fun ConversationRouterHomeBridge(
     onHomeBottomSheetContentChange: (@Composable ColumnScope.() -> Unit) -> Unit,
-    onExpandHomeBottomSheet: () -> Unit
+    onExpandHomeBottomSheet: () -> Unit,
+    onScrollPositionChanged: (Int) -> Unit
 ) {
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
@@ -64,8 +65,9 @@ fun ConversationRouterHomeBridge(
         uiState = viewModel.state,
         conversationState = conversationState,
         openConversation = { viewModel.openConversation(it) },
+        openNewConversation = { viewModel.openNewConversation() },
         onExpandBottomSheet = { onExpandHomeBottomSheet() },
-        updateScrollPosition = { viewModel.updateScrollPosition(it) }
+        onScrollPositionChanged = onScrollPositionChanged
     )
 }
 
@@ -77,8 +79,9 @@ private fun ConversationRouter(
     uiState: ConversationListState,
     conversationState: ConversationState,
     openConversation: (ConversationId) -> Unit,
+    openNewConversation: () -> Unit,
     onExpandBottomSheet: () -> Unit,
-    updateScrollPosition: (Int) -> Unit,
+    onScrollPositionChanged: (Int) -> Unit,
 ) {
     Scaffold(
         floatingActionButton = {
@@ -95,7 +98,7 @@ private fun ConversationRouter(
                             .size(dimensions().fabIconSize)
                     )
                 },
-                onClick = {}
+                onClick = openNewConversation
             )
         },
         bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
@@ -117,7 +120,7 @@ private fun ConversationRouter(
                             conversations = conversations,
                             onOpenConversationClick = openConversation,
                             onEditConversationItem = ::editConversation,
-                            onScrollPositionChanged = updateScrollPosition
+                            onScrollPositionChanged = onScrollPositionChanged
                         )
                     }
                 )
@@ -129,7 +132,7 @@ private fun ConversationRouter(
                             callHistory = callHistory,
                             onCallItemClick = openConversation,
                             onEditConversationItem = ::editConversation,
-                            onScrollPositionChanged = updateScrollPosition
+                            onScrollPositionChanged = onScrollPositionChanged
                         )
                     }
                 )
@@ -141,7 +144,7 @@ private fun ConversationRouter(
                             allMentions = allMentions,
                             onMentionItemClick = openConversation,
                             onEditConversationItem = ::editConversation,
-                            onScrollPositionChanged = updateScrollPosition
+                            onScrollPositionChanged = onScrollPositionChanged
                         )
                     }
                 )

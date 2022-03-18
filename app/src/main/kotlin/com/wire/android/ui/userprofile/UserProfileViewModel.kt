@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.UserDataStore
 import com.wire.android.appLogger
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -184,6 +184,6 @@ class UserProfileViewModel @Inject constructor(
     }
 
     sealed class ErrorCodes {
-        object DownloadUserInfoError: ErrorCodes()
+        object DownloadUserInfoError : ErrorCodes()
     }
 }

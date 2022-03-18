@@ -8,7 +8,6 @@
     <string name="label_cancel">Cancel</string>
     <string name="label_confirm">Confirm</string>
     <string name="label_continue">Continue</string>
-    <string name="label_confirm">Confirm</string>
     <string name="label_start_using_wire">Start using Wire</string>
     <string name="label_remove">Remove</string>
     <string name="label_learn_more">Learn more</string>
@@ -190,5 +189,14 @@
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
     <string name="animation_label_button_rotation_degree_transistion" translatable="false">Collapse button rotation degree transition</string>
+    <string name="label_contacts">CONTACTS</string>
+    <string name="label_new_group">New Group</string>
+    <string name="label_new_guestroom">New Guestroom</string>
+    <string name="label_new_conversation">New Conversation</string>
+    <string name="label_search_people">Search people</string>
+    <string name="label_federated_backends">FEDERATED BACKENDS</string>
+    <string name="label_public_wire">PUBLIC WIRE</string>
+    <string name="label_search_people_instruction">Search for user with their display name of their @username</string>
+    <string name="label_learn_more_searching_user">Learn more about search for users</string>
 
 </resources>

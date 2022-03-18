@@ -35,7 +35,8 @@ data class WireColorScheme(
     val divider: Color,
     val secondaryText: Color,
     val labelText: Color,
-    val badge: Color,                                   val onBadge: Color
+    val badge: Color,                                   val onBadge: Color,
+    val highLight : Color
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,                              onPrimary = onPrimary,
@@ -85,7 +86,8 @@ private val LightWireColorScheme = WireColorScheme(
     divider = WireColorPalette.Gray40,
     secondaryText = WireColorPalette.Gray70,
     labelText = WireColorPalette.Gray80,
-    badge = WireColorPalette.Gray90,                               onBadge = Color.White
+    badge = WireColorPalette.Gray90,                               onBadge = Color.White,
+    highLight = WireColorPalette.DarkYellow300
 )
 
 
@@ -119,7 +121,8 @@ private val DarkWireColorScheme = WireColorScheme(
     divider = WireColorPalette.Gray70,
     secondaryText = WireColorPalette.Gray40,
     labelText = WireColorPalette.Gray30,
-    badge = WireColorPalette.Gray10,                               onBadge = Color.Black
+    badge = WireColorPalette.Gray10,                               onBadge = Color.Black,
+    highLight =  WireColorPalette.DarkYellow300
 )
 
 @PackagePrivate

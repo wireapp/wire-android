@@ -122,7 +122,12 @@ data class WireDimensions(
     val modalBottomSheetHeaderBottomPadding: Dp,
     // Divider
     val dividerThickness: Dp,
-)
+    // Search People
+    val defaultSearchLazyColumnHeight: Dp,
+    val showAllCollapseButtonMinHeight : Dp
+) {
+
+}
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     placeholderShimmerCornerSize = 8.dp,
@@ -216,7 +221,9 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     modalBottomSheetHeaderStartPadding = 8.dp,
     modalBottomSheetHeaderTopPadding = 16.dp,
     modalBottomSheetHeaderBottomPadding = 8.dp,
-    dividerThickness = 0.5.dp
+    dividerThickness = 0.5.dp,
+    defaultSearchLazyColumnHeight = 320.dp,
+    showAllCollapseButtonMinHeight = 32.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

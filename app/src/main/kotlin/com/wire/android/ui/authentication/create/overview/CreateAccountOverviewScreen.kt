@@ -97,7 +97,9 @@ private fun OverviewTexts(overviewParams: CreateAccountOverviewParams, modifier:
                 text = overviewParams.contentTitle,
                 style = MaterialTheme.wireTypography.title01,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
             )
         Text(
             text = overviewParams.contentText,

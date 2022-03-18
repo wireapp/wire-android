@@ -68,7 +68,9 @@ private fun UsernameContent(
             Text(
                 text = stringResource(id = R.string.create_account_username_text),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.fillMaxWidth().padding(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
                     )
@@ -88,7 +90,7 @@ private fun UsernameContent(
                         )
                     )
                 },
-                state = when(state.error) {
+                state = when (state.error) {
                     CreateAccountUsernameViewState.UsernameError.None -> WireTextFieldState.Default
                     CreateAccountUsernameViewState.UsernameError.UsernameTakenError ->
                         WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error))
@@ -107,7 +109,9 @@ private fun UsernameContent(
                 fillMaxWidth = true,
                 loading = state.loading,
                 state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-                modifier = Modifier.fillMaxWidth().padding(MaterialTheme.wireDimensions.spacing16x)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(MaterialTheme.wireDimensions.spacing16x)
             )
         }
     }

@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
+import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversations.common.GroupName
@@ -35,7 +35,7 @@ fun CallConversationItem(
     with(conversationMissedCall) {
         when (val conversationType = conversationMissedCall.conversationType) {
             is ConversationType.GroupConversation -> {
-                ConversationItemTemplate(
+                RowItemTemplate(
                     leadingIcon = {
                         GroupConversationAvatar(colorValue = conversationType.groupColorValue)
                     },
@@ -50,12 +50,12 @@ fun CallConversationItem(
                         }
                     },
                     eventType = eventType,
-                    onConversationItemClick = onCallItemClick,
-                    onConversationItemLongClick = onCallItemLongClick
+                    onRowItemClicked = onCallItemClick,
+                    onRowItemLongClicked = onCallItemLongClick
                 )
             }
             is ConversationType.PrivateConversation -> {
-                ConversationItemTemplate(
+                RowItemTemplate(
                     leadingIcon = {
                         ConversationUserAvatar("")
                     },
@@ -70,8 +70,8 @@ fun CallConversationItem(
                         }
                     },
                     eventType = eventType,
-                    onConversationItemClick = onCallItemClick,
-                    onConversationItemLongClick = onCallItemLongClick,
+                    onRowItemClicked = onCallItemClick,
+                    onRowItemLongClicked = onCallItemLongClick,
                 )
             }
         }

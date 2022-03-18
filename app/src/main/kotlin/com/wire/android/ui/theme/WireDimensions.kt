@@ -122,9 +122,7 @@ data class WireDimensions(
     // Search People
     val defaultSearchLazyColumnHeight: Dp,
     val showAllCollapseButtonMinHeight : Dp
-) {
-
-}
+)
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     placeholderShimmerCornerSize = 8.dp,

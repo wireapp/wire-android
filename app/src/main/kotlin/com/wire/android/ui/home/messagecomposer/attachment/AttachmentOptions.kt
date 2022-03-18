@@ -6,7 +6,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.runtime.Composable
@@ -26,8 +25,8 @@ import com.wire.android.ui.common.dimensions
 fun AttachmentOptionsComponent() {
     val attachmentOptions = buildAttachmentOptionItems()
     LazyVerticalGrid(
-        cells = GridCells.Adaptive(dimensions().spacing64x),
-        contentPadding = PaddingValues(start = dimensions().spacing32x, end = dimensions().spacing32x, top = dimensions().spacing32x),
+        cells = GridCells.Adaptive(dimensions().spacing80x),
+        contentPadding = PaddingValues(dimensions().spacing8x),
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -35,8 +34,7 @@ fun AttachmentOptionsComponent() {
         attachmentOptions.forEach { option ->
             item {
                 AttachmentButton(
-                    stringResource(option.text), option.icon,
-                    modifier = Modifier.padding(bottom = dimensions().spacing24x)
+                    stringResource(option.text), option.icon
                 ) {
                     option.onClick()
                 }

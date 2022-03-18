@@ -12,6 +12,7 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.Message
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -85,6 +86,7 @@ class ConversationViewModel @Inject constructor(
                         (message.content as? MessageContent.Text)?.value ?: "content is not available"
                     )
                 ),
+                messageSource= MessageSource.CurrentUser,
                 messageHeader = com.wire.android.ui.home.conversations.model.MessageHeader(
                     "Cool User",
                     Membership.None,

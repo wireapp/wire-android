@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterialApi::class)
-
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -32,6 +30,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.Message
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -51,7 +50,7 @@ fun ConversationScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 private fun ConversationScreen(
     conversationViewState: ConversationViewState,
@@ -64,8 +63,7 @@ private fun ConversationScreen(
     with(conversationViewState) {
         MenuModalSheetLayout(
             sheetState = conversationScreenState.modalBottomSheetState,
-            headerTitle = "test title",
-            menuItems = EditMessageMenuItems(conversationScreenState.editMessageType),
+            menuItems = EditMessageMenuItems(conversationScreenState.editMessageSource),
             content = {
                 Scaffold(
                     topBar = {
@@ -93,41 +91,43 @@ private fun ConversationScreen(
 }
 
 @Composable
-fun EditMessageMenuItems(editMessageType: Boolean?): List<@Composable () -> Unit> {
+private fun EditMessageMenuItems(editMessageSource: MessageSource?): List<@Composable () -> Unit> {
     return buildList {
         add {
             MenuBottomSheetItem(
                 icon = {
                     MenuItemIcon(
-                        id = R.drawable.ic_block,
+                        id = R.drawable.ic_copy,
                         contentDescription = stringResource(R.string.content_description_block_the_user),
                     )
                 },
-                title = stringResource(R.string.label_block),
+                title = "Copy",
             )
         }
-        if (editMessageType == true)
+        if (editMessageSource == MessageSource.CurrentUser)
+            add {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_edit,
+                            contentDescription = stringResource(R.string.content_description_block_the_user),
+                        )
+                    },
+                    title = "Edit",
+                )
+            }
+        add {
             CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                 MenuBottomSheetItem(
                     icon = {
                         MenuItemIcon(
-                            id = R.drawable.ic_block,
+                            id = R.drawable.ic_delete,
                             contentDescription = stringResource(R.string.content_description_block_the_user),
                         )
                     },
-                    title = stringResource(R.string.label_block),
+                    title = "Delete",
                 )
             }
-        add {
-            MenuBottomSheetItem(
-                icon = {
-                    MenuItemIcon(
-                        id = R.drawable.ic_block,
-                        contentDescription = stringResource(R.string.content_description_block_the_user),
-                    )
-                },
-                title = stringResource(R.string.label_block),
-            )
         }
     }
 }
@@ -172,6 +172,7 @@ fun ConversationScreenPreview() {
         ), {}, {}, {})
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberConversationScreenState(
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
@@ -185,6 +186,7 @@ fun rememberConversationScreenState(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 class ConversationScreenState(
     val modalBottomSheetState: ModalBottomSheetState,
     val coroutineScope: CoroutineScope
@@ -192,8 +194,8 @@ class ConversationScreenState(
 
     private var editMessage by mutableStateOf<Message?>(null)
 
-    val editMessageType by derivedStateOf {
-        editMessage?.isDeleted
+    val editMessageSource by derivedStateOf {
+        editMessage?.messageSource
     }
 
     fun editMessage(message: Message) {

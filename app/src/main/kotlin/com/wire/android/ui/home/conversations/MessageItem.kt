@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -47,14 +48,17 @@ import com.wire.android.ui.theme.wireTypography
 fun MessageItem(
     message: Message,
     onLongClicked: () -> Unit,
-
-    ) {
+) {
     with(message) {
-        Row(Modifier.combinedClickable(
-            //TODO: implement some action onClick
-            onClick = { },
-            onLongClick = { }
-        )) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    //TODO: implement some action onClick
+                    onClick = { },
+                    onLongClick = onLongClicked
+                )
+        ) {
             UserProfileAvatar(status = message.user.availabilityStatus)
             Column {
                 MessageHeader(messageHeader)

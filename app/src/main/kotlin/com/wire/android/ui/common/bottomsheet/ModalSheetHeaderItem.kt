@@ -14,7 +14,10 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun ModalSheetHeaderItem(title: String, leadingIcon: @Composable () -> Unit = {}) {
+fun ModalSheetHeaderItem(
+    title: String? = null,
+    leadingIcon: @Composable () -> Unit = {}
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(
@@ -25,9 +28,11 @@ fun ModalSheetHeaderItem(title: String, leadingIcon: @Composable () -> Unit = {}
     ) {
         leadingIcon()
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.wireTypography.title02
-        )
+        if (title != null) {
+            Text(
+                text = title,
+                style = MaterialTheme.wireTypography.title02
+            )
+        }
     }
 }

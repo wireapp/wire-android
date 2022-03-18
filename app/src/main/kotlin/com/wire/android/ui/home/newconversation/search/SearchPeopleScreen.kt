@@ -123,7 +123,10 @@ private fun SearchResult(
                         onShowLessClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = false },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
+                            .height(
+                                if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight
+                                else dimensions().defaultSearchLazyColumnHeight
+                            )
                             .animateItemPlacement()
                     )
                 }
@@ -154,7 +157,10 @@ private fun SearchResult(
                         onShowLessClicked = { searchPeopleScreenState.publicResultsCollapsed = false },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(if (searchPeopleScreenState.publicResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
+                            .height(
+                                if (searchPeopleScreenState.publicResultsCollapsed) fullHeight
+                                else dimensions().defaultSearchLazyColumnHeight
+                            )
                             .animateItemPlacement()
                     )
                 }
@@ -187,7 +193,10 @@ private fun SearchResult(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(if (searchPeopleScreenState.federatedBackendResultsCollapsed) fullHeight else dimensions().defaultSearchLazyColumnHeight)
+                            .height(
+                                if (searchPeopleScreenState.federatedBackendResultsCollapsed) fullHeight
+                                else dimensions().defaultSearchLazyColumnHeight
+                            )
                             .animateItemPlacement()
                     )
                 }

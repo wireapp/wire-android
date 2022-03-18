@@ -1,7 +1,7 @@
 package com.wire.android.ui.authentication.create.username
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.CoreFailure
 
 data class CreateAccountUsernameViewState(
     val username: TextFieldValue = TextFieldValue(""),
@@ -16,7 +16,7 @@ data class CreateAccountUsernameViewState(
             object UsernameInvalidError : TextFieldError()
         }
         sealed class DialogError: UsernameError() {
-            data class GenericError(val coreFailure: NetworkFailure): DialogError()
+            data class GenericError(val coreFailure: CoreFailure): DialogError()
         }
     }
 }

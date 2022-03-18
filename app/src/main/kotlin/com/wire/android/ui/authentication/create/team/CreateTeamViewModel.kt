@@ -2,6 +2,7 @@ package com.wire.android.ui.authentication.create.team
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -25,14 +26,16 @@ class CreateTeamViewModel @Inject constructor(
     validateEmailUseCase: ValidateEmailUseCase,
     validatePasswordUseCase: ValidatePasswordUseCase,
     requestActivationCodeUseCase: RequestActivationCodeUseCase,
-    registerAccountUseCase: RegisterAccountUseCase
+    registerAccountUseCase: RegisterAccountUseCase,
+    clientScopeProviderFactory: ClientScopeProvider.Factory
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreateTeam,
     navigationManager,
     validateEmailUseCase,
     validatePasswordUseCase,
     requestActivationCodeUseCase,
-    registerAccountUseCase
+    registerAccountUseCase,
+    clientScopeProviderFactory
 ) {
     var moveToStep = MutableSharedFlow<CreateTeamNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()

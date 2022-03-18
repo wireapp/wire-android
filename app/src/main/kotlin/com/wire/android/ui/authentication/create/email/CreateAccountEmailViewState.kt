@@ -2,7 +2,7 @@ package com.wire.android.ui.authentication.create.email
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.CoreFailure
 
 data class CreateAccountEmailViewState(
     val type: CreateAccountFlowType,
@@ -22,7 +22,7 @@ data class CreateAccountEmailViewState(
             object DomainBlockedError: TextFieldError()
         }
         sealed class DialogError: EmailError() {
-            data class GenericError(val coreFailure: NetworkFailure): DialogError()
+            data class GenericError(val coreFailure: CoreFailure): DialogError()
         }
     }
 

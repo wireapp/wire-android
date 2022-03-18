@@ -12,7 +12,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
-import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
@@ -22,8 +21,6 @@ import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.io.InvalidClassException
-import java.lang.IllegalStateException
 import javax.inject.Inject
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -126,12 +123,6 @@ class RemoveDeviceViewModel @Inject constructor(
                 stateSuccess.copy(removeDeviceDialogState = newValue(stateSuccess.removeDeviceDialogState))
             else stateSuccess
         }
-
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
 
     private suspend fun navigateToConvScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))

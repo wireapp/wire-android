@@ -9,6 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -38,10 +39,18 @@ fun CreatePersonalAccountScreen(serverConfig: ServerConfig) {
             }
         }
         val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
         LaunchedEffect(viewModel) {
-            viewModel.hideKeyboard.onEach { keyboardController?.hide() }.launchIn(scope)
-            viewModel.moveToStep.onEach { item -> navigateToItemInCreatePersonalAccount(navController, item) }.launchIn(scope)
-            viewModel.moveBack.onEach { if (!navController.popBackStack()) viewModel.closeForm() }.launchIn(scope)
+            viewModel.moveToStep.onEach { item ->
+                focusManager.clearFocus(force = true)
+                keyboardController?.hide()
+                navigateToItemInCreatePersonalAccount(navController, item)
+            }.launchIn(scope)
+            viewModel.moveBack.onEach {
+                focusManager.clearFocus(force = true)
+                keyboardController?.hide()
+                if (!navController.popBackStack()) viewModel.closeForm()
+            }.launchIn(scope)
         }
     }
 }

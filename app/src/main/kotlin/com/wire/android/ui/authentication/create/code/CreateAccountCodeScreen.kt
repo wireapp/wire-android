@@ -14,11 +14,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -50,7 +54,8 @@ fun CreateAccountCodeScreen(viewModel: CreateAccountCodeViewModel, serverConfig:
         onCodeChange = { viewModel.onCodeChange(it, serverConfig) },
         onResendCodePressed = { viewModel.resendCode(serverConfig) },
         onBackPressed = viewModel::goBackToPreviousStep,
-        onErrorDismiss = viewModel::onCodeErrorDismiss
+        onErrorDismiss = viewModel::onCodeErrorDismiss,
+        onRemoveDeviceOpen = viewModel::onTooManyDevicesError
     )
 }
 
@@ -61,8 +66,11 @@ private fun CodeContent(
     onCodeChange: (CodeFieldValue) -> Unit,
     onResendCodePressed: () -> Unit,
     onBackPressed: () -> Unit,
-    onErrorDismiss: () -> Unit
+    onErrorDismiss: () -> Unit,
+    onRemoveDeviceOpen: () -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
@@ -85,16 +93,16 @@ private fun CodeContent(
                     )
             )
             Spacer(modifier = Modifier.weight(1f))
-            Column(horizontalAlignment = Alignment.CenterHorizontally,) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 CodeTextField(
                     value = state.code.text,
                     onValueChange = onCodeChange,
-                    state = when {
-                        state.loading -> WireTextFieldState.Disabled
-                        state.error is CreateAccountCodeViewState.CodeError.TextFieldError.InvalidActivationCodeError ->
+                    state = when (state.error) {
+                        is CreateAccountCodeViewState.CodeError.TextFieldError.InvalidActivationCodeError ->
                             WireTextFieldState.Error(stringResource(id = R.string.create_account_code_error))
                         else -> WireTextFieldState.Default
                     },
+                    modifier = Modifier.focusRequester(focusRequester)
                 )
                 AnimatedVisibility(visible = state.loading) {
                     WireCircularProgressIndicator(
@@ -108,6 +116,10 @@ private fun CodeContent(
             Spacer(modifier = Modifier.weight(1f))
         }
     }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
     if (state.error is CreateAccountCodeViewState.CodeError.DialogError) {
         val (title, message) = state.error.getResources(type = state.type)
         WireDialog(
@@ -120,6 +132,8 @@ private fun CodeContent(
                 type = WireDialogButtonType.Primary,
             )
         )
+    } else if (state.error is CreateAccountCodeViewState.CodeError.TooManyDevicesError) {
+        onRemoveDeviceOpen()
     }
 }
 
@@ -175,5 +189,5 @@ private fun CreateAccountCodeViewState.CodeError.DialogError.getResources(type: 
 @Composable
 @Preview
 private fun CreateAccountCodeScreenPreview() {
-    CodeContent(CreateAccountCodeViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {})
+    CodeContent(CreateAccountCodeViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {})
 }

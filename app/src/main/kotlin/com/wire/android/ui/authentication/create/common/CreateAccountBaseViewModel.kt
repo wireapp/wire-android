@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -24,6 +25,7 @@ import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
@@ -40,7 +42,8 @@ abstract class CreateAccountBaseViewModel(
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val requestActivationCodeUseCase: RequestActivationCodeUseCase,
-    private val registerAccountUseCase: RegisterAccountUseCase
+    private val registerAccountUseCase: RegisterAccountUseCase,
+    private val clientScopeProviderFactory: ClientScopeProvider.Factory
 ) : ViewModel(),
     CreateAccountOverviewViewModel,
     CreateAccountEmailViewModel,
@@ -52,7 +55,6 @@ abstract class CreateAccountBaseViewModel(
     override var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(type))
     override var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(type))
     override val summaryState: CreateAccountSummaryViewState by mutableStateOf(CreateAccountSummaryViewState(type))
-    override val hideKeyboard: MutableSharedFlow<Unit> = MutableSharedFlow()
 
     fun closeForm() { viewModelScope.launch { navigationManager.navigateBack() } }
 
@@ -169,21 +171,22 @@ abstract class CreateAccountBaseViewModel(
         codeState = codeState.copy(error = CreateAccountCodeViewState.CodeError.None)
     }
     final override fun resendCode(serverConfig: ServerConfig) {
-        codeState = codeState.copy(loading = true, inputEnabled = false)
+        codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            when (val res = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig)) {
+            val codeError = when (val res = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig)) {
                 RequestActivationCodeResult.Failure.AlreadyInUse ->
-                    CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError
+                    CreateAccountCodeViewState.CodeError.DialogError.AccountAlreadyExistsError
                 RequestActivationCodeResult.Failure.BlacklistedEmail ->
-                    CreateAccountEmailViewState.EmailError.TextFieldError.BlacklistedEmailError
+                    CreateAccountCodeViewState.CodeError.DialogError.BlackListedError
                 RequestActivationCodeResult.Failure.DomainBlocked ->
-                    CreateAccountEmailViewState.EmailError.TextFieldError.DomainBlockedError
+                    CreateAccountCodeViewState.CodeError.DialogError.EmailDomainBlockedError
                 RequestActivationCodeResult.Failure.InvalidEmail ->
-                    CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
+                    CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
                 is RequestActivationCodeResult.Failure.Generic ->
-                    CreateAccountEmailViewState.EmailError.DialogError.GenericError(res.failure)
-                RequestActivationCodeResult.Success -> CreateAccountEmailViewState.EmailError.None
+                    CreateAccountCodeViewState.CodeError.DialogError.GenericError(res.failure)
+                RequestActivationCodeResult.Success -> CreateAccountCodeViewState.CodeError.None
             }
+            codeState = codeState.copy(loading = false, error = codeError)
         }
     }
     private fun onCodeContinue(serverConfig: ServerConfig) {
@@ -210,18 +213,35 @@ abstract class CreateAccountBaseViewModel(
                 RegisterResult.Failure.TeamMembersLimitReached -> CreateAccountCodeViewState.CodeError.DialogError.TeamMembersLimitError
                 RegisterResult.Failure.UserCreationRestricted -> CreateAccountCodeViewState.CodeError.DialogError.CreationRestrictedError
                 is RegisterResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(registerResult.failure)
-                is RegisterResult.Success -> CreateAccountCodeViewState.CodeError.None
+                is RegisterResult.Success ->
+                    // TODO what if user creates an account but doesn't register a new device?
+                    when(val registerClientResult = clientScopeProviderFactory.create(registerResult.value.second).clientScope
+                        .register(registerParam.password, null)) {
+                        RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeViewState.CodeError.TooManyDevicesError
+                        RegisterClientResult.Failure.InvalidCredentials ->
+                            CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
+                        is RegisterClientResult.Failure.Generic ->
+                            CreateAccountCodeViewState.CodeError.DialogError.GenericError(registerClientResult.genericFailure)
+                        is RegisterClientResult.Success -> CreateAccountCodeViewState.CodeError.None
+                    }
             }
+            val isSuccess = codeError is CreateAccountCodeViewState.CodeError.None
             codeState = codeState.copy(loading = false, error = codeError)
-            if(codeError is CreateAccountCodeViewState.CodeError.None) { //TODO register client / sync
-                hideKeyboard.emit(Unit)
-                onCodeSuccess()
-            }
+            if(isSuccess) onCodeSuccess()
         }
     }
     abstract fun onCodeSuccess()
+    final override fun onTooManyDevicesError() {
+        codeState = codeState.copy(
+            code = CodeFieldValue(text = TextFieldValue(""), isFullyFilled = false),
+            error = CreateAccountCodeViewState.CodeError.None
+        )
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        }
+    }
 
     // Summary
-    override fun onSummaryContinue() { onSummarySuccess() }
+    final override fun onSummaryContinue() { onSummarySuccess() }
     abstract fun onSummarySuccess()
 }

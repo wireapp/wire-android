@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 interface CreateAccountCodeViewModel {
     val codeState: CreateAccountCodeViewState
-    val hideKeyboard: MutableSharedFlow<Unit>
     fun onCodeChange(newValue: CodeFieldValue, serverConfig: ServerConfig)
     fun resendCode(serverConfig: ServerConfig)
     fun goBackToPreviousStep()
     fun onCodeErrorDismiss()
+    fun onTooManyDevicesError()
 }

@@ -104,6 +104,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun setUserHandleUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
+        coreLogic.getSessionScope(session).users.setUserHandle
+
+    @ViewModelScoped
+    @Provides
     fun getConversationsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
         coreLogic.getSessionScope(session).conversations.getConversations
 

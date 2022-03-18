@@ -172,7 +172,9 @@ private fun MessageComposer(
                             visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
                         ) {
                             Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
-                                AdditionalOptionButton(messageComposerState)
+                                AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
+                                    messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
+                                }
                             }
                         }
                         Spacer(Modifier.width(8.dp))
@@ -352,13 +354,15 @@ private fun SendButton(
 }
 
 @Composable
-private fun MessageComposeActions(messageComposerInnerState: MessageComposerInnerState) {
+private fun MessageComposeActions(messageComposerState: MessageComposerInnerState) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxWidth()
     ) {
-        AdditionalOptionButton(messageComposerInnerState)
+        AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
+            messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
+        }
         RichTextEditingAction()
         AddEmojiAction()
         AddGifAction()
@@ -367,12 +371,10 @@ private fun MessageComposeActions(messageComposerInnerState: MessageComposerInne
 }
 
 @Composable
-private fun AdditionalOptionButton(messageComposerInnerState: MessageComposerInnerState) {
-    val rotationAngle by animateAsStateRotationToRight(isOpen = messageComposerInnerState.attachmentOptionsDisplayed)
+private fun AdditionalOptionButton(attachmentOptionsInitialState: Boolean = false, onClick: () -> Unit) {
+    val rotationAngle by animateAsStateRotationToRight(isOpen = attachmentOptionsInitialState)
     WireSecondaryButton(
-        onClick = {
-            messageComposerInnerState.attachmentOptionsDisplayed = !messageComposerInnerState.attachmentOptionsDisplayed
-        },
+        onClick = { onClick() },
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_add),

@@ -101,7 +101,7 @@ private fun EditMessageMenuItems(editMessageSource: MessageSource?): List<@Compo
                         contentDescription = stringResource(R.string.content_description_block_the_user),
                     )
                 },
-                title = stringResource(R.string.label_copy),
+                title = stringResource(R.string.content_description_copy_the_message),
             )
         }
         if (editMessageSource == MessageSource.CurrentUser)
@@ -110,7 +110,7 @@ private fun EditMessageMenuItems(editMessageSource: MessageSource?): List<@Compo
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_edit,
-                            contentDescription = stringResource(R.string.content_description_block_the_user),
+                            contentDescription = stringResource(R.string.content_description_edit_the_message)
                         )
                     },
                     title = stringResource(R.string.label_edit),
@@ -122,7 +122,7 @@ private fun EditMessageMenuItems(editMessageSource: MessageSource?): List<@Compo
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_delete,
-                            contentDescription = stringResource(R.string.content_description_block_the_user),
+                            contentDescription = stringResource(R.string.content_description_delete_the_message),
                         )
                     },
                     title = stringResource(R.string.label_delete),

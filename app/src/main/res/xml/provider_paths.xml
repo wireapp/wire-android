@@ -2,5 +2,5 @@
 <paths>
     <cache-path
             name="cached_files"
-            path="."/>
+            path="." />
 </paths>

@@ -56,7 +56,8 @@ private fun CodeContent(
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
             title = stringResource(id = state.type.titleResId),
-            onNavigationPressed = onBackPressed)
+            onNavigationPressed = onBackPressed
+        )
     }) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -66,7 +67,9 @@ private fun CodeContent(
             Text(
                 text = stringResource(R.string.create_account_code_text, state.email),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.fillMaxWidth().padding(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
                     )
@@ -75,7 +78,7 @@ private fun CodeContent(
             Column(horizontalAlignment = Alignment.CenterHorizontally,) {
                 CodeTextField(
                     value = state.code,
-                    onValueChange =  onCodeChange,
+                    onValueChange = onCodeChange,
                     state = when {
                         state.loading -> WireTextFieldState.Disabled
                         state.error is CreateAccountCodeViewState.CodeError.InvalidCodeError ->

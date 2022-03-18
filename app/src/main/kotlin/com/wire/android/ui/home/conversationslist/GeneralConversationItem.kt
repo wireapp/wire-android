@@ -1,7 +1,7 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.runtime.Composable
-import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
+import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversations.common.GroupName
@@ -21,26 +21,26 @@ fun GeneralConversationItem(
     when (val conversationType = generalConversation.conversationType) {
         is ConversationType.GroupConversation -> {
             with(conversationType) {
-                ConversationItemTemplate(
+                RowItemTemplate(
                     leadingIcon = {
                         GroupConversationAvatar(colorValue = groupColorValue)
                     },
                     title = { GroupName(name = groupName) },
                     eventType = eventType,
-                    onConversationItemClick = onConversationItemClick,
-                    onConversationItemLongClick = onConversationItemLongClick
+                    onRowItemClicked = onConversationItemClick,
+                    onRowItemLongClicked = onConversationItemLongClick
                 )
             }
         }
         is ConversationType.PrivateConversation -> {
-            ConversationItemTemplate(
+            RowItemTemplate(
                 leadingIcon = {
                     ConversationUserAvatar("")
                 },
                 title = { UserLabel(userInfoLabel = conversationType.toUserInfoLabel()) },
                 eventType = eventType,
-                onConversationItemClick = onConversationItemClick,
-                onConversationItemLongClick = onConversationItemLongClick
+                onRowItemClicked = onConversationItemClick,
+                onRowItemLongClicked = onConversationItemLongClick
             )
         }
     }

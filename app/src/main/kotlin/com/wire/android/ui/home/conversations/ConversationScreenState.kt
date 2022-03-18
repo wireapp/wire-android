@@ -23,7 +23,6 @@ import com.wire.android.ui.home.conversations.model.MessageContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberConversationScreenState(
@@ -77,4 +76,3 @@ class ConversationScreenState(
     }
 
 }
-

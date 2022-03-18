@@ -18,7 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.textfield.WirePrimaryButton
@@ -58,21 +57,25 @@ private fun SummaryContent(
                 contentDescription = stringResource(id = R.string.content_description_create_account_summary),
                 contentScale = ContentScale.Inside,
                 modifier = Modifier.padding(
-                        horizontal = MaterialTheme.wireDimensions.spacing64x,
-                        vertical = MaterialTheme.wireDimensions.spacing32x
-                    )
+                    horizontal = MaterialTheme.wireDimensions.spacing64x,
+                    vertical = MaterialTheme.wireDimensions.spacing32x
+                )
             )
             Text(
                 text = stringResource(id = state.type.summaryResources.summaryTextResId),
                 style = MaterialTheme.wireTypography.body02,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = MaterialTheme.wireDimensions.spacing24x)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.wireDimensions.spacing24x)
             )
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
                 text = stringResource(R.string.label_start_using_wire),
                 onClick = onContinuePressed,
-                modifier = Modifier.fillMaxWidth().padding(MaterialTheme.wireDimensions.spacing16x)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(MaterialTheme.wireDimensions.spacing16x)
             )
         }
     }

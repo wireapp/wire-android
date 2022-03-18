@@ -81,7 +81,7 @@ private fun ConversationScreen(
                             onMessageChanged = onMessageChanged,
                             messageText = conversationViewState.messageText,
                             onSendButtonClicked = onSendButtonClicked,
-                            onShowContextMenu = { message -> conversationScreenState.editMessage(message) }
+                            onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) }
                         )
                     }
                 )
@@ -198,14 +198,9 @@ class ConversationScreenState(
         editMessage?.messageSource
     }
 
-    fun editMessage(message: Message) {
+    fun showEditContextMenu(message: Message) {
         editMessage = message
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
-    }
-
-    fun hideEditMenu() {
-        editMessage = null
-        coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden) }
     }
 
 }

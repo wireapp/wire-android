@@ -174,6 +174,7 @@ private fun MessageComposer(
                             Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
                                 AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
                                     messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
+                                    messageComposerState.toActive()
                                 }
                             }
                         }
@@ -362,6 +363,7 @@ private fun MessageComposeActions(messageComposerState: MessageComposerInnerStat
     ) {
         AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
             messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
+            messageComposerState.toActive()
         }
         RichTextEditingAction()
         AddEmojiAction()

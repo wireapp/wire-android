@@ -34,15 +34,16 @@ abstract class CreateAccountBaseViewModel(
     CreateAccountEmailViewModel,
     CreateAccountDetailsViewModel,
     CreateAccountCodeViewModel,
-    CreateAccountSummaryViewModel
-{
+    CreateAccountSummaryViewModel {
     override var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(type))
     override var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(type))
     override var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(type))
     override val summaryState: CreateAccountSummaryViewState by mutableStateOf(CreateAccountSummaryViewState(type))
     override val hideKeyboard: MutableSharedFlow<Unit> = MutableSharedFlow()
 
-    fun closeForm() { viewModelScope.launch { navigationManager.navigateBack() } }
+    fun closeForm() {
+        viewModelScope.launch { navigationManager.navigateBack() }
+    }
 
     // Overview
     final override fun onOverviewContinue() {
@@ -68,16 +69,25 @@ abstract class CreateAccountBaseViewModel(
             emailState = emailState.copy(loading = false, continueEnabled = true, termsDialogVisible = true)
         }
     }
+
     final override fun onTermsAccept() {
         onTermsDialogDismiss()
         onTermsSuccess()
     }
-    final override fun onTermsDialogDismiss() { emailState = emailState.copy(termsDialogVisible = false) }
+
+    final override fun onTermsDialogDismiss() {
+        emailState = emailState.copy(termsDialogVisible = false)
+    }
+
     abstract fun onTermsSuccess()
     final override fun openLogin() {
-        viewModelScope.launch { navigationManager.navigate(NavigationCommand(
-            NavigationItem.Login.getRouteWithArgs(),
-            BackStackMode.CLEAR_TILL_START))
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Login.getRouteWithArgs(),
+                    BackStackMode.CLEAR_TILL_START
+                )
+            )
         }
     }
 
@@ -110,7 +120,7 @@ abstract class CreateAccountBaseViewModel(
                     else -> CreateAccountDetailsViewState.DetailsError.None
                 }
             )
-            if(detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onDetailsSuccess()
+            if (detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onDetailsSuccess()
         }
     }
     abstract fun onDetailsSuccess()
@@ -120,15 +130,18 @@ abstract class CreateAccountBaseViewModel(
         codeState = codeState.copy(code = newValue.text, error = CreateAccountCodeViewState.CodeError.None)
         if (newValue.isFullyFilled) onCodeContinue()
     }
-    override fun resendCode() {/* TODO */ }
+
+    override fun resendCode() {/* TODO */
+    }
+
     final override fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch { //TODO replace with proper logic
             val codeError =
-                if(codeState.code.text == "111111") CreateAccountCodeViewState.CodeError.None
+                if (codeState.code.text == "111111") CreateAccountCodeViewState.CodeError.None
                 else CreateAccountCodeViewState.CodeError.InvalidCodeError
             codeState = codeState.copy(loading = false, error = codeError)
-            if(codeError is CreateAccountCodeViewState.CodeError.None) {
+            if (codeError is CreateAccountCodeViewState.CodeError.None) {
                 hideKeyboard.emit(Unit)
                 onCodeSuccess()
             }
@@ -136,6 +149,9 @@ abstract class CreateAccountBaseViewModel(
     }
     abstract fun onCodeSuccess()
 
-    override fun onSummaryContinue() { onSummarySuccess() }
+    override fun onSummaryContinue() {
+        onSummarySuccess()
+    }
+
     abstract fun onSummarySuccess()
 }

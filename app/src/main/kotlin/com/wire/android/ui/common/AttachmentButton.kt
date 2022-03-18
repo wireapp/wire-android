@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -35,22 +35,24 @@ fun AttachmentButton(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = modifier.width(dimensions().attachmentButtonSize),
+        modifier = modifier
+            .clip(CircleShape)
+            .padding(dimensions().spacing16x)
+            .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
                 .size(dimensions().attachmentButtonSize)
                 .background(MaterialTheme.wireColorScheme.primaryButtonEnabled, CircleShape)
-                .padding(dimensions().userAvatarStatusBorderSize)
-                .clickable { onClick() }
+                .padding(dimensions().spacing2x)
         ) {
             Image(
                 painter = painterResource(icon),
-                contentDescription = stringResource(R.string.content_description_user_avatar),
+                contentDescription = stringResource(R.string.content_description_attachment_item),
                 contentScale = ContentScale.Inside,
                 modifier = Modifier
-                    .padding(dimensions().userAvatarClickablePadding)
+                    .padding(dimensions().spacing8x)
                     .align(Alignment.Center),
                 colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryButtonEnabled)
             )
@@ -70,5 +72,5 @@ fun AttachmentButton(
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentButton() {
-    AttachmentButton("Attach File", R.drawable.ic_attach_file) { }
+    AttachmentButton("Share Location", R.drawable.ic_location) { }
 }

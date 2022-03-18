@@ -12,7 +12,7 @@ enum class CreateAccountFlowType(
     val summaryResources: SummaryResources
 ) {
     CreatePersonalAccount(
-        routeArg =  "create_personal_account",
+        routeArg = "create_personal_account",
         titleResId = R.string.create_personal_account_title,
         overviewResources = OverviewResources(
             overviewContentTitleResId = null,

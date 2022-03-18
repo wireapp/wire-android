@@ -126,7 +126,10 @@ private fun AvatarPickerContent(
                 )
             }) {
             Box(Modifier.fillMaxSize()) {
-                Column(Modifier.fillMaxSize().background(MaterialTheme.wireColorScheme.background)) {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.wireColorScheme.background)) {
                     Box(Modifier.weight(1f)) {
                         Box(Modifier.align(Alignment.Center)) {
                             BulletHoleImagePreview(
@@ -156,12 +159,16 @@ private fun AvatarPickerActionButtons(
     if (hasPickedImage) {
         Row(Modifier.fillMaxWidth()) {
             WireSecondaryButton(
-                modifier = Modifier.padding(dimensions().spacing16x).weight(1f),
+                modifier = Modifier
+                    .padding(dimensions().spacing16x)
+                    .weight(1f),
                 text = stringResource(R.string.label_cancel),
                 onClick = { onCloseClick() }
             )
             WirePrimaryButton(
-                modifier = Modifier.padding(dimensions().spacing16x).weight(1f),
+                modifier = Modifier
+                    .padding(dimensions().spacing16x)
+                    .weight(1f),
                 text = stringResource(R.string.label_confirm),
                 onClick = { onSaveClick() }
             )

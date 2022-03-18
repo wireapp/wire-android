@@ -5,8 +5,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -51,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
+import com.wire.android.ui.common.animateAsStateRotationToRight
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
@@ -369,10 +368,7 @@ private fun MessageComposeActions(messageComposerInnerState: MessageComposerInne
 
 @Composable
 private fun AdditionalOptionButton(messageComposerInnerState: MessageComposerInnerState) {
-    val rotationAngle by animateFloatAsState(
-        if (messageComposerInnerState.attachmentOptionsDisplayed) -90f else 0f,
-        animationSpec = tween(durationMillis = 400)
-    )
+    val rotationAngle by animateAsStateRotationToRight(isOpen = messageComposerInnerState.attachmentOptionsDisplayed)
     WireSecondaryButton(
         onClick = {
             messageComposerInnerState.attachmentOptionsDisplayed = !messageComposerInnerState.attachmentOptionsDisplayed

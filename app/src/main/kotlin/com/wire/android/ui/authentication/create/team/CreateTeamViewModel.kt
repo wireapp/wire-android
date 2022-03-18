@@ -22,12 +22,30 @@ class CreateTeamViewModel @Inject constructor(
     var moveBack = MutableSharedFlow<Unit>()
 
     // Navigation
-    private fun goToStep(item: CreateTeamNavigationItem) { viewModelScope.launch { moveToStep.emit(item) } }
-    override fun goBackToPreviousStep() { viewModelScope.launch { moveBack.emit(Unit) } }
-    override fun onOverviewSuccess() { goToStep(CreateTeamNavigationItem.Email) }
-    override fun onTermsSuccess() { goToStep(CreateTeamNavigationItem.Details) }
-    override fun onDetailsSuccess() { goToStep(CreateTeamNavigationItem.Code) }
-    override fun onCodeSuccess() { goToStep(CreateTeamNavigationItem.Summary) }
+    private fun goToStep(item: CreateTeamNavigationItem) {
+        viewModelScope.launch { moveToStep.emit(item) }
+    }
+
+    override fun goBackToPreviousStep() {
+        viewModelScope.launch { moveBack.emit(Unit) }
+    }
+
+    override fun onOverviewSuccess() {
+        goToStep(CreateTeamNavigationItem.Email)
+    }
+
+    override fun onTermsSuccess() {
+        goToStep(CreateTeamNavigationItem.Details)
+    }
+
+    override fun onDetailsSuccess() {
+        goToStep(CreateTeamNavigationItem.Code)
+    }
+
+    override fun onCodeSuccess() {
+        goToStep(CreateTeamNavigationItem.Summary)
+    }
+
     override fun onSummarySuccess() {
         viewModelScope.launch {
             navigationManager.navigate(

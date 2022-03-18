@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.BackStackMode
@@ -20,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateAccountUsernameViewModel @Inject constructor(
     private val navigationManager: NavigationManager
-): ViewModel() {
+) : ViewModel() {
     var state: CreateAccountUsernameViewState by mutableStateOf(CreateAccountUsernameViewState())
         private set
 
@@ -28,7 +27,8 @@ class CreateAccountUsernameViewModel @Inject constructor(
         state = state.copy(
             username = newText,
             error = CreateAccountUsernameViewState.UsernameError.None,
-            continueEnabled = newText.text.isNotEmpty() && !state.loading)
+            continueEnabled = newText.text.isNotEmpty() && !state.loading
+        )
     }
 
     fun onContinue() {

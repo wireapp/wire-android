@@ -195,5 +195,6 @@
     <string name="content_description_copy_the_message">Copy the message</string>
     <string name="content_description_delete_the_message">Delete the message</string>
     <string name="content_description_edit_the_message">Edit the message</string>
+    <string name="info_message_copied">Message copied</string>
 
 </resources>

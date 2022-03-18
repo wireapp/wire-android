@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations
 
+import android.content.Context
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -14,7 +15,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
+import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageContent
 import kotlinx.coroutines.CoroutineScope
@@ -24,6 +27,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberConversationScreenState(
+    context: Context = LocalContext.current,
     clipboardManager: ClipboardManager = LocalClipboardManager.current,
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
@@ -31,6 +35,7 @@ fun rememberConversationScreenState(
 ): ConversationScreenState {
     return remember {
         ConversationScreenState(
+            context = context,
             clipboardManager = clipboardManager,
             snackBarHostState = snackBarHostState,
             modalBottomSheetState = bottomSheetState,
@@ -41,6 +46,7 @@ fun rememberConversationScreenState(
 
 @OptIn(ExperimentalMaterialApi::class)
 class ConversationScreenState(
+    val context: Context,
     val clipboardManager: ClipboardManager,
     val snackBarHostState: SnackbarHostState,
     val modalBottomSheetState: ModalBottomSheetState,
@@ -62,7 +68,10 @@ class ConversationScreenState(
         editMessage!!.messageContent.let { messageContent ->
             if (messageContent is MessageContent.TextMessage) {
                 clipboardManager.setText(AnnotatedString(messageContent.messageBody.message))
-                coroutineScope.launch { snackBarHostState.showSnackbar("Message copied") }
+                coroutineScope.launch {
+                    modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
+                    snackBarHostState.showSnackbar(context.getString(R.string.info_message_copied))
+                }
             }
         }
     }

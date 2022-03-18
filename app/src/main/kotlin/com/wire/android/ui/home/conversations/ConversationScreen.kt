@@ -21,7 +21,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
@@ -30,6 +33,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.Message
+import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import kotlinx.coroutines.CoroutineScope
@@ -63,7 +67,10 @@ private fun ConversationScreen(
     with(conversationViewState) {
         MenuModalSheetLayout(
             sheetState = conversationScreenState.modalBottomSheetState,
-            menuItems = EditMessageMenuItems(conversationScreenState.editMessageSource),
+            menuItems = EditMessageMenuItems(
+                editMessageSource = conversationScreenState.editMessageSource,
+                onCopyMessage = { conversationScreenState.copyMessage() }
+            ),
             content = {
                 Scaffold(
                     topBar = {
@@ -91,7 +98,10 @@ private fun ConversationScreen(
 }
 
 @Composable
-private fun EditMessageMenuItems(editMessageSource: MessageSource?): List<@Composable () -> Unit> {
+private fun EditMessageMenuItems(
+    editMessageSource: MessageSource?,
+    onCopyMessage: () -> Unit
+): List<@Composable () -> Unit> {
     return buildList {
         add {
             MenuBottomSheetItem(
@@ -101,7 +111,8 @@ private fun EditMessageMenuItems(editMessageSource: MessageSource?): List<@Compo
                         contentDescription = stringResource(R.string.content_description_block_the_user),
                     )
                 },
-                title = stringResource(R.string.content_description_copy_the_message),
+                title = stringResource(R.string.label_copy),
+                onItemClick = onCopyMessage
             )
         }
         if (editMessageSource == MessageSource.CurrentUser)
@@ -175,11 +186,13 @@ fun ConversationScreenPreview() {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberConversationScreenState(
+    clipboardManager: ClipboardManager = LocalClipboardManager.current,
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): ConversationScreenState {
     return remember {
         ConversationScreenState(
+            clipboardManager = clipboardManager,
             modalBottomSheetState = bottomSheetState,
             coroutineScope = coroutineScope
         )
@@ -188,6 +201,7 @@ fun rememberConversationScreenState(
 
 @OptIn(ExperimentalMaterialApi::class)
 class ConversationScreenState(
+    val clipboardManager: ClipboardManager,
     val modalBottomSheetState: ModalBottomSheetState,
     val coroutineScope: CoroutineScope
 ) {
@@ -201,6 +215,14 @@ class ConversationScreenState(
     fun showEditContextMenu(message: Message) {
         editMessage = message
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
+    }
+
+    fun copyMessage() {
+        editMessage!!.messageContent.let { messageContent ->
+            if (messageContent is MessageContent.TextMessage) {
+                clipboardManager.setText(AnnotatedString(messageContent.messageBody.message))
+            }
+        }
     }
 
 }

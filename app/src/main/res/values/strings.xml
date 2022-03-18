@@ -44,6 +44,8 @@
     <string name="content_description_right_arrow">Right arrow</string>
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_create_account_summary">Summary image</string>
+    <string name="content_description_attachment_item">Attachment item</string>
+
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>

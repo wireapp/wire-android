@@ -35,22 +35,23 @@ fun AttachmentButton(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = modifier.width(dimensions().attachmentButtonSize),
+        modifier = modifier
+            .width(dimensions().attachmentButtonSize)
+            .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
                 .size(dimensions().attachmentButtonSize)
                 .background(MaterialTheme.wireColorScheme.primaryButtonEnabled, CircleShape)
-                .padding(dimensions().userAvatarStatusBorderSize)
-                .clickable { onClick() }
+                .padding(dimensions().spacing2x)
         ) {
             Image(
                 painter = painterResource(icon),
-                contentDescription = stringResource(R.string.content_description_user_avatar),
+                contentDescription = stringResource(R.string.content_description_attachment_item),
                 contentScale = ContentScale.Inside,
                 modifier = Modifier
-                    .padding(dimensions().userAvatarClickablePadding)
+                    .padding(dimensions().spacing8x)
                     .align(Alignment.Center),
                 colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryButtonEnabled)
             )

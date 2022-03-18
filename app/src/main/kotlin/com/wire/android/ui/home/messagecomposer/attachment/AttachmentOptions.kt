@@ -14,7 +14,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
@@ -25,7 +24,6 @@ import com.wire.android.ui.common.dimensions
 )
 @Composable
 fun AttachmentOptionsComponent() {
-    val viewModel: AttachmentOptionsViewModel = hiltViewModel()
     val attachmentOptions = buildAttachmentOptionItems()
     LazyVerticalGrid(
         cells = GridCells.Adaptive(dimensions().spacing64x),

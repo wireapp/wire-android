@@ -5,44 +5,30 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.Message
-import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.messagecomposer.MessageComposer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConversationScreen(
-    conversationViewModel: ConversationViewModel,
+    conversationViewModel: ConversationViewModel
 ) {
     val uiState = conversationViewModel.conversationViewState
 
@@ -80,6 +66,12 @@ private fun ConversationScreen(
                             onDropDownClick = {},
                             onSearchButtonClick = {},
                             onVideoButtonClick = {}
+                        )
+                    },
+                    snackbarHost = {
+                        SwipeDismissSnackbarHost(
+                            hostState = conversationScreenState.snackBarHostState,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     },
                     content = {
@@ -182,48 +174,3 @@ fun ConversationScreenPreview() {
             messages = mockMessages,
         ), {}, {}, {})
 }
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun rememberConversationScreenState(
-    clipboardManager: ClipboardManager = LocalClipboardManager.current,
-    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
-): ConversationScreenState {
-    return remember {
-        ConversationScreenState(
-            clipboardManager = clipboardManager,
-            modalBottomSheetState = bottomSheetState,
-            coroutineScope = coroutineScope
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-class ConversationScreenState(
-    val clipboardManager: ClipboardManager,
-    val modalBottomSheetState: ModalBottomSheetState,
-    val coroutineScope: CoroutineScope
-) {
-
-    private var editMessage by mutableStateOf<Message?>(null)
-
-    val editMessageSource by derivedStateOf {
-        editMessage?.messageSource
-    }
-
-    fun showEditContextMenu(message: Message) {
-        editMessage = message
-        coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
-    }
-
-    fun copyMessage() {
-        editMessage!!.messageContent.let { messageContent ->
-            if (messageContent is MessageContent.TextMessage) {
-                clipboardManager.setText(AnnotatedString(messageContent.messageBody.message))
-            }
-        }
-    }
-
-}
-

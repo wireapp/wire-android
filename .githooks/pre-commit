@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+############
+## This Git Hook it's optional and can help you to auto-format your work on commit
+## It will run "spotlessApply" and then add to the prev. staged commit the files modified
+############
+echo "> Running spotless check and apply"
+./gradlew spotlessApply
+git add `git diff --name-only --cached`
+exit 0

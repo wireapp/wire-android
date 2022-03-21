@@ -14,6 +14,7 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
+    id(ScriptPlugins.spotless)
 }
 
 repositories {

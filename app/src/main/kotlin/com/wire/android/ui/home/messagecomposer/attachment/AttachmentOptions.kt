@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
@@ -24,6 +23,7 @@ import com.wire.android.util.permission.rememberCaptureVideoFlow
 import com.wire.android.util.permission.rememberCurrentLocationFlow
 import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
+import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
@@ -69,8 +69,8 @@ private fun GalleryFlow() = rememberOpenGalleryFlow(
 private fun TakePictureFlow(): UseCameraRequestFlow {
     return rememberTakePictureFlow(
         shouldPersistUri = { /* TODO: call vm to share raw pic data */ },
-        onPermissionDenied = {},
-        onPictureTakenUri = Uri.EMPTY // TODO: get uri from fileprovider (FileUtil.kt)
+        onPictureTakenUri = Uri.EMPTY, // TODO: get uri from fileprovider (FileUtil.kt)
+        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
 
@@ -78,14 +78,22 @@ private fun TakePictureFlow(): UseCameraRequestFlow {
 private fun CaptureVideoFlow(): UseCameraRequestFlow {
     return rememberCaptureVideoFlow(
         shouldPersistUri = { /* TODO: call vm to share raw pic data */ },
-        onPermissionDenied = {},
-        onVideoCapturedUri = Uri.EMPTY // TODO: get uri from fileprovider (FileUtil.kt)
+        onVideoCapturedUri = Uri.EMPTY, // TODO: get uri from fileprovider (FileUtil.kt)
+        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
 
 @Composable
 private fun ShareCurrentLocationFlow() =
-    rememberCurrentLocationFlow(LocalContext.current, onLocationPicked = { /*TODO*/ }, onPermissionDenied = {})
+    rememberCurrentLocationFlow(onLocationPicked = { /*TODO*/ }, onPermissionDenied = { /* TODO: Implement denied permission rationale */ })
+
+@Composable
+private fun RecordAudioFlow() =
+    rememberRecordAudioRequestFlow(
+        shouldPersistUri = { /* TODO: call vm to share raw pic data */ },
+        onAudioRecordedUri = Uri.EMPTY,
+        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
+    )
 
 @Composable
 private fun buildAttachmentOptionItems(): List<AttachmentOptionItem> {
@@ -94,15 +102,14 @@ private fun buildAttachmentOptionItems(): List<AttachmentOptionItem> {
     val cameraFlow = TakePictureFlow()
     val captureVideoFlow = CaptureVideoFlow()
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
+    val recordAudioFlow = RecordAudioFlow()
 
     return listOf(
         AttachmentOptionItem(R.string.attachment_share_file, R.drawable.ic_attach_file) { fileFlow.launch() },
         AttachmentOptionItem(R.string.attachment_share_image, R.drawable.ic_gallery) { galleryFlow.launch() },
         AttachmentOptionItem(R.string.attachment_take_photo, R.drawable.ic_camera) { cameraFlow.launch() },
         AttachmentOptionItem(R.string.attachment_record_video, R.drawable.ic_video_icon) { captureVideoFlow.launch() },
-        AttachmentOptionItem(R.string.attachment_voice_message, R.drawable.ic_mic_on) {
-            // TODO: implement voice message options
-        },
+        AttachmentOptionItem(R.string.attachment_voice_message, R.drawable.ic_mic_on) { recordAudioFlow.launch() },
         AttachmentOptionItem(R.string.attachment_share_location, R.drawable.ic_location) { shareCurrentLocationFlow.launch() }
     )
 }

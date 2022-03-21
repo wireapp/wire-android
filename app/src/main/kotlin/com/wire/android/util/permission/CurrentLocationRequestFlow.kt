@@ -6,14 +6,15 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import com.wire.android.util.extension.checkPermission
 
 @Composable
 fun rememberCurrentLocationFlow(
-    context: Context,
     onLocationPicked: () -> Unit, // TODO: this will change accordingly to maps intent
     onPermissionDenied: () -> Unit
 ): CurrentLocationRequestFlow {
+    val context = LocalContext.current
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->

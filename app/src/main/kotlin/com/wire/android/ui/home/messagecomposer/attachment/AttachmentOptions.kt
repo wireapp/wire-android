@@ -20,8 +20,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.util.permission.CaptureVideoFlow
-import com.wire.android.util.permission.TakePictureFlow
+import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
 import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
@@ -72,7 +71,7 @@ private fun GalleryFlow() = rememberOpenGalleryFlow(
 )
 
 @Composable
-private fun CameraFlow(): TakePictureFlow {
+private fun TakePictureFlow(): UseCameraRequestFlow {
     val context = LocalContext.current
     val uriForFile =
         FileProvider.getUriForFile(
@@ -89,7 +88,7 @@ private fun CameraFlow(): TakePictureFlow {
 }
 
 @Composable
-private fun CaptureVideoFlow(): CaptureVideoFlow {
+private fun CaptureVideoFlow(): UseCameraRequestFlow {
     val context = LocalContext.current
     val uriForFile =
         FileProvider.getUriForFile(
@@ -109,7 +108,7 @@ private fun CaptureVideoFlow(): CaptureVideoFlow {
 private fun buildAttachmentOptionItems(): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow()
     val galleryFlow = GalleryFlow()
-    val cameraFlow = CameraFlow()
+    val cameraFlow = TakePictureFlow()
     val captureVideoFlow = CaptureVideoFlow()
 
     return listOf(

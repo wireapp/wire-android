@@ -1,12 +1,10 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 
 @Composable
 fun rememberMessageComposerInnerState(
@@ -40,6 +38,8 @@ class MessageComposerInnerState(
                 .isNotBlank()
         }
 
+    var attachmentOptionsDisplayed by mutableStateOf(false)
+
     private fun toEnabled() {
         messageComposeInputState = MessageComposeInputState.Enabled
     }
@@ -58,7 +58,6 @@ class MessageComposerInnerState(
         messageComposeInputState = if (messageComposeInputState == MessageComposeInputState.Active)
             MessageComposeInputState.FullScreen else MessageComposeInputState.Active
     }
-
 }
 
 enum class MessageComposeInputState {

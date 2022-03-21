@@ -92,7 +92,9 @@ private fun EmailContent(
             Text(
                 text = stringResource(id = state.type.emailResources.emailSubtitleResId),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.fillMaxWidth().padding(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
                     )
@@ -102,8 +104,8 @@ private fun EmailContent(
                 onValueChange = onEmailChange,
                 placeholderText = stringResource(R.string.create_account_email_placeholder),
                 labelText = stringResource(R.string.create_account_email_label),
-                state = if(state.error is CreateAccountEmailViewState.EmailError.None) WireTextFieldState.Default
-                    else WireTextFieldState.Error(),
+                state = if (state.error is CreateAccountEmailViewState.EmailError.None) WireTextFieldState.Default
+                else WireTextFieldState.Error(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
@@ -161,7 +163,9 @@ private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
         }
     }
     ClickableText(
-        modifier = Modifier.fillMaxWidth().padding(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
                 vertical = MaterialTheme.wireDimensions.spacing8x,
                 horizontal = MaterialTheme.wireDimensions.spacing16x
             ),
@@ -204,7 +208,9 @@ private fun EmailFooter(state: CreateAccountEmailViewState, onLoginPressed: () -
         fillMaxWidth = true,
         loading = state.loading,
         state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-        modifier = Modifier.fillMaxWidth().padding(MaterialTheme.wireDimensions.spacing16x),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(MaterialTheme.wireDimensions.spacing16x),
     )
 }
 
@@ -225,7 +231,9 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
                 text = stringResource(R.string.label_cancel),
                 onClick = onDialogDismiss,
                 fillMaxWidth = true,
-                modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing8x),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x),
             )
             WireSecondaryButton(
                 text = stringResource(R.string.create_account_email_terms_dialog_view_policy),

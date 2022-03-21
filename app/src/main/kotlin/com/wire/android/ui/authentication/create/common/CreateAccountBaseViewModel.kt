@@ -56,7 +56,9 @@ abstract class CreateAccountBaseViewModel(
     override var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(type))
     override val summaryState: CreateAccountSummaryViewState by mutableStateOf(CreateAccountSummaryViewState(type))
 
-    fun closeForm() { viewModelScope.launch { navigationManager.navigateBack() } }
+    fun closeForm() {
+        viewModelScope.launch { navigationManager.navigateBack() }
+    }
 
     // Overview
     final override fun onOverviewContinue() {
@@ -115,12 +117,20 @@ abstract class CreateAccountBaseViewModel(
         }
 
     }
-    final override fun onTermsDialogDismiss() { emailState = emailState.copy(termsDialogVisible = false) }
+
+    final override fun onTermsDialogDismiss() {
+        emailState = emailState.copy(termsDialogVisible = false)
+    }
+
     abstract fun onTermsSuccess()
     final override fun openLogin() {
-        viewModelScope.launch { navigationManager.navigate(NavigationCommand(
-            NavigationItem.Login.getRouteWithArgs(),
-            BackStackMode.CLEAR_TILL_START))
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Login.getRouteWithArgs(),
+                    BackStackMode.CLEAR_TILL_START
+                )
+            )
         }
     }
 
@@ -157,7 +167,7 @@ abstract class CreateAccountBaseViewModel(
                 continueEnabled = true,
                 error = detailsError
             )
-            if(detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onDetailsSuccess()
+            if (detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onDetailsSuccess()
         }
     }
     abstract fun onDetailsSuccess()

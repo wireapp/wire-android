@@ -32,7 +32,8 @@ class CreateAccountUsernameViewModel @Inject constructor(
         state = state.copy(
             username = newText,
             error = CreateAccountUsernameViewState.UsernameError.None,
-            continueEnabled = newText.text.isNotEmpty() && !state.loading)
+            continueEnabled = newText.text.isNotEmpty() && !state.loading
+        )
     }
 
     fun onErrorDismiss() {

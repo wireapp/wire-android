@@ -75,7 +75,8 @@ private fun CodeContent(
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
             title = stringResource(id = state.type.titleResId),
-            onNavigationPressed = onBackPressed)
+            onNavigationPressed = onBackPressed
+        )
     }) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

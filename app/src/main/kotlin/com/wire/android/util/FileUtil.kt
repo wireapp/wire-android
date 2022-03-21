@@ -24,9 +24,9 @@ fun getUriFromDrawable(
 ): Uri {
     return Uri.parse(
         ContentResolver.SCHEME_ANDROID_RESOURCE +
-            "://" + context.resources.getResourcePackageName(drawableId) +
-            '/' + context.resources.getResourceTypeName(drawableId) +
-            '/' + context.resources.getResourceEntryName(drawableId)
+                "://" + context.resources.getResourcePackageName(drawableId) +
+                '/' + context.resources.getResourceTypeName(drawableId) +
+                '/' + context.resources.getResourceEntryName(drawableId)
     )
 }
 

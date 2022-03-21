@@ -70,10 +70,12 @@ fun CodeTextField(
             onValueChange = {
                 val textDigits = it.text.filter { it.isDigit() } // don't allow characters other than digits to be entered
                     .let { it.substring(0, min(codeLength, it.length)) } // don't allow more digits than required
-                onValueChange(CodeFieldValue(
-                    text = TextFieldValue(text = textDigits, selection = TextRange(textDigits.length)),
-                    isFullyFilled = textDigits.length == codeLength
-                ))
+                onValueChange(
+                    CodeFieldValue(
+                        text = TextFieldValue(text = textDigits, selection = TextRange(textDigits.length)),
+                        isFullyFilled = textDigits.length == codeLength
+                    )
+                )
             },
             enabled = enabled,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
@@ -82,7 +84,7 @@ fun CodeTextField(
             decorationBox = {
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
                     repeat(codeLength) { index ->
-                        if(index != 0) Spacer(modifier = Modifier.width(horizontalSpacing))
+                        if (index != 0) Spacer(modifier = Modifier.width(horizontalSpacing))
                         Digit(
                             char = value.text.getOrNull(index),
                             shape = shape,

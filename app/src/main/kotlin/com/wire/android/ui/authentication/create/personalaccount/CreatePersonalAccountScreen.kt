@@ -32,7 +32,7 @@ fun CreatePersonalAccountScreen(serverConfig: ServerConfig) {
             CreatePersonalAccountNavigationItem.values().forEach { destination ->
                 composable(
                     route = destination.route,
-                    enterTransition = {smoothSlideInFromRight() },
+                    enterTransition = { smoothSlideInFromRight() },
                     exitTransition = { smoothSlideOutFromLeft() },
                     content = { destination.content(ContentParams(viewModel, serverConfig)) }
                 )

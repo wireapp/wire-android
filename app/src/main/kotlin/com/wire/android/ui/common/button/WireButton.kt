@@ -33,8 +33,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.Tint
+import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import java.lang.Integer.max

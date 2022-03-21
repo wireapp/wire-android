@@ -4,7 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.TextOverflow
-import com.wire.android.ui.home.conversations.common.ConversationItemTemplate
+import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversations.common.GroupName
@@ -27,25 +27,25 @@ fun MentionConversationItem(
     when (val conversationType = mention.conversationType) {
         is ConversationType.GroupConversation -> {
             with(conversationType) {
-                ConversationItemTemplate(
+                RowItemTemplate(
                     leadingIcon = { GroupConversationAvatar(colorValue = groupColorValue) },
                     title = { GroupName(name = groupName) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,
-                    onConversationItemClick = onMentionItemClick,
-                    onConversationItemLongClick = onConversationItemLongClick
+                    onRowItemClicked = onMentionItemClick,
+                    onRowItemLongClicked = onConversationItemLongClick
                 )
             }
         }
         is ConversationType.PrivateConversation -> {
             with(conversationType) {
-                ConversationItemTemplate(
+                RowItemTemplate(
                     leadingIcon = { ConversationUserAvatar("") },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,
-                    onConversationItemClick = onMentionItemClick,
-                    onConversationItemLongClick =  onConversationItemLongClick
+                    onRowItemClicked = onMentionItemClick,
+                    onRowItemLongClicked =  onConversationItemLongClick
                 )
             }
         }

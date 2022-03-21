@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -21,10 +22,11 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
+
 
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
@@ -67,16 +69,21 @@ class WireActivity : AppCompatActivity() {
         navController: NavHostController,
         scope: CoroutineScope
     ) {
+        val keyboardController = LocalSoftwareKeyboardController.current
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
         LaunchedEffect("key") {
 
             navigationManager.navigateState.onEach { command ->
                 if (command == null) return@onEach
+                keyboardController?.hide()
                 navigateToItem(navController, command)
             }.launchIn(scope)
 
             navigationManager.navigateBack
-                .onEach { navController.popBackStack() }
+                .onEach {
+                    keyboardController?.hide()
+                    navController.popBackStack()
+                }
                 .launchIn(scope)
         }
     }

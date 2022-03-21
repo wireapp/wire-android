@@ -7,7 +7,9 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -18,11 +20,9 @@ import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun CreatePersonalAccountScreen(
-    serverConfig: ServerConfig
-) {
+fun CreatePersonalAccountScreen(serverConfig: ServerConfig) {
     val viewModel: CreatePersonalAccountViewModel = hiltViewModel()
     val navController = rememberAnimatedNavController()
     val scope = rememberCoroutineScope()
@@ -31,13 +31,15 @@ fun CreatePersonalAccountScreen(
             CreatePersonalAccountNavigationItem.values().forEach { destination ->
                 composable(
                     route = destination.route,
-                    enterTransition = {smoothSlideInFromRight() },
+                    enterTransition = { smoothSlideInFromRight() },
                     exitTransition = { smoothSlideOutFromLeft() },
                     content = { destination.content(ContentParams(viewModel, serverConfig)) }
                 )
             }
         }
+        val keyboardController = LocalSoftwareKeyboardController.current
         LaunchedEffect(viewModel) {
+            viewModel.hideKeyboard.onEach { keyboardController?.hide() }.launchIn(scope)
             viewModel.moveToStep.onEach { item -> navigateToItemInCreatePersonalAccount(navController, item) }.launchIn(scope)
             viewModel.moveBack.onEach { if (!navController.popBackStack()) viewModel.closeForm() }.launchIn(scope)
         }

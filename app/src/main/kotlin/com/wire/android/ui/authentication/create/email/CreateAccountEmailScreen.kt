@@ -34,6 +34,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -50,17 +51,15 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.ServerConfig
 
 @Composable
-fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel, serverConfig: ServerConfig, title: String, subtitle: String) {
+fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel, serverConfig: ServerConfig) {
     EmailContent(
         state = viewModel.emailState,
-        title = title,
-        subtitle = subtitle,
         onEmailChange = viewModel::onEmailChange,
         onBackPressed = viewModel::goBackToPreviousStep,
         onContinuePressed = viewModel::onEmailContinue,
         onLoginPressed = viewModel::openLogin,
         onTermsDialogDismiss = viewModel::onTermsDialogDismiss,
-        onTermsAccepted = viewModel::onTermsAccepted,
+        onTermsAccept = viewModel::onTermsAccept,
         websiteBaseUrl = serverConfig.websiteUrl
     )
 }
@@ -69,23 +68,28 @@ fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel, serverConfi
 @Composable
 private fun EmailContent(
     state: CreateAccountEmailViewState,
-    title: String,
-    subtitle: String,
     onEmailChange: (TextFieldValue) -> Unit,
     onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit,
     onLoginPressed: () -> Unit,
     onTermsDialogDismiss: () -> Unit,
-    onTermsAccepted: () -> Unit,
+    onTermsAccept: () -> Unit,
     websiteBaseUrl: String
 ) {
-    Scaffold(topBar = { WireCenterAlignedTopAppBar(elevation = 0.dp, title = title, onNavigationPressed = onBackPressed) }) {
+    Scaffold(topBar = {
+        WireCenterAlignedTopAppBar(
+            elevation = 0.dp,
+            title = stringResource(id = state.type.titleResId),
+            onNavigationPressed = onBackPressed
+        )
+    }) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
             val keyboardController = LocalSoftwareKeyboardController.current
             Text(
-                text = subtitle,
+                text = stringResource(id = state.type.emailResources.emailSubtitleResId),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
@@ -94,10 +98,10 @@ private fun EmailContent(
             WireTextField(
                 value = state.email,
                 onValueChange = onEmailChange,
-                placeholderText = stringResource(R.string.create_personal_account_email_placeholder),
-                labelText = stringResource(R.string.create_personal_account_email_label),
-                state = if(state.error is CreateAccountEmailViewState.EmailError.None) WireTextFieldState.Default
-                    else WireTextFieldState.Error(),
+                placeholderText = stringResource(R.string.create_account_email_placeholder),
+                labelText = stringResource(R.string.create_account_email_label),
+                state = if (state.error is CreateAccountEmailViewState.EmailError.None) WireTextFieldState.Default
+                else WireTextFieldState.Error(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
@@ -111,7 +115,7 @@ private fun EmailContent(
         val context = LocalContext.current
         TermsConditionsDialog(
             onDialogDismiss = onTermsDialogDismiss,
-            onContinuePressed = onTermsAccepted,
+            onContinuePressed = onTermsAccept,
             onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, "https://${websiteBaseUrl}/legal") }
         )
     }
@@ -124,7 +128,7 @@ private fun EmailErrorText() {
     val learnMoreUrl = "https://support.wire.com/hc/en-us/articles/115004082129" //TODO should we keep it in a different way?
     val learnMoreText = stringResource(id = R.string.label_learn_more)
     val annotatedText = buildAnnotatedString {
-        append("${stringResource(R.string.create_personal_account_email_error)} ")
+        append("${stringResource(R.string.create_account_email_error)} ")
         pushStringAnnotation(tag = learnMoreTag, annotation = learnMoreUrl)
         withStyle(style = SpanStyle(
                 color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
@@ -136,10 +140,12 @@ private fun EmailErrorText() {
         pop()
     }
     ClickableText(
-        modifier = Modifier.fillMaxWidth().padding(
-            vertical = MaterialTheme.wireDimensions.spacing8x,
-            horizontal = MaterialTheme.wireDimensions.spacing16x
-        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                vertical = MaterialTheme.wireDimensions.spacing8x,
+                horizontal = MaterialTheme.wireDimensions.spacing16x
+            ),
         style = MaterialTheme.wireTypography.label04.copy(color = MaterialTheme.wireColorScheme.error, textAlign = TextAlign.Start),
         text = annotatedText,
         onClick = { offset ->
@@ -157,7 +163,7 @@ private fun EmailFooter(state: CreateAccountEmailViewState, onLoginPressed: () -
         modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
     ) {
         Text(
-            text = "${stringResource(R.string.create_personal_account_email_footer_text)} ",
+            text = "${stringResource(R.string.create_account_email_footer_text)} ",
             style = MaterialTheme.wireTypography.body02,
             textAlign = TextAlign.Center,
         )
@@ -179,15 +185,17 @@ private fun EmailFooter(state: CreateAccountEmailViewState, onLoginPressed: () -
         fillMaxWidth = true,
         loading = state.loading,
         state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-        modifier = Modifier.fillMaxWidth().padding(MaterialTheme.wireDimensions.spacing16x),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(MaterialTheme.wireDimensions.spacing16x),
     )
 }
 
 @Composable
 private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed: () -> Unit, onViewPolicyPressed: () -> Unit) {
     WireDialog(
-        title = stringResource(R.string.create_personal_account_email_terms_dialog_title),
-        text = stringResource(R.string.create_personal_account_email_terms_dialog_text),
+        title = stringResource(R.string.create_account_email_terms_dialog_title),
+        text = stringResource(R.string.create_account_email_terms_dialog_text),
         onDismiss = onDialogDismiss,
         confirmButtonProperties = WireDialogButtonProperties(
             onClick = onContinuePressed,
@@ -200,10 +208,12 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
                 text = stringResource(R.string.label_cancel),
                 onClick = onDialogDismiss,
                 fillMaxWidth = true,
-                modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing8x),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x),
             )
             WireSecondaryButton(
-                text = stringResource(R.string.create_personal_account_email_terms_dialog_view_policy),
+                text = stringResource(R.string.create_account_email_terms_dialog_view_policy),
                 onClick = onViewPolicyPressed,
                 fillMaxWidth = true,
                 modifier = Modifier.fillMaxWidth()
@@ -215,5 +225,5 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
 @Composable
 @Preview
 private fun CreateAccountEmailScreenPreview() {
-    EmailContent(CreateAccountEmailViewState(), "title", "subtitle", {}, {}, {}, {}, {}, {}, "")
+    EmailContent(CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, {}, "")
 }

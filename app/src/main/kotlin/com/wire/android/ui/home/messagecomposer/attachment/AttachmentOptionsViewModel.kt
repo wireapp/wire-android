@@ -13,6 +13,7 @@ import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.toByteArray
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.io.IOException
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
@@ -24,10 +25,18 @@ class AttachmentOptionsViewModel @Inject constructor() : ViewModel() {
 
     fun prepareAttachment(context: Context, attachmentUri: Uri) {
         viewModelScope.launch {
-            val attachment =
-                AttachmentPart(attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE), attachmentUri.toByteArray(context))
-            attachmentState = AttachmentState.Picked(attachment)
+            attachmentState = try {
+                val attachment =
+                    AttachmentPart(attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE), attachmentUri.toByteArray(context))
+                AttachmentState.Picked(attachment)
+            } catch (e: IOException) {
+                AttachmentState.Error
+            }
         }
+    }
+
+    fun resetViewState() {
+        attachmentState = AttachmentState.Initial
     }
 }
 

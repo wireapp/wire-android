@@ -2,14 +2,19 @@ package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.messagecomposer.MessageComposer
@@ -40,15 +45,23 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit
 ) {
     with(conversationViewState) {
+        val snackbarHostState = remember { SnackbarHostState() }
         Scaffold(
             topBar = { ConversationScreenTopAppBar(conversationName, onBackButtonClick, {}, {}, {}) },
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.fillMaxWidth().wrapContentHeight(Alignment.Bottom)
+                )
+            },
             content = {
                 ConversationScreenContent(
                     messages = messages,
                     onMessageChanged = onMessageChanged,
                     messageText = conversationViewState.messageText,
                     onSendButtonClicked = onSendButtonClicked,
-                    onSendAttachment = onSendAttachment
+                    onSendAttachment = onSendAttachment,
+                    snackbarHostState = snackbarHostState
                 )
             }
         )
@@ -62,6 +75,7 @@ private fun ConversationScreenContent(
     messageText: TextFieldValue,
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentPart?) -> Unit,
+    snackbarHostState: SnackbarHostState,
 ) {
     MessageComposer(
         content = {
@@ -77,7 +91,8 @@ private fun ConversationScreenContent(
         messageText = messageText,
         onMessageChanged = onMessageChanged,
         onSendButtonClicked = onSendButtonClicked,
-        onSendAttachment = onSendAttachment
+        onSendAttachment = onSendAttachment,
+        snackbarHostState = snackbarHostState
     )
 }
 

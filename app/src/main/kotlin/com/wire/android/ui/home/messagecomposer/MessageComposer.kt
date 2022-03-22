@@ -32,6 +32,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -64,7 +65,8 @@ fun MessageComposer(
     messageText: TextFieldValue,
     onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
-    onSendAttachment: (AttachmentPart?) -> Unit
+    onSendAttachment: (AttachmentPart?) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     val messageComposerState = rememberMessageComposerInnerState()
 
@@ -74,7 +76,8 @@ fun MessageComposer(
         messageText = messageText,
         onMessageChanged = onMessageChanged,
         onSendButtonClicked = onSendButtonClicked,
-        onSendAttachment = onSendAttachment
+        onSendAttachment = onSendAttachment,
+        snackbarHostState = snackbarHostState
     )
 }
 
@@ -86,7 +89,8 @@ private fun MessageComposer(
     messageText: TextFieldValue,
     onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
-    onSendAttachment: (AttachmentPart?) -> Unit
+    onSendAttachment: (AttachmentPart?) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -271,7 +275,7 @@ private fun MessageComposer(
             ) {
                 if (messageComposerState.attachmentOptionsDisplayed) {
                     Divider()
-                    AttachmentOptionsComponent(onSendAttachment)
+                    AttachmentOptionsComponent(onSendAttachment, snackbarHostState)
                 }
             }
         }

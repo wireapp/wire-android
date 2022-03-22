@@ -4,14 +4,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.TextField
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,7 +25,8 @@ fun ConversationScreen(
         conversationViewState = uiState,
         onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },
         onSendButtonClicked = { conversationViewModel.sendMessage() },
-        onBackButtonClick = { conversationViewModel.navigateBack() },
+        onSendAttachment = { attachmentPart -> conversationViewModel.sendAttachmentMessage(attachmentPart) },
+        onBackButtonClick = { conversationViewModel.navigateBack() }
     )
 }
 
@@ -40,6 +36,7 @@ private fun ConversationScreen(
     conversationViewState: ConversationViewState,
     onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
+    onSendAttachment: (AttachmentPart?) -> Unit,
     onBackButtonClick: () -> Unit
 ) {
     with(conversationViewState) {
@@ -50,7 +47,8 @@ private fun ConversationScreen(
                     messages = messages,
                     onMessageChanged = onMessageChanged,
                     messageText = conversationViewState.messageText,
-                    onSendButtonClicked = onSendButtonClicked
+                    onSendButtonClicked = onSendButtonClicked,
+                    onSendAttachment = onSendAttachment
                 )
             }
         )
@@ -62,7 +60,8 @@ private fun ConversationScreenContent(
     messages: List<Message>,
     onMessageChanged: (TextFieldValue) -> Unit,
     messageText: TextFieldValue,
-    onSendButtonClicked: () -> Unit
+    onSendButtonClicked: () -> Unit,
+    onSendAttachment: (AttachmentPart?) -> Unit,
 ) {
     MessageComposer(
         content = {
@@ -77,7 +76,8 @@ private fun ConversationScreenContent(
         },
         messageText = messageText,
         onMessageChanged = onMessageChanged,
-        onSendButtonClicked = onSendButtonClicked
+        onSendButtonClicked = onSendButtonClicked,
+        onSendAttachment = onSendAttachment
     )
 }
 
@@ -88,6 +88,7 @@ fun ConversationScreenPreview() {
         ConversationViewState(
             conversationName = "Some test conversation",
             messages = mockMessages,
-        ), {}, {}, {})
+        ),
+        {}, {}, {}
+    ) {}
 }
-

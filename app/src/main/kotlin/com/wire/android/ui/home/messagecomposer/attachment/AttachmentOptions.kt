@@ -12,24 +12,29 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.AttachmentPart
+import com.wire.android.util.DEFAULT_IMAGE_MIME_TYPE
 import com.wire.android.util.permission.UseCameraRequestFlow
+import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
 import com.wire.android.util.permission.rememberCurrentLocationFlow
 import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
+import com.wire.android.util.toByteArray
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun AttachmentOptionsComponent() {
-    val attachmentOptions = buildAttachmentOptionItems()
+fun AttachmentOptionsComponent(onSendAttachment: (AttachmentPart?) -> Unit) {
+    val attachmentOptions = buildAttachmentOptionItems(onSendAttachment)
     LazyVerticalGrid(
         cells = GridCells.Adaptive(dimensions().spacing80x),
         contentPadding = PaddingValues(dimensions().spacing8x),
@@ -57,13 +62,16 @@ private fun FileBrowserFlow() = rememberOpenFileBrowserFlow(
 )
 
 @Composable
-private fun GalleryFlow() = rememberOpenGalleryFlow(
-    onGalleryItemPicked = { pickedPictureUri ->
-        // TODO: call vm to share raw pic data
-        appLogger.d("pickedUri is $pickedPictureUri")
-    },
-    onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
-)
+private fun GalleryFlow(onSendAttachment: (AttachmentPart?) -> Unit): UseStorageRequestFlow {
+    val context = LocalContext.current
+    return rememberOpenGalleryFlow(
+        onGalleryItemPicked = { pickedPictureUri ->
+            appLogger.d("pickedUri is $pickedPictureUri")
+            onSendAttachment(AttachmentPart(DEFAULT_IMAGE_MIME_TYPE, pickedPictureUri.toByteArray(context)))
+        },
+        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
+    )
+}
 
 @Composable
 private fun TakePictureFlow(): UseCameraRequestFlow {
@@ -96,9 +104,9 @@ private fun RecordAudioFlow() =
     )
 
 @Composable
-private fun buildAttachmentOptionItems(): List<AttachmentOptionItem> {
+private fun buildAttachmentOptionItems(onSendAttachment: (AttachmentPart?) -> Unit): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow()
-    val galleryFlow = GalleryFlow()
+    val galleryFlow = GalleryFlow(onSendAttachment)
     val cameraFlow = TakePictureFlow()
     val captureVideoFlow = CaptureVideoFlow()
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
@@ -123,5 +131,5 @@ private data class AttachmentOptionItem(
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentComponents() {
-    AttachmentOptionsComponent()
+    AttachmentOptionsComponent {}
 }

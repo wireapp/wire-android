@@ -7,6 +7,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
@@ -26,7 +27,7 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    //TODO: here we can extract the ID provided to the screen and fetch the data for the conversation
+    // TODO: here we can extract the ID provided to the screen and fetch the data for the conversation
     private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
@@ -44,7 +45,7 @@ class ConversationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getMessages(conversationId!!) //TODO what if null???
+            getMessages(conversationId!!) // TODO what if null???
                 .collect { dbMessages ->
                     conversationViewState = conversationViewState.copy(messages = dbMessages.toUIMessages())
                 }
@@ -71,9 +72,18 @@ class ConversationViewModel @Inject constructor(
     fun sendMessage() {
         viewModelScope.launch {
             val messageText = conversationViewState.messageText
-            //TODO what if conversationId is null???
+            // TODO what if conversationId is null???
             sendTextMessage(conversationId!!, messageText.text)
             conversationViewState = conversationViewState.copy(messageText = messageText.copy(""))
+        }
+    }
+
+    fun sendAttachmentMessage(attachmentPart: AttachmentPart?) {
+        viewModelScope.launch {
+            attachmentPart?.let {
+                // TODO send attachment message with conversationId!!
+                appLogger.d("> Attachment is: $attachmentPart")
+            }
         }
     }
 

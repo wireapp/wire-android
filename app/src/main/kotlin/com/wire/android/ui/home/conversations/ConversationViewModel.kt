@@ -16,14 +16,14 @@ import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
@@ -81,8 +81,8 @@ class ConversationViewModel @Inject constructor(
     fun sendAttachmentMessage(attachmentPart: AttachmentPart?) {
         viewModelScope.launch {
             attachmentPart?.let {
-                // TODO send attachment message with conversationId!!
-                appLogger.d("> Attachment for convId: $conversationId is: $attachmentPart")
+                // TODO send attachment message for conversationId via use case
+                appLogger.d("> Attachment for conversationId: $conversationId is: $attachmentPart")
             }
         }
     }

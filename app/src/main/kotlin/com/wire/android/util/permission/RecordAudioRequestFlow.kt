@@ -39,14 +39,14 @@ class RecordAudioRequestFlow(
 ) {
     fun launch() {
         if (context.checkPermission(android.Manifest.permission.RECORD_AUDIO) &&
-            context.checkPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            context.checkPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
         ) {
             // TODO: launch record audio flow
         } else {
             audioRecordPermissionLauncher.launch(
                 arrayOf(
                     android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE
                 )
             )
         }

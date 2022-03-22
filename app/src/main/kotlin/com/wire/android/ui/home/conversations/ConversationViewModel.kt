@@ -82,7 +82,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             attachmentPart?.let {
                 // TODO send attachment message with conversationId!!
-                appLogger.d("> Attachment is: $attachmentPart")
+                appLogger.d("> Attachment for convId: $conversationId is: $attachmentPart")
             }
         }
     }

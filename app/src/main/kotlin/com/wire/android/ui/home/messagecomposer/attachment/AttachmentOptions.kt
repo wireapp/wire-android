@@ -20,7 +20,10 @@ import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.AttachmentPart
+import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.DEFAULT_IMAGE_MIME_TYPE
+import com.wire.android.util.getMimeType
+import com.wire.android.util.orDefault
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
@@ -53,13 +56,22 @@ fun AttachmentOptionsComponent(onSendAttachment: (AttachmentPart?) -> Unit) {
 }
 
 @Composable
-private fun FileBrowserFlow() = rememberOpenFileBrowserFlow(
-    onFileBrowserItemPicked = { pickedFileUri ->
-        // TODO: call vm to share raw file data
-        appLogger.d("pickedUri is $pickedFileUri")
-    },
-    onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
-)
+private fun FileBrowserFlow(onSendAttachment: (AttachmentPart?) -> Unit): UseStorageRequestFlow {
+    val context = LocalContext.current
+    return rememberOpenFileBrowserFlow(
+        onFileBrowserItemPicked = { pickedFileUri ->
+            // TODO: call vm to share raw file data
+            appLogger.d("pickedUri is $pickedFileUri")
+            onSendAttachment(
+                AttachmentPart(
+                    pickedFileUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE),
+                    pickedFileUri.toByteArray(context)
+                )
+            )
+        },
+        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
+    )
+}
 
 @Composable
 private fun GalleryFlow(onSendAttachment: (AttachmentPart?) -> Unit): UseStorageRequestFlow {
@@ -67,7 +79,12 @@ private fun GalleryFlow(onSendAttachment: (AttachmentPart?) -> Unit): UseStorage
     return rememberOpenGalleryFlow(
         onGalleryItemPicked = { pickedPictureUri ->
             appLogger.d("pickedUri is $pickedPictureUri")
-            onSendAttachment(AttachmentPart(DEFAULT_IMAGE_MIME_TYPE, pickedPictureUri.toByteArray(context)))
+            onSendAttachment(
+                AttachmentPart(
+                    pickedPictureUri.getMimeType(context).orDefault(DEFAULT_IMAGE_MIME_TYPE),
+                    pickedPictureUri.toByteArray(context)
+                )
+            )
         },
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
@@ -105,7 +122,7 @@ private fun RecordAudioFlow() =
 
 @Composable
 private fun buildAttachmentOptionItems(onSendAttachment: (AttachmentPart?) -> Unit): List<AttachmentOptionItem> {
-    val fileFlow = FileBrowserFlow()
+    val fileFlow = FileBrowserFlow(onSendAttachment)
     val galleryFlow = GalleryFlow(onSendAttachment)
     val cameraFlow = TakePictureFlow()
     val captureVideoFlow = CaptureVideoFlow()

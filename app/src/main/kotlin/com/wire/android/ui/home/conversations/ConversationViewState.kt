@@ -12,7 +12,7 @@ data class ConversationViewState(
 )
 
 /**
- * Represents an attachment message to be sent
+ * Represents an attachment part of a message to be sent
  */
 @Parcelize
 data class AttachmentPart(val mimeType: String, val rawContent: ByteArray) : Parcelable {

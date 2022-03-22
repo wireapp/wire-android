@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,14 +26,15 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
-@Suppress("TooManyFunctions", "MagicNumber")
+@Suppress("TooManyFunctions")
 @ExperimentalMaterial3Api
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
     private val getPublicAsset: GetPublicAssetUseCase,
-    private val getSelf: GetSelfUserUseCase
+    private val getSelf: GetSelfUserUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -107,6 +109,7 @@ class UserProfileViewModel @Inject constructor(
         // TODO
         viewModelScope.launch {
             dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
+            logoutUseCase()
             navigationManager.navigate(
                 NavigationCommand(
                     NavigationItem.Welcome.getRouteWithArgs(),

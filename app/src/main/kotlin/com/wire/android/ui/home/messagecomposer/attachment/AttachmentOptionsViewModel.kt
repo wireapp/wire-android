@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.AttachmentPart
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
@@ -27,7 +27,10 @@ class AttachmentOptionsViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             attachmentState = try {
                 val attachment =
-                    AttachmentPart(attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE), attachmentUri.toByteArray(context))
+                    AttachmentBundle(
+                        attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE),
+                        attachmentUri.toByteArray(context)
+                    )
                 AttachmentState.Picked(attachment)
             } catch (e: IOException) {
                 AttachmentState.Error
@@ -42,6 +45,6 @@ class AttachmentOptionsViewModel @Inject constructor() : ViewModel() {
 
 sealed class AttachmentState {
     object Initial : AttachmentState()
-    class Picked(val attachmentPart: AttachmentPart) : AttachmentState()
+    class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
     object Error : AttachmentState()
 }

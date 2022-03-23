@@ -23,7 +23,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.AttachmentPart
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
@@ -35,14 +35,14 @@ import com.wire.android.util.permission.rememberTakePictureFlow
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun AttachmentOptionsComponent(onSendAttachment: (AttachmentPart?) -> Unit, snackbarHostState: SnackbarHostState) {
+fun AttachmentOptionsComponent(onSendAttachment: (AttachmentBundle?) -> Unit, snackbarHostState: SnackbarHostState) {
     val viewModel: AttachmentOptionsViewModel = hiltViewModel()
     val attachmentOptions = buildAttachmentOptionItems(viewModel)
 
     // handle view states
     when (val state = viewModel.attachmentState) {
         is AttachmentState.Initial -> appLogger.d("Not picked yet")
-        is AttachmentState.Picked -> onSendAttachment(state.attachmentPart)
+        is AttachmentState.Picked -> onSendAttachment(state.attachmentBundle)
         is AttachmentState.Error -> {
             // FIXME. later on expand to other possible errors
             val errorMessage = stringResource(R.string.error_unknown_message)

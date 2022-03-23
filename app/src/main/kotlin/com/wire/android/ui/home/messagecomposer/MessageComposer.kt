@@ -52,7 +52,7 @@ import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.animateAsStateRotationToRight
 import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.home.conversations.AttachmentPart
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -65,7 +65,7 @@ fun MessageComposer(
     messageText: TextFieldValue,
     onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
-    onSendAttachment: (AttachmentPart?) -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     val messageComposerState = rememberMessageComposerInnerState()
@@ -89,7 +89,7 @@ private fun MessageComposer(
     messageText: TextFieldValue,
     onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
-    onSendAttachment: (AttachmentPart?) -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     val focusManager = LocalFocusManager.current

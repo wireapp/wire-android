@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.mock.mockMessages
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 
@@ -30,7 +31,7 @@ fun ConversationScreen(
         conversationViewState = uiState,
         onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },
         onSendButtonClicked = { conversationViewModel.sendMessage() },
-        onSendAttachment = { attachmentPart -> conversationViewModel.sendAttachmentMessage(attachmentPart) },
+        onSendAttachment = { attachmentBundle -> conversationViewModel.sendAttachmentMessage(attachmentBundle) },
         onBackButtonClick = { conversationViewModel.navigateBack() }
     )
 }
@@ -41,7 +42,7 @@ private fun ConversationScreen(
     conversationViewState: ConversationViewState,
     onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
-    onSendAttachment: (AttachmentPart?) -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
     onBackButtonClick: () -> Unit
 ) {
     with(conversationViewState) {
@@ -51,7 +52,9 @@ private fun ConversationScreen(
             snackbarHost = {
                 SwipeDismissSnackbarHost(
                     hostState = snackbarHostState,
-                    modifier = Modifier.fillMaxWidth().wrapContentHeight(Alignment.Bottom)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(Alignment.Bottom)
                 )
             },
             content = {
@@ -74,7 +77,7 @@ private fun ConversationScreenContent(
     onMessageChanged: (TextFieldValue) -> Unit,
     messageText: TextFieldValue,
     onSendButtonClicked: () -> Unit,
-    onSendAttachment: (AttachmentPart?) -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
     snackbarHostState: SnackbarHostState,
 ) {
     MessageComposer(

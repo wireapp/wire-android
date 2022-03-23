@@ -12,6 +12,7 @@ import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.User
@@ -78,11 +79,11 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun sendAttachmentMessage(attachmentPart: AttachmentPart?) {
+    fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
-            attachmentPart?.let {
+            attachmentBundle?.let {
                 // TODO send attachment message for conversationId via use case
-                appLogger.d("> Attachment for conversationId: $conversationId is: $attachmentPart")
+                appLogger.d("> Attachment for conversationId: $conversationId is: $attachmentBundle")
             }
         }
     }

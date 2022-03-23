@@ -7,11 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +32,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.contacts.Contact
 import com.wire.android.ui.home.newconversation.contacts.ExternalContact
 import com.wire.android.ui.theme.wireColorScheme
@@ -93,112 +92,104 @@ private fun SearchResult(
         ) {
 
             if (contactSearchResult.isNotEmpty()) {
-                item(key = "contact") {
-                    SearchResultContent(
-                        headerTitle = stringResource(id = R.string.label_contacts),
-                        totalSearchResultCount = contactSearchResult.size.toString(),
-                        searchResult = {
-                            LazyColumn(
-                                Modifier.fillMaxSize()
-                            ) {
-                                items(items = contactSearchResult) { contact ->
-                                    with(contact) {
-                                        ContactSearchResultItem(
-                                            avatarUrl = avatarUrl,
-                                            userStatus = userStatus,
-                                            name = name,
-                                            label = label,
-                                            searchQuery = searchQuery,
-                                            source = Source.Internal(eventType),
-                                            onRowItemClicked = {},
-                                            onRowItemLongClicked = {}
-                                        )
-                                    }
-                                }
-                            }
-                        },
-                        onShowAllClicked = {
-                            searchPeopleScreenState.showAllContactsResult()
-                        },
-                        onShowLessClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = false },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(
-                                if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight
-                                else dimensions().defaultSearchLazyColumnHeight
+                folderWithElements(
+                    header = {  stringResource(id = R.string.label_contacts) },
+                    items = contactSearchResult.take(4),
+                    bottomAction = {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()) {
+                            ShowButton(
+                                totalSearchResultCount = "4",
+                                onShowAllClicked = { },
+                                onShowLessClicked = { },
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(end = dimensions().spacing8x)
                             )
-                            .animateItemPlacement()
-                    )
+                        }
+                    }) { contact ->
+                    with(contact) {
+                        ContactSearchResultItem(
+                            avatarUrl = avatarUrl,
+                            userStatus = userStatus,
+                            name = name,
+                            label = label,
+                            searchQuery = searchQuery,
+                            source = Source.Internal(eventType),
+                            onRowItemClicked = {},
+                            onRowItemLongClicked = {}
+                        )
+                    }
                 }
             }
 
             if (publicSearchResult.isNotEmpty()) {
-                item(key = "backend") {
-                    SearchResultContent(
-                        headerTitle = stringResource(R.string.label_public_wire),
-                        totalSearchResultCount = publicSearchResult.size.toString(),
-                        searchResult = {
-                            LazyColumn(
-                                Modifier.fillMaxSize()
-                            ) {
-                                items(items = publicSearchResult) { contact ->
-                                    ExternalSearchResultItem(
-                                        searchQuery = searchQuery,
-                                        externalContact = contact,
-                                        onRowItemClicked = {},
-                                        oRowItemLongClicked = {}
-                                    )
-                                }
-                            }
-                        },
-                        onShowAllClicked = {
-                            searchPeopleScreenState.showAllPublicResult()
-                        },
-                        onShowLessClicked = { searchPeopleScreenState.publicResultsCollapsed = false },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(
-                                if (searchPeopleScreenState.publicResultsCollapsed) fullHeight
-                                else dimensions().defaultSearchLazyColumnHeight
+                folderWithElements(
+                    header = {   stringResource(R.string.label_public_wire) },
+                    items = publicSearchResult.take(4),
+                    bottomAction = {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()) {
+                            ShowButton(
+                                totalSearchResultCount = "4",
+                                onShowAllClicked = { },
+                                onShowLessClicked = { },
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(end = dimensions().spacing8x)
                             )
-                            .animateItemPlacement()
-                    )
+                        }
+                    }) { contact ->
+                    with(contact) {
+                        ContactSearchResultItem(
+                            avatarUrl = avatarUrl,
+                            userStatus = userStatus,
+                            name = name,
+                            label = label,
+                            searchQuery = searchQuery,
+                            source = Source.External,
+                            onRowItemClicked = {},
+                            onRowItemLongClicked = {}
+                        )
+                    }
                 }
             }
 
             if (federatedBackendResult.isNotEmpty()) {
-                item(key = "federate") {
-                    SearchResultContent(
-                        headerTitle = stringResource(R.string.label_federated_backends),
-                        totalSearchResultCount = federatedBackendResult.size.toString(),
-                        searchResult = {
-                            LazyColumn(
-                                Modifier.fillMaxSize()
-                            ) {
-                                items(items = federatedBackendResult) { contact ->
-                                    ExternalSearchResultItem(
-                                        searchQuery,
-                                        contact,
-                                        {},
-                                        {}
-                                    )
-                                }
-                            }
-                        },
-                        onShowAllClicked = {
-                            searchPeopleScreenState.showFederatedBackendResult()
-                        },
-                        onShowLessClicked = {
-                            searchPeopleScreenState.federatedBackendResultsCollapsed = false
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(
-                                if (searchPeopleScreenState.federatedBackendResultsCollapsed) fullHeight
-                                else dimensions().defaultSearchLazyColumnHeight
+                folderWithElements(
+                    header = {   stringResource(R.string.label_public_wire) },
+                    items = federatedBackendResult.take(4),
+                    bottomAction = {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()) {
+                            ShowButton(
+                                totalSearchResultCount = "4",
+                                onShowAllClicked = { },
+                                onShowLessClicked = { },
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(end = dimensions().spacing8x)
                             )
-                            .animateItemPlacement()
-                    )
+                        }
+                    }) { contact ->
+                    with(contact) {
+                        ContactSearchResultItem(
+                            avatarUrl = avatarUrl,
+                            userStatus = userStatus,
+                            name = name,
+                            label = label,
+                            searchQuery = searchQuery,
+                            source = Source.External,
+                            onRowItemClicked = {},
+                            onRowItemLongClicked = {}
+                        )
+                    }
                 }
             }
         }

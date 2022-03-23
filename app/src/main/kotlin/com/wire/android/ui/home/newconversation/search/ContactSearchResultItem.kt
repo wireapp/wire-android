@@ -9,10 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.AddContactButton
+import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.home.conversationslist.common.EventBadgeFactory
-import com.wire.android.ui.home.conversationslist.model.EventType
 
 
 @Composable
@@ -48,14 +47,12 @@ fun ContactSearchResultItem(
         },
         actions = {
             if (source is Source.Internal) {
-                if (source.eventType != null) {
-                    Box(
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .padding(end = 8.dp)
-                    ) {
-                        EventBadgeFactory(eventType = source.eventType, modifier = Modifier.align(Alignment.TopEnd))
-                    }
+                Box(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(end = 8.dp)
+                ) {
+                    ArrowRightIcon(Modifier.align(Alignment.TopEnd))
                 }
             } else {
                 AddContactButton({ })
@@ -70,5 +67,5 @@ fun ContactSearchResultItem(
 
 sealed class Source {
     object External : Source()
-    data class Internal(val eventType: EventType?) : Source()
+    object Internal : Source()
 }

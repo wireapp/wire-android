@@ -1,6 +1,6 @@
 package com.wire.android.ui.home.newconversation.search
 
-import androidx.compose.animation.AnimatedContent
+import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,13 +25,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
-import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.contacts.Contact
 import com.wire.android.ui.home.newconversation.contacts.ExternalContact
 import com.wire.android.ui.theme.wireColorScheme
@@ -80,173 +78,116 @@ private fun SearchResult(
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
 
+    Log.d("TEST","${searchPeopleScreenState.contactsAllResultsCollapsed}")
+
+    Log.d("TEST","${searchPeopleScreenState.hashCode()}")
+
     LazyColumn(
         state = searchPeopleScreenState.lazyListState,
         modifier = Modifier
             .fillMaxSize()
     ) {
+        item { FolderHeader(stringResource(id = R.string.label_contacts)) }
 
-        if (contactSearchResult.isNotEmpty()) {
-            folderWithElements(
-                header = { stringResource(id = R.string.label_contacts) },
-                items = contactSearchResult.take(4),
-                bottomAction = {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                    ) {
-                        ShowButton(
-                            totalSearchResultCount = "4",
-                            onShowAllClicked = { },
-                            onShowLessClicked = { },
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(end = dimensions().spacing8x)
-                        )
-                    }
-                }) { contact ->
-                with(contact) {
-                    ContactSearchResultItem(
-                        avatarUrl = avatarUrl,
-                        userStatus = userStatus,
-                        name = name,
-                        label = label,
-                        searchQuery = searchQuery,
-                        source = Source.Internal,
-                        onRowItemClicked = {},
-                        onRowItemLongClicked = {}
-                    )
-                }
+        items(if (searchPeopleScreenState.contactsAllResultsCollapsed) contactSearchResult else contactSearchResult.take(4)) { contact ->
+            with(contact) {
+                ContactSearchResultItem(
+                    avatarUrl = avatarUrl,
+                    userStatus = userStatus,
+                    name = name,
+                    label = label,
+                    searchQuery = searchQuery,
+                    source = Source.Internal,
+                    onRowItemClicked = {},
+                    onRowItemLongClicked = {}
+                )
             }
         }
 
-        if (publicSearchResult.isNotEmpty()) {
-            folderWithElements(
-                header = { stringResource(R.string.label_public_wire) },
-                items = publicSearchResult.take(4),
-                bottomAction = {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                    ) {
-                        ShowButton(
-                            totalSearchResultCount = "4",
-                            onShowAllClicked = { },
-                            onShowLessClicked = { },
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(end = dimensions().spacing8x)
-                        )
-                    }
-                }) { contact ->
-                with(contact) {
-                    ContactSearchResultItem(
-                        avatarUrl = avatarUrl,
-                        userStatus = userStatus,
-                        name = name,
-                        label = label,
-                        searchQuery = searchQuery,
-                        source = Source.External,
-                        onRowItemClicked = {},
-                        onRowItemLongClicked = {}
-                    )
-                }
+        item {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                ShowButton(
+                    totalSearchResultCount = "4",
+                    onShowAllClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = true },
+                    onShowLessClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = false },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = dimensions().spacing8x)
+                )
             }
         }
-
-        if (federatedBackendResult.isNotEmpty()) {
-            folderWithElements(
-                header = { stringResource(R.string.label_public_wire) },
-                items = federatedBackendResult.take(4),
-                bottomAction = {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                    ) {
-                        ShowButton(
-                            totalSearchResultCount = "4",
-                            onShowAllClicked = { },
-                            onShowLessClicked = { },
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(end = dimensions().spacing8x)
-                        )
-                    }
-                }) { contact ->
-                with(contact) {
-                    ContactSearchResultItem(
-                        avatarUrl = avatarUrl,
-                        userStatus = userStatus,
-                        name = name,
-                        label = label,
-                        searchQuery = searchQuery,
-                        source = Source.External,
-                        onRowItemClicked = {},
-                        onRowItemLongClicked = {}
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun SearchResultContent(
-    headerTitle: String,
-    totalSearchResultCount: String,
-    searchResult: @Composable () -> Unit,
-    onShowAllClicked: () -> Unit,
-    onShowLessClicked: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    ConstraintLayout(modifier) {
-        val (headerRef, columnRef, buttonRef) = createRefs()
-
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .constrainAs(headerRef) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(columnRef.top)
-                }
-        ) {
-            FolderHeader(name = headerTitle)
-        }
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .constrainAs(columnRef) {
-                    top.linkTo(headerRef.bottom)
-                    bottom.linkTo(buttonRef.top)
-
-                    height = Dimension.fillToConstraints
-                }) {
-            searchResult()
-        }
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .constrainAs(buttonRef) {
-                    top.linkTo(columnRef.bottom)
-                    bottom.linkTo(parent.bottom)
-                }
-        ) {
-            ShowButton(
-                totalSearchResultCount = totalSearchResultCount,
-                onShowAllClicked = onShowAllClicked,
-                onShowLessClicked = onShowLessClicked,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = dimensions().spacing8x)
-            )
-        }
+//
+//        folderWithElements(
+//            header = { stringResource(R.string.label_public_wire) },
+//            items = if (searchPeopleScreenState.publicResultsCollapsed) publicSearchResult else publicSearchResult.take(4),
+//            bottomAction = {
+//                Box(
+//                    Modifier
+//                        .fillMaxWidth()
+//                        .wrapContentHeight()
+//                ) {
+//                    ShowButton(
+//                        totalSearchResultCount = publicSearchResult.size.toString(),
+//                        onShowAllClicked = { searchPeopleScreenState.publicResultsCollapsed = true },
+//                        onShowLessClicked = { searchPeopleScreenState.publicResultsCollapsed = false },
+//                        modifier = Modifier
+//                            .align(Alignment.BottomEnd)
+//                            .padding(end = dimensions().spacing8x)
+//                    )
+//                }
+//            }) { contact ->
+//            with(contact) {
+//                ContactSearchResultItem(
+//                    avatarUrl = avatarUrl,
+//                    userStatus = userStatus,
+//                    name = name,
+//                    label = label,
+//                    searchQuery = searchQuery,
+//                    source = Source.External,
+//                    onRowItemClicked = {},
+//                    onRowItemLongClicked = {}
+//                )
+//            }
+//        }
+//
+//        folderWithElements(
+//            header = { stringResource(R.string.label_public_wire) },
+//            items = if (searchPeopleScreenState.federatedBackendResultsCollapsed) federatedBackendResult else federatedBackendResult.take(
+//                4
+//            ),
+//            bottomAction = {
+//                Box(
+//                    Modifier
+//                        .fillMaxWidth()
+//                        .wrapContentHeight()
+//                ) {
+//                    ShowButton(
+//                        totalSearchResultCount = federatedBackendResult.size.toString(),
+//                        onShowAllClicked = { searchPeopleScreenState.federatedBackendResultsCollapsed = true },
+//                        onShowLessClicked = { searchPeopleScreenState.federatedBackendResultsCollapsed = false },
+//                        modifier = Modifier
+//                            .align(Alignment.BottomEnd)
+//                            .padding(end = dimensions().spacing8x)
+//                    )
+//                }
+//            }) { contact ->
+//            with(contact) {
+//                ContactSearchResultItem(
+//                    avatarUrl = avatarUrl,
+//                    userStatus = userStatus,
+//                    name = name,
+//                    label = label,
+//                    searchQuery = searchQuery,
+//                    source = Source.External,
+//                    onRowItemClicked = {},
+//                    onRowItemLongClicked = {}
+//                )
+//            }
+//        }
     }
 }
 
@@ -258,21 +199,19 @@ private fun ShowButton(
     onShowLessClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isShowAll by remember { mutableStateOf(true) }
+    var isShowAll by remember { mutableStateOf(false) }
 
     Box(modifier) {
-        AnimatedContent(isShowAll) { showAll ->
-            WireSecondaryButton(
-                text = if (showAll) "Show All ($totalSearchResultCount)" else "Show Less",
-                onClick = {
-                    if (isShowAll) onShowAllClicked() else onShowLessClicked()
+        WireSecondaryButton(
+            text = if (isShowAll) "Show All ($totalSearchResultCount)" else "Show Less",
+            onClick = {
+                if (!isShowAll) onShowLessClicked() else onShowAllClicked()
 
-                    isShowAll = !isShowAll
-                },
-                minHeight = dimensions().showAllCollapseButtonMinHeight,
-                fillMaxWidth = false,
-            )
-        }
+                isShowAll = !isShowAll
+            },
+            minHeight = dimensions().showAllCollapseButtonMinHeight,
+            fillMaxWidth = false,
+        )
     }
 }
 
@@ -381,27 +320,6 @@ fun HighLightName(
         Text(
             text = name,
             style = MaterialTheme.wireTypography.title02
-        )
-    }
-}
-
-@Composable
-private fun ExternalSearchResultItem(
-    searchQuery: String,
-    externalContact: ExternalContact,
-    onRowItemClicked: () -> Unit,
-    oRowItemLongClicked: () -> Unit
-) {
-    with(externalContact) {
-        ContactSearchResultItem(
-            avatarUrl = "",
-            userStatus = userStatus,
-            name = name,
-            label = label,
-            searchQuery = searchQuery,
-            source = Source.External,
-            onRowItemClicked = onRowItemClicked,
-            onRowItemLongClicked = oRowItemLongClicked
         )
     }
 }

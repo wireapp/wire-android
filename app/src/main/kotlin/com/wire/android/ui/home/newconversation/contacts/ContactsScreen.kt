@@ -1,30 +1,35 @@
 package com.wire.android.ui.home.newconversation.contacts
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
-import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-
 
 @Composable
 fun ContactsScreen(
@@ -93,20 +98,37 @@ fun ContactsScreenContent(
 @Composable
 private fun ContactItem(
     name: String,
-    status: UserStatus,
+    userStatus: UserStatus,
 ) {
-    RowItem({
-        //TODO: Open Contact Screen
-    }, {
-        //TODO: Show Context Menu ?
-    }) {
-        UserProfileAvatar(
-            status = status
-        )
-        Text(
-            text = name,
-            style = MaterialTheme.wireTypography.title02,
-        )
-    }
+    RowItemTemplate(
+        leadingIcon = {
+            Row {
+                Checkbox(checked = false, onCheckedChange = {})
+                UserProfileAvatar(
+                    status = userStatus
+                )
+            }
+
+        },
+        title = {
+            Text(
+                text = name,
+                style = MaterialTheme.wireTypography.title02,
+            )
+        },
+
+        actions = {
+            Box(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(end = 8.dp)
+            ) {
+                ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+            }
+
+        },
+        onRowItemClicked = { } ,
+        onRowItemLongClicked = { }
+    )
 }
 

@@ -2,9 +2,7 @@ package com.wire.android.ui.home.newconversation.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Checkbox
 import androidx.compose.runtime.Composable
@@ -16,7 +14,6 @@ import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.dimensions
 
 @Composable
 fun ContactSearchResultItem(
@@ -36,13 +33,11 @@ fun ContactSearchResultItem(
             Row {
                 if (source is Source.Internal) {
                     Checkbox(checked = false, onCheckedChange = {})
-                    Spacer(Modifier.width(dimensions().spacing4x))
                 }
                 UserProfileAvatar(
                     status = userStatus
                 )
             }
-
         },
         title = {
             HighLightName(
@@ -73,7 +68,6 @@ fun ContactSearchResultItem(
         onRowItemLongClicked = onRowItemLongClicked,
         modifier = modifier
     )
-
 }
 
 sealed class Source {

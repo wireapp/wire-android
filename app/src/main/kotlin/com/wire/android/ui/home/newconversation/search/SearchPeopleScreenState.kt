@@ -9,7 +9,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -17,6 +16,9 @@ fun rememberSearchPeopleScreenState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     lazyListState: LazyListState = rememberLazyListState()
 ): SearchPeopleScreenState {
+
+
+
     return remember {
         SearchPeopleScreenState(
             coroutineScope = coroutineScope,
@@ -38,22 +40,13 @@ class SearchPeopleScreenState(
 
     fun showAllContactsResult() {
         contactsAllResultsCollapsed = true
-        coroutineScope.launch {
-            lazyListState.animateScrollToItem(0)
-        }
     }
 
     fun showAllPublicResult() {
         publicResultsCollapsed = true
-        coroutineScope.launch {
-            lazyListState.animateScrollToItem(1)
-        }
     }
 
     fun showFederatedBackendResult() {
         federatedBackendResultsCollapsed = true
-        coroutineScope.launch {
-            lazyListState.animateScrollToItem(2)
-        }
     }
 }

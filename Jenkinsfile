@@ -9,7 +9,7 @@ def defineFlavor() {
     if (branchName == "main") {
         return 'Internal'
     } else if (branchName == "develop") {
-        return 'Dev'
+        return 'Internal'
     } else if (branchName == "release") {
         return 'Public'
     }
@@ -314,7 +314,7 @@ pipeline {
           }
           stage('Playstore') {
             when {
-              expression { env.trackName != 'None' && env.CHANGE_ID == null }
+              expression { env.trackName != 'None' && env.flavor != 'Dev' && env.CHANGE_ID == null }
             }
             steps {
               echo 'Checking folder before playstore upload'

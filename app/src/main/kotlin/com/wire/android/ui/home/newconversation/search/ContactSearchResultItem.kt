@@ -23,7 +23,7 @@ fun ContactSearchResultItem(
     name: String,
     label: String,
     searchQuery: String,
-    source: Source,
+    searchSource: SearchSource,
     onRowItemClicked: () -> Unit,
     onRowItemLongClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -31,7 +31,7 @@ fun ContactSearchResultItem(
     RowItemTemplate(
         leadingIcon = {
             Row {
-                if (source is Source.Internal) {
+                if (searchSource is SearchSource.Internal) {
                     Checkbox(checked = false, onCheckedChange = {})
                 }
                 UserProfileAvatar(
@@ -52,7 +52,7 @@ fun ContactSearchResultItem(
             )
         },
         actions = {
-            if (source is Source.Internal) {
+            if (searchSource is SearchSource.Internal) {
                 Box(
                     modifier = Modifier
                         .wrapContentWidth()
@@ -70,7 +70,3 @@ fun ContactSearchResultItem(
     )
 }
 
-sealed class Source {
-    object External : Source()
-    object Internal : Source()
-}

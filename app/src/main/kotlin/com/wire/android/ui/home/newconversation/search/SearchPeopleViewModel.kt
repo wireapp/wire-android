@@ -4,9 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.newconversation.contacts.Contact
-import com.wire.android.ui.home.newconversation.contacts.ExternalContact
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -21,14 +19,13 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
     fun search(searchQuery: String) {
         state = state.copy(
             searchQuery = searchQuery,
-            contactSearchResult = buildList {
+            contactContactSearchResult = ContactSearchResult(searchSource = SearchSource.Internal, result = buildList {
                 for (i in 1..5) {
                     add(
                         Contact(
                             id = i,
                             "test$i",
                             label = "test$i",
-                            eventType = EventType.UnreadMention
                         )
                     )
                 }
@@ -38,7 +35,6 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
                             id = i,
                             "test$i",
                             label = "test$i",
-                            eventType = EventType.MissedCall
                         )
                     )
                 }
@@ -48,26 +44,25 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
                             id = i,
                             "test$i",
                             label = "test$i",
-                            eventType = EventType.UnreadMessage(i)
                         )
                     )
                 }
-            },
-            publicContactSearchResult = buildList {
+            }),
+            publicContactContactSearchResult = ContactSearchResult(searchSource = SearchSource.External, result = buildList {
                 for (i in 1..15) {
                     add(
-                        ExternalContact(
+                        Contact(
                             id = i,
                             "test$i",
                             label = "test$i",
                         )
                     )
                 }
-            },
-            federatedContactSearchResult = buildList {
+            }),
+            federatedContactContactSearchResult = ContactSearchResult(searchSource = SearchSource.External, result = buildList {
                 for (i in 1..15) {
                     add(
-                        ExternalContact(
+                        Contact(
                             id = i,
                             "test$i",
                             label = "test$i",
@@ -75,6 +70,7 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
                     )
                 }
             }
+            )
         )
     }
 }

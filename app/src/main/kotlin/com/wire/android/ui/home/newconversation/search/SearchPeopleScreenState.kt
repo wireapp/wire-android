@@ -16,9 +16,6 @@ fun rememberSearchPeopleScreenState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     lazyListState: LazyListState = rememberLazyListState()
 ): SearchPeopleScreenState {
-
-
-
     return remember {
         SearchPeopleScreenState(
             coroutineScope = coroutineScope,
@@ -38,15 +35,15 @@ class SearchPeopleScreenState(
 
     var federatedBackendResultsCollapsed: Boolean by mutableStateOf(false)
 
-    fun showAllContactsResult() {
-        contactsAllResultsCollapsed = true
+    fun toggleShowAllContactsResult() {
+        contactsAllResultsCollapsed = !contactsAllResultsCollapsed
     }
 
-    fun showAllPublicResult() {
-        publicResultsCollapsed = true
+    fun toggleShowAllPublicResult() {
+        publicResultsCollapsed = !publicResultsCollapsed
     }
 
-    fun showFederatedBackendResult() {
-        federatedBackendResultsCollapsed = true
+    fun toggleShowFederatedBackendResult() {
+        federatedBackendResultsCollapsed = !federatedBackendResultsCollapsed
     }
 }

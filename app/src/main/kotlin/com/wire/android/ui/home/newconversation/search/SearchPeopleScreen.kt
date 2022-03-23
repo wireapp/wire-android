@@ -80,117 +80,117 @@ private fun SearchResult(
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
 
-        LazyColumn(
-            state = searchPeopleScreenState.lazyListState,
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
+    LazyColumn(
+        state = searchPeopleScreenState.lazyListState,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
 
-            if (contactSearchResult.isNotEmpty()) {
-                folderWithElements(
-                    header = { stringResource(id = R.string.label_contacts) },
-                    items = contactSearchResult.take(4),
-                    bottomAction = {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                        ) {
-                            ShowButton(
-                                totalSearchResultCount = "4",
-                                onShowAllClicked = { },
-                                onShowLessClicked = { },
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(end = dimensions().spacing8x)
-                            )
-                        }
-                    }) { contact ->
-                    with(contact) {
-                        ContactSearchResultItem(
-                            avatarUrl = avatarUrl,
-                            userStatus = userStatus,
-                            name = name,
-                            label = label,
-                            searchQuery = searchQuery,
-                            source = Source.Internal,
-                            onRowItemClicked = {},
-                            onRowItemLongClicked = {}
+        if (contactSearchResult.isNotEmpty()) {
+            folderWithElements(
+                header = { stringResource(id = R.string.label_contacts) },
+                items = contactSearchResult.take(4),
+                bottomAction = {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    ) {
+                        ShowButton(
+                            totalSearchResultCount = "4",
+                            onShowAllClicked = { },
+                            onShowLessClicked = { },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(end = dimensions().spacing8x)
                         )
                     }
-                }
-            }
-
-            if (publicSearchResult.isNotEmpty()) {
-                folderWithElements(
-                    header = { stringResource(R.string.label_public_wire) },
-                    items = publicSearchResult.take(4),
-                    bottomAction = {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                        ) {
-                            ShowButton(
-                                totalSearchResultCount = "4",
-                                onShowAllClicked = { },
-                                onShowLessClicked = { },
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(end = dimensions().spacing8x)
-                            )
-                        }
-                    }) { contact ->
-                    with(contact) {
-                        ContactSearchResultItem(
-                            avatarUrl = avatarUrl,
-                            userStatus = userStatus,
-                            name = name,
-                            label = label,
-                            searchQuery = searchQuery,
-                            source = Source.External,
-                            onRowItemClicked = {},
-                            onRowItemLongClicked = {}
-                        )
-                    }
-                }
-            }
-
-            if (federatedBackendResult.isNotEmpty()) {
-                folderWithElements(
-                    header = { stringResource(R.string.label_public_wire) },
-                    items = federatedBackendResult.take(4),
-                    bottomAction = {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                        ) {
-                            ShowButton(
-                                totalSearchResultCount = "4",
-                                onShowAllClicked = { },
-                                onShowLessClicked = { },
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(end = dimensions().spacing8x)
-                            )
-                        }
-                    }) { contact ->
-                    with(contact) {
-                        ContactSearchResultItem(
-                            avatarUrl = avatarUrl,
-                            userStatus = userStatus,
-                            name = name,
-                            label = label,
-                            searchQuery = searchQuery,
-                            source = Source.External,
-                            onRowItemClicked = {},
-                            onRowItemLongClicked = {}
-                        )
-                    }
+                }) { contact ->
+                with(contact) {
+                    ContactSearchResultItem(
+                        avatarUrl = avatarUrl,
+                        userStatus = userStatus,
+                        name = name,
+                        label = label,
+                        searchQuery = searchQuery,
+                        source = Source.Internal,
+                        onRowItemClicked = {},
+                        onRowItemLongClicked = {}
+                    )
                 }
             }
         }
+
+        if (publicSearchResult.isNotEmpty()) {
+            folderWithElements(
+                header = { stringResource(R.string.label_public_wire) },
+                items = publicSearchResult.take(4),
+                bottomAction = {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    ) {
+                        ShowButton(
+                            totalSearchResultCount = "4",
+                            onShowAllClicked = { },
+                            onShowLessClicked = { },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(end = dimensions().spacing8x)
+                        )
+                    }
+                }) { contact ->
+                with(contact) {
+                    ContactSearchResultItem(
+                        avatarUrl = avatarUrl,
+                        userStatus = userStatus,
+                        name = name,
+                        label = label,
+                        searchQuery = searchQuery,
+                        source = Source.External,
+                        onRowItemClicked = {},
+                        onRowItemLongClicked = {}
+                    )
+                }
+            }
+        }
+
+        if (federatedBackendResult.isNotEmpty()) {
+            folderWithElements(
+                header = { stringResource(R.string.label_public_wire) },
+                items = federatedBackendResult.take(4),
+                bottomAction = {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    ) {
+                        ShowButton(
+                            totalSearchResultCount = "4",
+                            onShowAllClicked = { },
+                            onShowLessClicked = { },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(end = dimensions().spacing8x)
+                        )
+                    }
+                }) { contact ->
+                with(contact) {
+                    ContactSearchResultItem(
+                        avatarUrl = avatarUrl,
+                        userStatus = userStatus,
+                        name = name,
+                        label = label,
+                        searchQuery = searchQuery,
+                        source = Source.External,
+                        onRowItemClicked = {},
+                        onRowItemLongClicked = {}
+                    )
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

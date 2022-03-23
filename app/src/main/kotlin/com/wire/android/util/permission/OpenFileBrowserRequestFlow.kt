@@ -9,29 +9,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun rememberTakePictureFlow(
-    shouldPersistUri: (Boolean) -> Unit,
-    onPermissionDenied: () -> Unit,
-    onPictureTakenUri: Uri
-): UseCameraRequestFlow {
+fun rememberOpenFileBrowserFlow(
+    onFileBrowserItemPicked: (Uri) -> Unit,
+    onPermissionDenied: () -> Unit
+): UseStorageRequestFlow {
     val context = LocalContext.current
 
-    val takePictureLauncher: ManagedActivityResultLauncher<Uri, Boolean> = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { hasTakenPicture ->
-        shouldPersistUri(hasTakenPicture)
+    val openFileBrowserLauncher: ManagedActivityResultLauncher<String, Uri?> = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { onChosenFileUri ->
+        onChosenFileUri?.let { onFileBrowserItemPicked(it) }
     }
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                takePictureLauncher.launch(onPictureTakenUri)
+                openFileBrowserLauncher.launch(MIME_TYPE)
             } else {
                 onPermissionDenied()
             }
         }
 
     return remember {
-        UseCameraRequestFlow(context, onPictureTakenUri, takePictureLauncher, requestPermissionLauncher)
+        UseStorageRequestFlow(MIME_TYPE, context, openFileBrowserLauncher, requestPermissionLauncher)
     }
 }
+
+private const val MIME_TYPE = "*/*"

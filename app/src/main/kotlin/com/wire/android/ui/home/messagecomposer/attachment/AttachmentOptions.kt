@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,7 +33,7 @@ import com.wire.android.util.permission.rememberTakePictureFlow
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun AttachmentOptionsComponent(onSendAttachment: (AttachmentBundle?) -> Unit, snackbarHostState: SnackbarHostState) {
+fun AttachmentOptionsComponent(onSendAttachment: (AttachmentBundle?) -> Unit, onError: (String) -> Unit) {
     val viewModel: AttachmentOptionsViewModel = hiltViewModel()
     val attachmentOptions = buildAttachmentOptionItems(viewModel)
 
@@ -45,11 +43,8 @@ fun AttachmentOptionsComponent(onSendAttachment: (AttachmentBundle?) -> Unit, sn
         is AttachmentState.Picked -> onSendAttachment(state.attachmentBundle)
         is AttachmentState.Error -> {
             // FIXME. later on expand to other possible errors
-            val errorMessage = stringResource(R.string.error_unknown_message)
-            LaunchedEffect(state) {
-                snackbarHostState.showSnackbar(errorMessage)
-                viewModel.resetViewState()
-            }
+            onError(stringResource(R.string.error_unknown_message))
+            viewModel.resetViewState()
         }
     }
 
@@ -146,5 +141,5 @@ private data class AttachmentOptionItem(
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentComponents() {
-    AttachmentOptionsComponent({}, SnackbarHostState())
+    AttachmentOptionsComponent({}, {})
 }

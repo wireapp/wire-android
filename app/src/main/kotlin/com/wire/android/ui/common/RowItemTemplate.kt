@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations.common
+package com.wire.android.ui.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,17 +13,52 @@ import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.model.EventType
 
 @Composable
-fun ConversationItemTemplate(
+fun RowItemTemplate(
+    leadingIcon: @Composable () -> Unit,
+    title: @Composable () -> Unit,
+    subTitle: @Composable () -> Unit = {},
+    actions: @Composable () -> Unit = {},
+    onRowItemClicked: () -> Unit,
+    onRowItemLongClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    RowItem(
+        onRowItemClick = onRowItemClicked,
+        onRowItemLongClick = onRowItemLongClicked,
+        modifier = modifier
+    ) {
+        leadingIcon()
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            title()
+            subTitle()
+        }
+        Box(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(end = 8.dp)
+        ) {
+            actions()
+        }
+    }
+}
+
+@Composable
+fun RowItemTemplate(
     leadingIcon: @Composable () -> Unit,
     title: @Composable () -> Unit,
     subTitle: @Composable () -> Unit = {},
     eventType: EventType? = null,
-    onConversationItemClick: () -> Unit,
-    onConversationItemLongClick: () -> Unit
+    onRowItemClicked: () -> Unit,
+    onRowItemLongClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     RowItem(
-        onRowItemClick = onConversationItemClick,
-        onRowItemLongClick = onConversationItemLongClick
+        onRowItemClick = onRowItemClicked,
+        onRowItemLongClick = onRowItemLongClicked,
+        modifier = modifier
     ) {
         leadingIcon()
         Column(
@@ -44,3 +79,4 @@ fun ConversationItemTemplate(
         }
     }
 }
+

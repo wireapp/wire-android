@@ -202,7 +202,7 @@ private fun LoginButton(onClick: () -> Unit) {
 private fun CreateEnterpriseAccountButton(onClick: () -> Unit) {
     WireSecondaryButton(
         onClick = onClick,
-        text = stringResource(R.string.welcome_button_create_enterprise_account),
+        text = stringResource(R.string.welcome_button_create_team),
         modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
     )
 }
@@ -219,7 +219,7 @@ private fun WelcomeFooter(modifier: Modifier, onPrivateAccountClick: () -> Unit)
         )
 
         Text(
-            text = stringResource(R.string.welcome_footer_link),
+            text = stringResource(R.string.welcome_button_create_personal_account),
             style = MaterialTheme.wireTypography.body02.copy(
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.colorScheme.primary

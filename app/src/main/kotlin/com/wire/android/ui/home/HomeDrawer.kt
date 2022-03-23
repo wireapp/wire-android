@@ -2,6 +2,7 @@ package com.wire.android.ui.home
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -33,7 +34,6 @@ import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.HomeNavigationItem.Archive
 import com.wire.android.navigation.HomeNavigationItem.Conversations
 import com.wire.android.navigation.HomeNavigationItem.Vault
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationItem.Settings
 import com.wire.android.navigation.NavigationItem.Support
 import com.wire.android.navigation.isExternalRoute
@@ -47,7 +47,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeDrawer(
     drawerState: DrawerState,
@@ -81,7 +81,7 @@ fun HomeDrawer(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val bottomItems = listOf(NavigationItem.Settings, NavigationItem.Support)
+        val bottomItems = listOf(Settings, Support)
         bottomItems.forEach { item ->
             DrawerItem(
                 data = item.getDrawerData(),
@@ -129,7 +129,7 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
         )
         Text(
             style = MaterialTheme.wireTypography.button02,
-            text = stringResource(id = data.title!!),
+            text = stringResource(id = data.title),
             color = contentColor,
             modifier = Modifier
                 .align(Alignment.CenterVertically)
@@ -139,7 +139,8 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
 
 data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int?)
 
-@OptIn(ExperimentalMaterialApi::class)
+@ExperimentalAnimationApi
+@ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 private fun Any.getDrawerData(): DrawerItemData =
     when (this) {

@@ -33,8 +33,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.common.CircularProgressIndicator
 import com.wire.android.ui.common.Tint
+import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import java.lang.Integer.max
@@ -126,7 +126,7 @@ private fun InnerButtonBox(
         Crossfade(targetState = (trailingIcon != null) to loading) { (hasTrailingIcon, loading) ->
             when {
                 hasTrailingIcon -> Tint(contentColor = contentColor, content = trailingIcon!!)
-                loading -> CircularProgressIndicator(progressColor = contentColor)
+                loading -> WireCircularProgressIndicator(progressColor = contentColor)
             }
         }
     }

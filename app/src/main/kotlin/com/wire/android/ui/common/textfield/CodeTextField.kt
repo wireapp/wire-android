@@ -45,6 +45,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.lang.Integer.min
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -63,6 +64,7 @@ fun CodeTextField(
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val enabled = state !is WireTextFieldState.Disabled
     Column(
         horizontalAlignment = horizontalAlignment,
         modifier = modifier,
@@ -70,12 +72,16 @@ fun CodeTextField(
         BasicTextField(
             value = value,
             onValueChange = {
-                val textDigits = it.text.filter { it.isDigit() }
-                onValueChange(CodeFieldValue(
-                    text = TextFieldValue(text = textDigits, selection = TextRange(textDigits.length)),
-                    isFullyFilled = textDigits.length == codeLength
-                ))
+                val textDigits = it.text.filter { it.isDigit() } // don't allow characters other than digits to be entered
+                    .let { it.substring(0, min(codeLength, it.length)) } // don't allow more digits than required
+                onValueChange(
+                    CodeFieldValue(
+                        text = TextFieldValue(text = textDigits, selection = TextRange(textDigits.length)),
+                        isFullyFilled = textDigits.length == codeLength
+                    )
+                )
             },
+            enabled = enabled,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
             modifier = Modifier.focusRequester(focusRequester),
@@ -83,13 +89,14 @@ fun CodeTextField(
             decorationBox = {
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
                     repeat(codeLength) { index ->
-                        if(index != 0) Spacer(modifier = Modifier.width(horizontalSpacing))
+                        if (index != 0) Spacer(modifier = Modifier.width(horizontalSpacing))
                         Digit(
                             char = value.text.getOrNull(index),
                             shape = shape,
                             colors = colors,
                             textStyle = textStyle,
-                            selected = index == value.text.length
+                            selected = index == value.text.length,
+                            state = state
                         )
                     }
                 }

@@ -8,6 +8,8 @@ import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.user.SearchPublicUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.Module
 import dagger.Provides
@@ -145,5 +147,22 @@ class UseCaseModule {
         @CurrentSession currentSession: AuthSession
     ): SendTextMessageUseCase =
         coreLogic.getSessionScope(currentSession).messages.sendTextMessage
+
+    @ViewModelScoped
+    @Provides
+    fun providesSearchKnownUsersUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentSession currentSession: AuthSession
+    ): SearchKnownUsersUseCase =
+        coreLogic.getSessionScope(currentSession).users.searchKnownUsers
+
+
+    @ViewModelScoped
+    @Provides
+    fun providesSearchPublicUserUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentSession currentSession: AuthSession
+    ): SearchPublicUserUseCase =
+        coreLogic.getSessionScope(currentSession).users.searchPublicUser
 
 }

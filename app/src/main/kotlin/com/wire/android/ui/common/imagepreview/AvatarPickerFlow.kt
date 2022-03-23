@@ -11,15 +11,15 @@ import com.wire.android.ui.userprofile.image.ImageSource
 import com.wire.android.util.ImageUtil.Companion.postProcessCapturedAvatar
 import com.wire.android.util.getDefaultAvatarUri
 import com.wire.android.util.getShareableAvatarUri
-import com.wire.android.util.permission.OpenGalleryFlow
-import com.wire.android.util.permission.TakePictureFlow
+import com.wire.android.util.permission.UseCameraRequestFlow
+import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 
 class AvatarPickerFlow(
     var pictureState: PictureState,
-    private val takePictureFlow: TakePictureFlow,
-    private val openGalleryFlow: OpenGalleryFlow
+    private val takePictureFlow: UseCameraRequestFlow,
+    private val openGalleryFlow: UseStorageRequestFlow
 ) {
     fun launch(imageSource: ImageSource) {
         when (imageSource) {

@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "MagicNumber")
@@ -32,7 +33,8 @@ class UserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
     private val getPublicAsset: GetPublicAssetUseCase,
-    private val getSelf: GetSelfUserUseCase
+    private val getSelf: GetSelfUserUseCase,
+    private val logout: LogoutUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -103,9 +105,9 @@ class UserProfileViewModel @Inject constructor(
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
-    fun logout() {
-        // TODO
+    fun onLogoutClick() {
         viewModelScope.launch {
+            logout()
             dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
             navigationManager.navigate(
                 NavigationCommand(
@@ -114,6 +116,7 @@ class UserProfileViewModel @Inject constructor(
                 )
             )
         }
+
     }
 
     fun addAccount() {

@@ -18,14 +18,14 @@ import java.io.IOException
 fun rememberMessageComposerInnerState(
     defaultMessageText: String = "",
     defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled,
-    attachmentInnerState: AttachmentInnerState = AttachmentInnerState()
+    defaultAttachmentInnerState: AttachmentInnerState = AttachmentInnerState()
 ): MessageComposerInnerState {
 
     return remember {
         MessageComposerInnerState(
             defaultMessageText,
             defaultMessageComposeInputState,
-            attachmentInnerState
+            defaultAttachmentInnerState
         )
     }
 }

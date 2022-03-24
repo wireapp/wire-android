@@ -24,8 +24,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
-import okhttp3.internal.wait
-
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "MagicNumber")

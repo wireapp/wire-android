@@ -63,7 +63,10 @@ private fun configureStateHandling(
 ) {
     when (val state = attachmentInnerState.attachmentState) {
         is AttachmentState.NotPicked -> appLogger.d("Not picked yet")
-        is AttachmentState.Picked -> onSendAttachment(state.attachmentBundle)
+        is AttachmentState.Picked -> {
+            onSendAttachment(state.attachmentBundle)
+            attachmentInnerState.resetAttachmentState()
+        }
         is AttachmentState.Error -> {
             // FIXME. later on expand to other possible errors
             onError(stringResource(R.string.error_unknown_message))

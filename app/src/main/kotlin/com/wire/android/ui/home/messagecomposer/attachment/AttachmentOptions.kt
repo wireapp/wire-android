@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.messagecomposer.attachment
 
-import android.content.Context
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -18,13 +17,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
-import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
-import com.wire.android.util.getMimeType
-import com.wire.android.util.orDefault
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
@@ -33,28 +31,26 @@ import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
-import com.wire.android.util.toByteArray
-import java.io.IOException
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AttachmentOptionsComponent(
-    onAttachmentStateChanged: (AttachmentState) -> Unit,
+    attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit
 ) {
-    val attachmentOptions = buildAttachmentOptionItems(onAttachmentStateChanged)
+    val attachmentOptions = buildAttachmentOptionItems(attachmentInnerState)
 
     // handle view states
-//    when (val state = viewModel.attachmentState) {
-//        is AttachmentState.Initial -> appLogger.d("Not picked yet")
-//        is AttachmentState.Picked -> onSendAttachment(state.attachmentBundle)
-//        is AttachmentState.Error -> {
-//            // FIXME. later on expand to other possible errors
-//            onError(stringResource(R.string.error_unknown_message))
-//            viewModel.resetViewState()
-//        }
-//    }
+    when (val state = attachmentInnerState.attachmentState) {
+        is AttachmentState.NotPicked -> appLogger.d("Not picked yet")
+        is AttachmentState.Picked -> onSendAttachment(state.attachmentBundle)
+        is AttachmentState.Error -> {
+            // FIXME. later on expand to other possible errors
+            onError(stringResource(R.string.error_unknown_message))
+            attachmentInnerState.resetAttachmentToNotPicked()
+        }
+    }
 
     LazyVerticalGrid(
         cells = GridCells.Adaptive(dimensions().spacing80x),
@@ -74,25 +70,19 @@ fun AttachmentOptionsComponent(
 }
 
 @Composable
-private fun FileBrowserFlow(onAttachmentStateChanged: (AttachmentState) -> Unit): UseStorageRequestFlow {
+private fun FileBrowserFlow(attachmentInnerState: AttachmentInnerState): UseStorageRequestFlow {
     val context = LocalContext.current
     return rememberOpenFileBrowserFlow(
-        onFileBrowserItemPicked = { pickedFileUri ->
-            val pickedAttachmentState = pickAttachment(context, pickedFileUri)
-            onAttachmentStateChanged(pickedAttachmentState)
-        },
+        onFileBrowserItemPicked = { pickedFileUri -> attachmentInnerState.pickAttachment(context, pickedFileUri) },
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
 
 @Composable
-private fun GalleryFlow(onAttachmentStateChanged: (AttachmentState) -> Unit): UseStorageRequestFlow {
+private fun GalleryFlow(attachmentInnerState: AttachmentInnerState): UseStorageRequestFlow {
     val context = LocalContext.current
     return rememberOpenGalleryFlow(
-        onGalleryItemPicked = { pickedPictureUri ->
-            val pickedAttachmentState = pickAttachment(context, pickedPictureUri)
-            onAttachmentStateChanged(pickedAttachmentState)
-        },
+        onGalleryItemPicked = { pickedPictureUri -> attachmentInnerState.pickAttachment(context, pickedPictureUri) },
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
@@ -128,9 +118,9 @@ private fun RecordAudioFlow() =
     )
 
 @Composable
-private fun buildAttachmentOptionItems(onAttachmentStateChanged: (AttachmentState) -> Unit): List<AttachmentOptionItem> {
-    val fileFlow = FileBrowserFlow(onAttachmentStateChanged)
-    val galleryFlow = GalleryFlow(onAttachmentStateChanged)
+private fun buildAttachmentOptionItems(attachmentInnerState: AttachmentInnerState): List<AttachmentOptionItem> {
+    val fileFlow = FileBrowserFlow(attachmentInnerState)
+    val galleryFlow = GalleryFlow(attachmentInnerState)
     val cameraFlow = TakePictureFlow()
     val captureVideoFlow = CaptureVideoFlow()
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
@@ -146,23 +136,6 @@ private fun buildAttachmentOptionItems(onAttachmentStateChanged: (AttachmentStat
     )
 }
 
-private fun pickAttachment(context: Context, attachmentUri: Uri): AttachmentState {
-    return try {
-        val attachment =
-            AttachmentBundle(
-                attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE),
-                attachmentUri.toByteArray(context)
-            )
-        AttachmentState.Picked(attachment)
-    } catch (e: IOException) {
-        AttachmentState.Error
-    }
-}
-
-private fun resetAttachmentToNotPicked() {
-    //attachmentState = AttachmentState.NotPicked
-}
-
 private data class AttachmentOptionItem(
     @StringRes val text: Int,
     @DrawableRes val icon: Int,
@@ -172,5 +145,5 @@ private data class AttachmentOptionItem(
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentComponents() {
-    AttachmentOptionsComponent({}, {}, {})
+    AttachmentOptionsComponent(AttachmentInnerState(), {}, {})
 }

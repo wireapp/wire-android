@@ -1,24 +1,31 @@
 package com.wire.android.ui.home.messagecomposer
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
+import com.wire.android.util.getMimeType
+import com.wire.android.util.orDefault
+import com.wire.android.util.toByteArray
+import java.io.IOException
 
 @Composable
 fun rememberMessageComposerInnerState(
     defaultMessageText: String = "",
     defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled,
-    defaultAttachmentState: AttachmentState = AttachmentState.NotPicked
+    attachmentInnerState: AttachmentInnerState = AttachmentInnerState()
 ): MessageComposerInnerState {
 
     return remember {
         MessageComposerInnerState(
             defaultMessageText,
             defaultMessageComposeInputState,
-            defaultAttachmentState
+            attachmentInnerState
         )
     }
 }
@@ -26,7 +33,7 @@ fun rememberMessageComposerInnerState(
 class MessageComposerInnerState(
     defaultMessageText: String,
     defaultMessageComposeInputState: MessageComposeInputState,
-    defaultAttachmentState: AttachmentState
+    val attachmentInnerState: AttachmentInnerState
 ) {
 
     var messageText by mutableStateOf(defaultMessageText)
@@ -43,8 +50,6 @@ class MessageComposerInnerState(
         }
 
     var attachmentOptionsDisplayed by mutableStateOf(false)
-
-    var attachmentState by mutableStateOf<AttachmentState>(defaultAttachmentState)
 
     private fun toEnabled() {
         messageComposeInputState = MessageComposeInputState.Enabled
@@ -63,6 +68,27 @@ class MessageComposerInnerState(
     fun toggleFullScreen() {
         messageComposeInputState = if (messageComposeInputState == MessageComposeInputState.Active)
             MessageComposeInputState.FullScreen else MessageComposeInputState.Active
+    }
+}
+
+class AttachmentInnerState {
+    var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
+
+    fun pickAttachment(context: Context, attachmentUri: Uri) {
+        attachmentState = try {
+            val attachment =
+                AttachmentBundle(
+                    attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE),
+                    attachmentUri.toByteArray(context)
+                )
+            AttachmentState.Picked(attachment)
+        } catch (e: IOException) {
+            AttachmentState.Error
+        }
+    }
+
+    fun resetAttachmentToNotPicked() {
+        attachmentState = AttachmentState.NotPicked
     }
 }
 

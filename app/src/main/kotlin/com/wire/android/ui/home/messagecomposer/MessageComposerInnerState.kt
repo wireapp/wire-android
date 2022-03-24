@@ -5,17 +5,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
 
 @Composable
 fun rememberMessageComposerInnerState(
     defaultMessageText: String = "",
-    defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled
+    defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled,
+    defaultAttachmentState: AttachmentState = AttachmentState.NotPicked
 ): MessageComposerInnerState {
 
     return remember {
         MessageComposerInnerState(
             defaultMessageText,
-            defaultMessageComposeInputState
+            defaultMessageComposeInputState,
+            defaultAttachmentState
         )
     }
 }
@@ -23,6 +26,7 @@ fun rememberMessageComposerInnerState(
 class MessageComposerInnerState(
     defaultMessageText: String,
     defaultMessageComposeInputState: MessageComposeInputState,
+    defaultAttachmentState: AttachmentState
 ) {
 
     var messageText by mutableStateOf(defaultMessageText)
@@ -39,6 +43,8 @@ class MessageComposerInnerState(
         }
 
     var attachmentOptionsDisplayed by mutableStateOf(false)
+
+    var attachmentState by mutableStateOf<AttachmentState>(defaultAttachmentState)
 
     private fun toEnabled() {
         messageComposeInputState = MessageComposeInputState.Enabled
@@ -62,4 +68,10 @@ class MessageComposerInnerState(
 
 enum class MessageComposeInputState {
     Active, Enabled, FullScreen
+}
+
+sealed class AttachmentState {
+    object NotPicked : AttachmentState()
+    class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
+    object Error : AttachmentState()
 }

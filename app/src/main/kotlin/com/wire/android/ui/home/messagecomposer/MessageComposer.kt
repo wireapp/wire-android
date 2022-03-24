@@ -274,7 +274,9 @@ private fun MessageComposer(
             ) {
                 if (messageComposerState.attachmentOptionsDisplayed) {
                     Divider()
-                    AttachmentOptionsComponent(onSendAttachment, onError)
+                    AttachmentOptionsComponent({ emittedState ->
+                        messageComposerState.attachmentState = emittedState
+                    }, onSendAttachment, onError)
                 }
             }
         }

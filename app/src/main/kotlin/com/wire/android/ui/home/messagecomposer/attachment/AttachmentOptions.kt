@@ -40,17 +40,7 @@ fun AttachmentOptionsComponent(
     onError: (String) -> Unit
 ) {
     val attachmentOptions = buildAttachmentOptionItems(attachmentInnerState)
-
-    // handle view states
-    when (val state = attachmentInnerState.attachmentState) {
-        is AttachmentState.NotPicked -> appLogger.d("Not picked yet")
-        is AttachmentState.Picked -> onSendAttachment(state.attachmentBundle)
-        is AttachmentState.Error -> {
-            // FIXME. later on expand to other possible errors
-            onError(stringResource(R.string.error_unknown_message))
-            attachmentInnerState.resetAttachmentState()
-        }
-    }
+    configureStateHandling(attachmentInnerState, onSendAttachment, onError)
 
     LazyVerticalGrid(
         cells = GridCells.Adaptive(dimensions().spacing80x),
@@ -61,6 +51,23 @@ fun AttachmentOptionsComponent(
     ) {
         attachmentOptions.forEach { option ->
             item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
+        }
+    }
+}
+
+@Composable
+private fun configureStateHandling(
+    attachmentInnerState: AttachmentInnerState,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onError: (String) -> Unit
+) {
+    when (val state = attachmentInnerState.attachmentState) {
+        is AttachmentState.NotPicked -> appLogger.d("Not picked yet")
+        is AttachmentState.Picked -> onSendAttachment(state.attachmentBundle)
+        is AttachmentState.Error -> {
+            // FIXME. later on expand to other possible errors
+            onError(stringResource(R.string.error_unknown_message))
+            attachmentInnerState.resetAttachmentState()
         }
     }
 }

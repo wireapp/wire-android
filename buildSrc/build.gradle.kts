@@ -6,6 +6,7 @@ private object Dependencies {
     const val kluent = "org.amshove.kluent:kluent:1.68"
     const val hilt = "com.google.dagger:hilt-android-gradle-plugin:2.38.1"
     const val spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.1.2"
+    const val junit5 = "de.mannodermaus.gradle.plugins:android-junit5:1.8.2.0"
 }
 
 plugins {
@@ -23,6 +24,7 @@ dependencies {
     implementation(Dependencies.detektGradlePlugin)
     implementation(Dependencies.spotless)
     implementation(Dependencies.hilt)
+    implementation(Dependencies.junit5)
 
     testImplementation(Dependencies.junit)
     testImplementation(Dependencies.kluent)

@@ -70,7 +70,43 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().login
+    fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().login
+
+    @ViewModelScoped
+    @Provides
+    fun validateEmailUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().validateEmailUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun validatePasswordUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().validatePasswordUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun validateUserHandleUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().validateUserHandleUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun registerAccountUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().register.register
+
+    @ViewModelScoped
+    @Provides
+    fun requestCodeUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().register.requestActivationCode
+
+    @ViewModelScoped
+    @Provides
+    fun verifyCodeUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().register.activate
+
+    @ViewModelScoped
+    @Provides
+    fun setUserHandleUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
+        coreLogic.getSessionScope(session).users.setUserHandle
 
     @ViewModelScoped
     @Provides

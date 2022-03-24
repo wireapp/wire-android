@@ -19,6 +19,8 @@ import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.session.SaveSessionUseCase
+import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
+    private val saveSessionUseCase: SaveSessionUseCase,
+    private val updateCurrentSessionUseCase: UpdateCurrentSessionUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
@@ -43,11 +47,24 @@ class LoginViewModel @Inject constructor(
     fun login(serverConfig: ServerConfig) {
         loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
-            val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
+            val loginResult = loginUseCase(
+                userIdentifier = loginState.userIdentifier.text,
+                password = loginState.password.text,
+                shouldPersistClient = true,
+                serverConfig = serverConfig,
+                shouldStoreSession = false
+            )
             val loginError =
-                if (loginResult is AuthenticationResult.Success) registerClient(loginResult.userSession).toLoginError()
+                if (loginResult is AuthenticationResult.Success)
+                    registerClient(loginResult.userSession).let { registerClientResult ->
+                        if (registerClientResult is RegisterClientResult.Success) {
+                            saveSessionUseCase(loginResult.userSession)
+                            updateCurrentSessionUseCase(loginResult.userSession.userId)
+                        }
+                        registerClientResult.toLoginError()
+                    }
                 else loginResult.toLoginError()
-            // TODO what if user logs in but doesn't register a new device?
+
             loginState = loginState.copy(loading = false, loginError = loginError).updateLoginEnabled()
             if (loginError is LoginError.None)
                 navigateToConvScreen()
@@ -61,7 +78,7 @@ class LoginViewModel @Inject constructor(
 
     fun onUserIdentifierChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared
-        if (loginState.loginError !is LoginError.None) {
+        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.userIdentifier) {
             clearLoginError()
         }
         loginState = loginState.copy(userIdentifier = newText).updateLoginEnabled()
@@ -117,3 +134,4 @@ class LoginViewModel @Inject constructor(
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
     }
 }
+

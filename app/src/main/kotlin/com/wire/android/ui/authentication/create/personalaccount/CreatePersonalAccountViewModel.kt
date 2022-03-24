@@ -13,12 +13,14 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
-import com.wire.kalium.logic.feature.register.VerifyActivationCodeUseCase
+import com.wire.kalium.logic.feature.session.SaveSessionUseCase
+import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreatePersonalAccountViewModel @Inject constructor(
@@ -27,6 +29,8 @@ class CreatePersonalAccountViewModel @Inject constructor(
     validatePasswordUseCase: ValidatePasswordUseCase,
     requestActivationCodeUseCase: RequestActivationCodeUseCase,
     registerAccountUseCase: RegisterAccountUseCase,
+    saveSessionUseCase: SaveSessionUseCase,
+    updateCurrentSessionUseCase: UpdateCurrentSessionUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreatePersonalAccount,
@@ -35,6 +39,8 @@ class CreatePersonalAccountViewModel @Inject constructor(
     validatePasswordUseCase,
     requestActivationCodeUseCase,
     registerAccountUseCase,
+    saveSessionUseCase,
+    updateCurrentSessionUseCase,
     clientScopeProviderFactory
 ) {
     var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()

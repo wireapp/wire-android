@@ -32,7 +32,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
         state = state.copy(
             username = newText,
             error = CreateAccountUsernameViewState.UsernameError.None,
-            continueEnabled = newText.text.isNotEmpty() && !state.loading
+            continueEnabled = newText.text.length > 1 && !state.loading
         )
     }
 
@@ -60,3 +60,4 @@ class CreateAccountUsernameViewModel @Inject constructor(
         }
     }
 }
+

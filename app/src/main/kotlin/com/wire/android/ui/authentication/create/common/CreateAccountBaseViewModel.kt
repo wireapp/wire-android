@@ -23,7 +23,6 @@ import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryVie
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewState
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.kalium.logic.configuration.ServerConfig
-import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
@@ -32,7 +31,8 @@ import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
-import kotlinx.coroutines.flow.MutableSharedFlow
+import com.wire.kalium.logic.feature.session.SaveSessionUseCase
+import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -44,6 +44,8 @@ abstract class CreateAccountBaseViewModel(
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val requestActivationCodeUseCase: RequestActivationCodeUseCase,
     private val registerAccountUseCase: RegisterAccountUseCase,
+    private val saveSessionUseCase: SaveSessionUseCase,
+    private val updateCurrentSessionUseCase: UpdateCurrentSessionUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory
 ) : ViewModel(),
     CreateAccountOverviewViewModel,
@@ -187,17 +189,37 @@ abstract class CreateAccountBaseViewModel(
                         email = emailState.email.text.trim(),
                         emailActivationCode = codeState.code.text.text
                     )
-                CreateAccountFlowType.CreateTeam -> TODO()
+                CreateAccountFlowType.CreateTeam ->
+                    RegisterParam.Team(
+                        firstName = detailsState.firstName.text.trim(),
+                        lastName = detailsState.lastName.text.trim(),
+                        password = detailsState.password.text,
+                        email = emailState.email.text.trim(),
+                        emailActivationCode = codeState.code.text.text,
+                        teamName = detailsState.teamName.text.trim(),
+                        teamIcon = "default"
+                    )
             }
 
-            val codeError = registerAccountUseCase(registerParam, serverConfig)
-                .let {
-                    if(it is RegisterResult.Success) // TODO what if user creates an account but doesn't register a new device?
-                        clientScopeProviderFactory.create(it.value.second).clientScope.register(
-                            password = registerParam.password,
-                            capabilities = null
-                        ).toCodeError()
-                    else it.toCodeError()
+            val codeError = registerAccountUseCase(
+                param = registerParam,
+                serverConfig = serverConfig,
+                shouldStoreSession = false
+            ).let { registerResult ->
+                    if(registerResult is RegisterResult.Success)
+                        registerResult.value.second.let { userSession ->
+                            clientScopeProviderFactory.create(userSession).clientScope.register(
+                                password = registerParam.password,
+                                capabilities = null
+                            ).let { registerClientResult ->
+                                if (registerClientResult is RegisterClientResult.Success) {
+                                    saveSessionUseCase(userSession)
+                                    updateCurrentSessionUseCase(userSession.userId)
+                                }
+                                registerClientResult.toCodeError()
+                            }
+                        }
+                    else registerResult.toCodeError()
                 }
             val isSuccess = codeError is CreateAccountCodeViewState.CodeError.None
             codeState = codeState.copy(loading = false, error = codeError)

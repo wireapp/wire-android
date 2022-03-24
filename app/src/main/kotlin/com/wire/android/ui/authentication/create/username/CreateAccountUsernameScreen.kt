@@ -107,7 +107,7 @@ private fun UsernameTextField(
         WireTextField(
             value = state.username,
             onValueChange = {
-                val validText = it.text.replace(Regex("[^a-z0-9_]"), "")
+                val validText = it.text.replace(Regex("[^a-z0-9_]"), "").take(255)
                 if(it.text != validText) animate()
                 onUsernameChange(it.copy(text = validText))
             },
@@ -124,11 +124,11 @@ private fun UsernameTextField(
                 )
             },
             state = if(state.error is CreateAccountUsernameViewState.UsernameError.TextFieldError) when(state.error) {
-                    CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameTakenError ->
-                        WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error))
-                    CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError ->
-                        WireTextFieldState.Error(stringResource(id = R.string.create_account_username_description))
-                } else WireTextFieldState.Default,
+                CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameTakenError ->
+                    WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error))
+                CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError ->
+                    WireTextFieldState.Error(stringResource(id = R.string.create_account_username_description))
+            } else WireTextFieldState.Default,
             descriptionText = stringResource(id = R.string.create_account_username_description),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
@@ -142,3 +142,4 @@ private fun UsernameTextField(
 private fun CreateAccountUsernameScreenPreview() {
     UsernameContent(CreateAccountUsernameViewState(), {}, {}, {})
 }
+

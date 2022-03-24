@@ -48,7 +48,7 @@ fun AttachmentOptionsComponent(
         is AttachmentState.Error -> {
             // FIXME. later on expand to other possible errors
             onError(stringResource(R.string.error_unknown_message))
-            attachmentInnerState.resetAttachmentToNotPicked()
+            attachmentInnerState.resetAttachmentState()
         }
     }
 
@@ -60,11 +60,7 @@ fun AttachmentOptionsComponent(
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
         attachmentOptions.forEach { option ->
-            item {
-                AttachmentButton(stringResource(option.text), option.icon) {
-                    option.onClick()
-                }
-            }
+            item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
         }
     }
 }
@@ -136,11 +132,7 @@ private fun buildAttachmentOptionItems(attachmentInnerState: AttachmentInnerStat
     )
 }
 
-private data class AttachmentOptionItem(
-    @StringRes val text: Int,
-    @DrawableRes val icon: Int,
-    val onClick: () -> Unit
-)
+private data class AttachmentOptionItem(@StringRes val text: Int, @DrawableRes val icon: Int, val onClick: () -> Unit)
 
 @Preview(showBackground = true)
 @Composable

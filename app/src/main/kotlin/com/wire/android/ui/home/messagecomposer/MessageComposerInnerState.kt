@@ -87,7 +87,7 @@ class AttachmentInnerState {
         }
     }
 
-    fun resetAttachmentToNotPicked() {
+    fun resetAttachmentState() {
         attachmentState = AttachmentState.NotPicked
     }
 }

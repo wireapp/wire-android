@@ -1,18 +1,16 @@
 package com.wire.android.ui.authentication.create.details
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.kalium.logic.configuration.ServerConfig
 
 interface CreateAccountDetailsViewModel {
     val detailsState: CreateAccountDetailsViewState
     fun goBackToPreviousStep()
-    fun onDetailsContinue()
+    fun onDetailsContinue(serverConfig: ServerConfig)
     fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsFieldType)
+    fun onDetailsErrorDismiss()
 
     enum class DetailsFieldType {
         FirstName, LastName, Password, ConfirmPassword, TeamName
-    }
-
-    companion object {
-        const val MIN_PASSWORD_LENGTH = 8
     }
 }

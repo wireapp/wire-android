@@ -110,7 +110,8 @@ class CreateAccountUsernameViewModelTest {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns false
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.InvalidHandle
         runTest { createAccountUsernameViewModel.onContinue() }
-        createAccountUsernameViewModel.state.error shouldBeInstanceOf CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError::class
+        createAccountUsernameViewModel.state.error shouldBeInstanceOf
+                CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError::class
     }
 
     @Test
@@ -118,7 +119,8 @@ class CreateAccountUsernameViewModelTest {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns true
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.HandleExists
         runTest { createAccountUsernameViewModel.onContinue() }
-        createAccountUsernameViewModel.state.error shouldBeInstanceOf CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameTakenError::class
+        createAccountUsernameViewModel.state.error shouldBeInstanceOf
+                CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameTakenError::class
     }
 
     @Test
@@ -126,8 +128,10 @@ class CreateAccountUsernameViewModelTest {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns true
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
         runTest { createAccountUsernameViewModel.onContinue() }
-        createAccountUsernameViewModel.state.error shouldBeInstanceOf CreateAccountUsernameViewState.UsernameError.DialogError.GenericError::class
-        (createAccountUsernameViewModel.state.error as CreateAccountUsernameViewState.UsernameError.DialogError.GenericError).coreFailure shouldBe NetworkFailure.NoNetworkConnection
+        createAccountUsernameViewModel.state.error shouldBeInstanceOf
+                CreateAccountUsernameViewState.UsernameError.DialogError.GenericError::class
+        val error = createAccountUsernameViewModel.state.error as CreateAccountUsernameViewState.UsernameError.DialogError.GenericError
+        error.coreFailure shouldBe NetworkFailure.NoNetworkConnection
     }
 
     @Test
@@ -135,7 +139,8 @@ class CreateAccountUsernameViewModelTest {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns true
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
         runTest { createAccountUsernameViewModel.onContinue() }
-        createAccountUsernameViewModel.state.error shouldBeInstanceOf CreateAccountUsernameViewState.UsernameError.DialogError.GenericError::class
+        createAccountUsernameViewModel.state.error shouldBeInstanceOf
+                CreateAccountUsernameViewState.UsernameError.DialogError.GenericError::class
         createAccountUsernameViewModel.onErrorDismiss()
         createAccountUsernameViewModel.state.error shouldBe CreateAccountUsernameViewState.UsernameError.None
     }

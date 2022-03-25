@@ -146,10 +146,12 @@ class LoginViewModelTest {
 
     @Test
     fun `when button is clicked and login returns Generic error, GenericError is passed`() {
-        coEvery { loginUseCase.invoke(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
+        coEvery { loginUseCase.invoke(any(), any(), any(), any(), any()) } returns
+                AuthenticationResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
         runTest { loginViewModel.login(serverConfig) }
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
-        (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure shouldBe NetworkFailure.NoNetworkConnection
+        (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure shouldBe
+                NetworkFailure.NoNetworkConnection
     }
 
     @Test

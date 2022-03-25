@@ -104,14 +104,13 @@ private fun LazyListScope.searchResults(
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
 ) {
-    item { FolderHeader(searchTitle()) }
-
     when (val searchResult = contactSearchResult.searchResultState) {
         SearchResultState.InProgress -> {
             inProgressItem()
         }
         is SearchResultState.Success -> {
             successItem(
+                searchTitle = searchTitle,
                 showAllItems = showAllItems,
                 searchResult = searchResult.result,
                 searchQuery = searchQuery,
@@ -120,20 +119,26 @@ private fun LazyListScope.searchResults(
             )
         }
         is SearchResultState.Failure -> {
-            failureItem(searchResult.failureMessage)
+            failureItem(
+                searchTitle = searchTitle,
+                failureMessage = searchResult.failureMessage
+            )
         }
         // We do not display anything on Initial state
-        SearchResultState.Initial -> {  }
+        SearchResultState.Initial -> { }
     }
 }
 
 private fun LazyListScope.successItem(
+    searchTitle: @Composable () -> String,
     showAllItems: Boolean,
     searchResult: List<Contact>,
     searchQuery: String,
     searchSource: SearchSource,
     onShowAllButtonClicked: () -> Unit
 ) {
+    item { FolderHeader(searchTitle()) }
+
     items(if (showAllItems) searchResult else searchResult.take(4)) { contact ->
         with(contact) {
             ContactSearchResultItem(
@@ -148,6 +153,7 @@ private fun LazyListScope.successItem(
             )
         }
     }
+
     item {
         Box(
             Modifier
@@ -182,7 +188,9 @@ fun LazyListScope.inProgressItem() {
     }
 }
 
-fun LazyListScope.failureItem(failureMessage: String?) {
+fun LazyListScope.failureItem(searchTitle: @Composable () -> String, failureMessage: String?) {
+    item { FolderHeader(searchTitle()) }
+
     item {
         Box(
             Modifier

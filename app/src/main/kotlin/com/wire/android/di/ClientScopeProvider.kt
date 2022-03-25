@@ -12,7 +12,7 @@ class ClientScopeProvider @AssistedInject constructor(
     @Assisted private val authSession: AuthSession
 ) {
     val clientScope: ClientScope
-        get() = coreLogic.getSessionScope(authSession).client
+        get() = coreLogic.getSessionScope(authSession.userId).client
 
     @AssistedFactory
     interface Factory {

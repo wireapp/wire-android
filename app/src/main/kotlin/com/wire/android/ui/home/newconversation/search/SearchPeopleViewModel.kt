@@ -5,10 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.newconversation.contacts.Contact
+import com.wire.android.ui.home.newconversation.contacts.toContact
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult.PublicContact
 import com.wire.android.util.flow.SearchQueryStateFlow
-import com.wire.kalium.logic.data.publicuser.model.PublicUser
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
@@ -42,25 +41,27 @@ class SearchPeopleViewModel @Inject constructor(
                 state = state.copy(searchQuery = searchTerm)
 
                 launch { searchPublic(searchTerm) }
-                launch {
-                    //TODO: this is going to be refactored on the Kalium side so that we do not use Flow
-                    searchKnownUsers(searchTerm).onStart {
-                        state = state.copy(
-                            localContactSearchResult = ContactSearchResult.LocalContact(SearchResultState.InProgress)
-                        )
-                    }.catch {
-                        state = state.copy(
-                            localContactSearchResult = ContactSearchResult.LocalContact(SearchResultState.Failure())
-                        )
-                    }.flowOn(Dispatchers.IO).collect {
-                        state = state.copy(
-                            localContactSearchResult = ContactSearchResult.LocalContact(
-                                SearchResultState.Success(it.result.map { publicUser -> publicUser.toContact() })
-                            )
-                        )
-                    }
-                }
+                launch { searchKnown(searchTerm) }
             }
+        }
+    }
+
+    private suspend fun searchKnown(searchTerm: String) {
+        //TODO: this is going to be refactored on the Kalium side so that we do not use Flow
+        searchKnownUsers(searchTerm).onStart {
+            state = state.copy(
+                localContactSearchResult = ContactSearchResult.LocalContact(SearchResultState.InProgress)
+            )
+        }.catch {
+            state = state.copy(
+                localContactSearchResult = ContactSearchResult.LocalContact(SearchResultState.Failure())
+            )
+        }.flowOn(Dispatchers.IO).collect {
+            state = state.copy(
+                localContactSearchResult = ContactSearchResult.LocalContact(
+                    SearchResultState.Success(it.result.map { publicUser -> publicUser.toContact() })
+                )
+            )
         }
     }
 
@@ -97,10 +98,3 @@ class SearchPeopleViewModel @Inject constructor(
     }
 
 }
-
-fun PublicUser.toContact() =
-    Contact(
-        id = 1,
-        name = name ?: "",
-        label = handle ?: "",
-    )

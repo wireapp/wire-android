@@ -75,6 +75,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun logoutUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String): LogoutUseCase =
+        coreLogic.getSessionScope(currentAccount).logout
+
+    @ViewModelScoped
+    @Provides
     fun validateEmailUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getAuthenticationScope().validateEmailUseCase
 
@@ -175,15 +180,5 @@ class UseCaseModule {
         @CurrentAccount currentAccount: String
     ): SendTextMessageUseCase =
         coreLogic.getSessionScope(currentAccount).messages.sendTextMessage
-
-    @ViewModelScoped
-    @Provides
-    fun logoutUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String): LogoutUseCase =
-        coreLogic.getSessionScope(currentAccount).logout
-
-    @ViewModelScoped
-    @Provides
-    fun provideLogoutUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: AuthSession): LogoutUseCase =
-        coreLogic.getSessionScope(currentAccount.userId).logout
 
 }

@@ -18,10 +18,11 @@ enum class MessageStatus(val stringResourceId: Int) {
 
 data class Message(
     val user: User,
+    val messageSource: MessageSource = MessageSource.CurrentUser,
     val messageHeader: MessageHeader,
     val messageContent: MessageContent,
 ) {
-    val isDeleted = messageHeader.messageStatus == MessageStatus.Deleted
+    val isDeleted: Boolean = messageHeader.messageStatus == MessageStatus.Deleted
 }
 
 sealed class MessageContent {
@@ -37,3 +38,7 @@ data class User(
     val avatarUrl: String = "",
     val availabilityStatus: UserStatus,
 )
+
+enum class MessageSource {
+    CurrentUser, OtherUser
+}

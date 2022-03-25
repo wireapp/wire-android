@@ -51,7 +51,7 @@ fun WireModalSheetLayout(
 @Composable
 fun MenuModalSheetLayout(
     sheetState: ModalBottomSheetState,
-    headerTitle: String,
+    headerTitle: String? = null,
     headerIcon: @Composable () -> Unit = {},
     menuItems: List<@Composable () -> Unit>,
     content: @Composable () -> Unit,
@@ -72,7 +72,7 @@ fun MenuModalSheetLayout(
 
 @Composable
 fun MenuModalSheetContent(
-    headerTitle: String,
+    headerTitle: String? = null,
     headerIcon: @Composable () -> Unit = {},
     menuItems: List<@Composable () -> Unit>,
 ) {

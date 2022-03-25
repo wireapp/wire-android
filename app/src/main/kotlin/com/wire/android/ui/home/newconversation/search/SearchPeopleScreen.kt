@@ -259,20 +259,22 @@ private fun LazyListScope.externalSuccessItem(
             }
         }
 
-        item {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                ShowButton(
-                    totalSearchResultCount = searchResult.size,
-                    isShownAll = showAllItems,
-                    onShowButtonClicked = onShowAllButtonClicked,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = dimensions().spacing8x)
-                )
+        if (searchResult.size > 4) {
+            item {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    ShowButton(
+                        totalSearchResultCount = searchResult.size,
+                        isShownAll = showAllItems,
+                        onShowButtonClicked = onShowAllButtonClicked,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = dimensions().spacing8x)
+                    )
+                }
             }
         }
     }

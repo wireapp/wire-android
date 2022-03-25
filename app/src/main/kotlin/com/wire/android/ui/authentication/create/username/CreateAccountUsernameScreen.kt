@@ -108,7 +108,7 @@ private fun UsernameTextField(
             value = state.username,
             onValueChange = {
                 val validText = it.text.replace(Regex("[^a-z0-9_]"), "")
-                if(it.text != validText) animate()
+                if (it.text != validText) animate()
                 onUsernameChange(it.copy(text = validText))
             },
             placeholderText = stringResource(R.string.create_account_username_placeholder),
@@ -123,12 +123,12 @@ private fun UsernameTextField(
                     )
                 )
             },
-            state = if(state.error is CreateAccountUsernameViewState.UsernameError.TextFieldError) when(state.error) {
-                    CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameTakenError ->
-                        WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error))
-                    CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError ->
-                        WireTextFieldState.Error(stringResource(id = R.string.create_account_username_description))
-                } else WireTextFieldState.Default,
+            state = if (state.error is CreateAccountUsernameViewState.UsernameError.TextFieldError) when (state.error) {
+                CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameTakenError ->
+                    WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error))
+                CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError ->
+                    WireTextFieldState.Error(stringResource(id = R.string.create_account_username_description))
+            } else WireTextFieldState.Default,
             descriptionText = stringResource(id = R.string.create_account_username_description),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),

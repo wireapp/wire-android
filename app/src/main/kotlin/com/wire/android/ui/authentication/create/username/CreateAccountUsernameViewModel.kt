@@ -24,7 +24,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val validateUserHandleUseCase: ValidateUserHandleUseCase,
     private val setUserHandleUseCase: SetUserHandleUseCase
-): ViewModel() {
+) : ViewModel() {
     var state: CreateAccountUsernameViewState by mutableStateOf(CreateAccountUsernameViewState())
         private set
 
@@ -45,7 +45,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
         viewModelScope.launch {
             val usernameError = if (!validateUserHandleUseCase(state.username.text.trim()))
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError
-            else when(val result = setUserHandleUseCase(state.username.text.trim())) {
+            else when (val result = setUserHandleUseCase(state.username.text.trim())) {
                 is SetUserHandleResult.Failure.Generic ->
                     CreateAccountUsernameViewState.UsernameError.DialogError.GenericError(result.error)
                 SetUserHandleResult.Failure.HandleExists ->
@@ -55,7 +55,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
                 SetUserHandleResult.Success -> CreateAccountUsernameViewState.UsernameError.None
             }
             state = state.copy(loading = false, continueEnabled = true, error = usernameError)
-            if(usernameError is CreateAccountUsernameViewState.UsernameError.None)
+            if (usernameError is CreateAccountUsernameViewState.UsernameError.None)
                 navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
     }

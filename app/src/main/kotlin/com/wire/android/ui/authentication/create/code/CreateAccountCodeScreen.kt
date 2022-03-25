@@ -30,12 +30,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -165,24 +163,33 @@ private fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolea
 private fun CreateAccountCodeViewState.CodeError.DialogError.getResources(type: CreateAccountFlowType) = when (this) {
     CreateAccountCodeViewState.CodeError.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_already_in_use_error))
+        stringResource(id = R.string.create_account_email_already_in_use_error)
+    )
     CreateAccountCodeViewState.CodeError.DialogError.BlackListedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_blacklisted_error))
+        stringResource(id = R.string.create_account_email_blacklisted_error)
+    )
     CreateAccountCodeViewState.CodeError.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_domain_blocked_error))
+        stringResource(id = R.string.create_account_email_domain_blocked_error)
+    )
     CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_invalid_error))
+        stringResource(id = R.string.create_account_email_invalid_error)
+    )
     CreateAccountCodeViewState.CodeError.DialogError.TeamMembersLimitError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_code_error_team_members_limit_reached))
+        stringResource(id = R.string.create_account_code_error_team_members_limit_reached)
+    )
     CreateAccountCodeViewState.CodeError.DialogError.CreationRestrictedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = when(type) {
-            CreateAccountFlowType.CreatePersonalAccount -> R.string.create_account_code_error_personal_account_creation_restricted
-            CreateAccountFlowType.CreateTeam -> R.string.create_account_code_error_team_creation_restricted }))
+        stringResource(
+            id = when (type) {
+                CreateAccountFlowType.CreatePersonalAccount -> R.string.create_account_code_error_personal_account_creation_restricted
+                CreateAccountFlowType.CreateTeam -> R.string.create_account_code_error_team_creation_restricted
+            }
+        )
+    )
     is CreateAccountCodeViewState.CodeError.DialogError.GenericError ->
         this.coreFailure.dialogErrorStrings(LocalContext.current.resources)
 }

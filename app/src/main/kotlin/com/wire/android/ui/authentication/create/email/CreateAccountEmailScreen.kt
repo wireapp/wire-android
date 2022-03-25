@@ -137,18 +137,18 @@ private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
     val learnMoreText = stringResource(id = R.string.label_learn_more)
     val annotatedText = buildAnnotatedString {
         append(
-            if(error is CreateAccountEmailViewState.EmailError.TextFieldError) when(error) {
-                    CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError ->
-                        stringResource(R.string.create_account_email_already_in_use_error)
-                    CreateAccountEmailViewState.EmailError.TextFieldError.BlacklistedEmailError ->
-                        stringResource(R.string.create_account_email_blacklisted_error)
-                    CreateAccountEmailViewState.EmailError.TextFieldError.DomainBlockedError ->
-                        stringResource(R.string.create_account_email_domain_blocked_error)
-                    CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError ->
-                        stringResource(R.string.create_account_email_invalid_error)
+            if (error is CreateAccountEmailViewState.EmailError.TextFieldError) when (error) {
+                CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError ->
+                    stringResource(R.string.create_account_email_already_in_use_error)
+                CreateAccountEmailViewState.EmailError.TextFieldError.BlacklistedEmailError ->
+                    stringResource(R.string.create_account_email_blacklisted_error)
+                CreateAccountEmailViewState.EmailError.TextFieldError.DomainBlockedError ->
+                    stringResource(R.string.create_account_email_domain_blocked_error)
+                CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError ->
+                    stringResource(R.string.create_account_email_invalid_error)
             } else ""
         )
-        if(error is CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError) {
+        if (error is CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError) {
             append(" ")
             pushStringAnnotation(tag = learnMoreTag, annotation = learnMoreUrl)
             withStyle(
@@ -248,5 +248,5 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
 @Composable
 @Preview
 private fun CreateAccountEmailScreenPreview() {
-    EmailContent(CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, {}, {},"")
+    EmailContent(CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, {}, {}, "")
 }

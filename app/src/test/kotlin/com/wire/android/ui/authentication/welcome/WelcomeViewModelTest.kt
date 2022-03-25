@@ -50,4 +50,11 @@ class WelcomeViewModelTest {
 
         coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.CreateTeam.getRouteWithArgs())) }
     }
+
+    @Test
+    fun `given a navigation, when navigating back, then should delegate call to navigation manager back`() = runTest {
+        welcomeViewModel.navigateBack()
+
+        coVerify(exactly = 1) { navigationManager.navigateBack() }
+    }
 }

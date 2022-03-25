@@ -215,8 +215,9 @@ private fun PasswordTextFields(
             .padding(
                 horizontal = MaterialTheme.wireDimensions.spacing16x,
                 vertical = MaterialTheme.wireDimensions.spacing16x
-            ).bringIntoViewOnFocus(coroutineScope),
-        state = if(state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError) when(state.error) {
+            )
+            .bringIntoViewOnFocus(coroutineScope),
+        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError) when (state.error) {
             CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError ->
                 WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
             CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError ->
@@ -237,4 +238,5 @@ private fun Modifier.bringIntoViewOnFocus(coroutineScope: CoroutineScope): Modif
 @Composable
 @Preview
 private fun CreateAccountDetailsScreenPreview() {
-    DetailsContent(CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam), {}, {}, {}, {}, {}, {}, {}, {}) }
+    DetailsContent(CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam), {}, {}, {}, {}, {}, {}, {}, {})
+}

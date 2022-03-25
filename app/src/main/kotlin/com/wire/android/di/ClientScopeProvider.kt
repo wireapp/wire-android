@@ -1,7 +1,6 @@
 package com.wire.android.di
 
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.client.ClientScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory

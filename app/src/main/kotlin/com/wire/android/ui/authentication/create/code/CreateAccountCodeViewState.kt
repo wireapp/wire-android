@@ -14,18 +14,20 @@ data class CreateAccountCodeViewState(
 ) {
     sealed class CodeError {
         object None : CodeError()
-        sealed class TextFieldError: CodeError() {
+        sealed class TextFieldError : CodeError() {
             object InvalidActivationCodeError : TextFieldError()
         }
-        sealed class DialogError: CodeError() {
-            object InvalidEmailError: DialogError()
-            object AccountAlreadyExistsError: DialogError()
-            object BlackListedError: DialogError()
-            object EmailDomainBlockedError: DialogError()
-            object TeamMembersLimitError: DialogError()
-            object CreationRestrictedError: DialogError()
-            data class GenericError(val coreFailure: CoreFailure): DialogError()
+
+        sealed class DialogError : CodeError() {
+            object InvalidEmailError : DialogError()
+            object AccountAlreadyExistsError : DialogError()
+            object BlackListedError : DialogError()
+            object EmailDomainBlockedError : DialogError()
+            object TeamMembersLimitError : DialogError()
+            object CreationRestrictedError : DialogError()
+            data class GenericError(val coreFailure: CoreFailure) : DialogError()
         }
-        object TooManyDevicesError: CodeError()
+
+        object TooManyDevicesError : CodeError()
     }
 }

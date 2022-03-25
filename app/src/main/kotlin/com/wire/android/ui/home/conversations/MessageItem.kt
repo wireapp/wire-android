@@ -1,12 +1,15 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -26,7 +29,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
@@ -41,12 +43,22 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
-    message: Message
+    message: Message,
+    onLongClicked: () -> Unit,
 ) {
     with(message) {
-        Row {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    //TODO: implement some action onClick
+                    onClick = { },
+                    onLongClick = onLongClicked
+                )
+        ) {
             UserProfileAvatar(status = message.user.availabilityStatus)
             Column {
                 MessageHeader(messageHeader)
@@ -189,5 +201,5 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
 fun PreviewMessage() {
     MessageItem(
         mockMessageWithText
-    )
+    ) {}
 }

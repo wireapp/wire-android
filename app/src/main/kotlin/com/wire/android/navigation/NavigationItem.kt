@@ -67,7 +67,7 @@ enum class NavigationItem(
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
-        content = { com.wire.android.ui.authentication.create.team.CreateTeamScreen(serverConfig = com.wire.kalium.logic.configuration.ServerConfig.STAGING) },
+        content = { CreateTeamScreen(serverConfig = ServerConfig.STAGING) },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 

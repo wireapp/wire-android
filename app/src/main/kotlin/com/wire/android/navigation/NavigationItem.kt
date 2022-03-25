@@ -19,6 +19,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
+import com.wire.android.ui.authentication.create.team.CreateTeamScreen
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameScreen
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen

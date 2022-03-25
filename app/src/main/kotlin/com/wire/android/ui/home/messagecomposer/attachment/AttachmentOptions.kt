@@ -23,6 +23,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
+import com.wire.android.util.getWritableImageAttachment
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
@@ -93,9 +94,10 @@ private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
 
 @Composable
 private fun TakePictureFlow(): UseCameraRequestFlow {
+    val context = LocalContext.current
     return rememberTakePictureFlow(
         shouldPersistUri = { /* TODO: call vm to share raw pic data */ },
-        onPictureTakenUri = Uri.EMPTY, // TODO: get uri from fileprovider (FileUtil.kt)
+        onPictureTakenUri = getWritableImageAttachment(context),
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }

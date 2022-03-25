@@ -24,9 +24,9 @@ fun getUriFromDrawable(
 ): Uri {
     return Uri.parse(
         ContentResolver.SCHEME_ANDROID_RESOURCE +
-                "://" + context.resources.getResourcePackageName(drawableId) +
-                '/' + context.resources.getResourceTypeName(drawableId) +
-                '/' + context.resources.getResourceEntryName(drawableId)
+            "://" + context.resources.getResourcePackageName(drawableId) +
+            '/' + context.resources.getResourceTypeName(drawableId) +
+            '/' + context.resources.getResourceEntryName(drawableId)
     )
 }
 
@@ -43,6 +43,12 @@ fun getWritableTempAvatarUri(imageData: ByteArray, context: Context): Uri {
     val file = getTempAvatarFile(context)
     file.writeBytes(imageData)
     return file.toUri()
+}
+
+fun getWritableImageAttachment(context: Context): Uri {
+    val file = File(context.cacheDir, TEMP_IMG_ATTACHMENT_FILENAME)
+    file.setWritable(true)
+    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
 }
 
 private fun getTempAvatarFile(context: Context): File {
@@ -62,3 +68,4 @@ fun Uri.getMimeType(context: Context): String? {
 }
 
 private const val TEMP_AVATAR_FILENAME = "temp_avatar_path.jpg"
+private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"

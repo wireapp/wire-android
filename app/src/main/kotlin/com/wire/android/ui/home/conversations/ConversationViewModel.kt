@@ -86,7 +86,7 @@ class ConversationViewModel @Inject constructor(
                         (message.content as? MessageContent.Text)?.value ?: "content is not available"
                     )
                 ),
-                messageSource= MessageSource.CurrentUser,
+                messageSource = MessageSource.CurrentUser,
                 messageHeader = com.wire.android.ui.home.conversations.model.MessageHeader(
                     "Cool User",
                     Membership.None,

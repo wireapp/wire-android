@@ -26,12 +26,13 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberConversationScreenState(
-    context: Context = LocalContext.current,
-    clipboardManager: ClipboardManager = LocalClipboardManager.current,
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): ConversationScreenState {
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
+
     return remember {
         ConversationScreenState(
             context = context,

@@ -1,12 +1,14 @@
 package com.wire.android.ui.home.newconversation.search
 
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.newconversation.contacts.toContact
-import com.wire.android.ui.home.newconversation.search.ContactSearchResult.PublicContact
+import com.wire.android.ui.home.newconversation.search.ContactSearchResult.InternalContact
+import com.wire.android.ui.home.newconversation.search.ContactSearchResult.ExternalContact
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
@@ -29,16 +31,34 @@ class SearchPeopleViewModel @Inject constructor(
         const val HARDCODED_TEST_DOMAIN = "staging.zinfra.io"
     }
 
-    var state: SearchPeopleState by mutableStateOf(
-        SearchPeopleState()
-    )
+    val state: SearchPeopleState by derivedStateOf {
+        val noneSearchSucceed: Boolean =
+            localContactSearchResult.searchResultState is SearchResultState.Failure
+                    && publicContactsSearchResult.searchResultState is SearchResultState.Failure
+                    && federatedContactSearchResult.searchResultState is SearchResultState.Failure
+
+        innerSearchPeopleState.copy(
+            noneSearchSucceed = noneSearchSucceed,
+            localContactSearchResult = localContactSearchResult,
+            publicContactsSearchResult = publicContactsSearchResult,
+            federatedContactSearchResult = federatedContactSearchResult
+        )
+    }
+
+    private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
+
+    private var localContactSearchResult by mutableStateOf(InternalContact(searchResultState = SearchResultState.Initial))
+
+    private var publicContactsSearchResult by mutableStateOf(ExternalContact(searchResultState = SearchResultState.Initial))
+
+    private var federatedContactSearchResult by mutableStateOf(ExternalContact(searchResultState = SearchResultState.Initial))
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
 
     init {
         viewModelScope.launch {
             searchQueryStateFlow.onSearchAction { searchTerm ->
-                state = state.copy(searchQuery = searchTerm)
+                innerSearchPeopleState = state.copy(searchQuery = searchTerm)
 
                 launch { searchPublic(searchTerm) }
                 launch { searchKnown(searchTerm) }
@@ -49,26 +69,19 @@ class SearchPeopleViewModel @Inject constructor(
     private suspend fun searchKnown(searchTerm: String) {
         //TODO: this is going to be refactored on the Kalium side so that we do not use Flow
         searchKnownUsers(searchTerm).onStart {
-            state = state.copy(
-                localContactSearchResult = ContactSearchResult.LocalContact(SearchResultState.InProgress)
-            )
+            localContactSearchResult = InternalContact(SearchResultState.InProgress)
         }.catch {
-            state = state.copy(
-                localContactSearchResult = ContactSearchResult.LocalContact(SearchResultState.Failure())
-            )
+            localContactSearchResult = InternalContact(SearchResultState.Failure())
+
         }.flowOn(Dispatchers.IO).collect {
-            state = state.copy(
-                localContactSearchResult = ContactSearchResult.LocalContact(
-                    SearchResultState.Success(it.result.map { publicUser -> publicUser.toContact() })
-                )
+            localContactSearchResult = InternalContact(
+                SearchResultState.Success(it.result.map { publicUser -> publicUser.toContact() })
             )
         }
     }
 
     private suspend fun searchPublic(searchTerm: String) {
-        state = state.copy(
-            publicContactsSearchResult = PublicContact(SearchResultState.InProgress)
-        )
+        publicContactsSearchResult = ExternalContact(SearchResultState.InProgress)
 
         val result = withContext(Dispatchers.IO) {
             searchPublicUsers(
@@ -77,17 +90,13 @@ class SearchPeopleViewModel @Inject constructor(
             )
         }
 
-        state = when (result) {
+        publicContactsSearchResult = when (result) {
             is Either.Left -> {
-                state.copy(
-                    publicContactsSearchResult = PublicContact(SearchResultState.Failure())
-                )
+                ExternalContact(SearchResultState.Failure())
             }
             is Either.Right -> {
-                state.copy(
-                    publicContactsSearchResult = PublicContact(
-                        SearchResultState.Success(result.value.result.map { it.toContact() })
-                    )
+                ExternalContact(
+                    SearchResultState.Success(result.value.result.map { it.toContact() })
                 )
             }
         }

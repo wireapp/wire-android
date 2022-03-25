@@ -4,32 +4,21 @@ import com.wire.android.ui.home.newconversation.contacts.Contact
 
 data class SearchPeopleState(
     val searchQuery: String = "",
-    val localContactSearchResult: ContactSearchResult = ContactSearchResult.LocalContact(searchResultState = SearchResultState.Initial),
-    val publicContactsSearchResult: ContactSearchResult = ContactSearchResult.PublicContact(searchResultState = SearchResultState.Initial),
-    val federatedContactSearchResult: ContactSearchResult = ContactSearchResult.FederatedContact(searchResultState = SearchResultState.Initial)
+    val noneSearchSucceed : Boolean = false,
+    val localContactSearchResult: ContactSearchResult = ContactSearchResult.InternalContact(searchResultState = SearchResultState.Initial),
+    val publicContactsSearchResult: ContactSearchResult = ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial),
+    val federatedContactSearchResult: ContactSearchResult = ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
 )
 
-enum class SearchSource {
-    Internal, External
-}
-
-sealed class ContactSearchResult(val searchResultState: SearchResultState, val searchSource: SearchSource) {
-    class LocalContact(searchResultState: SearchResultState) :
+sealed class ContactSearchResult(val searchResultState: SearchResultState) {
+    class InternalContact(searchResultState: SearchResultState) :
         ContactSearchResult(
             searchResultState = searchResultState,
-            searchSource = SearchSource.Internal
         )
 
-    class PublicContact(searchResultState: SearchResultState) :
+    class ExternalContact(searchResultState: SearchResultState) :
         ContactSearchResult(
-            searchResultState = searchResultState,
-            searchSource = SearchSource.External
-        )
-
-    class FederatedContact(searchResultState: SearchResultState) :
-        ContactSearchResult(
-            searchResultState = searchResultState,
-            searchSource = SearchSource.External
+            searchResultState = searchResultState
         )
 }
 

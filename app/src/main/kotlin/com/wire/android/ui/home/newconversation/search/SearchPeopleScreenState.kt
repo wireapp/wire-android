@@ -4,10 +4,12 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.wire.android.ui.home.newconversation.contacts.Contact
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -29,6 +31,8 @@ class SearchPeopleScreenState(
     val lazyListState: LazyListState,
 ) {
 
+    val newGroupContacts = mutableStateListOf<Contact>()
+
     var contactsAllResultsCollapsed: Boolean by mutableStateOf(false)
 
     var publicResultsCollapsed: Boolean by mutableStateOf(false)
@@ -46,4 +50,9 @@ class SearchPeopleScreenState(
     fun toggleShowFederatedBackendResult() {
         federatedBackendResultsCollapsed = !federatedBackendResultsCollapsed
     }
+
+    fun addContactToGroup(contact: Contact) {
+        newGroupContacts.add(contact)
+    }
+
 }

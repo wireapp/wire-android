@@ -16,14 +16,15 @@ import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 
 @Composable
-fun ContactSearchResultItem(
+fun InternalContactSearchResultItem(
     //TODO : this will need refactor we are not using avatarUrl
     avatarUrl: String = "",
     userStatus: UserStatus,
     name: String,
     label: String,
     searchQuery: String,
-    searchSource: SearchSource,
+    onAddToGroup: () -> Unit,
+    isAddedToGroup: Boolean,
     onRowItemClicked: () -> Unit,
     onRowItemLongClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -31,9 +32,11 @@ fun ContactSearchResultItem(
     RowItemTemplate(
         leadingIcon = {
             Row {
-                if (searchSource == SearchSource.Internal) {
-                    Checkbox(checked = false, onCheckedChange = {})
-                }
+                Checkbox(
+                    checked = isAddedToGroup,
+                    onCheckedChange = { onAddToGroup() }
+                )
+
                 UserProfileAvatar(
                     status = userStatus
                 )
@@ -52,17 +55,54 @@ fun ContactSearchResultItem(
             )
         },
         actions = {
-            if (searchSource == SearchSource.Internal) {
-                Box(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(end = 8.dp)
-                ) {
-                    ArrowRightIcon(Modifier.align(Alignment.TopEnd))
-                }
-            } else {
-                AddContactButton({ })
+            Box(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(end = 8.dp)
+            ) {
+                ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }
+        },
+        onRowItemClicked = onRowItemClicked,
+        onRowItemLongClicked = onRowItemLongClicked,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun ExternalContactSearchResultItem(
+    //TODO : this will need refactor we are not using avatarUrl
+    avatarUrl: String = "",
+    userStatus: UserStatus,
+    name: String,
+    label: String,
+    searchQuery: String,
+    onRowItemClicked: () -> Unit,
+    onRowItemLongClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    RowItemTemplate(
+        leadingIcon = {
+            Row {
+                UserProfileAvatar(
+                    status = userStatus
+                )
+            }
+        },
+        title = {
+            HighLightName(
+                name = name,
+                searchQuery = searchQuery
+            )
+        },
+        subTitle = {
+            HighLightSubTitle(
+                subTitle = label,
+                searchQuery = searchQuery
+            )
+        },
+        actions = {
+            AddContactButton({ })
         },
         onRowItemClicked = onRowItemClicked,
         onRowItemLongClicked = onRowItemLongClicked,

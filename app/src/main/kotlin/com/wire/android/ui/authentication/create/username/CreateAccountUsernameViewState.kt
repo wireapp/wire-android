@@ -11,12 +11,13 @@ data class CreateAccountUsernameViewState(
 ) {
     sealed class UsernameError {
         object None : UsernameError()
-        sealed class TextFieldError: UsernameError() {
+        sealed class TextFieldError : UsernameError() {
             object UsernameTakenError : TextFieldError()
             object UsernameInvalidError : TextFieldError()
         }
-        sealed class DialogError: UsernameError() {
-            data class GenericError(val coreFailure: CoreFailure): DialogError()
+
+        sealed class DialogError : UsernameError() {
+            data class GenericError(val coreFailure: CoreFailure) : DialogError()
         }
     }
 }

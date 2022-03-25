@@ -68,7 +68,7 @@ private fun RemoveDeviceContent(
     onErrorDialogDismiss: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
-    Scaffold(topBar = { RemoveDeviceTopBar(elevation = lazyListState.appBarElevation())}) {
+    Scaffold(topBar = { RemoveDeviceTopBar(elevation = lazyListState.appBarElevation()) }) {
         when (state) {
             is RemoveDeviceState.Success ->
                 RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
@@ -171,7 +171,9 @@ private fun RemoveDeviceDialog(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                modifier = Modifier.focusRequester(focusRequester).padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
             )
             SideEffect {
                 if (state.keyboardVisible) {

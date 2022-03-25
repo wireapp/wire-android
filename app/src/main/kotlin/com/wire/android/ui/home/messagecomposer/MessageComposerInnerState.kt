@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.getMimeType
@@ -84,6 +85,7 @@ class AttachmentInnerState(val context: Context) {
                 )
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
+            appLogger.e("There was an error while obtaining the file from disk", e)
             AttachmentState.Error
         }
     }

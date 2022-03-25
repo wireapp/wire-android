@@ -14,6 +14,7 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
+    id(ScriptPlugins.spotless)
 }
 
 repositories {
@@ -56,6 +57,10 @@ android {
     //configurations.implementation.configure {
     //    exclude(module = "protobuf-java")
     //}
+
+    packagingOptions {
+        resources.pickFirsts.add("google/protobuf/*.proto")
+    }
 }
 
 kapt {

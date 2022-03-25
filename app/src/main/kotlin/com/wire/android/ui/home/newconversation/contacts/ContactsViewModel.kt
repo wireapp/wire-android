@@ -12,6 +12,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ContactsViewModel @Inject constructor(private val navigationManager: NavigationManager) : ViewModel() {
 
+    @Suppress("MagicNumber")
     val contactsState by mutableStateOf(
         ContactsState(
             contacts = buildList {

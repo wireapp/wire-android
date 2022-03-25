@@ -35,6 +35,7 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.appBarElevation
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
@@ -42,11 +43,12 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel) {
+fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverConfig: ServerConfig) {
     DetailsContent(
         state = viewModel.detailsState,
         onFirstNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.FirstName) },
@@ -55,7 +57,8 @@ fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel) {
         onConfirmPasswordChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.ConfirmPassword) },
         onTeamNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.TeamName) },
         onBackPressed = viewModel::goBackToPreviousStep,
-        onContinuePressed = viewModel::onDetailsContinue
+        onContinuePressed = { viewModel.onDetailsContinue(serverConfig) },
+        onErrorDismiss = viewModel::onDetailsErrorDismiss,
     )
 }
 
@@ -69,7 +72,8 @@ private fun DetailsContent(
     onConfirmPasswordChange: (TextFieldValue) -> Unit,
     onTeamNameChange: (TextFieldValue) -> Unit,
     onBackPressed: () -> Unit,
-    onContinuePressed: () -> Unit
+    onContinuePressed: () -> Unit,
+    onErrorDismiss: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -114,6 +118,8 @@ private fun DetailsContent(
             )
         }
     }
+    if (state.error is CreateAccountDetailsViewState.DetailsError.DialogError.GenericError)
+        CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -211,13 +217,12 @@ private fun PasswordTextFields(
                 vertical = MaterialTheme.wireDimensions.spacing16x
             )
             .bringIntoViewOnFocus(coroutineScope),
-        state = when (state.error) {
-            CreateAccountDetailsViewState.DetailsError.None -> WireTextFieldState.Default
-            CreateAccountDetailsViewState.DetailsError.PasswordsNotMatchingError ->
+        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError) when (state.error) {
+            CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError ->
                 WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
-            CreateAccountDetailsViewState.DetailsError.InvalidPasswordError ->
+            CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError ->
                 WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
-        }
+        } else WireTextFieldState.Default
     )
 }
 
@@ -233,5 +238,5 @@ private fun Modifier.bringIntoViewOnFocus(coroutineScope: CoroutineScope): Modif
 @Composable
 @Preview
 private fun CreateAccountDetailsScreenPreview() {
-    DetailsContent(CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam), {}, {}, {}, {}, {}, {}, {})
+    DetailsContent(CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam), {}, {}, {}, {}, {}, {}, {}, {})
 }

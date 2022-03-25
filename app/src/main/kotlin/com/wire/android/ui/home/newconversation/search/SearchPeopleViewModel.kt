@@ -17,6 +17,7 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
         SearchPeopleState()
     )
 
+    @Suppress("MagicNumber")
     fun search(searchQuery: String) {
         state = state.copy(
             searchQuery = searchQuery,
@@ -76,6 +77,4 @@ class SearchPeopleViewModel @Inject constructor() : ViewModel() {
             }
         )
     }
-
 }
-

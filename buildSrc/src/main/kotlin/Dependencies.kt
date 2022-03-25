@@ -38,6 +38,7 @@ object ScriptPlugins {
     const val quality = "scripts.quality"
     const val compilation = "scripts.compilation"
     const val testing = "scripts.testing"
+    const val spotless = "scripts.spotless"
 }
 
 object Repositories {

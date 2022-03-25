@@ -2,6 +2,7 @@ package com.wire.android.ui.authentication.create.details
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.kalium.logic.NetworkFailure
 
 data class CreateAccountDetailsViewState(
     val type: CreateAccountFlowType,
@@ -20,7 +21,13 @@ data class CreateAccountDetailsViewState(
 
     sealed class DetailsError {
         object None : DetailsError()
-        object InvalidPasswordError: DetailsError()
-        object PasswordsNotMatchingError: DetailsError()
+        sealed class TextFieldError : DetailsError() {
+            object InvalidPasswordError : TextFieldError()
+            object PasswordsNotMatchingError : TextFieldError()
+        }
+
+        sealed class DialogError : DetailsError() {
+            data class GenericError(val coreFailure: NetworkFailure) : DialogError()
+        }
     }
 }

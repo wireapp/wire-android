@@ -5,6 +5,7 @@ import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -69,7 +70,43 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().login
+    fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().login
+
+    @ViewModelScoped
+    @Provides
+    fun validateEmailUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().validateEmailUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun validatePasswordUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().validatePasswordUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun validateUserHandleUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().validateUserHandleUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun registerAccountUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().register.register
+
+    @ViewModelScoped
+    @Provides
+    fun requestCodeUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().register.requestActivationCode
+
+    @ViewModelScoped
+    @Provides
+    fun verifyCodeUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().register.activate
+
+    @ViewModelScoped
+    @Provides
+    fun setUserHandleUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
+        coreLogic.getSessionScope(session).users.setUserHandle
 
     @ViewModelScoped
     @Provides
@@ -145,5 +182,10 @@ class UseCaseModule {
         @CurrentSession currentSession: AuthSession
     ): SendTextMessageUseCase =
         coreLogic.getSessionScope(currentSession).messages.sendTextMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideLogoutUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession currentSession: AuthSession): LogoutUseCase =
+        coreLogic.getSessionScope(currentSession).logout
 
 }

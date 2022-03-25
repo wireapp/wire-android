@@ -7,27 +7,29 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    //TODO: here we can extract the ID provided to the screen and fetch the data for the conversation
+    // TODO: here we can extract the ID provided to the screen and fetch the data for the conversation
     private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
@@ -45,7 +47,7 @@ class ConversationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getMessages(conversationId!!) //TODO what if null???
+            getMessages(conversationId!!) // TODO what if null???
                 .collect { dbMessages ->
                     conversationViewState = conversationViewState.copy(messages = dbMessages.toUIMessages())
                 }
@@ -72,9 +74,18 @@ class ConversationViewModel @Inject constructor(
     fun sendMessage() {
         viewModelScope.launch {
             val messageText = conversationViewState.messageText
-            //TODO what if conversationId is null???
+            // TODO what if conversationId is null???
             sendTextMessage(conversationId!!, messageText.text)
             conversationViewState = conversationViewState.copy(messageText = messageText.copy(""))
+        }
+    }
+
+    fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
+        viewModelScope.launch {
+            attachmentBundle?.let {
+                // TODO send attachment message for conversationId via use case
+                appLogger.d("> Attachment for conversationId: $conversationId is: $attachmentBundle")
+            }
         }
     }
 

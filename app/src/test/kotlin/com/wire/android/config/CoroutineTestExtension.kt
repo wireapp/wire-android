@@ -15,6 +15,11 @@ import org.junit.jupiter.api.extension.ExtensionContext
  * @JvmField
  * @RegisterExtension
  * val coroutinesTestExtension = CoroutinesTestExtension()
+ *
+ * or:
+ *
+ * Annotating the class with
+ * @ExtendWith(CoroutineTestExtension::class)
  */
 @ExperimentalCoroutinesApi
 class CoroutineTestExtension(

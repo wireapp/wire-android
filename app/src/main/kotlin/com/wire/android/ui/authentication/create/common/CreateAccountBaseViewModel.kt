@@ -26,13 +26,13 @@ import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.session.SaveSessionUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
+import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
+import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -52,8 +52,7 @@ abstract class CreateAccountBaseViewModel(
     CreateAccountEmailViewModel,
     CreateAccountDetailsViewModel,
     CreateAccountCodeViewModel,
-    CreateAccountSummaryViewModel
-{
+    CreateAccountSummaryViewModel {
     override var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(type))
     override var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(type))
     override var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(type))
@@ -81,9 +80,11 @@ abstract class CreateAccountBaseViewModel(
         )
         codeState = codeState.copy(email = newText.text)
     }
+
     final override fun onEmailErrorDismiss() {
         emailState = emailState.copy(error = CreateAccountEmailViewState.EmailError.None)
     }
+
     final override fun onEmailContinue(serverConfig: ServerConfig) {
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
@@ -96,15 +97,16 @@ abstract class CreateAccountBaseViewModel(
                 termsDialogVisible = !emailState.termsAccepted && emailError is CreateAccountEmailViewState.EmailError.None,
                 error = emailError
             )
-            if(emailState.termsAccepted) onTermsAccept(serverConfig)
+            if (emailState.termsAccepted) onTermsAccept(serverConfig)
         }
     }
+
     final override fun onTermsAccept(serverConfig: ServerConfig) {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
             val emailError = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig).toEmailError()
             emailState = emailState.copy(loading = false, continueEnabled = true, error = emailError)
-            if(emailError is CreateAccountEmailViewState.EmailError.None) onTermsSuccess()
+            if (emailError is CreateAccountEmailViewState.EmailError.None) onTermsSuccess()
         }
     }
 
@@ -139,9 +141,11 @@ abstract class CreateAccountBaseViewModel(
             )
         }
     }
+
     final override fun onDetailsErrorDismiss() {
         detailsState = detailsState.copy(error = CreateAccountDetailsViewState.DetailsError.None)
     }
+
     final override fun onDetailsContinue(serverConfig: ServerConfig) {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
@@ -160,16 +164,19 @@ abstract class CreateAccountBaseViewModel(
             if (detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onDetailsSuccess()
         }
     }
+
     abstract fun onDetailsSuccess()
 
     // Code
     final override fun onCodeChange(newValue: CodeFieldValue, serverConfig: ServerConfig) {
         codeState = codeState.copy(code = newValue, error = CreateAccountCodeViewState.CodeError.None)
-        if(newValue.isFullyFilled) onCodeContinue(serverConfig)
+        if (newValue.isFullyFilled) onCodeContinue(serverConfig)
     }
+
     final override fun onCodeErrorDismiss() {
         codeState = codeState.copy(error = CreateAccountCodeViewState.CodeError.None)
     }
+
     final override fun resendCode(serverConfig: ServerConfig) {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
@@ -177,10 +184,11 @@ abstract class CreateAccountBaseViewModel(
             codeState = codeState.copy(loading = false, error = codeError)
         }
     }
+
     private fun onCodeContinue(serverConfig: ServerConfig) {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val registerParam = when(type) {
+            val registerParam = when (type) {
                 CreateAccountFlowType.CreatePersonalAccount ->
                     RegisterParam.PrivateAccount(
                         firstName = detailsState.firstName.text.trim(),
@@ -204,9 +212,9 @@ abstract class CreateAccountBaseViewModel(
             val codeError = registerAccountUseCase(
                 param = registerParam,
                 serverConfig = serverConfig,
-                shouldStoreSession = false
-            ).let { registerResult ->
-                    if(registerResult is RegisterResult.Success)
+                shouldStoreSession = false)
+                .let { registerResult ->
+                    if (registerResult is RegisterResult.Success)
                         registerResult.value.second.let { userSession ->
                             clientScopeProviderFactory.create(userSession).clientScope.register(
                                 password = registerParam.password,
@@ -223,9 +231,10 @@ abstract class CreateAccountBaseViewModel(
                 }
             val isSuccess = codeError is CreateAccountCodeViewState.CodeError.None
             codeState = codeState.copy(loading = false, error = codeError)
-            if(isSuccess) onCodeSuccess()
+            if (isSuccess) onCodeSuccess()
         }
     }
+
     abstract fun onCodeSuccess()
     final override fun onTooManyDevicesError() {
         codeState = codeState.copy(
@@ -238,7 +247,10 @@ abstract class CreateAccountBaseViewModel(
     }
 
     // Summary
-    final override fun onSummaryContinue() { onSummarySuccess() }
+    final override fun onSummaryContinue() {
+        onSummarySuccess()
+    }
+
     abstract fun onSummarySuccess()
 }
 

@@ -11,8 +11,8 @@ import com.wire.android.ui.authentication.create.common.CreateAccountBaseViewMod
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
-import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
+import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import com.wire.kalium.logic.feature.register.VerifyActivationCodeUseCase
 import com.wire.kalium.logic.feature.session.SaveSessionUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase

@@ -21,12 +21,13 @@ data class CreateAccountDetailsViewState(
 
     sealed class DetailsError {
         object None : DetailsError()
-        sealed class TextFieldError: DetailsError() {
-            object InvalidPasswordError: TextFieldError()
-            object PasswordsNotMatchingError: TextFieldError()
+        sealed class TextFieldError : DetailsError() {
+            object InvalidPasswordError : TextFieldError()
+            object PasswordsNotMatchingError : TextFieldError()
         }
-        sealed class DialogError: DetailsError() {
-            data class GenericError(val coreFailure: NetworkFailure): DialogError()
+
+        sealed class DialogError : DetailsError() {
+            data class GenericError(val coreFailure: NetworkFailure) : DialogError()
         }
     }
 }

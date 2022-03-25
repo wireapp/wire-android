@@ -119,7 +119,7 @@ private fun UsernameTextField(
             value = state.username,
             onValueChange = {
                 val validText = it.text.replace(forbiddenCharactersRegex, "").take(maxLength)
-                if(it.text != validText) animate()
+                if (it.text != validText) animate()
                 onUsernameChange(it.copy(text = validText))
             },
             placeholderText = stringResource(R.string.create_account_username_placeholder),
@@ -134,7 +134,7 @@ private fun UsernameTextField(
                     )
                 )
             },
-            state = if(state.error is CreateAccountUsernameViewState.UsernameError.TextFieldError) when(state.error) {
+            state = if (state.error is CreateAccountUsernameViewState.UsernameError.TextFieldError) when(state.error) {
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameTakenError ->
                     WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error))
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError ->
@@ -153,4 +153,3 @@ private fun UsernameTextField(
 private fun CreateAccountUsernameScreenPreview() {
     UsernameContent(CreateAccountUsernameViewState(), {}, {}, {}, Regex(""), 255)
 }
-

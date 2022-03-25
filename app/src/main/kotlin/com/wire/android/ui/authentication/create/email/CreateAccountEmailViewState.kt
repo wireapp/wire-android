@@ -15,14 +15,15 @@ data class CreateAccountEmailViewState(
 ) {
     sealed class EmailError {
         object None : EmailError()
-        sealed class TextFieldError: EmailError() {
-            object InvalidEmailError: TextFieldError()
-            object BlacklistedEmailError: TextFieldError()
-            object AlreadyInUseError: TextFieldError()
-            object DomainBlockedError: TextFieldError()
+        sealed class TextFieldError : EmailError() {
+            object InvalidEmailError : TextFieldError()
+            object BlacklistedEmailError : TextFieldError()
+            object AlreadyInUseError : TextFieldError()
+            object DomainBlockedError : TextFieldError()
         }
-        sealed class DialogError: EmailError() {
-            data class GenericError(val coreFailure: CoreFailure): DialogError()
+
+        sealed class DialogError : EmailError() {
+            data class GenericError(val coreFailure: CoreFailure) : DialogError()
         }
     }
 

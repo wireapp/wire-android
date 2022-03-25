@@ -1,21 +1,33 @@
 package com.wire.android.ui.home.messagecomposer
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import com.wire.android.appLogger
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
+import com.wire.android.util.getMimeType
+import com.wire.android.util.orDefault
+import com.wire.android.util.toByteArray
+import java.io.IOException
 
 @Composable
 fun rememberMessageComposerInnerState(
     defaultMessageText: String = "",
     defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled
 ): MessageComposerInnerState {
-
+    val context = LocalContext.current
+    val defaultAttachmentInnerState = AttachmentInnerState(context)
     return remember {
         MessageComposerInnerState(
             defaultMessageText,
-            defaultMessageComposeInputState
+            defaultMessageComposeInputState,
+            defaultAttachmentInnerState
         )
     }
 }
@@ -23,6 +35,7 @@ fun rememberMessageComposerInnerState(
 class MessageComposerInnerState(
     defaultMessageText: String,
     defaultMessageComposeInputState: MessageComposeInputState,
+    val attachmentInnerState: AttachmentInnerState
 ) {
 
     var messageText by mutableStateOf(defaultMessageText)
@@ -60,6 +73,34 @@ class MessageComposerInnerState(
     }
 }
 
+class AttachmentInnerState(val context: Context) {
+    var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
+
+    fun pickAttachment(attachmentUri: Uri) {
+        attachmentState = try {
+            val attachment =
+                AttachmentBundle(
+                    attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE),
+                    attachmentUri.toByteArray(context)
+                )
+            AttachmentState.Picked(attachment)
+        } catch (e: IOException) {
+            appLogger.e("There was an error while obtaining the file from disk", e)
+            AttachmentState.Error
+        }
+    }
+
+    fun resetAttachmentState() {
+        attachmentState = AttachmentState.NotPicked
+    }
+}
+
 enum class MessageComposeInputState {
     Active, Enabled, FullScreen
+}
+
+sealed class AttachmentState {
+    object NotPicked : AttachmentState()
+    class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
+    object Error : AttachmentState()
 }

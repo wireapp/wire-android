@@ -59,7 +59,7 @@ class AvatarPickerViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 val data = imgUri.toByteArray(context)
                 val mimeType = imgUri.getMimeType(context) ?: DEFAULT_IMAGE_MIME_TYPE
-                val result = uploadUserAvatar(mimeType = mimeType, imageData = data)
+                val result = uploadUserAvatar(imageData = data)
                 if (result is UploadAvatarResult.Success) {
                     navigateBack()
                 } else {

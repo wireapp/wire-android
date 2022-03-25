@@ -55,7 +55,7 @@ private fun ConversationScreen(
             sheetState = conversationScreenState.modalBottomSheetState,
             menuItems = EditMessageMenuItems(
                 editMessageSource = conversationScreenState.editMessageSource,
-                onCopyMessage = { conversationScreenState.copyMessage() }
+                onCopyMessage = conversationScreenState::copyMessage
             ),
             content = {
                 Scaffold(

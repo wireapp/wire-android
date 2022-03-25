@@ -9,11 +9,14 @@ import com.wire.android.ui.home.newconversation.contacts.Contact
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult.PublicContact
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.publicuser.model.PublicUser
-import com.wire.kalium.logic.feature.user.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.user.SearchPublicUserUseCase
+import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -21,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchPeopleViewModel @Inject constructor(
     private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchPublicUserUseCase
+    private val searchPublicUsers: SearchUserDirectoryUseCase
 ) : ViewModel() {
     private companion object {
         const val HARDCODED_TEST_DOMAIN = "staging.zinfra.io"
@@ -40,22 +43,22 @@ class SearchPeopleViewModel @Inject constructor(
 
                 launch { searchPublic(searchTerm) }
                 launch {
-               /*     //TODO: this is going to be refactored on the Kalium side so that we do not use Flow
+                    //TODO: this is going to be refactored on the Kalium side so that we do not use Flow
                     searchKnownUsers(searchTerm).onStart {
                         state = state.copy(
-                            localContactSearchResult = LocalContact(SearchResultState.InProgress)
+                            localContactSearchResult = ContactSearchResult.LocalContact(SearchResultState.InProgress)
                         )
                     }.catch {
                         state = state.copy(
-                            localContactSearchResult = LocalContact(SearchResultState.Failure())
+                            localContactSearchResult = ContactSearchResult.LocalContact(SearchResultState.Failure())
                         )
                     }.flowOn(Dispatchers.IO).collect {
-                        state.copy(
-                            localContactSearchResult = LocalContact(
-                                SearchResultState.Success(result.value.publicUsers.map { it.toContact() })
+                        state = state.copy(
+                            localContactSearchResult = ContactSearchResult.LocalContact(
+                                SearchResultState.Success(it.result.map { publicUser -> publicUser.toContact() })
                             )
                         )
-                    }*/
+                    }
                 }
             }
         }
@@ -82,7 +85,7 @@ class SearchPeopleViewModel @Inject constructor(
             is Either.Right -> {
                 state.copy(
                     publicContactsSearchResult = PublicContact(
-                        SearchResultState.Success(result.value.publicUsers.map { it.toContact() })
+                        SearchResultState.Success(result.value.result.map { it.toContact() })
                     )
                 )
             }
@@ -98,6 +101,6 @@ class SearchPeopleViewModel @Inject constructor(
 fun PublicUser.toContact() =
     Contact(
         id = 1,
-        name = name,
+        name = name ?: "",
         label = handle ?: "",
     )

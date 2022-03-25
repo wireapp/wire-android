@@ -199,7 +199,7 @@ abstract class CreateAccountBaseViewModel(
             val codeError = registerAccountUseCase(registerParam, serverConfig)
                 .let {
                     if (it is RegisterResult.Success) // TODO what if user creates an account but doesn't register a new device?
-                        clientScopeProviderFactory.create(it.value.second).clientScope.register(
+                        clientScopeProviderFactory.create(it.value.second.userId).clientScope.register(
                             password = registerParam.password,
                             capabilities = null
                         ).toCodeError()

@@ -1,4 +1,4 @@
-name: "Run Functional Tests"
+name: "Run UI Tests"
 
 on:
   pull_request:

@@ -19,6 +19,9 @@ class SearchPeopleViewModel @Inject constructor(
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchPublicUserUseCase
 ) : ViewModel() {
+    private companion object {
+        const val HARDCODED_TEST_DOMAIN = "staging.zinfra.io"
+    }
 
     var state: SearchPeopleState by mutableStateOf(
         SearchPeopleState()
@@ -40,7 +43,7 @@ class SearchPeopleViewModel @Inject constructor(
 
                     when (val result = searchPublicUsers(
                         searchQuery = searchTerm,
-                        domain = "staging.zinfra.io"
+                        domain = HARDCODED_TEST_DOMAIN
                     )) {
                         is Either.Left -> {
                             state = state.copy(

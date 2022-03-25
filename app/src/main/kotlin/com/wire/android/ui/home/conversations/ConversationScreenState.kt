@@ -64,7 +64,7 @@ class ConversationScreenState(
     }
 
     fun copyMessage() {
-        editMessage!!.messageContent.let { messageContent ->
+        editMessage?.messageContent.let { messageContent ->
             if (messageContent is MessageContent.TextMessage) {
                 clipboardManager.setText(AnnotatedString(messageContent.messageBody.message))
                 coroutineScope.launch {

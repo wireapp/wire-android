@@ -11,6 +11,9 @@ import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 
 /**
+ * This extension provides a way to set (before and after each test) the coroutine dispatcher for testing
+ * In our case [UnconfinedTestDispatcher] so it's guaranteed that coroutines are executed immediately
+ *
  * Add this JUnit 5 extension to your test class using
  * @JvmField
  * @RegisterExtension

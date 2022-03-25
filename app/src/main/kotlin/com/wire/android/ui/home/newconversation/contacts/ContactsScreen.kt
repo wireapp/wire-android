@@ -4,17 +4,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Checkbox
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,8 +28,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.button.IconAlignment
+import com.wire.android.ui.common.button.WireTertiaryButton
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.home.conversationslist.folderWithElements
@@ -51,46 +61,52 @@ fun ContactsScreenContent(
         onScrollPositionChanged(it)
     }
 
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .wrapContentSize()
-    ) {
-        LazyColumn(
-            state = lazyListState,
-            modifier = Modifier.weight(1f),
+    val contactsScreenState = rememberContactScreenState()
+
+    with(contactsScreenState) {
+        Column(
+            Modifier
+                .fillMaxSize()
         ) {
-            folderWithElements(
-                header = { stringResource(R.string.label_contacts) },
-                items = state.contacts
-            ) { contact ->
-                ContactItem(
-                    contact.name,
-                    contact.userStatus,
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier.weight(1f),
+            ) {
+                folderWithElements(
+                    header = { stringResource(R.string.label_contacts) },
+                    items = state.contacts
+                ) { contact ->
+                    ContactItem(
+                        name = contact.name,
+                        userStatus = contact.userStatus,
+                        belongsToGroup = newGroupContacts.contains(contact),
+                        addToGroup = { addContactToGroup(contact) }
+                    )
+                }
+            }
+            Divider()
+            Row(
+                modifier = Modifier
+                    .height(82.dp)
+                    .fillMaxWidth()
+                    .padding(all = MaterialTheme.wireDimensions.spacing16x)
+            ) {
+                WirePrimaryButton(
+                    text = "${stringResource(R.string.label_new_group)} (${newGroupContacts.size})",
+                    onClick = {
+                        //TODO:open new group screen
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.width(dimensions().spacing8x))
+                WireTertiaryButton(
+                    colors = wireSecondaryButtonColors(),
+                    onClick = { },
+                    leadingIcon = Icons.Filled.Search.Icon(),
+                    leadingIconAlignment = IconAlignment.Center,
+                    fillMaxWidth = false
                 )
             }
-        }
-        Divider()
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(all = MaterialTheme.wireDimensions.spacing16x)
-        ) {
-            WirePrimaryButton(
-                text = stringResource(R.string.label_new_group),
-                onClick = {
-                    //TODO:open new group screen
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(16.dp))
-            WirePrimaryButton(
-                text = stringResource(R.string.label_new_guestroom),
-                onClick = {
-                    //TODO:open new guestroom
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
         }
     }
 }
@@ -99,11 +115,13 @@ fun ContactsScreenContent(
 private fun ContactItem(
     name: String,
     userStatus: UserStatus,
+    belongsToGroup: Boolean,
+    addToGroup: () -> Unit
 ) {
     RowItemTemplate(
         leadingIcon = {
             Row {
-                Checkbox(checked = false, onCheckedChange = {})
+                Checkbox(checked = belongsToGroup, onCheckedChange = { addToGroup() })
                 UserProfileAvatar(
                     status = userStatus
                 )
@@ -127,8 +145,24 @@ private fun ContactItem(
             }
 
         },
-        onRowItemClicked = { } ,
+        onRowItemClicked = { },
         onRowItemLongClicked = { }
     )
 }
 
+class ContactsScreenState {
+
+    val newGroupContacts = mutableStateListOf<Contact>()
+
+    fun addContactToGroup(contact: Contact) {
+        newGroupContacts.add(contact)
+    }
+
+}
+
+@Composable
+fun rememberContactScreenState(): ContactsScreenState {
+    return remember {
+        ContactsScreenState()
+    }
+}

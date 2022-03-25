@@ -55,16 +55,6 @@ jobs:
         with:
           api-level: {{ matrix.api-level }}
           script: ./gradlew connectedCheck
-
-        # TODO: verify route for android tests
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v1.25
-        if: always()
-        with:
-          files: |
-            **/build/test-results/testDebugUnitTest/**/*.xml
-            **/build/test-results/**/*.xml
-            **/build/outputs/androidTest-results/**/*.xml
             
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.

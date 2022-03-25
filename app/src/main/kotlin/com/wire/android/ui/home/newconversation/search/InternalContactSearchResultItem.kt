@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.Checkbox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,6 +13,7 @@ import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.WiredCheckbox
 
 @Composable
 fun InternalContactSearchResultItem(
@@ -33,7 +33,7 @@ fun InternalContactSearchResultItem(
     RowItemTemplate(
         leadingIcon = {
             Row {
-                Checkbox(
+                WiredCheckbox(
                     checked = isAddedToGroup,
                     onCheckedChange = { if (it) addToGroup() else removeFromGroup() }
                 )

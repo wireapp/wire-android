@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
+import com.wire.android.ui.common.button.wireCheckBoxColors
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -51,4 +52,18 @@ fun WireLabelledCheckbox(
             modifier = Modifier.weight(1f)
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WiredCheckbox(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit),
+    modifier: Modifier = Modifier
+) {
+    Checkbox(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        colors = wireCheckBoxColors()
+    )
 }

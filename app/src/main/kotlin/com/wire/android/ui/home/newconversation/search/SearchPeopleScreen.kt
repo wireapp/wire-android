@@ -112,7 +112,6 @@ private fun SearchResult(
         Divider()
         GroupButton(groupSize = searchPeopleScreenState.newGroupContacts.size)
     }
-
 }
 
 private fun LazyListScope.internalSearchResults(

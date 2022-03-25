@@ -216,7 +216,7 @@ abstract class CreateAccountBaseViewModel(
                 .let { registerResult ->
                     if (registerResult is RegisterResult.Success)
                         registerResult.value.second.let { userSession ->
-                            clientScopeProviderFactory.create(userSession).clientScope.register(
+                            clientScopeProviderFactory.create(userSession.userId).clientScope.register(
                                 password = registerParam.password,
                                 capabilities = null
                             ).let { registerClientResult ->

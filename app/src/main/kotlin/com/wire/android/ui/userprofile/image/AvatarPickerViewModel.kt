@@ -11,8 +11,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.util.DEFAULT_IMAGE_MIME_TYPE
-import com.wire.android.util.getMimeType
 import com.wire.android.util.toByteArray
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase

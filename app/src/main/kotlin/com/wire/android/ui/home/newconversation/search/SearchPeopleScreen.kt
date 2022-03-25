@@ -122,6 +122,8 @@ private fun LazyListScope.searchResults(
         is SearchResultState.Failure -> {
             failureItem(searchResult.failureMessage)
         }
+        // We do not display anything on Initial state
+        SearchResultState.Initial -> {  }
     }
 }
 

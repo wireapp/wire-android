@@ -4,9 +4,9 @@ import com.wire.android.ui.home.newconversation.contacts.Contact
 
 data class SearchPeopleState(
     val searchQuery: String = "",
-    val localContactSearchResult: ContactSearchResult = ContactSearchResult.LocalContact(searchResultState = SearchResultState.InProgress),
-    val publicContactsSearchResult: ContactSearchResult = ContactSearchResult.PublicContact(searchResultState = SearchResultState.InProgress),
-    val federatedContactSearchResult: ContactSearchResult = ContactSearchResult.FederatedContact(searchResultState = SearchResultState.InProgress)
+    val localContactSearchResult: ContactSearchResult = ContactSearchResult.LocalContact(searchResultState = SearchResultState.Initial),
+    val publicContactsSearchResult: ContactSearchResult = ContactSearchResult.PublicContact(searchResultState = SearchResultState.Initial),
+    val federatedContactSearchResult: ContactSearchResult = ContactSearchResult.FederatedContact(searchResultState = SearchResultState.Initial)
 )
 
 enum class SearchSource {
@@ -34,6 +34,7 @@ sealed class ContactSearchResult(val searchResultState: SearchResultState, val s
 }
 
 sealed class SearchResultState {
+    object Initial : SearchResultState()
     object InProgress : SearchResultState()
     data class Failure(val failureMessage: String? = null) : SearchResultState()
     data class Success(val result: List<Contact>) : SearchResultState()

@@ -1,13 +1,13 @@
 package com.wire.android.ui.authentication.create.code
 
 import com.wire.android.ui.common.textfield.CodeFieldValue
-import kotlinx.coroutines.flow.MutableSharedFlow
+import com.wire.kalium.logic.configuration.ServerConfig
 
 interface CreateAccountCodeViewModel {
     val codeState: CreateAccountCodeViewState
-    val hideKeyboard: MutableSharedFlow<Unit>
-    fun onCodeChange(newValue: CodeFieldValue)
-    fun resendCode()
-    fun onCodeContinue()
+    fun onCodeChange(newValue: CodeFieldValue, serverConfig: ServerConfig)
+    fun resendCode(serverConfig: ServerConfig)
     fun goBackToPreviousStep()
+    fun onCodeErrorDismiss()
+    fun onTooManyDevicesError()
 }

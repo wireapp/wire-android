@@ -64,7 +64,7 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = hiltViewModel()) {
     UserProfileContent(
         state = viewModel.userProfileState,
         onCloseClick = { viewModel.navigateBack() },
-        onLogoutClick = { viewModel.logout() },
+        onLogoutClick = { viewModel.onLogoutClick() },
         onChangeUserProfilePicture = { viewModel.onChangeProfilePictureClicked() },
         onEditClick = { viewModel.editProfile() },
         onStatusClicked = { viewModel.changeStatusClick(it) },

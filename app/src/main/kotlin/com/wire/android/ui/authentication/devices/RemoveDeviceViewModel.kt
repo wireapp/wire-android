@@ -124,12 +124,6 @@ class RemoveDeviceViewModel @Inject constructor(
             else stateSuccess
         }
 
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
-
     private suspend fun navigateToConvScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 }

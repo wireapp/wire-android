@@ -48,7 +48,6 @@ fun RemoveDeviceScreen() {
     val viewModel: RemoveDeviceViewModel = hiltViewModel()
     val state: RemoveDeviceState = viewModel.state
     RemoveDeviceContent(
-        viewModel = viewModel,
         state = state,
         onItemClicked = viewModel::onItemClicked,
         onPasswordChange = viewModel::onPasswordChange,
@@ -61,7 +60,6 @@ fun RemoveDeviceScreen() {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun RemoveDeviceContent(
-    viewModel: RemoveDeviceViewModel,
     state: RemoveDeviceState,
     onItemClicked: (Device) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
@@ -70,13 +68,7 @@ private fun RemoveDeviceContent(
     onErrorDialogDismiss: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
-    Scaffold(
-        topBar = {
-            RemoveDeviceTopBar(
-                elevation = lazyListState.appBarElevation(),
-                onBackNavigationPressed = { viewModel.navigateBack() })
-        }
-    ) {
+    Scaffold(topBar = { RemoveDeviceTopBar(elevation = lazyListState.appBarElevation()) }) {
         when (state) {
             is RemoveDeviceState.Success ->
                 RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
@@ -179,7 +171,9 @@ private fun RemoveDeviceDialog(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                modifier = Modifier.focusRequester(focusRequester).padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
             )
             SideEffect {
                 if (state.keyboardVisible) {
@@ -196,7 +190,6 @@ private fun RemoveDeviceDialog(
 @Composable
 private fun RemoveDeviceScreenPreview() {
     RemoveDeviceContent(
-        viewModel = hiltViewModel(),
         state = RemoveDeviceState.Success(List(10) { Device(name = "device") }, RemoveDeviceDialogState.Hidden),
         onItemClicked = {},
         onPasswordChange = {},

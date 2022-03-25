@@ -31,7 +31,7 @@ fun ContactSearchResultItem(
     RowItemTemplate(
         leadingIcon = {
             Row {
-                if (searchSource is SearchSource.Internal) {
+                if (searchSource == SearchSource.Internal) {
                     Checkbox(checked = false, onCheckedChange = {})
                 }
                 UserProfileAvatar(
@@ -52,7 +52,7 @@ fun ContactSearchResultItem(
             )
         },
         actions = {
-            if (searchSource is SearchSource.Internal) {
+            if (searchSource == SearchSource.Internal) {
                 Box(
                     modifier = Modifier
                         .wrapContentWidth()

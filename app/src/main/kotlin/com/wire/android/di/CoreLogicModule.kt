@@ -156,7 +156,6 @@ class UseCaseModule {
     ): SearchKnownUsersUseCase =
         coreLogic.getSessionScope(currentSession).users.searchKnownUsers
 
-
     @ViewModelScoped
     @Provides
     fun providesSearchPublicUserUseCase(

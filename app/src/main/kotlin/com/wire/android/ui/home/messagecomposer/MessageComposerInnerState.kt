@@ -14,6 +14,8 @@ import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.toByteArray
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 @Composable
@@ -76,17 +78,19 @@ class MessageComposerInnerState(
 class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
-    fun pickAttachment(attachmentUri: Uri) {
-        attachmentState = try {
-            val attachment =
-                AttachmentBundle(
-                    attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE),
-                    attachmentUri.toByteArray(context)
-                )
-            AttachmentState.Picked(attachment)
-        } catch (e: IOException) {
-            appLogger.e("There was an error while obtaining the file from disk", e)
-            AttachmentState.Error
+    suspend fun pickAttachment(attachmentUri: Uri) {
+        withContext(Dispatchers.IO) {
+            attachmentState = try {
+                val attachment =
+                    AttachmentBundle(
+                        attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE),
+                        attachmentUri.toByteArray(context)
+                    )
+                AttachmentState.Picked(attachment)
+            } catch (e: IOException) {
+                appLogger.e("There was an error while obtaining the file from disk", e)
+                AttachmentState.Error
+            }
         }
     }
 

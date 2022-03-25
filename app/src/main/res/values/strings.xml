@@ -225,5 +225,6 @@
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
     <string name="animation_label_button_rotation_degree_transistion" translatable="false">Collapse button rotation degree transition</string>
+    <string name="content_description_more_options">More options</string>
 
 </resources>

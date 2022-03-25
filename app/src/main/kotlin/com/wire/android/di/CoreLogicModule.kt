@@ -29,7 +29,7 @@ annotation class KaliumCoreLogic
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class CurrentSession
+annotation class CurrentAccount
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -55,14 +55,14 @@ class CoreLogicModule {
 @Suppress("TooManyFunctions")
 class UseCaseModule {
 
-    @CurrentSession
+    @CurrentAccount
     @ViewModelScoped
     @Provides
     // TODO: can be improved by caching the current session in kalium or changing the scope to ActivityRetainedScoped
-    fun currentSessionProvider(@KaliumCoreLogic coreLogic: CoreLogic): AuthSession {
+    fun currentSessionProvider(@KaliumCoreLogic coreLogic: CoreLogic): String {
         return runBlocking {
             return@runBlocking when (val result = coreLogic.getAuthenticationScope().session.currentSession.invoke()) {
-                is CurrentSessionResult.Success -> result.authSession
+                is CurrentSessionResult.Success -> result.authSession.userId
                 else -> {
                     throw IllegalStateException("no current session was found")
                 }
@@ -74,6 +74,11 @@ class UseCaseModule {
     @Provides
     fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getAuthenticationScope().login
+
+    @ViewModelScoped
+    @Provides
+    fun logoutUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String): LogoutUseCase =
+        coreLogic.getSessionScope(currentAccount).logout
 
     @ViewModelScoped
     @Provides
@@ -107,13 +112,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun setUserHandleUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
-        coreLogic.getSessionScope(session.userId).users.setUserHandle
+    fun setUserHandleUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String) =
+        coreLogic.getSessionScope(currentAccount).users.setUserHandle
 
     @ViewModelScoped
     @Provides
-    fun getConversationsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
-        coreLogic.getSessionScope(session.userId).conversations.getConversations
+    fun getConversationsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String) =
+        coreLogic.getSessionScope(currentAccount).conversations.getConversations
 
     @ViewModelScoped
     @Provides
@@ -127,69 +132,62 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun selfClientsUseCase(@CurrentSession currentSession: AuthSession, clientScopeProviderFactory: ClientScopeProvider.Factory) =
-        clientScopeProviderFactory.create(currentSession).clientScope.selfClients
+    fun selfClientsUseCase(@CurrentAccount currentAccount: String, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.selfClients
 
     @ViewModelScoped
     @Provides
-    fun getPublicAsset(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentSession currentSession: AuthSession
-    ): GetPublicAssetUseCase = coreLogic.getSessionScope(currentSession.userId).users.getPublicAsset
+    fun getPublicAsset(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String): GetPublicAssetUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getPublicAsset
 
     @ViewModelScoped
     @Provides
-    fun uploadUserAvatar(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentSession currentSession: AuthSession
-    ): UploadUserAvatarUseCase = coreLogic.getSessionScope(currentSession.userId).users.uploadUserAvatar
+    fun uploadUserAvatar(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String): UploadUserAvatarUseCase =
+        coreLogic.getSessionScope(currentAccount).users.uploadUserAvatar
 
     @ViewModelScoped
     @Provides
-    fun getConversationDetailsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
-        coreLogic.getSessionScope(session.userId).conversations.getConversationDetails
+    fun getConversationDetailsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String) =
+        coreLogic.getSessionScope(currentAccount).conversations.getConversationDetails
 
     @ViewModelScoped
     @Provides
-    fun getMessagesUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
-        coreLogic.getSessionScope(session.userId).messages.getRecentMessages
+    fun getMessagesUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String) =
+        coreLogic.getSessionScope(currentAccount).messages.getRecentMessages
 
     @ViewModelScoped
     @Provides
-    fun deleteClientUseCase(@CurrentSession currentSession: AuthSession, clientScopeProviderFactory: ClientScopeProvider.Factory) =
-        clientScopeProviderFactory.create(currentSession).clientScope.deleteClient
+    fun deleteClientUseCase(@CurrentAccount currentAccount: String, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.deleteClient
 
     @ViewModelScoped
     @Provides
-    fun registerClientUseCase(@CurrentSession currentSession: AuthSession, clientScopeProviderFactory: ClientScopeProvider.Factory) =
-        clientScopeProviderFactory.create(currentSession).clientScope.register
+    fun registerClientUseCase(@CurrentAccount currentAccount: String, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.register
 
     @ViewModelScoped
     @Provides
-    fun listenToEventsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession session: AuthSession) =
-        coreLogic.getSessionScope(session.userId).listenToEvents
+    fun listenToEventsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String) =
+        coreLogic.getSessionScope(currentAccount).listenToEvents
 
     @ViewModelScoped
     @Provides
-    fun providesGetSelfUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentSession currentSession: AuthSession
-    ): GetSelfUserUseCase =
-        coreLogic.getSessionScope(currentSession.userId).users.getSelfUser
+    fun providesGetSelfUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: String): GetSelfUserUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getSelfUser
 
     @ViewModelScoped
     @Provides
     fun providesSendTextMessageUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentSession currentSession: AuthSession
+        @CurrentAccount currentAccount: String
     ): SendTextMessageUseCase =
-        coreLogic.getSessionScope(currentSession.userId).messages.sendTextMessage
+        coreLogic.getSessionScope(currentAccount).messages.sendTextMessage
 
     @ViewModelScoped
     @Provides
     fun providesSearchKnownUsersUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentSession currentSession: AuthSession
+        @CurrentAccount currentSession: AuthSession
     ): SearchKnownUsersUseCase =
         coreLogic.getSessionScope(currentSession.userId).users.searchKnownUsers
 
@@ -197,13 +195,13 @@ class UseCaseModule {
     @Provides
     fun providesSearchPublicUserUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentSession currentSession: AuthSession
+        @CurrentAccount currentSession: AuthSession
     ): SearchUserDirectoryUseCase =
         coreLogic.getSessionScope(currentSession.userId).users.searchUserDirectory
 
     @ViewModelScoped
     @Provides
-    fun provideLogoutUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentSession currentSession: AuthSession): LogoutUseCase =
+    fun provideLogoutUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentSession: AuthSession): LogoutUseCase =
         coreLogic.getSessionScope(currentSession.userId).logout
 
 }

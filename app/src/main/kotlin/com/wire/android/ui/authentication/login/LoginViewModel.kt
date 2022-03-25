@@ -55,7 +55,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private suspend fun registerClient(authSession: AuthSession): RegisterClientResult {
-        val clientScope = clientScopeProviderFactory.create(authSession).clientScope
+        val clientScope = clientScopeProviderFactory.create(authSession.userId).clientScope
         return clientScope.register(loginState.password.text, null)
     }
 

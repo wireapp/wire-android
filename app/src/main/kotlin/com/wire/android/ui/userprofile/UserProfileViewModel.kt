@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
-@Suppress("TooManyFunctions", "MagicNumber")
+@Suppress("TooManyFunctions")
 @ExperimentalMaterial3Api
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
@@ -116,7 +116,6 @@ class UserProfileViewModel @Inject constructor(
                 )
             )
         }
-
     }
 
     fun addAccount() {

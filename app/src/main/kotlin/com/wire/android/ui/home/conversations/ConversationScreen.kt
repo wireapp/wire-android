@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -21,9 +22,11 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.mock.mockMessages
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.messagecomposer.MessageComposer
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +39,8 @@ fun ConversationScreen(
         conversationViewState = uiState,
         onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },
         onSendButtonClicked = { conversationViewModel.sendMessage() },
-        onBackButtonClick = { conversationViewModel.navigateBack() },
+        onSendAttachment = { attachmentBundle -> conversationViewModel.sendAttachmentMessage(attachmentBundle) },
+        onBackButtonClick = { conversationViewModel.navigateBack() }
     )
 }
 
@@ -46,9 +50,11 @@ private fun ConversationScreen(
     conversationViewState: ConversationViewState,
     onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
     onBackButtonClick: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
+    val scope = rememberCoroutineScope()
 
     with(conversationViewState) {
         MenuModalSheetLayout(
@@ -80,7 +86,13 @@ private fun ConversationScreen(
                             onMessageChanged = onMessageChanged,
                             messageText = conversationViewState.messageText,
                             onSendButtonClicked = onSendButtonClicked,
-                            onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) }
+                            onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
+                            onSendAttachment = onSendAttachment,
+                            onError = { errorMessage ->
+                                scope.launch {
+                                    conversationScreenState.snackBarHostState.showSnackbar(errorMessage)
+                                }
+                            }
                         )
                     }
                 )
@@ -142,6 +154,8 @@ private fun ConversationScreenContent(
     messageText: TextFieldValue,
     onSendButtonClicked: () -> Unit,
     onShowContextMenu: (Message) -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onError: (String) -> Unit
 ) {
     MessageComposer(
         content = {
@@ -161,7 +175,9 @@ private fun ConversationScreenContent(
         },
         messageText = messageText,
         onMessageChanged = onMessageChanged,
-        onSendButtonClicked = onSendButtonClicked
+        onSendButtonClicked = onSendButtonClicked,
+        onSendAttachment = onSendAttachment,
+        onError = onError
     )
 }
 
@@ -172,5 +188,7 @@ fun ConversationScreenPreview() {
         ConversationViewState(
             conversationName = "Some test conversation",
             messages = mockMessages,
-        ), {}, {}, {})
+        ),
+        {}, {}, {}
+    ) {}
 }

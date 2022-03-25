@@ -55,4 +55,8 @@ class SearchPeopleScreenState(
         newGroupContacts.add(contact)
     }
 
+    fun removeContactFromGroup(contact: Contact) {
+        newGroupContacts.remove(contact)
+    }
+
 }

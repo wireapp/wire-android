@@ -68,7 +68,8 @@ fun ContactsScreenContent(
                         name = contact.name,
                         userStatus = contact.userStatus,
                         belongsToGroup = newGroupContacts.contains(contact),
-                        addToGroup = { addContactToGroup(contact) }
+                        addToGroup = { addContactToGroup(contact) },
+                        removeFromGroup = { removeContactFromGroup(contact) }
                     )
                 }
             }
@@ -83,12 +84,13 @@ private fun ContactItem(
     name: String,
     userStatus: UserStatus,
     belongsToGroup: Boolean,
-    addToGroup: () -> Unit
+    addToGroup: () -> Unit,
+    removeFromGroup: () -> Unit,
 ) {
     RowItemTemplate(
         leadingIcon = {
             Row {
-                Checkbox(checked = belongsToGroup, onCheckedChange = { addToGroup() })
+                Checkbox(checked = belongsToGroup, onCheckedChange = { if (it) addToGroup() else removeFromGroup() })
                 UserProfileAvatar(
                     status = userStatus
                 )
@@ -123,6 +125,10 @@ class ContactsScreenState {
 
     fun addContactToGroup(contact: Contact) {
         newGroupContacts.add(contact)
+    }
+
+    fun removeContactFromGroup(contact: Contact) {
+        newGroupContacts.remove(contact)
     }
 
 }

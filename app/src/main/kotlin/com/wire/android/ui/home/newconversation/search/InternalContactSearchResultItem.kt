@@ -23,7 +23,8 @@ fun InternalContactSearchResultItem(
     name: String,
     label: String,
     searchQuery: String,
-    onAddToGroup: () -> Unit,
+    addToGroup: () -> Unit,
+    removeFromGroup: () -> Unit,
     isAddedToGroup: Boolean,
     onRowItemClicked: () -> Unit,
     onRowItemLongClicked: () -> Unit,
@@ -34,7 +35,7 @@ fun InternalContactSearchResultItem(
             Row {
                 Checkbox(
                     checked = isAddedToGroup,
-                    onCheckedChange = { onAddToGroup() }
+                    onCheckedChange = { if (it) addToGroup() else removeFromGroup() }
                 )
 
                 UserProfileAvatar(

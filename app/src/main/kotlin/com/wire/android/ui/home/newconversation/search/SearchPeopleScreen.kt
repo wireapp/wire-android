@@ -89,6 +89,7 @@ private fun SearchResult(
                 searchQuery = searchQuery,
                 contactsAddedToGroup = searchPeopleScreenState.newGroupContacts,
                 onAddToGroup = { contact -> searchPeopleScreenState.addContactToGroup(contact) },
+                removeFromGroup = { contact -> searchPeopleScreenState.removeContactFromGroup(contact) },
                 contactSearchResult = contactContactSearchResult,
                 showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() }
@@ -119,6 +120,7 @@ private fun LazyListScope.internalSearchResults(
     searchQuery: String,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
+    removeFromGroup: (Contact) -> Unit,
     contactSearchResult: ContactSearchResult,
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
@@ -133,6 +135,7 @@ private fun LazyListScope.internalSearchResults(
                 showAllItems = showAllItems,
                 contactsAddedToGroup = contactsAddedToGroup,
                 onAddToGroup = onAddToGroup,
+                removeFromGroup = removeFromGroup,
                 searchResult = searchResult.result,
                 searchQuery = searchQuery,
                 onShowAllButtonClicked = onShowAllButtonClicked
@@ -187,29 +190,76 @@ private fun LazyListScope.internalSuccessItem(
     showAllItems: Boolean,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
+    removeFromGroup: (Contact) -> Unit,
     searchResult: List<Contact>,
     searchQuery: String,
     onShowAllButtonClicked: () -> Unit
 ) {
-    item { FolderHeader(searchTitle()) }
+    if (searchResult.isNotEmpty()) {
+        item { FolderHeader(searchTitle()) }
 
-    items(if (showAllItems) searchResult else searchResult.take(4)) { contact ->
-        with(contact) {
-            InternalContactSearchResultItem(
-                avatarUrl = avatarUrl,
-                userStatus = userStatus,
-                name = name,
-                label = label,
-                searchQuery = searchQuery,
-                isAddedToGroup = contactsAddedToGroup.contains(contact),
-                onAddToGroup = { onAddToGroup(contact) },
-                onRowItemClicked = { },
-                onRowItemLongClicked = { }
-            )
+        items(if (showAllItems) searchResult else searchResult.take(4)) { contact ->
+            with(contact) {
+                InternalContactSearchResultItem(
+                    avatarUrl = avatarUrl,
+                    userStatus = userStatus,
+                    name = name,
+                    label = label,
+                    searchQuery = searchQuery,
+                    isAddedToGroup = contactsAddedToGroup.contains(contact),
+                    addToGroup = { onAddToGroup(contact) },
+                    removeFromGroup = { removeFromGroup(contact) },
+                    onRowItemClicked = { },
+                    onRowItemLongClicked = { }
+                )
+            }
+        }
+
+        if (searchResult.size > 4) {
+            item {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    ShowButton(
+                        totalSearchResultCount = searchResult.size,
+                        isShownAll = showAllItems,
+                        onShowButtonClicked = onShowAllButtonClicked,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = dimensions().spacing8x)
+                    )
+                }
+            }
         }
     }
+}
 
-    if (searchResult.size > 4) {
+private fun LazyListScope.externalSuccessItem(
+    searchTitle: @Composable () -> String,
+    showAllItems: Boolean,
+    searchResult: List<Contact>,
+    searchQuery: String,
+    onShowAllButtonClicked: () -> Unit
+) {
+    if (searchResult.isNotEmpty()) {
+        item { FolderHeader(searchTitle()) }
+
+        items(if (showAllItems) searchResult else searchResult.take(4)) { contact ->
+            with(contact) {
+                ExternalContactSearchResultItem(
+                    avatarUrl = avatarUrl,
+                    userStatus = userStatus,
+                    name = name,
+                    label = label,
+                    searchQuery = searchQuery,
+                    onRowItemClicked = { },
+                    onRowItemLongClicked = { }
+                )
+            }
+        }
+
         item {
             Box(
                 Modifier
@@ -225,47 +275,6 @@ private fun LazyListScope.internalSuccessItem(
                         .padding(end = dimensions().spacing8x)
                 )
             }
-        }
-    }
-}
-
-private fun LazyListScope.externalSuccessItem(
-    searchTitle: @Composable () -> String,
-    showAllItems: Boolean,
-    searchResult: List<Contact>,
-    searchQuery: String,
-    onShowAllButtonClicked: () -> Unit
-) {
-    item { FolderHeader(searchTitle()) }
-
-    items(if (showAllItems) searchResult else searchResult.take(4)) { contact ->
-        with(contact) {
-            ExternalContactSearchResultItem(
-                avatarUrl = avatarUrl,
-                userStatus = userStatus,
-                name = name,
-                label = label,
-                searchQuery = searchQuery,
-                onRowItemClicked = { },
-                onRowItemLongClicked = { }
-            )
-        }
-    }
-
-    item {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            ShowButton(
-                totalSearchResultCount = searchResult.size,
-                isShownAll = showAllItems,
-                onShowButtonClicked = onShowAllButtonClicked,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = dimensions().spacing8x)
-            )
         }
     }
 }

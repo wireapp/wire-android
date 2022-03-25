@@ -9,16 +9,22 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
+import com.wire.android.ui.home.messagecomposer.AttachmentState
 import com.wire.android.util.permission.UseCameraRequestFlow
+import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
 import com.wire.android.util.permission.rememberCurrentLocationFlow
 import com.wire.android.util.permission.rememberOpenFileBrowserFlow
@@ -26,10 +32,16 @@ import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun AttachmentOptionsComponent() {
-    val attachmentOptions = buildAttachmentOptionItems()
+fun AttachmentOptionsComponent(
+    attachmentInnerState: AttachmentInnerState,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onError: (String) -> Unit
+) {
+    val attachmentOptions = buildAttachmentOptionItems { pickedUri -> attachmentInnerState.pickAttachment(pickedUri) }
+    configureStateHandling(attachmentInnerState, onSendAttachment, onError)
+
     LazyVerticalGrid(
         cells = GridCells.Adaptive(dimensions().spacing80x),
         contentPadding = PaddingValues(dimensions().spacing8x),
@@ -38,32 +50,46 @@ fun AttachmentOptionsComponent() {
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
         attachmentOptions.forEach { option ->
-            item {
-                AttachmentButton(stringResource(option.text), option.icon) {
-                    option.onClick()
-                }
-            }
+            item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
         }
     }
 }
 
 @Composable
-private fun FileBrowserFlow() = rememberOpenFileBrowserFlow(
-    onFileBrowserItemPicked = { pickedFileUri ->
-        // TODO: call vm to share raw file data
-        appLogger.d("pickedUri is $pickedFileUri")
-    },
-    onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
-)
+private fun configureStateHandling(
+    attachmentInnerState: AttachmentInnerState,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onError: (String) -> Unit
+) {
+    when (val state = attachmentInnerState.attachmentState) {
+        is AttachmentState.NotPicked -> appLogger.d("Not picked yet")
+        is AttachmentState.Picked -> {
+            onSendAttachment(state.attachmentBundle)
+            attachmentInnerState.resetAttachmentState()
+        }
+        is AttachmentState.Error -> {
+            // FIXME. later on expand to other possible errors
+            onError(stringResource(R.string.error_unknown_message))
+            attachmentInnerState.resetAttachmentState()
+        }
+    }
+}
 
 @Composable
-private fun GalleryFlow() = rememberOpenGalleryFlow(
-    onGalleryItemPicked = { pickedPictureUri ->
-        // TODO: call vm to share raw pic data
-        appLogger.d("pickedUri is $pickedPictureUri")
-    },
-    onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
-)
+private fun FileBrowserFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
+    return rememberOpenFileBrowserFlow(
+        onFileBrowserItemPicked = { pickedFileUri -> onFilePicked(pickedFileUri) },
+        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
+    )
+}
+
+@Composable
+private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
+    return rememberOpenGalleryFlow(
+        onGalleryItemPicked = { pickedPictureUri -> onFilePicked(pickedPictureUri) },
+        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
+    )
+}
 
 @Composable
 private fun TakePictureFlow(): UseCameraRequestFlow {
@@ -96,9 +122,9 @@ private fun RecordAudioFlow() =
     )
 
 @Composable
-private fun buildAttachmentOptionItems(): List<AttachmentOptionItem> {
-    val fileFlow = FileBrowserFlow()
-    val galleryFlow = GalleryFlow()
+private fun buildAttachmentOptionItems(onFilePicked: (Uri) -> Unit): List<AttachmentOptionItem> {
+    val fileFlow = FileBrowserFlow(onFilePicked)
+    val galleryFlow = GalleryFlow(onFilePicked)
     val cameraFlow = TakePictureFlow()
     val captureVideoFlow = CaptureVideoFlow()
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
@@ -114,14 +140,11 @@ private fun buildAttachmentOptionItems(): List<AttachmentOptionItem> {
     )
 }
 
-private data class AttachmentOptionItem(
-    @StringRes val text: Int,
-    @DrawableRes val icon: Int,
-    val onClick: () -> Unit
-)
+private data class AttachmentOptionItem(@StringRes val text: Int, @DrawableRes val icon: Int, val onClick: () -> Unit)
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentComponents() {
-    AttachmentOptionsComponent()
+    val context = LocalContext.current
+    AttachmentOptionsComponent(AttachmentInnerState(context), {}, {})
 }

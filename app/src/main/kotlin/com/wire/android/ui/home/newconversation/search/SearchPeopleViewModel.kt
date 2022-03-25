@@ -39,6 +39,24 @@ class SearchPeopleViewModel @Inject constructor(
                 state = state.copy(searchQuery = searchTerm)
 
                 launch { searchPublic(searchTerm) }
+                launch {
+               /*     //TODO: this is going to be refactored on the Kalium side so that we do not use Flow
+                    searchKnownUsers(searchTerm).onStart {
+                        state = state.copy(
+                            localContactSearchResult = LocalContact(SearchResultState.InProgress)
+                        )
+                    }.catch {
+                        state = state.copy(
+                            localContactSearchResult = LocalContact(SearchResultState.Failure())
+                        )
+                    }.flowOn(Dispatchers.IO).collect {
+                        state.copy(
+                            localContactSearchResult = LocalContact(
+                                SearchResultState.Success(result.value.publicUsers.map { it.toContact() })
+                            )
+                        )
+                    }*/
+                }
             }
         }
     }
@@ -63,7 +81,8 @@ class SearchPeopleViewModel @Inject constructor(
             }
             is Either.Right -> {
                 state.copy(
-                    publicContactsSearchResult = PublicContact(SearchResultState.Success(result.value.publicUsers.map { it.toContact() })
+                    publicContactsSearchResult = PublicContact(
+                        SearchResultState.Success(result.value.publicUsers.map { it.toContact() })
                     )
                 )
             }

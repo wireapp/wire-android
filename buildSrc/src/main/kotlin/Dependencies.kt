@@ -28,6 +28,7 @@ object BuildPlugins {
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val kotlinKapt = "kotlin-kapt"
+    const val kotlinParcelize = "kotlin-parcelize"
     const val kapt = "kapt"
     const val hilt = "dagger.hilt.android.plugin"
     const val junit5 = "de.mannodermaus.android-junit5"

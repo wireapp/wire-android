@@ -6,6 +6,7 @@ plugins {
     id(BuildPlugins.kotlinAndroid)
     //id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinKapt)
+    id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.hilt)
     id(BuildPlugins.junit5)
     kotlin(BuildPlugins.kapt)

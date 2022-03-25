@@ -51,6 +51,7 @@ import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.animateAsStateRotationToRight
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -62,7 +63,9 @@ fun MessageComposer(
     content: @Composable () -> Unit,
     messageText: TextFieldValue,
     onMessageChanged: (TextFieldValue) -> Unit,
-    onSendButtonClicked: () -> Unit
+    onSendButtonClicked: () -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onError: (String) -> Unit
 ) {
     val messageComposerState = rememberMessageComposerInnerState()
 
@@ -72,6 +75,8 @@ fun MessageComposer(
         messageText = messageText,
         onMessageChanged = onMessageChanged,
         onSendButtonClicked = onSendButtonClicked,
+        onSendAttachment = onSendAttachment,
+        onError = onError
     )
 }
 
@@ -82,7 +87,9 @@ private fun MessageComposer(
     messageComposerState: MessageComposerInnerState,
     messageText: TextFieldValue,
     onMessageChanged: (TextFieldValue) -> Unit,
-    onSendButtonClicked: () -> Unit
+    onSendButtonClicked: () -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onError: (String) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -174,7 +181,6 @@ private fun MessageComposer(
                             Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
                                 AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
                                     messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
-                                    messageComposerState.toActive()
                                 }
                             }
                         }
@@ -268,7 +274,7 @@ private fun MessageComposer(
             ) {
                 if (messageComposerState.attachmentOptionsDisplayed) {
                     Divider()
-                    AttachmentOptionsComponent()
+                    AttachmentOptionsComponent(messageComposerState.attachmentInnerState, onSendAttachment, onError)
                 }
             }
         }
@@ -363,7 +369,6 @@ private fun MessageComposeActions(messageComposerState: MessageComposerInnerStat
     ) {
         AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
             messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
-            messageComposerState.toActive()
         }
         RichTextEditingAction()
         AddEmojiAction()

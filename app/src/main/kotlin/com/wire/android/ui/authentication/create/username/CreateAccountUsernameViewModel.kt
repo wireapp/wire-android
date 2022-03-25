@@ -29,10 +29,11 @@ class CreateAccountUsernameViewModel @Inject constructor(
         private set
 
     fun onUsernameChange(newText: TextFieldValue) {
+        val newValidTextString = newText.text.replace(Regex(USERNAME_FORBIDDEN_CHARACTERS_REGEX), "").take(USERNAME_MAX_LENGTH)
         state = state.copy(
-            username = newText,
+            username = newText.copy(text = newValidTextString),
             error = CreateAccountUsernameViewState.UsernameError.None,
-            continueEnabled = newText.text.length > 1 && !state.loading
+            continueEnabled = newText.text.length >= USERNAME_MIN_LENGTH && !state.loading
         )
     }
 
@@ -58,6 +59,12 @@ class CreateAccountUsernameViewModel @Inject constructor(
             if(usernameError is CreateAccountUsernameViewState.UsernameError.None)
                 navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
+    }
+
+    companion object {
+        const val USERNAME_FORBIDDEN_CHARACTERS_REGEX = "[^a-z0-9_]"
+        const val USERNAME_MIN_LENGTH = 2
+        const val USERNAME_MAX_LENGTH = 255
     }
 }
 

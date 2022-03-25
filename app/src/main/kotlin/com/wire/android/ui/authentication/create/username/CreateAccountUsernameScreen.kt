@@ -43,7 +43,9 @@ fun CreateAccountUsernameScreen() {
         state = viewModel.state,
         onUsernameChange = viewModel::onUsernameChange,
         onContinuePressed = viewModel::onContinue,
-        onErrorDismiss = viewModel::onErrorDismiss
+        onErrorDismiss = viewModel::onErrorDismiss,
+        forbiddenCharactersRegex = Regex(CreateAccountUsernameViewModel.USERNAME_FORBIDDEN_CHARACTERS_REGEX),
+        maxLength = CreateAccountUsernameViewModel.USERNAME_MAX_LENGTH
     )
 }
 
@@ -53,7 +55,9 @@ private fun UsernameContent(
     state: CreateAccountUsernameViewState,
     onUsernameChange: (TextFieldValue) -> Unit,
     onContinuePressed: () -> Unit,
-    onErrorDismiss: () -> Unit
+    onErrorDismiss: () -> Unit,
+    forbiddenCharactersRegex: Regex,
+    maxLength: Int
 ) {
     Scaffold(
         topBar = {
@@ -78,7 +82,12 @@ private fun UsernameContent(
                         vertical = MaterialTheme.wireDimensions.spacing24x
                     )
             )
-            UsernameTextField(state = state, onUsernameChange = onUsernameChange)
+            UsernameTextField(
+                state = state,
+                onUsernameChange = onUsernameChange,
+                forbiddenCharactersRegex = forbiddenCharactersRegex,
+                maxLength = maxLength
+            )
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
                 text = stringResource(R.string.label_confirm),
@@ -100,14 +109,16 @@ private fun UsernameContent(
 @Composable
 private fun UsernameTextField(
     state: CreateAccountUsernameViewState,
-    onUsernameChange: (TextFieldValue) -> Unit
+    onUsernameChange: (TextFieldValue) -> Unit,
+    forbiddenCharactersRegex: Regex,
+    maxLength: Int
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     ShakeAnimation { animate ->
         WireTextField(
             value = state.username,
             onValueChange = {
-                val validText = it.text.replace(Regex("[^a-z0-9_]"), "").take(255)
+                val validText = it.text.replace(forbiddenCharactersRegex, "").take(maxLength)
                 if(it.text != validText) animate()
                 onUsernameChange(it.copy(text = validText))
             },
@@ -140,6 +151,6 @@ private fun UsernameTextField(
 @Composable
 @Preview
 private fun CreateAccountUsernameScreenPreview() {
-    UsernameContent(CreateAccountUsernameViewState(), {}, {}, {})
+    UsernameContent(CreateAccountUsernameViewState(), {}, {}, {}, Regex(""), 255)
 }
 

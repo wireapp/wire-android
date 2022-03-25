@@ -39,7 +39,6 @@ data class User(
     val availabilityStatus: UserStatus,
 )
 
-sealed class MessageSource {
-    object CurrentUser : MessageSource()
-    object OtherUser : MessageSource()
+enum class MessageSource {
+    CurrentUser, OtherUser
 }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.getMimeType
@@ -17,10 +18,10 @@ import java.io.IOException
 @Composable
 fun rememberMessageComposerInnerState(
     defaultMessageText: String = "",
-    defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled,
-    defaultAttachmentInnerState: AttachmentInnerState = AttachmentInnerState()
+    defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled
 ): MessageComposerInnerState {
-
+    val context = LocalContext.current
+    val defaultAttachmentInnerState = AttachmentInnerState(context)
     return remember {
         MessageComposerInnerState(
             defaultMessageText,
@@ -71,10 +72,10 @@ class MessageComposerInnerState(
     }
 }
 
-class AttachmentInnerState {
+class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
-    fun pickAttachment(context: Context, attachmentUri: Uri) {
+    fun pickAttachment(attachmentUri: Uri) {
         attachmentState = try {
             val attachment =
                 AttachmentBundle(

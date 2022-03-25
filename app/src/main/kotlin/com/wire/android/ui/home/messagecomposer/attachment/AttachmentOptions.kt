@@ -39,7 +39,7 @@ fun AttachmentOptionsComponent(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit
 ) {
-    val attachmentOptions = buildAttachmentOptionItems(attachmentInnerState)
+    val attachmentOptions = buildAttachmentOptionItems { pickedUri -> attachmentInnerState.pickAttachment(pickedUri) }
     configureStateHandling(attachmentInnerState, onSendAttachment, onError)
 
     LazyVerticalGrid(
@@ -76,19 +76,17 @@ private fun configureStateHandling(
 }
 
 @Composable
-private fun FileBrowserFlow(attachmentInnerState: AttachmentInnerState): UseStorageRequestFlow {
-    val context = LocalContext.current
+private fun FileBrowserFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
     return rememberOpenFileBrowserFlow(
-        onFileBrowserItemPicked = { pickedFileUri -> attachmentInnerState.pickAttachment(context, pickedFileUri) },
+        onFileBrowserItemPicked = { pickedFileUri -> onFilePicked(pickedFileUri) },
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
 
 @Composable
-private fun GalleryFlow(attachmentInnerState: AttachmentInnerState): UseStorageRequestFlow {
-    val context = LocalContext.current
+private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
     return rememberOpenGalleryFlow(
-        onGalleryItemPicked = { pickedPictureUri -> attachmentInnerState.pickAttachment(context, pickedPictureUri) },
+        onGalleryItemPicked = { pickedPictureUri -> onFilePicked(pickedPictureUri) },
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
@@ -124,9 +122,9 @@ private fun RecordAudioFlow() =
     )
 
 @Composable
-private fun buildAttachmentOptionItems(attachmentInnerState: AttachmentInnerState): List<AttachmentOptionItem> {
-    val fileFlow = FileBrowserFlow(attachmentInnerState)
-    val galleryFlow = GalleryFlow(attachmentInnerState)
+private fun buildAttachmentOptionItems(onFilePicked: (Uri) -> Unit): List<AttachmentOptionItem> {
+    val fileFlow = FileBrowserFlow(onFilePicked)
+    val galleryFlow = GalleryFlow(onFilePicked)
     val cameraFlow = TakePictureFlow()
     val captureVideoFlow = CaptureVideoFlow()
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
@@ -147,5 +145,6 @@ private data class AttachmentOptionItem(@StringRes val text: Int, @DrawableRes v
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentComponents() {
-    AttachmentOptionsComponent(AttachmentInnerState(), {}, {})
+    val context = LocalContext.current
+    AttachmentOptionsComponent(AttachmentInnerState(context), {}, {})
 }

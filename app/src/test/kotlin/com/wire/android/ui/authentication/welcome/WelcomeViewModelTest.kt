@@ -1,7 +1,6 @@
 package com.wire.android.ui.authentication.welcome
 
-import com.wire.android.CoroutineTestExtension
-import com.wire.android.InstantExecutorExtension
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -15,7 +14,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(InstantExecutorExtension::class, CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class)
 class WelcomeViewModelTest {
 
     @MockK

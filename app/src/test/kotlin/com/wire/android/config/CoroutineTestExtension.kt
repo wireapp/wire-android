@@ -1,4 +1,4 @@
-package com.wire.android
+package com.wire.android.config
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -1,5 +1,6 @@
 package com.wire.android.ui.common
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,7 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.theme.wireDimensions
@@ -34,6 +35,7 @@ fun UserProfileAvatar(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
+    val asyncImagePainter = rememberAsyncImagePainter(avatarAssetByteArray?.toBitmap() ?: getDefaultAvatarUri(LocalContext.current))
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -43,8 +45,8 @@ fun UserProfileAvatar(
             .wrapContentSize()
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
-        AsyncImage(
-            model = avatarAssetByteArray?.toBitmap() ?: getDefaultAvatarUri(LocalContext.current),
+        Image(
+            painter = asyncImagePainter,
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
                 .padding(dimensions().userAvatarStatusBorderSize)

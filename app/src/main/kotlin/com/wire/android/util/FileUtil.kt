@@ -10,6 +10,8 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -31,8 +33,10 @@ fun getUriFromDrawable(
 }
 
 @Suppress("MagicNumber")
-fun Uri.toByteArray(context: Context): ByteArray {
-    return context.contentResolver.openInputStream(this)?.use { it.readBytes() } ?: ByteArray(16)
+suspend fun Uri.toByteArray(context: Context): ByteArray {
+    return withContext(Dispatchers.IO) {
+        context.contentResolver.openInputStream(this@toByteArray)?.use { it.readBytes() } ?: ByteArray(16)
+    }
 }
 
 fun getShareableAvatarUri(context: Context): Uri {

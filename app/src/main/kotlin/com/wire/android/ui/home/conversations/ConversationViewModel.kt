@@ -84,7 +84,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             attachmentBundle?.let {
                 // TODO send attachment message for conversationId via use case
-                appLogger.d("> Attachment for conversationId: $conversationId is: $attachmentBundle")
+                appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
             }
         }
     }

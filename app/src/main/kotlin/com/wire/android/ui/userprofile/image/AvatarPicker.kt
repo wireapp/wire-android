@@ -75,7 +75,6 @@ private fun AvatarPickerContent(
     onCloseClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     viewModel.errorMessageCode?.let { errorCode ->
@@ -103,18 +102,18 @@ private fun AvatarPickerContent(
                     onItemClick = { state.openImageSource(ImageSource.Gallery) }
                 )
             }, {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.profile_image_take_a_picture_menu_item),
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_camera,
-                            contentDescription = stringResource(R.string.content_description_take_a_picture)
-                        )
-                    },
-                    action = { ArrowRightIcon() },
-                    onItemClick = { state.openImageSource(ImageSource.Camera) }
-                )
-            }
+            MenuBottomSheetItem(
+                title = stringResource(R.string.profile_image_take_a_picture_menu_item),
+                icon = {
+                    MenuItemIcon(
+                        id = R.drawable.ic_camera,
+                        contentDescription = stringResource(R.string.content_description_take_a_picture)
+                    )
+                },
+                action = { ArrowRightIcon() },
+                onItemClick = { state.openImageSource(ImageSource.Camera) }
+            )
+        }
         )
     ) {
         Scaffold(
@@ -124,12 +123,14 @@ private fun AvatarPickerContent(
                     hostState = snackbarHostState,
                     modifier = Modifier.fillMaxWidth()
                 )
-            }) {
+            }
+        ) {
             Box(Modifier.fillMaxSize()) {
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.wireColorScheme.background)) {
+                        .background(MaterialTheme.wireColorScheme.background)
+                ) {
                     Box(Modifier.weight(1f)) {
                         Box(Modifier.align(Alignment.Center)) {
                             BulletHoleImagePreview(

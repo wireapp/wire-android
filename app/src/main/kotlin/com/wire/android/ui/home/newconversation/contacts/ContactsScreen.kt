@@ -112,7 +112,6 @@ private fun ContactItem(
             ) {
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }
-
         },
         onRowItemClicked = { },
         onRowItemLongClicked = { }

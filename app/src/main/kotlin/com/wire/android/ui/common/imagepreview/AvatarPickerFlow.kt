@@ -42,9 +42,7 @@ fun rememberPickPictureState(): AvatarPickerFlow {
     val takePictureFLow = rememberTakePictureFlow(
         shouldPersistUri = { wasSaved ->
             if (wasSaved) {
-                scope.launch {
-                    postProcessCapturedAvatar(onChosenPictureUri, context)
-                }
+                scope.launch { postProcessCapturedAvatar(onChosenPictureUri, context) }
                 pictureState = PictureState.Picked(onChosenPictureUri)
             }
         },

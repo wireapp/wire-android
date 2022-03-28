@@ -27,7 +27,6 @@ import com.wire.android.util.toBitmap
 
 @Composable
 fun BulletHoleImagePreview(imageUri: Uri, contentDescription: String) {
-    val asyncImagePainter = rememberAsyncImagePainter(imageUri.toBitmap(LocalContext.current))
     ConstraintLayout(
         Modifier
             .aspectRatio(1f)
@@ -45,7 +44,7 @@ fun BulletHoleImagePreview(imageUri: Uri, contentDescription: String) {
                 }
         ) {
             Image(
-                painter = asyncImagePainter,
+                painter = rememberAsyncImagePainter(imageUri.toBitmap(LocalContext.current)),
                 contentScale = ContentScale.Crop,
                 contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(),

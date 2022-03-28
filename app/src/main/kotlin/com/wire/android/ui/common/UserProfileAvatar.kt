@@ -35,7 +35,6 @@ fun UserProfileAvatar(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
-    val asyncImagePainter = rememberAsyncImagePainter(avatarAssetByteArray?.toBitmap() ?: getDefaultAvatarUri(LocalContext.current))
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -46,7 +45,7 @@ fun UserProfileAvatar(
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
         Image(
-            painter = asyncImagePainter,
+            painter = rememberAsyncImagePainter(avatarAssetByteArray?.toBitmap() ?: getDefaultAvatarUri(LocalContext.current)),
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
                 .padding(dimensions().userAvatarStatusBorderSize)

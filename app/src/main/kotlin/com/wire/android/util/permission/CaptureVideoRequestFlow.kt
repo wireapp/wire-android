@@ -10,28 +10,28 @@ import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun rememberCaptureVideoFlow(
-    shouldPersistUri: (Boolean) -> Unit,
+    onVideoRecorded: (Boolean) -> Unit,
     onPermissionDenied: () -> Unit,
-    onVideoCapturedUri: Uri
+    targetVideoFileUri: Uri
 ): UseCameraRequestFlow {
     val context = LocalContext.current
 
     val captureVideoLauncher: ManagedActivityResultLauncher<Uri, Boolean> = rememberLauncherForActivityResult(
         ActivityResultContracts.CaptureVideo()
     ) { hasCapturedVideo ->
-        shouldPersistUri(hasCapturedVideo)
+        onVideoRecorded(hasCapturedVideo)
     }
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                captureVideoLauncher.launch(onVideoCapturedUri)
+                captureVideoLauncher.launch(targetVideoFileUri)
             } else {
                 onPermissionDenied()
             }
         }
 
     return remember {
-        UseCameraRequestFlow(context, onVideoCapturedUri, captureVideoLauncher, requestPermissionLauncher)
+        UseCameraRequestFlow(context, targetVideoFileUri, captureVideoLauncher, requestPermissionLauncher)
     }
 }

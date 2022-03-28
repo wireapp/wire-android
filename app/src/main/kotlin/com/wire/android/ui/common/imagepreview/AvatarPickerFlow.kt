@@ -40,7 +40,7 @@ fun rememberPickPictureState(): AvatarPickerFlow {
     }
     val onChosenPictureUri = getShareableAvatarUri(context)
     val takePictureFLow = rememberTakePictureFlow(
-        shouldPersistUri = { wasSaved ->
+        onPictureTaken = { wasSaved ->
             if (wasSaved) {
                 scope.launch { postProcessCapturedAvatar(onChosenPictureUri, context) }
                 pictureState = PictureState.Picked(onChosenPictureUri)
@@ -49,7 +49,7 @@ fun rememberPickPictureState(): AvatarPickerFlow {
         onPermissionDenied = {
             // TODO: Implement denied permission rationale
         },
-        onPictureTakenUri = onChosenPictureUri
+        targetPictureFileUri = onChosenPictureUri
     )
 
     val openGalleryFlow = rememberOpenGalleryFlow(

@@ -97,8 +97,8 @@ private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
 @Composable
 private fun TakePictureFlow(): UseCameraRequestFlow {
     return rememberTakePictureFlow(
-        shouldPersistUri = { /* TODO: call vm to share raw pic data */ },
-        onPictureTakenUri = Uri.EMPTY, // TODO: get uri from fileprovider (FileUtil.kt)
+        onPictureTaken = { /* TODO: call vm to share raw pic data */ },
+        targetPictureFileUri = Uri.EMPTY, // TODO: get uri from fileprovider (FileUtil.kt)
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
@@ -106,8 +106,8 @@ private fun TakePictureFlow(): UseCameraRequestFlow {
 @Composable
 private fun CaptureVideoFlow(): UseCameraRequestFlow {
     return rememberCaptureVideoFlow(
-        shouldPersistUri = { /* TODO: call vm to share raw pic data */ },
-        onVideoCapturedUri = Uri.EMPTY, // TODO: get uri from fileprovider (FileUtil.kt)
+        onVideoRecorded = { /* TODO: call vm to share raw pic data */ },
+        targetVideoFileUri = Uri.EMPTY, // TODO: get uri from fileprovider (FileUtil.kt)
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
@@ -119,8 +119,8 @@ private fun ShareCurrentLocationFlow() =
 @Composable
 private fun RecordAudioFlow() =
     rememberRecordAudioRequestFlow(
-        shouldPersistUri = { /* TODO: call vm to share raw pic data */ },
-        onAudioRecordedUri = Uri.EMPTY,
+        onAudioRecorded = { /* TODO: call vm to share raw pic data */ },
+        targetAudioFileUri = Uri.EMPTY,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 

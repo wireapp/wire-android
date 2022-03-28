@@ -76,7 +76,7 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(messageText = "")
         viewModelScope.launch {
             // TODO what if conversationId is null???
-            sendTextMessage(conversationId!!, messageText)
+            conversationId?.let { sendTextMessage(it, messageText) }
 
         }
     }

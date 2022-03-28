@@ -56,7 +56,7 @@ fun WireLabelledCheckbox(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WiredCheckbox(
+fun WireCheckbox(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit),
     modifier: Modifier = Modifier

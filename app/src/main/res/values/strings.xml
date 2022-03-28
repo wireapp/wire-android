@@ -209,4 +209,11 @@
     <string name="label_search_people_instruction">Search for user with their display name of their @username</string>
     <string name="label_learn_more_searching_user">Learn more about search for users</string>
 
+    <!-- Notifications -->
+    <string name="notification_shared_picture">Shared a picture</string>
+    <string name="notification_shared_file">Shared a file</string>
+    <string name="notification_reacted">Added a reaction</string>
+    <string name="notification_action_call">Call</string>
+    <string name="notification_action_reply">Reply</string>
+
 </resources>

@@ -95,7 +95,6 @@ private fun ContactItem(
                     status = userStatus
                 )
             }
-
         },
         title = {
             Text(

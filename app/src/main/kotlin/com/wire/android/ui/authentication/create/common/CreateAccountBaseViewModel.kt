@@ -8,6 +8,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.logic.RegisterClientAndStoreSessionUseCase
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -44,9 +45,7 @@ abstract class CreateAccountBaseViewModel(
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val requestActivationCodeUseCase: RequestActivationCodeUseCase,
     private val registerAccountUseCase: RegisterAccountUseCase,
-    private val saveSessionUseCase: SaveSessionUseCase,
-    private val updateCurrentSessionUseCase: UpdateCurrentSessionUseCase,
-    private val clientScopeProviderFactory: ClientScopeProvider.Factory
+    private val registerClientAndStoreSessionUseCase: RegisterClientAndStoreSessionUseCase
 ) : ViewModel(),
     CreateAccountOverviewViewModel,
     CreateAccountEmailViewModel,
@@ -208,25 +207,13 @@ abstract class CreateAccountBaseViewModel(
                         teamIcon = "default"
                     )
             }
-
             val codeError = registerAccountUseCase(
                 param = registerParam,
                 serverConfig = serverConfig,
                 shouldStoreSession = false)
                 .let { registerResult ->
                     if (registerResult is RegisterResult.Success)
-                        registerResult.value.second.let { userSession ->
-                            clientScopeProviderFactory.create(userSession.userId).clientScope.register(
-                                password = registerParam.password,
-                                capabilities = null
-                            ).let { registerClientResult ->
-                                if (registerClientResult is RegisterClientResult.Success) {
-                                    saveSessionUseCase(userSession)
-                                    updateCurrentSessionUseCase(userSession.userId)
-                                }
-                                registerClientResult.toCodeError()
-                            }
-                        }
+                        registerClientAndStoreSessionUseCase(registerResult.value.second, registerParam.password).toCodeError()
                     else registerResult.toCodeError()
                 }
             val isSuccess = codeError is CreateAccountCodeViewState.CodeError.None

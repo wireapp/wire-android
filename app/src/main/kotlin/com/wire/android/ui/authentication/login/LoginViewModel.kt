@@ -9,6 +9,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.logic.RegisterClientAndStoreSessionUseCase
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -29,9 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val saveSessionUseCase: SaveSessionUseCase,
-    private val updateCurrentSessionUseCase: UpdateCurrentSessionUseCase,
-    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    private val registerClientAndStoreSessionUseCase: RegisterClientAndStoreSessionUseCase,
     private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
 ) : ViewModel() {
@@ -56,24 +55,13 @@ class LoginViewModel @Inject constructor(
             )
             val loginError =
                 if (loginResult is AuthenticationResult.Success)
-                    registerClient(loginResult.userSession).let { registerClientResult ->
-                        if (registerClientResult is RegisterClientResult.Success) {
-                            saveSessionUseCase(loginResult.userSession)
-                            updateCurrentSessionUseCase(loginResult.userSession.userId)
-                        }
-                        registerClientResult.toLoginError()
-                    }
+                    registerClientAndStoreSessionUseCase(loginResult.userSession, loginState.password.text).toLoginError()
                 else loginResult.toLoginError()
 
             loginState = loginState.copy(loading = false, loginError = loginError).updateLoginEnabled()
             if (loginError is LoginError.None)
                 navigateToConvScreen()
         }
-    }
-
-    private suspend fun registerClient(authSession: AuthSession): RegisterClientResult {
-        val clientScope = clientScopeProviderFactory.create(authSession.userId).clientScope
-        return clientScope.register(loginState.password.text, null)
     }
 
     fun onUserIdentifierChange(newText: TextFieldValue) {

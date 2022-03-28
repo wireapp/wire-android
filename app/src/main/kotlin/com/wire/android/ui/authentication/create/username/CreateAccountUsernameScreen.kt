@@ -35,6 +35,8 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.USERNAME_FORBIDDEN_CHARACTERS_REGEX
+import com.wire.android.util.USERNAME_MAX_LENGTH
 
 @Composable
 fun CreateAccountUsernameScreen() {
@@ -44,8 +46,7 @@ fun CreateAccountUsernameScreen() {
         onUsernameChange = viewModel::onUsernameChange,
         onContinuePressed = viewModel::onContinue,
         onErrorDismiss = viewModel::onErrorDismiss,
-        forbiddenCharactersRegex = Regex(CreateAccountUsernameViewModel.USERNAME_FORBIDDEN_CHARACTERS_REGEX),
-        maxLength = CreateAccountUsernameViewModel.USERNAME_MAX_LENGTH
+        onUsernameErrorAnimated = viewModel::onUsernameErrorAnimated
     )
 }
 
@@ -56,8 +57,7 @@ private fun UsernameContent(
     onUsernameChange: (TextFieldValue) -> Unit,
     onContinuePressed: () -> Unit,
     onErrorDismiss: () -> Unit,
-    forbiddenCharactersRegex: Regex,
-    maxLength: Int
+    onUsernameErrorAnimated: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -85,8 +85,7 @@ private fun UsernameContent(
             UsernameTextField(
                 state = state,
                 onUsernameChange = onUsernameChange,
-                forbiddenCharactersRegex = forbiddenCharactersRegex,
-                maxLength = maxLength
+                onUsernameErrorAnimated = onUsernameErrorAnimated
             )
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
@@ -110,18 +109,17 @@ private fun UsernameContent(
 private fun UsernameTextField(
     state: CreateAccountUsernameViewState,
     onUsernameChange: (TextFieldValue) -> Unit,
-    forbiddenCharactersRegex: Regex,
-    maxLength: Int
+    onUsernameErrorAnimated: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     ShakeAnimation { animate ->
+        if(state.animateUsernameError) {
+            animate()
+            onUsernameErrorAnimated()
+        }
         WireTextField(
             value = state.username,
-            onValueChange = {
-                val validText = it.text.replace(forbiddenCharactersRegex, "").take(maxLength)
-                if (it.text != validText) animate()
-                onUsernameChange(it.copy(text = validText))
-            },
+            onValueChange = onUsernameChange,
             placeholderText = stringResource(R.string.create_account_username_placeholder),
             labelText = stringResource(R.string.create_account_username_label),
             leadingIcon = {
@@ -151,5 +149,5 @@ private fun UsernameTextField(
 @Composable
 @Preview
 private fun CreateAccountUsernameScreenPreview() {
-    UsernameContent(CreateAccountUsernameViewState(), {}, {}, {}, Regex(""), 255)
+    UsernameContent(CreateAccountUsernameViewState(), {}, {}, {}, {})
 }

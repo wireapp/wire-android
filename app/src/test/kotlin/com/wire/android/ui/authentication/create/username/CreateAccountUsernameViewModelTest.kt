@@ -2,6 +2,7 @@ package com.wire.android.ui.authentication.create.username
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.common.BaseTest
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
@@ -31,16 +32,13 @@ import org.junit.Test
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
-class CreateAccountUsernameViewModelTest {
+class CreateAccountUsernameViewModelTest: BaseTest() {
 
     @MockK private lateinit var navigationManager: NavigationManager
     @MockK private lateinit var validateUserHandleUseCase: ValidateUserHandleUseCase
     @MockK private lateinit var setUserHandleUseCase: SetUserHandleUseCase
 
     private lateinit var createAccountUsernameViewModel: CreateAccountUsernameViewModel
-
-    @get:Rule
-    val coroutineTestRule = CoroutineTestRule()
 
     @Before
     fun setup() {

@@ -3,6 +3,7 @@ package com.wire.android.ui.authentication.create.personalaccount
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.logic.RegisterClientAndStoreSessionUseCase
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -29,9 +30,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     validatePasswordUseCase: ValidatePasswordUseCase,
     requestActivationCodeUseCase: RequestActivationCodeUseCase,
     registerAccountUseCase: RegisterAccountUseCase,
-    saveSessionUseCase: SaveSessionUseCase,
-    updateCurrentSessionUseCase: UpdateCurrentSessionUseCase,
-    clientScopeProviderFactory: ClientScopeProvider.Factory
+    registerClientAndStoreSessionUseCase: RegisterClientAndStoreSessionUseCase
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreatePersonalAccount,
     navigationManager,
@@ -39,9 +38,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     validatePasswordUseCase,
     requestActivationCodeUseCase,
     registerAccountUseCase,
-    saveSessionUseCase,
-    updateCurrentSessionUseCase,
-    clientScopeProviderFactory
+    registerClientAndStoreSessionUseCase
 ) {
     var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()

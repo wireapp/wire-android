@@ -1,6 +1,7 @@
 package com.wire.android.di
 
 import android.content.Context
+import com.wire.android.logic.RegisterClientAndStoreSessionUseCase
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
@@ -8,6 +9,8 @@ import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.SaveSessionUseCase
+import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.Module
@@ -172,6 +175,14 @@ class UseCaseModule {
     @Provides
     fun registerClientUseCase(@CurrentAccount currentAccount: String, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.register
+
+    @ViewModelScoped
+    @Provides
+    fun registerClientAndStoreSessionUseCase(
+        clientScopeProviderFactory: ClientScopeProvider.Factory,
+        saveSessionUseCase: SaveSessionUseCase,
+        updateCurrentSessionUseCase: UpdateCurrentSessionUseCase
+    ) = RegisterClientAndStoreSessionUseCase(clientScopeProviderFactory, saveSessionUseCase, updateCurrentSessionUseCase)
 
     @ViewModelScoped
     @Provides

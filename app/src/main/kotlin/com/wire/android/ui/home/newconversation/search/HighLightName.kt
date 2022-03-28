@@ -19,7 +19,7 @@ import com.wire.android.util.QueryMatchExtractor
 import kotlinx.coroutines.launch
 
 @Composable
-fun HighLightName(
+fun HighlightName(
     name: String,
     searchQuery: String,
 ) {

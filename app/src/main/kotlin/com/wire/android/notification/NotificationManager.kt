@@ -45,7 +45,7 @@ class NotificationManager(private val context: Context) {
                             NotificationMessage.Comment("Sender1", CommentResId.PICTURE)
                         ),
                         true,
-                        System.currentTimeMillis() - 1000 * 60 * 5
+                        System.currentTimeMillis()
                     ),
                     NotificationConversation(
                         "1233333",
@@ -79,7 +79,7 @@ class NotificationManager(private val context: Context) {
                             NotificationMessage.Text("Sender1", "https://www.google.com/"),
                         ),
                         true,
-                        System.currentTimeMillis() - 1000 * 60 * 5
+                        System.currentTimeMillis()
                     ),
                 )
             )

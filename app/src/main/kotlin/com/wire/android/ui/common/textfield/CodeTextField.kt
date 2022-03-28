@@ -21,13 +21,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.integerResource
@@ -62,7 +59,6 @@ fun CodeTextField(
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     modifier: Modifier = Modifier
 ) {
-    val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val enabled = state !is WireTextFieldState.Disabled
     Column(
@@ -84,7 +80,6 @@ fun CodeTextField(
             enabled = enabled,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            modifier = Modifier.focusRequester(focusRequester),
             interactionSource = interactionSource,
             decorationBox = {
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
@@ -113,10 +108,6 @@ fun CodeTextField(
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing4x)
             )
         }
-    }
-    SideEffect {
-        focusRequester.requestFocus()
-        keyboardController?.show()
     }
 }
 

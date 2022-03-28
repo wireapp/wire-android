@@ -11,6 +11,7 @@ import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
 
 const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
+const val DEFAULT_FILE_MIME_TYPE = "file/*"
 const val IMAGE_COMPRESSION_RATIO = 75
 
 class ImageUtil private constructor() {

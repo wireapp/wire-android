@@ -6,6 +6,7 @@ plugins {
     id(BuildPlugins.kotlinAndroid)
     //id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinKapt)
+    id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.hilt)
     kotlin(BuildPlugins.kapt)
 
@@ -57,6 +58,10 @@ android {
     //configurations.implementation.configure {
     //    exclude(module = "protobuf-java")
     //}
+
+    packagingOptions {
+        resources.pickFirsts.add("google/protobuf/*.proto")
+    }
 }
 
 kapt {

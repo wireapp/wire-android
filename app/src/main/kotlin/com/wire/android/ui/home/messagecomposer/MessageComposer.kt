@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -62,25 +63,42 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun MessageComposer(
     content: @Composable () -> Unit,
-    messageText: TextFieldValue,
-    onMessageChanged: (TextFieldValue) -> Unit,
+    messageText: String,
+    onMessageChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit
 ) {
     val messageComposerState = rememberMessageComposerInnerState()
 
+    LaunchedEffect(messageText) {
+        messageComposerState.messageText = messageComposerState.messageText.copy(messageText)
+    }
+
     MessageComposer(
         content = content,
         messageComposerState = messageComposerState,
-        messageText = messageText,
-        onMessageChanged = onMessageChanged,
+        messageText = messageComposerState.messageText,
+        onMessageChanged = {
+            // we are setting it immediately in the UI first
+            messageComposerState.messageText = it
+            // we are hoisting the TextFieldValue text value up to the parent
+            if (messageText != it.text) {
+                onMessageChanged(it.text)
+            }
+        },
         onSendButtonClicked = onSendButtonClicked,
         onSendAttachment = onSendAttachment,
         onError = onError
     )
 }
 
+/*
+* Message composer is a UI widget that handles the UI logic of sending messages,
+* it is a wrapper around the "hosting" widget. It receives a [messageText] and
+* exposes a [onMessageChanged] lambda, giving us the option to control its Message Text from outside the Widget.
+* it also exposes [onSendButtonClicked] lambda's giving us the option to handle the different message actions
+* */
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 private fun MessageComposer(
@@ -181,7 +199,8 @@ private fun MessageComposer(
                         ) {
                             Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
                                 AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                                    messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
+                                    messageComposerState.attachmentOptionsDisplayed =
+                                        !messageComposerState.attachmentOptionsDisplayed
                                 }
                             }
                         }
@@ -194,7 +213,6 @@ private fun MessageComposer(
                             messageText = messageText,
                             onMessageTextChanged = { value ->
                                 onMessageChanged(value)
-                                messageComposerState.messageText = value.text
                             },
                             messageComposerInputState = messageComposerState.messageComposeInputState,
                             onFocusChanged = { messageComposerState.toActive() },
@@ -319,7 +337,7 @@ private fun MessageComposerInput(
 ) {
     BasicTextField(
         value = messageText,
-        onValueChange = { onMessageTextChanged(it) },
+        onValueChange = onMessageTextChanged,
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         textStyle = MaterialTheme.wireTypography.body01,
         modifier = modifier.then(

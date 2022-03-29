@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun HighLightSubTitle(
+fun HighlightSubtitle(
     subTitle: String,
     searchQuery: String,
 ) {

@@ -95,7 +95,6 @@ private fun ContactItem(
                     status = userStatus
                 )
             }
-
         },
         title = {
             Text(
@@ -112,7 +111,6 @@ private fun ContactItem(
             ) {
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }
-
         },
         onRowItemClicked = { },
         onRowItemLongClicked = { }

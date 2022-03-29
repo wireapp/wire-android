@@ -4,7 +4,6 @@ import android.content.Context
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
-import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
@@ -187,21 +186,16 @@ class UseCaseModule {
     @Provides
     fun providesSearchKnownUsersUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentSession: AuthSession
+        @CurrentAccount currentAccount: String
     ): SearchKnownUsersUseCase =
-        coreLogic.getSessionScope(currentSession.userId).users.searchKnownUsers
+        coreLogic.getSessionScope(currentAccount).users.searchKnownUsers
 
     @ViewModelScoped
     @Provides
     fun providesSearchPublicUserUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentSession: AuthSession
+        @CurrentAccount currentAccount: String
     ): SearchUserDirectoryUseCase =
-        coreLogic.getSessionScope(currentSession.userId).users.searchUserDirectory
-
-    @ViewModelScoped
-    @Provides
-    fun provideLogoutUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentSession: AuthSession): LogoutUseCase =
-        coreLogic.getSessionScope(currentSession.userId).logout
+        coreLogic.getSessionScope(currentAccount).users.searchUserDirectory
 
 }

@@ -21,6 +21,5 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesApplicationContext(@ApplicationContext appContext: Context) =
-        appContext // TODO: provide wrapper instance to easily mock for test
+    fun providesApplicationContext(@ApplicationContext appContext: Context) = appContext
 }

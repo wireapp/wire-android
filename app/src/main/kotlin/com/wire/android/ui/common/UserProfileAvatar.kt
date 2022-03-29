@@ -23,7 +23,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.getShareableAvatarUri
+import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
 
 @Composable
@@ -45,7 +45,12 @@ fun UserProfileAvatar(
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
         Image(
-            painter = rememberAsyncImagePainter(avatarAssetByteArray?.toBitmap() ?: getShareableAvatarUri(LocalContext.current)),
+            painter = rememberAsyncImagePainter(
+                avatarAssetByteArray?.toBitmap() ?: getUriFromDrawable(
+                    LocalContext.current,
+                    R.drawable.ic_launcher_foreground
+                )
+            ),
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
                 .padding(dimensions().userAvatarStatusBorderSize)

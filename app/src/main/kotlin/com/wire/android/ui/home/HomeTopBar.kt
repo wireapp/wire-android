@@ -25,7 +25,7 @@ fun HomeTopBar(
         onNavigationPressed = onOpenDrawerClicked,
         navigationIconType = NavigationIconType.Menu,
         actions = {
-            UserProfileAvatar(
+            cUserProfileAvatar(
                 isEnabled = true,
                 status = UserStatus.AVAILABLE
             ) {

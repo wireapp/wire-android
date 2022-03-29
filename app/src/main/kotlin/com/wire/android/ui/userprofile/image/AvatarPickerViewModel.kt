@@ -1,6 +1,5 @@
 package com.wire.android.ui.userprofile.image
 
-import android.content.Context
 import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
@@ -12,11 +11,7 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.imagepreview.PictureState
-import com.wire.android.util.DEFAULT_IMAGE_MIME_TYPE
-import com.wire.android.util.ImageUtil.Companion.postProcessCapturedAvatar
-import com.wire.android.util.getMimeType
-import com.wire.android.util.getWritableAvatarUri
-import com.wire.android.util.toByteArray
+import com.wire.android.util.AvatarImageManager
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
@@ -36,7 +31,7 @@ class AvatarPickerViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getUserAvatar: GetPublicAssetUseCase,
     private val uploadUserAvatar: UploadUserAvatarUseCase,
-    private val context: Context
+    private val avatarImageManager: AvatarImageManager
 ) : ViewModel() {
 
     var pictureState by mutableStateOf<PictureState>(PictureState.Initial(Uri.EMPTY))
@@ -52,7 +47,7 @@ class AvatarPickerViewModel @Inject constructor(
         try {
             dataStore.avatarAssetId.first()?.apply {
                 val avatarRaw = (getUserAvatar(this) as PublicAssetResult.Success).asset
-                val currentAvatarUri = getWritableAvatarUri(avatarRaw, context)
+                val currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRaw)
                 pictureState = PictureState.Initial(currentAvatarUri)
             }
         } catch (e: ClassCastException) {
@@ -63,11 +58,10 @@ class AvatarPickerViewModel @Inject constructor(
     fun uploadNewPickedAvatarAndBack(imgUri: Uri) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val data = imgUri.toByteArray(context)
-                val mimeType = imgUri.getMimeType(context) ?: DEFAULT_IMAGE_MIME_TYPE
-                val result = uploadUserAvatar(imageData = data)
+                val data = avatarImageManager.uriToByteArray(imgUri)
+                val result = uploadUserAvatar(data)
                 if (result is UploadAvatarResult.Success) {
-                    getWritableAvatarUri(data, context)
+                    avatarImageManager.getWritableAvatarUri(data)
                     navigateBack()
                 } else {
                     errorMessageCode = when ((result as UploadAvatarResult.Failure).coreFailure) {
@@ -82,7 +76,7 @@ class AvatarPickerViewModel @Inject constructor(
     fun postProcessAvatarImage(imgUri: Uri) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                postProcessCapturedAvatar(imgUri, context)
+                avatarImageManager.postProcessCapturedAvatar(imgUri)
                 pictureState = PictureState.Picked(imgUri)
             }
         }

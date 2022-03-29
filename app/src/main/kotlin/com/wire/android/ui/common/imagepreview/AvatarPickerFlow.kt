@@ -2,22 +2,14 @@ package com.wire.android.ui.common.imagepreview
 
 import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import com.wire.android.R
 import com.wire.android.ui.userprofile.image.ImageSource
-import com.wire.android.util.AvatarImageManager.Companion.getShareableTempAvatarUri
-import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 
 class AvatarPickerFlow(
-    var pictureState: PictureState,
     private val takePictureFlow: UseCameraRequestFlow,
     private val openGalleryFlow: UseStorageRequestFlow
 ) {
@@ -30,35 +22,29 @@ class AvatarPickerFlow(
 }
 
 @Composable
-fun rememberPickPictureState(): AvatarPickerFlow {
-    val context = LocalContext.current
-    var pictureState: PictureState by remember {
-        mutableStateOf(PictureState.Initial(getUriFromDrawable(context, R.drawable.ic_launcher_foreground)))
-    }
-    val onChosenPictureUri = getShareableTempAvatarUri(context)
+fun rememberPickPictureState(
+    onImageSelected: (Uri) -> Unit,
+    onPictureTaken: (Boolean) -> Unit,
+    targetPictureFileUri: Uri
+): AvatarPickerFlow {
+
     val takePictureFLow = rememberTakePictureFlow(
-        onPictureTaken = { wasSaved ->
-            if (wasSaved) {
-                pictureState = PictureState.Picked(onChosenPictureUri)
-            }
-        },
+        onPictureTaken = { wasSaved -> onPictureTaken(wasSaved) },
         onPermissionDenied = {
             // TODO: Implement denied permission rationale
         },
-        targetPictureFileUri = onChosenPictureUri
+        targetPictureFileUri = targetPictureFileUri
     )
 
     val openGalleryFlow = rememberOpenGalleryFlow(
-        onGalleryItemPicked = { pickedPictureUri ->
-            pictureState = PictureState.Picked(pickedPictureUri)
-        },
+        onGalleryItemPicked = { pickedPictureUri -> onImageSelected(pickedPictureUri) },
         onPermissionDenied = {
             // TODO: Implement denied permission rationale
         }
     )
 
-    return remember(pictureState) {
-        AvatarPickerFlow(pictureState, takePictureFLow, openGalleryFlow)
+    return remember {
+        AvatarPickerFlow(takePictureFLow, openGalleryFlow)
     }
 }
 

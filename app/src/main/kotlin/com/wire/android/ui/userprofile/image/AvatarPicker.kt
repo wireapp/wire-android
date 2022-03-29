@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -36,13 +37,24 @@ import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.image.AvatarPickerViewModel.ErrorCodes
+import com.wire.android.util.AvatarImageManager.Companion.getShareableTempAvatarUri
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
-    val state = rememberAvatarPickerState()
+    val context = LocalContext.current
+    val targetAvatarUri = getShareableTempAvatarUri(context)
+    val state = rememberAvatarPickerState(
+        onImageSelected = { viewModel.pickNewImage(it) },
+        onPictureTaken = { wasSaved ->
+            if (wasSaved) {
+                viewModel.pickNewImage(targetAvatarUri)
+            }
+        },
+        targetPictureFileUri = targetAvatarUri
+    )
 
-    val pictureState = state.avatarPickerFlow.pictureState
+    val pictureState = viewModel.pictureState
     if (pictureState is PictureState.Picked) {
         viewModel.postProcessAvatarImage(pictureState.avatarUri)
     }
@@ -133,7 +145,7 @@ private fun AvatarPickerContent(
                     }
                     Divider()
                     Spacer(Modifier.height(4.dp))
-                    AvatarPickerActionButtons(hasPickedImage(state), onSaveClick, onCloseClick) {
+                    AvatarPickerActionButtons(hasPickedImage(viewModel.pictureState), onSaveClick, onCloseClick) {
                         state.showModalBottomSheet()
                     }
                 }
@@ -193,4 +205,4 @@ private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     }
 }
 
-private fun hasPickedImage(state: AvatarPickerState): Boolean = state.avatarPickerFlow.pictureState is PictureState.Picked
+private fun hasPickedImage(state: PictureState): Boolean = state is PictureState.Picked

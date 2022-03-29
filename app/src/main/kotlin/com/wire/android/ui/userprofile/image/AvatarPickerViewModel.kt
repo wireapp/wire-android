@@ -83,6 +83,10 @@ class AvatarPickerViewModel @Inject constructor(
         }
     }
 
+    fun pickNewImage(imageUri: Uri) {
+        pictureState = PictureState.Picked(imageUri)
+    }
+
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun clearErrorMessage() {

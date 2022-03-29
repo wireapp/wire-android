@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile.image
 
+import android.net.Uri
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -16,9 +17,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun rememberAvatarPickerState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
+    onImageSelected: (Uri) -> Unit,
+    onPictureTaken: (Boolean) -> Unit,
+    targetPictureFileUri: Uri
 ): AvatarPickerState {
-    val pickPictureState = rememberPickPictureState()
+    val pickPictureState = rememberPickPictureState(onImageSelected, onPictureTaken, targetPictureFileUri)
 
     return remember(pickPictureState) {
         AvatarPickerState(coroutineScope, modalBottomSheetState, pickPictureState)
@@ -29,7 +33,7 @@ fun rememberAvatarPickerState(
 class AvatarPickerState(
     private val coroutineScope: CoroutineScope,
     val modalBottomSheetState: ModalBottomSheetState,
-    val avatarPickerFlow: AvatarPickerFlow,
+    private val avatarPickerFlow: AvatarPickerFlow,
 ) {
     fun showModalBottomSheet() {
         coroutineScope.launch { modalBottomSheetState.show() }
@@ -45,5 +49,3 @@ sealed class ImageSource {
     object Camera : ImageSource()
     object Gallery : ImageSource()
 }
-
-

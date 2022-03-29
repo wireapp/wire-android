@@ -97,7 +97,7 @@ fun ExternalContactSearchResultItem(
                 searchQuery = searchQuery
             )
         },
-        subTitle = {
+        subtitle = {
             HighlightSubtitle(
                 subTitle = label,
                 searchQuery = searchQuery

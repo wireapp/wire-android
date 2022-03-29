@@ -53,7 +53,7 @@ data class WireDimensions(
     // Message composer
     val messageComposerActiveInputMaxHeight: Dp,
     val attachmentButtonSize: Dp,
-    val messageComposerPaddingEnd : Dp,
+    val messageComposerPaddingEnd: Dp,
     // TextFields
     val textFieldMinHeight: Dp,
     val textFieldCornerSize: Dp,
@@ -125,7 +125,8 @@ data class WireDimensions(
     val dividerThickness: Dp,
     // Search People
     val defaultSearchLazyColumnHeight: Dp,
-    val showAllCollapseButtonMinHeight : Dp
+    val showAllCollapseButtonMinHeight: Dp,
+    val groupButtonHeight: Dp
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -223,7 +224,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     dividerThickness = 0.5.dp,
     defaultSearchLazyColumnHeight = 320.dp,
     showAllCollapseButtonMinHeight = 32.dp,
-    messageComposerPaddingEnd = 82.dp
+    messageComposerPaddingEnd = 82.dp,
+    groupButtonHeight = 82.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

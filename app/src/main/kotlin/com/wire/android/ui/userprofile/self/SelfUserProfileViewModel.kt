@@ -13,7 +13,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.userprofile.StatusDialogData
+import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
+import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult

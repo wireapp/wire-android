@@ -13,8 +13,6 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireLabelledCheckbox
-import com.wire.android.ui.userprofile.StatusDialogData
-import io.github.esentsov.PackagePrivate
 
 @Composable
 fun ChangeStatusDialogContent(

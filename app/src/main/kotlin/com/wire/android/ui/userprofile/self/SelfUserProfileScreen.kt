@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -62,7 +63,6 @@ import com.wire.android.ui.userprofile.self.model.OtherAccount
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
-
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = { viewModelSelf.navigateBack() },
@@ -95,7 +95,6 @@ private fun SelfUserProfileContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Error handling
     state.errorMessageCode?.let { errorCode ->
         val errorMessage = mapErrorCodeToString(errorCode)
         LaunchedEffect(errorMessage) {
@@ -126,12 +125,13 @@ private fun SelfUserProfileContent(
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 UserProfileInfo(
-                    isAvatarLoading = state.isAvatarLoading,
+                    isLoading = state.isAvatarLoading,
                     avatarAssetByteArray = state.avatarAssetByteArray,
                     fullName = fullName,
                     userName = userName,
                     teamName = teamName,
                     onUserProfileClick = onChangeUserProfilePicture,
+                    isEditable = true,
                     onEditClick = onEditClick
                 )
                 CurrentUserStatus(
@@ -188,34 +188,33 @@ private fun SelfUserProfileTopBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun UserProfileInfo(
-    isAvatarLoading: Boolean,
+    isLoading: Boolean,
     avatarAssetByteArray: ByteArray?,
     fullName: String,
     userName: String,
     teamName: String?,
     onUserProfileClick: () -> Unit,
-    isEditable : Boolean = false,
+    isEditable: Boolean = false,
     onEditClick: () -> Unit = {},
-    modifier : Modifier = Modifier
 ) {
-    Box(
-        Modifier
-            .wrapContentSize()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
             .padding(top = dimensions().spacing16x)
-            .then(modifier)
     ) {
         UserProfileAvatar(
             onClick = onUserProfileClick,
-            isClickable = !isAvatarLoading,
+            isClickable = !isLoading,
             size = dimensions().userAvatarDefaultBigSize,
             avatarAssetByteArray = avatarAssetByteArray,
             status = UserStatus.NONE,
         )
-        if (isAvatarLoading) {
+        if (isLoading) {
             Box(
                 Modifier
-                    .matchParentSize()
-                    .align(Alignment.Center)
                     .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
                     .clip(CircleShape)
                     .background(MaterialTheme.wireColorScheme.onBackground.copy(alpha = 0.7f))
@@ -227,7 +226,7 @@ private fun UserProfileInfo(
             }
         }
     }
-    ConstraintLayout {
+    ConstraintLayout(Modifier.wrapContentSize()) {
         val (userDescription, editButton, teamDescription) = createRefs()
 
         Column(
@@ -258,7 +257,7 @@ private fun UserProfileInfo(
             )
         }
 
-        if(isEditable) {
+        if (isEditable) {
             IconButton(
                 modifier = Modifier
                     .padding(start = dimensions().spacing16x)

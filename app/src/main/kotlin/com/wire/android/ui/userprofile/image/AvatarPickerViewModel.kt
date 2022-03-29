@@ -61,6 +61,7 @@ class AvatarPickerViewModel @Inject constructor(
                 val data = avatarImageManager.uriToByteArray(imgUri)
                 val result = uploadUserAvatar(data)
                 if (result is UploadAvatarResult.Success) {
+                    dataStore.updateUserAvatarAssetId(result.userAssetId)
                     avatarImageManager.getWritableAvatarUri(data)
                     navigateBack()
                 } else {

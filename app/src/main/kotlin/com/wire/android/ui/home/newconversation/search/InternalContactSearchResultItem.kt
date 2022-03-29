@@ -50,7 +50,7 @@ fun InternalContactSearchResultItem(
                 searchQuery = searchQuery
             )
         },
-        subTitle = {
+        subtitle = {
             HighlightSubtitle(
                 subTitle = label,
                 searchQuery = searchQuery

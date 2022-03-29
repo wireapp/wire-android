@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile
+package com.wire.android.ui.userprofile.self
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
@@ -13,6 +13,9 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.userprofile.OtherAccount
+import com.wire.android.ui.userprofile.SelfUserProfileState
+import com.wire.android.ui.userprofile.StatusDialogData
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
@@ -29,7 +32,7 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions")
 @ExperimentalMaterial3Api
 @HiltViewModel
-class UserProfileViewModel @Inject constructor(
+class SelfUserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
     private val getPublicAsset: GetPublicAssetUseCase,

@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile.image
+package com.wire.android.ui.userprofile.avatarpicker
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState

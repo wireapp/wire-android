@@ -54,31 +54,32 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes
-import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes.DownloadUserInfoError
+import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel
+import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
+import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun UserProfileScreen(viewModel: UserProfileViewModel = hiltViewModel()) {
+fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
 
-    UserProfileContent(
-        state = viewModel.userProfileState,
-        onCloseClick = { viewModel.navigateBack() },
-        onLogoutClick = { viewModel.onLogoutClick() },
-        onChangeUserProfilePicture = { viewModel.onChangeProfilePictureClicked() },
-        onEditClick = { viewModel.editProfile() },
-        onStatusClicked = { viewModel.changeStatusClick(it) },
-        onAddAccountClick = { viewModel.addAccount() },
-        dismissStatusDialog = { viewModel.dismissStatusDialog() },
-        onStatusChange = { viewModel.changeStatus(it) },
-        onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) },
-        onMessageShown = { viewModel.clearErrorMessage() }
+    SelfUserProfileContent(
+        state = viewModelSelf.userProfileState,
+        onCloseClick = { viewModelSelf.navigateBack() },
+        onLogoutClick = { viewModelSelf.onLogoutClick() },
+        onChangeUserProfilePicture = { viewModelSelf.onChangeProfilePictureClicked() },
+        onEditClick = { viewModelSelf.editProfile() },
+        onStatusClicked = { viewModelSelf.changeStatusClick(it) },
+        onAddAccountClick = { viewModelSelf.addAccount() },
+        dismissStatusDialog = { viewModelSelf.dismissStatusDialog() },
+        onStatusChange = { viewModelSelf.changeStatus(it) },
+        onNotShowRationaleAgainChange = { show -> viewModelSelf.dialogCheckBoxStateChanged(show) },
+        onMessageShown = { viewModelSelf.clearErrorMessage() }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-private fun UserProfileContent(
+private fun SelfUserProfileContent(
     state: SelfUserProfileState,
     onCloseClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
@@ -104,7 +105,7 @@ private fun UserProfileContent(
 
     Scaffold(
         topBar = {
-            UserProfileTopBar(
+            SelfUserProfileTopBar(
                 onCloseClick = onCloseClick,
                 onLogoutClick = onLogoutClick
             )
@@ -164,7 +165,7 @@ private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun UserProfileTopBar(
+private fun SelfUserProfileTopBar(
     onCloseClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
@@ -453,8 +454,8 @@ private fun OtherAccountItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = false)
 @Composable
-private fun UserProfileScreenPreview() {
-    UserProfileContent(
+private fun SelfUserProfileScreenPreview() {
+    SelfUserProfileContent(
         SelfUserProfileState(
             status = UserStatus.BUSY,
             fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",

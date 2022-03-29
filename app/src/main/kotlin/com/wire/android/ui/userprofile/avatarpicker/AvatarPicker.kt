@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile.image
+package com.wire.android.ui.userprofile.avatarpicker
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -36,7 +36,7 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.userprofile.image.AvatarPickerViewModel.ErrorCodes
+import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.ErrorCodes
 import com.wire.android.util.getWritableTempAvatarUri
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)

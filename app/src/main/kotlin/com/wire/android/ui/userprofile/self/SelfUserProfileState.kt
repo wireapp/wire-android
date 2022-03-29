@@ -3,7 +3,7 @@ package com.wire.android.ui.userprofile
 import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.UserStatus
-import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes
+import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 
 data class SelfUserProfileState(
     val avatarAssetByteArray: ByteArray? = null,

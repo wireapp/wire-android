@@ -28,8 +28,8 @@ import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
-import com.wire.android.ui.userprofile.UserProfileScreen
-import com.wire.android.ui.userprofile.image.AvatarPickerScreen
+import com.wire.android.ui.userprofile.SelfUserProfileScreen
+import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.conversation.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -106,7 +106,7 @@ enum class NavigationItem(
     UserProfile(
         primaryRoute = USER_PROFILE,
         canonicalRoute = "$USER_PROFILE/{$EXTRA_USER_ID}",
-        content = { UserProfileScreen() },
+        content = { SelfUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {

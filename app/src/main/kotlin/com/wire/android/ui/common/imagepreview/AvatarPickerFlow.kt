@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.wire.android.ui.userprofile.image.ImageSource
+import com.wire.android.ui.userprofile.avatarpicker.ImageSource
 import com.wire.android.util.ImageUtil.Companion.postProcessCapturedAvatar
 import com.wire.android.util.getDefaultAvatarUri
 import com.wire.android.util.getShareableAvatarUri

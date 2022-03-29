@@ -6,6 +6,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.IconAlignment
@@ -21,7 +22,7 @@ fun AddContactButton(
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_add_contact),
-                contentDescription = "",
+                contentDescription = stringResource(R.string.content_description_add_contact),
             )
         },
         leadingIconAlignment = IconAlignment.Center,

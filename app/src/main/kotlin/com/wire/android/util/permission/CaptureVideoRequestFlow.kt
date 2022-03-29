@@ -30,7 +30,7 @@ fun rememberCaptureVideoFlow(
         onVideoRecorded(hasCapturedVideo)
     }
 
-    val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
+    val requestVideoPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 captureVideoLauncher.launch(targetVideoFileUri)
@@ -40,6 +40,6 @@ fun rememberCaptureVideoFlow(
         }
 
     return remember {
-        UseCameraRequestFlow(context, targetVideoFileUri, captureVideoLauncher, requestPermissionLauncher)
+        UseCameraRequestFlow(context, targetVideoFileUri, captureVideoLauncher, requestVideoPermissionLauncher)
     }
 }

@@ -8,6 +8,7 @@ plugins {
     id(BuildPlugins.kotlinKapt)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.hilt)
+    id(BuildPlugins.junit5)
     kotlin(BuildPlugins.kapt)
 
     // Internal Script plugins
@@ -143,12 +144,13 @@ dependencies {
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)
-    testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.coroutinesTest)
     testImplementation(TestLibraries.testCore)
     testImplementation(TestLibraries.mockk)
     testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.junit5)
+    testRuntimeOnly(TestLibraries.junit5Engine)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(TestLibraries.testRunner)

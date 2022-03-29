@@ -5,6 +5,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -34,7 +35,7 @@ class AvatarPickerViewModel @Inject constructor(
     private val avatarImageManager: AvatarImageManager
 ) : ViewModel() {
 
-    var pictureState by mutableStateOf<PictureState>(PictureState.Initial(Uri.EMPTY))
+    var pictureState by mutableStateOf<PictureState>(PictureState.Initial("".toUri()))
         private set
 
     var errorMessageCode by mutableStateOf<ErrorCodes?>(null)

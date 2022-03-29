@@ -42,12 +42,9 @@ import com.wire.android.ui.userprofile.image.AvatarPickerViewModel.ErrorCodes
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
     val state = rememberAvatarPickerState()
 
-    val canUpload: Boolean = when (val pictureState = state.avatarPickerFlow.pictureState) {
-        is PictureState.Initial -> false
-        is PictureState.Picked -> {
-            viewModel.postProcessAvatarImage(pictureState.avatarUri)
-            true
-        }
+    val pictureState = state.avatarPickerFlow.pictureState
+    if (pictureState is PictureState.Picked) {
+        viewModel.postProcessAvatarImage(pictureState.avatarUri)
     }
 
     AvatarPickerContent(
@@ -57,11 +54,7 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
             viewModel.navigateBack()
         },
         onSaveClick = {
-            if (canUpload) {
-                viewModel.uploadNewPickedAvatarAndBack(viewModel.pictureState.avatarUri)
-            } else {
-                viewModel.navigateBack()
-            }
+            viewModel.uploadNewPickedAvatarAndBack(viewModel.pictureState.avatarUri)
         }
     )
 }

@@ -23,7 +23,7 @@ import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.WiredCheckbox
+import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.common.GroupButton
@@ -90,7 +90,7 @@ private fun ContactItem(
     RowItemTemplate(
         leadingIcon = {
             Row {
-                WiredCheckbox(checked = belongsToGroup, onCheckedChange = { if (it) addToGroup() else removeFromGroup() })
+                WireCheckbox(checked = belongsToGroup, onCheckedChange = { if (it) addToGroup() else removeFromGroup() })
                 UserProfileAvatar(
                     status = userStatus
                 )

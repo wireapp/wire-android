@@ -13,7 +13,8 @@ import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.WiredCheckbox
+import com.wire.android.ui.common.WireCheckbox
+
 
 @Composable
 fun InternalContactSearchResultItem(
@@ -33,7 +34,7 @@ fun InternalContactSearchResultItem(
     RowItemTemplate(
         leadingIcon = {
             Row {
-                WiredCheckbox(
+                WireCheckbox(
                     checked = isAddedToGroup,
                     onCheckedChange = { if (it) addToGroup() else removeFromGroup() }
                 )
@@ -44,13 +45,13 @@ fun InternalContactSearchResultItem(
             }
         },
         title = {
-            HighLightName(
+            HighlightName(
                 name = name,
                 searchQuery = searchQuery
             )
         },
         subTitle = {
-            HighLightSubTitle(
+            HighlightSubtitle(
                 subTitle = label,
                 searchQuery = searchQuery
             )
@@ -91,13 +92,13 @@ fun ExternalContactSearchResultItem(
             }
         },
         title = {
-            HighLightName(
+            HighlightName(
                 name = name,
                 searchQuery = searchQuery
             )
         },
         subTitle = {
-            HighLightSubTitle(
+            HighlightSubtitle(
                 subTitle = label,
                 searchQuery = searchQuery
             )

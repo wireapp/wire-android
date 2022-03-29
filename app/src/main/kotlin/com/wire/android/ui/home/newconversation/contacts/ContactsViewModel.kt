@@ -20,21 +20,21 @@ class ContactsViewModel @Inject constructor(
             contacts = buildList {
                 add(
                     Contact(
-                        id = 1,
+                        id = 1.toString(),
                         "This is first contact"
                     )
                 )
                 for (i in 2..11) {
                     add(
                         Contact(
-                            id = 1,
+                            id = i.toString(),
                             "This is $i contact"
                         )
                     )
                 }
                 add(
                     Contact(
-                        id = 12,
+                        id = 12.toString(),
                         "This is last contact"
                     )
                 )

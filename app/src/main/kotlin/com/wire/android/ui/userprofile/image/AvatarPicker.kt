@@ -48,16 +48,11 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
         onImageSelected = { viewModel.pickNewImage(it) },
         onPictureTaken = { wasSaved ->
             if (wasSaved) {
-                viewModel.pickNewImage(targetAvatarUri)
+                viewModel.postProcessAvatarImage(targetAvatarUri)
             }
         },
         targetPictureFileUri = targetAvatarUri
     )
-
-    val pictureState = viewModel.pictureState
-    if (pictureState is PictureState.Picked) {
-        viewModel.postProcessAvatarImage(pictureState.avatarUri)
-    }
 
     AvatarPickerContent(
         viewModel = viewModel,

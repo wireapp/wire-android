@@ -51,6 +51,7 @@ import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.animateAsStateRotationToRight
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
@@ -204,13 +205,16 @@ private fun MessageComposer(
                                         MessageComposeInputState.FullScreen ->
                                             Modifier
                                                 .fillMaxHeight()
-                                                .padding(end = 82.dp)
+                                                .padding(end = dimensions().messageComposerPaddingEnd)
                                         MessageComposeInputState.Active -> {
                                             Modifier
                                                 .heightIn(
                                                     max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
                                                 )
-                                                .padding(bottom = MaterialTheme.wireDimensions.spacing16x, end = 82.dp)
+                                                .padding(
+                                                    bottom = MaterialTheme.wireDimensions.spacing16x,
+                                                    end = dimensions().messageComposerPaddingEnd
+                                                )
                                         }
                                         else -> Modifier.wrapContentHeight()
                                     }

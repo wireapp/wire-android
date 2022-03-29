@@ -58,7 +58,7 @@ fun wireCheckBoxColors(
         // If not enabled 'snap' to the disabled state, as there should be no animations between
         // enabled / disabled.
         return if (enabled) {
-            val duration = if (state == ToggleableState.Off) BoxOutDuration else BoxInDuration
+            val duration = if (state == ToggleableState.Off) BOX_OUT_DURATION else BOX_IN_DURATION
             animateColorAsState(target, tween(durationMillis = duration))
         } else {
             rememberUpdatedState(target)
@@ -83,7 +83,7 @@ fun wireCheckBoxColors(
         // If not enabled 'snap' to the disabled state, as there should be no animations between
         // enabled / disabled.
         return if (enabled) {
-            val duration = if (state == ToggleableState.Off) BoxOutDuration else BoxInDuration
+            val duration = if (state == ToggleableState.Off) BOX_OUT_DURATION else BOX_IN_DURATION
             animateColorAsState(target, tween(durationMillis = duration))
         } else {
             rememberUpdatedState(target)
@@ -98,11 +98,11 @@ fun wireCheckBoxColors(
             checkedCheckmarkColor
         }
 
-        val duration = if (state == ToggleableState.Off) BoxOutDuration else BoxInDuration
+        val duration = if (state == ToggleableState.Off) BOX_OUT_DURATION else BOX_IN_DURATION
         return animateColorAsState(target, tween(durationMillis = duration))
     }
 
 }
 
-private const val BoxOutDuration = 100
-private const val BoxInDuration = 50
+private const val BOX_OUT_DURATION = 100
+private const val BOX_IN_DURATION = 50

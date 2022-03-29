@@ -6,7 +6,7 @@ import com.wire.kalium.logic.data.publicuser.model.PublicUser
 data class ContactsState(val contacts: List<Contact> = emptyList())
 
 data class Contact(
-    val id: Int,
+    val id: String,
     val name: String,
     val userStatus: UserStatus = UserStatus.AVAILABLE,
     val avatarUrl: String = "",
@@ -15,7 +15,7 @@ data class Contact(
 
 fun PublicUser.toContact() =
     Contact(
-        id = 1,
+        id = id.value,
         name = name ?: "",
         label = handle ?: "",
     )

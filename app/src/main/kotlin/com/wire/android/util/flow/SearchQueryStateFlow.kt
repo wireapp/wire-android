@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
 class SearchQueryStateFlow {
+    private companion object {
+        private const val DEBOUNCE_TIME_MILLIS = 500L
+    }
 
     private val searchQuery = MutableStateFlow("")
 
@@ -15,7 +18,7 @@ class SearchQueryStateFlow {
 
     suspend fun onSearchAction(block: suspend CoroutineScope.(String) -> Unit) {
         coroutineScope {
-            searchQuery.debounce(500).collect { searchTerm ->
+            searchQuery.debounce(DEBOUNCE_TIME_MILLIS).collect { searchTerm ->
                 if (outGoingSearchJob != null) {
                     outGoingSearchJob?.let { job ->
                         if (job.isActive) {

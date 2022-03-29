@@ -4,10 +4,19 @@ import com.wire.android.ui.home.newconversation.contacts.Contact
 
 data class SearchPeopleState(
     val searchQuery: String = "",
-    val noneSearchSucceed : Boolean = false,
-    val localContactSearchResult: ContactSearchResult = ContactSearchResult.InternalContact(searchResultState = SearchResultState.Initial),
-    val publicContactsSearchResult: ContactSearchResult = ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial),
-    val federatedContactSearchResult: ContactSearchResult = ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
+    val noneSearchSucceed: Boolean = false,
+    val localContactSearchResult: ContactSearchResult =
+        ContactSearchResult.InternalContact(
+            searchResultState = SearchResultState.Initial
+        ),
+    val publicContactsSearchResult: ContactSearchResult =
+        ContactSearchResult.ExternalContact(
+            searchResultState = SearchResultState.Initial
+        ),
+    val federatedContactSearchResult: ContactSearchResult =
+        ContactSearchResult.ExternalContact(
+            searchResultState = SearchResultState.Initial
+        )
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {

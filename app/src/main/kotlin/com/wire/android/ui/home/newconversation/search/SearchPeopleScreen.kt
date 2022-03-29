@@ -29,6 +29,9 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.contacts.Contact
 
+
+private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
+
 @Composable
 fun SearchPeopleScreen(
     searchPeopleState: SearchPeopleState,
@@ -114,6 +117,7 @@ private fun SearchResult(
     }
 }
 
+@Suppress("LongParameterList")
 private fun LazyListScope.internalSearchResults(
     searchTitle: @Composable () -> String,
     searchQuery: String,
@@ -184,6 +188,7 @@ private fun LazyListScope.externalSearchResults(
     }
 }
 
+@Suppress("LongParameterList")
 private fun LazyListScope.internalSuccessItem(
     searchTitle: @Composable () -> String,
     showAllItems: Boolean,
@@ -197,7 +202,7 @@ private fun LazyListScope.internalSuccessItem(
     if (searchResult.isNotEmpty()) {
         item { FolderHeader(searchTitle()) }
 
-        items(if (showAllItems) searchResult else searchResult.take(4)) { contact ->
+        items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
             with(contact) {
                 InternalContactSearchResultItem(
                     avatarUrl = avatarUrl,
@@ -214,7 +219,7 @@ private fun LazyListScope.internalSuccessItem(
             }
         }
 
-        if (searchResult.size > 4) {
+        if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE) {
             item {
                 Box(
                     Modifier
@@ -245,7 +250,7 @@ private fun LazyListScope.externalSuccessItem(
     if (searchResult.isNotEmpty()) {
         item { FolderHeader(searchTitle()) }
 
-        items(if (showAllItems) searchResult else searchResult.take(4)) { contact ->
+        items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
             with(contact) {
                 ExternalContactSearchResultItem(
                     avatarUrl = avatarUrl,
@@ -259,7 +264,7 @@ private fun LazyListScope.externalSuccessItem(
             }
         }
 
-        if (searchResult.size > 4) {
+        if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE) {
             item {
                 Box(
                     Modifier

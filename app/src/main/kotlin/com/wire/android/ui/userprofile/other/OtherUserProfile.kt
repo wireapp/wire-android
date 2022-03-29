@@ -15,9 +15,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 fun OtherUserProfile() {
     Scaffold(
         topBar = {
-            OtherUserProfileTopBar(
-
-            )
+            OtherUserProfileTopBar()
         },
     ) {
 

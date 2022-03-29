@@ -14,7 +14,7 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 
 @Composable
 fun RowItemTemplate(
-    leadingIcon: @Composable () -> Unit,
+    leadingIcon: @Composable () -> Unit = {},
     title: @Composable () -> Unit,
     subtitle: @Composable () -> Unit = {},
     actions: @Composable () -> Unit = {},
@@ -32,8 +32,14 @@ fun RowItemTemplate(
             modifier = Modifier
                 .weight(1f)
         ) {
-            title()
-            subtitle()
+            Box(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(start = 8.dp)
+            ) {
+                title()
+                subtitle()
+            }
         }
         Box(
             modifier = Modifier

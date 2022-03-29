@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile.other
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,12 +9,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,11 +22,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.MoreOptionIcon
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,6 +46,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OtherProfileScreenContent(state: OtherUserProfileScreenState) {
     with(state) {
@@ -51,7 +56,7 @@ fun OtherProfileScreenContent(state: OtherUserProfileScreenState) {
                 .fillMaxHeight()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            LazyColumn(Modifier.weight(1f)) {
+            LazyColumn(modifier = Modifier.weight(1f)) {
                 item {
                     UserProfileInfo(
                         isLoading = state.isAvatarLoading,
@@ -64,25 +69,23 @@ fun OtherProfileScreenContent(state: OtherUserProfileScreenState) {
                 }
 
                 item {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                    ) {
-                        WireSecondaryButton(
-                            onClick = { /*TODO*/ },
-                            text = stringResource(R.string.welcome_button_create_team),
-                            fillMaxWidth = false
-                        )
-                        WireSecondaryButton(
-                            onClick = { /*TODO*/ },
-                            text = stringResource(R.string.welcome_button_create_team),
-                            fillMaxWidth = false
-                        )
-                    }
+                    UserDetailInformation(
+                        title = "e-mail",
+                        value = state.email,
+                        onCopy = {}
+                    )
                 }
+
+                item {
+                    UserDetailInformation(
+                        title = "phone",
+                        value = state.phone,
+                        onCopy = {}
+                    )
+                }
+
             }
+
             Divider()
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -93,7 +96,7 @@ fun OtherProfileScreenContent(state: OtherUserProfileScreenState) {
                     .padding(all = dimensions().spacing16x)
             ) {
                 WirePrimaryButton(
-                    text = "Open Conversation",
+                    text = stringResource(R.string.label_open_conversation),
                     onClick = {
                         //TODO:redirect to conversation
                     },
@@ -101,6 +104,30 @@ fun OtherProfileScreenContent(state: OtherUserProfileScreenState) {
             }
         }
     }
+}
+
+
+@Composable
+private fun UserDetailInformation(title: String, value: String, onCopy: () -> Unit) {
+    RowItemTemplate(
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.subline01,
+                color = MaterialTheme.wireColorScheme.labelText,
+                text = title.uppercase()
+            )
+        },
+        subtitle = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = value
+            )
+        },
+        actions = { CopyButton(onCopy) },
+        onRowItemClicked = { },
+        onRowItemLongClicked = { }
+    )
 }
 
 @Composable

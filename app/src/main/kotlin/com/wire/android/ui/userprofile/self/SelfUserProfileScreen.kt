@@ -226,12 +226,17 @@ private fun UserProfileInfo(
             }
         }
     }
-    ConstraintLayout(Modifier.wrapContentSize()) {
+    ConstraintLayout(
+        Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
         val (userDescription, editButton, teamDescription) = createRefs()
 
         Column(
             modifier = Modifier
                 .padding(horizontal = dimensions().spacing64x)
+                .wrapContentSize()
                 .constrainAs(userDescription) {
                     top.linkTo(parent.top)
                     bottom.linkTo(parent.bottom)

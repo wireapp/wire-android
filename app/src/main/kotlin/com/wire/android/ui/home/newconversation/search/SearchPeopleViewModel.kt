@@ -27,6 +27,7 @@ class SearchPeopleViewModel @Inject constructor(
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUserDirectoryUseCase
 ) : ViewModel() {
+    //TODO: map this value out with the given back-end configuration later on
     private companion object {
         const val HARDCODED_TEST_DOMAIN = "staging.zinfra.io"
     }

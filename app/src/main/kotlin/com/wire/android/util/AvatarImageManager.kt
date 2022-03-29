@@ -42,8 +42,9 @@ class AvatarImageManager @Inject constructor(val context: Context) {
     }
 
     /**
-     * Rotates the image to its [ExifInterface.ORIENTATION_NORMAL] in case it's rotated with a different orientation than landscape or portrait
-     * See more about exif interface at: https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface
+     * Rotates the image to its [ExifInterface.ORIENTATION_NORMAL] in case it's rotated with a different orientation than
+     * landscape or portrait See more about exif interface at:
+     * https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface
      *
      * @param exif Exif interface for of the image to rotate
      * @return Bitmap the rotated bitmap or the same in case there is no rotation performed

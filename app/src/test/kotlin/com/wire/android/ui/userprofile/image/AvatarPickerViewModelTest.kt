@@ -7,9 +7,12 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.imagepreview.PictureState
 import com.wire.android.util.AvatarImageManager
+import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
+import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -43,19 +46,21 @@ class AvatarPickerViewModelTest {
     @MockK
     lateinit var uploadUserAvatarUseCase: UploadUserAvatarUseCase
 
-    @MockK
+    @MockK(relaxUnitFun = true, relaxed = true)
     lateinit var avatarImageManager: AvatarImageManager
 
     private val mockUri = mockk<Uri>()
 
     @BeforeEach
     fun setUp() {
-        MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
+        MockKAnnotations.init(this, relaxUnitFun = true)
 
         // setup mocks for view model
         mockkStatic(Uri::class)
         every { Uri.parse(any()) } returns mockUri
         every { userDataStore.avatarAssetId } returns flow { emit("some-asset-id") }
+        coEvery { userDataStore.updateUserAvatarAssetId(any()) } returns Unit
+        coEvery { getPublicAsset(any()) } returns PublicAssetResult.Success("some-asset-id".toByteArray())
 
         avatarPickerViewModel =
             AvatarPickerViewModel(navigationManager, userDataStore, getPublicAsset, uploadUserAvatarUseCase, avatarImageManager)
@@ -76,20 +81,41 @@ class AvatarPickerViewModelTest {
     }
 
     @Test
-    fun `given a valid image, when uploading the asset, then should call the usecase and navigate back on success`() = runTest {
+    fun `given a valid image, when uploading the asset succeed, then should call the usecase and navigate back on success`() = runTest {
         val uploadedAssetId = "some-asset-id"
-        val rawImage = "some-asset-id".toByteArray()
+        val rawImage = uploadedAssetId.toByteArray()
         coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Success(uploadedAssetId)
         coEvery { avatarImageManager.uriToByteArray(any()) } returns rawImage
 
         avatarPickerViewModel.uploadNewPickedAvatarAndBack(mockUri)
 
-        coVerify(exactly = 1) {
+        coVerify {
             avatarImageManager.uriToByteArray(mockUri)
             uploadUserAvatarUseCase(rawImage)
             userDataStore.updateUserAvatarAssetId(uploadedAssetId)
             avatarImageManager.getWritableAvatarUri(rawImage)
             navigationManager.navigateBack()
         }
+        assertEquals(null, avatarPickerViewModel.errorMessageCode)
+    }
+
+    @Test
+    fun `given a valid image, when uploading the asset fails, then should emit an error`() = runTest {
+        val uploadedAssetId = "some-asset-id"
+        val rawImage = uploadedAssetId.toByteArray()
+        coEvery { avatarImageManager.uriToByteArray(any()) } returns rawImage
+        coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Failure(Unknown(RuntimeException("some error")))
+
+        avatarPickerViewModel.uploadNewPickedAvatarAndBack(mockUri)
+
+        coVerify {
+            avatarImageManager.uriToByteArray(mockUri)
+            uploadUserAvatarUseCase(rawImage)
+        }
+        coVerify {
+            avatarImageManager.getWritableAvatarUri(rawImage) wasNot Called
+        }
+
+        assertEquals(AvatarPickerViewModel.ErrorCodes.UploadAvatarError, avatarPickerViewModel.errorMessageCode)
     }
 }

@@ -36,7 +36,19 @@ data class WireColorScheme(
     val secondaryText: Color,
     val labelText: Color,
     val badge: Color,                                   val onBadge: Color,
-    val highLight : Color
+    val highLight : Color,
+    val checkedCheckBoxBorderColor : Color,
+    val uncheckedCheckBoxBorderColor : Color,
+    val disabledIndeterminateCheckBoxBorderColor : Color,
+    val disabledCheckBoxBorderColor : Color,
+    val checkedBoxColor : Color,
+    val uncheckedBoxColor : Color,
+    val disabledCheckedBoxColor : Color,
+    val disabledIndeterminateBoxColor : Color,
+    val disabledUncheckedBoxColor : Color,
+    val uncheckedCheckmarkColor : Color,
+    val checkedCheckmarkColor : Color
+
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,                              onPrimary = onPrimary,
@@ -87,7 +99,18 @@ private val LightWireColorScheme = WireColorScheme(
     secondaryText = WireColorPalette.Gray70,
     labelText = WireColorPalette.Gray80,
     badge = WireColorPalette.Gray90,                               onBadge = Color.White,
-    highLight = WireColorPalette.DarkYellow300
+    highLight = WireColorPalette.DarkYellow300,
+    checkedCheckBoxBorderColor = WireColorPalette.LightBlue500,
+    uncheckedCheckBoxBorderColor = WireColorPalette.Gray80,
+    disabledIndeterminateCheckBoxBorderColor = WireColorPalette.Gray80 ,
+    disabledCheckBoxBorderColor = WireColorPalette.Gray80,
+    checkedBoxColor = WireColorPalette.LightBlue500,
+    uncheckedBoxColor = WireColorPalette.Gray20,
+    disabledCheckedBoxColor = WireColorPalette.Gray80,
+    disabledIndeterminateBoxColor = WireColorPalette.Gray80,
+    disabledUncheckedBoxColor = WireColorPalette.Gray80,
+    uncheckedCheckmarkColor = WireColorPalette.Gray20,
+    checkedCheckmarkColor = Color.White
 )
 
 
@@ -122,7 +145,18 @@ private val DarkWireColorScheme = WireColorScheme(
     secondaryText = WireColorPalette.Gray40,
     labelText = WireColorPalette.Gray30,
     badge = WireColorPalette.Gray10,                               onBadge = Color.Black,
-    highLight =  WireColorPalette.DarkYellow300
+    highLight =  WireColorPalette.DarkYellow300,
+    checkedCheckBoxBorderColor = WireColorPalette.LightBlue500,
+    uncheckedCheckBoxBorderColor = WireColorPalette.Gray80,
+    disabledIndeterminateCheckBoxBorderColor = WireColorPalette.Gray80 ,
+    disabledCheckBoxBorderColor = WireColorPalette.Gray80,
+    checkedBoxColor = WireColorPalette.LightBlue500,
+    uncheckedBoxColor = WireColorPalette.Gray20,
+    disabledCheckedBoxColor = WireColorPalette.Gray80,
+    disabledIndeterminateBoxColor = WireColorPalette.Gray80,
+    disabledUncheckedBoxColor = WireColorPalette.Gray80,
+    uncheckedCheckmarkColor = WireColorPalette.Gray20,
+    checkedCheckmarkColor = Color.White
 )
 
 @PackagePrivate

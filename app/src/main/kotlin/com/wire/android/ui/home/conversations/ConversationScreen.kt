@@ -14,7 +14,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -48,7 +47,7 @@ fun ConversationScreen(
 @Composable
 private fun ConversationScreen(
     conversationViewState: ConversationViewState,
-    onMessageChanged: (TextFieldValue) -> Unit,
+    onMessageChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onBackButtonClick: () -> Unit
@@ -150,8 +149,8 @@ private fun EditMessageMenuItems(
 @Composable
 private fun ConversationScreenContent(
     messages: List<Message>,
-    onMessageChanged: (TextFieldValue) -> Unit,
-    messageText: TextFieldValue,
+    onMessageChanged: (String) -> Unit,
+    messageText: String,
     onSendButtonClicked: () -> Unit,
     onShowContextMenu: (Message) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,

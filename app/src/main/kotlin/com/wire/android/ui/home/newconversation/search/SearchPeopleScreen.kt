@@ -1,46 +1,36 @@
 package com.wire.android.ui.home.newconversation.search
 
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.contacts.Contact
-import com.wire.android.ui.home.newconversation.contacts.ExternalContact
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.MatchQueryResult
-import com.wire.android.util.QueryMatchExtractor
-import kotlinx.coroutines.launch
+
+
+private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
 @Composable
 fun SearchPeopleScreen(
@@ -48,28 +38,36 @@ fun SearchPeopleScreen(
 ) {
     SearchPeopleScreenContent(
         searchQuery = searchPeopleState.searchQuery,
-        contactSearchResult = searchPeopleState.contactSearchResult,
-        publicSearchResult = searchPeopleState.publicContactSearchResult,
-        federatedBackendResult = searchPeopleState.federatedContactSearchResult
+        noneSearchSucceed = searchPeopleState.noneSearchSucceed,
+        contactContactSearchResult = searchPeopleState.localContactSearchResult,
+        publicContactSearchResult = searchPeopleState.publicContactsSearchResult,
+        federatedBackendResultContact = searchPeopleState.federatedContactSearchResult
     )
 }
 
 @Composable
 private fun SearchPeopleScreenContent(
     searchQuery: String,
-    contactSearchResult: List<Contact>,
-    publicSearchResult: List<ExternalContact>,
-    federatedBackendResult: List<ExternalContact>,
+    noneSearchSucceed: Boolean,
+    contactContactSearchResult: ContactSearchResult,
+    publicContactSearchResult: ContactSearchResult,
+    federatedBackendResultContact: ContactSearchResult,
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
     } else {
-        SearchResult(
-            searchQuery = searchQuery,
-            contactSearchResult = contactSearchResult,
-            publicSearchResult = publicSearchResult,
-            federatedBackendResult = federatedBackendResult
-        )
+        if (noneSearchSucceed) {
+            //TODO : all failed we want to display a general error
+        } else {
+            Column {
+                SearchResult(
+                    searchQuery = searchQuery,
+                    contactContactSearchResult = contactContactSearchResult,
+                    publicContactSearchResult = publicContactSearchResult,
+                    federatedBackendResultContact = federatedBackendResultContact
+                )
+            }
+        }
     }
 }
 
@@ -77,127 +75,164 @@ private fun SearchPeopleScreenContent(
 @Composable
 private fun SearchResult(
     searchQuery: String,
-    contactSearchResult: List<Contact>,
-    publicSearchResult: List<ExternalContact>,
-    federatedBackendResult: List<ExternalContact>,
+    contactContactSearchResult: ContactSearchResult,
+    publicContactSearchResult: ContactSearchResult,
+    federatedBackendResultContact: ContactSearchResult,
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
 
-    BoxWithConstraints {
-        val fullHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
-
+    Column {
         LazyColumn(
             state = searchPeopleScreenState.lazyListState,
             modifier = Modifier
-                .fillMaxSize()
+                .weight(1f),
         ) {
+            internalSearchResults(
+                searchTitle = { stringResource(R.string.label_contacts) },
+                searchQuery = searchQuery,
+                contactsAddedToGroup = searchPeopleScreenState.newGroupContacts,
+                onAddToGroup = { contact -> searchPeopleScreenState.addContactToGroup(contact) },
+                removeFromGroup = { contact -> searchPeopleScreenState.removeContactFromGroup(contact) },
+                contactSearchResult = contactContactSearchResult,
+                showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
+                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() }
+            )
+            externalSearchResults(
+                searchTitle = { stringResource(R.string.label_public_wire) },
+                searchQuery = searchQuery,
+                contactSearchResult = publicContactSearchResult,
+                showAllItems = searchPeopleScreenState.publicResultsCollapsed,
+                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() }
+            )
+            externalSearchResults(
+                searchTitle = { stringResource(R.string.label_federated_backends) },
+                searchQuery = searchQuery,
+                contactSearchResult = federatedBackendResultContact,
+                showAllItems = searchPeopleScreenState.federatedBackendResultsCollapsed,
+                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() }
+            )
+        }
+        Divider()
+        GroupButton(groupSize = searchPeopleScreenState.newGroupContacts.size)
+    }
+}
 
-            if (contactSearchResult.isNotEmpty()) {
-                item(key = "contact") {
-                    SearchResultContent(
-                        headerTitle = stringResource(id = R.string.label_contacts),
-                        totalSearchResultCount = contactSearchResult.size.toString(),
-                        searchResult = {
-                            LazyColumn(
-                                Modifier.fillMaxSize()
-                            ) {
-                                items(items = contactSearchResult) { contact ->
-                                    with(contact) {
-                                        ContactSearchResultItem(
-                                            avatarUrl = avatarUrl,
-                                            userStatus = userStatus,
-                                            name = name,
-                                            label = label,
-                                            searchQuery = searchQuery,
-                                            source = Source.Internal(eventType),
-                                            onRowItemClicked = {},
-                                            onRowItemLongClicked = {}
-                                        )
-                                    }
-                                }
-                            }
-                        },
-                        onShowAllClicked = {
-                            searchPeopleScreenState.showAllContactsResult()
-                        },
-                        onShowLessClicked = { searchPeopleScreenState.contactsAllResultsCollapsed = false },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(
-                                if (searchPeopleScreenState.contactsAllResultsCollapsed) fullHeight
-                                else dimensions().defaultSearchLazyColumnHeight
-                            )
-                            .animateItemPlacement()
-                    )
-                }
+@Suppress("LongParameterList")
+private fun LazyListScope.internalSearchResults(
+    searchTitle: @Composable () -> String,
+    searchQuery: String,
+    contactsAddedToGroup: List<Contact>,
+    onAddToGroup: (Contact) -> Unit,
+    removeFromGroup: (Contact) -> Unit,
+    contactSearchResult: ContactSearchResult,
+    showAllItems: Boolean,
+    onShowAllButtonClicked: () -> Unit,
+) {
+    when (val searchResult = contactSearchResult.searchResultState) {
+        SearchResultState.InProgress -> {
+            inProgressItem()
+        }
+        is SearchResultState.Success -> {
+            internalSuccessItem(
+                searchTitle = searchTitle,
+                showAllItems = showAllItems,
+                contactsAddedToGroup = contactsAddedToGroup,
+                onAddToGroup = onAddToGroup,
+                removeFromGroup = removeFromGroup,
+                searchResult = searchResult.result,
+                searchQuery = searchQuery,
+                onShowAllButtonClicked = onShowAllButtonClicked
+            )
+        }
+        is SearchResultState.Failure -> {
+            failureItem(
+                searchTitle = searchTitle,
+                failureMessage = searchResult.failureMessage
+            )
+        }
+        // We do not display anything on Initial state
+        SearchResultState.Initial -> {
+        }
+    }
+}
+
+private fun LazyListScope.externalSearchResults(
+    searchTitle: @Composable () -> String,
+    searchQuery: String,
+    contactSearchResult: ContactSearchResult,
+    showAllItems: Boolean,
+    onShowAllButtonClicked: () -> Unit,
+) {
+    when (val searchResult = contactSearchResult.searchResultState) {
+        SearchResultState.InProgress -> {
+            inProgressItem()
+        }
+        is SearchResultState.Success -> {
+            externalSuccessItem(
+                searchTitle = searchTitle,
+                showAllItems = showAllItems,
+                searchResult = searchResult.result,
+                searchQuery = searchQuery,
+                onShowAllButtonClicked = onShowAllButtonClicked
+            )
+        }
+        is SearchResultState.Failure -> {
+            failureItem(
+                searchTitle = searchTitle,
+                failureMessage = searchResult.failureMessage
+            )
+        }
+        // We do not display anything on Initial state
+        SearchResultState.Initial -> {
+        }
+    }
+}
+
+@Suppress("LongParameterList")
+private fun LazyListScope.internalSuccessItem(
+    searchTitle: @Composable () -> String,
+    showAllItems: Boolean,
+    contactsAddedToGroup: List<Contact>,
+    onAddToGroup: (Contact) -> Unit,
+    removeFromGroup: (Contact) -> Unit,
+    searchResult: List<Contact>,
+    searchQuery: String,
+    onShowAllButtonClicked: () -> Unit
+) {
+    if (searchResult.isNotEmpty()) {
+        item { FolderHeader(searchTitle()) }
+
+        items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
+            with(contact) {
+                InternalContactSearchResultItem(
+                    avatarUrl = avatarUrl,
+                    userStatus = userStatus,
+                    name = name,
+                    label = label,
+                    searchQuery = searchQuery,
+                    isAddedToGroup = contactsAddedToGroup.contains(contact),
+                    addToGroup = { onAddToGroup(contact) },
+                    removeFromGroup = { removeFromGroup(contact) },
+                    onRowItemClicked = { },
+                    onRowItemLongClicked = { }
+                )
             }
+        }
 
-            if (publicSearchResult.isNotEmpty()) {
-                item(key = "backend") {
-                    SearchResultContent(
-                        headerTitle = stringResource(R.string.label_public_wire),
-                        totalSearchResultCount = publicSearchResult.size.toString(),
-                        searchResult = {
-                            LazyColumn(
-                                Modifier.fillMaxSize()
-                            ) {
-                                items(items = publicSearchResult) { contact ->
-                                    ExternalSearchResultItem(
-                                        searchQuery = searchQuery,
-                                        externalContact = contact,
-                                        onRowItemClicked = {},
-                                        oRowItemLongClicked = {}
-                                    )
-                                }
-                            }
-                        },
-                        onShowAllClicked = {
-                            searchPeopleScreenState.showAllPublicResult()
-                        },
-                        onShowLessClicked = { searchPeopleScreenState.publicResultsCollapsed = false },
+        if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE) {
+            item {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    ShowButton(
+                        totalSearchResultCount = searchResult.size,
+                        isShownAll = showAllItems,
+                        onShowButtonClicked = onShowAllButtonClicked,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(
-                                if (searchPeopleScreenState.publicResultsCollapsed) fullHeight
-                                else dimensions().defaultSearchLazyColumnHeight
-                            )
-                            .animateItemPlacement()
-                    )
-                }
-            }
-
-            if (federatedBackendResult.isNotEmpty()) {
-                item(key = "federate") {
-                    SearchResultContent(
-                        headerTitle = stringResource(R.string.label_federated_backends),
-                        totalSearchResultCount = federatedBackendResult.size.toString(),
-                        searchResult = {
-                            LazyColumn(
-                                Modifier.fillMaxSize()
-                            ) {
-                                items(items = federatedBackendResult) { contact ->
-                                    ExternalSearchResultItem(
-                                        searchQuery,
-                                        contact,
-                                        {},
-                                        {}
-                                    )
-                                }
-                            }
-                        },
-                        onShowAllClicked = {
-                            searchPeopleScreenState.showFederatedBackendResult()
-                        },
-                        onShowLessClicked = {
-                            searchPeopleScreenState.federatedBackendResultsCollapsed = false
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(
-                                if (searchPeopleScreenState.federatedBackendResultsCollapsed) fullHeight
-                                else dimensions().defaultSearchLazyColumnHeight
-                            )
-                            .animateItemPlacement()
+                            .align(Alignment.BottomEnd)
+                            .padding(end = dimensions().spacing8x)
                     )
                 }
             }
@@ -205,58 +240,80 @@ private fun SearchResult(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun SearchResultContent(
-    headerTitle: String,
-    totalSearchResultCount: String,
-    searchResult: @Composable () -> Unit,
-    onShowAllClicked: () -> Unit,
-    onShowLessClicked: () -> Unit,
-    modifier: Modifier = Modifier
+private fun LazyListScope.externalSuccessItem(
+    searchTitle: @Composable () -> String,
+    showAllItems: Boolean,
+    searchResult: List<Contact>,
+    searchQuery: String,
+    onShowAllButtonClicked: () -> Unit
 ) {
-    ConstraintLayout(modifier) {
-        val (headerRef, columnRef, buttonRef) = createRefs()
+    if (searchResult.isNotEmpty()) {
+        item { FolderHeader(searchTitle()) }
 
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .constrainAs(headerRef) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(columnRef.top)
-                }
-        ) {
-            FolderHeader(name = headerTitle)
+        items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
+            with(contact) {
+                ExternalContactSearchResultItem(
+                    avatarUrl = avatarUrl,
+                    userStatus = userStatus,
+                    name = name,
+                    label = label,
+                    searchQuery = searchQuery,
+                    onRowItemClicked = { },
+                    onRowItemLongClicked = { }
+                )
+            }
         }
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .constrainAs(columnRef) {
-                    top.linkTo(headerRef.bottom)
-                    bottom.linkTo(buttonRef.top)
 
-                    height = Dimension.fillToConstraints
-                }) {
-            searchResult()
+        if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE) {
+            item {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    ShowButton(
+                        totalSearchResultCount = searchResult.size,
+                        isShownAll = showAllItems,
+                        onShowButtonClicked = onShowAllButtonClicked,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = dimensions().spacing8x)
+                    )
+                }
+            }
         }
+    }
+}
+
+fun LazyListScope.inProgressItem() {
+    item {
         Box(
             Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
-                .constrainAs(buttonRef) {
-                    top.linkTo(columnRef.bottom)
-                    bottom.linkTo(parent.bottom)
-                }
+                .height(224.dp)
         ) {
-            ShowButton(
-                totalSearchResultCount = totalSearchResultCount,
-                onShowAllClicked = onShowAllClicked,
-                onShowLessClicked = onShowLessClicked,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = dimensions().spacing8x)
+            WireCircularProgressIndicator(
+                progressColor = Color.Black, modifier = Modifier.align(
+                    Alignment.Center
+                )
+            )
+        }
+    }
+}
+
+fun LazyListScope.failureItem(searchTitle: @Composable () -> String, failureMessage: String?) {
+    item { FolderHeader(searchTitle()) }
+
+    item {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(224.dp)
+        ) {
+            Text(
+                failureMessage ?: "We are sorry, something went wrong", modifier = Modifier.align(
+                    Alignment.Center
+                )
             )
         }
     }
@@ -265,155 +322,19 @@ fun SearchResultContent(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun ShowButton(
-    totalSearchResultCount: String,
-    onShowAllClicked: () -> Unit,
-    onShowLessClicked: () -> Unit,
+    totalSearchResultCount: Int,
+    isShownAll: Boolean,
+    onShowButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isShowAll by remember { mutableStateOf(true) }
-
     Box(modifier) {
-        AnimatedContent(isShowAll) { showAll ->
+        AnimatedContent(isShownAll) { showAll ->
             WireSecondaryButton(
-                text = if (showAll) "Show All ($totalSearchResultCount)" else "Show Less",
-                onClick = {
-                    if (isShowAll) onShowAllClicked() else onShowLessClicked()
-
-                    isShowAll = !isShowAll
-                },
+                text = if (!showAll) "Show All ($totalSearchResultCount)" else "Show Less",
+                onClick = onShowButtonClicked,
                 minHeight = dimensions().showAllCollapseButtonMinHeight,
                 fillMaxWidth = false,
             )
         }
-    }
-}
-
-@Composable
-fun HighLightSubTitle(
-    subTitle: String,
-    searchQuery: String,
-) {
-    val scope = rememberCoroutineScope()
-
-    var highlightIndexes by remember {
-        mutableStateOf(emptyList<MatchQueryResult>())
-    }
-
-    SideEffect {
-        scope.launch {
-            highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
-                matchText = searchQuery,
-                text = subTitle
-            )
-        }
-    }
-
-    if (highlightIndexes.isNotEmpty()) {
-        Text(
-            buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(
-                        color = MaterialTheme.wireColorScheme.secondaryText,
-                        fontWeight = MaterialTheme.wireTypography.subline01.fontWeight,
-                        fontSize = MaterialTheme.wireTypography.subline01.fontSize,
-                        fontFamily = MaterialTheme.wireTypography.subline01.fontFamily,
-                        fontStyle = MaterialTheme.wireTypography.subline01.fontStyle
-                    )
-                ) {
-                    append("@$subTitle")
-                }
-
-                highlightIndexes
-                    .forEach { highLightIndexes ->
-                        addStyle(
-                            style = SpanStyle(
-                                background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f),
-                            ),
-                            // add 1 because of the "@" prefix
-                            start = highLightIndexes.startIndex + 1,
-                            end = highLightIndexes.endIndex + 1
-                        )
-                    }
-            }
-        )
-    } else {
-        Text(
-            text = "@$subTitle",
-            style = MaterialTheme.wireTypography.subline01,
-            color = MaterialTheme.wireColorScheme.secondaryText
-        )
-    }
-}
-
-@Composable
-fun HighLightName(
-    name: String,
-    searchQuery: String,
-) {
-    val scope = rememberCoroutineScope()
-
-    var highlightIndexes by remember {
-        mutableStateOf(emptyList<MatchQueryResult>())
-    }
-
-    SideEffect {
-        scope.launch {
-            highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
-                matchText = searchQuery,
-                text = name
-            )
-        }
-    }
-
-    if (highlightIndexes.isNotEmpty()) {
-        Text(
-            buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(
-                        fontWeight = MaterialTheme.wireTypography.title02.fontWeight,
-                        fontSize = MaterialTheme.wireTypography.title02.fontSize,
-                        fontFamily = MaterialTheme.wireTypography.title02.fontFamily,
-                        fontStyle = MaterialTheme.wireTypography.title02.fontStyle
-                    )
-                ) {
-                    append(name)
-                }
-
-                highlightIndexes
-                    .forEach { highLightIndexes ->
-                        addStyle(
-                            style = SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f)),
-                            start = highLightIndexes.startIndex,
-                            end = highLightIndexes.endIndex
-                        )
-                    }
-            }
-        )
-    } else {
-        Text(
-            text = name,
-            style = MaterialTheme.wireTypography.title02
-        )
-    }
-}
-
-@Composable
-private fun ExternalSearchResultItem(
-    searchQuery: String,
-    externalContact: ExternalContact,
-    onRowItemClicked: () -> Unit,
-    oRowItemLongClicked: () -> Unit
-) {
-    with(externalContact) {
-        ContactSearchResultItem(
-            avatarUrl = "",
-            userStatus = userStatus,
-            name = name,
-            label = label,
-            searchQuery = searchQuery,
-            source = Source.External,
-            onRowItemClicked = onRowItemClicked,
-            onRowItemLongClicked = oRowItemLongClicked
-        )
     }
 }

@@ -10,7 +10,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ContactsViewModel @Inject constructor(private val navigationManager: NavigationManager) : ViewModel() {
+class ContactsViewModel @Inject constructor(
+    private val navigationManager: NavigationManager
+) : ViewModel() {
 
     @Suppress("MagicNumber")
     val contactsState by mutableStateOf(
@@ -18,21 +20,21 @@ class ContactsViewModel @Inject constructor(private val navigationManager: Navig
             contacts = buildList {
                 add(
                     Contact(
-                        id = 1,
+                        id = 1.toString(),
                         "This is first contact"
                     )
                 )
                 for (i in 2..11) {
                     add(
                         Contact(
-                            id = 1,
+                            id = i.toString(),
                             "This is $i contact"
                         )
                     )
                 }
                 add(
                     Contact(
-                        id = 12,
+                        id = 12.toString(),
                         "This is last contact"
                     )
                 )

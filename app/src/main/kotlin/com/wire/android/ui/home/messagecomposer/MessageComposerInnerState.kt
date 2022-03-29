@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
@@ -17,37 +18,30 @@ import com.wire.android.util.toByteArray
 import java.io.IOException
 
 @Composable
-fun rememberMessageComposerInnerState(
-    defaultMessageText: String = "",
-    defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled
-): MessageComposerInnerState {
-    val context = LocalContext.current
-    val defaultAttachmentInnerState = AttachmentInnerState(context)
+fun rememberMessageComposerInnerState(): MessageComposerInnerState {
+    val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
+
     return remember {
         MessageComposerInnerState(
-            defaultMessageText,
-            defaultMessageComposeInputState,
             defaultAttachmentInnerState
         )
     }
 }
 
 class MessageComposerInnerState(
-    defaultMessageText: String,
-    defaultMessageComposeInputState: MessageComposeInputState,
     val attachmentInnerState: AttachmentInnerState
 ) {
 
-    var messageText by mutableStateOf(defaultMessageText)
+    var messageText by mutableStateOf(TextFieldValue(""))
 
-    var messageComposeInputState by mutableStateOf(defaultMessageComposeInputState)
+    var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
         private set
 
     val sendButtonEnabled: Boolean
         @Composable get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
             false
         } else {
-            messageText.filter { !it.isWhitespace() }
+            messageText.text.filter { !it.isWhitespace() }
                 .isNotBlank()
         }
 
@@ -58,7 +52,7 @@ class MessageComposerInnerState(
     }
 
     fun clickOutSideMessageComposer() {
-        if (messageText.filter { !it.isWhitespace() }.isBlank()) {
+        if (messageText.text.filter { !it.isWhitespace() }.isBlank()) {
             toEnabled()
         }
     }

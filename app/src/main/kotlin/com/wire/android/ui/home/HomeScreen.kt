@@ -54,7 +54,6 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 homeBottomSheetState = homeState.bottomSheetState,
                 homeTopBar = {
                     HomeTopBar(
-                        viewModel.userAvatar,
                         currentNavigationItem = homeState.currentNavigationItem,
                         onOpenDrawerClicked = { openDrawer() },
                         onNavigateToUserProfile = { viewModel.navigateToUserProfile() },
@@ -68,7 +67,6 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
         BackHandler(enabled = drawerState.isOpen) { closeDrawer() }
     }
 }
-
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -86,7 +84,7 @@ fun HomeContent(
                 AppTopBarWithSearchBar(
                     scrollPosition = scrollPosition,
                     searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
-                    //TODO: implement the search for home once we work on it, for now we do not care
+                    // TODO: implement the search for home once we work on it, for now we do not care
                     searchQuery = "",
                     onSearchQueryChanged = {},
                     onSearchClicked = { },

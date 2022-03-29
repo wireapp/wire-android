@@ -9,8 +9,6 @@ import android.graphics.Matrix
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
 const val DEFAULT_FILE_MIME_TYPE = "file/*"
@@ -28,23 +26,21 @@ class ImageUtil private constructor() {
          * @param context
          */
         @Suppress("TooGenericExceptionCaught")
-        suspend fun postProcessCapturedAvatar(uri: Uri, context: Context) {
-            withContext(Dispatchers.IO) {
-                try {
-                    val avatarBitmap = uri.toBitmap(context)
+        fun postProcessCapturedAvatar(uri: Uri, context: Context) {
+            try {
+                val avatarBitmap = uri.toBitmap(context)
 
-                    // Rotate if needed
-                    val exifInterface = context.contentResolver.openInputStream(uri).use { stream -> stream?.let { ExifInterface(it) } }
-                    val normalizedAvatar = avatarBitmap?.rotateImageToNormalOrientation(exifInterface)
+                // Rotate if needed
+                val exifInterface = context.contentResolver.openInputStream(uri).use { stream -> stream?.let { ExifInterface(it) } }
+                val normalizedAvatar = avatarBitmap?.rotateImageToNormalOrientation(exifInterface)
 
-                    // Compress image
-                    val rawCompressedImage = normalizedAvatar?.let { compressImage(it) }
+                // Compress image
+                val rawCompressedImage = normalizedAvatar?.let { compressImage(it) }
 
-                    // Save to fixed path
-                    rawCompressedImage?.let { getWritableTempAvatarUri(it, context) }
-                } catch (exception: Exception) {
-                    // NOOP: None post process op performed
-                }
+                // Save to fixed path
+                rawCompressedImage?.let { getWritableTempAvatarUri(it, context) }
+            } catch (exception: Exception) {
+                // NOOP: None post process op performed
             }
         }
 

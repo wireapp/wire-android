@@ -20,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -37,18 +36,18 @@ import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.image.AvatarPickerViewModel.ErrorCodes
-import com.wire.android.util.getWritableTempAvatarUri
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
-    val context = LocalContext.current
     val state = rememberAvatarPickerState()
 
-    // We need to launch an effect to update the initial avatar uri whenever the pickerVM updates successfully the raw image
-    LaunchedEffect(viewModel.avatarRaw) {
-        val currentAvatarUri = getWritableTempAvatarUri(viewModel.avatarRaw ?: ByteArray(16), context)
-        state.avatarPickerFlow.pictureState = PictureState.Initial(currentAvatarUri)
+    val canUpload: Boolean = when (val pictureState = state.avatarPickerFlow.pictureState) {
+        is PictureState.Initial -> false
+        is PictureState.Picked -> {
+            viewModel.postProcessAvatarImage(pictureState.avatarUri)
+            true
+        }
     }
 
     AvatarPickerContent(
@@ -58,8 +57,8 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
             viewModel.navigateBack()
         },
         onSaveClick = {
-            if (state.avatarPickerFlow.pictureState is PictureState.Picked) {
-                viewModel.uploadNewPickedAvatarAndBack(state.avatarPickerFlow.pictureState.avatarUri, context)
+            if (canUpload) {
+                viewModel.uploadNewPickedAvatarAndBack(viewModel.pictureState.avatarUri)
             } else {
                 viewModel.navigateBack()
             }
@@ -134,7 +133,7 @@ private fun AvatarPickerContent(
                     Box(Modifier.weight(1f)) {
                         Box(Modifier.align(Alignment.Center)) {
                             BulletHoleImagePreview(
-                                imageUri = state.avatarPickerFlow.pictureState.avatarUri,
+                                imageUri = viewModel.pictureState.avatarUri,
                                 contentDescription = stringResource(R.string.content_description_avatar_preview)
                             )
                         }

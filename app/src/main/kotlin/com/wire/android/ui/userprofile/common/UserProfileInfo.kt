@@ -39,9 +39,9 @@ fun UserProfileInfo(
     fullName: String,
     userName: String,
     teamName: String?,
-    onUserProfileClick: () -> Unit,
+    onUserProfileClick: (() -> Unit)? = null,
     isEditable: Boolean = false,
-    onEditClick: () -> Unit = {},
+    onEditClick: (() -> Unit)? = null,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,7 +53,7 @@ fun UserProfileInfo(
     ) {
         UserProfileAvatar(
             onClick = onUserProfileClick,
-            isClickable = !isLoading,
+            isClickable = if (!isEditable) false else !isLoading,
             size = dimensions().userAvatarDefaultBigSize,
             avatarAssetByteArray = avatarAssetByteArray,
             status = UserStatus.NONE,
@@ -117,7 +117,7 @@ fun UserProfileInfo(
                         bottom.linkTo(userDescription.bottom)
                         end.linkTo(userDescription.end)
                     },
-                onClick = onEditClick,
+                onClick = onEditClick!!,
                 content = Icons.Filled.Edit.Icon()
             )
         }

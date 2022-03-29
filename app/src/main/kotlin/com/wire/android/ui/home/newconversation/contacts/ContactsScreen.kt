@@ -36,14 +36,16 @@ fun ContactsScreen(
 ) {
     ContactsScreenContent(
         state = viewModel.contactsState,
-        onScrollPositionChanged = onScrollPositionChanged
+        onScrollPositionChanged = onScrollPositionChanged,
+        onOpenUserProfile = viewModel::openUserProfile
     )
 }
 
 @Composable
 fun ContactsScreenContent(
     state: ContactsState,
-    onScrollPositionChanged: (Int) -> Unit
+    onScrollPositionChanged: (Int) -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
 ) {
     val lazyListState = rememberLazyListState {
         onScrollPositionChanged(it)
@@ -69,7 +71,8 @@ fun ContactsScreenContent(
                         userStatus = contact.userStatus,
                         belongsToGroup = newGroupContacts.contains(contact),
                         addToGroup = { addContactToGroup(contact) },
-                        removeFromGroup = { removeContactFromGroup(contact) }
+                        removeFromGroup = { removeContactFromGroup(contact) },
+                        openUserProfile = { onOpenUserProfile(contact) }
                     )
                 }
             }
@@ -86,6 +89,7 @@ private fun ContactItem(
     belongsToGroup: Boolean,
     addToGroup: () -> Unit,
     removeFromGroup: () -> Unit,
+    openUserProfile: () -> Unit,
 ) {
     RowItemTemplate(
         leadingIcon = {
@@ -112,8 +116,10 @@ private fun ContactItem(
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }
         },
-        onRowItemClicked = { },
-        onRowItemLongClicked = { }
+        onRowItemClicked = openUserProfile,
+        onRowItemLongClicked = {
+            // TODO: implement later on
+        }
     )
 }
 

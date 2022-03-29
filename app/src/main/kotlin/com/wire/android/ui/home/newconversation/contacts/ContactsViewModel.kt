@@ -4,6 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -45,6 +47,16 @@ class ContactsViewModel @Inject constructor(
     fun close() {
         viewModelScope.launch {
             navigationManager.navigateBack()
+        }
+    }
+
+    fun openUserProfile(contact: Contact) {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.id))
+                )
+            )
         }
     }
 

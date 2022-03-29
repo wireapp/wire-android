@@ -228,5 +228,7 @@
     <string name="content_description_more_options">More options</string>
     <string name="content_description_add_contact">Add contact</string>
     <string name="label_open_conversation">Open Conversation</string>
+    <string name="email_label">e-mail</string>
+    <string name="phone_label">phone</string>
 
 </resources>

@@ -3,6 +3,7 @@ package com.wire.android.ui.userprofile.other
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,12 +23,22 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         const val USER_ID = "user_id"
     }
 
-    val state: OtherUserProfileScreenState by mutableStateOf(OtherUserProfileScreenState())
+    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
 
     init {
         savedStateHandle.get<String>(USER_ID)?.let { id ->
             Log.d("TEST", "user id $id")
+            //TODO: here we need to get the user from the Kalium
         }
+
+        state = state.copy(
+            isAvatarLoading = false,
+            fullName = "Kim",
+            userName = "Dawson",
+            teamName = "AWESOME TEAM NAME",
+            email = "kim.dawson@gmail.com",
+            phone = "+49 123 456 000"
+        )
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

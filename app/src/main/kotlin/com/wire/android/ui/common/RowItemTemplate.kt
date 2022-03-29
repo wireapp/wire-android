@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.conversationslist.common.EventBadgeFactory
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.model.EventType
@@ -31,20 +30,15 @@ fun RowItemTemplate(
         Column(
             modifier = Modifier
                 .weight(1f)
+                .padding(start = dimensions().spacing8x)
         ) {
-            Box(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(start = 8.dp)
-            ) {
-                title()
-                subtitle()
-            }
+            title()
+            subtitle()
         }
         Box(
             modifier = Modifier
                 .wrapContentWidth()
-                .padding(end = 8.dp)
+                .padding(end = dimensions().spacing8x)
         ) {
             actions()
         }
@@ -77,7 +71,7 @@ fun RowItemTemplate(
         Box(
             modifier = Modifier
                 .wrapContentWidth()
-                .padding(end = 8.dp)
+                .padding(end = dimensions().spacing8x)
         ) {
             if (eventType != null) {
                 EventBadgeFactory(eventType = eventType, modifier = Modifier.align(Alignment.TopEnd))

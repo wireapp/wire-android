@@ -1,6 +1,6 @@
 package com.wire.android.ui.userprofile.other
 
-data class OtherUserProfileScreenState(
+data class OtherUserProfileState(
     val avatarAssetByteArray: ByteArray? = null,
     val isAvatarLoading: Boolean = false,
     val fullName: String = "",

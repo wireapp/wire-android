@@ -48,7 +48,7 @@ private fun AllConversationContent(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
     ) {
-        folderWithElementsAndRegularHeader(
+        folderWithElements(
             header = { stringResource(id = R.string.conversation_label_new_activity) },
             items = newActivities
         ) { newActivity ->
@@ -63,7 +63,7 @@ private fun AllConversationContent(
         }
 
         conversations.forEach { (conversationFolder, conversationList) ->
-            folderWithElementsAndRegularHeader(
+            folderWithElements(
                 header = { conversationFolder.folderName },
                 items = conversationList
             ) { generalConversation ->

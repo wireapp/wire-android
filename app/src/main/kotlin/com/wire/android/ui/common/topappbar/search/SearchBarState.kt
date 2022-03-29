@@ -22,14 +22,14 @@ class SearchBarState {
 
     var isSearchBarCollapsed by mutableStateOf(false)
 
-    var isTopBarVisible by mutableStateOf(true)
+    var isSearchActive by mutableStateOf(false)
         private set
 
-    fun hideTopBar() {
-        isTopBarVisible = false
+    fun cancelSearch() {
+        isSearchActive = false
     }
 
-    fun showTopBar() {
-        isTopBarVisible = true
+    fun startSearch() {
+        isSearchActive = true
     }
 }

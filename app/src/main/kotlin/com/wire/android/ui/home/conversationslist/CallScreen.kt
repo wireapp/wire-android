@@ -47,7 +47,7 @@ fun CallContent(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
     ) {
-        folderWithElementsAndRegularHeader(
+        folderWithElements(
             header = { stringResource(id = R.string.calls_label_missed_calls) },
             items = missedCalls
         ) { missedCall ->
@@ -59,7 +59,7 @@ fun CallContent(
             )
         }
 
-        folderWithElementsAndRegularHeader(
+        folderWithElements(
             header = { stringResource(id = R.string.calls_label_calls_history) },
             items = callHistory
         ) { callHistory ->

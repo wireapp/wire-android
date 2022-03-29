@@ -113,20 +113,20 @@ private fun AppTopBarWithSearchBar(
     val searchBarState = rememberSearchbarState(scrollPosition)
 
     AppTopBarWithSearchBarContent(
+        isSearchActive = searchBarState.isSearchActive,
         isSearchBarCollapsed = searchBarState.isSearchBarCollapsed,
-        isTopBarVisible = searchBarState.isTopBarVisible,
         searchBarHint = searchBarHint,
         searchQuery = searchQuery,
         onSearchQueryChanged = onSearchQueryChanged,
         onInputClicked = {
-            searchBarState.hideTopBar()
+            searchBarState.startSearch()
 
             onSearchClicked()
         },
         onCloseSearchClicked = {
             onCloseSearchClicked()
 
-            searchBarState.showTopBar()
+            searchBarState.cancelSearch()
         },
         appTopBar = appTopBar
     )
@@ -135,8 +135,8 @@ private fun AppTopBarWithSearchBar(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun AppTopBarWithSearchBarContent(
+    isSearchActive: Boolean,
     isSearchBarCollapsed: Boolean,
-    isTopBarVisible: Boolean,
     searchBarHint: String,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
@@ -148,7 +148,7 @@ private fun AppTopBarWithSearchBarContent(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
-        shadowElevation = if (isTopBarVisible) dimensions().spacing8x else 0.dp
+        shadowElevation = if (!isSearchActive) dimensions().spacing8x else 0.dp
     ) {
         Column(
             Modifier
@@ -156,7 +156,7 @@ private fun AppTopBarWithSearchBarContent(
                 .animateContentSize(animationSpec = snap())
         ) {
             AnimatedVisibility(
-                visible = isTopBarVisible,
+                visible = !isSearchActive,
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
@@ -186,7 +186,7 @@ private fun AppTopBarWithSearchBarContent(
                         text = searchQuery,
                         onTextTyped = onSearchQueryChanged,
                         leadingIcon = {
-                            AnimatedContent(isTopBarVisible) { isVisible ->
+                            AnimatedContent(!isSearchActive) { isVisible ->
                                 IconButton(onClick = {
                                     if (!isVisible) {
                                         focusManager.clearFocus()
@@ -205,14 +205,19 @@ private fun AppTopBarWithSearchBarContent(
                                 }
                             }
                         },
-                        placeholderTextStyle = textStyleAlignment(isTopBarVisible = isTopBarVisible),
-                        textStyle = textStyleAlignment(isTopBarVisible = isTopBarVisible),
+                        placeholderTextStyle = textStyleAlignment(isTopBarVisible = !isSearchActive),
+                        textStyle = textStyleAlignment(isTopBarVisible = !isSearchActive),
                         interactionSource = interactionSource,
                         modifier = Modifier.padding(dimensions().spacing8x)
                     )
 
                     if (interactionSource.collectIsPressedAsState().value) {
-                        onInputClicked()
+                        // we want to propagate the click on the input of the search
+                        // only the first time the user clicks on the input
+                        // that is when the search is not active
+                        if (!isSearchActive) {
+                            onInputClicked()
+                        }
                     }
                 }
             }

@@ -46,7 +46,7 @@ class AvatarPickerViewModelTest {
     @MockK
     lateinit var uploadUserAvatarUseCase: UploadUserAvatarUseCase
 
-    @MockK(relaxUnitFun = true, relaxed = true)
+    @MockK
     lateinit var avatarImageManager: AvatarImageManager
 
     private val mockUri = mockk<Uri>()
@@ -94,7 +94,6 @@ class AvatarPickerViewModelTest {
             uploadUserAvatarUseCase(rawImage)
             userDataStore.updateUserAvatarAssetId(uploadedAssetId)
             avatarImageManager.getWritableAvatarUri(rawImage)
-            navigationManager.navigateBack()
         }
         assertEquals(null, avatarPickerViewModel.errorMessageCode)
     }
@@ -117,5 +116,12 @@ class AvatarPickerViewModelTest {
         }
 
         assertEquals(AvatarPickerViewModel.ErrorCodes.UploadAvatarError, avatarPickerViewModel.errorMessageCode)
+    }
+
+    @Test
+    fun `given there is an error, when calling clear messages, then should clean the error messages codes`() = runTest {
+        avatarPickerViewModel.clearErrorMessage()
+
+        assertEquals(null, avatarPickerViewModel.errorMessageCode)
     }
 }

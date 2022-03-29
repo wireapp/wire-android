@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile
+package com.wire.android.ui.userprofile.self
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -54,9 +54,10 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
+import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
+import com.wire.android.ui.userprofile.self.model.OtherAccount
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -125,7 +126,7 @@ private fun SelfUserProfileContent(
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 UserProfileInfo(
-                    isLoading = state.isAvatarLoading,
+                    isAvatarLoading = state.isAvatarLoading,
                     avatarAssetByteArray = state.avatarAssetByteArray,
                     fullName = fullName,
                     userName = userName,
@@ -186,29 +187,31 @@ private fun SelfUserProfileTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.UserProfileInfo(
-    isLoading: Boolean,
+private fun UserProfileInfo(
+    isAvatarLoading: Boolean,
     avatarAssetByteArray: ByteArray?,
     fullName: String,
     userName: String,
     teamName: String?,
     onUserProfileClick: () -> Unit,
-    onEditClick: () -> Unit
+    isEditable : Boolean = false,
+    onEditClick: () -> Unit = {},
+    modifier : Modifier = Modifier
 ) {
     Box(
         Modifier
             .wrapContentSize()
             .padding(top = dimensions().spacing16x)
-            .align(Alignment.CenterHorizontally)
+            .then(modifier)
     ) {
         UserProfileAvatar(
             onClick = onUserProfileClick,
-            isEnabled = !isLoading,
+            isClickable = !isAvatarLoading,
             size = dimensions().userAvatarDefaultBigSize,
             avatarAssetByteArray = avatarAssetByteArray,
             status = UserStatus.NONE,
         )
-        if (isLoading) {
+        if (isAvatarLoading) {
             Box(
                 Modifier
                     .matchParentSize()
@@ -224,7 +227,7 @@ private fun ColumnScope.UserProfileInfo(
             }
         }
     }
-    ConstraintLayout(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+    ConstraintLayout {
         val (userDescription, editButton, teamDescription) = createRefs()
 
         Column(
@@ -254,17 +257,20 @@ private fun ColumnScope.UserProfileInfo(
                 color = MaterialTheme.wireColorScheme.labelText,
             )
         }
-        IconButton(
-            modifier = Modifier
-                .padding(start = dimensions().spacing16x)
-                .constrainAs(editButton) {
-                    top.linkTo(userDescription.top)
-                    bottom.linkTo(userDescription.bottom)
-                    end.linkTo(userDescription.end)
-                },
-            onClick = onEditClick,
-            content = Icons.Filled.Edit.Icon()
-        )
+
+        if(isEditable) {
+            IconButton(
+                modifier = Modifier
+                    .padding(start = dimensions().spacing16x)
+                    .constrainAs(editButton) {
+                        top.linkTo(userDescription.top)
+                        bottom.linkTo(userDescription.bottom)
+                        end.linkTo(userDescription.end)
+                    },
+                onClick = onEditClick,
+                content = Icons.Filled.Edit.Icon()
+            )
+        }
 
         if (teamName != null) {
             Text(

@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile
+package com.wire.android.ui.userprofile.self.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,9 +13,9 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireLabelledCheckbox
+import com.wire.android.ui.userprofile.StatusDialogData
 import io.github.esentsov.PackagePrivate
 
-@PackagePrivate
 @Composable
 fun ChangeStatusDialogContent(
     data: StatusDialogData?,

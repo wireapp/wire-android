@@ -25,11 +25,14 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.getDefaultAvatarUri
 import com.wire.android.util.toBitmap
 
+
 @Composable
+
 fun UserProfileAvatar(
+//TODO: in the future we would not pass here null, but while developing there may be users having no avatar asset
     avatarAssetByteArray: ByteArray? = null,
     status: UserStatus = UserStatus.NONE,
-    isEnabled: Boolean = false,
+    isClickable: Boolean = false,
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
@@ -39,7 +42,7 @@ fun UserProfileAvatar(
         modifier = modifier
             .wrapContentSize()
             .clip(CircleShape)
-            .then(if (onClick != null) Modifier.clickable(isEnabled) { onClick() } else Modifier)
+            .then(if (onClick != null) Modifier.clickable(isClickable) { onClick() } else Modifier)
             .wrapContentSize()
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {

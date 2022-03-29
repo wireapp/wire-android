@@ -29,7 +29,7 @@ fun HomeTopBar(
         actions = {
             UserProfileAvatar(
                 avatarAssetByteArray = avatarAssetByteArray,
-                isEnabled = true,
+                isClickable = true,
                 status = UserStatus.AVAILABLE
             ) {
                 onNavigateToUserProfile()

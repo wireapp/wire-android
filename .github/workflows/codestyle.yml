@@ -5,7 +5,7 @@ on:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
 
 jobs:
-  gradle-run-tests:
+  static-code-checks:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

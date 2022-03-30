@@ -36,14 +36,16 @@ fun ContactsScreen(
     onScrollPositionChanged: (Int) -> Unit
 ) {
     ContactsScreenContent(
-        state = viewModel.contactState,
+        isLoading = viewModel.contactState.isLoading,
+        contacts = viewModel.contactState.contacts,
         onScrollPositionChanged = onScrollPositionChanged
     )
 }
 
 @Composable
 fun ContactsScreenContent(
-    state: ContactsState,
+    isLoading: Boolean,
+    contacts: List<Contact>,
     onScrollPositionChanged: (Int) -> Unit
 ) {
     val lazyListState = rememberLazyListState {
@@ -57,7 +59,7 @@ fun ContactsScreenContent(
             Modifier
                 .fillMaxSize()
         ) {
-            if (state.isLoading) {
+            if (isLoading) {
                 Box(Modifier.fillMaxSize()) {
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
                 }
@@ -68,7 +70,7 @@ fun ContactsScreenContent(
                 ) {
                     folderWithElements(
                         header = { stringResource(R.string.label_contacts) },
-                        items = state.contacts
+                        items = contacts
                     ) { contact ->
                         ContactItem(
                             name = contact.name,

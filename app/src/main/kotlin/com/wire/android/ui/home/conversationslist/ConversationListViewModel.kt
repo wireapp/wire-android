@@ -147,5 +147,4 @@ class ConversationListViewModel @Inject constructor(
     //TODO
     private fun isPrivateChat(conversation: Conversation) = conversation.name.isNullOrEmpty()
 
-
 }

@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val state = viewModel.state
 
-    OtherProfileScreenContent(
+    NotConnectedOtherProfileScreenContent(
         state = state,
         onNavigateBack = { viewModel.navigateBack() }
     )
@@ -55,7 +55,10 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun OtherProfileScreenContent(state: OtherUserProfileState, onNavigateBack: () -> Unit) {
+fun NotConnectedOtherProfileScreenContent(
+    state: OtherUserProfileState,
+    onNavigateBack: () -> Unit
+) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
 
     Scaffold(

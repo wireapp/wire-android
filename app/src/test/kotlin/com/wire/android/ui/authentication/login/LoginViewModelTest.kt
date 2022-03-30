@@ -3,7 +3,7 @@ package com.wire.android.ui.authentication.login
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
-import com.wire.android.common.BaseTest
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -34,12 +34,14 @@ import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
-class LoginViewModelTest: BaseTest() {
+@ExtendWith(CoroutineTestExtension::class)
+class LoginViewModelTest {
 
     @MockK private lateinit var loginUseCase: LoginUseCase
     @MockK private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
@@ -56,7 +58,7 @@ class LoginViewModelTest: BaseTest() {
     private val apiBaseUrl: String = "apiBaseUrl"
     private val userId: QualifiedID = QualifiedID("userId", "domain")
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         every { savedStateHandle.get<String>(any()) } returns ""

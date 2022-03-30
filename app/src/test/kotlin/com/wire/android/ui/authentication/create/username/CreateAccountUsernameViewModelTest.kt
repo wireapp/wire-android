@@ -2,13 +2,12 @@ package com.wire.android.ui.authentication.create.username
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.android.common.BaseTest
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
-import com.wire.android.utils.CoroutineTestRule
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
@@ -26,13 +25,14 @@ import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
-class CreateAccountUsernameViewModelTest: BaseTest() {
+@ExtendWith(CoroutineTestExtension::class)
+class CreateAccountUsernameViewModelTest {
 
     @MockK private lateinit var navigationManager: NavigationManager
     @MockK private lateinit var validateUserHandleUseCase: ValidateUserHandleUseCase
@@ -40,7 +40,7 @@ class CreateAccountUsernameViewModelTest: BaseTest() {
 
     private lateinit var createAccountUsernameViewModel: CreateAccountUsernameViewModel
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         createAccountUsernameViewModel = CreateAccountUsernameViewModel(navigationManager, validateUserHandleUseCase, setUserHandleUseCase)

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,7 +36,7 @@ fun ContactsScreen(
     onScrollPositionChanged: (Int) -> Unit
 ) {
     ContactsScreenContent(
-        state = viewModel.contactsState,
+        state = viewModel.contactState,
         onScrollPositionChanged = onScrollPositionChanged
     )
 }
@@ -56,25 +57,31 @@ fun ContactsScreenContent(
             Modifier
                 .fillMaxSize()
         ) {
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier.weight(1f),
-            ) {
-                folderWithElements(
-                    header = { stringResource(R.string.label_contacts) },
-                    items = state.contacts
-                ) { contact ->
-                    ContactItem(
-                        name = contact.name,
-                        userStatus = contact.userStatus,
-                        belongsToGroup = newGroupContacts.contains(contact),
-                        addToGroup = { addContactToGroup(contact) },
-                        removeFromGroup = { removeContactFromGroup(contact) }
-                    )
+            if (state.isLoading) {
+                Box(Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(Modifier.align(Alignment.Center))
                 }
+            } else {
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    folderWithElements(
+                        header = { stringResource(R.string.label_contacts) },
+                        items = state.contacts
+                    ) { contact ->
+                        ContactItem(
+                            name = contact.name,
+                            userStatus = contact.userStatus,
+                            belongsToGroup = newGroupContacts.contains(contact),
+                            addToGroup = { addContactToGroup(contact) },
+                            removeFromGroup = { removeContactFromGroup(contact) }
+                        )
+                    }
+                }
+                Divider()
+                GroupButton(groupSize = contactsScreenState.newGroupContacts.size)
             }
-            Divider()
-            GroupButton(groupSize = contactsScreenState.newGroupContacts.size)
         }
     }
 }

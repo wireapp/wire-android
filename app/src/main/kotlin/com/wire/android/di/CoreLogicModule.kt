@@ -6,6 +6,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -197,5 +198,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: String
     ): SearchUserDirectoryUseCase =
         coreLogic.getSessionScope(currentAccount).users.searchUserDirectory
+
+    @ViewModelScoped
+    @Provides
+    fun providesGetAllKnownUsers(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: String
+    ): GetAllKnownUsersUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getAllKnownUsers
+
 
 }

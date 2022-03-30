@@ -10,7 +10,7 @@ data class NotificationConversation(
     val name: String,
     val image: ByteArray?,
     val messages: List<NotificationMessage>,
-    val isDirectChat: Boolean,
+    val isOneToOneConversation: Boolean,
     val lastMessageTime: Long
 )
 

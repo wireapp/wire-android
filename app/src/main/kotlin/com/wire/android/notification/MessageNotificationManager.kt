@@ -170,7 +170,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
         val notificationStyle = NotificationCompat.MessagingStyle(receiver)
 
-        notificationStyle.conversationTitle = if (conversation.isDirectChat) null else conversation.name
+        notificationStyle.conversationTitle = if (conversation.isOneToOneConversation) null else conversation.name
 
         conversation.messages.forEach { messageData ->
             val sender = Person.Builder()

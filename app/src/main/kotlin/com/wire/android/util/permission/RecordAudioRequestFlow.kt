@@ -12,9 +12,9 @@ import com.wire.android.util.extension.checkPermission
 
 @Composable
 fun rememberRecordAudioRequestFlow(
-    shouldPersistUri: (Boolean) -> Unit,
+    onAudioRecorded: (Boolean) -> Unit,
     onPermissionDenied: () -> Unit,
-    onAudioRecordedUri: Uri
+    targetAudioFileUri: Uri
 ): RecordAudioRequestFlow {
     val context = LocalContext.current
 

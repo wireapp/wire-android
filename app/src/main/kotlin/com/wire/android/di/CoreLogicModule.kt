@@ -11,6 +11,7 @@ import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.data.user.UserId
 import dagger.Module
 import dagger.Provides
@@ -198,5 +199,10 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): SearchUserDirectoryUseCase =
         coreLogic.getSessionScope(currentAccount).users.searchUserDirectory
+
+    @ViewModelScoped
+    @Provides
+    fun provideAddAuthenticatedUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic): AddAuthenticatedUserUseCase =
+        coreLogic.getAuthenticationScope().addAuthenticatedAccount
 
 }

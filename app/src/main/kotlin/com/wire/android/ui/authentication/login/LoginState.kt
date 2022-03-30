@@ -18,6 +18,7 @@ sealed class LoginError {
     }
     sealed class DialogError: LoginError() {
         object InvalidCredentialsError: DialogError()
+        object UserAlreadyLoggedIn: DialogError()
         data class GenericError(val coreFailure: CoreFailure): DialogError()
     }
     object TooManyDevicesError: LoginError()

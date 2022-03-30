@@ -3,7 +3,6 @@ package com.wire.android.ui.home.conversations
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,19 +17,19 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
     // TODO: here we can extract the ID provided to the screen and fetch the data for the conversation
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val getConversationDetails: GetConversationDetailsUseCase,
@@ -67,16 +66,18 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onMessageChanged(message: TextFieldValue) {
+    fun onMessageChanged(message: String) {
         conversationViewState = conversationViewState.copy(messageText = message)
     }
 
     fun sendMessage() {
+        val messageText = conversationViewState.messageText
+
+        conversationViewState = conversationViewState.copy(messageText = "")
         viewModelScope.launch {
-            val messageText = conversationViewState.messageText
             // TODO what if conversationId is null???
-            sendTextMessage(conversationId!!, messageText.text)
-            conversationViewState = conversationViewState.copy(messageText = messageText.copy(""))
+            conversationId?.let { sendTextMessage(it, messageText) }
+
         }
     }
 
@@ -84,7 +85,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             attachmentBundle?.let {
                 // TODO send attachment message for conversationId via use case
-                appLogger.d("> Attachment for conversationId: $conversationId is: ${attachmentBundle.rawContent.size}")
+                appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
             }
         }
     }

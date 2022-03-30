@@ -8,23 +8,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.toByteArray
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.IOException
 
 @Composable
-fun rememberMessageComposerInnerState(
-    defaultMessageText: String = "",
-    defaultMessageComposeInputState: MessageComposeInputState = MessageComposeInputState.Enabled
-): MessageComposerInnerState {
-    val context = LocalContext.current
-    val defaultAttachmentInnerState = AttachmentInnerState(context)
+fun rememberMessageComposerInnerState(): MessageComposerInnerState {
+    val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
+
     return remember {
         MessageComposerInnerState(
             defaultMessageText,
@@ -35,21 +31,19 @@ fun rememberMessageComposerInnerState(
 }
 
 class MessageComposerInnerState(
-    defaultMessageText: String,
-    defaultMessageComposeInputState: MessageComposeInputState,
     val attachmentInnerState: AttachmentInnerState
 ) {
 
-    var messageText by mutableStateOf(defaultMessageText)
+    var messageText by mutableStateOf(TextFieldValue(""))
 
-    var messageComposeInputState by mutableStateOf(defaultMessageComposeInputState)
+    var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
         private set
 
     val sendButtonEnabled: Boolean
         @Composable get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
             false
         } else {
-            messageText.filter { !it.isWhitespace() }
+            messageText.text.filter { !it.isWhitespace() }
                 .isNotBlank()
         }
 
@@ -60,7 +54,7 @@ class MessageComposerInnerState(
     }
 
     fun clickOutSideMessageComposer() {
-        if (messageText.filter { !it.isWhitespace() }.isBlank()) {
+        if (messageText.text.filter { !it.isWhitespace() }.isBlank()) {
             toEnabled()
         }
     }
@@ -79,18 +73,16 @@ class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
     suspend fun pickAttachment(attachmentUri: Uri) {
-        withContext(Dispatchers.IO) {
-            attachmentState = try {
-                val attachment =
-                    AttachmentBundle(
-                        attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE),
-                        attachmentUri.toByteArray(context)
-                    )
-                AttachmentState.Picked(attachment)
-            } catch (e: IOException) {
-                appLogger.e("There was an error while obtaining the file from disk", e)
-                AttachmentState.Error
-            }
+        attachmentState = try {
+            val attachment =
+                AttachmentBundle(
+                    attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE),
+                    attachmentUri.toByteArray(context)
+                )
+            AttachmentState.Picked(attachment)
+        } catch (e: IOException) {
+            appLogger.e("There was an error while obtaining the file from disk", e)
+            AttachmentState.Error
         }
     }
 

@@ -7,9 +7,9 @@ import android.webkit.MimeTypeMap
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import com.wire.android.BuildConfig
-import com.wire.android.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -31,18 +31,10 @@ fun getUriFromDrawable(
 }
 
 @Suppress("MagicNumber")
-fun Uri.toByteArray(context: Context): ByteArray {
-    return context.contentResolver.openInputStream(this)?.use { it.readBytes() } ?: ByteArray(16)
-}
-
-fun getShareableAvatarUri(context: Context): Uri {
-    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", getTempAvatarFile(context))
-}
-
-fun getWritableTempAvatarUri(imageData: ByteArray, context: Context): Uri {
-    val file = getTempAvatarFile(context)
-    file.writeBytes(imageData)
-    return file.toUri()
+suspend fun Uri.toByteArray(context: Context): ByteArray {
+    return withContext(Dispatchers.IO) {
+        context.contentResolver.openInputStream(this@toByteArray)?.use { it.readBytes() } ?: ByteArray(16)
+    }
 }
 
 fun getWritableImageAttachment(context: Context): Uri {
@@ -51,21 +43,10 @@ fun getWritableImageAttachment(context: Context): Uri {
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
 }
 
-private fun getTempAvatarFile(context: Context): File {
-    val file = File(context.cacheDir, TEMP_AVATAR_FILENAME)
-    file.setWritable(true, false)
-    return file
-}
-
-fun getDefaultAvatarUri(context: Context): Uri {
-    return getUriFromDrawable(context, R.drawable.ic_launcher_foreground)
-}
-
 fun Uri.getMimeType(context: Context): String? {
     val extension = MimeTypeMap.getFileExtensionFromUrl(path)
     return context.contentResolver.getType(this)
         ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 }
 
-private const val TEMP_AVATAR_FILENAME = "temp_avatar_path.jpg"
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"

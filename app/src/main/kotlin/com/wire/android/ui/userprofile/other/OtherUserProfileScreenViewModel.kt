@@ -37,8 +37,23 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             userName = "Dawson",
             teamName = "AWESOME TEAM NAME",
             email = "kim.dawson@gmail.com",
-            phone = "+49 123 456 000"
+            phone = "+49 123 456 000",
+            connectionStatus = ConnectionStatus.NotConnected(false)
         )
+    }
+
+    fun openConversation() {
+        //TODO: fire a use case
+    }
+
+    fun sendConnectionRequest() {
+        //TODO: fire a use case
+        state = state.copy(connectionStatus = ConnectionStatus.NotConnected(true))
+    }
+
+    fun cancelConnectionRequest() {
+        //TODO: fire a use case
+        state = state.copy(connectionStatus = ConnectionStatus.NotConnected(false))
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

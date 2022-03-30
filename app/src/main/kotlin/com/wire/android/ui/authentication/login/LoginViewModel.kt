@@ -47,8 +47,7 @@ class LoginViewModel @Inject constructor(
                 userIdentifier = loginState.userIdentifier.text,
                 password = loginState.password.text,
                 shouldPersistClient = true,
-                serverConfig = serverConfig,
-                shouldStoreSession = true
+                serverConfig = serverConfig
             )
             val loginError =
                 if (loginResult is AuthenticationResult.Success) registerClient(loginResult.userSession).toLoginError()

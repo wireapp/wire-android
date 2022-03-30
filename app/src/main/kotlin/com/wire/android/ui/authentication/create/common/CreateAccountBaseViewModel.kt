@@ -206,8 +206,7 @@ abstract class CreateAccountBaseViewModel(
             }
             val codeError = registerAccountUseCase(
                 param = registerParam,
-                serverConfig = serverConfig,
-                shouldStoreSession = true
+                serverConfig = serverConfig
             ).let { registerResult ->
                     if (registerResult is RegisterResult.Success) registerResult.value.second.let { userSession ->
                             clientScopeProviderFactory.create(userSession.userId).clientScope.register(

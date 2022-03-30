@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,6 +25,7 @@ import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.extension.rememberLazyListState
+import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.theme.wireTypography
@@ -60,9 +60,7 @@ fun ContactsScreenContent(
                 .fillMaxSize()
         ) {
             if (isLoading) {
-                Box(Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(Modifier.align(Alignment.Center))
-                }
+                CenteredCircularProgressBarIndicator()
             } else {
                 LazyColumn(
                     state = lazyListState,

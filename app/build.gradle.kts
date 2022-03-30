@@ -63,6 +63,12 @@ android {
     packagingOptions {
         resources.pickFirsts.add("google/protobuf/*.proto")
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        unitTests.isIncludeAndroidResources = true
+    }
+
 }
 
 kapt {

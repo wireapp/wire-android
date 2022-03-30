@@ -1,28 +1,28 @@
 package com.wire.android.ui.userprofile.image
 
-import android.content.Context
 import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.util.toByteArray
+import com.wire.android.util.AvatarImageManager
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @HiltViewModel
@@ -31,9 +31,10 @@ class AvatarPickerViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getUserAvatar: GetPublicAssetUseCase,
     private val uploadUserAvatar: UploadUserAvatarUseCase,
+    private val avatarImageManager: AvatarImageManager
 ) : ViewModel() {
 
-    var avatarRaw by mutableStateOf<ByteArray?>(null)
+    var pictureState by mutableStateOf<PictureState>(PictureState.Empty)
         private set
 
     var errorMessageCode by mutableStateOf<ErrorCodes?>(null)
@@ -45,19 +46,24 @@ class AvatarPickerViewModel @Inject constructor(
     private fun loadAvatar() = viewModelScope.launch {
         try {
             dataStore.avatarAssetId.first()?.apply {
-                avatarRaw = (getUserAvatar(this) as PublicAssetResult.Success).asset
+                val avatarRaw = (getUserAvatar(this) as PublicAssetResult.Success).asset
+                val currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRaw)
+                pictureState = PictureState.Initial(currentAvatarUri)
             }
         } catch (e: ClassCastException) {
             appLogger.e("There was an error loading the user avatar", e)
         }
     }
 
-    fun uploadNewPickedAvatarAndBack(imgUri: Uri, context: Context) {
+    fun uploadNewPickedAvatarAndBack() {
+        val imgUri = pictureState.avatarUri
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val data = imgUri.toByteArray(context)
-                val result = uploadUserAvatar(imageData = data)
+                val data = avatarImageManager.uriToByteArray(imgUri)
+                val result = uploadUserAvatar(data)
                 if (result is UploadAvatarResult.Success) {
+                    dataStore.updateUserAvatarAssetId(result.userAssetId)
+                    avatarImageManager.getWritableAvatarUri(data)
                     navigateBack()
                 } else {
                     errorMessageCode = when ((result as UploadAvatarResult.Failure).coreFailure) {
@@ -69,14 +75,37 @@ class AvatarPickerViewModel @Inject constructor(
         }
     }
 
+    fun postProcessAvatarImage(imgUri: Uri) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                avatarImageManager.postProcessCapturedAvatar(imgUri)
+                pictureState = PictureState.Picked(imgUri)
+            }
+        }
+    }
+
+    fun pickNewImage(imageUri: Uri) {
+        pictureState = PictureState.Picked(imageUri)
+    }
+
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun clearErrorMessage() {
         errorMessageCode = null
     }
 
+    fun getTemporaryTargetAvatarUri(): Uri {
+        return avatarImageManager.getShareableTempAvatarUri()
+    }
+
     sealed class ErrorCodes {
         object UploadAvatarError : ErrorCodes()
         object NoNetworkError : ErrorCodes()
+    }
+
+    sealed class PictureState(open val avatarUri: Uri) {
+        data class Initial(override val avatarUri: Uri) : PictureState(avatarUri)
+        data class Picked(override val avatarUri: Uri) : PictureState(avatarUri)
+        object Empty : PictureState("".toUri())
     }
 }

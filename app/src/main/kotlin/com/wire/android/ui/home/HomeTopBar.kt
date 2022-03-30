@@ -13,7 +13,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 
-
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeTopBar(
@@ -28,7 +27,7 @@ fun HomeTopBar(
         navigationIconType = NavigationIconType.Menu,
         actions = {
             UserProfileAvatar(
-                avatarAssetByteArray = avatarAssetByteArray,
+                avatarAssetByteArray,
                 isEnabled = true,
                 status = UserStatus.AVAILABLE
             ) {

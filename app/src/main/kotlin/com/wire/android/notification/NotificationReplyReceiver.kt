@@ -3,7 +3,6 @@ package com.wire.android.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.core.app.RemoteInput
 
 class NotificationReplyReceiver : BroadcastReceiver() {
@@ -12,8 +11,8 @@ class NotificationReplyReceiver : BroadcastReceiver() {
         val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID)!!
 
         if (remoteInput != null) {
-            val replyText = remoteInput.getCharSequence(NotificationManager.KEY_TEXT_REPLY).toString()
-            NotificationManager.cancelNotification(context, conversationId.hashCode())
+            val replyText = remoteInput.getCharSequence(MessageNotificationManager.KEY_TEXT_REPLY).toString()
+            MessageNotificationManager.cancelNotification(context, conversationId.hashCode())
         }
     }
 

@@ -14,12 +14,16 @@ data class NotificationConversation(
     val lastMessageTime: Long
 )
 
-sealed class NotificationMessage(open val author: String) {
-    data class Text(override val author: String, val text: String) : NotificationMessage(author)
+sealed class NotificationMessage(open val author: NotificationMessageAuthor, open val time: Long) {
+    data class Text(override val author: NotificationMessageAuthor, override val time: Long, val text: String) :
+        NotificationMessage(author, time)
 
     //shared file, picture, reaction
-    data class Comment(override val author: String, val textResId: CommentResId) : NotificationMessage(author)
+    data class Comment(override val author: NotificationMessageAuthor, override val time: Long, val textResId: CommentResId) :
+        NotificationMessage(author, time)
 }
+
+data class NotificationMessageAuthor(val name: String, val image: ByteArray?)
 
 enum class CommentResId(@StringRes val value: Int) {
     PICTURE(R.string.notification_shared_picture),

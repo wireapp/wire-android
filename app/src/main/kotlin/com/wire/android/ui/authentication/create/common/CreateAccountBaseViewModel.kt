@@ -8,7 +8,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.logic.RegisterClientAndStoreSessionUseCase
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -30,8 +29,6 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
-import com.wire.kalium.logic.feature.session.SaveSessionUseCase
-import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import kotlinx.coroutines.launch
@@ -45,7 +42,7 @@ abstract class CreateAccountBaseViewModel(
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val requestActivationCodeUseCase: RequestActivationCodeUseCase,
     private val registerAccountUseCase: RegisterAccountUseCase,
-    private val registerClientAndStoreSessionUseCase: RegisterClientAndStoreSessionUseCase
+    private val clientScopeProviderFactory: ClientScopeProvider.Factory
 ) : ViewModel(),
     CreateAccountOverviewViewModel,
     CreateAccountEmailViewModel,
@@ -88,7 +85,7 @@ abstract class CreateAccountBaseViewModel(
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val emailError =
-                if (validateEmailUseCase(emailState.email.text.trim())) CreateAccountEmailViewState.EmailError.None
+                if (validateEmailUseCase(emailState.email.text.trim().lowercase())) CreateAccountEmailViewState.EmailError.None
                 else CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
             emailState = emailState.copy(
                 loading = false,
@@ -103,7 +100,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun onTermsAccept(serverConfig: ServerConfig) {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val emailError = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig).toEmailError()
+            val emailError = requestActivationCodeUseCase(emailState.email.text.trim().lowercase(), serverConfig).toEmailError()
             emailState = emailState.copy(loading = false, continueEnabled = true, error = emailError)
             if (emailError is CreateAccountEmailViewState.EmailError.None) onTermsSuccess()
         }
@@ -179,7 +176,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun resendCode(serverConfig: ServerConfig) {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val codeError = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig).toCodeError()
+            val codeError = requestActivationCodeUseCase(emailState.email.text.trim().lowercase(), serverConfig).toCodeError()
             codeState = codeState.copy(loading = false, error = codeError)
         }
     }
@@ -193,7 +190,7 @@ abstract class CreateAccountBaseViewModel(
                         firstName = detailsState.firstName.text.trim(),
                         lastName = detailsState.lastName.text.trim(),
                         password = detailsState.password.text,
-                        email = emailState.email.text.trim(),
+                        email = emailState.email.text.trim().lowercase(),
                         emailActivationCode = codeState.code.text.text
                     )
                 CreateAccountFlowType.CreateTeam ->
@@ -201,7 +198,7 @@ abstract class CreateAccountBaseViewModel(
                         firstName = detailsState.firstName.text.trim(),
                         lastName = detailsState.lastName.text.trim(),
                         password = detailsState.password.text,
-                        email = emailState.email.text.trim(),
+                        email = emailState.email.text.trim().lowercase(),
                         emailActivationCode = codeState.code.text.text,
                         teamName = detailsState.teamName.text.trim(),
                         teamIcon = "default"
@@ -210,10 +207,14 @@ abstract class CreateAccountBaseViewModel(
             val codeError = registerAccountUseCase(
                 param = registerParam,
                 serverConfig = serverConfig,
-                shouldStoreSession = false)
-                .let { registerResult ->
-                    if (registerResult is RegisterResult.Success)
-                        registerClientAndStoreSessionUseCase(registerResult.value.second, registerParam.password).toCodeError()
+                shouldStoreSession = true
+            ).let { registerResult ->
+                    if (registerResult is RegisterResult.Success) registerResult.value.second.let { userSession ->
+                            clientScopeProviderFactory.create(userSession.userId).clientScope.register(
+                                password = registerParam.password,
+                                capabilities = null
+                            ).toCodeError()
+                        }
                     else registerResult.toCodeError()
                 }
             val isSuccess = codeError is CreateAccountCodeViewState.CodeError.None

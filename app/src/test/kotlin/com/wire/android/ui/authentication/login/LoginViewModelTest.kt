@@ -5,24 +5,23 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.common.BaseTest
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.logic.RegisterClientAndStoreSessionUseCase
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
-import com.wire.android.utils.CoroutineTestRule
+import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
-import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.client.ClientScope
+import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
-import com.wire.kalium.logic.feature.session.SaveSessionUseCase
-import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -31,22 +30,20 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.feature.client.RegisterClientResult
-import io.mockk.coVerify
-import org.amshove.kluent.shouldBe
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
 class LoginViewModelTest: BaseTest() {
 
     @MockK private lateinit var loginUseCase: LoginUseCase
-    @MockK private lateinit var registerClientAndStoreSessionUseCase: RegisterClientAndStoreSessionUseCase
+    @MockK private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
+    @MockK private lateinit var clientScope: ClientScope
+    @MockK private lateinit var registerClientUseCase: RegisterClientUseCase
     @MockK private lateinit var savedStateHandle: SavedStateHandle
     @MockK private lateinit var navigationManager: NavigationManager
     @MockK private lateinit var authSession: AuthSession
@@ -63,9 +60,11 @@ class LoginViewModelTest: BaseTest() {
         MockKAnnotations.init(this)
         every { savedStateHandle.get<String>(any()) } returns ""
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
+        every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
+        every { clientScope.register } returns registerClientUseCase
         every { serverConfig.apiBaseUrl } returns apiBaseUrl
         every { authSession.userId } returns userId
-        loginViewModel = LoginViewModel(loginUseCase, registerClientAndStoreSessionUseCase, savedStateHandle, navigationManager)
+        loginViewModel = LoginViewModel(loginUseCase, clientScopeProviderFactory, savedStateHandle, navigationManager)
     }
 
     @Test
@@ -109,10 +108,10 @@ class LoginViewModelTest: BaseTest() {
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery { loginUseCase.invoke(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(authSession)
         coEvery { navigationManager.navigate(any()) } returns Unit
-        coEvery { registerClientAndStoreSessionUseCase.invoke(any(), any())} returns RegisterClientResult.Success(client)
+        coEvery { registerClientUseCase.invoke(any(), any(), any())} returns RegisterClientResult.Success(client)
         loginViewModel.onPasswordChange(TextFieldValue(password))
         runTest { loginViewModel.login(serverConfig) }
-        coVerify(exactly = 1) { registerClientAndStoreSessionUseCase.invoke(authSession, password) }
+        coVerify(exactly = 1) { registerClientUseCase.invoke(password, null) }
         coVerify(exactly = 1) {
             navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.HOME, BackStackMode.CLEAR_WHOLE))
         }

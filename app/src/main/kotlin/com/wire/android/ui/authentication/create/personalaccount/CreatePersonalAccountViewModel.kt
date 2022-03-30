@@ -3,7 +3,6 @@ package com.wire.android.ui.authentication.create.personalaccount
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.logic.RegisterClientAndStoreSessionUseCase
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -13,8 +12,6 @@ import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
-import com.wire.kalium.logic.feature.session.SaveSessionUseCase
-import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,7 +27,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     validatePasswordUseCase: ValidatePasswordUseCase,
     requestActivationCodeUseCase: RequestActivationCodeUseCase,
     registerAccountUseCase: RegisterAccountUseCase,
-    registerClientAndStoreSessionUseCase: RegisterClientAndStoreSessionUseCase
+    clientScopeProviderFactory: ClientScopeProvider.Factory
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreatePersonalAccount,
     navigationManager,
@@ -38,7 +35,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     validatePasswordUseCase,
     requestActivationCodeUseCase,
     registerAccountUseCase,
-    registerClientAndStoreSessionUseCase
+    clientScopeProviderFactory
 ) {
     var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()
@@ -70,7 +67,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     override fun onSummarySuccess() {
         viewModelScope.launch {
             navigationManager.navigate(
-                NavigationCommand(NavigationItem.CreateUsername.getRouteWithArgs(), BackStackMode.CLEAR_TILL_START)
+                NavigationCommand(NavigationItem.CreateUsername.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE)
             )
         }
     }

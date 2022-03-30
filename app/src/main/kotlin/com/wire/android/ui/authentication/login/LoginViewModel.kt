@@ -9,7 +9,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.logic.RegisterClientAndStoreSessionUseCase
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -20,8 +19,6 @@ import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.session.SaveSessionUseCase
-import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val registerClientAndStoreSessionUseCase: RegisterClientAndStoreSessionUseCase,
+    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
 ) : ViewModel() {
@@ -51,17 +48,21 @@ class LoginViewModel @Inject constructor(
                 password = loginState.password.text,
                 shouldPersistClient = true,
                 serverConfig = serverConfig,
-                shouldStoreSession = false
+                shouldStoreSession = true
             )
             val loginError =
-                if (loginResult is AuthenticationResult.Success)
-                    registerClientAndStoreSessionUseCase(loginResult.userSession, loginState.password.text).toLoginError()
+                if (loginResult is AuthenticationResult.Success) registerClient(loginResult.userSession).toLoginError()
                 else loginResult.toLoginError()
 
             loginState = loginState.copy(loading = false, loginError = loginError).updateLoginEnabled()
             if (loginError is LoginError.None)
                 navigateToConvScreen()
         }
+    }
+
+    private suspend fun registerClient(authSession: AuthSession): RegisterClientResult {
+        val clientScope = clientScopeProviderFactory.create(authSession.userId).clientScope
+        return clientScope.register(loginState.password.text, null)
     }
 
     fun onUserIdentifierChange(newText: TextFieldValue) {

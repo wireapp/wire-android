@@ -22,11 +22,11 @@
 
         <activity
                 android:name=".ui.WireActivity"
-                android:exported="true"
-                android:launchMode="singleTop"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.SplashScreen"
-                android:windowSoftInputMode="adjustResize|stateHidden">
+                android:windowSoftInputMode="adjustResize|stateHidden"
+                android:exported="true"
+                android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -38,8 +38,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data
-                        android:host="access"
+                <data android:host="access"
                         android:scheme="wire" />
             </intent-filter>
         </activity>

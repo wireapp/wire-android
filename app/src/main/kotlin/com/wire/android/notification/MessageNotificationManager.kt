@@ -166,7 +166,9 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         }.build()
 
     private fun getMessageStyle(conversation: NotificationConversation): NotificationCompat.Style {
-        val receiver = Person.Builder().setName("you").build()
+        val receiver = Person.Builder()
+            .setName(context.getString(R.string.notification_receiver_name))
+            .build()
 
         val notificationStyle = NotificationCompat.MessagingStyle(receiver)
 

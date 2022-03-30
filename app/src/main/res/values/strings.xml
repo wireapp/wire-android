@@ -234,5 +234,6 @@
     <string name="notification_reacted">Added a reaction</string>
     <string name="notification_action_call">Call</string>
     <string name="notification_action_reply">Reply</string>
+    <string name="notification_receiver_name">You</string>
 
 </resources>

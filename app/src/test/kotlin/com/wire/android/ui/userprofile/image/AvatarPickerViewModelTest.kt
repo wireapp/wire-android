@@ -2,7 +2,6 @@ package com.wire.android.ui.userprofile.image
 
 import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.core.net.toUri
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
@@ -61,7 +60,7 @@ class AvatarPickerViewModelTest {
         every { userDataStore.avatarAssetId } returns flow { emit("some-asset-id") }
         coEvery { userDataStore.updateUserAvatarAssetId(any()) } returns Unit
         coEvery { getPublicAsset(any()) } returns PublicAssetResult.Success("some-asset-id".toByteArray())
-        coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns "".toUri()
+        coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
 
         avatarPickerViewModel =
             AvatarPickerViewModel(navigationManager, userDataStore, getPublicAsset, uploadUserAvatarUseCase, avatarImageManager)

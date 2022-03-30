@@ -20,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -31,25 +30,21 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
-import com.wire.android.ui.common.imagepreview.PictureState
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.image.AvatarPickerViewModel.ErrorCodes
-import com.wire.android.util.getWritableTempAvatarUri
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
-    val context = LocalContext.current
-    val state = rememberAvatarPickerState()
-
-    // We need to launch an effect to update the initial avatar uri whenever the pickerVM updates successfully the raw image
-    LaunchedEffect(viewModel.avatarRaw) {
-        val currentAvatarUri = getWritableTempAvatarUri(viewModel.avatarRaw ?: ByteArray(16), context)
-        state.avatarPickerFlow.pictureState = PictureState.Initial(currentAvatarUri)
-    }
+    val targetAvatarUri = viewModel.getTemporaryTargetAvatarUri()
+    val state = rememberAvatarPickerState(
+        onImageSelected = { viewModel.pickNewImage(it) },
+        onPictureTaken = { viewModel.postProcessAvatarImage(targetAvatarUri) },
+        targetPictureFileUri = targetAvatarUri
+    )
 
     AvatarPickerContent(
         viewModel = viewModel,
@@ -58,11 +53,7 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
             viewModel.navigateBack()
         },
         onSaveClick = {
-            if (state.avatarPickerFlow.pictureState is PictureState.Picked) {
-                viewModel.uploadNewPickedAvatarAndBack(state.avatarPickerFlow.pictureState.avatarUri, context)
-            } else {
-                viewModel.navigateBack()
-            }
+            viewModel.uploadNewPickedAvatarAndBack()
         }
     )
 }
@@ -75,7 +66,6 @@ private fun AvatarPickerContent(
     onCloseClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     viewModel.errorMessageCode?.let { errorCode ->
@@ -103,18 +93,18 @@ private fun AvatarPickerContent(
                     onItemClick = { state.openImageSource(ImageSource.Gallery) }
                 )
             }, {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.profile_image_take_a_picture_menu_item),
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_camera,
-                            contentDescription = stringResource(R.string.content_description_take_a_picture)
-                        )
-                    },
-                    action = { ArrowRightIcon() },
-                    onItemClick = { state.openImageSource(ImageSource.Camera) }
-                )
-            }
+            MenuBottomSheetItem(
+                title = stringResource(R.string.profile_image_take_a_picture_menu_item),
+                icon = {
+                    MenuItemIcon(
+                        id = R.drawable.ic_camera,
+                        contentDescription = stringResource(R.string.content_description_take_a_picture)
+                    )
+                },
+                action = { ArrowRightIcon() },
+                onItemClick = { state.openImageSource(ImageSource.Camera) }
+            )
+        }
         )
     ) {
         Scaffold(
@@ -124,23 +114,25 @@ private fun AvatarPickerContent(
                     hostState = snackbarHostState,
                     modifier = Modifier.fillMaxWidth()
                 )
-            }) {
+            }
+        ) {
             Box(Modifier.fillMaxSize()) {
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.wireColorScheme.background)) {
+                        .background(MaterialTheme.wireColorScheme.background)
+                ) {
                     Box(Modifier.weight(1f)) {
                         Box(Modifier.align(Alignment.Center)) {
                             BulletHoleImagePreview(
-                                imageUri = state.avatarPickerFlow.pictureState.avatarUri,
+                                imageUri = viewModel.pictureState.avatarUri,
                                 contentDescription = stringResource(R.string.content_description_avatar_preview)
                             )
                         }
                     }
                     Divider()
                     Spacer(Modifier.height(4.dp))
-                    AvatarPickerActionButtons(hasPickedImage(state), onSaveClick, onCloseClick) {
+                    AvatarPickerActionButtons(hasPickedImage(viewModel.pictureState), onSaveClick, onCloseClick) {
                         state.showModalBottomSheet()
                     }
                 }
@@ -200,4 +192,5 @@ private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     }
 }
 
-private fun hasPickedImage(state: AvatarPickerState): Boolean = state.avatarPickerFlow.pictureState is PictureState.Picked
+@OptIn(ExperimentalMaterial3Api::class)
+private fun hasPickedImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Picked

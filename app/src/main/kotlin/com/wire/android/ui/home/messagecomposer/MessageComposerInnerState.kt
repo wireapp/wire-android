@@ -70,7 +70,7 @@ class MessageComposerInnerState(
 class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
-    fun pickAttachment(attachmentUri: Uri) {
+    suspend fun pickAttachment(attachmentUri: Uri) {
         attachmentState = try {
             val attachment =
                 AttachmentBundle(

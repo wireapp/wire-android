@@ -31,7 +31,6 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
-import com.wire.android.ui.common.imagepreview.PictureState
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -61,7 +60,7 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
             viewModel.navigateBack()
         },
         onSaveClick = {
-            viewModel.uploadNewPickedAvatarAndBack(viewModel.pictureState.avatarUri)
+            viewModel.uploadNewPickedAvatarAndBack()
         }
     )
 }
@@ -200,4 +199,5 @@ private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     }
 }
 
-private fun hasPickedImage(state: PictureState): Boolean = state is PictureState.Picked
+@OptIn(ExperimentalMaterial3Api::class)
+private fun hasPickedImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Picked

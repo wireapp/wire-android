@@ -11,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.common.imagepreview.PictureState
 import com.wire.android.util.AvatarImageManager
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
@@ -35,7 +34,7 @@ class AvatarPickerViewModel @Inject constructor(
     private val avatarImageManager: AvatarImageManager
 ) : ViewModel() {
 
-    var pictureState by mutableStateOf<PictureState>(PictureState.Initial("".toUri()))
+    var pictureState by mutableStateOf<PictureState>(PictureState.Empty)
         private set
 
     var errorMessageCode by mutableStateOf<ErrorCodes?>(null)
@@ -56,7 +55,8 @@ class AvatarPickerViewModel @Inject constructor(
         }
     }
 
-    fun uploadNewPickedAvatarAndBack(imgUri: Uri) {
+    fun uploadNewPickedAvatarAndBack() {
+        val imgUri = pictureState.avatarUri
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val data = avatarImageManager.uriToByteArray(imgUri)
@@ -97,5 +97,11 @@ class AvatarPickerViewModel @Inject constructor(
     sealed class ErrorCodes {
         object UploadAvatarError : ErrorCodes()
         object NoNetworkError : ErrorCodes()
+    }
+
+    sealed class PictureState(open val avatarUri: Uri) {
+        data class Initial(override val avatarUri: Uri) : PictureState(avatarUri)
+        data class Picked(override val avatarUri: Uri) : PictureState(avatarUri)
+        object Empty : PictureState("".toUri())
     }
 }

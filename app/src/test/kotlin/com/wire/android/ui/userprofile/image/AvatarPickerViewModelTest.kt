@@ -2,10 +2,10 @@ package com.wire.android.ui.userprofile.image
 
 import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.core.net.toUri
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.common.imagepreview.PictureState
 import com.wire.android.util.AvatarImageManager
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
@@ -61,6 +61,7 @@ class AvatarPickerViewModelTest {
         every { userDataStore.avatarAssetId } returns flow { emit("some-asset-id") }
         coEvery { userDataStore.updateUserAvatarAssetId(any()) } returns Unit
         coEvery { getPublicAsset(any()) } returns PublicAssetResult.Success("some-asset-id".toByteArray())
+        coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns "".toUri()
 
         avatarPickerViewModel =
             AvatarPickerViewModel(navigationManager, userDataStore, getPublicAsset, uploadUserAvatarUseCase, avatarImageManager)
@@ -77,7 +78,7 @@ class AvatarPickerViewModelTest {
     fun `given an image, when picked, then should emit a picked state with uri`() = runTest {
         avatarPickerViewModel.pickNewImage(mockUri)
 
-        assertEquals(PictureState.Picked::class, avatarPickerViewModel.pictureState::class)
+        assertEquals(AvatarPickerViewModel.PictureState.Picked::class, avatarPickerViewModel.pictureState::class)
     }
 
     @Test
@@ -87,7 +88,7 @@ class AvatarPickerViewModelTest {
         coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Success(uploadedAssetId)
         coEvery { avatarImageManager.uriToByteArray(any()) } returns rawImage
 
-        avatarPickerViewModel.uploadNewPickedAvatarAndBack(mockUri)
+        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
 
         coVerify {
             avatarImageManager.uriToByteArray(mockUri)
@@ -105,7 +106,7 @@ class AvatarPickerViewModelTest {
         coEvery { avatarImageManager.uriToByteArray(any()) } returns rawImage
         coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Failure(Unknown(RuntimeException("some error")))
 
-        avatarPickerViewModel.uploadNewPickedAvatarAndBack(mockUri)
+        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
 
         coVerify {
             avatarImageManager.uriToByteArray(mockUri)

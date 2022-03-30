@@ -47,8 +47,3 @@ fun rememberPickPictureState(
         AvatarPickerFlow(takePictureFLow, openGalleryFlow)
     }
 }
-
-sealed class PictureState(open val avatarUri: Uri) {
-    data class Initial(override val avatarUri: Uri) : PictureState(avatarUri)
-    data class Picked(override val avatarUri: Uri) : PictureState(avatarUri)
-}

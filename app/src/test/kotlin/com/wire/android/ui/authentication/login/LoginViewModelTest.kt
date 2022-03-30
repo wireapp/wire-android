@@ -13,6 +13,7 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
@@ -53,7 +54,7 @@ class LoginViewModelTest: BaseTest() {
     private lateinit var loginViewModel: LoginViewModel
 
     private val apiBaseUrl: String = "apiBaseUrl"
-    private val userId: String = "userId"
+    private val userId: QualifiedID = QualifiedID("userId", "domain")
 
     @Before
     fun setup() {

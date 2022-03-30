@@ -19,7 +19,7 @@ fun rememberAvatarPickerState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
     onImageSelected: (Uri) -> Unit,
-    onPictureTaken: (Boolean) -> Unit,
+    onPictureTaken: () -> Unit,
     targetPictureFileUri: Uri
 ): AvatarPickerState {
     val pickPictureState = rememberPickPictureState(onImageSelected, onPictureTaken, targetPictureFileUri)

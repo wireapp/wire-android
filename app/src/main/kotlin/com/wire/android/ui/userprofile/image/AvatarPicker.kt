@@ -20,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -36,20 +35,14 @@ import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.image.AvatarPickerViewModel.ErrorCodes
-import com.wire.android.util.AvatarImageManager.Companion.getShareableTempAvatarUri
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
-    val context = LocalContext.current
-    val targetAvatarUri = getShareableTempAvatarUri(context)
+    val targetAvatarUri = viewModel.getTemporaryTargetAvatarUri()
     val state = rememberAvatarPickerState(
         onImageSelected = { viewModel.pickNewImage(it) },
-        onPictureTaken = { wasSaved ->
-            if (wasSaved) {
-                viewModel.postProcessAvatarImage(targetAvatarUri)
-            }
-        },
+        onPictureTaken = { viewModel.postProcessAvatarImage(targetAvatarUri) },
         targetPictureFileUri = targetAvatarUri
     )
 

@@ -85,6 +85,10 @@ class AvatarImageManager @Inject constructor(val context: Context) {
         return uri.toByteArray(context)
     }
 
+    fun getShareableTempAvatarUri(): Uri {
+        return Companion.getShareableTempAvatarUri(context)
+    }
+
     companion object {
         private const val TEMP_AVATAR_FILENAME = "temp_avatar_path.jpg"
         private const val AVATAR_FILENAME = "user_avatar_path.jpg"

@@ -24,12 +24,12 @@ class AvatarPickerFlow(
 @Composable
 fun rememberPickPictureState(
     onImageSelected: (Uri) -> Unit,
-    onPictureTaken: (Boolean) -> Unit,
+    onPictureTaken: () -> Unit,
     targetPictureFileUri: Uri
 ): AvatarPickerFlow {
 
     val takePictureFLow = rememberTakePictureFlow(
-        onPictureTaken = { wasSaved -> onPictureTaken(wasSaved) },
+        onPictureTaken = { wasSaved -> if (wasSaved) onPictureTaken() },
         onPermissionDenied = {
             // TODO: Implement denied permission rationale
         },

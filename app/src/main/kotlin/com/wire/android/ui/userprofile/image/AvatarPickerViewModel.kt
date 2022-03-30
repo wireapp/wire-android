@@ -94,6 +94,10 @@ class AvatarPickerViewModel @Inject constructor(
         errorMessageCode = null
     }
 
+    fun getTemporaryTargetAvatarUri(): Uri {
+        return avatarImageManager.getShareableTempAvatarUri()
+    }
+
     sealed class ErrorCodes {
         object UploadAvatarError : ErrorCodes()
         object NoNetworkError : ErrorCodes()

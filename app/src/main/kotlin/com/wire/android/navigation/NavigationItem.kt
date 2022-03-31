@@ -19,11 +19,11 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
+import com.wire.android.ui.authentication.create.team.CreateTeamScreen
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameScreen
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
-import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
@@ -66,7 +66,7 @@ enum class NavigationItem(
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
-        content = { UnderConstructionScreen("Create Team Screen") },
+        content = { CreateTeamScreen(serverConfig = ServerConfig.STAGING) },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 

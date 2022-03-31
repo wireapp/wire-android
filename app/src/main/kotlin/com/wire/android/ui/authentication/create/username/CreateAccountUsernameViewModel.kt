@@ -11,6 +11,9 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.USERNAME_FORBIDDEN_CHARACTERS_REGEX
+import com.wire.android.util.USERNAME_MAX_LENGTH
+import com.wire.android.util.USERNAME_MIN_LENGTH
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
@@ -29,10 +32,12 @@ class CreateAccountUsernameViewModel @Inject constructor(
         private set
 
     fun onUsernameChange(newText: TextFieldValue) {
+        val newValidTextString = newText.text.replace(Regex(USERNAME_FORBIDDEN_CHARACTERS_REGEX), "").take(USERNAME_MAX_LENGTH)
         state = state.copy(
-            username = newText,
+            username = newText.copy(text = newValidTextString),
             error = CreateAccountUsernameViewState.UsernameError.None,
-            continueEnabled = newText.text.isNotEmpty() && !state.loading
+            continueEnabled = newText.text.length >= USERNAME_MIN_LENGTH && !state.loading,
+            animateUsernameError = newValidTextString != newText.text
         )
     }
 
@@ -59,4 +64,9 @@ class CreateAccountUsernameViewModel @Inject constructor(
                 navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
     }
+
+    fun onUsernameErrorAnimated() {
+        state = state.copy(animateUsernameError = false)
+    }
 }
+

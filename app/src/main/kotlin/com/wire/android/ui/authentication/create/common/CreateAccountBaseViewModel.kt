@@ -288,7 +288,6 @@ private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeViewState.CodeError.TooManyDevicesError
     RegisterClientResult.Failure.InvalidCredentials -> CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
-    //is RegisterClientResult.Success -> CreateAccountCodeViewState.CodeError.None
 }
 
 private fun RegisterResult.Failure.toCodeError() = when (this) {
@@ -300,11 +299,10 @@ private fun RegisterResult.Failure.toCodeError() = when (this) {
     RegisterResult.Failure.TeamMembersLimitReached -> CreateAccountCodeViewState.CodeError.DialogError.TeamMembersLimitError
     RegisterResult.Failure.UserCreationRestricted -> CreateAccountCodeViewState.CodeError.DialogError.CreationRestrictedError
     is RegisterResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.failure)
-    //is RegisterResult.Success -> CreateAccountCodeViewState.CodeError.None
 }
 
 private fun AddAuthenticatedUserUseCase.Result.Failure.toCodeError() = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic ->
         CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
-    AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> TODO()
+    AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> CreateAccountCodeViewState.CodeError.DialogError.UserAlreadyExists
 }

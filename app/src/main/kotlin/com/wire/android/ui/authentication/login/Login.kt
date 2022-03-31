@@ -1,7 +1,6 @@
 package com.wire.android.ui.authentication.login
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -142,7 +141,7 @@ private fun LoginContent(
                     stringResource(id = R.string.login_error_invalid_credentials_message)
                 )
                 // TODO: sync with design about the error message
-                LoginError.DialogError.UserAlreadyLoggedIn -> DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
+                LoginError.DialogError.UserAlreadyExists -> DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
                 is LoginError.DialogError.GenericError -> {
                     loginState.loginError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
                 }

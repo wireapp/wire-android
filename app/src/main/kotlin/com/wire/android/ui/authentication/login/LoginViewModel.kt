@@ -153,5 +153,5 @@ private fun RegisterClientResult.Failure.toLoginError() = when (this) {
 
 private fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-    AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginError.DialogError.UserAlreadyLoggedIn
+    AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginError.DialogError.UserAlreadyExists
 }

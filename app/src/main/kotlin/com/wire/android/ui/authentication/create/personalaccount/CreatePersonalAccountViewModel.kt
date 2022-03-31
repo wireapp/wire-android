@@ -19,9 +19,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
-@Suppress("LongParameterList")
 class CreatePersonalAccountViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     validateEmailUseCase: ValidateEmailUseCase,
@@ -70,7 +70,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     override fun onSummarySuccess() {
         viewModelScope.launch {
             navigationManager.navigate(
-                NavigationCommand(NavigationItem.CreateUsername.getRouteWithArgs(), BackStackMode.CLEAR_TILL_START)
+                NavigationCommand(NavigationItem.CreateUsername.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE)
             )
         }
     }

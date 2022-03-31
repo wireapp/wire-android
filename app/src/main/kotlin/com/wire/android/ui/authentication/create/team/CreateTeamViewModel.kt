@@ -9,6 +9,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountBaseViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
@@ -21,11 +22,13 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
+@Suppress("LongParameterList")
 class CreateTeamViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     validateEmailUseCase: ValidateEmailUseCase,
     validatePasswordUseCase: ValidatePasswordUseCase,
     requestActivationCodeUseCase: RequestActivationCodeUseCase,
+    addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase,
     registerAccountUseCase: RegisterAccountUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory
 ) : CreateAccountBaseViewModel(
@@ -34,6 +37,7 @@ class CreateTeamViewModel @Inject constructor(
     validateEmailUseCase,
     validatePasswordUseCase,
     requestActivationCodeUseCase,
+    addAuthenticatedUserUseCase,
     registerAccountUseCase,
     clientScopeProviderFactory
 ) {

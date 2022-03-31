@@ -66,7 +66,7 @@ fun LoginScreen(serverConfig: ServerConfig) {
         onUserIdentifierChange = { loginViewModel.onUserIdentifierChange(it) },
         onBackPressed = { loginViewModel.navigateBack() },
         onPasswordChange = { loginViewModel.onPasswordChange(it) },
-        onDialogDismiss = { loginViewModel.clearLoginError() },
+        onDialogDismiss = { loginViewModel.onDialogDismiss() },
         onRemoveDeviceOpen = { loginViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginViewModel.login(serverConfig) },
         accountsBaseUrl = serverConfig.accountsBaseUrl,
@@ -149,8 +149,11 @@ private fun LoginContent(
                     stringResource(id = R.string.login_error_invalid_credentials_title),
                     stringResource(id = R.string.login_error_invalid_credentials_message)
                 )
-                is LoginError.DialogError.GenericError ->
+                // TODO: sync with design about the error message
+                LoginError.DialogError.UserAlreadyExists -> DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
+                is LoginError.DialogError.GenericError -> {
                     loginState.loginError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
+                }
             }
             WireDialog(
                 title = title,

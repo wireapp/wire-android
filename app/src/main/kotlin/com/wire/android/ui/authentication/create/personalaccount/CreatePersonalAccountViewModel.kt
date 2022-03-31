@@ -3,6 +3,7 @@ package com.wire.android.ui.authentication.create.personalaccount
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -21,11 +22,13 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
+@Suppress("LongParameterList")
 class CreatePersonalAccountViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     validateEmailUseCase: ValidateEmailUseCase,
     validatePasswordUseCase: ValidatePasswordUseCase,
     requestActivationCodeUseCase: RequestActivationCodeUseCase,
+    addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase,
     registerAccountUseCase: RegisterAccountUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory
 ) : CreateAccountBaseViewModel(
@@ -34,6 +37,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     validateEmailUseCase,
     validatePasswordUseCase,
     requestActivationCodeUseCase,
+    addAuthenticatedUserUseCase,
     registerAccountUseCase,
     clientScopeProviderFactory
 ) {

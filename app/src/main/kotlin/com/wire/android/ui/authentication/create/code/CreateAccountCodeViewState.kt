@@ -25,6 +25,7 @@ data class CreateAccountCodeViewState(
             object EmailDomainBlockedError : DialogError()
             object TeamMembersLimitError : DialogError()
             object CreationRestrictedError : DialogError()
+            object UserAlreadyExists: DialogError()
             data class GenericError(val coreFailure: CoreFailure) : DialogError()
         }
 

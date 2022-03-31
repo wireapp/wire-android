@@ -9,12 +9,12 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.newconversation.contacts.toContact
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult.InternalContact
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult.ExternalContact
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
@@ -25,7 +25,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchPeopleViewModel @Inject constructor(
     private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchUserDirectoryUseCase
+    private val searchPublicUsers: SearchUserDirectoryUseCase,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
     //TODO: map this value out with the given back-end configuration later on
     private companion object {
@@ -74,7 +75,7 @@ class SearchPeopleViewModel @Inject constructor(
         }.catch {
             localContactSearchResult = InternalContact(SearchResultState.Failure())
 
-        }.flowOn(Dispatchers.IO).collect {
+        }.flowOn(dispatchers.io()).collect {
             localContactSearchResult = InternalContact(
                 SearchResultState.Success(it.result.map { publicUser -> publicUser.toContact() })
             )
@@ -84,7 +85,7 @@ class SearchPeopleViewModel @Inject constructor(
     private suspend fun searchPublic(searchTerm: String) {
         publicContactsSearchResult = ExternalContact(SearchResultState.InProgress)
 
-        val result = withContext(Dispatchers.IO) {
+        val result = withContext(dispatchers.io()) {
             searchPublicUsers(
                 searchQuery = searchTerm,
                 domain = HARDCODED_TEST_DOMAIN

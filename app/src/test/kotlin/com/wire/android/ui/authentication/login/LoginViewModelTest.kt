@@ -14,6 +14,7 @@ import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
@@ -43,15 +44,26 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 class LoginViewModelTest {
 
-    @MockK private lateinit var loginUseCase: LoginUseCase
-    @MockK private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
-    @MockK private lateinit var clientScope: ClientScope
-    @MockK private lateinit var registerClientUseCase: RegisterClientUseCase
-    @MockK private lateinit var savedStateHandle: SavedStateHandle
-    @MockK private lateinit var navigationManager: NavigationManager
-    @MockK private lateinit var authSession: AuthSession
-    @MockK private lateinit var serverConfig: ServerConfig
-    @MockK private lateinit var client: Client
+    @MockK
+    private lateinit var loginUseCase: LoginUseCase
+    @MockK
+    private lateinit var addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase
+    @MockK
+    private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
+    @MockK
+    private lateinit var clientScope: ClientScope
+    @MockK
+    private lateinit var registerClientUseCase: RegisterClientUseCase
+    @MockK
+    private lateinit var savedStateHandle: SavedStateHandle
+    @MockK
+    private lateinit var navigationManager: NavigationManager
+    @MockK
+    private lateinit var authSession: AuthSession
+    @MockK
+    private lateinit var serverConfig: ServerConfig
+    @MockK
+    private lateinit var client: Client
 
     private lateinit var loginViewModel: LoginViewModel
 
@@ -67,7 +79,13 @@ class LoginViewModelTest {
         every { clientScope.register } returns registerClientUseCase
         every { serverConfig.apiBaseUrl } returns apiBaseUrl
         every { authSession.userId } returns userId
-        loginViewModel = LoginViewModel(loginUseCase, clientScopeProviderFactory, savedStateHandle, navigationManager)
+        loginViewModel = LoginViewModel(
+            loginUseCase,
+            addAuthenticatedUserUseCase,
+            clientScopeProviderFactory,
+            savedStateHandle,
+            navigationManager
+        )
     }
 
     @Test
@@ -90,7 +108,8 @@ class LoginViewModelTest {
     fun `when button is clicked, show loading`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase.invoke(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
+        coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
+        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
 
         loginViewModel.onPasswordChange(TextFieldValue("abc"))
         loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
@@ -109,9 +128,10 @@ class LoginViewModelTest {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase.invoke(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(authSession)
+        coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
-        coEvery { registerClientUseCase.invoke(any(), any(), any())} returns RegisterClientResult.Success(client)
+        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
         loginViewModel.onPasswordChange(TextFieldValue(password))
         runTest { loginViewModel.login(serverConfig) }
         coVerify(exactly = 1) { registerClientUseCase.invoke(password, null) }
@@ -122,21 +142,21 @@ class LoginViewModelTest {
 
     @Test
     fun `when button is clicked and login returns InvalidUserIdentifier error, InvalidUserIdentifierError is passed`() {
-        coEvery { loginUseCase.invoke(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidUserIdentifier
+        coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidUserIdentifier
         runTest { loginViewModel.login(serverConfig) }
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TextFieldError.InvalidUserIdentifierError::class
     }
 
     @Test
     fun `when button is clicked, with InvalidCredentials error, InvalidCredentialsError is passed`() {
-        coEvery { loginUseCase.invoke(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
+        coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
         runTest { loginViewModel.login(serverConfig) }
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
     }
 
     @Test
     fun `when button is clicked and login returns Generic error, GenericError is passed`() {
-        coEvery { loginUseCase.invoke(any(), any(), any(), any(), any()) } returns
+        coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns
                 AuthenticationResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
         runTest { loginViewModel.login(serverConfig) }
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
@@ -146,11 +166,19 @@ class LoginViewModelTest {
 
     @Test
     fun `when login returns DialogError and dialog is dismissed, hide error`() {
-        coEvery { loginUseCase.invoke(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
+        coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
         runTest { loginViewModel.login(serverConfig) }
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
-        loginViewModel.clearLoginError()
+        loginViewModel.onDialogDismiss()
         loginViewModel.loginState.loginError shouldBe LoginError.None
+    }
+
+    @Test
+    fun `when button is clicked and addAuthenticatedUser returns UserAlreadyExists error, UserAlreadyExists is passed`() {
+        coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
+        runTest { loginViewModel.login(serverConfig) }
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
     }
 }
 

@@ -22,7 +22,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
-@Suppress("LongParameterList")
 class CreateTeamViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     validateEmailUseCase: ValidateEmailUseCase,

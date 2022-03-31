@@ -12,6 +12,7 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.AvatarImageManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
@@ -19,7 +20,6 @@ import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,7 +31,8 @@ class AvatarPickerViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getUserAvatar: GetPublicAssetUseCase,
     private val uploadUserAvatar: UploadUserAvatarUseCase,
-    private val avatarImageManager: AvatarImageManager
+    private val avatarImageManager: AvatarImageManager,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     var pictureState by mutableStateOf<PictureState>(PictureState.Empty)
@@ -58,7 +59,7 @@ class AvatarPickerViewModel @Inject constructor(
     fun uploadNewPickedAvatarAndBack() {
         val imgUri = pictureState.avatarUri
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(dispatchers.io()) {
                 val data = avatarImageManager.uriToByteArray(imgUri)
                 val result = uploadUserAvatar(data)
                 if (result is UploadAvatarResult.Success) {
@@ -77,7 +78,7 @@ class AvatarPickerViewModel @Inject constructor(
 
     fun postProcessAvatarImage(imgUri: Uri) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(dispatchers.io()) {
                 avatarImageManager.postProcessCapturedAvatar(imgUri)
                 pictureState = PictureState.Picked(imgUri)
             }

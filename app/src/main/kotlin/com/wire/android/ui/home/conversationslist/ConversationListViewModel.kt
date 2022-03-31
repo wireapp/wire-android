@@ -40,20 +40,26 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getConversations()
-                .collect { conversations ->
-                    state = ConversationListState(
-                        newActivities = listOf(),
-                        conversations = conversationMockData(conversations.toGeneralConversationList()),
-                        missedCalls = mockMissedCalls,
-                        callHistory = mockCallHistory,
-                        unreadMentions = mockUnreadMentionList,
-                        allMentions = mockAllMentionList,
-                        unreadMentionsCount = 12,
-                        missedCallsCount = 100,
-                        newActivityCount = 1
-                    )
+            getConversations().let {
+                when (it) {
+                    is GetConversationsUseCase.Result.Failure -> TODO("unhandled error case")
+                    is GetConversationsUseCase.Result.Success -> {
+                        it.convFlow.collect { conversations ->
+                            state = ConversationListState(
+                                newActivities = listOf(),
+                                conversations = conversationMockData(conversations.toGeneralConversationList()),
+                                missedCalls = mockMissedCalls,
+                                callHistory = mockCallHistory,
+                                unreadMentions = mockUnreadMentionList,
+                                allMentions = mockAllMentionList,
+                                unreadMentionsCount = 12,
+                                missedCallsCount = 100,
+                                newActivityCount = 1
+                            )
+                        }
+                    }
                 }
+            }
         }
     }
 

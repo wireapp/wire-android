@@ -3,6 +3,7 @@ package com.wire.android.ui.userprofile.image
 import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.AvatarImageManager
@@ -22,7 +23,8 @@ import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -63,7 +65,14 @@ class AvatarPickerViewModelTest {
         coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
 
         avatarPickerViewModel =
-            AvatarPickerViewModel(navigationManager, userDataStore, getPublicAsset, uploadUserAvatarUseCase, avatarImageManager)
+            AvatarPickerViewModel(
+                navigationManager,
+                userDataStore,
+                getPublicAsset,
+                uploadUserAvatarUseCase,
+                avatarImageManager,
+                TestDispatcherProvider()
+            )
     }
 
     @Test
@@ -114,8 +123,7 @@ class AvatarPickerViewModelTest {
         coVerify {
             avatarImageManager.getWritableAvatarUri(rawImage) wasNot Called
         }
-
-        assertEquals(AvatarPickerViewModel.ErrorCodes.UploadAvatarError, avatarPickerViewModel.errorMessageCode)
+        assertNotNull(avatarPickerViewModel.errorMessageCode)
     }
 
     @Test

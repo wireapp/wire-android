@@ -42,9 +42,14 @@ def postGithubComment(String changeId, String body) {
     def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
     def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android-reloaded/issues/${changeId}/comments")
 
-    // The comment body must be quoted for embedding into a JSON string...
-    def payload = body.replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\n')
-    // ...and the JSON string must be quoted for embedding into the shell command line
+    // The comment body must be quoted for embedding into a JSON string,
+    // and the JSON string must be quoted for embedding into the shell command
+    // line. Note well: the backslash character has a special meaning in
+    // both the first argument (regular expression pattern) and the second
+    // (Matcher.replaceAll() escaping character) of String.replaceAll(); hence,
+    // yet another level of escaping is required here!
+
+    def payload = body.replaceAll('\\\\', '\\\\\\\\').replaceAll('"', '\\\\"').replaceAll('\n', '\\\\n')
     def json = shellQuote('{"body":"' + payload + '"}')
 
     // Note the interpolated variables here come from Groovy -- the command

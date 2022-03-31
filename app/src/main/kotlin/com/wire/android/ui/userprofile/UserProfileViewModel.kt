@@ -13,12 +13,14 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -34,7 +36,8 @@ class UserProfileViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getPublicAsset: GetPublicAssetUseCase,
     private val getSelf: GetSelfUserUseCase,
-    private val logout: LogoutUseCase
+    private val logout: LogoutUseCase,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -82,7 +85,7 @@ class UserProfileViewModel @Inject constructor(
     private fun updateUserAvatar(avatarAssetId: UserAssetId) {
         // We try to download the user avatar on a separate thread so that we don't block the display of the user's info
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(dispatchers.io()) {
                 try {
                     showLoadingAvatar(true)
                     userProfileState = userProfileState.copy(

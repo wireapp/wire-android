@@ -1,10 +1,12 @@
 package com.wire.android.di
 
+import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.navigation.NavigationManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -16,4 +18,8 @@ object AppModule {
     @Singleton
     @Provides
     fun providesNavigationManager() = NavigationManager()
+
+    @Singleton
+    @Provides
+    fun providesApplicationContext(@ApplicationContext appContext: Context) = appContext
 }

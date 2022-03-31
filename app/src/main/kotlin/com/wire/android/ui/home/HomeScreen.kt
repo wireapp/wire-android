@@ -69,7 +69,6 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
     }
 }
 
-
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeContent(
@@ -86,7 +85,7 @@ fun HomeContent(
                 AppTopBarWithSearchBar(
                     scrollPosition = scrollPosition,
                     searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
-                    //TODO: implement the search for home once we work on it, for now we do not care
+                    // TODO: implement the search for home once we work on it, for now we do not care
                     searchQuery = "",
                     onSearchQueryChanged = {},
                     onSearchClicked = { },

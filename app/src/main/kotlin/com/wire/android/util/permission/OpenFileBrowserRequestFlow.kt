@@ -8,6 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
+/**
+ * Flow that will launch file browser to select a file.
+ * This will handle the permissions request in case there is no permission granted for the storage.
+ *
+ * @param onFileBrowserItemPicked action that will be executed when selecting a file result from [ActivityResultContract]
+ * @param onPermissionDenied action to be executed when the permissions is denied
+ */
 @Composable
 fun rememberOpenFileBrowserFlow(
     onFileBrowserItemPicked: (Uri) -> Unit,

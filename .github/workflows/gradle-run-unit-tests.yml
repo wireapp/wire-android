@@ -1,4 +1,4 @@
-name: "Run Tests"
+name: "Run Unit Tests"
 
 on:
   pull_request:
@@ -6,10 +6,7 @@ on:
 
 jobs:
   gradle-run-tests:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        api-level: [29]
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout
@@ -30,41 +27,19 @@ jobs:
       
       - name: Gradle cache
         uses: gradle/gradle-build-action@v2
-        
-      - name: AVD cache
-        uses: actions/cache@v2
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-${{ matrix.api-level }}
-
-      - name: create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
-          script: echo "Generated AVD snapshot for caching."
 
       - name: Test with Gradle
         run: ./gradlew runUnitTests
 
-      - name: Android Instrumentation Tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: {{ matrix.api-level }}
-          script: ./gradlew connectedCheck
+      - name: Install Pip for test result publishing
+        run: sudo apt-get install -y python3-pip
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v1.25
         if: always()
         with:
           files: |
-            **/build/test-results/testDebugUnitTest/**/*.xml
+            **/build/test-results/testDevDebugUnitTest/**/*.xml
             **/build/test-results/**/*.xml
             **/build/outputs/androidTest-results/**/*.xml
             

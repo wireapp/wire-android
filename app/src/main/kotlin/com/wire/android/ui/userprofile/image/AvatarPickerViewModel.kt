@@ -19,6 +19,7 @@ import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -31,7 +32,8 @@ class AvatarPickerViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getUserAvatar: GetPublicAssetUseCase,
     private val uploadUserAvatar: UploadUserAvatarUseCase,
-    private val avatarImageManager: AvatarImageManager
+    private val avatarImageManager: AvatarImageManager,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     var pictureState by mutableStateOf<PictureState>(PictureState.Empty)
@@ -58,7 +60,7 @@ class AvatarPickerViewModel @Inject constructor(
     fun uploadNewPickedAvatarAndBack() {
         val imgUri = pictureState.avatarUri
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(dispatcher) {
                 val data = avatarImageManager.uriToByteArray(imgUri)
                 val result = uploadUserAvatar(data)
                 if (result is UploadAvatarResult.Success) {
@@ -77,7 +79,7 @@ class AvatarPickerViewModel @Inject constructor(
 
     fun postProcessAvatarImage(imgUri: Uri) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(dispatcher) {
                 avatarImageManager.postProcessCapturedAvatar(imgUri)
                 pictureState = PictureState.Picked(imgUri)
             }

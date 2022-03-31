@@ -21,8 +21,10 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -63,7 +65,14 @@ class AvatarPickerViewModelTest {
         coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
 
         avatarPickerViewModel =
-            AvatarPickerViewModel(navigationManager, userDataStore, getPublicAsset, uploadUserAvatarUseCase, avatarImageManager)
+            AvatarPickerViewModel(
+                navigationManager,
+                userDataStore,
+                getPublicAsset,
+                uploadUserAvatarUseCase,
+                avatarImageManager,
+                UnconfinedTestDispatcher()
+            )
     }
 
     @Test
@@ -114,8 +123,7 @@ class AvatarPickerViewModelTest {
         coVerify {
             avatarImageManager.getWritableAvatarUri(rawImage) wasNot Called
         }
-
-        assertEquals(AvatarPickerViewModel.ErrorCodes.UploadAvatarError, avatarPickerViewModel.errorMessageCode)
+        assertNotNull(avatarPickerViewModel.errorMessageCode)
     }
 
     @Test

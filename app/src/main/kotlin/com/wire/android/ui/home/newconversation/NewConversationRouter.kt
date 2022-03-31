@@ -2,7 +2,6 @@ package com.wire.android.ui.home.newconversation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,7 +19,6 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
-import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -52,20 +50,16 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                 composable(
                     route = "contacts",
                     content = {
-                        ContactsScreen(onScrollPositionChanged = { newConversationState.updateScrollPosition(it) })
+                        ContactsScreen(
+                            onScrollPositionChanged = { newConversationState.updateScrollPosition(it) }
+                        )
                     }
                 )
                 composable(
                     route = "search_people",
                     content = {
-                        val searchPeopleViewModel: SearchPeopleViewModel = hiltViewModel()
-
-                        LaunchedEffect(newConversationState.searchQuery) {
-                            searchPeopleViewModel.search(newConversationState.searchQuery)
-                        }
-
                         SearchPeopleScreen(
-                            searchPeopleState = searchPeopleViewModel.state,
+                            searchPeopleState = newConversationViewModel.state,
                         )
                     }
                 )

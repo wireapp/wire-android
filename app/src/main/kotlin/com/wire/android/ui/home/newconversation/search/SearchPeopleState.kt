@@ -16,7 +16,8 @@ data class SearchPeopleState(
     val federatedContactSearchResult: ContactSearchResult =
         ContactSearchResult.ExternalContact(
             searchResultState = SearchResultState.Initial
-        )
+        ),
+    val addToGroupContacts: List<Contact> = emptyList()
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {

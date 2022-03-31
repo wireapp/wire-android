@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -309,7 +310,7 @@ private fun CurrentUserStatus(
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.AVAILABLE,
-                    modifier = Modifier.padding(end = dimensions().spacing4x)
+                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("Available")
                 )
             }
         )
@@ -323,7 +324,7 @@ private fun CurrentUserStatus(
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.BUSY,
-                    modifier = Modifier.padding(end = dimensions().spacing4x)
+                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("Busy")
                 )
             }
         )
@@ -337,7 +338,7 @@ private fun CurrentUserStatus(
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.AWAY,
-                    modifier = Modifier.padding(end = dimensions().spacing4x)
+                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("Away")
                 )
             }
         )
@@ -354,7 +355,7 @@ private fun CurrentUserStatus(
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.NONE,
-                    modifier = Modifier.padding(end = dimensions().spacing4x)
+                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("None")
                 )
             }
         )

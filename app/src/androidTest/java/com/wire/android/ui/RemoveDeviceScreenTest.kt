@@ -89,7 +89,7 @@ class RemoveDeviceScreenTest {
         passwordField.onChildren()[1].performTextClearance()
         passwordField.onChildren()[1].performTextInput("BAD PASSWORD")
         removeButton.performClick()
-        composeTestRule.onNodeWithText("invalidPasswordText").assertIsDisplayed()
+        composeTestRule.onNodeWithText(invalidPasswordText).assertIsDisplayed()
     }
 
     @Test

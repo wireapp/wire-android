@@ -96,17 +96,18 @@ private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
 }
 
 @Composable
-private fun TakePictureFlow(): UseCameraRequestFlow {
+private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow {
     val context = LocalContext.current
+    val imageAttachmentUri = getWritableImageAttachment(context)
     return rememberTakePictureFlow(
-        onPictureTaken = { /* TODO: call vm to share raw pic data */ },
-        targetPictureFileUri = getWritableImageAttachment(context),
+        onPictureTaken = { onPictureTaken(imageAttachmentUri) },
+        targetPictureFileUri = imageAttachmentUri,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
 
 @Composable
-private fun CaptureVideoFlow(): UseCameraRequestFlow {
+private fun CaptureVideoFlow(onVideoCaptured: (Uri) -> Unit): UseCameraRequestFlow {
     return rememberCaptureVideoFlow(
         onVideoRecorded = { /* TODO: call vm to share raw pic data */ },
         targetVideoFileUri = Uri.EMPTY, // TODO: get uri from fileprovider (FileUtil.kt)
@@ -130,8 +131,8 @@ private fun RecordAudioFlow() =
 private fun buildAttachmentOptionItems(onFilePicked: (Uri) -> Unit): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow(onFilePicked)
     val galleryFlow = GalleryFlow(onFilePicked)
-    val cameraFlow = TakePictureFlow()
-    val captureVideoFlow = CaptureVideoFlow()
+    val cameraFlow = TakePictureFlow(onFilePicked)
+    val captureVideoFlow = CaptureVideoFlow(onFilePicked)
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
     val recordAudioFlow = RecordAudioFlow()
 

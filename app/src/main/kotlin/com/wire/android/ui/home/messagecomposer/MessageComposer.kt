@@ -41,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
-import com.wire.android.ui.common.animateAsStateRotationToRight
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
@@ -400,17 +399,16 @@ private fun MessageComposeActions(messageComposerState: MessageComposerInnerStat
 }
 
 @Composable
-private fun AdditionalOptionButton(attachmentOptionsInitialState: Boolean = false, onClick: () -> Unit) {
-    val rotationAngle by animateAsStateRotationToRight(isOpen = attachmentOptionsInitialState)
+private fun AdditionalOptionButton(isOpen: Boolean = false, onClick: () -> Unit) {
     WireSecondaryButton(
         onClick = { onClick() },
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_add),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                modifier = Modifier.graphicsLayer(rotationZ = rotationAngle)
+                contentDescription = stringResource(R.string.content_description_conversation_search_icon)
             )
         },
+        state = if (isOpen) WireButtonState.Selected else WireButtonState.Default,
         fillMaxWidth = false,
         minHeight = 32.dp,
         minWidth = 40.dp,

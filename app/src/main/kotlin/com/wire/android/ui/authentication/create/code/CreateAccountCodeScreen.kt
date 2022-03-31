@@ -190,6 +190,9 @@ private fun CreateAccountCodeViewState.CodeError.DialogError.getResources(type: 
             }
         )
     )
+    // TODO: sync with design about the error message
+    CreateAccountCodeViewState.CodeError.DialogError.UserAlreadyExists ->
+        DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
     is CreateAccountCodeViewState.CodeError.DialogError.GenericError ->
         this.coreFailure.dialogErrorStrings(LocalContext.current.resources)
 }

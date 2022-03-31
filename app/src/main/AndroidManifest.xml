@@ -25,8 +25,8 @@
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.SplashScreen"
                 android:windowSoftInputMode="adjustResize|stateHidden"
-                android:launchMode="singleTop"
-                android:exported="true">
+                android:exported="true"
+                android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -34,10 +34,12 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="wire"
-                        android:host="access"/>
+
+                <data android:host="access"
+                        android:scheme="wire" />
             </intent-filter>
         </activity>
 
@@ -63,6 +65,8 @@
                     android:name="android.support.FILE_PROVIDER_PATHS"
                     android:resource="@xml/provider_paths" />
         </provider>
+
+        <receiver android:name=".notification.NotificationReplyReceiver" />
 
     </application>
 

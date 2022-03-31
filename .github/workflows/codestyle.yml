@@ -5,7 +5,7 @@ on:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
 
 jobs:
-  static-code-checks:
+  static-code-analysis:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

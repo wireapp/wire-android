@@ -26,8 +26,8 @@ fun CopyButton(onCopyClicked: () -> Unit, modifier: Modifier = Modifier) {
                     .size(dimensions().conversationBottomSheetItemSize)
             )
         },
-        minHeight = 32.dp,
-        minWidth = 40.dp,
+        minHeight = dimensions().spacing32x,
+        minWidth = dimensions().spacing40x,
         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
         leadingIconAlignment = IconAlignment.Center,
         fillMaxWidth = false

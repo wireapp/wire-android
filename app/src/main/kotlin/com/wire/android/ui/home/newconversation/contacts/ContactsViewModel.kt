@@ -2,6 +2,7 @@ package com.wire.android.ui.home.newconversation.contacts
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
@@ -17,7 +18,7 @@ class ContactsViewModel @Inject constructor(
 ) : ViewModel() {
 
     @Suppress("MagicNumber")
-    val contactsState by mutableStateOf(
+    var contactsState by mutableStateOf(
         ContactsState(
             contacts = buildList {
                 add(
@@ -26,7 +27,7 @@ class ContactsViewModel @Inject constructor(
                         "This is first contact"
                     )
                 )
-                for (i in 2..11) {
+                for (i in 2..100) {
                     add(
                         Contact(
                             id = i.toString(),
@@ -48,6 +49,14 @@ class ContactsViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigateBack()
         }
+    }
+
+    fun addContactToGroup(contact: Contact) {
+        contactsState = contactsState.copy(addToGroupContacts = contactsState.addToGroupContacts + contact)
+    }
+
+    fun removeContactFromGroup(contact: Contact) {
+        contactsState = contactsState.copy(addToGroupContacts = contactsState.addToGroupContacts - contact)
     }
 
     fun openUserProfile(contact: Contact) {

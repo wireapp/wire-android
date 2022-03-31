@@ -11,8 +11,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -37,7 +35,9 @@ fun ContactsScreen(
     ContactsScreenContent(
         state = viewModel.contactsState,
         onScrollPositionChanged = onScrollPositionChanged,
-        onOpenUserProfile = viewModel::openUserProfile
+        onOpenUserProfile = viewModel::openUserProfile,
+        onAddToGroup = viewModel::addContactToGroup,
+        onRemoveFromGroup = viewModel::removeContactFromGroup
     )
 }
 
@@ -46,14 +46,14 @@ fun ContactsScreenContent(
     state: ContactsState,
     onScrollPositionChanged: (Int) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
+    onAddToGroup: (Contact) -> Unit,
+    onRemoveFromGroup: (Contact) -> Unit,
 ) {
-    val lazyListState = rememberLazyListState {
-        onScrollPositionChanged(it)
+    val lazyListState = rememberLazyListState { itemIndex ->
+        onScrollPositionChanged(itemIndex)
     }
 
-    val contactsScreenState = rememberContactScreenState()
-
-    with(contactsScreenState) {
+    with(state) {
         Column(
             Modifier
                 .fillMaxSize()
@@ -69,15 +69,15 @@ fun ContactsScreenContent(
                     ContactItem(
                         name = contact.name,
                         userStatus = contact.userStatus,
-                        belongsToGroup = newGroupContacts.contains(contact),
-                        addToGroup = { addContactToGroup(contact) },
-                        removeFromGroup = { removeContactFromGroup(contact) },
+                        belongsToGroup = addToGroupContacts.contains(contact),
+                        addToGroup = { onAddToGroup(contact) },
+                        removeFromGroup = { onRemoveFromGroup(contact) },
                         openUserProfile = { onOpenUserProfile(contact) }
                     )
                 }
             }
             Divider()
-            GroupButton(groupSize = contactsScreenState.newGroupContacts.size)
+            GroupButton(groupSize = addToGroupContacts.size)
         }
     }
 }
@@ -121,25 +121,4 @@ private fun ContactItem(
             // TODO: implement later on
         }
     )
-}
-
-class ContactsScreenState {
-
-    val newGroupContacts = mutableStateListOf<Contact>()
-
-    fun addContactToGroup(contact: Contact) {
-        newGroupContacts.add(contact)
-    }
-
-    fun removeContactFromGroup(contact: Contact) {
-        newGroupContacts.remove(contact)
-    }
-
-}
-
-@Composable
-fun rememberContactScreenState(): ContactsScreenState {
-    return remember {
-        ContactsScreenState()
-    }
 }

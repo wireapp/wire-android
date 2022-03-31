@@ -53,10 +53,18 @@ class ConversationViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            getConversationDetails(conversationId!!)
-                .collect { conversation ->
-                    conversationViewState = conversationViewState.copy(conversationName = conversation.name ?: "Some Name")
+            getConversationDetails(conversationId!!).let {
+                when (it) {
+                    is GetConversationDetailsUseCase.Result.Failure -> {
+                        TODO("unhandled error case")
+                    }
+                    is GetConversationDetailsUseCase.Result.Success -> {
+                        it.convFlow.collect { conversation ->
+                            conversationViewState = conversationViewState.copy(conversationName = conversation.name ?: "Some Name")
+                        }
+                    }
                 }
+            }
         }
     }
 

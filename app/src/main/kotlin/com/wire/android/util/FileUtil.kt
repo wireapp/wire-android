@@ -8,9 +8,9 @@ import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import com.wire.android.BuildConfig
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
 
 /**
  * Gets the uri of any drawable or given resource
@@ -43,6 +43,12 @@ fun getWritableImageAttachment(context: Context): Uri {
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
 }
 
+fun getWritableVideoAttachment(context: Context): Uri {
+    val file = File(context.cacheDir, TEMP_VIDEO_ATTACHMENT_FILENAME)
+    file.setWritable(true)
+    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+}
+
 fun Uri.getMimeType(context: Context): String? {
     val extension = MimeTypeMap.getFileExtensionFromUrl(path)
     return context.contentResolver.getType(this)
@@ -50,3 +56,4 @@ fun Uri.getMimeType(context: Context): String? {
 }
 
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"
+private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "temp_video_attachment.mp4"

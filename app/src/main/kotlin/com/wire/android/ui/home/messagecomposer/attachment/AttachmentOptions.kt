@@ -25,6 +25,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
 import com.wire.android.util.getWritableImageAttachment
+import com.wire.android.util.getWritableVideoAttachment
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
@@ -108,9 +109,11 @@ private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow
 
 @Composable
 private fun CaptureVideoFlow(onVideoCaptured: (Uri) -> Unit): UseCameraRequestFlow {
+    val context = LocalContext.current
+    val videoAttachmentUri = getWritableVideoAttachment(context)
     return rememberCaptureVideoFlow(
-        onVideoRecorded = { /* TODO: call vm to share raw pic data */ },
-        targetVideoFileUri = Uri.EMPTY, // TODO: get uri from fileprovider (FileUtil.kt)
+        onVideoRecorded = { onVideoCaptured(videoAttachmentUri) },
+        targetVideoFileUri = videoAttachmentUri,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }

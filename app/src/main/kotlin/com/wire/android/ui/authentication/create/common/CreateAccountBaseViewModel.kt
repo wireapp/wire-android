@@ -304,6 +304,7 @@ private fun RegisterResult.Failure.toCodeError() = when (this) {
 }
 
 private fun AddAuthenticatedUserUseCase.Result.Failure.toCodeError() = when (this) {
-    is AddAuthenticatedUserUseCase.Result.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
+    is AddAuthenticatedUserUseCase.Result.Failure.Generic ->
+        CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> TODO()
 }

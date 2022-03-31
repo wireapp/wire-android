@@ -126,23 +126,6 @@ class LoginViewModel @Inject constructor(
     private fun LoginState.updateLoginEnabled() =
         copy(loginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !loading)
 
-    // TODO: login error Mapper ?
-    private fun AuthenticationResult.Failure.toLoginError() = when (this) {
-        is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-        AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-        AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidUserIdentifierError
-    }
-
-    private fun RegisterClientResult.Failure.toLoginError() = when (this) {
-        is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-        RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-        RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
-    }
-
-    private fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {
-        is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-        AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginError.DialogError.UserAlreadyLoggedIn
-    }
 
     private suspend fun navigateToRemoveDevicesScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
@@ -153,4 +136,22 @@ class LoginViewModel @Inject constructor(
     private companion object {
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
     }
+}
+
+// TODO: login error Mapper ?
+private fun AuthenticationResult.Failure.toLoginError() = when (this) {
+    is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
+    AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+    AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidUserIdentifierError
+}
+
+private fun RegisterClientResult.Failure.toLoginError() = when (this) {
+    is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
+    RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+    RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
+}
+
+private fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {
+    is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
+    AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginError.DialogError.UserAlreadyLoggedIn
 }

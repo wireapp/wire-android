@@ -21,6 +21,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
+@Suppress("LongParameterList")
 class CreatePersonalAccountViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     validateEmailUseCase: ValidateEmailUseCase,

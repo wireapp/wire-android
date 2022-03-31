@@ -6,7 +6,9 @@ plugins {
     id(BuildPlugins.kotlinAndroid)
     //id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinKapt)
+    id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.hilt)
+    id(BuildPlugins.junit5)
     kotlin(BuildPlugins.kapt)
 
     // Internal Script plugins
@@ -14,6 +16,7 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
+    id(ScriptPlugins.spotless)
 }
 
 repositories {
@@ -56,6 +59,16 @@ android {
     //configurations.implementation.configure {
     //    exclude(module = "protobuf-java")
     //}
+
+    packagingOptions {
+        resources.pickFirsts.add("google/protobuf/*.proto")
+    }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        unitTests.isIncludeAndroidResources = true
+    }
+
 }
 
 kapt {
@@ -137,12 +150,13 @@ dependencies {
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)
-    testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.coroutinesTest)
     testImplementation(TestLibraries.testCore)
     testImplementation(TestLibraries.mockk)
     testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.junit5)
+    testRuntimeOnly(TestLibraries.junit5Engine)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(TestLibraries.testRunner)

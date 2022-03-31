@@ -55,7 +55,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private suspend fun registerClient(authSession: AuthSession): RegisterClientResult {
-        val clientScope = clientScopeProviderFactory.create(authSession).clientScope
+        val clientScope = clientScopeProviderFactory.create(authSession.userId).clientScope
         return clientScope.register(loginState.password.text, null)
     }
 
@@ -108,7 +108,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private suspend fun navigateToRemoveDevicesScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.NONE))
+        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
     private suspend fun navigateToConvScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))

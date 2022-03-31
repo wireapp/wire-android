@@ -48,7 +48,7 @@ private fun MentionContent(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
     ) {
-        folderWithElementsAndRegularHeader(
+        folderWithElements(
             header = { stringResource(id = R.string.mention_label_unread_mentions) },
             items = unreadMentions
         ) { unreadMention ->
@@ -60,7 +60,7 @@ private fun MentionContent(
             )
         }
 
-        folderWithElementsAndRegularHeader(
+        folderWithElements(
             header = { stringResource(R.string.mention_label_all_mentions) },
             items = allMentions
         ) { mention ->

@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,7 +50,11 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
+import com.wire.android.ui.common.animateAsStateRotationToRight
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -57,21 +63,42 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun MessageComposer(
     content: @Composable () -> Unit,
-    messageText: TextFieldValue,
-    onMessageChanged: (TextFieldValue) -> Unit,
-    onSendButtonClicked: () -> Unit
+    messageText: String,
+    onMessageChanged: (String) -> Unit,
+    onSendButtonClicked: () -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onError: (String) -> Unit
 ) {
     val messageComposerState = rememberMessageComposerInnerState()
+
+    LaunchedEffect(messageText) {
+        messageComposerState.messageText = messageComposerState.messageText.copy(messageText)
+    }
 
     MessageComposer(
         content = content,
         messageComposerState = messageComposerState,
-        messageText = messageText,
-        onMessageChanged = onMessageChanged,
+        messageText = messageComposerState.messageText,
+        onMessageChanged = {
+            // we are setting it immediately in the UI first
+            messageComposerState.messageText = it
+            // we are hoisting the TextFieldValue text value up to the parent
+            if (messageText != it.text) {
+                onMessageChanged(it.text)
+            }
+        },
         onSendButtonClicked = onSendButtonClicked,
+        onSendAttachment = onSendAttachment,
+        onError = onError
     )
 }
 
+/*
+* Message composer is a UI widget that handles the UI logic of sending messages,
+* it is a wrapper around the "hosting" widget. It receives a [messageText] and
+* exposes a [onMessageChanged] lambda, giving us the option to control its Message Text from outside the Widget.
+* it also exposes [onSendButtonClicked] lambda's giving us the option to handle the different message actions
+* */
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 private fun MessageComposer(
@@ -79,7 +106,9 @@ private fun MessageComposer(
     messageComposerState: MessageComposerInnerState,
     messageText: TextFieldValue,
     onMessageChanged: (TextFieldValue) -> Unit,
-    onSendButtonClicked: () -> Unit
+    onSendButtonClicked: () -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onError: (String) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -92,15 +121,17 @@ private fun MessageComposer(
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout {
-            val (additionalActions, sendActions, messageInput) = createRefs()
+            val (additionalActions, sendActions, messageInput, additionalOptionsContent) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
             // CollapseIconButton
-            Column(Modifier.constrainAs(messageInput) {
-                bottom.linkTo(additionalActions.top)
-                top.linkTo(parent.top)
+            Column(
+                Modifier.constrainAs(messageInput) {
+                    bottom.linkTo(additionalActions.top)
+                    top.linkTo(parent.top)
 
-                height = Dimension.preferredWrapContent
-            }) {
+                    height = Dimension.preferredWrapContent
+                }
+            ) {
                 Box(
                     Modifier
                         .weight(1f)
@@ -167,7 +198,10 @@ private fun MessageComposer(
                             visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
                         ) {
                             Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
-                                AdditionalOptionButton()
+                                AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
+                                    messageComposerState.attachmentOptionsDisplayed =
+                                        !messageComposerState.attachmentOptionsDisplayed
+                                }
                             }
                         }
                         Spacer(Modifier.width(8.dp))
@@ -179,7 +213,6 @@ private fun MessageComposer(
                             messageText = messageText,
                             onMessageTextChanged = { value ->
                                 onMessageChanged(value)
-                                messageComposerState.messageText = value.text
                             },
                             messageComposerInputState = messageComposerState.messageComposeInputState,
                             onFocusChanged = { messageComposerState.toActive() },
@@ -187,15 +220,19 @@ private fun MessageComposer(
                                 .fillMaxWidth()
                                 .then(
                                     when (messageComposerState.messageComposeInputState) {
-                                        MessageComposeInputState.FullScreen -> Modifier
-                                            .fillMaxHeight()
-                                            .padding(end = 82.dp)
+                                        MessageComposeInputState.FullScreen ->
+                                            Modifier
+                                                .fillMaxHeight()
+                                                .padding(end = dimensions().messageComposerPaddingEnd)
                                         MessageComposeInputState.Active -> {
                                             Modifier
                                                 .heightIn(
                                                     max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
                                                 )
-                                                .padding(bottom = MaterialTheme.wireDimensions.spacing16x, end = 82.dp)
+                                                .padding(
+                                                    bottom = MaterialTheme.wireDimensions.spacing16x,
+                                                    end = dimensions().messageComposerPaddingEnd
+                                                )
                                         }
                                         else -> Modifier.wrapContentHeight()
                                     }
@@ -205,12 +242,14 @@ private fun MessageComposer(
                 }
             }
 
-            //Box wrapping the SendActions so that we do not include it in the animationContentSize changed which is applied only for
-            //MessageComposerInput and CollapsingButton
-            Box(Modifier.constrainAs(sendActions) {
-                end.linkTo(parent.end)
-                bottom.linkTo(additionalActions.top)
-            }) {
+            // Box wrapping the SendActions so that we do not include it in the animationContentSize changed which is applied only for
+            // MessageComposerInput and CollapsingButton
+            Box(
+                Modifier.constrainAs(sendActions) {
+                    end.linkTo(parent.end)
+                    bottom.linkTo(additionalActions.top)
+                }
+            ) {
                 Row {
                     if (messageComposerState.sendButtonEnabled) {
                         ScheduleMessageButton()
@@ -228,20 +267,36 @@ private fun MessageComposer(
                 }
             }
 
-            //Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
-            //constrain our SendActions to it
-            Box(Modifier.constrainAs(additionalActions) {
-                bottom.linkTo(parent.bottom)
-                top.linkTo(messageInput.bottom)
-            }) {
+            // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
+            // constrain our SendActions to it
+            Box(
+                Modifier.constrainAs(additionalActions) {
+                    bottom.linkTo(additionalOptionsContent.bottom)
+                    top.linkTo(messageInput.bottom)
+                }
+            ) {
                 Divider()
                 transition.AnimatedVisibility(
                     visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
                     // we are animating the exit, so that the MessageComposeActions go down
                     exit = slideOutVertically(
-                        targetOffsetY = { fullHeight -> fullHeight / 2 }) + fadeOut()
+                        targetOffsetY = { fullHeight -> fullHeight / 2 }
+                    ) + fadeOut()
                 ) {
-                    MessageComposeActions()
+                    MessageComposeActions(messageComposerState)
+                }
+            }
+
+            // Box wrapping for additional options content
+            Box(
+                Modifier.constrainAs(additionalOptionsContent) {
+                    bottom.linkTo(parent.bottom)
+                    top.linkTo(additionalActions.bottom)
+                }
+            ) {
+                if (messageComposerState.attachmentOptionsDisplayed) {
+                    Divider()
+                    AttachmentOptionsComponent(messageComposerState.attachmentInnerState, onSendAttachment, onError)
                 }
             }
         }
@@ -282,14 +337,16 @@ private fun MessageComposerInput(
 ) {
     BasicTextField(
         value = messageText,
-        onValueChange = { onMessageTextChanged(it) },
+        onValueChange = onMessageTextChanged,
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         textStyle = MaterialTheme.wireTypography.body01,
-        modifier = modifier.then(Modifier.onFocusChanged { focusState ->
-            if (focusState.isFocused) {
-                onFocusChanged()
+        modifier = modifier.then(
+            Modifier.onFocusChanged { focusState ->
+                if (focusState.isFocused) {
+                    onFocusChanged()
+                }
             }
-        })
+        )
     )
 }
 
@@ -326,13 +383,15 @@ private fun SendButton(
 }
 
 @Composable
-private fun MessageComposeActions() {
+private fun MessageComposeActions(messageComposerState: MessageComposerInnerState) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxWidth()
     ) {
-        AdditionalOptionButton()
+        AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
+            messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
+        }
         RichTextEditingAction()
         AddEmojiAction()
         AddGifAction()
@@ -341,13 +400,15 @@ private fun MessageComposeActions() {
 }
 
 @Composable
-private fun AdditionalOptionButton() {
+private fun AdditionalOptionButton(attachmentOptionsInitialState: Boolean = false, onClick: () -> Unit) {
+    val rotationAngle by animateAsStateRotationToRight(isOpen = attachmentOptionsInitialState)
     WireSecondaryButton(
-        onClick = { },
+        onClick = { onClick() },
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_add),
                 contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                modifier = Modifier.graphicsLayer(rotationZ = rotationAngle)
             )
         },
         fillMaxWidth = false,

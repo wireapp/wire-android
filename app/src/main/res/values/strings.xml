@@ -44,6 +44,11 @@
     <string name="content_description_right_arrow">Right arrow</string>
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_create_account_summary">Summary image</string>
+    <string name="content_description_attachment_item">Attachment item</string>
+    <string name="content_description_copy_the_message">Copy the message</string>
+    <string name="content_description_delete_the_message">Delete the message</string>
+    <string name="content_description_edit_the_message">Edit the message</string>
+
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -68,7 +73,7 @@
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please try again.</string>
-    <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or username</string>
+    <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or username.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
 
@@ -99,7 +104,9 @@
     <string name="create_account_email_terms_dialog_title">Terms &amp; Conditions</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms &amp; Conditions and Privacy Policy.</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToC and Privacy Policy</string>
-    <string name="create_account_email_error">The email address you provided has already been registered.</string>
+    <string name="create_account_email_already_in_use_error">The email address you provided has already been registered.</string>
+    <string name="create_account_email_blacklisted_error">The email address you provided has been blacklisted due to a permanent bounce or a complaint.</string>
+    <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
     <string name="create_account_email_domain_blocked_error">You can´t create this account as your email domain is intentionally blocked.\nPlease ask your team admin to invite you via email.</string>
     <string name="create_account_details_first_name_placeholder">Jane</string>
     <string name="create_account_details_first_name_label">FIRST NAME</string>
@@ -114,6 +121,10 @@
     <string name="create_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="create_account_code_resend">Resend code</string>
     <string name="create_account_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
+    <string name="create_account_code_error_title">Invalid information</string>
+    <string name="create_account_code_error_team_members_limit_reached">This team has reached its membership limit.</string>
+    <string name="create_account_code_error_personal_account_creation_restricted">This application version does not allow creation of personal accounts.</string>
+    <string name="create_account_code_error_team_creation_restricted">This application version does not allow creation of teams.</string>
     <string name="create_account_username_title">Your User Name</string>
     <string name="create_account_username_placeholder">jane.doe</string>
     <string name="create_account_username_label">USERNAME</string>
@@ -137,6 +148,14 @@
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
+
+    <!-- Attachment options -->
+    <string name="attachment_share_file">Attach File</string>
+    <string name="attachment_share_image">Attach Image</string>
+    <string name="attachment_take_photo">Take Photo</string>
+    <string name="attachment_record_video">Record Video</string>
+    <string name="attachment_voice_message">Voice Message</string>
+    <string name="attachment_share_location">Share Location</string>
 
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
@@ -176,6 +195,23 @@
     <string name="profile_image_take_a_picture_menu_item">Take a picture</string>
     <string name="profile_image_change_image_button_label">Change Image...</string>
 
+    <!--Conversation-->
+    <string name="label_copy">Copy</string>
+    <string name="label_edit">Edit</string>
+    <string name="label_delete">Delete</string>
+    <string name="info_message_copied">Message copied</string>
+
+    <!--Search Contact-->
+    <string name="label_contacts">CONTACTS</string>
+    <string name="label_new_group">New Group</string>
+    <string name="label_new_guestroom">New Guestroom</string>
+    <string name="label_new_conversation">New Conversation</string>
+    <string name="label_search_people">Search people</string>
+    <string name="label_federated_backends">FEDERATED BACKENDS</string>
+    <string name="label_public_wire">PUBLIC WIRE</string>
+    <string name="label_search_people_instruction">Search for user with their display name of their @username</string>
+    <string name="label_learn_more_searching_user">Learn more about search for users</string>
+
     <!-- errors -->
     <string name="error_unknown_title">Unknown error</string>
     <string name="error_unknown_message">Please try again in a moment</string>
@@ -189,14 +225,15 @@
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
     <string name="animation_label_button_rotation_degree_transistion" translatable="false">Collapse button rotation degree transition</string>
-    <string name="label_contacts">CONTACTS</string>
-    <string name="label_new_group">New Group</string>
-    <string name="label_new_guestroom">New Guestroom</string>
-    <string name="label_new_conversation">New Conversation</string>
-    <string name="label_search_people">Search people</string>
-    <string name="label_federated_backends">FEDERATED BACKENDS</string>
-    <string name="label_public_wire">PUBLIC WIRE</string>
-    <string name="label_search_people_instruction">Search for user with their display name of their @username</string>
-    <string name="label_learn_more_searching_user">Learn more about search for users</string>
+    <string name="content_description_more_options">More options</string>
+    <string name="content_description_add_contact">Add contact</string>
+
+    <!-- Notifications -->
+    <string name="notification_shared_picture">Shared a picture</string>
+    <string name="notification_shared_file">Shared a file</string>
+    <string name="notification_reacted">Added a reaction</string>
+    <string name="notification_action_call">Call</string>
+    <string name="notification_action_reply">Reply</string>
+    <string name="notification_receiver_name">You</string>
 
 </resources>

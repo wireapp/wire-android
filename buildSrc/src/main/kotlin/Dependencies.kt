@@ -28,8 +28,10 @@ object BuildPlugins {
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val kotlinKapt = "kotlin-kapt"
+    const val kotlinParcelize = "kotlin-parcelize"
     const val kapt = "kapt"
     const val hilt = "dagger.hilt.android.plugin"
+    const val junit5 = "de.mannodermaus.android-junit5"
 }
 
 object ScriptPlugins {
@@ -38,6 +40,7 @@ object ScriptPlugins {
     const val quality = "scripts.quality"
     const val compilation = "scripts.compilation"
     const val testing = "scripts.testing"
+    const val spotless = "scripts.spotless"
 }
 
 object Repositories {
@@ -181,7 +184,8 @@ object TestLibraries {
     private object Versions {
         const val androidCore = "1.4.0"
         const val junit4 = "4.13"
-        const val mockk = "1.12.0"
+        const val junit5 = "5.8.2"
+        const val mockk = "1.12.3"
         const val kluent = "1.68"
         const val robolectric = "4.5.1"
         const val testRunner = "1.4.0"
@@ -200,6 +204,8 @@ object TestLibraries {
     }
 
     const val junit4            = "junit:junit:${Versions.junit4}"
+    const val junit5            = "org.junit.jupiter:junit-jupiter-api:${Versions.junit5}"
+    const val junit5Engine      = "org.junit.jupiter:junit-jupiter-engine:${Versions.junit5}"
     const val robolectric       = "org.robolectric:robolectric:${Versions.robolectric}"
     const val testRunner        = "androidx.test:runner:${Versions.testRunner}"
     const val testExtJunit      = "androidx.test.ext:junit:${Versions.testExtensions}"

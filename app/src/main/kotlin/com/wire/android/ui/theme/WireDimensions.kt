@@ -52,6 +52,8 @@ data class WireDimensions(
     val messageImagePortraitModeWidth: Dp,
     // Message composer
     val messageComposerActiveInputMaxHeight: Dp,
+    val attachmentButtonSize: Dp,
+    val messageComposerPaddingEnd: Dp,
     // TextFields
     val textFieldMinHeight: Dp,
     val textFieldCornerSize: Dp,
@@ -100,6 +102,8 @@ data class WireDimensions(
     val spacing48x: Dp,
     val spacing56x: Dp,
     val spacing64x: Dp,
+    val spacing72x: Dp,
+    val spacing80x: Dp,
     // Corners
     val corner2x: Dp,
     val corner4x: Dp,
@@ -121,10 +125,9 @@ data class WireDimensions(
     val dividerThickness: Dp,
     // Search People
     val defaultSearchLazyColumnHeight: Dp,
-    val showAllCollapseButtonMinHeight : Dp
-) {
-
-}
+    val showAllCollapseButtonMinHeight: Dp,
+    val groupButtonHeight: Dp
+)
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     placeholderShimmerCornerSize = 8.dp,
@@ -161,6 +164,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     conversationBottomSheetItemSize = 16.dp,
     messageImagePortraitModeWidth = 200.dp,
     messageComposerActiveInputMaxHeight = 168.dp,
+    attachmentButtonSize = 40.dp,
     textFieldMinHeight = 48.dp,
     textFieldCornerSize = 16.dp,
     codeFieldItemWidth = 44.dp,
@@ -201,6 +205,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     spacing48x = 48.dp,
     spacing56x = 56.dp,
     spacing64x = 64.dp,
+    spacing72x = 72.dp,
+    spacing80x = 80.dp,
     corner2x = 2.dp,
     corner4x = 4.dp,
     corner6x = 6.dp,
@@ -217,7 +223,9 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     modalBottomSheetHeaderBottomPadding = 8.dp,
     dividerThickness = 0.5.dp,
     defaultSearchLazyColumnHeight = 320.dp,
-    showAllCollapseButtonMinHeight = 32.dp
+    showAllCollapseButtonMinHeight = 32.dp,
+    messageComposerPaddingEnd = 82.dp,
+    groupButtonHeight = 82.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

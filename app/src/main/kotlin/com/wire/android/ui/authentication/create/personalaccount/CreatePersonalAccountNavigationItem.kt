@@ -12,8 +12,8 @@ import com.wire.kalium.logic.configuration.ServerConfig
 enum class CreatePersonalAccountNavigationItem(val route: String, val content: @Composable (ContentParams) -> Unit) {
     Overview("create_personal_account_overview_screen", { CreateAccountOverviewScreen(it.viewModel, it.serverConfig) }),
     Email("create_personal_account_email_screen", { CreateAccountEmailScreen(it.viewModel, it.serverConfig) }),
-    Details("create_personal_account_details_screen", { CreateAccountDetailsScreen(it.viewModel) }),
-    Code("create_personal_account_code_screen", { CreateAccountCodeScreen(it.viewModel) }),
+    Details("create_personal_account_details_screen", { CreateAccountDetailsScreen(it.viewModel, it.serverConfig) }),
+    Code("create_personal_account_code_screen", { CreateAccountCodeScreen(it.viewModel, it.serverConfig) }),
     Summary("create_personal_account_summary_screen", { CreateAccountSummaryScreen(it.viewModel) })
 }
 

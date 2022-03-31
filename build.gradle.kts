@@ -15,6 +15,7 @@ allprojects {
         mavenCentral()
         maven { url = java.net.URI("https://jitpack.io") }
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
+        maven(url = "https://raw.githubusercontent.com/wireapp/wire-maven/main/releases")
     }
 }
 

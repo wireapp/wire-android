@@ -48,6 +48,7 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.
 import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 
+
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {

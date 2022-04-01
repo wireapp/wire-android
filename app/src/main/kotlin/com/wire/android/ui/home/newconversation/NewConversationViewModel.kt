@@ -56,6 +56,8 @@ class NewConversationViewModel
         )
     }
 
+    var navigateCommand: NewConversationNavigationCommand by mutableStateOf(NewConversationNavigationCommand.KnownContacts)
+
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
     private var localContactSearchResult by mutableStateOf(ContactSearchResult.InternalContact(searchResultState = SearchResultState.Initial))
@@ -81,8 +83,6 @@ class NewConversationViewModel
             }
 
             searchQueryStateFlow.onSearchAction { searchTerm ->
-                innerSearchPeopleState = state.copy(searchQuery = searchTerm)
-
                 launch { searchPublic(searchTerm) }
                 launch { searchKnown(searchTerm) }
 
@@ -127,6 +127,9 @@ class NewConversationViewModel
     }
 
     fun search(searchTerm: String) {
+        //we set the state with a searchQuery, immediately to update the UI first
+        innerSearchPeopleState = state.copy(searchQuery = searchTerm)
+
         searchQueryStateFlow.search(searchTerm)
     }
 
@@ -148,10 +151,23 @@ class NewConversationViewModel
         }
     }
 
+    fun openKnownContacts() {
+        innerSearchPeopleState = innerSearchPeopleState.copy(searchQuery = "")
+        navigateCommand = NewConversationNavigationCommand.KnownContacts
+    }
+
+    fun openSearchContacts() {
+        navigateCommand = NewConversationNavigationCommand.SearchContacts
+    }
+
     fun close() {
         viewModelScope.launch {
             navigationManager.navigateBack()
         }
     }
+}
 
+sealed class NewConversationNavigationCommand {
+    object KnownContacts : NewConversationNavigationCommand()
+    object SearchContacts : NewConversationNavigationCommand()
 }

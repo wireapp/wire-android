@@ -2,6 +2,7 @@ package com.wire.android.ui.home.newconversation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -10,13 +11,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
+import com.wire.android.ui.home.newconversation.NewConversationNavigationCommand.KnownContacts
+import com.wire.android.ui.home.newconversation.NewConversationNavigationCommand.SearchContacts
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 
@@ -25,18 +28,29 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val newConversationState = rememberNewConversationState()
 
+    LaunchedEffect(newConversationViewModel.navigateCommand) {
+        when (newConversationViewModel.navigateCommand) {
+            KnownContacts -> newConversationState.navigateToKnownContacts()
+            SearchContacts -> newConversationState.navigateToSearch()
+        }
+    }
+
     with(newConversationViewModel.state) {
         AppTopBarWithSearchBar(
             scrollPosition = newConversationState.scrollPosition,
             searchBarHint = stringResource(R.string.label_search_people),
-            searchQuery = newConversationState.searchQuery,
-            onSearchQueryChanged = {
-                newConversationState.searchQuery = it
+            searchQuery = searchQuery,
+            onSearchQueryChanged = { searchTerm ->
+                // when the searchTerm changes, we want to propagate it
+                // to the ViewModel, only when the searchQuery inside the ViewModel
+                // is different than searchTerm coming from the TextInputField
+                if (searchTerm != searchQuery) {
+                    newConversationViewModel.search(searchTerm)
+                }
             },
-            onSearchClicked = { newConversationState.navigateToSearch() },
+            onSearchClicked = { newConversationViewModel.openSearchContacts() },
             onCloseSearchClicked = {
-                newConversationState.clearSearchQuery()
-                newConversationState.navigateBack()
+                newConversationViewModel.openKnownContacts()
             },
             appTopBar = {
                 WireCenterAlignedTopAppBar(
@@ -47,7 +61,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                 )
             },
             content = {
-                AnimatedNavHost(
+                NavHost(
                     navController = newConversationState.navController,
                     startDestination = NewConversationStateScreen.KNOWN_CONTACTS
                 ) {
@@ -90,8 +104,6 @@ private class NewConversationStateScreen(
     val navController: NavHostController
 ) {
 
-    var searchQuery by mutableStateOf("")
-
     var scrollPosition by mutableStateOf(0)
         private set
 
@@ -103,12 +115,8 @@ private class NewConversationStateScreen(
         navController.navigate(SEARCH_PEOPLE)
     }
 
-    fun navigateBack() {
+    fun navigateToKnownContacts() {
         navController.navigate(KNOWN_CONTACTS)
-    }
-
-    fun clearSearchQuery() {
-        searchQuery = ""
     }
 
     companion object {
@@ -120,7 +128,7 @@ private class NewConversationStateScreen(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun rememberNewConversationState(
-    navController: NavHostController = rememberAnimatedNavController()
+    navController: NavHostController = rememberNavController()
 ): NewConversationStateScreen {
     return remember {
         NewConversationStateScreen(navController)

@@ -3,15 +3,17 @@ package com.wire.android.di
 import android.content.Context
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -198,5 +200,19 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): SearchUserDirectoryUseCase =
         coreLogic.getSessionScope(currentAccount).users.searchUserDirectory
+
+    @ViewModelScoped
+    @Provides
+    fun provideAddAuthenticatedUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic): AddAuthenticatedUserUseCase =
+        coreLogic.getAuthenticationScope().addAuthenticatedAccount
+
+    @ViewModelScoped
+    @Provides
+    fun providesGetAllKnownUsers(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetAllKnownUsersUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getAllKnownUsers
+
 
 }

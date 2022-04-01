@@ -112,7 +112,7 @@ private fun SearchResult(
             )
         }
         Divider()
-        GroupButton(groupSize = searchPeopleScreenState.newGroupContacts.size)
+        GroupButton(groupSize = contactsAddedToGroup.size)
     }
 }
 

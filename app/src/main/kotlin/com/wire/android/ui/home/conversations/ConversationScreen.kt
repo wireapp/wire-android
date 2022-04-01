@@ -40,7 +40,6 @@ fun ConversationScreen(
     conversationViewModel: ConversationViewModel
 ) {
     val uiState = conversationViewModel.conversationViewState
-    val deleteMessageDialogState = conversationViewModel.deleteMessageDialogsState
     ConversationScreen(
         conversationViewState = uiState,
         onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },
@@ -49,63 +48,56 @@ fun ConversationScreen(
         onBackButtonClick = { conversationViewModel.navigateBack() },
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog
     )
-    if (deleteMessageDialogState is DeleteMessageDialogsState.States) {
+    DeleteMessageDialog(
+        conversationViewModel = conversationViewModel
+    )
+}
+
+@Composable
+private fun DeleteMessageDialog(
+    conversationViewModel: ConversationViewModel
+) {
+    val deleteMessageDialogsState = conversationViewModel.deleteMessageDialogsState
+
+    if (deleteMessageDialogsState is DeleteMessageDialogsState.States) {
         when {
-            deleteMessageDialogState.forEveryone is DeleteMessageDialogActiveState.Visible -> {
+            deleteMessageDialogsState.forEveryone is DeleteMessageDialogActiveState.Visible -> {
                 DeleteMessageDialog(
-                    state = deleteMessageDialogState.forEveryone,
+                    state = deleteMessageDialogsState.forEveryone,
                     onDialogDismiss = { conversationViewModel.onDialogDismissed() },
                     onDeleteForMe = {
                         conversationViewModel.showDeleteMessageForYourselfDialog(
-                            deleteMessageDialogState.forEveryone.messageId
+                            deleteMessageDialogsState.forEveryone.messageId
                         )
                     },
                     onDeleteForEveryone = {
                         conversationViewModel.deleteMessage(
-                            deleteMessageDialogState.forEveryone.messageId,
+                            deleteMessageDialogsState.forEveryone.messageId,
                             true
                         )
                     },
                 )
-                if (deleteMessageDialogState.forEveryone.error is DeleteMessageError.GenericError) {
-                    val (title, message) = deleteMessageDialogState.forEveryone.error.coreFailure.dialogErrorStrings(
+                if (deleteMessageDialogsState.forEveryone.error is DeleteMessageError.GenericError) {
+                    val (title, message) = deleteMessageDialogsState.forEveryone.error.coreFailure.dialogErrorStrings(
                         LocalContext.current.resources
                     )
-                    WireDialog(
-                        title = title,
-                        text = message,
-                        onDismiss = { conversationViewModel.clearDeleteMessageError() },
-                        optionButton1Properties = WireDialogButtonProperties(
-                            onClick = { conversationViewModel.clearDeleteMessageError() },
-                            text = stringResource(id = R.string.label_ok),
-                            type = WireDialogButtonType.Primary,
-                        )
-                    )
+                    DeleteMessageErrorDialog(title = title, message = message, conversationViewModel::clearDeleteMessageError)
                 }
             }
-            deleteMessageDialogState.forYourself is DeleteMessageDialogActiveState.Visible -> {
+            deleteMessageDialogsState.forYourself is DeleteMessageDialogActiveState.Visible -> {
 
-                if (deleteMessageDialogState.forYourself.error is DeleteMessageError.GenericError) {
-                    val (title, message) = deleteMessageDialogState.forYourself.error.coreFailure.dialogErrorStrings(
+                if (deleteMessageDialogsState.forYourself.error is DeleteMessageError.GenericError) {
+                    val (title, message) = deleteMessageDialogsState.forYourself.error.coreFailure.dialogErrorStrings(
                         LocalContext.current.resources
                     )
-                    WireDialog(
-                        title = title,
-                        text = message,
-                        onDismiss = { conversationViewModel.clearDeleteMessageError() },
-                        optionButton1Properties = WireDialogButtonProperties(
-                            onClick = { conversationViewModel.clearDeleteMessageError() },
-                            text = stringResource(id = R.string.label_ok),
-                            type = WireDialogButtonType.Primary,
-                        )
-                    )
+                    DeleteMessageErrorDialog(title = title, message = message, conversationViewModel::clearDeleteMessageError)
                 } else {
                     DeleteMessageForYourselfDialog(
-                        state = deleteMessageDialogState.forYourself,
+                        state = deleteMessageDialogsState.forYourself,
                         onDialogDismiss = { conversationViewModel.onDialogDismissed() },
                         onDeleteForMe = {
                             conversationViewModel.deleteMessage(
-                                deleteMessageDialogState.forYourself.messageId,
+                                deleteMessageDialogsState.forYourself.messageId,
                                 false
                             )
                         },
@@ -114,6 +106,20 @@ fun ConversationScreen(
             }
         }
     }
+}
+
+@Composable
+private fun DeleteMessageErrorDialog(title: String, message: String, onDialogDismiss: () -> Unit) {
+    WireDialog(
+        title = title,
+        text = message,
+        onDismiss = onDialogDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onDialogDismiss,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Primary,
+        )
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)

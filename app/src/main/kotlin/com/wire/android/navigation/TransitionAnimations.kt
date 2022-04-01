@@ -5,8 +5,10 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 
@@ -30,6 +32,28 @@ fun smoothSlideOutFromLeft(): ExitTransition {
     return slideOutHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) {
         +200
     } + fadeOut(
+        animationSpec = tween(durationMillis = 200)
+    )
+}
+
+/**
+ * Animation that allows a transition from expand in from bottom, adding a fade in effect
+ */
+@Suppress("MagicNumber")
+fun expandInToView(): EnterTransition {
+    return expandVertically(initialHeight = { it * 2 }, animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn(
+        animationSpec = tween(
+            durationMillis = 200
+        )
+    )
+}
+
+/**
+ * Animation that allows a transition from full content to shrink to zero, adding a fade out effect
+ */
+@Suppress("MagicNumber")
+fun shrinkOutFromView(): ExitTransition {
+    return shrinkVertically(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut(
         animationSpec = tween(durationMillis = 200)
     )
 }

@@ -78,9 +78,6 @@ private fun DeleteMessageDialog(
                     },
                 )
                 if (deleteMessageDialogsState.forEveryone.error is DeleteMessageError.GenericError) {
-                    val (title, message) = deleteMessageDialogsState.forEveryone.error.coreFailure.dialogErrorStrings(
-                        LocalContext.current.resources
-                    )
                     DeleteMessageErrorDialog(deleteMessageDialogsState.forEveryone.error, conversationViewModel::clearDeleteMessageError)
                 }
             }

@@ -117,15 +117,19 @@ enum class NavigationItem(
         }
     },
 
+    //TODO: internal is here untill we can get the ConnectionStatus from the user
+    // for now it is just to be able to proceed forward
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_ID}",
+        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_ID}/{$EXTRA_CONNECTED_STATUS}",
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()
-            return if (userProfileId != null) "$primaryRoute/$userProfileId" else primaryRoute
+            val internal: Boolean? = arguments.filterIsInstance<Boolean>().firstOrNull()
+
+            return "$primaryRoute/${userProfileId!!}/${internal!!}"
         }
     },
 
@@ -185,7 +189,10 @@ object NavigationItemDestinationsRoutes {
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
-private const val EXTRA_USER_ID = "extra_user_id"
+const val EXTRA_USER_ID = "extra_user_id"
+//TODO: internal is here untill we can get the ConnectionStatus from the user
+// for now it is just to be able to proceed forward
+const val EXTRA_CONNECTED_STATUS = "extra_connected_status"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")

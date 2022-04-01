@@ -145,11 +145,13 @@ class NewConversationViewModel
         )
     }
 
-    fun openUserProfile(contact: Contact) {
+    //TODO: internal is here untill we can get the ConnectionStatus from the user
+    // for now it is just to be able to proceed forward
+    fun openUserProfile(contact: Contact, internal: Boolean) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.id))
+                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.id, internal))
                 )
             )
         }

@@ -32,6 +32,9 @@ import com.wire.android.ui.home.newconversation.contacts.Contact
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
+
+data class SearchOpenUserProfile(val contact: Contact, val internal: Boolean)
+
 @Composable
 fun SearchPeopleScreen(
     searchQuery: String,
@@ -42,7 +45,7 @@ fun SearchPeopleScreen(
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
-    onOpenUserProfile: (Contact) -> Unit
+    onOpenUserProfile: (SearchOpenUserProfile) -> Unit
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -76,7 +79,7 @@ private fun SearchResult(
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
-    onOpenUserProfile: (Contact) -> Unit,
+    onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
 
@@ -95,7 +98,7 @@ private fun SearchResult(
                 contactSearchResult = knownContactSearchResult,
                 showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() },
-                onOpenUserProfile = onOpenUserProfile,
+                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, true)) },
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_public_wire) },
@@ -103,7 +106,7 @@ private fun SearchResult(
                 contactSearchResult = publicContactSearchResult,
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
-                onOpenUserProfile = onOpenUserProfile
+                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, false)) }
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_federated_backends) },
@@ -111,7 +114,7 @@ private fun SearchResult(
                 contactSearchResult = federatedBackendResultContact,
                 showAllItems = searchPeopleScreenState.federatedBackendResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() },
-                onOpenUserProfile = onOpenUserProfile
+                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, false)) }
             )
         }
         Divider()

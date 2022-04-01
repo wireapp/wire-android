@@ -74,7 +74,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
                                 onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) },
-                                onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact) }
+                                onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact,true) }
                             )
                         }
                     )
@@ -90,7 +90,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
                                 onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) },
-                                onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact) }
+                                onOpenUserProfile = { searchContact -> newConversationViewModel.openUserProfile(searchContact.contact,searchContact.internal) }
                             )
                         }
                     )

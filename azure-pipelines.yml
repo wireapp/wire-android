@@ -7,7 +7,7 @@ trigger: none
 
 schedules:
 - cron: "0 0 * * *"
-  displayName: Daily midnight build
+  displayName: Daily midnight tests
   branches:
     include:
     - main
@@ -34,5 +34,20 @@ steps:
     gradleWrapperFile: 'gradlew'
     gradleOptions: '-Xmx3072m'
     publishJUnitResults: false
-    testResultsFiles: '**/TEST-*.xml'
     tasks: 'assembleDebug'
+- task: CmdLine@2
+  inputs:
+    script: 'mv com.wire.android-* com.wire.android-public-debug.apk'
+    workingDirectory: 'app/build/outputs/apk/public/debug/'
+    failOnStderr: true
+- task: AppCenterTest@1
+  inputs:
+    appFile: 'app/build/outputs/apk/public/debug/com.wire.android-public-debug.apk'
+    artifactsDirectory: '$(Build.ArtifactStagingDirectory)/AppCenterTest'
+    frameworkOption: 'espresso'
+    credentialsOption: 'serviceEndpoint'
+    serverEndpoint: 'Appcenter - Wire Android Reloaded'
+    appSlug: 'Wire/Wire-Android-Reloaded'
+    devices: 'sogmeang'
+    localeOption: 'en_US'
+    showDebugOutput: true

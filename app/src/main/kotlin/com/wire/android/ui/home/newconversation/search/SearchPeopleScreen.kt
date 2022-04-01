@@ -32,26 +32,20 @@ import com.wire.android.ui.home.newconversation.contacts.Contact
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
-@Composable
-fun SearchPeopleScreen(
-    searchPeopleState: SearchPeopleState,
-) {
-    SearchPeopleScreenContent(
-        searchQuery = searchPeopleState.searchQuery,
-        noneSearchSucceed = searchPeopleState.noneSearchSucceed,
-        contactContactSearchResult = searchPeopleState.localContactSearchResult,
-        publicContactSearchResult = searchPeopleState.publicContactsSearchResult,
-        federatedBackendResultContact = searchPeopleState.federatedContactSearchResult
-    )
-}
+
+data class SearchOpenUserProfile(val contact: Contact, val internal: Boolean)
 
 @Composable
-private fun SearchPeopleScreenContent(
+fun SearchPeopleScreen(
     searchQuery: String,
     noneSearchSucceed: Boolean,
-    contactContactSearchResult: ContactSearchResult,
+    knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
     federatedBackendResultContact: ContactSearchResult,
+    contactsAddedToGroup: List<Contact>,
+    onAddToGroup: (Contact) -> Unit,
+    onRemoveFromGroup: (Contact) -> Unit,
+    onOpenUserProfile: (SearchOpenUserProfile) -> Unit
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -62,9 +56,13 @@ private fun SearchPeopleScreenContent(
             Column {
                 SearchResult(
                     searchQuery = searchQuery,
-                    contactContactSearchResult = contactContactSearchResult,
+                    knownContactSearchResult = knownContactSearchResult,
                     publicContactSearchResult = publicContactSearchResult,
-                    federatedBackendResultContact = federatedBackendResultContact
+                    federatedBackendResultContact = federatedBackendResultContact,
+                    contactsAddedToGroup = contactsAddedToGroup,
+                    onAddToGroup = onAddToGroup,
+                    onRemoveContactFromGroup = onRemoveFromGroup,
+                    onOpenUserProfile = onOpenUserProfile
                 )
             }
         }
@@ -75,9 +73,13 @@ private fun SearchPeopleScreenContent(
 @Composable
 private fun SearchResult(
     searchQuery: String,
-    contactContactSearchResult: ContactSearchResult,
+    knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
     federatedBackendResultContact: ContactSearchResult,
+    contactsAddedToGroup: List<Contact>,
+    onAddToGroup: (Contact) -> Unit,
+    onRemoveContactFromGroup: (Contact) -> Unit,
+    onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
 
@@ -90,30 +92,33 @@ private fun SearchResult(
             internalSearchResults(
                 searchTitle = { stringResource(R.string.label_contacts) },
                 searchQuery = searchQuery,
-                contactsAddedToGroup = searchPeopleScreenState.newGroupContacts,
-                onAddToGroup = { contact -> searchPeopleScreenState.addContactToGroup(contact) },
-                removeFromGroup = { contact -> searchPeopleScreenState.removeContactFromGroup(contact) },
-                contactSearchResult = contactContactSearchResult,
+                contactsAddedToGroup = contactsAddedToGroup,
+                onAddToGroup = onAddToGroup,
+                removeFromGroup = onRemoveContactFromGroup,
+                contactSearchResult = knownContactSearchResult,
                 showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
-                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() }
+                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() },
+                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, true)) },
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_public_wire) },
                 searchQuery = searchQuery,
                 contactSearchResult = publicContactSearchResult,
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
-                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() }
+                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
+                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, false)) }
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_federated_backends) },
                 searchQuery = searchQuery,
                 contactSearchResult = federatedBackendResultContact,
                 showAllItems = searchPeopleScreenState.federatedBackendResultsCollapsed,
-                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() }
+                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() },
+                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, false)) }
             )
         }
         Divider()
-        GroupButton(groupSize = searchPeopleScreenState.newGroupContacts.size)
+        GroupButton(groupSize = contactsAddedToGroup.size)
     }
 }
 
@@ -127,6 +132,7 @@ private fun LazyListScope.internalSearchResults(
     contactSearchResult: ContactSearchResult,
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
 ) {
     when (val searchResult = contactSearchResult.searchResultState) {
         SearchResultState.InProgress -> {
@@ -141,7 +147,8 @@ private fun LazyListScope.internalSearchResults(
                 removeFromGroup = removeFromGroup,
                 searchResult = searchResult.result,
                 searchQuery = searchQuery,
-                onShowAllButtonClicked = onShowAllButtonClicked
+                onShowAllButtonClicked = onShowAllButtonClicked,
+                onOpenUserProfile = onOpenUserProfile
             )
         }
         is SearchResultState.Failure -> {
@@ -156,12 +163,14 @@ private fun LazyListScope.internalSearchResults(
     }
 }
 
+@Suppress("LongParameterList")
 private fun LazyListScope.externalSearchResults(
     searchTitle: @Composable () -> String,
     searchQuery: String,
     contactSearchResult: ContactSearchResult,
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
 ) {
     when (val searchResult = contactSearchResult.searchResultState) {
         SearchResultState.InProgress -> {
@@ -173,7 +182,8 @@ private fun LazyListScope.externalSearchResults(
                 showAllItems = showAllItems,
                 searchResult = searchResult.result,
                 searchQuery = searchQuery,
-                onShowAllButtonClicked = onShowAllButtonClicked
+                onShowAllButtonClicked = onShowAllButtonClicked,
+                onOpenUserProfile = onOpenUserProfile
             )
         }
         is SearchResultState.Failure -> {
@@ -197,7 +207,8 @@ private fun LazyListScope.internalSuccessItem(
     removeFromGroup: (Contact) -> Unit,
     searchResult: List<Contact>,
     searchQuery: String,
-    onShowAllButtonClicked: () -> Unit
+    onShowAllButtonClicked: () -> Unit,
+    onOpenUserProfile: (Contact) -> Unit
 ) {
     if (searchResult.isNotEmpty()) {
         item { FolderHeader(searchTitle()) }
@@ -213,7 +224,7 @@ private fun LazyListScope.internalSuccessItem(
                     isAddedToGroup = contactsAddedToGroup.contains(contact),
                     addToGroup = { onAddToGroup(contact) },
                     removeFromGroup = { removeFromGroup(contact) },
-                    onRowItemClicked = { },
+                    onRowItemClicked = { onOpenUserProfile(contact) },
                     onRowItemLongClicked = { }
                 )
             }
@@ -240,12 +251,14 @@ private fun LazyListScope.internalSuccessItem(
     }
 }
 
+@Suppress("LongParameterList")
 private fun LazyListScope.externalSuccessItem(
     searchTitle: @Composable () -> String,
     showAllItems: Boolean,
     searchResult: List<Contact>,
     searchQuery: String,
-    onShowAllButtonClicked: () -> Unit
+    onShowAllButtonClicked: () -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
 ) {
     if (searchResult.isNotEmpty()) {
         item { FolderHeader(searchTitle()) }
@@ -258,7 +271,7 @@ private fun LazyListScope.externalSuccessItem(
                     name = name,
                     label = label,
                     searchQuery = searchQuery,
-                    onRowItemClicked = { },
+                    onRowItemClicked = { onOpenUserProfile(contact) },
                     onRowItemLongClicked = { }
                 )
             }

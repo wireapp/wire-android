@@ -24,9 +24,20 @@ pr:
 pool:
   vmImage: 'macos-latest'
 
+variables:
+  KONAN_CACHE_FOLDER: $(Pipeline.Workspace)/.konan
+  KOTLIN_NATIVE_VERSION: 1.6.10
+
 steps:
 - checkout: self
   submodules: true
+- task: Cache@2
+  inputs:
+    key: '"konan" | "$(Agent.OS)" | "$(KOTLIN_NATIVE_VERSION)"'
+    restoreKeys: |
+       konan | "$(Agent.OS)"
+    path: $(KONAN_CACHE_FOLDER)
+  displayName: Cache Kotlin Native Compiler
 - task: Gradle@2
   inputs:
     workingDirectory: ''

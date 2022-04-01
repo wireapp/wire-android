@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
     paths-ignore: 
-      - 'azure-pipelines.yml'
+    - 'azure-pipelines.yml'
 
 jobs:
   ui-tests:

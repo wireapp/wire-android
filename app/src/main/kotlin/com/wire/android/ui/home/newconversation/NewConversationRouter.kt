@@ -57,7 +57,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                             ContactsScreen(
                                 onScrollPositionChanged = { newConversationState.updateScrollPosition(it) },
                                 allKnownContact = allKnownContacts,
-                                contactsAddedToGroup = addToGroupContacts,
+                                contactsAddedToGroup = contactsAddedToGroup,
                                 onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact) },
                                 onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
                                 onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) }
@@ -68,7 +68,15 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                         route = NewConversationStateScreen.SEARCH_PEOPLE,
                         content = {
                             SearchPeopleScreen(
-                                searchPeopleState = newConversationViewModel.state,
+                                searchQuery = searchQuery,
+                                noneSearchSucceed = noneSearchSucceed,
+                                knownContactSearchResult = localContactSearchResult,
+                                publicContactSearchResult = publicContactsSearchResult,
+                                federatedBackendResultContact = federatedContactSearchResult,
+                                contactsAddedToGroup = contactsAddedToGroup,
+                                onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact) },
+                                onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
+                                onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) }
                             )
                         }
                     )

@@ -34,24 +34,15 @@ private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
 @Composable
 fun SearchPeopleScreen(
-    searchPeopleState: SearchPeopleState,
-) {
-    SearchPeopleScreenContent(
-        searchQuery = searchPeopleState.searchQuery,
-        noneSearchSucceed = searchPeopleState.noneSearchSucceed,
-        contactContactSearchResult = searchPeopleState.localContactSearchResult,
-        publicContactSearchResult = searchPeopleState.publicContactsSearchResult,
-        federatedBackendResultContact = searchPeopleState.federatedContactSearchResult
-    )
-}
-
-@Composable
-private fun SearchPeopleScreenContent(
     searchQuery: String,
     noneSearchSucceed: Boolean,
-    contactContactSearchResult: ContactSearchResult,
+    knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
     federatedBackendResultContact: ContactSearchResult,
+    contactsAddedToGroup: List<Contact>,
+    onOpenUserProfile: (Contact) -> Unit,
+    onAddToGroup: (Contact) -> Unit,
+    onRemoveFromGroup: (Contact) -> Unit
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -62,9 +53,13 @@ private fun SearchPeopleScreenContent(
             Column {
                 SearchResult(
                     searchQuery = searchQuery,
-                    contactContactSearchResult = contactContactSearchResult,
+                    knownContactSearchResult = knownContactSearchResult,
                     publicContactSearchResult = publicContactSearchResult,
-                    federatedBackendResultContact = federatedBackendResultContact
+                    federatedBackendResultContact = federatedBackendResultContact,
+                    onOpenUserProfile = onOpenUserProfile,
+                    contactsAddedToGroup = contactsAddedToGroup,
+                    onAddToGroup = onAddToGroup,
+                    onRemoveContactFromGroup = onRemoveFromGroup
                 )
             }
         }
@@ -75,9 +70,13 @@ private fun SearchPeopleScreenContent(
 @Composable
 private fun SearchResult(
     searchQuery: String,
-    contactContactSearchResult: ContactSearchResult,
+    knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
     federatedBackendResultContact: ContactSearchResult,
+    onOpenUserProfile: (Contact) -> Unit,
+    contactsAddedToGroup: List<Contact>,
+    onAddToGroup: (Contact) -> Unit,
+    onRemoveContactFromGroup: (Contact) -> Unit,
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
 
@@ -90,10 +89,10 @@ private fun SearchResult(
             internalSearchResults(
                 searchTitle = { stringResource(R.string.label_contacts) },
                 searchQuery = searchQuery,
-                contactsAddedToGroup = searchPeopleScreenState.newGroupContacts,
-                onAddToGroup = { contact -> searchPeopleScreenState.addContactToGroup(contact) },
-                removeFromGroup = { contact -> searchPeopleScreenState.removeContactFromGroup(contact) },
-                contactSearchResult = contactContactSearchResult,
+                contactsAddedToGroup = contactsAddedToGroup,
+                onAddToGroup = onAddToGroup,
+                removeFromGroup = onRemoveContactFromGroup,
+                contactSearchResult = knownContactSearchResult,
                 showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() }
             )

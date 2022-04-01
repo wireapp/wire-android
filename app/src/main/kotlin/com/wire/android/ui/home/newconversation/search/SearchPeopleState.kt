@@ -17,7 +17,7 @@ data class SearchPeopleState(
         ContactSearchResult.ExternalContact(
             searchResultState = SearchResultState.Initial
         ),
-    val addToGroupContacts: List<Contact> = emptyList(),
+    val contactsAddedToGroup: List<Contact> = emptyList(),
     val allKnownContacts: List<Contact> = emptyList()
 )
 

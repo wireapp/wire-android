@@ -14,16 +14,13 @@ import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 
 @Composable
-fun MoreOptionIcon(
-    onButtonClicked: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun CopyButton(onCopyClicked: () -> Unit, modifier: Modifier = Modifier) {
     WireTertiaryButton(
         colors = wireSecondaryButtonColors(),
-        onClick = onButtonClicked,
+        onClick = onCopyClicked,
         leadingIcon = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_more),
+                painter = painterResource(id = R.drawable.ic_copy),
                 contentDescription = stringResource(R.string.content_description_right_arrow),
                 modifier = modifier
                     .size(dimensions().conversationBottomSheetItemSize)

@@ -67,6 +67,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
     fun onContinue() {
         state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
+            // FIXME: no need to check the handle again since it's checked every time the text change
             val usernameError = if (validateUserHandleUseCase(state.username.text.trim()) is ValidateUserHandleResult.Invalid)
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError
             else when (val result = setUserHandleUseCase(state.username.text.trim())) {

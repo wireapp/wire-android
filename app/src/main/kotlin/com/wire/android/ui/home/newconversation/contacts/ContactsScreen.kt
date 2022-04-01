@@ -25,6 +25,7 @@ import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.extension.rememberLazyListState
+import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.theme.wireTypography
@@ -35,7 +36,8 @@ fun ContactsScreen(
     onScrollPositionChanged: (Int) -> Unit
 ) {
     ContactsScreenContent(
-        state = viewModel.contactsState,
+        isLoading = viewModel.contactState.isLoading,
+        contacts = viewModel.contactState.contacts,
         onScrollPositionChanged = onScrollPositionChanged,
         onOpenUserProfile = viewModel::openUserProfile
     )
@@ -43,7 +45,8 @@ fun ContactsScreen(
 
 @Composable
 fun ContactsScreenContent(
-    state: ContactsState,
+    isLoading: Boolean,
+    contacts: List<Contact>,
     onScrollPositionChanged: (Int) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
 ) {
@@ -58,26 +61,29 @@ fun ContactsScreenContent(
             Modifier
                 .fillMaxSize()
         ) {
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier.weight(1f),
-            ) {
-                folderWithElements(
-                    header = { stringResource(R.string.label_contacts) },
-                    items = state.contacts
-                ) { contact ->
-                    ContactItem(
-                        name = contact.name,
-                        userStatus = contact.userStatus,
-                        belongsToGroup = newGroupContacts.contains(contact),
-                        addToGroup = { addContactToGroup(contact) },
-                        removeFromGroup = { removeContactFromGroup(contact) },
+            if (isLoading) {
+                CenteredCircularProgressBarIndicator()
+            } else {
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    folderWithElements(
+                        header = { stringResource(R.string.label_contacts) },
+                        items = contacts
+                    ) { contact ->
+                        ContactItem(
+                            name = contact.name,
+                            userStatus = contact.userStatus,
+                            belongsToGroup = newGroupContacts.contains(contact),
+                            addToGroup = { addContactToGroup(contact) },
+                            removeFromGroup = { removeContactFromGroup(contact) },
                         openUserProfile = { onOpenUserProfile(contact) }
                     )
                 }
             }
             Divider()
-            GroupButton(groupSize = contactsScreenState.newGroupContacts.size)
+            GroupButton(groupSize = contactsScreenState.newGroupContacts.size)}
         }
     }
 }

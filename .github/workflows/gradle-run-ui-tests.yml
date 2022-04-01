@@ -5,7 +5,7 @@ on:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
 
 jobs:
-  gradle-run-tests:
+  ui-tests:
     runs-on: macos-latest
     strategy:
       matrix:

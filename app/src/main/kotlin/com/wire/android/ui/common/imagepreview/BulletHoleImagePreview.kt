@@ -1,6 +1,7 @@
 package com.wire.android.ui.common.imagepreview
 
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -17,12 +18,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.constraintlayout.compose.ConstraintLayout
-import coil.compose.AsyncImage
-import com.wire.android.R
+import coil.compose.rememberAsyncImagePainter
 import com.wire.android.ui.common.dimensions
 import com.wire.android.util.toBitmap
 
@@ -44,12 +43,11 @@ fun BulletHoleImagePreview(imageUri: Uri, contentDescription: String) {
                     bottom.linkTo(parent.bottom)
                 }
         ) {
-            AsyncImage(
-                model = imageUri.toBitmap(LocalContext.current) ?: imageUri,
+            Image(
+                painter = rememberAsyncImagePainter(imageUri.toBitmap(LocalContext.current)),
                 contentScale = ContentScale.Crop,
                 contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(),
-                error = painterResource(R.drawable.ic_launcher_foreground)
             )
         }
         Box(

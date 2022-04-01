@@ -8,6 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
+/**
+ * Flow that will launch gallery browser to select a picture.
+ * This will handle the permissions request in case there is no permission granted for the storage.
+ *
+ * @param onGalleryItemPicked action that will be executed when selecting a media result from [ActivityResultContract]
+ * @param onPermissionDenied action to be executed when the permissions is denied
+ */
 @Composable
 fun rememberOpenGalleryFlow(
     onGalleryItemPicked: (Uri) -> Unit,

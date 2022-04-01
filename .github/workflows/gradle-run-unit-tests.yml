@@ -5,8 +5,8 @@ on:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
 
 jobs:
-  gradle-run-tests:
-    runs-on: ubuntu-latest
+  unit-tests:
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout
@@ -31,8 +31,11 @@ jobs:
       - name: Test with Gradle
         run: ./gradlew runUnitTests
 
+      - name: Install Pip for test result publishing
+        run: sudo apt-get install -y python3-pip
+
       - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1.25
+        uses: EnricoMi/publish-unit-test-result-action/composite@v1.25
         if: always()
         with:
           files: |

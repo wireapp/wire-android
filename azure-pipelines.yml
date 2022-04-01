@@ -24,10 +24,6 @@ pr:
 pool:
   vmImage: 'macos-latest'
 
-stages:
-- stage: UITests
-  displayName: Espresso Tests
-
 steps:
 - checkout: self
   submodules: true

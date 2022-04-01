@@ -91,7 +91,7 @@ fun NotConnectedOtherProfileScreenContent(
                         )
                     }
 
-                    item { Spacer(Modifier.height(16.dp)) }
+                    item { Spacer(Modifier.height(dimensions().spacing16x)) }
 
                     item {
                         UserDetailInformation(
@@ -169,9 +169,9 @@ fun OtherUserProfileTopBar(onNavigateBack: () -> Unit) {
 
 @Composable
 fun rememberOtherUserProfileScreenState(
-    snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
+    snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ): OtherUserProfileScreenState {
+    val coroutineScope = rememberCoroutineScope()
     val clipBoardManager = LocalClipboardManager.current
 
     return remember {

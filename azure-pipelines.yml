@@ -48,6 +48,6 @@ steps:
     credentialsOption: 'serviceEndpoint'
     serverEndpoint: 'Appcenter - Wire Android Reloaded'
     appSlug: 'Wire/Wire-Android-Reloaded'
-    devices: 'sogmeang'
+    devices: 'some-device-string-here'
     localeOption: 'en_US'
     showDebugOutput: true

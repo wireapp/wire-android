@@ -47,9 +47,12 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                 )
             },
             content = {
-                AnimatedNavHost(newConversationState.navController, startDestination = "contacts") {
+                AnimatedNavHost(
+                    navController = newConversationState.navController,
+                    startDestination = NewConversationStateScreen.KNOWN_CONTACTS
+                ) {
                     composable(
-                        route = "contacts",
+                        route = NewConversationStateScreen.KNOWN_CONTACTS,
                         content = {
                             ContactsScreen(
                                 onScrollPositionChanged = { newConversationState.updateScrollPosition(it) },
@@ -62,7 +65,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                         }
                     )
                     composable(
-                        route = "search_people",
+                        route = NewConversationStateScreen.SEARCH_PEOPLE,
                         content = {
                             SearchPeopleScreen(
                                 searchPeopleState = newConversationViewModel.state,
@@ -75,7 +78,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
     }
 }
 
-class NewConversationStateScreen(
+private class NewConversationStateScreen(
     val navController: NavHostController
 ) {
 
@@ -89,15 +92,20 @@ class NewConversationStateScreen(
     }
 
     fun navigateToSearch() {
-        navController.navigate("search_people")
+        navController.navigate(SEARCH_PEOPLE)
     }
 
     fun navigateBack() {
-        navController.navigate("contacts")
+        navController.navigate(KNOWN_CONTACTS)
     }
 
     fun clearSearchQuery() {
         searchQuery = ""
+    }
+
+    companion object {
+        const val KNOWN_CONTACTS = "known_contacts"
+        const val SEARCH_PEOPLE = "search_people"
     }
 }
 

@@ -6,6 +6,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase

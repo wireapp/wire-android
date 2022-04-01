@@ -80,7 +80,7 @@ class HomeViewModel
         navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs(listOf(extraRouteId))))
     }
 
-    fun navigateToUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.UserProfile, MY_USER_PROFILE_SUBROUTE) }
+    fun navigateToUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile, MY_USER_PROFILE_SUBROUTE) }
 
     companion object {
         const val MY_USER_PROFILE_SUBROUTE = "myUserProfile"

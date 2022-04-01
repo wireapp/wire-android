@@ -16,8 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.button.IconAlignment
-import com.wire.android.ui.common.button.WireTertiaryButton
-import com.wire.android.ui.common.button.wireSecondaryButtonColors
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 
@@ -27,9 +26,9 @@ fun GroupButton(groupSize: Int) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
+            .padding(all = dimensions().spacing16x)
             .height(dimensions().groupButtonHeight)
             .fillMaxWidth()
-            .padding(all = dimensions().spacing16x)
     ) {
         WirePrimaryButton(
             text = "${stringResource(R.string.label_new_group)} (${groupSize})",
@@ -39,15 +38,14 @@ fun GroupButton(groupSize: Int) {
             modifier = Modifier.weight(1f)
         )
         Spacer(Modifier.width(dimensions().spacing8x))
-        WireTertiaryButton(
-            colors = wireSecondaryButtonColors(),
+        WireSecondaryButton(
             onClick = { },
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_more),
                     contentDescription = stringResource(R.string.content_description_right_arrow),
                     modifier = Modifier
-                        .size(dimensions().conversationBottomSheetItemSize)
+                        .size(dimensions().wireIconButtonSize)
                 )
             },
             leadingIconAlignment = IconAlignment.Center,

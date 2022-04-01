@@ -49,7 +49,8 @@
     <string name="content_description_copy_the_message">Copy the message</string>
     <string name="content_description_delete_the_message">Delete the message</string>
     <string name="content_description_edit_the_message">Edit the message</string>
-
+    <string name="content_description_more_options">More options</string>
+    <string name="content_description_add_contact">Add contact</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -229,8 +230,12 @@
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
     <string name="animation_label_button_rotation_degree_transistion" translatable="false">Collapse button rotation degree transition</string>
-    <string name="content_description_more_options">More options</string>
-    <string name="content_description_add_contact">Add contact</string>
+    <string name="label_open_conversation">Open Conversation</string>
+    <string name="email_label">e-mail</string>
+    <string name="phone_label">phone</string>
+    <string name="label_connect">Connect</string>
+    <string name="label_cancel_request">Cancel Request</string>
+    <string name="label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
 
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>
@@ -239,5 +244,7 @@
     <string name="notification_action_call">Call</string>
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
+    <string name="content_description_copy">Copy</string>
+    <string name="content_description_show_more_options">Show more options</string>
 
 </resources>

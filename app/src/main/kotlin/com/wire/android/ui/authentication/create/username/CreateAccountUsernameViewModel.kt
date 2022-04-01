@@ -11,9 +11,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.util.USERNAME_FORBIDDEN_CHARACTERS_REGEX
-import com.wire.android.util.USERNAME_MAX_LENGTH
-import com.wire.android.util.USERNAME_MIN_LENGTH
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
@@ -32,13 +30,34 @@ class CreateAccountUsernameViewModel @Inject constructor(
         private set
 
     fun onUsernameChange(newText: TextFieldValue) {
-        val newValidTextString = newText.text.replace(Regex(USERNAME_FORBIDDEN_CHARACTERS_REGEX), "").take(USERNAME_MAX_LENGTH)
-        state = state.copy(
-            username = newText.copy(text = newValidTextString),
-            error = CreateAccountUsernameViewState.UsernameError.None,
-            continueEnabled = newText.text.length >= USERNAME_MIN_LENGTH && !state.loading,
-            animateUsernameError = newValidTextString != newText.text
-        )
+        state = validateUserHandleUseCase(newText.text).let { textState ->
+            when (textState) {
+                is ValidateUserHandleResult.Valid -> state.copy(
+                    username = newText.copy(text = textState.handle),
+                    error = CreateAccountUsernameViewState.UsernameError.None,
+                    continueEnabled = !state.loading,
+                    animateUsernameError = false
+                )
+                is ValidateUserHandleResult.Invalid.InvalidCharacters -> state.copy(
+                    username = newText.copy(text = textState.handle),
+                    error = CreateAccountUsernameViewState.UsernameError.None,
+                    continueEnabled = !state.loading,
+                    animateUsernameError = true
+                )
+                is ValidateUserHandleResult.Invalid.TooLong -> state.copy(
+                    username = newText.copy(text = textState.handle),
+                    error = CreateAccountUsernameViewState.UsernameError.None,
+                    continueEnabled = false,
+                    animateUsernameError = false
+                )
+                is ValidateUserHandleResult.Invalid.TooShort -> state.copy(
+                    username = newText.copy(text = textState.handle),
+                    error = CreateAccountUsernameViewState.UsernameError.None,
+                    continueEnabled = false,
+                    animateUsernameError = false
+                )
+            }
+        }
     }
 
     fun onErrorDismiss() {
@@ -48,7 +67,8 @@ class CreateAccountUsernameViewModel @Inject constructor(
     fun onContinue() {
         state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
-            val usernameError = if (!validateUserHandleUseCase(state.username.text.trim()).isValid)
+            // FIXME: no need to check the handle again since it's checked every time the text change
+            val usernameError = if (validateUserHandleUseCase(state.username.text.trim()) is ValidateUserHandleResult.Invalid)
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError
             else when (val result = setUserHandleUseCase(state.username.text.trim())) {
                 is SetUserHandleResult.Failure.Generic ->

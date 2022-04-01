@@ -10,16 +10,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.IconAlignment
-import com.wire.android.ui.common.button.WireTertiaryButton
-import com.wire.android.ui.common.button.wireSecondaryButtonColors
+import com.wire.android.ui.common.button.WireSecondaryButton
 
 @Composable
 fun MoreOptionIcon(
     onButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    WireTertiaryButton(
-        colors = wireSecondaryButtonColors(),
+    WireSecondaryButton(
         onClick = onButtonClicked,
         leadingIcon = {
             Icon(

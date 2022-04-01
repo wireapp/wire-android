@@ -21,6 +21,7 @@ import com.wire.android.utils.waitForExecution
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -67,6 +68,7 @@ class RemoveDeviceScreenTest {
 
     val invalidPasswordText = "Invalid password"
 
+    @Ignore
     @Test
     fun removeDevice_Successfully() {
         title.assertIsDisplayed()
@@ -79,6 +81,7 @@ class RemoveDeviceScreenTest {
         removeButton.performClick()
     }
 
+    @Ignore
     @Test
     fun removeDevice_error_wrongPassword() {
         title.assertIsDisplayed()
@@ -92,6 +95,7 @@ class RemoveDeviceScreenTest {
         composeTestRule.onNodeWithText(invalidPasswordText).assertIsDisplayed()
     }
 
+    @Ignore
     @Test
     fun removeDevice_cancel() {
         title.assertIsDisplayed()

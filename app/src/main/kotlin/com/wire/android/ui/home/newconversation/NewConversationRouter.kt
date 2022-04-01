@@ -72,9 +72,15 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                                 onScrollPositionChanged = { newConversationState.updateScrollPosition(it) },
                                 allKnownContact = allKnownContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
-                                onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
-                                onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) },
-                                onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact,true) }
+                                onAddToGroup = { contact ->
+                                    newConversationViewModel.addContactToGroup(contact)
+                                },
+                                onRemoveFromGroup = { contact ->
+                                    newConversationViewModel.removeContactFromGroup(contact)
+                                },
+                                onOpenUserProfile = { contact ->
+                                    newConversationViewModel.openUserProfile(contact, true)
+                                }
                             )
                         }
                     )
@@ -90,7 +96,12 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
                                 onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) },
-                                onOpenUserProfile = { searchContact -> newConversationViewModel.openUserProfile(searchContact.contact,searchContact.internal) }
+                                onOpenUserProfile = { searchContact ->
+                                    newConversationViewModel.openUserProfile(
+                                        contact = searchContact.contact,
+                                        internal = searchContact.internal
+                                    )
+                                }
                             )
                         }
                     )

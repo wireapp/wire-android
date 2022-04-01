@@ -250,6 +250,7 @@ private fun LazyListScope.internalSuccessItem(
     }
 }
 
+@Suppress("LongParameterList")
 private fun LazyListScope.externalSuccessItem(
     searchTitle: @Composable () -> String,
     showAllItems: Boolean,

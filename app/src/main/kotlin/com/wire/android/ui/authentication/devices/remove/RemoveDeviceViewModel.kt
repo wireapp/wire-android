@@ -1,4 +1,4 @@
-package com.wire.android.ui.authentication.devices
+package com.wire.android.ui.authentication.devices.remove
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
@@ -13,6 +13,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.data.client.DeleteClientParam
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
@@ -30,6 +31,7 @@ class RemoveDeviceViewModel @Inject constructor(
     private val selfClientsUseCase: SelfClientsUseCase,
     private val deleteClientUseCase: DeleteClientUseCase,
     private val registerClientUseCase: RegisterClientUseCase,
+    private val validatePasswordUseCase: ValidatePasswordUseCase
 ) : ViewModel() {
 
     var state: RemoveDeviceState by mutableStateOf(
@@ -85,7 +87,8 @@ class RemoveDeviceViewModel @Inject constructor(
                     val deleteClientResult = deleteClientUseCase(deleteClientParam)
                     val removeDeviceError =
                         if (deleteClientResult is DeleteClientResult.Success)
-                            registerClientUseCase(dialogStateVisible.password.text, null).toRemoveDeviceError()
+                            if(!validatePasswordUseCase(dialogStateVisible.password.text)) RemoveDeviceError.InvalidCredentialsError
+                            else registerClientUseCase(dialogStateVisible.password.text, null).toRemoveDeviceError()
                         else
                             deleteClientResult.toRemoveDeviceError()
                     updateStateIfDialogVisible { it.copy(loading = false, error = removeDeviceError) }

@@ -1,4 +1,4 @@
-package com.wire.android.ui.authentication.devices
+package com.wire.android.ui.authentication.devices.remove
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

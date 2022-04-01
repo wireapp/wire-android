@@ -76,7 +76,7 @@ private fun RemoveDeviceContent(
             RemoveDeviceState.Loading ->
                 RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
         }
-        //TODO handle list loading errors
+        // TODO handle list loading errors
         if (state is RemoveDeviceState.Success && state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
             RemoveDeviceDialog(
                 state = state.removeDeviceDialogState,
@@ -138,11 +138,11 @@ private fun RemoveDeviceDialog(
     WireDialog(
         title = stringResource(R.string.remove_device_dialog_title),
         text = state.device.name + "\n" +
-                stringResource(
-                    R.string.remove_device_id_and_time_label,
-                    state.device.clientId.value,
-                    state.device.registrationTime.formatMediumDateTime() ?: ""
-                ),
+            stringResource(
+                R.string.remove_device_id_and_time_label,
+                state.device.clientId.value,
+                state.device.registrationTime.formatMediumDateTime() ?: ""
+            ),
         onDismiss = onDialogDismiss,
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDialogDismiss,
@@ -172,7 +172,10 @@ private fun RemoveDeviceDialog(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                modifier = Modifier.focusRequester(focusRequester).padding(bottom = MaterialTheme.wireDimensions.spacing8x).testTag("remove device password field")
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+                    .testTag("remove device password field")
             )
             SideEffect {
                 if (state.keyboardVisible) {
@@ -183,7 +186,6 @@ private fun RemoveDeviceDialog(
         }
     )
 }
-
 
 @Preview
 @Composable

@@ -11,74 +11,109 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
+import com.wire.android.ui.home.newconversation.NewConversationNavigationCommand.KnownContacts
+import com.wire.android.ui.home.newconversation.NewConversationNavigationCommand.SearchContacts
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
-import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val newConversationState = rememberNewConversationState()
 
-    AppTopBarWithSearchBar(
-        scrollPosition = newConversationState.scrollPosition,
-        searchBarHint = stringResource(R.string.label_search_people),
-        searchQuery = newConversationState.searchQuery,
-        onSearchQueryChanged = {
-            newConversationState.searchQuery = it
-        },
-        onSearchClicked = { newConversationState.navigateToSearch() },
-        onCloseSearchClicked = {
-            newConversationState.clearSearchQuery()
-            newConversationState.navigateBack()
-        },
-        appTopBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
-                title = stringResource(R.string.label_new_conversation),
-                navigationIconType = NavigationIconType.Close,
-                onNavigationPressed = { newConversationViewModel.close() }
-            )
-        },
-        content = {
-            AnimatedNavHost(newConversationState.navController, startDestination = "contacts") {
-                composable(
-                    route = "contacts",
-                    content = {
-                        ContactsScreen(onScrollPositionChanged = { newConversationState.updateScrollPosition(it) })
-                    }
-                )
-                composable(
-                    route = "search_people",
-                    content = {
-                        val searchPeopleViewModel: SearchPeopleViewModel = hiltViewModel()
-
-                        LaunchedEffect(newConversationState.searchQuery) {
-                            searchPeopleViewModel.search(newConversationState.searchQuery)
-                        }
-
-                        SearchPeopleScreen(
-                            searchPeopleState = searchPeopleViewModel.state,
-                        )
-                    }
-                )
-            }
+    LaunchedEffect(newConversationViewModel.navigateCommand) {
+        when (newConversationViewModel.navigateCommand) {
+            KnownContacts -> newConversationState.navigateToKnownContacts()
+            SearchContacts -> newConversationState.navigateToSearch()
         }
-    )
+    }
+
+    with(newConversationViewModel.state) {
+        AppTopBarWithSearchBar(
+            scrollPosition = newConversationState.scrollPosition,
+            searchBarHint = stringResource(R.string.label_search_people),
+            searchQuery = searchQuery,
+            onSearchQueryChanged = { searchTerm ->
+                // when the searchTerm changes, we want to propagate it
+                // to the ViewModel, only when the searchQuery inside the ViewModel
+                // is different than searchTerm coming from the TextInputField
+                if (searchTerm != searchQuery) {
+                    newConversationViewModel.search(searchTerm)
+                }
+            },
+            onSearchClicked = { newConversationViewModel.openSearchContacts() },
+            onCloseSearchClicked = {
+                newConversationViewModel.openKnownContacts()
+            },
+            appTopBar = {
+                WireCenterAlignedTopAppBar(
+                    elevation = 0.dp,
+                    title = stringResource(R.string.label_new_conversation),
+                    navigationIconType = NavigationIconType.Close,
+                    onNavigationPressed = { newConversationViewModel.close() }
+                )
+            },
+            content = {
+                NavHost(
+                    navController = newConversationState.navController,
+                    startDestination = NewConversationStateScreen.KNOWN_CONTACTS
+                ) {
+                    composable(
+                        route = NewConversationStateScreen.KNOWN_CONTACTS,
+                        content = {
+                            ContactsScreen(
+                                onScrollPositionChanged = { newConversationState.updateScrollPosition(it) },
+                                allKnownContact = allKnownContacts,
+                                contactsAddedToGroup = contactsAddedToGroup,
+                                onAddToGroup = { contact ->
+                                    newConversationViewModel.addContactToGroup(contact)
+                                },
+                                onRemoveFromGroup = { contact ->
+                                    newConversationViewModel.removeContactFromGroup(contact)
+                                },
+                                onOpenUserProfile = { contact ->
+                                    newConversationViewModel.openUserProfile(contact, true)
+                                }
+                            )
+                        }
+                    )
+                    composable(
+                        route = NewConversationStateScreen.SEARCH_PEOPLE,
+                        content = {
+                            SearchPeopleScreen(
+                                searchQuery = searchQuery,
+                                noneSearchSucceed = noneSearchSucceed,
+                                knownContactSearchResult = localContactSearchResult,
+                                publicContactSearchResult = publicContactsSearchResult,
+                                federatedBackendResultContact = federatedContactSearchResult,
+                                contactsAddedToGroup = contactsAddedToGroup,
+                                onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
+                                onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) },
+                                onOpenUserProfile = { searchContact ->
+                                    newConversationViewModel.openUserProfile(
+                                        contact = searchContact.contact,
+                                        internal = searchContact.internal
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            }
+        )
+    }
 }
 
-class NewConversationStateScreen(
+private class NewConversationStateScreen(
     val navController: NavHostController
 ) {
-
-    var searchQuery by mutableStateOf("")
 
     var scrollPosition by mutableStateOf(0)
         private set
@@ -88,22 +123,23 @@ class NewConversationStateScreen(
     }
 
     fun navigateToSearch() {
-        navController.navigate("search_people")
+        navController.navigate(SEARCH_PEOPLE)
     }
 
-    fun navigateBack() {
-        navController.navigate("contacts")
+    fun navigateToKnownContacts() {
+        navController.navigate(KNOWN_CONTACTS)
     }
 
-    fun clearSearchQuery() {
-        searchQuery = ""
+    companion object {
+        const val KNOWN_CONTACTS = "known_contacts"
+        const val SEARCH_PEOPLE = "search_people"
     }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun rememberNewConversationState(
-    navController: NavHostController = rememberAnimatedNavController()
+    navController: NavHostController = rememberNavController()
 ): NewConversationStateScreen {
     return remember {
         NewConversationStateScreen(navController)

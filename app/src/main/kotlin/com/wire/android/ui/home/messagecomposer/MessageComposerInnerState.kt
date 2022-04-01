@@ -22,9 +22,7 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
     val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
 
     return remember {
-        MessageComposerInnerState(
-            defaultAttachmentInnerState
-        )
+        MessageComposerInnerState(defaultAttachmentInnerState)
     }
 }
 

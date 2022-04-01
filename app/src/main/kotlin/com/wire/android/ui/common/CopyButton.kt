@@ -21,7 +21,7 @@ fun CopyButton(onCopyClicked: () -> Unit, modifier: Modifier = Modifier) {
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_copy),
-                contentDescription = stringResource(R.string.content_description_right_arrow),
+                contentDescription = stringResource(R.string.content_description_copy),
                 modifier = modifier
                     .size(dimensions().conversationBottomSheetItemSize)
             )

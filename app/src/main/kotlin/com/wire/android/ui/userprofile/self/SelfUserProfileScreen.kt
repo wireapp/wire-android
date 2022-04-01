@@ -41,6 +41,7 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
@@ -118,8 +119,7 @@ private fun SelfUserProfileContent(
                     userName = userName,
                     teamName = teamName,
                     onUserProfileClick = onChangeUserProfilePicture,
-                    isEditable = true,
-                    onEditClick = onEditClick
+                    editableState = EditableState.IsEditable(onEditClick)
                 )
                 CurrentSelfUserStatus(
                     userStatus = status,

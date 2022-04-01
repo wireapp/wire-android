@@ -238,5 +238,7 @@
     <string name="notification_action_call">Call</string>
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
+    <string name="content_description_copy">Copy</string>
+    <string name="content_description_show_more_options">Show more options</string>
 
 </resources>

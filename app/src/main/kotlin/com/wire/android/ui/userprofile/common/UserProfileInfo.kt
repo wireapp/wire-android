@@ -40,8 +40,7 @@ fun UserProfileInfo(
     userName: String,
     teamName: String?,
     onUserProfileClick: (() -> Unit)? = null,
-    isEditable: Boolean = false,
-    onEditClick: (() -> Unit)? = null,
+    editableState: EditableState
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,7 +52,7 @@ fun UserProfileInfo(
     ) {
         UserProfileAvatar(
             onClick = onUserProfileClick,
-            isClickable = if (!isEditable) false else !isLoading,
+            isClickable = if (editableState is EditableState.NotEditable) false else !isLoading,
             size = dimensions().userAvatarDefaultBigSize,
             avatarAssetByteArray = avatarAssetByteArray,
             status = UserStatus.NONE,
@@ -108,7 +107,7 @@ fun UserProfileInfo(
             )
         }
 
-        if (isEditable) {
+        if (editableState is EditableState.IsEditable) {
             IconButton(
                 modifier = Modifier
                     .padding(start = dimensions().spacing16x)
@@ -117,7 +116,7 @@ fun UserProfileInfo(
                         bottom.linkTo(userDescription.bottom)
                         end.linkTo(userDescription.end)
                     },
-                onClick = onEditClick!!,
+                onClick = editableState.onEditClick,
                 content = Icons.Filled.Edit.Icon()
             )
         }
@@ -140,4 +139,10 @@ fun UserProfileInfo(
             )
         }
     }
+}
+
+
+sealed class EditableState {
+    object NotEditable : EditableState()
+    class IsEditable(val onEditClick: () -> Unit) : EditableState()
 }

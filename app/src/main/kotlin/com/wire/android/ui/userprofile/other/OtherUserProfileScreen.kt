@@ -38,6 +38,7 @@ import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -87,7 +88,7 @@ fun NotConnectedOtherProfileScreenContent(
                             fullName = fullName,
                             userName = userName,
                             teamName = teamName,
-                            isEditable = false
+                            editableState = EditableState.NotEditable
                         )
                     }
 

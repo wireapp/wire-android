@@ -22,7 +22,7 @@ fun MoreOptionIcon(
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_more),
-                contentDescription = stringResource(R.string.content_description_right_arrow),
+                contentDescription = stringResource(R.string.content_description_show_more_options),
                 modifier = modifier
                     .size(dimensions().conversationBottomSheetItemSize)
             )

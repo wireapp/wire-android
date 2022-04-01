@@ -14,6 +14,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.USERNAME_FORBIDDEN_CHARACTERS_REGEX
 import com.wire.android.util.USERNAME_MAX_LENGTH
 import com.wire.android.util.USERNAME_MIN_LENGTH
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
@@ -48,7 +49,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
     fun onContinue() {
         state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
-            val usernameError = if (!validateUserHandleUseCase(state.username.text.trim()))
+            val usernameError = if (validateUserHandleUseCase(state.username.text.trim()) is ValidateUserHandleResult.Invalid)
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError
             else when (val result = setUserHandleUseCase(state.username.text.trim())) {
                 is SetUserHandleResult.Failure.Generic ->

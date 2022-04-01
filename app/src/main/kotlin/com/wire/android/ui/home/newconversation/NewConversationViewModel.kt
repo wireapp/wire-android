@@ -15,6 +15,7 @@ import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.flow.SearchQueryStateFlow
+import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
@@ -32,7 +33,8 @@ class NewConversationViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
     private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchUserDirectoryUseCase
+    private val searchPublicUsers: SearchUserDirectoryUseCase,
+    private val getAllKnownUsersUseCase: GetAllKnownUsersUseCase
 ) : ViewModel() {
 
     //TODO: map this value out with the given back-end configuration later on
@@ -66,11 +68,24 @@ class NewConversationViewModel
 
     init {
         viewModelScope.launch {
+            launch {
+                getAllKnownUsersUseCase()
+                    .onStart {
+                        innerSearchPeopleState = innerSearchPeopleState.copy()
+                    }
+                    .collect {
+                        innerSearchPeopleState = innerSearchPeopleState.copy(
+                            allKnownContacts = it.map { publicUser -> publicUser.toContact() }
+                        )
+                    }
+            }
+
             searchQueryStateFlow.onSearchAction { searchTerm ->
                 innerSearchPeopleState = state.copy(searchQuery = searchTerm)
 
                 launch { searchPublic(searchTerm) }
                 launch { searchKnown(searchTerm) }
+
             }
         }
     }

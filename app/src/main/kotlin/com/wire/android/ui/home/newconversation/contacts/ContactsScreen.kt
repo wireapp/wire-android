@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.ArrowRightIcon
@@ -30,27 +29,12 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun ContactsScreen(
-    viewModel: ContactsViewModel = hiltViewModel(),
-    onScrollPositionChanged: (Int) -> Unit
-) {
-    ContactsScreenContent(
-        isLoading = viewModel.contactState.isLoading,
-        contacts = viewModel.contactState.contacts,
-        onScrollPositionChanged = onScrollPositionChanged,
-        onOpenUserProfile = viewModel::openUserProfile,
-        onAddToGroup = viewModel::addContactToGroup,
-        onRemoveFromGroup = viewModel::removeContactFromGroup
-    )
-}
-
-@Composable
-fun ContactsScreenContent(
-    isLoading: Boolean,
-    contacts: List<Contact>,
-    onScrollPositionChanged: (Int) -> Unit,
+    allKnownContact: List<Contact>,
+    contactsAddedToGroup: List<Contact>,
     onOpenUserProfile: (Contact) -> Unit,
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
+    onScrollPositionChanged: (Int) -> Unit,
 ) {
     val lazyListState = rememberLazyListState { itemIndex ->
         onScrollPositionChanged(itemIndex)
@@ -60,7 +44,7 @@ fun ContactsScreenContent(
         Modifier
             .fillMaxSize()
     ) {
-        if (isLoading) {
+        if (false) {
             CenteredCircularProgressBarIndicator()
         } else {
             LazyColumn(
@@ -69,12 +53,12 @@ fun ContactsScreenContent(
             ) {
                 folderWithElements(
                     header = { stringResource(R.string.label_contacts) },
-                    items = contacts
+                    items = allKnownContact
                 ) { contact ->
                     ContactItem(
                         name = contact.name,
                         userStatus = contact.userStatus,
-                        belongsToGroup = addToGroupContacts.contains(contact),
+                        belongsToGroup = contactsAddedToGroup.contains(contact),
                         addToGroup = { onAddToGroup(contact) },
                         removeFromGroup = { onRemoveFromGroup(contact) },
                         openUserProfile = { onOpenUserProfile(contact) }
@@ -82,7 +66,7 @@ fun ContactsScreenContent(
                 }
             }
             Divider()
-            GroupButton(groupSize = addToGroupContacts.size)
+            GroupButton(groupSize = contactsAddedToGroup.size)
         }
     }
 }

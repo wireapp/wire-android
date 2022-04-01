@@ -25,47 +25,54 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val newConversationState = rememberNewConversationState()
 
-    AppTopBarWithSearchBar(
-        scrollPosition = newConversationState.scrollPosition,
-        searchBarHint = stringResource(R.string.label_search_people),
-        searchQuery = newConversationState.searchQuery,
-        onSearchQueryChanged = {
-            newConversationState.searchQuery = it
-        },
-        onSearchClicked = { newConversationState.navigateToSearch() },
-        onCloseSearchClicked = {
-            newConversationState.clearSearchQuery()
-            newConversationState.navigateBack()
-        },
-        appTopBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
-                title = stringResource(R.string.label_new_conversation),
-                navigationIconType = NavigationIconType.Close,
-                onNavigationPressed = { newConversationViewModel.close() }
-            )
-        },
-        content = {
-            AnimatedNavHost(newConversationState.navController, startDestination = "contacts") {
-                composable(
-                    route = "contacts",
-                    content = {
-                        ContactsScreen(
-                            onScrollPositionChanged = { newConversationState.updateScrollPosition(it) }
-                        )
-                    }
+    with(newConversationViewModel.state) {
+        AppTopBarWithSearchBar(
+            scrollPosition = newConversationState.scrollPosition,
+            searchBarHint = stringResource(R.string.label_search_people),
+            searchQuery = newConversationState.searchQuery,
+            onSearchQueryChanged = {
+                newConversationState.searchQuery = it
+            },
+            onSearchClicked = { newConversationState.navigateToSearch() },
+            onCloseSearchClicked = {
+                newConversationState.clearSearchQuery()
+                newConversationState.navigateBack()
+            },
+            appTopBar = {
+                WireCenterAlignedTopAppBar(
+                    elevation = 0.dp,
+                    title = stringResource(R.string.label_new_conversation),
+                    navigationIconType = NavigationIconType.Close,
+                    onNavigationPressed = { newConversationViewModel.close() }
                 )
-                composable(
-                    route = "search_people",
-                    content = {
-                        SearchPeopleScreen(
-                            searchPeopleState = newConversationViewModel.state,
-                        )
-                    }
-                )
+            },
+            content = {
+                AnimatedNavHost(newConversationState.navController, startDestination = "contacts") {
+                    composable(
+                        route = "contacts",
+                        content = {
+                            ContactsScreen(
+                                onScrollPositionChanged = { newConversationState.updateScrollPosition(it) },
+                                allKnownContact = allKnownContacts,
+                                contactsAddedToGroup = addToGroupContacts,
+                                onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact) },
+                                onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
+                                onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) }
+                            )
+                        }
+                    )
+                    composable(
+                        route = "search_people",
+                        content = {
+                            SearchPeopleScreen(
+                                searchPeopleState = newConversationViewModel.state,
+                            )
+                        }
+                    )
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 class NewConversationStateScreen(

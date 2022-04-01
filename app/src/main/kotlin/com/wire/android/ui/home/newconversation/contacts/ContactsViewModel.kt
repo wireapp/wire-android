@@ -13,52 +13,44 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-@HiltViewModel
-class ContactsViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
-    private val getAllKnownUsersUseCase: GetAllKnownUsersUseCase
-) : ViewModel() {
-
-    var contactState by mutableStateOf(ContactsState())
-
-    init {
-        viewModelScope.launch {
-            getAllKnownUsersUseCase()
-                .onStart {
-                    contactState = contactState.copy(isLoading = true)
-                }
-                .collect {
-                    contactState = contactState.copy(
-                        isLoading = false,
-                        contacts = it.map { publicUser -> publicUser.toContact() }
-                    )
-                }
-        }
-    }
-
-    fun close() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
-
-    fun addContactToGroup(contact: Contact) {
-        contactState = contactState.copy(addToGroupContacts = contactState.addToGroupContacts + contact)
-    }
-
-    fun removeContactFromGroup(contact: Contact) {
-        contactState = contactState.copy(addToGroupContacts = contactState.addToGroupContacts - contact)
-    }
-
-    fun openUserProfile(contact: Contact) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.id))
-                )
-            )
-        }
-    }
-
-}
+//
+//@HiltViewModel
+//class ContactsViewModel @Inject constructor(
+//    private val navigationManager: NavigationManager,
+//    private val getAllKnownUsersUseCase: GetAllKnownUsersUseCase
+//) : ViewModel() {
+//
+//    var contactState by mutableStateOf(ContactsState())
+//
+//    init {
+//        viewModelScope.launch {
+//            getAllKnownUsersUseCase()
+//                .onStart {
+//                    contactState = contactState.copy(isLoading = true)
+//                }
+//                .collect {
+//                    contactState = contactState.copy(
+//                        isLoading = false,
+//                        contacts = it.map { publicUser -> publicUser.toContact() }
+//                    )
+//                }
+//        }
+//    }
+//
+//    fun close() {
+//        viewModelScope.launch {
+//            navigationManager.navigateBack()
+//        }
+//    }
+//
+//    fun openUserProfile(contact: Contact) {
+//        viewModelScope.launch {
+//            navigationManager.navigate(
+//                command = NavigationCommand(
+//                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.id))
+//                )
+//            )
+//        }
+//    }
+//
+//}

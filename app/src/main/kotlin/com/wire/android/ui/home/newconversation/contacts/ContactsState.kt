@@ -4,7 +4,7 @@ package com.wire.android.ui.home.newconversation.contacts
 import com.wire.android.model.UserStatus
 import com.wire.kalium.logic.data.publicuser.model.PublicUser
 
-data class ContactsState(val contacts: List<Contact> = emptyList(), val addToGroupContacts: List<Contact> = emptyList())
+data class ContactsState(val contacts: List<Contact> = emptyList())
 
 
 data class Contact(

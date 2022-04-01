@@ -121,7 +121,7 @@ enum class NavigationItem(
     // for now it is just to be able to proceed forward
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_ID}/{$EXTRA_INTERNAL_STATUS}",
+        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_ID}/{$EXTRA_CONNECTED_STATUS}",
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
@@ -192,7 +192,7 @@ private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 const val EXTRA_USER_ID = "extra_user_id"
 //TODO: internal is here untill we can get the ConnectionStatus from the user
 // for now it is just to be able to proceed forward
-const val EXTRA_INTERNAL_STATUS = "extra_internal_status"
+const val EXTRA_CONNECTED_STATUS = "extra_connected_status"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")

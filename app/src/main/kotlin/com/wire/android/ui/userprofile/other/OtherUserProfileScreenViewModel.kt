@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.navigation.EXTRA_INTERNAL_STATUS
+import com.wire.android.navigation.EXTRA_CONNECTED_STATUS
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,7 +31,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
         //TODO: internal is here untill we can get the ConnectionStatus from the user
         // for now it is just to be able to proceed forward
-        val internalStatus = savedStateHandle.get<String>(EXTRA_INTERNAL_STATUS)
+        val internalStatus = savedStateHandle.get<String>(EXTRA_CONNECTED_STATUS)
 
         val booleanStatus = internalStatus == "true"
 

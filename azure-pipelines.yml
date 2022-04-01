@@ -3,18 +3,39 @@
 # Add steps that test, sign, and distribute the APK, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/android
 
-trigger:
-- develop
+trigger: none
+
+schedules:
+- cron: "0 0 * * *"
+  displayName: Daily midnight build
+  branches:
+    include:
+    - main
+    - develop
+
+pr:
+  autoCancel: true
+  drafts: false
+  branches:
+    include:
+    - develop
+    - main
 
 pool:
   vmImage: 'macos-latest'
 
+stages:
+- stage: UITests
+  displayName: Espresso Tests
+
 steps:
+- checkout: self
+  submodules: true
 - task: Gradle@2
   inputs:
     workingDirectory: ''
     gradleWrapperFile: 'gradlew'
     gradleOptions: '-Xmx3072m'
-    publishJUnitResults: false
+    publishJUnitResults: true
     testResultsFiles: '**/TEST-*.xml'
     tasks: 'assembleDebug'

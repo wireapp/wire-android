@@ -8,42 +8,34 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ContactsViewModel @Inject constructor(
-    private val navigationManager: NavigationManager
+    private val navigationManager: NavigationManager,
+    private val getAllKnownUsersUseCase: GetAllKnownUsersUseCase
 ) : ViewModel() {
 
-    @Suppress("MagicNumber")
-    var contactsState by mutableStateOf(
-        ContactsState(
-            contacts = buildList {
-                add(
-                    Contact(
-                        id = 1.toString(),
-                        "This is first contact"
-                    )
-                )
-                for (i in 2..100) {
-                    add(
-                        Contact(
-                            id = i.toString(),
-                            "This is $i contact"
-                        )
+    var contactState by mutableStateOf(ContactsState())
+
+    init {
+        viewModelScope.launch {
+            getAllKnownUsersUseCase()
+                .onStart {
+                    contactState = contactState.copy(isLoading = true)
+                }
+                .collect {
+                    contactState = contactState.copy(
+                        isLoading = false,
+                        contacts = it.map { publicUser -> publicUser.toContact() }
                     )
                 }
-                add(
-                    Contact(
-                        id = 12.toString(),
-                        "This is last contact"
-                    )
-                )
-            }
-        )
-    )
+        }
+    }
 
     fun close() {
         viewModelScope.launch {
@@ -52,11 +44,11 @@ class ContactsViewModel @Inject constructor(
     }
 
     fun addContactToGroup(contact: Contact) {
-        contactsState = contactsState.copy(addToGroupContacts = contactsState.addToGroupContacts + contact)
+        contactState = contactState.copy(addToGroupContacts = contactState.addToGroupContacts + contact)
     }
 
     fun removeContactFromGroup(contact: Contact) {
-        contactsState = contactsState.copy(addToGroupContacts = contactsState.addToGroupContacts - contact)
+        contactState = contactState.copy(addToGroupContacts = contactState.addToGroupContacts - contact)
     }
 
     fun openUserProfile(contact: Contact) {

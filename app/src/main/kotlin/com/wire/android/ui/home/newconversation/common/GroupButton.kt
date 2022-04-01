@@ -45,7 +45,7 @@ fun GroupButton(groupSize: Int) {
                     painter = painterResource(id = R.drawable.ic_more),
                     contentDescription = stringResource(R.string.content_description_right_arrow),
                     modifier = Modifier
-                        .size(dimensions().conversationBottomSheetItemSize)
+                        .size(dimensions().wireIconButtonSize)
                 )
             },
             leadingIconAlignment = IconAlignment.Center,

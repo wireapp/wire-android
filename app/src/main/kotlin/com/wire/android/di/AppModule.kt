@@ -1,10 +1,14 @@
 package com.wire.android.di
 
+import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.dispatchers.DefaultDispatcherProvider
+import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -16,4 +20,12 @@ object AppModule {
     @Singleton
     @Provides
     fun providesNavigationManager() = NavigationManager()
+
+    @Singleton
+    @Provides
+    fun providesApplicationContext(@ApplicationContext appContext: Context) = appContext
+
+    @Singleton
+    @Provides
+    fun providesDefaultDispatchers(): DispatcherProvider = DefaultDispatcherProvider()
 }

@@ -33,6 +33,32 @@ def defineTrackName() {
     return 'internal'
 }
 
+String shellQuote(String s) {
+    // Quote a string so it's suitable to pass to the shell
+    return "'" + s.replaceAll("'", "'\"'\"'") + "'"
+}
+
+def postGithubComment(String changeId, String body) {
+    def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
+    def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android-reloaded/issues/${changeId}/comments")
+
+    // The comment body must be quoted for embedding into a JSON string,
+    // and the JSON string must be quoted for embedding into the shell command
+    // line. Note well: the backslash character has a special meaning in
+    // both the first argument (regular expression pattern) and the second
+    // (Matcher.replaceAll() escaping character) of String.replaceAll(); hence,
+    // yet another level of escaping is required here!
+
+    def payload = body.replaceAll('\\\\', '\\\\\\\\').replaceAll('"', '\\\\"').replaceAll('\n', '\\\\n')
+    def json = shellQuote('{"body":"' + payload + '"}')
+
+    // Note the interpolated variables here come from Groovy -- the command
+    // line which the shell interpreter executes is fully rendered, and contains
+    // no unsubstituted variables
+    sh "curl -s -H ${authHeader} -X POST -d ${json} ${apiUrl}"
+
+}
+
 pipeline {
   agent {
     docker {
@@ -125,7 +151,7 @@ pipeline {
           }
           steps {
             sh '''docker rm ${emulatorPrefix}_9 || true
-                  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_9 budtmo/docker-android-x86-9.0'''
+                  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" -e DATAPARTITION="2g" --name ${emulatorPrefix}-${BUILD_NUMBER}_9 budtmo/docker-android-x86-9.0'''
           }
         }
 
@@ -135,7 +161,7 @@ pipeline {
           }
           steps {
             sh '''docker rm ${emulatorPrefix}_10 || true
-                  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
+                  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" -e DATAPARTITION="2g" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
           }
         }
       }
@@ -342,6 +368,13 @@ pipeline {
 
   post {
     failure {
+      script {
+        if (env.BRANCH_NAME.startsWith('PR-')) {
+          def payload = "Build [${env.BUILD_NUMBER}](${env.BUILD_URL}) **failed**."
+          postGithubComment(env.CHANGE_ID, payload)
+        }
+      }
+
       wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")
     }
 
@@ -351,6 +384,24 @@ pipeline {
           script: "git log -5 --pretty=\"%h [%an] %s\" | sed \"s/^/    /\"",
           returnStdout: true
         )
+
+        if (env.BRANCH_NAME.startsWith('PR-')) {
+          def payload = "Build [${BUILD_NUMBER}](${env.BUILD_URL}) **succeeded**.\n\n"
+
+          def apks = findFiles(glob: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk")
+
+          if (apks.size() == 0) {
+            payload += "The build did not produce any APK artifacts."
+          } else {
+            payload += "The build produced the following APK's:\n"
+
+            for (a in apks) {
+              payload += "- [${a.name}](https://z-lohika.s3-eu-west-1.amazonaws.com/megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/${a.name})\n"
+            }
+          }
+
+          postGithubComment(env.CHANGE_ID, payload)
+        }
       }
 
       sh './gradlew jacocoReport'

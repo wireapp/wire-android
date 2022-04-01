@@ -53,10 +53,18 @@ class ConversationViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            getConversationDetails(conversationId!!)
-                .collect { conversation ->
-                    conversationViewState = conversationViewState.copy(conversationName = conversation.name ?: "Some Name")
+            getConversationDetails(conversationId!!).let {
+                when (it) {
+                    is GetConversationDetailsUseCase.Result.Failure -> {
+                        TODO("unhandled error case")
+                    }
+                    is GetConversationDetailsUseCase.Result.Success -> {
+                        it.convFlow.collect { conversation ->
+                            conversationViewState = conversationViewState.copy(conversationName = conversation.name ?: "Some Name")
+                        }
+                    }
                 }
+            }
         }
     }
 
@@ -85,7 +93,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             attachmentBundle?.let {
                 // TODO send attachment message for conversationId via use case
-                appLogger.d("> Attachment for conversationId: $conversationId is: $attachmentBundle")
+                appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
             }
         }
     }

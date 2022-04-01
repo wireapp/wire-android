@@ -21,8 +21,10 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewSta
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModel
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewState
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
@@ -41,6 +43,7 @@ abstract class CreateAccountBaseViewModel(
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val requestActivationCodeUseCase: RequestActivationCodeUseCase,
+    private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registerAccountUseCase: RegisterAccountUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory
 ) : ViewModel(),
@@ -65,6 +68,7 @@ abstract class CreateAccountBaseViewModel(
         codeState = CreateAccountCodeViewState(type)
         onOverviewSuccess()
     }
+
     abstract fun onOverviewSuccess()
 
     // Email
@@ -85,7 +89,7 @@ abstract class CreateAccountBaseViewModel(
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val emailError =
-                if (validateEmailUseCase(emailState.email.text.trim())) CreateAccountEmailViewState.EmailError.None
+                if (validateEmailUseCase(emailState.email.text.trim().lowercase())) CreateAccountEmailViewState.EmailError.None
                 else CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
             emailState = emailState.copy(
                 loading = false,
@@ -100,7 +104,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun onTermsAccept(serverConfig: ServerConfig) {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val emailError = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig).toEmailError()
+            val emailError = requestActivationCodeUseCase(emailState.email.text.trim().lowercase(), serverConfig).toEmailError()
             emailState = emailState.copy(loading = false, continueEnabled = true, error = emailError)
             if (emailError is CreateAccountEmailViewState.EmailError.None) onTermsSuccess()
         }
@@ -176,7 +180,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun resendCode(serverConfig: ServerConfig) {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val codeError = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig).toCodeError()
+            val codeError = requestActivationCodeUseCase(emailState.email.text.trim().lowercase(), serverConfig).toCodeError()
             codeState = codeState.copy(loading = false, error = codeError)
         }
     }
@@ -184,32 +188,73 @@ abstract class CreateAccountBaseViewModel(
     private fun onCodeContinue(serverConfig: ServerConfig) {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
+
             val registerParam = when (type) {
                 CreateAccountFlowType.CreatePersonalAccount ->
                     RegisterParam.PrivateAccount(
                         firstName = detailsState.firstName.text.trim(),
                         lastName = detailsState.lastName.text.trim(),
                         password = detailsState.password.text,
-                        email = emailState.email.text.trim(),
+                        email = emailState.email.text.trim().lowercase(),
                         emailActivationCode = codeState.code.text.text
                     )
-                CreateAccountFlowType.CreateTeam -> TODO()
+                CreateAccountFlowType.CreateTeam ->
+                    RegisterParam.Team(
+                        firstName = detailsState.firstName.text.trim(),
+                        lastName = detailsState.lastName.text.trim(),
+                        password = detailsState.password.text,
+                        email = emailState.email.text.trim().lowercase(),
+                        emailActivationCode = codeState.code.text.text,
+                        teamName = detailsState.teamName.text.trim(),
+                        teamIcon = "default"
+                    )
             }
 
-            val codeError = registerAccountUseCase(registerParam, serverConfig)
-                .let {
-                    if (it is RegisterResult.Success) // TODO what if user creates an account but doesn't register a new device?
-                        clientScopeProviderFactory.create(it.value.second.userId).clientScope.register(
-                            password = registerParam.password,
-                            capabilities = null
-                        ).toCodeError()
-                    else it.toCodeError()
+            val (userInfo, session) = registerAccountUseCase(registerParam, serverConfig).let {
+                when (it) {
+                    is RegisterResult.Failure -> {
+                        updateCodeErrorState(it.toCodeError())
+                        return@launch
+                    }
+                    is RegisterResult.Success -> it.value
                 }
-            val isSuccess = codeError is CreateAccountCodeViewState.CodeError.None
-            codeState = codeState.copy(loading = false, error = codeError)
-            if (isSuccess) onCodeSuccess()
+            }
+            val storedUserId = addAuthenticatedUser(session, false).let {
+                when (it) {
+                    is AddAuthenticatedUserUseCase.Result.Failure -> {
+                        updateCodeErrorState(it.toCodeError())
+                        return@launch
+                    }
+                    is AddAuthenticatedUserUseCase.Result.Success -> it.userId
+                }
+            }
+            registerClient(storedUserId, registerParam.password).let {
+                when (it) {
+                    is RegisterClientResult.Failure -> {
+                        updateCodeErrorState(it.toCodeError())
+                        return@launch
+                    }
+                    is RegisterClientResult.Success -> onCodeSuccess()
+                }
+            }
         }
     }
+
+    private fun updateCodeErrorState(codeError: CreateAccountCodeViewState.CodeError) {
+        codeState = if (codeError is CreateAccountCodeViewState.CodeError.None) {
+            codeState.copy(error = codeError)
+
+        } else {
+            codeState.copy(loading = false, error = codeError)
+        }
+    }
+
+    private suspend fun registerClient(userId: UserId, password: String) =
+        clientScopeProviderFactory.create(userId).clientScope.register(
+            password = password,
+            capabilities = null
+        )
+
 
     abstract fun onCodeSuccess()
     final override fun onTooManyDevicesError() {
@@ -248,14 +293,13 @@ private fun RequestActivationCodeResult.toCodeError() = when (this) {
     RequestActivationCodeResult.Success -> CreateAccountCodeViewState.CodeError.None
 }
 
-private fun RegisterClientResult.toCodeError() = when (this) {
+private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeViewState.CodeError.TooManyDevicesError
     RegisterClientResult.Failure.InvalidCredentials -> CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
-    is RegisterClientResult.Success -> CreateAccountCodeViewState.CodeError.None
 }
 
-private fun RegisterResult.toCodeError() = when (this) {
+private fun RegisterResult.Failure.toCodeError() = when (this) {
     RegisterResult.Failure.InvalidActivationCode -> CreateAccountCodeViewState.CodeError.TextFieldError.InvalidActivationCodeError
     RegisterResult.Failure.AccountAlreadyExists -> CreateAccountCodeViewState.CodeError.DialogError.AccountAlreadyExistsError
     RegisterResult.Failure.BlackListed -> CreateAccountCodeViewState.CodeError.DialogError.BlackListedError
@@ -264,5 +308,10 @@ private fun RegisterResult.toCodeError() = when (this) {
     RegisterResult.Failure.TeamMembersLimitReached -> CreateAccountCodeViewState.CodeError.DialogError.TeamMembersLimitError
     RegisterResult.Failure.UserCreationRestricted -> CreateAccountCodeViewState.CodeError.DialogError.CreationRestrictedError
     is RegisterResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.failure)
-    is RegisterResult.Success -> CreateAccountCodeViewState.CodeError.None
+}
+
+private fun AddAuthenticatedUserUseCase.Result.Failure.toCodeError() = when (this) {
+    is AddAuthenticatedUserUseCase.Result.Failure.Generic ->
+        CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
+    AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> CreateAccountCodeViewState.CodeError.DialogError.UserAlreadyExists
 }

@@ -46,7 +46,7 @@ class MainScreenTest {
     val composeTestRule = createAndroidComposeRule<WireActivity>()
 
     @Before
-    fun setUp(){
+    fun setUp() {
         hiltRule.inject()
 
         // Start the app
@@ -88,14 +88,19 @@ class MainScreenTest {
     @Test
     fun scroll_Images() {
         images.performScrollToIndex(1)
-        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(1).onChildren()[1].assertTextEquals("Welcome to Wire, the most secure collaboration platform!")
+        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(1).onChildren()[1]
+            .assertTextEquals("Welcome to Wire, the most secure collaboration platform!")
         images.performScrollToIndex(2)
-        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(2).onChildren()[1].assertTextEquals("Absolute confidence your information is secure")
+        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(2).onChildren()[1]
+            .assertTextEquals("Absolute confidence your information is secure")
         images.performScrollToIndex(3)
-        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(3).onChildren()[1].assertTextEquals("Encrypted audio & video conferencing with up to 50 participants")
+        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(3)
+            .onChildren()[1].assertTextEquals("Encrypted audio & video conferencing with up to 50 participants")
         images.performScrollToIndex(4)
-        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(4).onChildren()[1].assertTextEquals("Secure file sharing with teams and clients")
+        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(4)
+            .onChildren()[1].assertTextEquals("Secure file sharing with teams and clients")
         images.performScrollToIndex(5)
-        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(5).onChildren()[1].assertTextEquals("Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant")
+        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(5)
+            .onChildren()[1].assertTextEquals("Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant")
     }
 }

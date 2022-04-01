@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -48,7 +47,6 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
 import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
 import com.wire.android.ui.userprofile.self.model.OtherAccount
-
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -302,18 +300,20 @@ private fun OtherAccountItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensions().userProfileOtherAccItemHeight)
-            .padding(start = dimensions().spacing8x, bottom = 1.dp)
+            .padding(bottom = 1.dp)
             .background(MaterialTheme.colorScheme.surface)
             .selectableBackground(true) { onClick(account.id) }
     ) {
         val (avatar, data) = createRefs()
 
         UserProfileAvatar(
-            modifier = Modifier.constrainAs(avatar) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-            }
+            modifier = Modifier
+                .constrainAs(avatar) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                }
+                .padding(start = dimensions().spacing8x)
         )
 
         Column(

@@ -134,11 +134,15 @@ class NewConversationViewModel
     }
 
     fun addContactToGroup(contact: Contact) {
-        innerSearchPeopleState = innerSearchPeopleState.copy(contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup + contact)
+        innerSearchPeopleState = innerSearchPeopleState.copy(
+            contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup + contact
+        )
     }
 
     fun removeContactFromGroup(contact: Contact) {
-        innerSearchPeopleState = innerSearchPeopleState.copy(contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup - contact)
+        innerSearchPeopleState = innerSearchPeopleState.copy(
+            contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup - contact
+        )
     }
 
     fun openUserProfile(contact: Contact) {

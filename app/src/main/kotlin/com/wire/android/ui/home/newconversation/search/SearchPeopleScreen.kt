@@ -40,9 +40,9 @@ fun SearchPeopleScreen(
     publicContactSearchResult: ContactSearchResult,
     federatedBackendResultContact: ContactSearchResult,
     contactsAddedToGroup: List<Contact>,
-    onOpenUserProfile: (Contact) -> Unit,
     onAddToGroup: (Contact) -> Unit,
-    onRemoveFromGroup: (Contact) -> Unit
+    onRemoveFromGroup: (Contact) -> Unit,
+    onOpenUserProfile: (Contact) -> Unit
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -56,10 +56,10 @@ fun SearchPeopleScreen(
                     knownContactSearchResult = knownContactSearchResult,
                     publicContactSearchResult = publicContactSearchResult,
                     federatedBackendResultContact = federatedBackendResultContact,
-                    onOpenUserProfile = onOpenUserProfile,
                     contactsAddedToGroup = contactsAddedToGroup,
                     onAddToGroup = onAddToGroup,
-                    onRemoveContactFromGroup = onRemoveFromGroup
+                    onRemoveContactFromGroup = onRemoveFromGroup,
+                    onOpenUserProfile = onOpenUserProfile
                 )
             }
         }
@@ -73,10 +73,10 @@ private fun SearchResult(
     knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
     federatedBackendResultContact: ContactSearchResult,
-    onOpenUserProfile: (Contact) -> Unit,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
 
@@ -94,21 +94,24 @@ private fun SearchResult(
                 removeFromGroup = onRemoveContactFromGroup,
                 contactSearchResult = knownContactSearchResult,
                 showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
-                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() }
+                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() },
+                onOpenUserProfile = onOpenUserProfile,
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_public_wire) },
                 searchQuery = searchQuery,
                 contactSearchResult = publicContactSearchResult,
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
-                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() }
+                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
+                onOpenUserProfile = onOpenUserProfile
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_federated_backends) },
                 searchQuery = searchQuery,
                 contactSearchResult = federatedBackendResultContact,
                 showAllItems = searchPeopleScreenState.federatedBackendResultsCollapsed,
-                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() }
+                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() },
+                onOpenUserProfile = onOpenUserProfile
             )
         }
         Divider()
@@ -126,6 +129,7 @@ private fun LazyListScope.internalSearchResults(
     contactSearchResult: ContactSearchResult,
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
 ) {
     when (val searchResult = contactSearchResult.searchResultState) {
         SearchResultState.InProgress -> {
@@ -140,7 +144,8 @@ private fun LazyListScope.internalSearchResults(
                 removeFromGroup = removeFromGroup,
                 searchResult = searchResult.result,
                 searchQuery = searchQuery,
-                onShowAllButtonClicked = onShowAllButtonClicked
+                onShowAllButtonClicked = onShowAllButtonClicked,
+                onOpenUserProfile = onOpenUserProfile
             )
         }
         is SearchResultState.Failure -> {
@@ -161,6 +166,7 @@ private fun LazyListScope.externalSearchResults(
     contactSearchResult: ContactSearchResult,
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
 ) {
     when (val searchResult = contactSearchResult.searchResultState) {
         SearchResultState.InProgress -> {
@@ -172,7 +178,8 @@ private fun LazyListScope.externalSearchResults(
                 showAllItems = showAllItems,
                 searchResult = searchResult.result,
                 searchQuery = searchQuery,
-                onShowAllButtonClicked = onShowAllButtonClicked
+                onShowAllButtonClicked = onShowAllButtonClicked,
+                onOpenUserProfile = onOpenUserProfile
             )
         }
         is SearchResultState.Failure -> {
@@ -196,7 +203,8 @@ private fun LazyListScope.internalSuccessItem(
     removeFromGroup: (Contact) -> Unit,
     searchResult: List<Contact>,
     searchQuery: String,
-    onShowAllButtonClicked: () -> Unit
+    onShowAllButtonClicked: () -> Unit,
+    onOpenUserProfile: (Contact) -> Unit
 ) {
     if (searchResult.isNotEmpty()) {
         item { FolderHeader(searchTitle()) }
@@ -212,7 +220,7 @@ private fun LazyListScope.internalSuccessItem(
                     isAddedToGroup = contactsAddedToGroup.contains(contact),
                     addToGroup = { onAddToGroup(contact) },
                     removeFromGroup = { removeFromGroup(contact) },
-                    onRowItemClicked = { },
+                    onRowItemClicked = { onOpenUserProfile(contact) },
                     onRowItemLongClicked = { }
                 )
             }
@@ -244,7 +252,8 @@ private fun LazyListScope.externalSuccessItem(
     showAllItems: Boolean,
     searchResult: List<Contact>,
     searchQuery: String,
-    onShowAllButtonClicked: () -> Unit
+    onShowAllButtonClicked: () -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
 ) {
     if (searchResult.isNotEmpty()) {
         item { FolderHeader(searchTitle()) }
@@ -257,7 +266,7 @@ private fun LazyListScope.externalSuccessItem(
                     name = name,
                     label = label,
                     searchQuery = searchQuery,
-                    onRowItemClicked = { },
+                    onRowItemClicked = { onOpenUserProfile(contact) },
                     onRowItemLongClicked = { }
                 )
             }

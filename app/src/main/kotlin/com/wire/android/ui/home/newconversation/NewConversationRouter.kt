@@ -72,9 +72,9 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                                 onScrollPositionChanged = { newConversationState.updateScrollPosition(it) },
                                 allKnownContact = allKnownContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
-                                onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact) },
                                 onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
-                                onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) }
+                                onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) },
+                                onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact) }
                             )
                         }
                     )
@@ -88,9 +88,9 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                                 publicContactSearchResult = publicContactsSearchResult,
                                 federatedBackendResultContact = federatedContactSearchResult,
                                 contactsAddedToGroup = contactsAddedToGroup,
-                                onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact) },
                                 onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
-                                onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) }
+                                onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) },
+                                onOpenUserProfile = { contact -> newConversationViewModel.openUserProfile(contact) }
                             )
                         }
                     )

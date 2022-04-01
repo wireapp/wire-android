@@ -12,6 +12,7 @@ import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -72,7 +73,7 @@ class CreateAccountUsernameViewModelTest {
     fun `when button is clicked, show loading`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { validateUserHandleUseCase.invoke(any()) } returns true
+        coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Success
 
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue("abc"))
@@ -91,7 +92,7 @@ class CreateAccountUsernameViewModelTest {
         val scheduler = TestCoroutineScheduler()
         val username = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { validateUserHandleUseCase.invoke(any()) } returns true
+        coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid(username)
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Success
         coEvery { navigationManager.navigate(any()) } returns Unit
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue(username))
@@ -105,7 +106,7 @@ class CreateAccountUsernameViewModelTest {
 
     @Test
     fun `when button is clicked and username is invalid, UsernameInvalidError is passed`() {
-        coEvery { validateUserHandleUseCase.invoke(any()) } returns false
+        coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Invalid.TooShort("a")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.InvalidHandle
         runTest { createAccountUsernameViewModel.onContinue() }
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
@@ -114,7 +115,7 @@ class CreateAccountUsernameViewModelTest {
 
     @Test
     fun `when button is clicked and request returns HandleExists error, UsernameTakenError is passed`() {
-        coEvery { validateUserHandleUseCase.invoke(any()) } returns true
+        coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.HandleExists
         runTest { createAccountUsernameViewModel.onContinue() }
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
@@ -123,7 +124,7 @@ class CreateAccountUsernameViewModelTest {
 
     @Test
     fun `when button is clicked and request returns Generic error, GenericError is passed`() {
-        coEvery { validateUserHandleUseCase.invoke(any()) } returns true
+        coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
         runTest { createAccountUsernameViewModel.onContinue() }
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
@@ -134,7 +135,7 @@ class CreateAccountUsernameViewModelTest {
 
     @Test
     fun `when state error is DialogError and dialog is dismissed, hide error`() {
-        coEvery { validateUserHandleUseCase.invoke(any()) } returns true
+        coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
         runTest { createAccountUsernameViewModel.onContinue() }
         createAccountUsernameViewModel.state.error shouldBeInstanceOf

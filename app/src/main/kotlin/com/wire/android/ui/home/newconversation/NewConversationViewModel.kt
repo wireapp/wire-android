@@ -60,11 +60,17 @@ class NewConversationViewModel
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
-    private var localContactSearchResult by mutableStateOf(ContactSearchResult.InternalContact(searchResultState = SearchResultState.Initial))
+    private var localContactSearchResult by mutableStateOf(
+        ContactSearchResult.InternalContact(searchResultState = SearchResultState.Initial)
+    )
 
-    private var publicContactsSearchResult by mutableStateOf(ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial))
+    private var publicContactsSearchResult by mutableStateOf(
+        ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
+    )
 
-    private var federatedContactSearchResult by mutableStateOf(ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial))
+    private var federatedContactSearchResult by mutableStateOf(
+        ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
+    )
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
 

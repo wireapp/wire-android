@@ -163,6 +163,7 @@ private fun LazyListScope.internalSearchResults(
     }
 }
 
+@Suppress("LongParameterList")
 private fun LazyListScope.externalSearchResults(
     searchTitle: @Composable () -> String,
     searchQuery: String,

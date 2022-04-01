@@ -230,6 +230,9 @@
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">e-mail</string>
     <string name="phone_label">phone</string>
+    <string name="label_connect">Connect</string>
+    <string name="label_cancel_request">Cancel Request</string>
+    <string name="label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
 
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>

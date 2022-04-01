@@ -7,5 +7,12 @@ data class OtherUserProfileState(
     val userName: String = "",
     val teamName: String = "",
     val email: String = "",
-    val phone: String = ""
+    val phone: String = "",
+    val connectionStatus: ConnectionStatus = ConnectionStatus.Unknown
 )
+
+sealed class ConnectionStatus {
+    object Unknown : ConnectionStatus()
+    object Connected : ConnectionStatus()
+    data class NotConnected(val isConnectionRequestPending: Boolean = false) : ConnectionStatus()
+}

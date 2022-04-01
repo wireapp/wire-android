@@ -35,6 +35,8 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.USERNAME_FORBIDDEN_CHARACTERS_REGEX
+import com.wire.android.util.USERNAME_MAX_LENGTH
 
 @Composable
 fun CreateAccountUsernameScreen() {
@@ -43,7 +45,8 @@ fun CreateAccountUsernameScreen() {
         state = viewModel.state,
         onUsernameChange = viewModel::onUsernameChange,
         onContinuePressed = viewModel::onContinue,
-        onErrorDismiss = viewModel::onErrorDismiss
+        onErrorDismiss = viewModel::onErrorDismiss,
+        onUsernameErrorAnimated = viewModel::onUsernameErrorAnimated
     )
 }
 
@@ -53,7 +56,8 @@ private fun UsernameContent(
     state: CreateAccountUsernameViewState,
     onUsernameChange: (TextFieldValue) -> Unit,
     onContinuePressed: () -> Unit,
-    onErrorDismiss: () -> Unit
+    onErrorDismiss: () -> Unit,
+    onUsernameErrorAnimated: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -78,7 +82,11 @@ private fun UsernameContent(
                         vertical = MaterialTheme.wireDimensions.spacing24x
                     )
             )
-            UsernameTextField(state = state, onUsernameChange = onUsernameChange)
+            UsernameTextField(
+                state = state,
+                onUsernameChange = onUsernameChange,
+                onUsernameErrorAnimated = onUsernameErrorAnimated
+            )
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
                 text = stringResource(R.string.label_confirm),
@@ -100,17 +108,18 @@ private fun UsernameContent(
 @Composable
 private fun UsernameTextField(
     state: CreateAccountUsernameViewState,
-    onUsernameChange: (TextFieldValue) -> Unit
+    onUsernameChange: (TextFieldValue) -> Unit,
+    onUsernameErrorAnimated: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     ShakeAnimation { animate ->
+        if(state.animateUsernameError) {
+            animate()
+            onUsernameErrorAnimated()
+        }
         WireTextField(
             value = state.username,
-            onValueChange = {
-                val validText = it.text.replace(Regex("[^a-z0-9_]"), "")
-                if (it.text != validText) animate()
-                onUsernameChange(it.copy(text = validText))
-            },
+            onValueChange = onUsernameChange,
             placeholderText = stringResource(R.string.create_account_username_placeholder),
             labelText = stringResource(R.string.create_account_username_label),
             leadingIcon = {
@@ -123,7 +132,7 @@ private fun UsernameTextField(
                     )
                 )
             },
-            state = if (state.error is CreateAccountUsernameViewState.UsernameError.TextFieldError) when (state.error) {
+            state = if (state.error is CreateAccountUsernameViewState.UsernameError.TextFieldError) when(state.error) {
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameTakenError ->
                     WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error))
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError ->
@@ -140,5 +149,5 @@ private fun UsernameTextField(
 @Composable
 @Preview
 private fun CreateAccountUsernameScreenPreview() {
-    UsernameContent(CreateAccountUsernameViewState(), {}, {}, {})
+    UsernameContent(CreateAccountUsernameViewState(), {}, {}, {}, {})
 }

@@ -89,7 +89,7 @@ abstract class CreateAccountBaseViewModel(
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val emailError =
-                if (validateEmailUseCase(emailState.email.text.trim())) CreateAccountEmailViewState.EmailError.None
+                if (validateEmailUseCase(emailState.email.text.trim().lowercase())) CreateAccountEmailViewState.EmailError.None
                 else CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
             emailState = emailState.copy(
                 loading = false,
@@ -104,7 +104,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun onTermsAccept(serverConfig: ServerConfig) {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val emailError = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig).toEmailError()
+            val emailError = requestActivationCodeUseCase(emailState.email.text.trim().lowercase(), serverConfig).toEmailError()
             emailState = emailState.copy(loading = false, continueEnabled = true, error = emailError)
             if (emailError is CreateAccountEmailViewState.EmailError.None) onTermsSuccess()
         }
@@ -180,7 +180,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun resendCode(serverConfig: ServerConfig) {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val codeError = requestActivationCodeUseCase(emailState.email.text.trim(), serverConfig).toCodeError()
+            val codeError = requestActivationCodeUseCase(emailState.email.text.trim().lowercase(), serverConfig).toCodeError()
             codeState = codeState.copy(loading = false, error = codeError)
         }
     }
@@ -195,10 +195,19 @@ abstract class CreateAccountBaseViewModel(
                         firstName = detailsState.firstName.text.trim(),
                         lastName = detailsState.lastName.text.trim(),
                         password = detailsState.password.text,
-                        email = emailState.email.text.trim(),
+                        email = emailState.email.text.trim().lowercase(),
                         emailActivationCode = codeState.code.text.text
                     )
-                CreateAccountFlowType.CreateTeam -> TODO()
+                CreateAccountFlowType.CreateTeam ->
+                    RegisterParam.Team(
+                        firstName = detailsState.firstName.text.trim(),
+                        lastName = detailsState.lastName.text.trim(),
+                        password = detailsState.password.text,
+                        email = emailState.email.text.trim().lowercase(),
+                        emailActivationCode = codeState.code.text.text,
+                        teamName = detailsState.teamName.text.trim(),
+                        teamIcon = "default"
+                    )
             }
 
             val (userInfo, session) = registerAccountUseCase(registerParam, serverConfig).let {

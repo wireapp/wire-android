@@ -3,7 +3,7 @@ package com.wire.android.ui.common.imagepreview
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.wire.android.ui.userprofile.image.ImageSource
+import com.wire.android.ui.userprofile.avatarpicker.ImageSource
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow

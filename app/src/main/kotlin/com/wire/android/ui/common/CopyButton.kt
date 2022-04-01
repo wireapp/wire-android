@@ -6,14 +6,11 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireIconButton
 
 @Composable
-fun MoreOptionIcon(
-    onButtonClicked: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun CopyButton(onCopyClicked: () -> Unit, modifier: Modifier = Modifier) {
     WireIconButton(
-        onButtonClicked = onButtonClicked,
-        iconResource = R.drawable.ic_more,
-        contentDescription = R.string.content_description_show_more_options,
+        onButtonClicked = onCopyClicked,
+        iconResource = R.drawable.ic_copy,
+        contentDescription = R.string.content_description_copy,
         modifier = modifier
     )
 }

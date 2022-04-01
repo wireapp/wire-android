@@ -14,22 +14,24 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
+import com.wire.android.ui.authentication.create.team.CreateTeamScreen
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameScreen
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
-import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
-import com.wire.android.ui.userprofile.UserProfileScreen
-import com.wire.android.ui.userprofile.image.AvatarPickerScreen
+import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
+import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
+import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.conversation.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -66,7 +68,7 @@ enum class NavigationItem(
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
-        content = { UnderConstructionScreen("Create Team Screen") },
+        content = { CreateTeamScreen(serverConfig = ServerConfig.STAGING) },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
@@ -103,10 +105,22 @@ enum class NavigationItem(
         content = { },
     ),
 
-    UserProfile(
-        primaryRoute = USER_PROFILE,
-        canonicalRoute = "$USER_PROFILE/{$EXTRA_USER_ID}",
-        content = { UserProfileScreen() },
+    SelfUserProfile(
+        primaryRoute = SELF_USER_PROFILE,
+        canonicalRoute = "$SELF_USER_PROFILE/{$EXTRA_USER_ID}",
+        content = { SelfUserProfileScreen() },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()
+            return if (userProfileId != null) "$primaryRoute/$userProfileId" else primaryRoute
+        }
+    },
+
+    OtherUserProfile(
+        primaryRoute = OTHER_USER_PROFILE,
+        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_ID}",
+        content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
@@ -161,7 +175,8 @@ object NavigationItemDestinationsRoutes {
     const val CREATE_PERSONAL_ACCOUNT = "create_personal_account_screen"
     const val CREATE_ACCOUNT_USERNAME = "create_account_username_screen"
     const val HOME = "home_landing_screen"
-    const val USER_PROFILE = "user_profile_screen"
+    const val SELF_USER_PROFILE = "self_user_profile_screen"
+    const val OTHER_USER_PROFILE = "other_user_profile_screen"
     const val CONVERSATION = "detailed_conversation_screen"
     const val SETTINGS = "settings_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"

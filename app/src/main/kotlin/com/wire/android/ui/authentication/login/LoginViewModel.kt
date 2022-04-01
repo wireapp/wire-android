@@ -82,7 +82,7 @@ class LoginViewModel @Inject constructor(
 
     fun onUserIdentifierChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared
-        if (loginState.loginError !is LoginError.None) {
+        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.userIdentifier) {
             clearLoginError()
         }
         loginState = loginState.copy(userIdentifier = newText).updateLoginEnabled()

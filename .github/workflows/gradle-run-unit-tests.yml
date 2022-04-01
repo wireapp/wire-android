@@ -3,7 +3,8 @@ name: "Run Unit Tests"
 on:
   pull_request:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
-    paths-ignore: 'azure-pipelines.yml'
+    paths-ignore:
+     - 'azure-pipelines.yml'
 
 jobs:
   unit-tests:

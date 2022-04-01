@@ -81,16 +81,13 @@ private fun DeleteMessageDialog(
                     val (title, message) = deleteMessageDialogsState.forEveryone.error.coreFailure.dialogErrorStrings(
                         LocalContext.current.resources
                     )
-                    DeleteMessageErrorDialog(title = title, message = message, conversationViewModel::clearDeleteMessageError)
+                    DeleteMessageErrorDialog(deleteMessageDialogsState.forEveryone.error, conversationViewModel::clearDeleteMessageError)
                 }
             }
             deleteMessageDialogsState.forYourself is DeleteMessageDialogActiveState.Visible -> {
 
                 if (deleteMessageDialogsState.forYourself.error is DeleteMessageError.GenericError) {
-                    val (title, message) = deleteMessageDialogsState.forYourself.error.coreFailure.dialogErrorStrings(
-                        LocalContext.current.resources
-                    )
-                    DeleteMessageErrorDialog(title = title, message = message, conversationViewModel::clearDeleteMessageError)
+                    DeleteMessageErrorDialog(deleteMessageDialogsState.forYourself.error, conversationViewModel::clearDeleteMessageError)
                 } else {
                     DeleteMessageForYourselfDialog(
                         state = deleteMessageDialogsState.forYourself,
@@ -109,7 +106,10 @@ private fun DeleteMessageDialog(
 }
 
 @Composable
-private fun DeleteMessageErrorDialog(title: String, message: String, onDialogDismiss: () -> Unit) {
+private fun DeleteMessageErrorDialog(error : DeleteMessageError.GenericError, onDialogDismiss: () -> Unit) {
+    val (title, message) = error.coreFailure.dialogErrorStrings(
+        LocalContext.current.resources
+    )
     WireDialog(
         title = title,
         text = message,

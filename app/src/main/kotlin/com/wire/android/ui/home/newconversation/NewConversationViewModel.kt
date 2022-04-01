@@ -91,7 +91,6 @@ class NewConversationViewModel
             searchQueryStateFlow.onSearchAction { searchTerm ->
                 launch { searchPublic(searchTerm) }
                 launch { searchKnown(searchTerm) }
-
             }
         }
     }

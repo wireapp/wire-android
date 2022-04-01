@@ -71,7 +71,7 @@ fun MenuItemTitle(
 fun MenuItemIcon(
     @DrawableRes id: Int,
     contentDescription: String,
-    size: Dp = MaterialTheme.wireDimensions.conversationBottomSheetItemSize,
+    size: Dp = MaterialTheme.wireDimensions.wireIconButtonSize,
     modifier: Modifier = Modifier
 ) {
     Icon(

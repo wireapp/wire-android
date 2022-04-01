@@ -47,7 +47,7 @@ data class WireDimensions(
     val conversationBottomSheetItemHeight: Dp,
     val conversationBottomSheetItemPadding: Dp,
     val conversationBottomSheetShapeCorner: Dp,
-    val conversationBottomSheetItemSize: Dp,
+    val wireIconButtonSize: Dp,
     // Message
     val messageImagePortraitModeWidth: Dp,
     // Message composer
@@ -161,7 +161,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     conversationBottomSheetItemHeight = 48.dp,
     conversationBottomSheetItemPadding = 14.dp,
     conversationBottomSheetShapeCorner = 12.dp,
-    conversationBottomSheetItemSize = 16.dp,
+    wireIconButtonSize = 16.dp,
     messageImagePortraitModeWidth = 200.dp,
     messageComposerActiveInputMaxHeight = 168.dp,
     attachmentButtonSize = 40.dp,

@@ -38,7 +38,8 @@ fun ContactsScreen(
     ContactsScreenContent(
         isLoading = viewModel.contactState.isLoading,
         contacts = viewModel.contactState.contacts,
-        onScrollPositionChanged = onScrollPositionChanged
+        onScrollPositionChanged = onScrollPositionChanged,
+        onOpenUserProfile = viewModel::openUserProfile
     )
 }
 
@@ -46,7 +47,8 @@ fun ContactsScreen(
 fun ContactsScreenContent(
     isLoading: Boolean,
     contacts: List<Contact>,
-    onScrollPositionChanged: (Int) -> Unit
+    onScrollPositionChanged: (Int) -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
 ) {
     val lazyListState = rememberLazyListState {
         onScrollPositionChanged(it)
@@ -75,13 +77,13 @@ fun ContactsScreenContent(
                             userStatus = contact.userStatus,
                             belongsToGroup = newGroupContacts.contains(contact),
                             addToGroup = { addContactToGroup(contact) },
-                            removeFromGroup = { removeContactFromGroup(contact) }
-                        )
-                    }
+                            removeFromGroup = { removeContactFromGroup(contact) },
+                        openUserProfile = { onOpenUserProfile(contact) }
+                    )
                 }
-                Divider()
-                GroupButton(groupSize = contactsScreenState.newGroupContacts.size)
             }
+            Divider()
+            GroupButton(groupSize = contactsScreenState.newGroupContacts.size)}
         }
     }
 }
@@ -93,6 +95,7 @@ private fun ContactItem(
     belongsToGroup: Boolean,
     addToGroup: () -> Unit,
     removeFromGroup: () -> Unit,
+    openUserProfile: () -> Unit,
 ) {
     RowItemTemplate(
         leadingIcon = {
@@ -119,8 +122,10 @@ private fun ContactItem(
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }
         },
-        onRowItemClicked = { },
-        onRowItemLongClicked = { }
+        onRowItemClicked = openUserProfile,
+        onRowItemLongClicked = {
+            // TODO: implement later on
+        }
     )
 }
 

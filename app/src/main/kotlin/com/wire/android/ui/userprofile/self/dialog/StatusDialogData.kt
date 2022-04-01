@@ -1,23 +1,8 @@
-package com.wire.android.ui.userprofile
+package com.wire.android.ui.userprofile.self.dialog
 
 import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.UserStatus
-import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes
-
-data class SelfUserProfileState(
-    val avatarAssetByteArray: ByteArray? = null,
-    val errorMessageCode: ErrorCodes? = null,
-    val status: UserStatus = UserStatus.AVAILABLE,
-    val fullName: String = "",
-    val userName: String = "",
-    val teamName: String? = "", // maybe teamId is better here
-    val otherAccounts: List<OtherAccount> = emptyList(),
-    val statusDialogData: StatusDialogData? = null, // null means no dialog to display
-    val isAvatarLoading: Boolean = false
-)
-
-data class OtherAccount(val id: String, val avatarUrl: String, val fullName: String, val teamName: String? = null)
 
 sealed class StatusDialogData(
     @StringRes val title: Int,

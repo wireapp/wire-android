@@ -1,8 +1,7 @@
-package com.wire.android.ui.userprofile
+package com.wire.android.ui.userprofile.self
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -10,16 +9,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -28,22 +22,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.UserStatus
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
-import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -51,34 +40,36 @@ import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes
-import com.wire.android.ui.userprofile.UserProfileViewModel.ErrorCodes.DownloadUserInfoError
+import com.wire.android.ui.userprofile.common.EditableState
+import com.wire.android.ui.userprofile.common.UserProfileInfo
+import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
+import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
+import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
+import com.wire.android.ui.userprofile.self.model.OtherAccount
+
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun UserProfileScreen(viewModel: UserProfileViewModel = hiltViewModel()) {
-
-    UserProfileContent(
-        state = viewModel.userProfileState,
-        onCloseClick = { viewModel.navigateBack() },
-        onLogoutClick = { viewModel.onLogoutClick() },
-        onChangeUserProfilePicture = { viewModel.onChangeProfilePictureClicked() },
-        onEditClick = { viewModel.editProfile() },
-        onStatusClicked = { viewModel.changeStatusClick(it) },
-        onAddAccountClick = { viewModel.addAccount() },
-        dismissStatusDialog = { viewModel.dismissStatusDialog() },
-        onStatusChange = { viewModel.changeStatus(it) },
-        onNotShowRationaleAgainChange = { show -> viewModel.dialogCheckBoxStateChanged(show) },
-        onMessageShown = { viewModel.clearErrorMessage() }
+fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
+    SelfUserProfileContent(
+        state = viewModelSelf.userProfileState,
+        onCloseClick = { viewModelSelf.navigateBack() },
+        onLogoutClick = { viewModelSelf.onLogoutClick() },
+        onChangeUserProfilePicture = { viewModelSelf.onChangeProfilePictureClicked() },
+        onEditClick = { viewModelSelf.editProfile() },
+        onStatusClicked = { viewModelSelf.changeStatusClick(it) },
+        onAddAccountClick = { viewModelSelf.addAccount() },
+        dismissStatusDialog = { viewModelSelf.dismissStatusDialog() },
+        onStatusChange = { viewModelSelf.changeStatus(it) },
+        onNotShowRationaleAgainChange = { show -> viewModelSelf.dialogCheckBoxStateChanged(show) },
+        onMessageShown = { viewModelSelf.clearErrorMessage() }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-private fun UserProfileContent(
+private fun SelfUserProfileContent(
     state: SelfUserProfileState,
     onCloseClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
@@ -93,7 +84,6 @@ private fun UserProfileContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Error handling
     state.errorMessageCode?.let { errorCode ->
         val errorMessage = mapErrorCodeToString(errorCode)
         LaunchedEffect(errorMessage) {
@@ -104,7 +94,7 @@ private fun UserProfileContent(
 
     Scaffold(
         topBar = {
-            UserProfileTopBar(
+            SelfUserProfileTopBar(
                 onCloseClick = onCloseClick,
                 onLogoutClick = onLogoutClick
             )
@@ -130,9 +120,9 @@ private fun UserProfileContent(
                     userName = userName,
                     teamName = teamName,
                     onUserProfileClick = onChangeUserProfilePicture,
-                    onEditClick = onEditClick
+                    editableState = EditableState.IsEditable(onEditClick)
                 )
-                CurrentUserStatus(
+                CurrentSelfUserStatus(
                     userStatus = status,
                     onStatusClicked = onStatusClicked
                 )
@@ -164,7 +154,7 @@ private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun UserProfileTopBar(
+private fun SelfUserProfileTopBar(
     onCloseClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
@@ -183,110 +173,8 @@ private fun UserProfileTopBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.UserProfileInfo(
-    isLoading: Boolean,
-    avatarAssetByteArray: ByteArray?,
-    fullName: String,
-    userName: String,
-    teamName: String?,
-    onUserProfileClick: () -> Unit,
-    onEditClick: () -> Unit
-) {
-    Box(
-        Modifier
-            .wrapContentSize()
-            .padding(top = dimensions().spacing16x)
-            .align(Alignment.CenterHorizontally)
-    ) {
-        UserProfileAvatar(
-            onClick = onUserProfileClick,
-            isEnabled = !isLoading,
-            size = dimensions().userAvatarDefaultBigSize,
-            avatarAssetByteArray = avatarAssetByteArray,
-            status = UserStatus.NONE,
-        )
-        if (isLoading) {
-            Box(
-                Modifier
-                    .matchParentSize()
-                    .align(Alignment.Center)
-                    .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.wireColorScheme.onBackground.copy(alpha = 0.7f))
-            ) {
-                WireCircularProgressIndicator(
-                    progressColor = MaterialTheme.wireColorScheme.surface,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-        }
-    }
-    ConstraintLayout(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-        val (userDescription, editButton, teamDescription) = createRefs()
-
-        Column(
-            modifier = Modifier
-                .padding(horizontal = dimensions().spacing64x)
-                .constrainAs(userDescription) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-        ) {
-            Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = fullName,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                style = MaterialTheme.wireTypography.title02,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = "@$userName",
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.wireTypography.body02,
-                maxLines = 1,
-                color = MaterialTheme.wireColorScheme.labelText,
-            )
-        }
-        IconButton(
-            modifier = Modifier
-                .padding(start = dimensions().spacing16x)
-                .constrainAs(editButton) {
-                    top.linkTo(userDescription.top)
-                    bottom.linkTo(userDescription.bottom)
-                    end.linkTo(userDescription.end)
-                },
-            onClick = onEditClick,
-            content = Icons.Filled.Edit.Icon()
-        )
-
-        if (teamName != null) {
-            Text(
-                modifier = Modifier
-                    .padding(top = dimensions().spacing8x)
-                    .padding(horizontal = dimensions().spacing16x)
-                    .constrainAs(teamDescription) {
-                        top.linkTo(userDescription.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    },
-                text = teamName,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.wireTypography.label01,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-        }
-    }
-}
-
-@Composable
-private fun CurrentUserStatus(
+private fun CurrentSelfUserStatus(
     userStatus: UserStatus,
     onStatusClicked: (UserStatus) -> Unit
 ) {
@@ -453,8 +341,8 @@ private fun OtherAccountItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = false)
 @Composable
-private fun UserProfileScreenPreview() {
-    UserProfileContent(
+private fun SelfUserProfileScreenPreview() {
+    SelfUserProfileContent(
         SelfUserProfileState(
             status = UserStatus.BUSY,
             fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",

@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -161,6 +162,7 @@ private fun SelfUserProfileTopBar(
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
         title = stringResource(id = R.string.user_profile_title),
+        elevation = 0.dp,
         actions = {
             WireSecondaryButton(
                 onClick = onLogoutClick,
@@ -269,9 +271,10 @@ private fun ColumnScope.OtherAccountsList(
     )
 
     LazyColumn(
-        modifier = Modifier.Companion
-            .weight(1f)
+        modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
+            .weight(1f)
+            .fillMaxWidth()
     ) {
         items(
             items = otherAccounts,
@@ -339,14 +342,14 @@ private fun OtherAccountItem(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = false)
+@Preview(showBackground = true)
 @Composable
 private fun SelfUserProfileScreenPreview() {
     SelfUserProfileContent(
         SelfUserProfileState(
             status = UserStatus.BUSY,
             fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
-            userName = "@userName_long_long_long_long_long_long_long_long_long_long",
+            userName = "userName_long_long_long_long_long_long_long_long_long_long",
             teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
             otherAccounts = listOf(
                 OtherAccount("someId", "", "Other Name", "team A"),

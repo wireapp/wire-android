@@ -19,6 +19,7 @@ import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
+import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,11 +34,21 @@ class ConversationViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val getConversationDetails: GetConversationDetailsUseCase,
-    private val sendTextMessage: SendTextMessageUseCase
+    private val sendTextMessage: SendTextMessageUseCase,
+    private val deleteMessage: DeleteMessageUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
+
+    var deleteMessageDialogsState: DeleteMessageState by mutableStateOf(
+        DeleteMessageState.State(
+            deleteMessageForYourselfDialogState = DeleteMessageDialogState.Hidden,
+            deleteMessageDialogState = DeleteMessageDialogState.Hidden
+        )
+    )
+        private set
+
 
     val conversationId: ConversationId? = savedStateHandle
         .getLiveData<String>(EXTRA_CONVERSATION_ID)
@@ -98,6 +109,77 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    fun showDeleteMessageDialog(messageId: String) =
+        updateDialogState {
+            it.copy(deleteMessageDialogState = DeleteMessageDialogState.Visible(messageId = messageId, conversationId = conversationId!!))
+        }
+
+    fun showDeleteMessageForYourselfDialog(messageId: String) {
+        //hide deleteMessageDialog
+        updateDialogState { it.copy(deleteMessageDialogState = DeleteMessageDialogState.Hidden) }
+        //show deleteMessageForYourselfDialog
+        updateDialogState {
+            it.copy(
+                deleteMessageForYourselfDialogState = DeleteMessageDialogState.Visible(
+                    messageId = messageId,
+                    conversationId = conversationId!!
+                )
+            )
+        }
+    }
+
+    fun onDialogDismissed() {
+        updateStateIfDialogVisible { DeleteMessageDialogState.Hidden }
+    }
+
+    fun clearDeleteMessageError() {
+        updateStateIfDialogVisible { it.copy(error = DeleteMessageError.None) }
+    }
+
+    private fun updateDialogState(newValue: (DeleteMessageState.State) -> DeleteMessageState) =
+        (deleteMessageDialogsState as? DeleteMessageState.State)?.let { deleteMessageDialogsState = newValue(it) }
+
+    private fun updateStateIfDialogVisible(newValue: (DeleteMessageDialogState.Visible) -> DeleteMessageDialogState) =
+        updateDialogState {
+            when {
+                it.deleteMessageDialogState is DeleteMessageDialogState.Visible -> it.copy(deleteMessageDialogState = newValue(it.deleteMessageDialogState))
+                it.deleteMessageForYourselfDialogState is DeleteMessageDialogState.Visible -> it.copy(
+                    deleteMessageForYourselfDialogState = newValue(
+                        it.deleteMessageForYourselfDialogState
+                    )
+                )
+                else -> it
+            }
+        }
+
+    fun deleteMessage(messageId: String, deleteForEveryone: Boolean) = viewModelScope.launch {
+        //update dialogs state to loading
+        if (deleteForEveryone) {
+            updateDialogState {
+                it.copy(
+                    deleteMessageDialogState = DeleteMessageDialogState.Visible(
+                        messageId = messageId,
+                        conversationId = conversationId!!,
+                        loading = true
+                    )
+                )
+            }
+        } else {
+            updateDialogState {
+                it.copy(
+                    deleteMessageForYourselfDialogState = DeleteMessageDialogState.Visible(
+                        messageId = messageId,
+                        conversationId = conversationId!!,
+                        loading = true
+                    )
+                )
+            }
+        }
+        deleteMessage(conversationId = conversationId!!, messageId = messageId, deleteForEveryone = deleteForEveryone)
+        //dismiss dialogs
+        onDialogDismissed()
+    }
+
     private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(): List<Message> {
         return map { message ->
             Message(
@@ -112,7 +194,8 @@ class ConversationViewModel @Inject constructor(
                     Membership.None,
                     true,
                     message.date,
-                    MessageStatus.Untouched
+                    MessageStatus.Untouched,
+                    messageId = message.id
                 ),
                 user = User(availabilityStatus = UserStatus.NONE)
 

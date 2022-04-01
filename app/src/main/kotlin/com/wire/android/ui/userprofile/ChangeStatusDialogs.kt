@@ -40,7 +40,7 @@ private fun ChangeStatusDialog(
         title = stringResource(id = data.title),
         text = stringResource(id = data.text),
         onDismiss = dismiss,
-        confirmButtonProperties = WireDialogButtonProperties(
+        optionButton1Properties = WireDialogButtonProperties(
             onClick = { onStatusChange(data.status) },
             text = stringResource(id = R.string.label_ok),
             type = WireDialogButtonType.Primary,

@@ -399,7 +399,7 @@ private fun MessageComposeActions(messageComposerState: MessageComposerInnerStat
 }
 
 @Composable
-private fun AdditionalOptionButton(isOpen: Boolean = false, onClick: () -> Unit) {
+private fun AdditionalOptionButton(isSelected: Boolean = false, onClick: () -> Unit) {
     WireSecondaryButton(
         onClick = { onClick() },
         leadingIcon = {
@@ -408,7 +408,7 @@ private fun AdditionalOptionButton(isOpen: Boolean = false, onClick: () -> Unit)
                 contentDescription = stringResource(R.string.content_description_conversation_search_icon)
             )
         },
-        state = if (isOpen) WireButtonState.Selected else WireButtonState.Default,
+        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
         fillMaxWidth = false,
         minHeight = 32.dp,
         minWidth = 40.dp,

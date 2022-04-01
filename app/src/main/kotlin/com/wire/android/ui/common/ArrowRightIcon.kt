@@ -18,7 +18,7 @@ fun ArrowRightIcon(
         painter = painterResource(id = R.drawable.ic_arrow_right),
         contentDescription = stringResource(R.string.content_description_right_arrow),
         modifier = Modifier
-            .size(MaterialTheme.wireDimensions.conversationBottomSheetItemSize)
+            .size(MaterialTheme.wireDimensions.wireIconButtonSize)
             .then(modifier)
     )
 }

@@ -41,10 +41,10 @@ class ConversationViewModel @Inject constructor(
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
 
-    var deleteMessageDialogsState: DeleteMessageState by mutableStateOf(
-        DeleteMessageState.State(
-            deleteMessageForYourselfDialogState = DeleteMessageDialogState.Hidden,
-            deleteMessageDialogState = DeleteMessageDialogState.Hidden
+    var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
+        DeleteMessageDialogsState.States(
+            forYourself = DeleteMessageDialogActiveState.Hidden,
+            forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     )
         private set
@@ -111,16 +111,14 @@ class ConversationViewModel @Inject constructor(
 
     fun showDeleteMessageDialog(messageId: String) =
         updateDialogState {
-            it.copy(deleteMessageDialogState = DeleteMessageDialogState.Visible(messageId = messageId, conversationId = conversationId!!))
+            it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
         }
 
     fun showDeleteMessageForYourselfDialog(messageId: String) {
-        //hide deleteMessageDialog
-        updateDialogState { it.copy(deleteMessageDialogState = DeleteMessageDialogState.Hidden) }
-        //show deleteMessageForYourselfDialog
+        updateDialogState { it.copy(forEveryone = DeleteMessageDialogActiveState.Hidden) }
         updateDialogState {
             it.copy(
-                deleteMessageForYourselfDialogState = DeleteMessageDialogState.Visible(
+                forYourself = DeleteMessageDialogActiveState.Visible(
                     messageId = messageId,
                     conversationId = conversationId!!
                 )
@@ -129,23 +127,28 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun onDialogDismissed() {
-        updateStateIfDialogVisible { DeleteMessageDialogState.Hidden }
+        updateDialogState {
+            it.copy(
+                forEveryone = DeleteMessageDialogActiveState.Hidden,
+                forYourself = DeleteMessageDialogActiveState.Hidden
+            )
+        }
     }
 
     fun clearDeleteMessageError() {
         updateStateIfDialogVisible { it.copy(error = DeleteMessageError.None) }
     }
 
-    private fun updateDialogState(newValue: (DeleteMessageState.State) -> DeleteMessageState) =
-        (deleteMessageDialogsState as? DeleteMessageState.State)?.let { deleteMessageDialogsState = newValue(it) }
+    private fun updateDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
+        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let { deleteMessageDialogsState = newValue(it) }
 
-    private fun updateStateIfDialogVisible(newValue: (DeleteMessageDialogState.Visible) -> DeleteMessageDialogState) =
+    private fun updateStateIfDialogVisible(newValue: (DeleteMessageDialogActiveState.Visible) -> DeleteMessageDialogActiveState) =
         updateDialogState {
             when {
-                it.deleteMessageDialogState is DeleteMessageDialogState.Visible -> it.copy(deleteMessageDialogState = newValue(it.deleteMessageDialogState))
-                it.deleteMessageForYourselfDialogState is DeleteMessageDialogState.Visible -> it.copy(
-                    deleteMessageForYourselfDialogState = newValue(
-                        it.deleteMessageForYourselfDialogState
+                it.forEveryone is DeleteMessageDialogActiveState.Visible -> it.copy(forEveryone = newValue(it.forEveryone))
+                it.forYourself is DeleteMessageDialogActiveState.Visible -> it.copy(
+                    forYourself = newValue(
+                        it.forYourself
                     )
                 )
                 else -> it
@@ -157,7 +160,7 @@ class ConversationViewModel @Inject constructor(
         if (deleteForEveryone) {
             updateDialogState {
                 it.copy(
-                    deleteMessageDialogState = DeleteMessageDialogState.Visible(
+                    forEveryone = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
                         conversationId = conversationId!!,
                         loading = true
@@ -167,7 +170,7 @@ class ConversationViewModel @Inject constructor(
         } else {
             updateDialogState {
                 it.copy(
-                    deleteMessageForYourselfDialogState = DeleteMessageDialogState.Visible(
+                    forYourself = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
                         conversationId = conversationId!!,
                         loading = true
@@ -176,7 +179,6 @@ class ConversationViewModel @Inject constructor(
             }
         }
         deleteMessage(conversationId = conversationId!!, messageId = messageId, deleteForEveryone = deleteForEveryone)
-        //dismiss dialogs
         onDialogDismissed()
     }
 

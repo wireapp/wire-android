@@ -61,18 +61,18 @@ class ConversationsViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible`() {
         conversationsViewModel.showDeleteMessageDialog("")
-        conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageState.State(
-            deleteMessageForYourselfDialogState = DeleteMessageDialogState.Hidden,
-            deleteMessageDialogState = DeleteMessageDialogState.Visible("", conversationsViewModel.conversationId!!)
+        conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+            forYourself = DeleteMessageDialogActiveState.Hidden,
+            forEveryone = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!)
         )
     }
 
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageForYourselfDialog is visible`() {
         conversationsViewModel.showDeleteMessageForYourselfDialog("")
-        conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageState.State(
-            deleteMessageForYourselfDialogState = DeleteMessageDialogState.Visible("", conversationsViewModel.conversationId!!),
-            deleteMessageDialogState = DeleteMessageDialogState.Hidden
+        conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!),
+            forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }
 
@@ -80,9 +80,9 @@ class ConversationsViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when dialogs are dismissed`() {
         conversationsViewModel.onDialogDismissed()
-        conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageState.State(
-            deleteMessageForYourselfDialogState = DeleteMessageDialogState.Hidden,
-            deleteMessageDialogState = DeleteMessageDialogState.Hidden
+        conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+            forYourself = DeleteMessageDialogActiveState.Hidden,
+            forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }
 }

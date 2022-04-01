@@ -184,7 +184,7 @@ private fun WireDialogPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun WireDialogPreview2() {
+private fun WireDialogPreviewWith2OptionButtons() {
     var password by remember { mutableStateOf(TextFieldValue("")) }
     WireTheme(isPreview = true) {
         Box(

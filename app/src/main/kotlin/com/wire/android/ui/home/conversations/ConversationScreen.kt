@@ -49,26 +49,26 @@ fun ConversationScreen(
         onBackButtonClick = { conversationViewModel.navigateBack() },
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog
     )
-    if (deleteMessageDialogState is DeleteMessageState.State) {
+    if (deleteMessageDialogState is DeleteMessageDialogsState.States) {
         when {
-            deleteMessageDialogState.deleteMessageDialogState is DeleteMessageDialogState.Visible -> {
+            deleteMessageDialogState.forEveryone is DeleteMessageDialogActiveState.Visible -> {
                 DeleteMessageDialog(
-                    state = deleteMessageDialogState.deleteMessageDialogState,
+                    state = deleteMessageDialogState.forEveryone,
                     onDialogDismiss = { conversationViewModel.onDialogDismissed() },
                     onDeleteForMe = {
                         conversationViewModel.showDeleteMessageForYourselfDialog(
-                            deleteMessageDialogState.deleteMessageDialogState.messageId
+                            deleteMessageDialogState.forEveryone.messageId
                         )
                     },
                     onDeleteForEveryone = {
                         conversationViewModel.deleteMessage(
-                            deleteMessageDialogState.deleteMessageDialogState.messageId,
+                            deleteMessageDialogState.forEveryone.messageId,
                             true
                         )
                     },
                 )
-                if (deleteMessageDialogState.deleteMessageDialogState.error is DeleteMessageError.GenericError) {
-                    val (title, message) = deleteMessageDialogState.deleteMessageDialogState.error.coreFailure.dialogErrorStrings(
+                if (deleteMessageDialogState.forEveryone.error is DeleteMessageError.GenericError) {
+                    val (title, message) = deleteMessageDialogState.forEveryone.error.coreFailure.dialogErrorStrings(
                         LocalContext.current.resources
                     )
                     WireDialog(
@@ -83,10 +83,10 @@ fun ConversationScreen(
                     )
                 }
             }
-            deleteMessageDialogState.deleteMessageForYourselfDialogState is DeleteMessageDialogState.Visible -> {
+            deleteMessageDialogState.forYourself is DeleteMessageDialogActiveState.Visible -> {
 
-                if (deleteMessageDialogState.deleteMessageForYourselfDialogState.error is DeleteMessageError.GenericError) {
-                    val (title, message) = deleteMessageDialogState.deleteMessageForYourselfDialogState.error.coreFailure.dialogErrorStrings(
+                if (deleteMessageDialogState.forYourself.error is DeleteMessageError.GenericError) {
+                    val (title, message) = deleteMessageDialogState.forYourself.error.coreFailure.dialogErrorStrings(
                         LocalContext.current.resources
                     )
                     WireDialog(
@@ -101,11 +101,11 @@ fun ConversationScreen(
                     )
                 } else {
                     DeleteMessageForYourselfDialog(
-                        state = deleteMessageDialogState.deleteMessageForYourselfDialogState,
+                        state = deleteMessageDialogState.forYourself,
                         onDialogDismiss = { conversationViewModel.onDialogDismissed() },
                         onDeleteForMe = {
                             conversationViewModel.deleteMessage(
-                                deleteMessageDialogState.deleteMessageForYourselfDialogState.messageId,
+                                deleteMessageDialogState.forYourself.messageId,
                                 false
                             )
                         },
@@ -261,7 +261,7 @@ private fun ConversationScreenContent(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DeleteMessageDialog(
-    state: DeleteMessageDialogState.Visible,
+    state: DeleteMessageDialogActiveState.Visible,
     onDialogDismiss: () -> Unit,
     onDeleteForMe: () -> Unit,
     onDeleteForEveryone: () -> Unit,
@@ -295,7 +295,7 @@ private fun DeleteMessageDialog(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DeleteMessageForYourselfDialog(
-    state: DeleteMessageDialogState.Visible,
+    state: DeleteMessageDialogActiveState.Visible,
     onDialogDismiss: () -> Unit,
     onDeleteForMe: () -> Unit,
 ) {

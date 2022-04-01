@@ -80,7 +80,7 @@ class LoginScreenTest {
     val forgotPassword = composeTestRule.onNode(hasTestTag("Forgot password?"))
     val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"), useUnmergedTree = true)
 
-    val loginErrorText = "Please enter a valid format for your email or username"
+    val loginErrorText = "Please enter a valid format for your email or username."
     val email = "mustafa+1@wire.com"
 
     @Test

@@ -60,9 +60,9 @@ class MainScreenTest {
     private var logo = composeTestRule.onNodeWithContentDescription("Wire")
     private var images = logo.onSiblings()[0]
     private var loginButton = logo.onSiblings()[1]
-    private var createEnterpriseAccountButton = composeTestRule.onNodeWithText("Create Enterprise Account")
+    private var createEnterpriseAccountButton = composeTestRule.onNodeWithText("Create a Team")
     private var privateAccountText = logo.onSiblings()[3]
-    private var privateAccountLink = composeTestRule.onNodeWithText("Create a private account for free")
+    private var privateAccountLink = composeTestRule.onNodeWithText("Create a Personal Account")
 
     @Test
     fun iTapLoginButton() {

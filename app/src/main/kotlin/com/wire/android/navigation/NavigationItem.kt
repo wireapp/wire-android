@@ -190,6 +190,8 @@ object NavigationItemDestinationsRoutes {
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 const val EXTRA_USER_ID = "extra_user_id"
+//TODO: internal is here untill we can get the ConnectionStatus from the user
+// for now it is just to be able to proceed forward
 const val EXTRA_INTERNAL_STATUS = "extra_internal_status"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 

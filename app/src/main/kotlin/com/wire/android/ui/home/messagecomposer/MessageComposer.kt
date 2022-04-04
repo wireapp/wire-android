@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.messagecomposer
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -173,7 +172,6 @@ private fun MessageComposer(
                                     MessageComposeInputState.FullScreen -> 180f
                                 }
                             }
-
                             CollapseIconButton(
                                 onCollapseClick = { messageComposerState.toggleFullScreen() },
                                 collapseRotation = collapseButtonRotationDegree

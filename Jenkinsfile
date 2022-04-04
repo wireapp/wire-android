@@ -66,8 +66,9 @@ pipeline {
       label 'android-reloaded-builder'
       image 'android-reloaded-agent:latest'
     }
-
   }
+
+  options { disableConcurrentBuilds(abortPrevious: true) }
 
   stages {
     stage('Precondition Checks') {

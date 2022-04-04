@@ -88,7 +88,7 @@
     <string name="remove_device_invalid_password">Invalid password</string>
 
     <string name="register_device_title">Register a Device</string>
-    <string name="register_device_text">Register your device to start using Wire.</string>
+    <string name="register_device_text">Register your device by entering your password to start using Wire.</string>
 
     <!-- Create Account -->
     <string name="create_personal_account_title">Create a Personal Account</string>

@@ -39,6 +39,13 @@ class HomeViewModel
 
     init {
         viewModelScope.launch {
+            listenToEvents() // listen for the WebSockets updates and update DB accordingly
+            loadUserAvatar()
+        }
+    }
+
+    fun checkRequirements() {
+        viewModelScope.launch {
             when {
                 needsToRegisterClient() -> { // check if the client has been registered and open the proper screen if not
                     navigationManager.navigate(
@@ -58,14 +65,11 @@ class HomeViewModel
                     )
                     return@launch
                 }
-                else -> listenToEvents() //listen for the WebSockets updates and update DB accordingly
             }
         }
-        loadUserAvatar()
     }
 
-    private fun loadUserAvatar() {
-        viewModelScope.launch {
+    private suspend fun loadUserAvatar() {
             try {
                 dataStore.avatarAssetId.first()?.let {
                     userAvatar = (getPublicAsset(it) as PublicAssetResult.Success).asset
@@ -73,7 +77,6 @@ class HomeViewModel
             } catch (e: ClassCastException) {
                 appLogger.e("There was an error loading the user avatar", e)
             }
-        }
     }
 
     suspend fun navigateTo(item: NavigationItem, extraRouteId: String = "") {

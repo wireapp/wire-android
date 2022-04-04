@@ -9,7 +9,8 @@ data class MessageHeader(
     val membership: Membership,
     val isLegalHold: Boolean,
     val time: String,
-    val messageStatus: MessageStatus
+    val messageStatus: MessageStatus,
+    val messageId: String
 )
 
 enum class MessageStatus(val stringResourceId: Int) {

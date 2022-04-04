@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
@@ -52,6 +51,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.textfield.WireTextFieldTest
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
@@ -191,7 +191,6 @@ private fun MessageComposer(
                                 else
                                     Modifier
                             )
-
                     ) {
                         transition.AnimatedVisibility(
                             visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
@@ -229,7 +228,6 @@ private fun MessageComposer(
                                                     max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
                                                 )
                                                 .padding(
-                                                    bottom = MaterialTheme.wireDimensions.spacing16x,
                                                     end = dimensions().messageComposerPaddingEnd
                                                 )
                                         }
@@ -334,7 +332,7 @@ private fun MessageComposerInput(
     onFocusChanged: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BasicTextField(
+    WireTextFieldTest(
         value = messageText,
         onValueChange = onMessageTextChanged,
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,

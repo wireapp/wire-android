@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -34,7 +33,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -118,6 +116,72 @@ internal fun WireTextField(
 }
 
 @Composable
+internal fun WireTextFieldTest(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    readOnly: Boolean = false,
+    singleLine: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    placeholderText: String? = null,
+    labelText: String? = null,
+    labelMandatoryIcon: Boolean = false,
+    descriptionText: String? = null,
+    state: WireTextFieldState = WireTextFieldState.Default,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    textStyle: TextStyle = MaterialTheme.wireTypography.body01,
+    placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
+    inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
+    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
+    colors: WireTextFieldColors = wireTextFieldColors(),
+    modifier: Modifier = Modifier
+) {
+    val enabled = state !is WireTextFieldState.Disabled
+
+    Column(modifier = modifier) {
+        if (labelText != null)
+            Label(labelText, labelMandatoryIcon, state, interactionSource, colors)
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            textStyle = textStyle.copy(color = colors.textColor(state = state).value),
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            singleLine = singleLine,
+            readOnly = readOnly,
+            enabled = enabled,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            visualTransformation = visualTransformation,
+            interactionSource = interactionSource,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .background(color = colors.backgroundColor(state).value, shape = shape)
+//                .border(width = 1.dp, color = colors.borderColor(state, interactionSource).value, shape = shape),
+            decorationBox = { innerTextField ->
+                InnerText(innerTextField, value, leadingIcon, trailingIcon, placeholderText, state, placeholderTextStyle, inputMinHeight)
+            },
+        )
+        val bottomText = when {
+            state is WireTextFieldState.Error && state.errorText != null -> state.errorText
+            !descriptionText.isNullOrEmpty() -> descriptionText
+            else -> String.EMPTY
+        }
+        AnimatedVisibility(visible = bottomText.isNotEmpty()) {
+            Text(
+                text = bottomText,
+                style = MaterialTheme.wireTypography.label04,
+                textAlign = TextAlign.Start,
+                color = colors.descriptionColor(state).value,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
 private fun Label(
     labelText: String,
     labelMandatoryIcon: Boolean,
@@ -143,7 +207,7 @@ private fun Label(
 }
 
 @Composable
-private fun InnerText(
+ fun InnerText(
     innerTextField: @Composable () -> Unit,
     value: TextFieldValue,
     leadingIcon: @Composable (() -> Unit)? = null,

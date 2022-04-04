@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.messagecomposer
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -10,8 +11,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,12 +35,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -66,12 +66,17 @@ fun MessageComposer(
     onMessageChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (String) -> Unit
+    onError: (String) -> Unit,
+    OnMessageComposerInputStateChange: (MessageComposeInputState) -> Unit,
 ) {
     val messageComposerState = rememberMessageComposerInnerState()
 
     LaunchedEffect(messageText) {
         messageComposerState.messageText = messageComposerState.messageText.copy(messageText)
+    }
+
+    LaunchedEffect(messageComposerState.messageComposeInputState) {
+        OnMessageComposerInputStateChange(messageComposerState.messageComposeInputState)
     }
 
     MessageComposer(
@@ -133,14 +138,18 @@ private fun MessageComposer(
             ) {
                 Box(
                     Modifier
-                        .weight(1f)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            focusManager.clearFocus()
-                            messageComposerState.clickOutSideMessageComposer()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = {
+                                    focusManager.clearFocus()
+                                    messageComposerState.clickOutSideMessageComposer()
+                                },
+                                onDoubleTap = { /* Called on Double Tap */ },
+                                onLongPress = { /* Called on Long Press */ },
+                                onTap = { Log.d("TEST", "this is tap") }
+                            )
                         }
+                        .weight(1f)
                 ) {
                     content()
                 }

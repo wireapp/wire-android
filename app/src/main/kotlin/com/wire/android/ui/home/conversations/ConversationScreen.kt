@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,25 +15,25 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
+import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.messagecomposer.MessageComposer
-import kotlinx.coroutines.launch
 import com.wire.android.util.dialogErrorStrings
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -243,7 +244,10 @@ private fun ConversationScreenContent(
         onMessageChanged = onMessageChanged,
         onSendButtonClicked = onSendButtonClicked,
         onSendAttachment = onSendAttachment,
-        onError = onError
+        onError = onError,
+        OnMessageComposerInputStateChange = {
+            Log.d("TEST", "$it")
+        }
     )
 }
 

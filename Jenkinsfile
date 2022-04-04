@@ -68,7 +68,7 @@ pipeline {
     }
   }
 
-  options { disableConcurrentBuilds() }
+  options { disableConcurrentBuilds(abortPrevious: true) }
 
   stages {
     stage('Precondition Checks') {

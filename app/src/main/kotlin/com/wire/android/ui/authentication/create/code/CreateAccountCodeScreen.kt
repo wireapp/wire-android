@@ -125,7 +125,7 @@ private fun CodeContent(
             title = title,
             text = message,
             onDismiss = onErrorDismiss,
-            confirmButtonProperties = WireDialogButtonProperties(
+            optionButton1Properties = WireDialogButtonProperties(
                 onClick = onErrorDismiss,
                 text = stringResource(id = R.string.label_ok),
                 type = WireDialogButtonType.Primary,

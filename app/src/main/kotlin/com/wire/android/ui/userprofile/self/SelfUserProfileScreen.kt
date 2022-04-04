@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -199,7 +200,7 @@ private fun CurrentSelfUserStatus(
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.AVAILABLE,
-                    modifier = Modifier.padding(end = dimensions().spacing4x)
+                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("Available")
                 )
             }
         )
@@ -213,7 +214,7 @@ private fun CurrentSelfUserStatus(
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.BUSY,
-                    modifier = Modifier.padding(end = dimensions().spacing4x)
+                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("Busy")
                 )
             }
         )
@@ -227,7 +228,7 @@ private fun CurrentSelfUserStatus(
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.AWAY,
-                    modifier = Modifier.padding(end = dimensions().spacing4x)
+                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("Away")
                 )
             }
         )
@@ -244,7 +245,7 @@ private fun CurrentSelfUserStatus(
             leadingIcon = {
                 UserStatusIndicator(
                     status = UserStatus.NONE,
-                    modifier = Modifier.padding(end = dimensions().spacing4x)
+                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("None")
                 )
             }
         )

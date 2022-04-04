@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.ui.Alignment
 
 /**
  * Animation that allows a smooth transition from rtl, adding a fade in effect
@@ -43,7 +44,7 @@ fun smoothSlideOutFromLeft(): ExitTransition {
 fun expandInToView(): EnterTransition {
     return expandVertically(initialHeight = { it * 2 }, animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn(
         animationSpec = tween(
-            durationMillis = 200
+            durationMillis = 400
         )
     )
 }
@@ -53,7 +54,11 @@ fun expandInToView(): EnterTransition {
  */
 @Suppress("MagicNumber")
 fun shrinkOutFromView(): ExitTransition {
-    return shrinkVertically(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut(
-        animationSpec = tween(durationMillis = 200)
+    return shrinkVertically(
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        shrinkTowards = Alignment.Top,
+        targetHeight = { it / 2 }
+    ) + fadeOut(
+        animationSpec = tween(durationMillis = 400)
     )
 }

@@ -1,5 +1,6 @@
 package com.wire.android.navigation
 
+import androidx.compose.animation.shrinkOut
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -93,6 +94,7 @@ enum class NavigationItem(
     Home(
         primaryRoute = HOME,
         content = { HomeScreen(it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM), hiltViewModel()) },
+        animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ),
 
     Settings(

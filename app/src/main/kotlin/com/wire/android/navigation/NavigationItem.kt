@@ -33,7 +33,7 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.kalium.logic.configuration.ServerConfig
-import com.wire.kalium.logic.data.conversation.ConversationId
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
 

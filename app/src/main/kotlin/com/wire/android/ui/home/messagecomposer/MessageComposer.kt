@@ -337,8 +337,12 @@ private fun MessageComposerInput(
     WireTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,
-        colors = wireTextFieldColors(backgroundColor = Color.Transparent),
+        colors = wireTextFieldColors(
+            borderColor = Color.Transparent,
+            focusColor = Color.Transparent
+        ),
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
+        maxLines = Int.MAX_VALUE,
         textStyle = MaterialTheme.wireTypography.body01,
         // Add a extra space so that the a cursor is placed one space before "Type a message"
         placeholderText = " " + stringResource(R.string.label_type_a_message),

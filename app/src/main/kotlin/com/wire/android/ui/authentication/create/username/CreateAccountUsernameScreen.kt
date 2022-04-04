@@ -35,8 +35,6 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.USERNAME_FORBIDDEN_CHARACTERS_REGEX
-import com.wire.android.util.USERNAME_MAX_LENGTH
 
 @Composable
 fun CreateAccountUsernameScreen() {

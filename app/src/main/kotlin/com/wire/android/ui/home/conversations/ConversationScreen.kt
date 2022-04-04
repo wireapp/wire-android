@@ -245,7 +245,7 @@ private fun ConversationScreenContent(
         onSendButtonClicked = onSendButtonClicked,
         onSendAttachment = onSendAttachment,
         onError = onError,
-        OnMessageComposerInputStateChange = {
+        onMessageComposerInputStateChange = {
             Log.d("TEST", "$it")
         }
     )

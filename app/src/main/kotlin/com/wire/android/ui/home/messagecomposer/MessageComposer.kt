@@ -67,7 +67,7 @@ fun MessageComposer(
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit,
-    OnMessageComposerInputStateChange: (MessageComposeInputState) -> Unit,
+    onMessageComposerInputStateChange: (MessageComposeInputState) -> Unit,
 ) {
     val messageComposerState = rememberMessageComposerInnerState()
 
@@ -75,8 +75,9 @@ fun MessageComposer(
         messageComposerState.messageText = messageComposerState.messageText.copy(messageText)
     }
 
+    // expose messageComposeInputState change to the outside through onMessageComposerInputStateChange
     LaunchedEffect(messageComposerState.messageComposeInputState) {
-        OnMessageComposerInputStateChange(messageComposerState.messageComposeInputState)
+        onMessageComposerInputStateChange(messageComposerState.messageComposeInputState)
     }
 
     MessageComposer(

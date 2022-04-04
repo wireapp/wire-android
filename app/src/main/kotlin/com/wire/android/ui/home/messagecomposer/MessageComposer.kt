@@ -144,7 +144,7 @@ private fun MessageComposer(
                                 },
                                 onDoubleTap = { /* Called on Double Tap */ },
                                 onLongPress = { /* Called on Long Press */ },
-                                onTap = { Log.d("TEST", "this is tap") }
+                                onTap = {  /* Called on Tap */ }
                             )
                         }
                         .weight(1f)

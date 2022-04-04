@@ -89,7 +89,7 @@ private fun RemoveDeviceContent(
                     title = title,
                     text = message,
                     onDismiss = onErrorDialogDismiss,
-                    confirmButtonProperties = WireDialogButtonProperties(
+                    optionButton1Properties = WireDialogButtonProperties(
                         onClick = onErrorDialogDismiss,
                         text = stringResource(id = R.string.label_ok),
                         type = WireDialogButtonType.Primary,
@@ -148,7 +148,7 @@ private fun RemoveDeviceDialog(
             text = stringResource(id = R.string.label_cancel),
             state = WireButtonState.Default
         ),
-        confirmButtonProperties = WireDialogButtonProperties(
+        optionButton1Properties = WireDialogButtonProperties(
             onClick = onRemoveConfirm,
             text = stringResource(id = if (state.loading) R.string.label_removing else R.string.label_remove),
             type = WireDialogButtonType.Primary,

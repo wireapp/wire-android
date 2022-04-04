@@ -220,7 +220,7 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
         title = stringResource(R.string.create_account_email_terms_dialog_title),
         text = stringResource(R.string.create_account_email_terms_dialog_text),
         onDismiss = onDialogDismiss,
-        confirmButtonProperties = WireDialogButtonProperties(
+        optionButton1Properties = WireDialogButtonProperties(
             onClick = onContinuePressed,
             text = stringResource(id = R.string.label_continue),
             type = WireDialogButtonType.Primary,

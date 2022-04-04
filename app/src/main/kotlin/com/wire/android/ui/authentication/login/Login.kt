@@ -159,7 +159,7 @@ private fun LoginContent(
                 title = title,
                 text = message,
                 onDismiss = onDialogDismiss,
-                confirmButtonProperties = WireDialogButtonProperties(
+                optionButton1Properties = WireDialogButtonProperties(
                     onClick = onDialogDismiss,
                     text = stringResource(id = R.string.label_ok),
                     type = WireDialogButtonType.Primary,

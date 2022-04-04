@@ -116,7 +116,7 @@ internal fun WireTextField(
 }
 
 @Composable
-internal fun WireTextFieldTest(
+internal fun BorderLessWireTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     readOnly: Boolean = false,
@@ -135,7 +135,6 @@ internal fun WireTextFieldTest(
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
-    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
     modifier: Modifier = Modifier
 ) {
@@ -156,10 +155,6 @@ internal fun WireTextFieldTest(
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             visualTransformation = visualTransformation,
             interactionSource = interactionSource,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .background(color = colors.backgroundColor(state).value, shape = shape)
-//                .border(width = 1.dp, color = colors.borderColor(state, interactionSource).value, shape = shape),
             decorationBox = { innerTextField ->
                 InnerText(innerTextField, value, leadingIcon, trailingIcon, placeholderText, state, placeholderTextStyle, inputMinHeight)
             },

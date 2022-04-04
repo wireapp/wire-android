@@ -51,7 +51,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.textfield.WireTextFieldTest
+import com.wire.android.ui.common.textfield.BorderLessWireTextField
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
@@ -332,11 +332,13 @@ private fun MessageComposerInput(
     onFocusChanged: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    WireTextFieldTest(
+    BorderLessWireTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         textStyle = MaterialTheme.wireTypography.body01,
+        // Add a extra space so that the a cursor is placed one space before "Type a message"
+        placeholderText = " " + stringResource(R.string.label_type_a_message),
         modifier = modifier.then(
             Modifier.onFocusChanged { focusState ->
                 if (focusState.isFocused) {

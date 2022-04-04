@@ -1,10 +1,10 @@
 package com.wire.android.ui.home.conversations
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.dialogErrorStrings
 import kotlinx.coroutines.launch
@@ -224,9 +225,13 @@ private fun ConversationScreenContent(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit
 ) {
+    val lazyListState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
     MessageComposer(
         content = {
             LazyColumn(
+                state = lazyListState,
                 reverseLayout = true,
                 modifier = Modifier
                     .fillMaxHeight()
@@ -245,8 +250,10 @@ private fun ConversationScreenContent(
         onSendButtonClicked = onSendButtonClicked,
         onSendAttachment = onSendAttachment,
         onError = onError,
-        onMessageComposerInputStateChange = {
-            Log.d("TEST", "$it")
+        onMessageComposerInputStateChange = { messageComposerState ->
+            if (messageComposerState.to == MessageComposeInputState.Active && messageComposerState.from == MessageComposeInputState.Enabled) {
+                coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
+            }
         }
     )
 }

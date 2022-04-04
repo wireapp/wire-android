@@ -116,67 +116,6 @@ internal fun WireTextField(
 }
 
 @Composable
-internal fun BorderLessWireTextField(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
-    readOnly: Boolean = false,
-    singleLine: Boolean = true,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions(),
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    placeholderText: String? = null,
-    labelText: String? = null,
-    labelMandatoryIcon: Boolean = false,
-    descriptionText: String? = null,
-    state: WireTextFieldState = WireTextFieldState.Default,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    textStyle: TextStyle = MaterialTheme.wireTypography.body01,
-    placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
-    inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
-    colors: WireTextFieldColors = wireTextFieldColors(),
-    modifier: Modifier = Modifier
-) {
-    val enabled = state !is WireTextFieldState.Disabled
-
-    Column(modifier = modifier) {
-        if (labelText != null)
-            Label(labelText, labelMandatoryIcon, state, interactionSource, colors)
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            textStyle = textStyle.copy(color = colors.textColor(state = state).value),
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
-            singleLine = singleLine,
-            readOnly = readOnly,
-            enabled = enabled,
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-            visualTransformation = visualTransformation,
-            interactionSource = interactionSource,
-            decorationBox = { innerTextField ->
-                InnerText(innerTextField, value, leadingIcon, trailingIcon, placeholderText, state, placeholderTextStyle, inputMinHeight)
-            },
-        )
-        val bottomText = when {
-            state is WireTextFieldState.Error && state.errorText != null -> state.errorText
-            !descriptionText.isNullOrEmpty() -> descriptionText
-            else -> String.EMPTY
-        }
-        AnimatedVisibility(visible = bottomText.isNotEmpty()) {
-            Text(
-                text = bottomText,
-                style = MaterialTheme.wireTypography.label04,
-                textAlign = TextAlign.Start,
-                color = colors.descriptionColor(state).value,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
-    }
-}
-
-@Composable
 private fun Label(
     labelText: String,
     labelMandatoryIcon: Boolean,
@@ -202,7 +141,7 @@ private fun Label(
 }
 
 @Composable
- fun InnerText(
+private fun InnerText(
     innerTextField: @Composable () -> Unit,
     value: TextFieldValue,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -228,8 +167,8 @@ private fun Label(
             }
         Box(Modifier.weight(1f)) {
             val padding = Modifier.padding(
-                start = if(leadingIcon == null) 16.dp else 0.dp,
-                end = if(trailingOrStateIcon == null) 16.dp else 0.dp,
+                start = if (leadingIcon == null) 16.dp else 0.dp,
+                end = if (trailingOrStateIcon == null) 16.dp else 0.dp,
                 top = 2.dp, bottom = 2.dp
             )
             if (value.text.isEmpty() && placeholderText != null)
@@ -286,8 +225,8 @@ private fun WireTextFieldDenseSearchPreview() {
     WireTextField(
         value = TextFieldValue(""),
         placeholderText = "Search",
-        leadingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Search,"") } },
-        trailingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Close,"") } },
+        leadingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Search, "") } },
+        trailingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Close, "") } },
         onValueChange = {},
         inputMinHeight = 40.dp,
         modifier = Modifier.padding(16.dp)

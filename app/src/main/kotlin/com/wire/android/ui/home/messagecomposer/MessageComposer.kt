@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,7 +52,8 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.textfield.BorderLessWireTextField
+import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
@@ -332,9 +334,10 @@ private fun MessageComposerInput(
     onFocusChanged: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BorderLessWireTextField(
+    WireTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,
+        colors = wireTextFieldColors(backgroundColor = Color.Transparent),
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         textStyle = MaterialTheme.wireTypography.body01,
         // Add a extra space so that the a cursor is placed one space before "Type a message"

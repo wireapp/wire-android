@@ -11,13 +11,10 @@ import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.Message
-import com.wire.android.ui.home.conversations.model.MessageSource
-import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.User
+import com.wire.android.ui.home.conversations.model.*
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.feature.asset.SendImageUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -33,6 +30,7 @@ class ConversationViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val getConversationDetails: GetConversationDetailsUseCase,
+    private val sendImageUseCase: SendImageUseCase,
     private val sendTextMessage: SendTextMessageUseCase
 ) : ViewModel() {
 
@@ -92,8 +90,10 @@ class ConversationViewModel @Inject constructor(
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
             attachmentBundle?.let {
-                // TODO send attachment message for conversationId via use case
                 appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
+                conversationId?.run {
+                    sendImageUseCase(this, attachmentBundle.rawContent)
+                }
             }
         }
     }

@@ -41,10 +41,10 @@ class AvatarPickerViewModel @Inject constructor(
     var errorMessageCode by mutableStateOf<ErrorCodes?>(null)
 
     init {
-        loadAvatar()
+        loadInitialAvatarState()
     }
 
-    private fun loadAvatar() = viewModelScope.launch {
+    fun loadInitialAvatarState() = viewModelScope.launch {
         try {
             dataStore.avatarAssetId.first()?.apply {
                 val avatarRaw = (getUserAvatar(this) as PublicAssetResult.Success).asset

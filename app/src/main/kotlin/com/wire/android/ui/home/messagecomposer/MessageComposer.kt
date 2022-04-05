@@ -429,8 +429,8 @@ private fun MessageComposeActions(
         modifier = Modifier.fillMaxWidth()
     ) {
         AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
+            focusManager.clearFocus()
             messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
-            focusManager.clearFocus(false)
         }
         RichTextEditingAction()
         AddEmojiAction()

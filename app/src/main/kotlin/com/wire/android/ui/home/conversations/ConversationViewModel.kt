@@ -40,7 +40,7 @@ class ConversationViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val getConversationDetails: GetConversationDetailsUseCase,
-    private val sendImageUseCase: SendImageMessageUseCase,
+    private val sendImageMessage: SendImageMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase
 ) : ViewModel() {
@@ -112,7 +112,7 @@ class ConversationViewModel @Inject constructor(
                 appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
                 conversationId?.run {
                     val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
-                    sendImageUseCase(this, attachmentBundle.rawContent, imgWidth, imgHeight)
+                    sendImageMessage(this, attachmentBundle.rawContent, imgWidth, imgHeight)
                 }
             }
         }

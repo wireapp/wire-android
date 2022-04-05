@@ -1,10 +1,10 @@
 package com.wire.android.ui.home.conversations
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class ConversationsViewModelTest {
     private lateinit var conversationsViewModel: ConversationViewModel
@@ -35,6 +35,8 @@ class ConversationsViewModelTest {
     @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
 
+    @MockK
+    lateinit var sendImageMessage: SendImageMessageUseCase
 
     @MockK
     lateinit var deleteMessage: DeleteMessageUseCase
@@ -54,6 +56,7 @@ class ConversationsViewModelTest {
             getMessages = getMessages,
             getConversationDetails = getConversationDetails,
             sendTextMessage = sendTextMessage,
+            sendImageUseCase = sendImageMessage,
             deleteMessage = deleteMessage
         )
     }

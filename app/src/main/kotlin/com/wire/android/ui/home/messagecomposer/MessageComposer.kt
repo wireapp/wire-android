@@ -124,8 +124,7 @@ private fun MessageComposer(
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout(Modifier.fillMaxSize()) {
-            val guideline = createGuidelineFromTop(450.dp)
-            val guideline1 = createGuidelineFromTop(550.dp)
+            val guideline = createGuidelineFromTop(470.dp)
 
             val test = createRef()
             Divider(color = Color.Green, thickness = 30.dp,modifier = Modifier.constrainAs(test) {
@@ -139,11 +138,11 @@ private fun MessageComposer(
             // CollapseIconButton
             Column(
                 Modifier.constrainAs(messageInput) {
-//                    if (messageComposerState.attachmentOptionsDisplayed) {
+                    if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.messageComposeInputState == MessageComposeInputState.Active) {
                         bottom.linkTo(guideline)
-//                    } else {
-//                        bottom.linkTo(additionalActions.top)
-//                    }
+                    } else {
+                        bottom.linkTo(additionalActions.top)
+                    }
                     top.linkTo(parent.top)
 
                     height = Dimension.fillToConstraints
@@ -303,7 +302,6 @@ private fun MessageComposer(
 //                            top.linkTo(messageInput.bottom)
 //                        }
                     }
-                    .background(Color.Red)
             ) {
                 Divider()
                 transition.AnimatedVisibility(
@@ -324,7 +322,6 @@ private fun MessageComposer(
                         top.linkTo(additionalActions.bottom)
                     }
                     .wrapContentSize()
-                    .background(Color.Red)
             ) {
                 if (messageComposerState.attachmentOptionsDisplayed) {
                     Divider()

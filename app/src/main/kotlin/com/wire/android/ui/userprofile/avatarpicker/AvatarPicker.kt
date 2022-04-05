@@ -132,9 +132,12 @@ private fun AvatarPickerContent(
                     }
                     Divider()
                     Spacer(Modifier.height(4.dp))
-                    AvatarPickerActionButtons(hasPickedImage(viewModel.pictureState), onSaveClick, onCloseClick) {
-                        state.showModalBottomSheet()
-                    }
+                    AvatarPickerActionButtons(
+                        hasPickedImage = hasPickedImage(viewModel.pictureState),
+                        onSaveClick = onSaveClick,
+                        onCancelClick = { viewModel.loadInitialAvatarState() },
+                        onChangeImage = { state.showModalBottomSheet() }
+                    )
                 }
             }
         }
@@ -145,7 +148,7 @@ private fun AvatarPickerContent(
 private fun AvatarPickerActionButtons(
     hasPickedImage: Boolean,
     onSaveClick: () -> Unit,
-    onCloseClick: () -> Unit,
+    onCancelClick: () -> Unit,
     onChangeImage: () -> Unit
 ) {
     if (hasPickedImage) {
@@ -155,7 +158,7 @@ private fun AvatarPickerActionButtons(
                     .padding(dimensions().spacing16x)
                     .weight(1f),
                 text = stringResource(R.string.label_cancel),
-                onClick = { onCloseClick() }
+                onClick = { onCancelClick() }
             )
             WirePrimaryButton(
                 modifier = Modifier

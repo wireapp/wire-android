@@ -1,7 +1,6 @@
 package com.wire.android.navigation
 
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,9 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
 import com.wire.android.R
 import com.wire.android.ui.home.HomeState
 import com.wire.android.ui.home.archive.ArchiveScreen
@@ -26,7 +25,7 @@ import com.wire.android.ui.home.vault.VaultScreen
 )
 @Composable
 fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, startDestination: String?) {
-    AnimatedNavHost(
+    NavHost(
         navController = navController,
         startDestination = startDestination ?: HomeNavigationItem.Conversations.route
     ) {
@@ -34,9 +33,7 @@ fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, 
             .forEach { item ->
                 composable(
                     route = item.route,
-                    content = item.content(homeState),
-                    enterTransition = { item.animationConfig.enterTransition },
-                    exitTransition = { item.animationConfig.exitTransition }
+                    content = item.content(homeState)
                 )
             }
     }
@@ -68,8 +65,7 @@ enum class HomeNavigationItem(
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
-    val content: (HomeState) -> (@Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit)),
-    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
+    val content: (HomeState) -> (@Composable (NavBackStackEntry) -> Unit)
 ) {
     Conversations(
         route = HomeDestinationsRoutes.conversations,

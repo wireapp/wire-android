@@ -58,7 +58,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MessageComposer(
     content: @Composable () -> Unit,

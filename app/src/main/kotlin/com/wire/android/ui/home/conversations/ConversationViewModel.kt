@@ -12,9 +12,11 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.*
+import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.data.message.MessageContent
-import com.wire.kalium.logic.feature.asset.SendImageUseCase
+import com.wire.android.util.extractImageParams
+import com.wire.kalium.logic.data.message.MessageContent.Text
+import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -30,7 +32,7 @@ class ConversationViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val getConversationDetails: GetConversationDetailsUseCase,
-    private val sendImageUseCase: SendImageUseCase,
+    private val sendImageUseCase: SendImageMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase
 ) : ViewModel() {
 
@@ -83,7 +85,6 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             // TODO what if conversationId is null???
             conversationId?.let { sendTextMessage(it, messageText) }
-
         }
     }
 
@@ -92,7 +93,8 @@ class ConversationViewModel @Inject constructor(
             attachmentBundle?.let {
                 appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
                 conversationId?.run {
-                    sendImageUseCase(this, attachmentBundle.rawContent)
+                    val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
+                    sendImageUseCase(this, attachmentBundle.rawContent, imgWidth, imgHeight)
                 }
             }
         }
@@ -101,13 +103,13 @@ class ConversationViewModel @Inject constructor(
     private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(): List<Message> {
         return map { message ->
             Message(
-                messageContent = com.wire.android.ui.home.conversations.model.MessageContent.TextMessage(
-                    messageBody = com.wire.android.ui.home.conversations.model.MessageBody(
-                        (message.content as? MessageContent.Text)?.value ?: "content is not available"
+                messageContent = TextMessage(
+                    messageBody = MessageBody(
+                        (message.content as? Text)?.value ?: "content is not available"
                     )
                 ),
                 messageSource = MessageSource.CurrentUser,
-                messageHeader = com.wire.android.ui.home.conversations.model.MessageHeader(
+                messageHeader = MessageHeader(
                     "Cool User",
                     Membership.None,
                     true,
@@ -115,7 +117,6 @@ class ConversationViewModel @Inject constructor(
                     MessageStatus.Untouched
                 ),
                 user = User(availabilityStatus = UserStatus.NONE)
-
             )
         }
     }

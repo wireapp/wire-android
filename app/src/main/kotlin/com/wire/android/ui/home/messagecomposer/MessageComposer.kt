@@ -18,12 +18,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
@@ -40,7 +42,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -119,16 +123,29 @@ private fun MessageComposer(
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
-        ConstraintLayout {
+        ConstraintLayout(Modifier.fillMaxSize()) {
+            val guideline = createGuidelineFromTop(360.dp)
+
+            val test = createRef()
+            Divider(color = Color.Green, thickness = 30.dp,modifier = Modifier.constrainAs(test) {
+                top.linkTo(guideline)
+                end.linkTo(parent.end)
+                start.linkTo(parent.start)
+            })
+
             val (additionalActions, sendActions, messageInput, additionalOptionsContent) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
             // CollapseIconButton
             Column(
                 Modifier.constrainAs(messageInput) {
-                    bottom.linkTo(additionalActions.top)
+                    if (messageComposerState.attachmentOptionsDisplayed) {
+                        bottom.linkTo(guideline)
+                    } else {
+                        bottom.linkTo(additionalActions.top)
+                    }
                     top.linkTo(parent.top)
 
-                    height = Dimension.preferredWrapContent
+                    height = Dimension.fillToConstraints
                 }
             ) {
                 Box(
@@ -144,7 +161,8 @@ private fun MessageComposer(
                 ) {
                     content()
                 }
-                // Column wrapping CollapseIconButton
+
+                // Column wrapping CollapseIconButton and MessageComposerInput
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -247,8 +265,12 @@ private fun MessageComposer(
             // MessageComposerInput and CollapsingButton
             Box(
                 Modifier.constrainAs(sendActions) {
+                    if (messageComposerState.attachmentOptionsDisplayed) {
+                        bottom.linkTo(guideline)
+                    } else {
+                        bottom.linkTo(additionalActions.top)
+                    }
                     end.linkTo(parent.end)
-                    bottom.linkTo(additionalActions.top)
                 }
             ) {
                 Row {
@@ -271,10 +293,16 @@ private fun MessageComposer(
             // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
             // constrain our SendActions to it
             Box(
-                Modifier.constrainAs(additionalActions) {
-                    bottom.linkTo(additionalOptionsContent.bottom)
-                    top.linkTo(messageInput.bottom)
-                }
+                Modifier
+                    .constrainAs(additionalActions) {
+                        if(messageComposerState.attachmentOptionsDisplayed){
+                            top.linkTo(guideline)
+                        }else{
+                            bottom.linkTo(additionalOptionsContent.bottom)
+                            top.linkTo(messageInput.bottom)
+                        }
+                    }
+                    .background(Color.Red)
             ) {
                 Divider()
                 transition.AnimatedVisibility(
@@ -284,19 +312,18 @@ private fun MessageComposer(
                         targetOffsetY = { fullHeight -> fullHeight / 2 }
                     ) + fadeOut()
                 ) {
-                    MessageComposeActions(messageComposerState) {
-                        // On any MessageComposeAction we want to clear the focus
-                        focusManager.clearFocus()
-                    }
+                    MessageComposeActions(messageComposerState, focusManager)
                 }
             }
 
             // Box wrapping for additional options content
             Box(
-                Modifier.constrainAs(additionalOptionsContent) {
-                    bottom.linkTo(parent.bottom)
-                    top.linkTo(additionalActions.bottom)
-                }
+                Modifier
+                    .constrainAs(additionalOptionsContent) {
+                        top.linkTo(additionalActions.bottom)
+                    }
+                    .wrapContentSize()
+                    .background(Color.Red)
             ) {
                 if (messageComposerState.attachmentOptionsDisplayed) {
                     Divider()
@@ -307,6 +334,8 @@ private fun MessageComposer(
     }
 }
 
+//if attachment is visible we want to align the bottom of the compose actions
+// to top of the guide line
 @Composable
 private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier = Modifier, collapseRotation: Float = 0f) {
     IconButton(
@@ -389,7 +418,7 @@ private fun SendButton(
 @Composable
 private fun MessageComposeActions(
     messageComposerState: MessageComposerInnerState,
-    onMessageComposeActionClick: () -> Unit
+    focusManager: FocusManager
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -397,7 +426,7 @@ private fun MessageComposeActions(
         modifier = Modifier.fillMaxWidth()
     ) {
         AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-            onMessageComposeActionClick()
+            focusManager.clearFocus(false)
             messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
         }
         RichTextEditingAction()

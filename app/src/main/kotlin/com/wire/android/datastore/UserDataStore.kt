@@ -9,10 +9,10 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.model.UserStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 @Singleton
 class UserDataStore @Inject constructor(@ApplicationContext private val context: Context) {
@@ -20,15 +20,14 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
     companion object {
         private const val PREFERENCES_NAME = "user_data"
 
-        //keys
+        // keys
         private val SHOW_STATUS_RATIONALE_AVAILABLE = booleanPreferencesKey("show_status_rationale_available")
         private val SHOW_STATUS_RATIONALE_BUSY = booleanPreferencesKey("show_status_rationale_busy")
         private val SHOW_STATUS_RATIONALE_AWAY = booleanPreferencesKey("show_status_rationale_away")
         private val SHOW_STATUS_RATIONALE_NONE = booleanPreferencesKey("show_status_rationale_none")
         private val USER_AVATAR_ASSET_ID = stringPreferencesKey("user_avatar_asset_id")
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
     }
-
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 
     suspend fun dontShowStatusRationaleAgain(status: UserStatus) {
         context.dataStore.edit { preferences ->

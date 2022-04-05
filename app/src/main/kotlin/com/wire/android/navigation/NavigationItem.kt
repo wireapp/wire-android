@@ -1,6 +1,5 @@
 package com.wire.android.navigation
 
-import androidx.compose.animation.shrinkOut
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -15,7 +14,6 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_GROUP
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
@@ -38,7 +36,6 @@ import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.conversation.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
-import com.wire.android.ui.home.newconversation.newGroup.NewGroupScreen
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -107,12 +104,6 @@ enum class NavigationItem(
     Support(
         primaryRoute = BuildConfig.SUPPORT_URL,
         content = { },
-    ),
-
-    NewGroup(
-        primaryRoute = NEW_GROUP,
-        content = { NewGroupScreen() },
-        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     SelfUserProfile(
@@ -196,8 +187,6 @@ object NavigationItemDestinationsRoutes {
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val IMAGE_PICKER = "image_picker_screen"
     const val NEW_CONVERSATION = "new_conversation_screen"
-    const val NEW_GROUP = "new_group_screen"
-
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"

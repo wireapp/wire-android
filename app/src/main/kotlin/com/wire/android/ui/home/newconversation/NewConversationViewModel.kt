@@ -178,17 +178,13 @@ class NewConversationViewModel
     }
 
     fun openNewGroupScreen() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.NewGroup.getRouteWithArgs()
-                )
-            )
-        }
+        navigateCommand = NewConversationNavigationCommand.NewGroup
     }
 }
 
 sealed class NewConversationNavigationCommand {
     object KnownContacts : NewConversationNavigationCommand()
     object SearchContacts : NewConversationNavigationCommand()
+    object NewGroup : NewConversationNavigationCommand()
+
 }

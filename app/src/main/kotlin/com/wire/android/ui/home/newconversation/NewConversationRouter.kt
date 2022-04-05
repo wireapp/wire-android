@@ -19,8 +19,10 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.newconversation.NewConversationNavigationCommand.KnownContacts
+import com.wire.android.ui.home.newconversation.NewConversationNavigationCommand.NewGroup
 import com.wire.android.ui.home.newconversation.NewConversationNavigationCommand.SearchContacts
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
+import com.wire.android.ui.home.newconversation.newGroup.NewGroupScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -32,6 +34,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
         when (newConversationViewModel.navigateCommand) {
             KnownContacts -> newConversationState.navigateToKnownContacts()
             SearchContacts -> newConversationState.navigateToSearch()
+            NewGroup -> newConversationState.navigateToNewGroup()
         }
     }
 
@@ -107,6 +110,13 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                             )
                         }
                     )
+                    composable(
+                        route = NewConversationStateScreen.NEW_GROUP,
+                        content = {
+                            NewGroupScreen()
+                        }
+                    )
+
                 }
             }
         )
@@ -128,6 +138,10 @@ private class NewConversationStateScreen(
         navController.navigate(SEARCH_PEOPLE)
     }
 
+    fun navigateToNewGroup() {
+        navController.navigate(NEW_GROUP)
+    }
+
     fun navigateToKnownContacts() {
         navController.navigate(KNOWN_CONTACTS)
     }
@@ -135,6 +149,8 @@ private class NewConversationStateScreen(
     companion object {
         const val KNOWN_CONTACTS = "known_contacts"
         const val SEARCH_PEOPLE = "search_people"
+        const val NEW_GROUP = "new_group"
+
     }
 }
 

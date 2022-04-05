@@ -176,6 +176,16 @@ class NewConversationViewModel
             navigationManager.navigateBack()
         }
     }
+
+    fun openNewGroupScreen() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.NewGroup.getRouteWithArgs()
+                )
+            )
+        }
+    }
 }
 
 sealed class NewConversationNavigationCommand {

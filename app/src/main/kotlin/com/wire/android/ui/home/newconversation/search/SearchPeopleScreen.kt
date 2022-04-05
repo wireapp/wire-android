@@ -45,7 +45,8 @@ fun SearchPeopleScreen(
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
-    onOpenUserProfile: (SearchOpenUserProfile) -> Unit
+    onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
+    onNewGroupClicked: () -> Unit
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -62,7 +63,8 @@ fun SearchPeopleScreen(
                     contactsAddedToGroup = contactsAddedToGroup,
                     onAddToGroup = onAddToGroup,
                     onRemoveContactFromGroup = onRemoveFromGroup,
-                    onOpenUserProfile = onOpenUserProfile
+                    onOpenUserProfile = onOpenUserProfile,
+                    onNewGroupClicked = onNewGroupClicked
                 )
             }
         }
@@ -80,6 +82,7 @@ private fun SearchResult(
     onAddToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
+    onNewGroupClicked: () -> Unit
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
 
@@ -118,7 +121,7 @@ private fun SearchResult(
             )
         }
         Divider()
-        GroupButton(groupSize = contactsAddedToGroup.size)
+        GroupButton(groupSize = contactsAddedToGroup.size, onNewGroupClicked = onNewGroupClicked)
     }
 }
 

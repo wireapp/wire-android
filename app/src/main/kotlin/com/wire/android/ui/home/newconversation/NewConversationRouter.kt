@@ -80,7 +80,8 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                                 },
                                 onOpenUserProfile = { contact ->
                                     newConversationViewModel.openUserProfile(contact, true)
-                                }
+                                },
+                                onNewGroupClicked = { newConversationViewModel.openNewGroupScreen() }
                             )
                         }
                     )
@@ -101,7 +102,8 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                                         contact = searchContact.contact,
                                         internal = searchContact.internal
                                     )
-                                }
+                                },
+                                onNewGroupClicked = { newConversationViewModel.openNewGroupScreen() }
                             )
                         }
                     )

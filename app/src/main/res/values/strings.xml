@@ -86,6 +86,15 @@
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
 
+    <!-- Delete Message -->
+    <string name="delete_message_dialog_title">Delete Message?</string>
+    <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
+    <string name="label_delete_for_me">Delete for Me</string>
+    <string name="label_delete_for_everyone">Delete for Everyone</string>
+
+    <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
+    <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
+
     <!-- Create Account -->
     <string name="create_personal_account_title">Create a Personal Account</string>
     <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>

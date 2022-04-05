@@ -7,6 +7,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.navigation.EXTRA_CONNECTED_STATUS
+import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -19,17 +21,19 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val navigationManager: NavigationManager
 ) : ViewModel() {
 
-    private companion object {
-        const val USER_ID = "user_id"
-    }
-
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
 
     init {
-        savedStateHandle.get<String>(USER_ID)?.let { id ->
+        savedStateHandle.get<String>(EXTRA_USER_ID)?.let { id ->
             appLogger.d("user id $id")
             //TODO: here we need to get the user from the Kalium
         }
+
+        //TODO: internal is here untill we can get the ConnectionStatus from the user
+        // for now it is just to be able to proceed forward
+        val internalStatus = savedStateHandle.get<String>(EXTRA_CONNECTED_STATUS)
+
+        val booleanStatus = internalStatus == "true"
 
         state = state.copy(
             isAvatarLoading = false,
@@ -38,7 +42,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             teamName = "AWESOME TEAM NAME",
             email = "kim.dawson@gmail.com",
             phone = "+49 123 456 000",
-            connectionStatus = ConnectionStatus.NotConnected(false)
+            connectionStatus = if (booleanStatus) ConnectionStatus.Connected else ConnectionStatus.NotConnected(false)
         )
     }
 

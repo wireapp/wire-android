@@ -26,7 +26,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -159,7 +163,7 @@ private fun LoginContent(
                 title = title,
                 text = message,
                 onDismiss = onDialogDismiss,
-                confirmButtonProperties = WireDialogButtonProperties(
+                optionButton1Properties = WireDialogButtonProperties(
                     onClick = onDialogDismiss,
                     text = stringResource(id = R.string.label_ok),
                     type = WireDialogButtonType.Primary,
@@ -185,7 +189,7 @@ private fun UserIdentifierInput(
         labelText = stringResource(R.string.login_user_identifier_label),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-        modifier = modifier,
+        modifier = modifier.testTag("emailField")
     )
 }
 
@@ -198,7 +202,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
         onValueChange = onPasswordChange,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-        modifier = modifier,
+        modifier = modifier.testTag("passwordField")
     )
 }
 
@@ -218,7 +222,7 @@ private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = { openForgotPasswordPage(context, accountsBaseUrl) }
-                )
+                ).testTag("Forgot password?")
         )
     }
 }
@@ -240,7 +244,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
             state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             loading = loading,
             interactionSource = interactionSource,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("loginButton")
         )
     }
 }

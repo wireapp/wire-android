@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -71,7 +72,7 @@ private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemo
             }
         if (!placeholder)
             WireSecondaryButton(
-                modifier = Modifier.padding(top = buttonTopPadding, end = buttonEndPadding),
+                modifier = Modifier.padding(top = buttonTopPadding, end = buttonEndPadding).testTag("remove device button"),
                 onClick = { onRemoveDeviceClick(device) },
                 leadingIcon = {
                     Icon(

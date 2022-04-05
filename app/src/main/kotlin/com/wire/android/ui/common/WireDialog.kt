@@ -41,7 +41,8 @@ fun WireDialog(
     title: String,
     text: String,
     onDismiss: () -> Unit,
-    confirmButtonProperties: WireDialogButtonProperties,
+    optionButton1Properties: WireDialogButtonProperties,
+    optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
     modifier: Modifier = Modifier,
@@ -54,7 +55,8 @@ fun WireDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         WireDialogContent(
-            confirmButtonProperties = confirmButtonProperties,
+            optionButton1Properties = optionButton1Properties,
+            optionButton2Properties = optionButton2Properties,
             dismissButtonProperties = dismissButtonProperties,
             buttonsHorizontalAlignment = buttonsHorizontalAlignment,
             modifier = modifier,
@@ -71,7 +73,8 @@ fun WireDialog(
 private fun WireDialogContent(
     title: String,
     text: String,
-    confirmButtonProperties: WireDialogButtonProperties,
+    optionButton1Properties: WireDialogButtonProperties,
+    optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
     modifier: Modifier = Modifier,
@@ -111,14 +114,22 @@ private fun WireDialogContent(
                     dismissButtonProperties.getButton(Modifier.weight(1f))
                     if (dismissButtonProperties != null)
                         Spacer(Modifier.width(MaterialTheme.wireDimensions.dialogButtonsSpacing))
-                    confirmButtonProperties.getButton(Modifier.weight(1f))
+                    optionButton1Properties.getButton(Modifier.weight(1f))
+                    if (optionButton2Properties != null)
+                        Spacer(Modifier.width(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                    optionButton2Properties.getButton(Modifier.weight(1f))
                 }
             else
                 Column(Modifier.padding(top = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
-                    dismissButtonProperties.getButton()
+                    optionButton1Properties.getButton()
+
+                    if (optionButton2Properties != null)
+                        Spacer(Modifier.height(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                    optionButton2Properties.getButton()
+
                     if (dismissButtonProperties != null)
                         Spacer(Modifier.height(MaterialTheme.wireDimensions.dialogButtonsSpacing))
-                    confirmButtonProperties.getButton()
+                    dismissButtonProperties.getButton()
                 }
         }
     }
@@ -150,7 +161,7 @@ private fun WireDialogPreview() {
             modifier = Modifier.fillMaxWidth()
         ) {
             WireDialogContent(
-                confirmButtonProperties = WireDialogButtonProperties(
+                optionButton1Properties = WireDialogButtonProperties(
                     text = "OK",
                     onClick = { },
                     type = WireDialogButtonType.Primary,
@@ -162,6 +173,44 @@ private fun WireDialogPreview() {
                 ),
                 title = "title",
                 text = "text",
+            ) {
+                WirePasswordTextField(
+                    value = password,
+                    onValueChange = { password = it })
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun WireDialogPreviewWith2OptionButtons() {
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    WireTheme(isPreview = true) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                optionButton2Properties = WireDialogButtonProperties(
+                    text = "Later",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "Cancel",
+                    onClick = { }
+                ),
+                title = "title",
+                text = "text",
+                buttonsHorizontalAlignment = false
             ) {
                 WirePasswordTextField(
                     value = password,

@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -79,7 +80,7 @@ fun WirePasswordTextField(
         trailingIcon = {
             val image = if (passwordVisibility) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
             IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
-                Icon(imageVector = image, "", modifier = Modifier.size(20.dp))
+                Icon(imageVector = image, "", modifier = Modifier.size(20.dp).testTag("hidePassword"))
             }
         },
     )

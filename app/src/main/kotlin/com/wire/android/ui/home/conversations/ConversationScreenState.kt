@@ -44,6 +44,7 @@ fun rememberConversationScreenState(
     }
 }
 
+//todo: pass directly the strings, to avoid passing the context
 @OptIn(ExperimentalMaterialApi::class)
 class ConversationScreenState(
     val context: Context,
@@ -53,7 +54,7 @@ class ConversationScreenState(
     val coroutineScope: CoroutineScope
 ) {
 
-    private var editMessage by mutableStateOf<Message?>(null)
+    var editMessage by mutableStateOf<Message?>(null)
 
     val editMessageSource by derivedStateOf {
         editMessage?.messageSource

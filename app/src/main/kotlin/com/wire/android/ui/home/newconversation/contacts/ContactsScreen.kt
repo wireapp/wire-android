@@ -11,13 +11,10 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.ArrowRightIcon
@@ -32,58 +29,44 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun ContactsScreen(
-    viewModel: ContactsViewModel = hiltViewModel(),
-    onScrollPositionChanged: (Int) -> Unit
-) {
-    ContactsScreenContent(
-        isLoading = viewModel.contactState.isLoading,
-        contacts = viewModel.contactState.contacts,
-        onScrollPositionChanged = onScrollPositionChanged,
-        onOpenUserProfile = viewModel::openUserProfile
-    )
-}
-
-@Composable
-fun ContactsScreenContent(
-    isLoading: Boolean,
-    contacts: List<Contact>,
-    onScrollPositionChanged: (Int) -> Unit,
+    allKnownContact: List<Contact>,
+    contactsAddedToGroup: List<Contact>,
     onOpenUserProfile: (Contact) -> Unit,
+    onAddToGroup: (Contact) -> Unit,
+    onRemoveFromGroup: (Contact) -> Unit,
+    onScrollPositionChanged: (Int) -> Unit,
 ) {
-    val lazyListState = rememberLazyListState {
-        onScrollPositionChanged(it)
+    val lazyListState = rememberLazyListState { itemIndex ->
+        onScrollPositionChanged(itemIndex)
     }
 
-    val contactsScreenState = rememberContactScreenState()
-
-    with(contactsScreenState) {
-        Column(
-            Modifier
-                .fillMaxSize()
-        ) {
-            if (isLoading) {
-                CenteredCircularProgressBarIndicator()
-            } else {
-                LazyColumn(
-                    state = lazyListState,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    folderWithElements(
-                        header = { stringResource(R.string.label_contacts) },
-                        items = contacts
-                    ) { contact ->
-                        ContactItem(
-                            name = contact.name,
-                            userStatus = contact.userStatus,
-                            belongsToGroup = newGroupContacts.contains(contact),
-                            addToGroup = { addContactToGroup(contact) },
-                            removeFromGroup = { removeContactFromGroup(contact) },
+    Column(
+        Modifier
+            .fillMaxSize()
+    ) {
+        if (false) {
+            CenteredCircularProgressBarIndicator()
+        } else {
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier.weight(1f),
+            ) {
+                folderWithElements(
+                    header = { stringResource(R.string.label_contacts) },
+                    items = allKnownContact
+                ) { contact ->
+                    ContactItem(
+                        name = contact.name,
+                        userStatus = contact.userStatus,
+                        belongsToGroup = contactsAddedToGroup.contains(contact),
+                        addToGroup = { onAddToGroup(contact) },
+                        removeFromGroup = { onRemoveFromGroup(contact) },
                         openUserProfile = { onOpenUserProfile(contact) }
                     )
                 }
             }
             Divider()
-            GroupButton(groupSize = contactsScreenState.newGroupContacts.size)}
+            GroupButton(groupSize = contactsAddedToGroup.size)
         }
     }
 }
@@ -127,25 +110,4 @@ private fun ContactItem(
             // TODO: implement later on
         }
     )
-}
-
-class ContactsScreenState {
-
-    val newGroupContacts = mutableStateListOf<Contact>()
-
-    fun addContactToGroup(contact: Contact) {
-        newGroupContacts.add(contact)
-    }
-
-    fun removeContactFromGroup(contact: Contact) {
-        newGroupContacts.remove(contact)
-    }
-
-}
-
-@Composable
-fun rememberContactScreenState(): ContactsScreenState {
-    return remember {
-        ContactsScreenState()
-    }
 }

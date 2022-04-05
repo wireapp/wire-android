@@ -8,6 +8,7 @@ import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
@@ -221,4 +222,12 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetAllKnownUsersUseCase =
         coreLogic.getSessionScope(currentAccount).users.getAllKnownUsers
+
+    @ViewModelScoped
+    @Provides
+    fun providesDeleteMessageUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): DeleteMessageUseCase =
+        coreLogic.getSessionScope(currentAccount).messages.deleteMessage
 }

@@ -54,7 +54,7 @@ class MessageComposerInnerState(
         attachmentOptionsDisplayed = !attachmentOptionsDisplayed
     }
 
-    private fun toEnabled() {
+     private fun toEnabled() {
         messageComposeInputState = MessageComposeInputState.Enabled
     }
 

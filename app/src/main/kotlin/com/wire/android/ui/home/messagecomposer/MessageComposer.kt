@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
@@ -49,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -61,6 +61,8 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
@@ -236,7 +238,6 @@ private fun MessageComposer(
                                 else
                                     Modifier
                             )
-
                     ) {
                         transition.AnimatedVisibility(
                             visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
@@ -278,7 +279,6 @@ private fun MessageComposer(
                                                     max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
                                                 )
                                                 .padding(
-                                                    bottom = MaterialTheme.wireDimensions.spacing16x,
                                                     end = dimensions().messageComposerPaddingEnd
                                                 )
                                         }
@@ -340,7 +340,10 @@ private fun MessageComposer(
                         targetOffsetY = { fullHeight -> fullHeight / 2 }
                     ) + fadeOut()
                 ) {
-                    MessageComposeActions(messageComposerState, focusManager)
+                    MessageComposeActions(messageComposerState, focusManager) {
+                        // On any MessageComposeAction we want to clear the focus
+                        focusManager.clearFocus()
+                    }
                 }
             }
 
@@ -400,11 +403,18 @@ private fun MessageComposerInput(
     onNotFocused: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BasicTextField(
+    WireTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,
+        colors = wireTextFieldColors(
+            borderColor = Color.Transparent,
+            focusColor = Color.Transparent
+        ),
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
+        maxLines = Int.MAX_VALUE,
         textStyle = MaterialTheme.wireTypography.body01,
+        // Add a extra space so that the a cursor is placed one space before "Type a message"
+        placeholderText = " " + stringResource(R.string.label_type_a_message),
         modifier = modifier.then(
             Modifier.onFocusChanged { focusState ->
                 if (focusState.isFocused) {

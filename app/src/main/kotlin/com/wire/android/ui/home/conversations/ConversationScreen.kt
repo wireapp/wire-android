@@ -251,7 +251,9 @@ private fun ConversationScreenContent(
         onSendAttachment = onSendAttachment,
         onError = onError,
         onMessageComposerInputStateChange = { messageComposerState ->
-            if (messageComposerState.to == MessageComposeInputState.Active && messageComposerState.from == MessageComposeInputState.Enabled) {
+            if (messageComposerState.to == MessageComposeInputState.Active
+                && messageComposerState.from == MessageComposeInputState.Enabled
+            ) {
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
         }

@@ -340,10 +340,7 @@ private fun MessageComposer(
                         targetOffsetY = { fullHeight -> fullHeight / 2 }
                     ) + fadeOut()
                 ) {
-                    MessageComposeActions(messageComposerState, focusManager) {
-                        // On any MessageComposeAction we want to clear the focus
-                        focusManager.clearFocus()
-                    }
+                    MessageComposeActions(messageComposerState, focusManager)
                 }
             }
 

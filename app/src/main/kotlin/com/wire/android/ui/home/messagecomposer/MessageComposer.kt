@@ -124,7 +124,7 @@ private fun MessageComposer(
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout(Modifier.fillMaxSize()) {
-            val guideline = createGuidelineFromTop(360.dp)
+            val guideline = createGuidelineFromTop(450.dp)
 
             val test = createRef()
             Divider(color = Color.Green, thickness = 30.dp,modifier = Modifier.constrainAs(test) {
@@ -138,11 +138,11 @@ private fun MessageComposer(
             // CollapseIconButton
             Column(
                 Modifier.constrainAs(messageInput) {
-                    if (messageComposerState.attachmentOptionsDisplayed) {
+//                    if (messageComposerState.attachmentOptionsDisplayed) {
                         bottom.linkTo(guideline)
-                    } else {
-                        bottom.linkTo(additionalActions.top)
-                    }
+//                    } else {
+//                        bottom.linkTo(additionalActions.top)
+//                    }
                     top.linkTo(parent.top)
 
                     height = Dimension.fillToConstraints
@@ -265,11 +265,11 @@ private fun MessageComposer(
             // MessageComposerInput and CollapsingButton
             Box(
                 Modifier.constrainAs(sendActions) {
-                    if (messageComposerState.attachmentOptionsDisplayed) {
+//                    if (messageComposerState.attachmentOptionsDisplayed) {
                         bottom.linkTo(guideline)
-                    } else {
-                        bottom.linkTo(additionalActions.top)
-                    }
+//                    } else {
+//                        bottom.linkTo(additionalActions.top)
+//                    }
                     end.linkTo(parent.end)
                 }
             ) {
@@ -295,12 +295,12 @@ private fun MessageComposer(
             Box(
                 Modifier
                     .constrainAs(additionalActions) {
-                        if(messageComposerState.attachmentOptionsDisplayed){
+//                        if(messageComposerState.attachmentOptionsDisplayed){
                             top.linkTo(guideline)
-                        }else{
-                            bottom.linkTo(additionalOptionsContent.bottom)
-                            top.linkTo(messageInput.bottom)
-                        }
+//                        }else{
+//                            bottom.linkTo(additionalOptionsContent.bottom)
+//                            top.linkTo(messageInput.bottom)
+//                        }
                     }
                     .background(Color.Red)
             ) {
@@ -320,6 +320,7 @@ private fun MessageComposer(
             Box(
                 Modifier
                     .constrainAs(additionalOptionsContent) {
+                        bottom.linkTo(parent.bottom)
                         top.linkTo(additionalActions.bottom)
                     }
                     .wrapContentSize()
@@ -332,6 +333,7 @@ private fun MessageComposer(
             }
         }
     }
+
 }
 
 //if attachment is visible we want to align the bottom of the compose actions

@@ -4,7 +4,7 @@ plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
     id(BuildPlugins.kotlinAndroid)
-    //id(BuildPlugins.kotlinAndroidExtensions)
+    // id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinKapt)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.hilt)
@@ -31,9 +31,10 @@ android {
         minSdk = AndroidSdk.min
         targetSdk = AndroidSdk.target
         versionCode = AndroidClient.versionCode
-        versionName = "v${AndroidClient.versionName}(${versionCode})"
+        versionName = "v${AndroidClient.versionName}($versionCode)"
         testInstrumentationRunner = AndroidClient.testRunner
-        setProperty("archivesBaseName", "${applicationId}-v${versionName}(${versionCode})")
+        testInstrumentationRunnerArguments.putAll(mapOf("clearPackageData" to "true"))
+        setProperty("archivesBaseName", "$applicationId-v$versionName($versionCode)")
     }
 
     buildFeatures {
@@ -56,19 +57,19 @@ android {
     sourceSets["androidTest"].includeCommonTestSourceDir()
 
     // Remove protobuf-java as dependencies, so we can get protobuf-lite
-    //configurations.implementation.configure {
+    // configurations.implementation.configure {
     //    exclude(module = "protobuf-java")
-    //}
+    // }
 
     packagingOptions {
         resources.pickFirsts.add("google/protobuf/*.proto")
     }
 
     testOptions {
+        animationsDisabled = true
         unitTests.isReturnDefaultValues = true
         unitTests.isIncludeAndroidResources = true
     }
-
 }
 
 kapt {
@@ -121,7 +122,7 @@ dependencies {
     // Saved state module for ViewModel
     implementation(Libraries.Lifecycle.viewModelSavedState)
 
-    //Compose
+    // Compose
     implementation(Libraries.composeUi)
     implementation(Libraries.composeFoundation)
     implementation(Libraries.composeMaterial3)

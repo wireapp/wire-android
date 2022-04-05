@@ -58,7 +58,6 @@ class MessageComposerInnerState(
                 to = MessageComposeInputState.Enabled
             )
         )
-
         messageComposeInputState = MessageComposeInputState.Enabled
     }
 
@@ -76,6 +75,7 @@ class MessageComposerInnerState(
             )
         )
 
+        attachmentOptionsDisplayed = false
         messageComposeInputState = MessageComposeInputState.Active
     }
 

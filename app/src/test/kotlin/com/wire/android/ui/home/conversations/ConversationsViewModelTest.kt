@@ -56,7 +56,7 @@ class ConversationsViewModelTest {
             getMessages = getMessages,
             getConversationDetails = getConversationDetails,
             sendTextMessage = sendTextMessage,
-            sendImageUseCase = sendImageMessage,
+            sendImageMessage = sendImageMessage,
             deleteMessage = deleteMessage
         )
     }

@@ -215,7 +215,9 @@ private fun MessageComposer(
                                 onMessageChanged(value)
                             },
                             messageComposerInputState = messageComposerState.messageComposeInputState,
-                            onFocusChanged = { messageComposerState.toActive() },
+                            onFocusChanged = {
+                                messageComposerState.toActive()
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .then(
@@ -282,7 +284,10 @@ private fun MessageComposer(
                         targetOffsetY = { fullHeight -> fullHeight / 2 }
                     ) + fadeOut()
                 ) {
-                    MessageComposeActions(messageComposerState)
+                    MessageComposeActions(messageComposerState) {
+                        // On any MessageComposeAction we want to clear the focus
+                        focusManager.clearFocus()
+                    }
                 }
             }
 
@@ -389,13 +394,17 @@ private fun SendButton(
 }
 
 @Composable
-private fun MessageComposeActions(messageComposerState: MessageComposerInnerState) {
+private fun MessageComposeActions(
+    messageComposerState: MessageComposerInnerState,
+    onMessageComposeActionClick: () -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxWidth()
     ) {
         AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
+            onMessageComposeActionClick()
             messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
         }
         RichTextEditingAction()

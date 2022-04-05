@@ -15,13 +15,12 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.utils.PASSWORD
+import com.wire.android.utils.LoginTestRule
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.waitForExecution
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -44,6 +43,9 @@ class RemoveDeviceScreenTest {
     @get:Rule(order = 2)
     val composeTestRule = createAndroidComposeRule<WireActivity>()
 
+    @get:Rule(order = 3)
+    var loginTestRule = LoginTestRule()
+
     @Before
     fun setUp() {
         hiltRule.inject()
@@ -56,7 +58,6 @@ class RemoveDeviceScreenTest {
         }
     }
 
-
     val title = composeTestRule.onNodeWithText("Remove a Device")
     val backButton = composeTestRule.onNodeWithText("Back button")
     val removeDeviceButton = composeTestRule.onAllNodes(hasTestTag("remove device button"))
@@ -68,7 +69,6 @@ class RemoveDeviceScreenTest {
 
     val invalidPasswordText = "Invalid password"
 
-    @Ignore
     @Test
     fun removeDevice_Successfully() {
         title.assertIsDisplayed()
@@ -81,7 +81,6 @@ class RemoveDeviceScreenTest {
         removeButton.performClick()
     }
 
-    @Ignore
     @Test
     fun removeDevice_error_wrongPassword() {
         title.assertIsDisplayed()
@@ -92,10 +91,11 @@ class RemoveDeviceScreenTest {
         passwordField.onChildren()[1].performTextClearance()
         passwordField.onChildren()[1].performTextInput("BAD PASSWORD")
         removeButton.performClick()
-        composeTestRule.onNodeWithText(invalidPasswordText).assertIsDisplayed()
+        composeTestRule.waitForExecution {
+            composeTestRule.onNodeWithText(invalidPasswordText).assertIsDisplayed()
+        }
     }
 
-    @Ignore
     @Test
     fun removeDevice_cancel() {
         title.assertIsDisplayed()

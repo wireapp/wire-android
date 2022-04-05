@@ -321,8 +321,7 @@ private fun MessageComposer(
             Box(
                 Modifier
                     .constrainAs(additionalOptionsContent) {
-                        bottom.linkTo(parent.bottom)
-                        top.linkTo(guideline1)
+                        top.linkTo(additionalActions.bottom)
                     }
                     .wrapContentSize()
                     .background(Color.Red)

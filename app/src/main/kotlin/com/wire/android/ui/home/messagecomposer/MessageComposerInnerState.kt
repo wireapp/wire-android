@@ -30,6 +30,8 @@ class MessageComposerInnerState(
     val attachmentInnerState: AttachmentInnerState
 ) {
 
+    var hasFocus by mutableStateOf(false)
+
     var messageText by mutableStateOf(TextFieldValue(""))
 
     var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
@@ -44,8 +46,13 @@ class MessageComposerInnerState(
         }
 
     var attachmentOptionsDisplayed by mutableStateOf(false)
+        private set
 
-     private fun toEnabled() {
+    fun toggleAttachmentOptionsVisibility() {
+        attachmentOptionsDisplayed = !attachmentOptionsDisplayed
+    }
+
+    private fun toEnabled() {
         messageComposeInputState = MessageComposeInputState.Enabled
     }
 
@@ -56,6 +63,7 @@ class MessageComposerInnerState(
     }
 
     fun toActive() {
+        hasFocus = true
         attachmentOptionsDisplayed = false
         messageComposeInputState = MessageComposeInputState.Active
     }

@@ -44,7 +44,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -124,22 +123,15 @@ private fun MessageComposer(
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout(Modifier.fillMaxSize()) {
-            val guideline = createGuidelineFromTop(470.dp)
-
-            val test = createRef()
-            Divider(color = Color.Green, thickness = 30.dp,modifier = Modifier.constrainAs(test) {
-                top.linkTo(guideline)
-                end.linkTo(parent.end)
-                start.linkTo(parent.start)
-            })
+            val topOfKeyboardGuideLine = createGuidelineFromTop(470.dp)
 
             val (additionalActions, sendActions, messageInput, additionalOptionsContent) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
             // CollapseIconButton
             Column(
                 Modifier.constrainAs(messageInput) {
-                    if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.messageComposeInputState == MessageComposeInputState.Active) {
-                        bottom.linkTo(guideline)
+                    if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
+                        bottom.linkTo(topOfKeyboardGuideLine)
                     } else {
                         bottom.linkTo(additionalActions.top)
                     }
@@ -216,8 +208,7 @@ private fun MessageComposer(
                         ) {
                             Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
                                 AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                                    messageComposerState.attachmentOptionsDisplayed =
-                                        !messageComposerState.attachmentOptionsDisplayed
+                                    messageComposerState.toggleAttachmentOptionsVisibility()
                                 }
                             }
                         }
@@ -232,8 +223,11 @@ private fun MessageComposer(
                                 onMessageChanged(value)
                             },
                             messageComposerInputState = messageComposerState.messageComposeInputState,
-                            onFocusChanged = {
+                            onIsFocused = {
                                 messageComposerState.toActive()
+                            },
+                            onNotFocused = {
+                                messageComposerState.hasFocus = false
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -265,11 +259,11 @@ private fun MessageComposer(
             // MessageComposerInput and CollapsingButton
             Box(
                 Modifier.constrainAs(sendActions) {
-//                    if (messageComposerState.attachmentOptionsDisplayed) {
-                        bottom.linkTo(guideline)
-//                    } else {
-//                        bottom.linkTo(additionalActions.top)
-//                    }
+                    if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
+                        bottom.linkTo(topOfKeyboardGuideLine)
+                    } else {
+                        bottom.linkTo(additionalActions.top)
+                    }
                     end.linkTo(parent.end)
                 }
             ) {
@@ -295,12 +289,12 @@ private fun MessageComposer(
             Box(
                 Modifier
                     .constrainAs(additionalActions) {
-//                        if(messageComposerState.attachmentOptionsDisplayed){
-                            top.linkTo(guideline)
-//                        }else{
-//                            bottom.linkTo(additionalOptionsContent.bottom)
-//                            top.linkTo(messageInput.bottom)
-//                        }
+                        if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
+                            top.linkTo(topOfKeyboardGuideLine)
+                        } else {
+                            bottom.linkTo(additionalOptionsContent.bottom)
+                            top.linkTo(messageInput.bottom)
+                        }
                     }
             ) {
                 Divider()
@@ -320,6 +314,10 @@ private fun MessageComposer(
                 Modifier
                     .constrainAs(additionalOptionsContent) {
                         top.linkTo(additionalActions.bottom)
+
+                        if (!(messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus)) {
+                            bottom.linkTo(parent.bottom)
+                        }
                     }
                     .wrapContentSize()
             ) {
@@ -364,7 +362,8 @@ private fun MessageComposerInput(
     messageText: TextFieldValue,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,
-    onFocusChanged: () -> Unit,
+    onIsFocused: () -> Unit,
+    onNotFocused: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     BasicTextField(
@@ -375,7 +374,9 @@ private fun MessageComposerInput(
         modifier = modifier.then(
             Modifier.onFocusChanged { focusState ->
                 if (focusState.isFocused) {
-                    onFocusChanged()
+                    onIsFocused()
+                } else {
+                    onNotFocused()
                 }
             }
         )
@@ -426,7 +427,7 @@ private fun MessageComposeActions(
     ) {
         AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
             focusManager.clearFocus()
-            messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
+            messageComposerState.toggleAttachmentOptionsVisibility()
         }
         RichTextEditingAction()
         AddEmojiAction()

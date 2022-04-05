@@ -82,11 +82,10 @@ fun MessageComposer(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit
 ) {
-
     BoxWithConstraints {
-        val fullScreenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
-
-        val messageComposerState = rememberMessageComposerInnerState(fullScreenHeight)
+        val messageComposerState = rememberMessageComposerInnerState(
+            fullScreenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
+        )
 
         LaunchedEffect(messageText) {
             messageComposerState.messageText = messageComposerState.messageText.copy(messageText)

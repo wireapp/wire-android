@@ -7,7 +7,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.home.conversationslist.bottomsheet.ModalSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 
@@ -42,7 +42,7 @@ class ConversationState(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun rememberConversationState(
-    navHostController: NavHostController = rememberAnimatedNavController(),
+    navHostController: NavHostController = rememberNavController(),
     modalBottomSheetContentState: MutableState<ModalSheetContent> = remember {
         mutableStateOf(ModalSheetContent.Initial)
     },

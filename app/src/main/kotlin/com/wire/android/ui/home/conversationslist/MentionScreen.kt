@@ -12,7 +12,7 @@ import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.EventType
-import com.wire.kalium.logic.data.conversation.ConversationId
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun MentionScreen(

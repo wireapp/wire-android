@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
 
 const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
@@ -39,4 +40,11 @@ fun Uri.toBitmap(context: Context): Bitmap? {
         true -> context.contentResolver.openInputStream(this).use { stream -> BitmapFactory.decodeStream(stream) }
         false -> null // we don't want to convert app assets (ie: default avatar icon) into bitmap
     }
+}
+
+fun extractImageParams(imageRawData: ByteArray): Pair<Int, Int> {
+    val exif = ExifInterface(imageRawData.inputStream())
+    val width: Int = exif.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0)
+    val height: Int = exif.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0)
+    return width to height
 }

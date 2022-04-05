@@ -19,7 +19,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreateAccountUsernameViewModel @Inject constructor(
     private val navigationManager: NavigationManager,

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -34,7 +33,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -169,8 +167,8 @@ private fun InnerText(
             }
         Box(Modifier.weight(1f)) {
             val padding = Modifier.padding(
-                start = if(leadingIcon == null) 16.dp else 0.dp,
-                end = if(trailingOrStateIcon == null) 16.dp else 0.dp,
+                start = if (leadingIcon == null) 16.dp else 0.dp,
+                end = if (trailingOrStateIcon == null) 16.dp else 0.dp,
                 top = 2.dp, bottom = 2.dp
             )
             if (value.text.isEmpty() && placeholderText != null)
@@ -227,8 +225,8 @@ private fun WireTextFieldDenseSearchPreview() {
     WireTextField(
         value = TextFieldValue(""),
         placeholderText = "Search",
-        leadingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Search,"") } },
-        trailingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Close,"") } },
+        leadingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Search, "") } },
+        trailingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Close, "") } },
         onValueChange = {},
         inputMinHeight = 40.dp,
         modifier = Modifier.padding(16.dp)

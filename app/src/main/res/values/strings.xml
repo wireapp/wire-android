@@ -251,5 +251,6 @@
     <string name="notification_receiver_name">You</string>
     <string name="content_description_copy">Copy</string>
     <string name="content_description_show_more_options">Show more options</string>
+    <string name="label_type_a_message">Type a message</string>
 
 </resources>

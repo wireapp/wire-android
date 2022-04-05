@@ -27,7 +27,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.main.conversationlist.navigation.ConversationsNavigationItem
-import com.wire.kalium.logic.data.conversation.ConversationId
+import com.wire.kalium.logic.data.id.ConversationId
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api

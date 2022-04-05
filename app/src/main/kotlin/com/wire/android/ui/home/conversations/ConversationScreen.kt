@@ -36,7 +36,6 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.dialogErrorStrings
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConversationScreen(
     conversationViewModel: ConversationViewModel

@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.Dp
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
@@ -18,15 +19,16 @@ import com.wire.android.util.toByteArray
 import java.io.IOException
 
 @Composable
-fun rememberMessageComposerInnerState(): MessageComposerInnerState {
+fun rememberMessageComposerInnerState(fullScreenHeight: Dp): MessageComposerInnerState {
     val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
 
     return remember {
-        MessageComposerInnerState(defaultAttachmentInnerState)
+        MessageComposerInnerState(fullScreenHeight,defaultAttachmentInnerState)
     }
 }
 
 class MessageComposerInnerState(
+    val fullScreenHeight: Dp,
     val attachmentInnerState: AttachmentInnerState
 ) {
 

@@ -14,13 +14,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -37,13 +40,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -61,6 +67,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+
+private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 334.dp
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MessageComposer(
@@ -71,28 +80,33 @@ fun MessageComposer(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit
 ) {
-    val messageComposerState = rememberMessageComposerInnerState()
 
-    LaunchedEffect(messageText) {
-        messageComposerState.messageText = messageComposerState.messageText.copy(messageText)
+    BoxWithConstraints {
+        val fullScreenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
+
+        val messageComposerState = rememberMessageComposerInnerState(fullScreenHeight)
+
+        LaunchedEffect(messageText) {
+            messageComposerState.messageText = messageComposerState.messageText.copy(messageText)
+        }
+
+        MessageComposer(
+            content = content,
+            messageComposerState = messageComposerState,
+            messageText = messageComposerState.messageText,
+            onMessageChanged = {
+                // we are setting it immediately in the UI first
+                messageComposerState.messageText = it
+                // we are hoisting the TextFieldValue text value up to the parent
+                if (messageText != it.text) {
+                    onMessageChanged(it.text)
+                }
+            },
+            onSendButtonClicked = onSendButtonClicked,
+            onSendAttachment = onSendAttachment,
+            onError = onError
+        )
     }
-
-    MessageComposer(
-        content = content,
-        messageComposerState = messageComposerState,
-        messageText = messageComposerState.messageText,
-        onMessageChanged = {
-            // we are setting it immediately in the UI first
-            messageComposerState.messageText = it
-            // we are hoisting the TextFieldValue text value up to the parent
-            if (messageText != it.text) {
-                onMessageChanged(it.text)
-            }
-        },
-        onSendButtonClicked = onSendButtonClicked,
-        onSendAttachment = onSendAttachment,
-        onError = onError
-    )
 }
 
 /*
@@ -123,13 +137,34 @@ private fun MessageComposer(
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout(Modifier.fillMaxSize()) {
-            val topOfKeyboardGuideLine = createGuidelineFromTop(470.dp)
+            var actualBottomIme by remember { mutableStateOf(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET) }
+
+            val bottomIme = with(LocalDensity.current) {
+                WindowInsets.ime.getBottom(this).toDp()
+            }
+
+            // if the bottomIme is greater than 0.dp it means that the keyboard did pop up
+            //we are able to set the actual size of the keyboard now
+            LaunchedEffect(bottomIme) {
+                if (bottomIme > 0.dp) {
+                    actualBottomIme = bottomIme
+                }
+            }
+            // This guide line is used when we have a focus on the TextInputField as well as when the attachment options are visible
+            // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
+            // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
+            // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
+            // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
+            val topOfKeyboardGuideLine =
+                createGuidelineFromTop(messageComposerState.fullScreenHeight - actualBottomIme)
 
             val (additionalActions, sendActions, messageInput, additionalOptionsContent) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
             // CollapseIconButton
             Column(
                 Modifier.constrainAs(messageInput) {
+                    // we want to align the elements to the guideline only when we display attachmentOptions
+                    // or we are having focus on the TextInput field
                     if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
                         bottom.linkTo(topOfKeyboardGuideLine)
                     } else {
@@ -328,7 +363,6 @@ private fun MessageComposer(
             }
         }
     }
-
 }
 
 //if attachment is visible we want to align the bottom of the compose actions

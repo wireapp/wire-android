@@ -116,7 +116,6 @@ private fun ConversationScreen(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String) -> Unit,
-
     ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()

@@ -111,6 +111,8 @@ class ConversationViewModel @Inject constructor(
             attachmentBundle?.let {
                 appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
                 conversationId?.run {
+                    // TODO: Add an attachment bundle type to differentiate whether to invoke sendImageMessage or sendAssetMessage when the
+                    //  rest of the attachment options have been completed
                     val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
                     sendImageMessage(this, attachmentBundle.rawContent, imgWidth, imgHeight)
                 }

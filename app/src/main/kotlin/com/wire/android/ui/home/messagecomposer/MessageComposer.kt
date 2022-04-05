@@ -125,6 +125,7 @@ private fun MessageComposer(
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout(Modifier.fillMaxSize()) {
             val guideline = createGuidelineFromTop(450.dp)
+            val guideline1 = createGuidelineFromTop(550.dp)
 
             val test = createRef()
             Divider(color = Color.Green, thickness = 30.dp,modifier = Modifier.constrainAs(test) {
@@ -321,7 +322,7 @@ private fun MessageComposer(
                 Modifier
                     .constrainAs(additionalOptionsContent) {
                         bottom.linkTo(parent.bottom)
-                        top.linkTo(additionalActions.bottom)
+                        top.linkTo(guideline1)
                     }
                     .wrapContentSize()
                     .background(Color.Red)
@@ -428,8 +429,8 @@ private fun MessageComposeActions(
         modifier = Modifier.fillMaxWidth()
     ) {
         AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-            focusManager.clearFocus(false)
             messageComposerState.attachmentOptionsDisplayed = !messageComposerState.attachmentOptionsDisplayed
+            focusManager.clearFocus(false)
         }
         RichTextEditingAction()
         AddEmojiAction()

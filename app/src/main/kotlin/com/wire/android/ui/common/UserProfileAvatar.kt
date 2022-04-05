@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -22,15 +21,14 @@ import androidx.compose.ui.unit.Dp
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
 
-
 @Composable
-
 fun UserProfileAvatar(
-//TODO: in the future we would not pass here null, but while developing there may be users having no avatar asset
+// TODO: in the future we would not pass here null, but while developing there may be users having no avatar asset
     avatarAssetByteArray: ByteArray? = null,
     status: UserStatus = UserStatus.NONE,
     isClickable: Boolean = false,
@@ -51,13 +49,13 @@ fun UserProfileAvatar(
             painter = rememberAsyncImagePainter(
                 avatarAssetByteArray?.toBitmap() ?: getUriFromDrawable(
                     LocalContext.current,
-                    R.drawable.ic_launcher_foreground
+                    R.drawable.ic_default_user_avatar
                 )
             ),
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
                 .padding(dimensions().userAvatarStatusBorderSize)
-                .background(Color.Black, CircleShape)
+                .background(MaterialTheme.wireColorScheme.divider, CircleShape)
                 .size(size)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop

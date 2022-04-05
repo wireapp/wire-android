@@ -40,6 +40,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
@@ -48,7 +49,6 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
 import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
 import com.wire.android.ui.userprofile.self.model.OtherAccount
-
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -162,6 +162,8 @@ private fun SelfUserProfileTopBar(
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
         title = stringResource(id = R.string.user_profile_title),
+        navigationIconType = NavigationIconType.Close,
+        elevation = 0.dp,
         actions = {
             WireSecondaryButton(
                 onClick = onLogoutClick,
@@ -270,9 +272,10 @@ private fun ColumnScope.OtherAccountsList(
     )
 
     LazyColumn(
-        modifier = Modifier.Companion
-            .weight(1f)
+        modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
+            .weight(1f)
+            .fillMaxWidth()
     ) {
         items(
             items = otherAccounts,
@@ -300,18 +303,20 @@ private fun OtherAccountItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensions().userProfileOtherAccItemHeight)
-            .padding(start = dimensions().spacing8x, bottom = 1.dp)
+            .padding(bottom = 1.dp)
             .background(MaterialTheme.colorScheme.surface)
             .selectableBackground(true) { onClick(account.id) }
     ) {
         val (avatar, data) = createRefs()
 
         UserProfileAvatar(
-            modifier = Modifier.constrainAs(avatar) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-            }
+            modifier = Modifier
+                .constrainAs(avatar) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                }
+                .padding(start = dimensions().spacing8x)
         )
 
         Column(
@@ -340,14 +345,14 @@ private fun OtherAccountItem(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = false)
+@Preview(showBackground = true)
 @Composable
 private fun SelfUserProfileScreenPreview() {
     SelfUserProfileContent(
         SelfUserProfileState(
             status = UserStatus.BUSY,
             fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
-            userName = "@userName_long_long_long_long_long_long_long_long_long_long",
+            userName = "userName_long_long_long_long_long_long_long_long_long_long",
             teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
             otherAccounts = listOf(
                 OtherAccount("someId", "", "Other Name", "team A"),

@@ -160,6 +160,7 @@
     <string name="conversations_mentions_tab_title">Mentions</string>
     <string name="new_group_title">New Group</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
+    <string name="group_name">Group name</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>

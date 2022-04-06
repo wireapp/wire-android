@@ -2,21 +2,32 @@ package com.wire.android.ui.home.newconversation.newGroup
 
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
+import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -28,7 +39,8 @@ fun NewGroupScreen() {
     NewGroupScreenContent()
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, androidx.compose.animation.ExperimentalAnimationApi::class,
+@OptIn(
+    ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, androidx.compose.animation.ExperimentalAnimationApi::class,
     androidx.compose.ui.ExperimentalComposeUiApi::class
 )
 @Composable
@@ -37,10 +49,12 @@ fun NewGroupScreenContent() {
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
-            title = stringResource(id = R.string.new_group_title))
+            title = stringResource(id = R.string.new_group_title)
+        )
 
     }) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+            val (textField, text, button) = createRefs()
             val keyboardController = LocalSoftwareKeyboardController.current
             Text(
                 text = stringResource(id = R.string.new_group_description),
@@ -51,6 +65,40 @@ fun NewGroupScreenContent() {
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
                     )
+                    .constrainAs(text) {
+                        top.linkTo(parent.top)
+                    }
+            )
+
+            WireTextField(
+                value = TextFieldValue(""),
+                onValueChange = { },
+                placeholderText = stringResource(R.string.group_name),
+                labelText = stringResource(R.string.group_name).uppercase(),
+                state = WireTextFieldState.Default,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                modifier = Modifier
+                    .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                    .constrainAs(textField) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                    }
+            )
+
+            WirePrimaryButton(
+                text = stringResource(R.string.label_continue),
+                onClick = {},
+                fillMaxWidth = true,
+                loading = false,
+                trailingIcon = Icons.Filled.ChevronRight.Icon(),
+                state = WireButtonState.Disabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(MaterialTheme.wireDimensions.spacing16x)
+                    .constrainAs(button) {
+                        bottom.linkTo(parent.bottom)
+                    }
             )
         }
     }

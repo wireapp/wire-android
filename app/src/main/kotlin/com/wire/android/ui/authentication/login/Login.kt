@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.authentication.login.email.LoginEmail
+import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.common.appBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
@@ -48,7 +48,7 @@ private fun LoginContent(
         },
         modifier = Modifier.fillMaxHeight(),
     ) {
-        LoginEmail(serverConfig = serverConfig, scrollState = scrollState)
+        LoginEmailScreen(serverConfig = serverConfig, scrollState = scrollState)
     }
 }
 

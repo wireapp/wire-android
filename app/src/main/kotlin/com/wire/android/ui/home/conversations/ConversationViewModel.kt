@@ -23,12 +23,15 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.message.MessageContent.Text
+import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
@@ -41,6 +44,7 @@ class ConversationViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    private val observeMemberDetails: ObserveConversationMembersUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase
@@ -65,10 +69,11 @@ class ConversationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getMessages(conversationId!!) // TODO what if null???
-                .collect { dbMessages ->
-                    conversationViewState = conversationViewState.copy(messages = dbMessages.toUIMessages())
-                }
+            getMessages(conversationId!!).combine(observeMemberDetails(conversationId)) { messages, members ->
+                messages.toUIMessages(members)
+            }.collect { uiMessages ->
+                conversationViewState = conversationViewState.copy(messages = uiMessages)
+            }
         }
 
         viewModelScope.launch {
@@ -189,8 +194,10 @@ class ConversationViewModel @Inject constructor(
         onDialogDismissed()
     }
 
-    private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(): List<Message> {
+
+    private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(members: List<MemberDetails>): List<Message> {
         return map { message ->
+            val sender = members.findSender(message.senderUserId)
             Message(
                 messageContent = TextMessage(
                     messageBody = MessageBody(
@@ -199,9 +206,10 @@ class ConversationViewModel @Inject constructor(
                 ),
                 messageSource = MessageSource.CurrentUser,
                 messageHeader = MessageHeader(
-                    "Cool User",
+                    // TODO: Designs for deleted users?
+                    sender?.name ?: "Deleted User",
                     Membership.None,
-                    true,
+                    false,
                     message.date,
                     MessageStatus.Untouched,
                     messageId = message.id

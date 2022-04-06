@@ -7,9 +7,15 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
+import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -53,6 +59,9 @@ class ConversationsViewModelTest {
     @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
+    @MockK
+    lateinit var observeMemberDetails: ObserveConversationMembersUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -61,6 +70,7 @@ class ConversationsViewModelTest {
 
         // Default empty values
         coEvery { getMessages(any()) } returns flowOf(listOf())
+        coEvery { observeMemberDetails(any()) } returns flowOf(listOf())
         coEvery { observeConversationDetails(any()) } returns flowOf()
     }
 
@@ -69,6 +79,7 @@ class ConversationsViewModelTest {
         navigationManager = navigationManager,
         getMessages = getMessages,
         observeConversationDetails = observeConversationDetails,
+        observeMemberDetails = observeMemberDetails,
         sendTextMessage = sendTextMessage,
         sendImageMessage = sendImageMessage,
         deleteMessage = deleteMessage
@@ -99,14 +110,13 @@ class ConversationsViewModelTest {
         val conversationsViewModel = createTestSubject()
         conversationsViewModel.onDialogDismissed()
         conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Hidden,
-            forEveryone = DeleteMessageDialogActiveState.Hidden
+            forYourself = DeleteMessageDialogActiveState.Hidden, forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }
 
     @Test
     fun `given a 1 on 1 conversation, when solving the conversation name, then the name of the other user is used`() = runTest {
-        val conversationDetails = CONVERSATION_DETAILS_ONE_ON_ONE
+        val conversationDetails = testConversationDetailsOneOnOne("Other User Name Goes Here")
         val otherUserName = conversationDetails.otherUser.name
         coEvery { observeConversationDetails(any()) } returns flowOf(conversationDetails)
 
@@ -144,20 +154,97 @@ class ConversationsViewModelTest {
         assertEquals(secondConversationDetails.conversation.name, conversationsViewModel.conversationViewState.conversationName)
     }
 
+    @Test
+    fun `given message sent by self user, when solving the message header, then the state should contain the self user name`() = runTest {
+        val senderId = UserId("value", "domain")
+        val messages = listOf(testMessage(senderId = senderId))
+        val selfUserName = "self user"
+        val selfMember = testSelfUserDetails(selfUserName, senderId)
+
+        coEvery { getMessages(any()) } returns flowOf(messages)
+        coEvery { observeMemberDetails(any()) } returns flowOf(listOf(selfMember))
+
+        val conversationsViewModel = createTestSubject()
+
+        assertEquals(selfUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username)
+    }
+
+    @Test
+    fun `given message sent by another user, when solving the message header, then the state should contain that user name`() = runTest {
+        val senderId = UserId("value", "domain")
+        val messages = listOf(testMessage(senderId = senderId))
+        val otherUserName = "other user"
+        val otherMember = testOtherUserDetails(otherUserName, senderId)
+
+        coEvery { getMessages(any()) } returns flowOf(messages)
+        coEvery { observeMemberDetails(any()) } returns flowOf(listOf(otherMember))
+
+        val conversationsViewModel = createTestSubject()
+
+        assertEquals(otherUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username)
+    }
+
+    @Test
+    fun `given the sender is updated, when solving the message header, then the update is propagated in the state`() = runTest {
+        val senderId = UserId("value", "domain")
+        val messages = listOf(testMessage(senderId = senderId))
+        val firstUserName = "other user"
+        val secondUserName = "User changed their name"
+        val otherMemberUpdatesChannel = Channel<List<MemberDetails>>(capacity = Channel.UNLIMITED)
+
+        coEvery { getMessages(any()) } returns flowOf(messages)
+        coEvery { observeMemberDetails(any()) } returns otherMemberUpdatesChannel.consumeAsFlow()
+
+        val conversationsViewModel = createTestSubject()
+
+        otherMemberUpdatesChannel.send(listOf(testOtherUserDetails(firstUserName, senderId)))
+        assertEquals(firstUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username)
+
+        otherMemberUpdatesChannel.send(listOf(testOtherUserDetails(secondUserName, senderId)))
+        assertEquals(secondUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username)
+    }
+
     private companion object {
-        val CONVERSATION_DETAILS_ONE_ON_ONE = ConversationDetails.OneOne(
-            mockk(),
-            mockk<OtherUser>().apply {
-                every { name } returns "Other User Name Goes Here"
-            },
-            ConversationDetails.OneOne.ConnectionState.OUTGOING,
-            LegalHoldStatus.DISABLED
+        fun testConversationDetailsOneOnOne(senderName: String) = ConversationDetails.OneOne(
+            mockk(), mockk<OtherUser>().apply {
+                every { name } returns senderName
+            }, ConversationDetails.OneOne.ConnectionState.OUTGOING, LegalHoldStatus.DISABLED
         )
 
-        fun testConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(
-            mockk<Conversation>().apply {
-                every { name } returns conversationName
+        fun testConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {
+            every { name } returns conversationName
+        })
+
+        fun testMessage(
+            senderId: UserId,
+            id: String = "messageID",
+            content: MessageContent = MessageContent.Text(""),
+            date: String = "date",
+        ): Message = mockk<Message>().also {
+            every { it.senderUserId } returns senderId
+            every { it.id } returns id
+            every { it.content } returns content
+            every { it.date } returns date
+        }
+
+        fun testSelfUserDetails(
+            name: String,
+            id: UserId = UserId("self", "user")
+        ): MemberDetails.Self = mockk<MemberDetails.Self>().also {
+            every { it.selfUser } returns mockk<SelfUser>().also { user ->
+                every { user.id } returns id
+                every { user.name } returns name
             }
-        )
+        }
+
+        fun testOtherUserDetails(
+            name: String,
+            id: UserId = UserId("other", "user")
+        ): MemberDetails.Other = mockk<MemberDetails.Other>().also {
+            every { it.otherUser } returns mockk<OtherUser>().also { user ->
+                every { user.id } returns id
+                every { user.name } returns name
+            }
+        }
     }
 }

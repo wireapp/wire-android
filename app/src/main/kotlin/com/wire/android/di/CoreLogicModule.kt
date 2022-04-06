@@ -5,6 +5,7 @@ import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetPrivateAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
@@ -189,8 +190,7 @@ class UseCaseModule {
     fun providesSendTextMessageUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): SendTextMessageUseCase =
-        coreLogic.getSessionScope(currentAccount).messages.sendTextMessage
+    ): SendTextMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendTextMessage
 
     @ViewModelScoped
     @Provides
@@ -198,6 +198,13 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SendImageMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendImageMessage
+
+    @ViewModelScoped
+    @Provides
+    fun providesGetPrivateAssetUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetPrivateAssetUseCase = coreLogic.getSessionScope(currentAccount).messages.getImageAssetMessage
 
     @ViewModelScoped
     @Provides

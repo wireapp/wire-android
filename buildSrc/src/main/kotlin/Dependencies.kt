@@ -86,7 +86,7 @@ object Libraries {
         const val browser = "1.3.0"
         const val dataStore = "1.0.0"
         const val splashscreen = "1.0.0-beta01"
-        const val coil = "2.0.0-rc01"
+        const val coil = "2.0.0-rc02"
         const val exif = "1.3.3"
     }
 

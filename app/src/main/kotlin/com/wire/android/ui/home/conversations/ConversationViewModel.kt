@@ -14,6 +14,8 @@ import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -22,11 +24,14 @@ import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.message.MessageContent.Asset
+import com.wire.kalium.logic.data.message.MessageContent.Text
+import com.wire.kalium.logic.feature.asset.GetPrivateAssetUseCase
+import com.wire.kalium.logic.feature.asset.PrivateAssetResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -47,6 +52,7 @@ class ConversationViewModel @Inject constructor(
     private val observeMemberDetails: ObserveConversationMembersUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
+    private val getMessageAsset: GetPrivateAssetUseCase,
     private val deleteMessage: DeleteMessageUseCase
 ) : ViewModel() {
 
@@ -195,15 +201,11 @@ class ConversationViewModel @Inject constructor(
     }
 
 
-    private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(members: List<MemberDetails>): List<Message> {
+    private suspend fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(members: List<MemberDetails>): List<Message> {
         return map { message ->
             val sender = members.findSender(message.senderUserId)
             Message(
-                messageContent = TextMessage(
-                    messageBody = MessageBody(
-                        (message.content as? Text)?.value ?: "content is not available"
-                    )
-                ),
+                messageContent = fromMessageModelToMessageContent(message),
                 messageSource = MessageSource.CurrentUser,
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
@@ -218,4 +220,28 @@ class ConversationViewModel @Inject constructor(
             )
         }
     }
+
+    private suspend fun fromMessageModelToMessageContent(message: com.wire.kalium.logic.data.message.Message): MessageContent =
+        when (val content = message.content) {
+            is Asset -> {
+                val assetId = content.value.remoteData.assetId
+                val assetToken = content.value.remoteData.assetToken
+                val privateKey = content.value.remoteData.otrKey
+                val decodedImgDataResult = getMessageAsset(
+                    assetKey = assetId,
+                    assetToken = assetToken ?: "",
+                    conversationId = message.conversationId,
+                    messageId = message.id,
+                    encryptionKey = privateKey
+                ).run {
+                    when (this) {
+                        is PrivateAssetResult.Success -> decodedAsset
+                        else -> ByteArray(16)
+                    }
+                }
+                ImageMessage(decodedImgDataResult)
+            }
+            is Text -> TextMessage(messageBody = MessageBody(content.value))
+            else -> TextMessage(messageBody = MessageBody((content as? Text)?.value ?: "content is not available"))
+        }
 }

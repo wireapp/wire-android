@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations.mock
 
+import android.content.Context
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -29,20 +30,7 @@ val mockMessageWithText = Message(
     ),
 )
 
-val mockMessageWithImage = Message(
-    user = User("", UserStatus.AVAILABLE),
-    messageHeader = MessageHeader(
-        username = "John Doe",
-        membership = Membership.Guest,
-        isLegalHold = true,
-        time = "12.23pm",
-        messageStatus = MessageStatus.Deleted,
-        messageId = ""
-    ),
-    messageContent = MessageContent.ImageMessage("someUrl")
-)
-
-val mockMessages = listOf(
+fun getMockedMessages(context: Context): List<Message> = listOf(
     Message(
         user = User("", UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -72,7 +60,7 @@ val mockMessages = listOf(
             messageStatus = MessageStatus.Deleted,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage("someUrl"),
+        messageContent = MessageContent.ImageMessage(ByteArray(16)),
     ),
     Message(
         user = User("", UserStatus.AVAILABLE),
@@ -84,7 +72,7 @@ val mockMessages = listOf(
             messageStatus = MessageStatus.Edited,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage("someUrl"),
+        messageContent = MessageContent.ImageMessage(ByteArray(16)),
     ),
     Message(
         user = User("", UserStatus.AVAILABLE),
@@ -96,7 +84,7 @@ val mockMessages = listOf(
             messageStatus = MessageStatus.Edited,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage("someUrl"),
+        messageContent = MessageContent.ImageMessage(ByteArray(16)),
     ),
     Message(
         user = User("", UserStatus.AVAILABLE),
@@ -127,7 +115,7 @@ val mockMessages = listOf(
             messageStatus = MessageStatus.Edited,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage("someUrl"),
+        messageContent = MessageContent.ImageMessage(ByteArray(16)),
     ),
     Message(
         user = User("", UserStatus.AVAILABLE),

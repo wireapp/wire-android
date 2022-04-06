@@ -1,26 +1,15 @@
 package com.wire.android.ui.home.conversations
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -28,20 +17,19 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
-import com.wire.android.ui.home.conversations.model.Message
-import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent
-import com.wire.android.ui.home.conversations.model.MessageHeader
-import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.*
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.getUriFromDrawable
+import com.wire.android.util.toBitmap
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -126,19 +114,25 @@ private fun Username(username: String) {
 @Composable
 private fun MessageContent(messageContent: MessageContent) {
     when (messageContent) {
-        is MessageContent.ImageMessage -> MessageImage(imageUrl = messageContent.imageUrl)
+        is MessageContent.ImageMessage -> MessageImage(rawImgData = messageContent.rawImgData)
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
     }
 }
 
 //TODO: replace with actual imageUrl loading probably with: https://coil-kt.github.io/coil/compose/
 @Composable
-fun MessageImage(imageUrl: String = "") {
+fun MessageImage(rawImgData: ByteArray) {
     Image(
-        painter = painterResource(R.drawable.mock_message_image), "",
+        painter = rememberAsyncImagePainter(
+            rawImgData?.toBitmap() ?: getUriFromDrawable(
+                LocalContext.current,
+                R.drawable.ic_gallery
+            )
+        ),
         alignment = Alignment.CenterStart,
-        modifier = Modifier
-            .width(MaterialTheme.wireDimensions.messageImagePortraitModeWidth)
+        contentDescription = stringResource(R.string.content_description_image_message),
+        modifier = Modifier.width(MaterialTheme.wireDimensions.messageImagePortraitModeWidth),
+        contentScale = ContentScale.Crop
     )
 }
 

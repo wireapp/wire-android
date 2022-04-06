@@ -28,7 +28,19 @@ data class Message(
 
 sealed class MessageContent {
     data class TextMessage(val messageBody: MessageBody) : MessageContent()
-    data class ImageMessage(val imageUrl: String) : MessageContent()
+    data class ImageMessage(val rawImgData: ByteArray) : MessageContent() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            other as ImageMessage
+            if (!rawImgData.contentEquals(other.rawImgData)) return false
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return rawImgData.contentHashCode()
+        }
+    }
 }
 
 data class MessageBody(

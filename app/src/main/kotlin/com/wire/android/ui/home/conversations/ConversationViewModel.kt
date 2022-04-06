@@ -21,7 +21,6 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.extractImageParams
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.data.conversation.MemberDetails
@@ -195,18 +194,6 @@ class ConversationViewModel @Inject constructor(
         onDialogDismissed()
     }
 
-    private fun List<MemberDetails>.findSender(senderId: UserId): MemberDetails? = firstOrNull { member ->
-        when (member) {
-            is MemberDetails.Other -> member.otherUser.id == senderId
-            is MemberDetails.Self -> member.selfUser.id == senderId
-        }
-    }
-
-    private val MemberDetails.name
-        get() = when (this) {
-            is MemberDetails.Other -> this.otherUser.name
-            is MemberDetails.Self -> this.selfUser.name
-        }
 
     private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(members: List<MemberDetails>): List<Message> {
         return map { message ->

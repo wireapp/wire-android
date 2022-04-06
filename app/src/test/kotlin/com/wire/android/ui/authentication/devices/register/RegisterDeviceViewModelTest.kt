@@ -54,7 +54,7 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `when field is empty, button is disabled`() {
+    fun `given empty string, when entering the password to register, then button is disabled`() {
         coEvery { validatePasswordUseCase.invoke(String.EMPTY) } returns false
         registerDeviceViewModel.onPasswordChange(TextFieldValue(String.EMPTY))
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo false
@@ -62,7 +62,7 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `when field is filled, button is enabled`() {
+    fun `given non-empty string, when entering the password to register, then button is disabled`() {
         coEvery { validatePasswordUseCase.invoke("abc") } returns true
         registerDeviceViewModel.onPasswordChange(TextFieldValue("abc"))
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
@@ -70,7 +70,7 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `when button is clicked, show loading`() {
+    fun `given button is clicked, when registering the client, then show loading`() {
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
 
@@ -83,7 +83,7 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `when button is clicked and request returns Success, navigateToHomeScreen is called`() {
+    fun `given button is clicked, when request returns Success, then navigateToHomeScreen is called`() {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
@@ -100,7 +100,7 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `when button is clicked and request returns TooManyClients Error, navigateToRemoveDevicesScreen is called`() {
+    fun `given button is clicked, when request returns TooManyClients Error, then navigateToRemoveDevicesScreen is called`() {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
@@ -117,7 +117,7 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `when button is clicked and password is invalid, UsernameInvalidError is passed`() {
+    fun `given button is clicked, when password is invalid, then UsernameInvalidError is passed`() {
         coEvery { validatePasswordUseCase.invoke(any()) } returns false
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Failure.InvalidCredentials
         runTest { registerDeviceViewModel.onContinue() }
@@ -125,7 +125,7 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `when button is clicked and request returns Generic error, GenericError is passed`() {
+    fun `given button is clicked, when request returns Generic error, then GenericError is passed`() {
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns
                 RegisterClientResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
@@ -136,7 +136,7 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `when state error is DialogError and dialog is dismissed, hide error`() {
+    fun `given dialog is dismissed, when state error is DialogError, then hide error`() {
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns
                 RegisterClientResult.Failure.Generic(NetworkFailure.NoNetworkConnection)

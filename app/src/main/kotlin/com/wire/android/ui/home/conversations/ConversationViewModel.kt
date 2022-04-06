@@ -209,7 +209,7 @@ class ConversationViewModel @Inject constructor(
                     // TODO: Designs for deleted users?
                     sender?.name ?: "Deleted User",
                     Membership.None,
-                    true,
+                    false,
                     message.date,
                     MessageStatus.Untouched,
                     messageId = message.id

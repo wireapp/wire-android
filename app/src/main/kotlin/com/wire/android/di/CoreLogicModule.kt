@@ -214,5 +214,15 @@ class UseCaseModule {
     ): GetAllKnownUsersUseCase =
         coreLogic.getSessionScope(currentAccount).users.getAllKnownUsers
 
+    @ViewModelScoped
+    @Provides
+    fun markMessagesAsNotifiedUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).messages.markMessagesAsNotified
+
+    @ViewModelScoped
+    @Provides
+    fun getKnownUserUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.getKnownUser
+
 
 }

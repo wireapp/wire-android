@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -43,7 +44,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
     fun onContinue() {
         state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
-            val usernameError = if (!validateUserHandleUseCase(state.username.text.trim()))
+            val usernameError = if (!validateUserHandleUseCase(state.username.text.trim()).isValid)
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError
             else when (val result = setUserHandleUseCase(state.username.text.trim())) {
                 is SetUserHandleResult.Failure.Generic ->

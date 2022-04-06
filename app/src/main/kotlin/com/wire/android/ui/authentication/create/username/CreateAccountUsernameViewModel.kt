@@ -19,7 +19,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreateAccountUsernameViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
@@ -30,11 +29,34 @@ class CreateAccountUsernameViewModel @Inject constructor(
         private set
 
     fun onUsernameChange(newText: TextFieldValue) {
-        state = state.copy(
-            username = newText,
-            error = CreateAccountUsernameViewState.UsernameError.None,
-            continueEnabled = newText.text.isNotEmpty() && !state.loading
-        )
+        state = validateUserHandleUseCase(newText.text).let { textState ->
+            when (textState) {
+                is ValidateUserHandleResult.Valid -> state.copy(
+                    username = newText.copy(text = textState.handle),
+                    error = CreateAccountUsernameViewState.UsernameError.None,
+                    continueEnabled = !state.loading,
+                    animateUsernameError = false
+                )
+                is ValidateUserHandleResult.Invalid.InvalidCharacters -> state.copy(
+                    username = newText.copy(text = textState.handle),
+                    error = CreateAccountUsernameViewState.UsernameError.None,
+                    continueEnabled = !state.loading,
+                    animateUsernameError = true
+                )
+                is ValidateUserHandleResult.Invalid.TooLong -> state.copy(
+                    username = newText.copy(text = textState.handle),
+                    error = CreateAccountUsernameViewState.UsernameError.None,
+                    continueEnabled = false,
+                    animateUsernameError = false
+                )
+                is ValidateUserHandleResult.Invalid.TooShort -> state.copy(
+                    username = newText.copy(text = textState.handle),
+                    error = CreateAccountUsernameViewState.UsernameError.None,
+                    continueEnabled = false,
+                    animateUsernameError = false
+                )
+            }
+        }
     }
 
     fun onErrorDismiss() {
@@ -44,7 +66,8 @@ class CreateAccountUsernameViewModel @Inject constructor(
     fun onContinue() {
         state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
-            val usernameError = if (!validateUserHandleUseCase(state.username.text.trim()).isValid)
+            // FIXME: no need to check the handle again since it's checked every time the text change
+            val usernameError = if (validateUserHandleUseCase(state.username.text.trim()) is ValidateUserHandleResult.Invalid)
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError
             else when (val result = setUserHandleUseCase(state.username.text.trim())) {
                 is SetUserHandleResult.Failure.Generic ->
@@ -59,5 +82,9 @@ class CreateAccountUsernameViewModel @Inject constructor(
             if (usernameError is CreateAccountUsernameViewState.UsernameError.None)
                 navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
+    }
+
+    fun onUsernameErrorAnimated() {
+        state = state.copy(animateUsernameError = false)
     }
 }

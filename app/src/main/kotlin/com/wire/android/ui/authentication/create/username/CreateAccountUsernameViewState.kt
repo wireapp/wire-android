@@ -5,6 +5,7 @@ import com.wire.kalium.logic.CoreFailure
 
 data class CreateAccountUsernameViewState(
     val username: TextFieldValue = TextFieldValue(""),
+    val animateUsernameError: Boolean = false,
     val continueEnabled: Boolean = false,
     val loading: Boolean = false,
     val error: UsernameError = UsernameError.None

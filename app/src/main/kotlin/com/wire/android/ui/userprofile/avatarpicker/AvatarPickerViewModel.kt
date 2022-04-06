@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile.image
+package com.wire.android.ui.userprofile.avatarpicker
 
 import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,10 +41,10 @@ class AvatarPickerViewModel @Inject constructor(
     var errorMessageCode by mutableStateOf<ErrorCodes?>(null)
 
     init {
-        loadAvatar()
+        loadInitialAvatarState()
     }
 
-    private fun loadAvatar() = viewModelScope.launch {
+    fun loadInitialAvatarState() = viewModelScope.launch {
         try {
             dataStore.avatarAssetId.first()?.apply {
                 val avatarRaw = (getUserAvatar(this) as PublicAssetResult.Success).asset

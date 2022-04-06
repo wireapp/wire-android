@@ -66,8 +66,9 @@ pipeline {
       label 'android-reloaded-builder'
       image 'android-reloaded-agent:latest'
     }
-
   }
+
+  options { disableConcurrentBuilds(abortPrevious: true) }
 
   stages {
     stage('Precondition Checks') {
@@ -360,7 +361,7 @@ pipeline {
     adbPort = '5555'
     emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
     trackName = defineTrackName()
-    runAcceptanceTests = true
+    runAcceptanceTests = false
     runUnitTests = true
     runStaticCodeAnalysis = true
     ENABLE_SIGNING = "TRUE"

@@ -16,7 +16,8 @@ val mockMessageWithText = Message(
         membership = Membership.Guest,
         isLegalHold = true,
         time = "12.23pm",
-        messageStatus = MessageStatus.Untouched
+        messageStatus = MessageStatus.Untouched,
+        messageId = ""
     ),
     messageContent = MessageContent.TextMessage(
         messageBody = MessageBody(
@@ -35,7 +36,8 @@ val mockMessageWithImage = Message(
         membership = Membership.Guest,
         isLegalHold = true,
         time = "12.23pm",
-        messageStatus = MessageStatus.Deleted
+        messageStatus = MessageStatus.Deleted,
+        messageId = ""
     ),
     messageContent = MessageContent.ImageMessage("someUrl")
 )
@@ -48,7 +50,8 @@ val mockMessages = listOf(
             membership = Membership.Guest,
             isLegalHold = true,
             time = "12.23pm",
-            messageStatus = MessageStatus.Untouched
+            messageStatus = MessageStatus.Untouched,
+            messageId = ""
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(
@@ -66,7 +69,8 @@ val mockMessages = listOf(
             membership = Membership.Guest,
             isLegalHold = true,
             time = "12.23pm",
-            messageStatus = MessageStatus.Deleted
+            messageStatus = MessageStatus.Deleted,
+            messageId = ""
         ),
         messageContent = MessageContent.ImageMessage("someUrl"),
     ),
@@ -77,7 +81,8 @@ val mockMessages = listOf(
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
-            messageStatus = MessageStatus.Edited
+            messageStatus = MessageStatus.Edited,
+            messageId = ""
         ),
         messageContent = MessageContent.ImageMessage("someUrl"),
     ),
@@ -88,7 +93,8 @@ val mockMessages = listOf(
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
-            messageStatus = MessageStatus.Edited
+            messageStatus = MessageStatus.Edited,
+            messageId = ""
         ),
         messageContent = MessageContent.ImageMessage("someUrl"),
     ),
@@ -99,7 +105,8 @@ val mockMessages = listOf(
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
-            messageStatus = MessageStatus.Deleted
+            messageStatus = MessageStatus.Deleted,
+            messageId = ""
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(
@@ -117,7 +124,8 @@ val mockMessages = listOf(
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
-            messageStatus = MessageStatus.Edited
+            messageStatus = MessageStatus.Edited,
+            messageId = ""
         ),
         messageContent = MessageContent.ImageMessage("someUrl"),
     ),
@@ -128,7 +136,8 @@ val mockMessages = listOf(
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
-            messageStatus = MessageStatus.Edited
+            messageStatus = MessageStatus.Edited,
+            messageId = ""
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(

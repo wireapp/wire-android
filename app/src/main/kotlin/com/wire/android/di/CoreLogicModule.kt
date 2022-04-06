@@ -5,7 +5,10 @@ import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
@@ -13,7 +16,6 @@ import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -119,8 +121,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getConversationsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).conversations.getConversations
+    fun provideObserveConversationListDetailsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeConversationListDetails
 
     @ViewModelScoped
     @Provides
@@ -149,8 +151,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getConversationDetailsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).conversations.getConversationDetails
+    fun observeConversationDetailsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeConversationDetails
 
     @ViewModelScoped
     @Provides
@@ -187,6 +189,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun providesSendImageMessageUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SendImageMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendImageMessage
+
+    @ViewModelScoped
+    @Provides
     fun providesSearchKnownUsersUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -213,6 +222,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetAllKnownUsersUseCase =
         coreLogic.getSessionScope(currentAccount).users.getAllKnownUsers
+
+    @ViewModelScoped
+    @Provides
+    fun providesDeleteMessageUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): DeleteMessageUseCase =
+        coreLogic.getSessionScope(currentAccount).messages.deleteMessage
 
     @ViewModelScoped
     @Provides

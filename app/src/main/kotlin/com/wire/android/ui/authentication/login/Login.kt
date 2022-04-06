@@ -4,14 +4,15 @@ import android.content.Context
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -25,19 +26,23 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.appBarElevation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
@@ -45,6 +50,7 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.DialogErrorStrings
@@ -88,40 +94,47 @@ private fun LoginContent(
     serverTitle: String,
     scope: CoroutineScope
 ) {
+    val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
+                elevation = scrollState.appBarElevation(),
                 title = "${stringResource(R.string.login_title)} $serverTitle",
                 onNavigationPressed = onBackPressed
             )
         }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Column(
-                modifier = Modifier.weight(1f, true),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                UserIdentifierInput(
-                    modifier = Modifier.fillMaxWidth(),
-                    userIdentifier = loginState.userIdentifier,
-                    onUserIdentifierChange = onUserIdentifierChange,
-                    error = when (loginState.loginError) {
-                        LoginError.TextFieldError.InvalidUserIdentifierError -> stringResource(R.string.login_error_invalid_user_identifier)
-                        else -> null
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                PasswordInput(
-                    modifier = Modifier.fillMaxWidth(),
-                    password = loginState.password,
-                    onPasswordChange = onPasswordChange
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                ForgotPasswordLabel(modifier = Modifier.fillMaxWidth(), accountsBaseUrl)
-            }
+        Column(modifier = Modifier
+            .fillMaxHeight()
+            .verticalScroll(scrollState)
+            .padding(MaterialTheme.wireDimensions.spacing16x)
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            UserIdentifierInput(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+                userIdentifier = loginState.userIdentifier,
+                onUserIdentifierChange = onUserIdentifierChange,
+                error = when (loginState.loginError) {
+                    LoginError.TextFieldError.InvalidUserIdentifierError -> stringResource(R.string.login_error_invalid_user_identifier)
+                    else -> null
+                }
+            )
+            PasswordInput(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+                password = loginState.password,
+                onPasswordChange = onPasswordChange
+            )
+            ForgotPasswordLabel(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+                accountsBaseUrl = accountsBaseUrl
+            )
+            Spacer(modifier = Modifier.weight(1f))
 
             LoginButton(
                 modifier = Modifier.fillMaxWidth(),
@@ -150,7 +163,7 @@ private fun LoginContent(
                 title = title,
                 text = message,
                 onDismiss = onDialogDismiss,
-                confirmButtonProperties = WireDialogButtonProperties(
+                optionButton1Properties = WireDialogButtonProperties(
                     onClick = onDialogDismiss,
                     text = stringResource(id = R.string.label_ok),
                     type = WireDialogButtonType.Primary,
@@ -176,7 +189,7 @@ private fun UserIdentifierInput(
         labelText = stringResource(R.string.login_user_identifier_label),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-        modifier = modifier,
+        modifier = modifier.testTag("emailField")
     )
 }
 
@@ -189,7 +202,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
         onValueChange = onPasswordChange,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-        modifier = modifier,
+        modifier = modifier.testTag("passwordField")
     )
 }
 
@@ -209,7 +222,7 @@ private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = { openForgotPasswordPage(context, accountsBaseUrl) }
-                )
+                ).testTag("Forgot password?")
         )
     }
 }
@@ -231,7 +244,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
             state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             loading = loading,
             interactionSource = interactionSource,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("loginButton")
         )
     }
 }
@@ -255,3 +268,4 @@ private fun LoginScreenPreview() {
         )
     }
 }
+

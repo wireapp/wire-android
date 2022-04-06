@@ -1,6 +1,6 @@
 package com.wire.android.util
 
-import com.wire.kalium.logic.data.conversation.ConversationId
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlin.math.absoluteValue
 
 // TODO: remove once the solution is implemented

@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile
+package com.wire.android.ui.userprofile.self.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,9 +13,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireLabelledCheckbox
-import io.github.esentsov.PackagePrivate
 
-@PackagePrivate
 @Composable
 fun ChangeStatusDialogContent(
     data: StatusDialogData?,
@@ -40,7 +38,7 @@ private fun ChangeStatusDialog(
         title = stringResource(id = data.title),
         text = stringResource(id = data.text),
         onDismiss = dismiss,
-        confirmButtonProperties = WireDialogButtonProperties(
+        optionButton1Properties = WireDialogButtonProperties(
             onClick = { onStatusChange(data.status) },
             text = stringResource(id = R.string.label_ok),
             type = WireDialogButtonType.Primary,

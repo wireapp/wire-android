@@ -61,6 +61,7 @@ data class WireColorScheme(
         background = background,                        onBackground = onBackground,
         surface = surface,                              onSurface = onSurface,
         surfaceVariant = divider,                       onSurfaceVariant = onSurface,
+        surfaceTint = primary,
         inverseSurface = onPrimaryButtonDisabled,       inverseOnSurface = Color.White,
         error = error,                                  onError = onError,
         errorContainer = errorOutline,                  onErrorContainer = error,

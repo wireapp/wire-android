@@ -108,7 +108,7 @@ private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (Tex
                     WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
                 else -> WireTextFieldState.Default
             },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
+            imeAction = ImeAction.Done,
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
             modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
         )

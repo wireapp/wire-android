@@ -13,27 +13,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.mockMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
-import com.wire.android.util.dialogErrorStrings
 import kotlinx.coroutines.launch
 
 @Composable
@@ -54,58 +48,6 @@ fun ConversationScreen(
     )
 }
 
-@Composable
-private fun DeleteMessageDialog(
-    conversationViewModel: ConversationViewModel
-) {
-    val deleteMessageDialogsState = conversationViewModel.deleteMessageDialogsState
-
-    if (deleteMessageDialogsState is DeleteMessageDialogsState.States) {
-        when {
-            deleteMessageDialogsState.forEveryone is DeleteMessageDialogActiveState.Visible -> {
-                DeleteMessageDialog(
-                    state = deleteMessageDialogsState.forEveryone,
-                    onDialogDismiss = conversationViewModel::onDialogDismissed,
-                    onDeleteForMe = conversationViewModel::showDeleteMessageForYourselfDialog,
-                    onDeleteForEveryone = conversationViewModel::deleteMessage,
-                )
-                if (deleteMessageDialogsState.forEveryone.error is DeleteMessageError.GenericError) {
-                    DeleteMessageErrorDialog(deleteMessageDialogsState.forEveryone.error, conversationViewModel::clearDeleteMessageError)
-                }
-            }
-            deleteMessageDialogsState.forYourself is DeleteMessageDialogActiveState.Visible -> {
-
-                if (deleteMessageDialogsState.forYourself.error is DeleteMessageError.GenericError) {
-                    DeleteMessageErrorDialog(deleteMessageDialogsState.forYourself.error, conversationViewModel::clearDeleteMessageError)
-                } else {
-                    DeleteMessageForYourselfDialog(
-                        state = deleteMessageDialogsState.forYourself,
-                        onDialogDismiss = conversationViewModel::onDialogDismissed,
-                        onDeleteForMe = conversationViewModel::deleteMessage
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DeleteMessageErrorDialog(error: DeleteMessageError.GenericError, onDialogDismiss: () -> Unit) {
-    val (title, message) = error.coreFailure.dialogErrorStrings(
-        LocalContext.current.resources
-    )
-    WireDialog(
-        title = title,
-        text = message,
-        onDismiss = onDialogDismiss,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = onDialogDismiss,
-            text = stringResource(id = R.string.label_ok),
-            type = WireDialogButtonType.Primary,
-        )
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 private fun ConversationScreen(
@@ -115,7 +57,7 @@ private fun ConversationScreen(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String) -> Unit,
-    ) {
+) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
 
@@ -255,66 +197,6 @@ private fun ConversationScreenContent(
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
         }
-    )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun DeleteMessageDialog(
-    state: DeleteMessageDialogActiveState.Visible,
-    onDialogDismiss: () -> Unit,
-    onDeleteForMe: (String) -> Unit,
-    onDeleteForEveryone: (String, Boolean) -> Unit,
-) {
-    WireDialog(
-        title = stringResource(R.string.delete_message_dialog_title),
-        text = stringResource(R.string.delete_message_dialog_message),
-        onDismiss = onDialogDismiss,
-        dismissButtonProperties = WireDialogButtonProperties(
-            onClick = onDialogDismiss,
-            text = stringResource(id = R.string.label_cancel),
-            state = WireButtonState.Default
-        ),
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = { onDeleteForMe(state.messageId) },
-            text = stringResource(R.string.label_delete_for_me),
-            type = WireDialogButtonType.Primary,
-            state = WireButtonState.Error
-        ),
-        optionButton2Properties = WireDialogButtonProperties(
-            onClick = { onDeleteForEveryone(state.messageId, true) },
-            text = stringResource(R.string.label_delete_for_everyone),
-            type = WireDialogButtonType.Primary,
-            state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
-            loading = state.loading
-        ),
-        buttonsHorizontalAlignment = false
-    )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun DeleteMessageForYourselfDialog(
-    state: DeleteMessageDialogActiveState.Visible,
-    onDialogDismiss: () -> Unit,
-    onDeleteForMe: (String, Boolean) -> Unit,
-) {
-    WireDialog(
-        title = stringResource(R.string.delete_message_for_yourself_dialog_title),
-        text = stringResource(R.string.delete_message_for_yourself_dialog_message),
-        onDismiss = onDialogDismiss,
-        dismissButtonProperties = WireDialogButtonProperties(
-            onClick = onDialogDismiss,
-            text = stringResource(id = R.string.label_cancel),
-            state = WireButtonState.Default
-        ),
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = { onDeleteForMe(state.messageId, false) },
-            text = stringResource(R.string.label_delete_for_me),
-            type = WireDialogButtonType.Primary,
-            state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
-            loading = state.loading
-        )
     )
 }
 

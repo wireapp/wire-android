@@ -21,6 +21,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.utils.EMAIL
 import com.wire.android.utils.PASSWORD
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.waitForExecution
@@ -81,13 +82,12 @@ class LoginScreenTest {
     val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"), useUnmergedTree = true)
 
     val loginErrorText = "Please enter a valid format for your email or username."
-    val email = "mustafa+1@wire.com"
 
     @Test
     fun login_success_case() {
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
-        emailField.onChildren()[1].performTextInput(email)
+        emailField.onChildren()[1].performTextInput(EMAIL)
 
         passwordField.assertIsDisplayed()
         passwordField.onChildren()[1].performTextClearance()
@@ -107,7 +107,7 @@ class LoginScreenTest {
     fun login_error_wrongPassword() {
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
-        emailField.onChildren()[1].performTextInput(email)
+        emailField.onChildren()[1].performTextInput(EMAIL)
 
         passwordField.assertIsDisplayed()
         passwordField.onChildren()[1].performTextClearance()
@@ -149,14 +149,14 @@ class LoginScreenTest {
     fun login_state_loginButtonIsDisabled() {
 
         emailField.assertIsDisplayed()
-        emailField.onChildren()[1].performTextInput(email)
+        emailField.onChildren()[1].performTextInput(EMAIL)
 
         loginButton.assertIsNotEnabled()
 
         emailField.onChildren()[1].performTextClearance()
 
         passwordField.assertIsDisplayed()
-        passwordField.onChildren()[1].performTextInput(email)
+        passwordField.onChildren()[1].performTextInput(EMAIL)
 
         loginButton.assertIsNotEnabled()
 

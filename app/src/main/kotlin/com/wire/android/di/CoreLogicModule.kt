@@ -56,9 +56,7 @@ class CoreLogicModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
-@Suppress("TooManyFunctions")
-class UseCaseModule {
-
+class SessionModule {
     @CurrentAccount
     @ViewModelScoped
     @Provides
@@ -73,6 +71,12 @@ class UseCaseModule {
             }
         }
     }
+}
+
+@Module
+@InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
+class UseCaseModule {
 
     @ViewModelScoped
     @Provides

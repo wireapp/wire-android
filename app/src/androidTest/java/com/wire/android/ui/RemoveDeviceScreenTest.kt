@@ -13,19 +13,13 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.PASSWORD
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.waitForExecution
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,17 +43,10 @@ class RemoveDeviceScreenTest {
     @get:Rule(order = 2)
     val composeTestRule = createAndroidComposeRule<WireActivity>()
 
-    @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
-
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
-    fun setUp() = runTest {
+    fun setUp() {
         hiltRule.inject()
 
-        val authenticationScope = coreLogic.getAuthenticationScope()
-        authenticationScope.login("mustafa+1@wire.com", PASSWORD, false, ServerConfig.STAGING)
         composeTestRule.setContent {
             WireTheme {
                 RemoveDeviceScreen()
@@ -86,7 +73,7 @@ class RemoveDeviceScreenTest {
             removeDeviceText.assertIsDisplayed()
         }
         passwordField.onChildren()[1].performTextClearance()
-        passwordField.onChildren()[1].performTextInput("Mustafastaging1!")
+        passwordField.onChildren()[1].performTextInput(PASSWORD)
         removeButton.performClick()
     }
 

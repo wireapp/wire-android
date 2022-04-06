@@ -1,32 +1,30 @@
 package com.wire.android.ui.home.conversations
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.Message
+import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
+import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.util.dialogErrorStrings
-import com.wire.kalium.logic.data.message.MessageContent
-import com.wire.kalium.logic.feature.conversation.GetConversationDetailsUseCase
+import com.wire.android.util.extractImageParams
+import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.message.MessageContent.Text
+import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -35,13 +33,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
     // TODO: here we can extract the ID provided to the screen and fetch the data for the conversation
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
-    private val getConversationDetails: GetConversationDetailsUseCase,
+    private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    private val sendImageMessage: SendImageMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase
 ) : ViewModel() {
@@ -72,17 +72,12 @@ class ConversationViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            getConversationDetails(conversationId!!).let {
-                when (it) {
-                    is GetConversationDetailsUseCase.Result.Failure -> {
-                        TODO("unhandled error case")
-                    }
-                    is GetConversationDetailsUseCase.Result.Success -> {
-                        it.convFlow.collect { conversation ->
-                            conversationViewState = conversationViewState.copy(conversationName = conversation.name ?: "Some Name")
-                        }
-                    }
+            observeConversationDetails(conversationId!!).collect { conversationDetails ->
+                val conversationName = when (conversationDetails) {
+                    is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
+                    else -> conversationDetails.conversation.name.orEmpty()
                 }
+                conversationViewState = conversationViewState.copy(conversationName = conversationName)
             }
         }
     }
@@ -104,15 +99,19 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             // TODO what if conversationId is null???
             conversationId?.let { sendTextMessage(it, messageText) }
-
         }
     }
 
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
             attachmentBundle?.let {
-                // TODO send attachment message for conversationId via use case
                 appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
+                conversationId?.run {
+                    // TODO: Add an attachment bundle type to differentiate whether to invoke sendImageMessage or sendAssetMessage when the
+                    //  rest of the attachment options have been completed
+                    val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
+                    sendImageMessage(this, attachmentBundle.rawContent, imgWidth, imgHeight)
+                }
             }
         }
     }
@@ -193,13 +192,13 @@ class ConversationViewModel @Inject constructor(
     private fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(): List<Message> {
         return map { message ->
             Message(
-                messageContent = com.wire.android.ui.home.conversations.model.MessageContent.TextMessage(
-                    messageBody = com.wire.android.ui.home.conversations.model.MessageBody(
-                        (message.content as? MessageContent.Text)?.value ?: "content is not available"
+                messageContent = TextMessage(
+                    messageBody = MessageBody(
+                        (message.content as? Text)?.value ?: "content is not available"
                     )
                 ),
                 messageSource = MessageSource.CurrentUser,
-                messageHeader = com.wire.android.ui.home.conversations.model.MessageHeader(
+                messageHeader = MessageHeader(
                     "Cool User",
                     Membership.None,
                     true,
@@ -208,7 +207,6 @@ class ConversationViewModel @Inject constructor(
                     messageId = message.id
                 ),
                 user = User(availabilityStatus = UserStatus.NONE)
-
             )
         }
     }

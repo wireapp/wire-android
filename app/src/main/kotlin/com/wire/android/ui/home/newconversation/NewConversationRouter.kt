@@ -39,37 +39,17 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
     }
 
     with(newConversationViewModel.state) {
-        AppTopBarWithSearchBar(
-            scrollPosition = newConversationState.scrollPosition,
-            searchBarHint = stringResource(R.string.label_search_people),
-            searchQuery = searchQuery,
-            onSearchQueryChanged = { searchTerm ->
-                // when the searchTerm changes, we want to propagate it
-                // to the ViewModel, only when the searchQuery inside the ViewModel
-                // is different than searchTerm coming from the TextInputField
-                if (searchTerm != searchQuery) {
-                    newConversationViewModel.search(searchTerm)
-                }
-            },
-            onSearchClicked = { newConversationViewModel.openSearchContacts() },
-            onCloseSearchClicked = {
-                newConversationViewModel.openKnownContacts()
-            },
-            appTopBar = {
-                WireCenterAlignedTopAppBar(
-                    elevation = 0.dp,
-                    title = stringResource(R.string.label_new_conversation),
-                    navigationIconType = NavigationIconType.Close,
-                    onNavigationPressed = { newConversationViewModel.close() }
-                )
-            },
-            content = {
-                NavHost(
-                    navController = newConversationState.navController,
-                    startDestination = NewConversationStateScreen.KNOWN_CONTACTS
-                ) {
-                    composable(
-                        route = NewConversationStateScreen.KNOWN_CONTACTS,
+        NavHost(
+            navController = newConversationState.navController,
+            startDestination = NewConversationStateScreen.KNOWN_CONTACTS
+        ) {
+            composable(
+                route = NewConversationStateScreen.KNOWN_CONTACTS,
+                content = {
+                    screenWithSearchTopBar(
+                        newConversationViewModel = newConversationViewModel,
+                        searchQuery = searchQuery,
+                        scrollPosition = newConversationState.scrollPosition,
                         content = {
                             ContactsScreen(
                                 onScrollPositionChanged = { newConversationState.updateScrollPosition(it) },
@@ -88,8 +68,16 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                             )
                         }
                     )
-                    composable(
-                        route = NewConversationStateScreen.SEARCH_PEOPLE,
+
+                }
+            )
+            composable(
+                route = NewConversationStateScreen.SEARCH_PEOPLE,
+                content = {
+                    screenWithSearchTopBar(
+                        newConversationViewModel = newConversationViewModel,
+                        searchQuery = searchQuery,
+                        scrollPosition = newConversationState.scrollPosition,
                         content = {
                             SearchPeopleScreen(
                                 searchQuery = searchQuery,
@@ -108,19 +96,56 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                                 },
                                 onNewGroupClicked = { newConversationViewModel.openNewGroupScreen() }
                             )
-                        }
-                    )
-                    composable(
-                        route = NewConversationStateScreen.NEW_GROUP,
-                        content = {
-                            NewGroupScreen()
-                        }
-                    )
 
+                        }
+                    )
                 }
-            }
-        )
+            )
+            composable(
+                route = NewConversationStateScreen.NEW_GROUP,
+                content = {
+                    NewGroupScreen()
+                }
+            )
+
+        }
     }
+}
+
+@Composable
+fun screenWithSearchTopBar(
+    newConversationViewModel: NewConversationViewModel,
+    searchQuery: String,
+    scrollPosition: Int,
+    content: @Composable () -> Unit
+) {
+    AppTopBarWithSearchBar(
+        scrollPosition = scrollPosition,
+        searchBarHint = stringResource(R.string.label_search_people),
+        searchQuery = searchQuery,
+        onSearchQueryChanged = { searchTerm ->
+            // when the searchTerm changes, we want to propagate it
+            // to the ViewModel, only when the searchQuery inside the ViewModel
+            // is different than searchTerm coming from the TextInputField
+            if (searchTerm != searchQuery) {
+                newConversationViewModel.search(searchTerm)
+            }
+        },
+        onSearchClicked = { newConversationViewModel.openSearchContacts() },
+        onCloseSearchClicked = {
+            newConversationViewModel.openKnownContacts()
+        },
+        appTopBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                title = stringResource(R.string.label_new_conversation),
+                navigationIconType = NavigationIconType.Close,
+                onNavigationPressed = { newConversationViewModel.close() }
+            )
+        },
+        content = content
+    )
+
 }
 
 private class NewConversationStateScreen(

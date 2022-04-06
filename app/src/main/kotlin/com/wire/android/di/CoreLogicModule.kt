@@ -151,8 +151,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getConversationDetailsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).conversations.getConversationDetails
+    fun observeConversationDetailsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeConversationDetails
 
     @ViewModelScoped
     @Provides

@@ -19,7 +19,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
-import com.wire.android.ui.authentication.login.LoginScreen
+import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.EMAIL
 import com.wire.android.utils.PASSWORD
@@ -42,7 +42,7 @@ import org.junit.runners.MethodSorters
 )
 @HiltAndroidTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-class LoginScreenTest {
+class LoginEmailScreenTest {
 
     @get:Rule(order = 0)
     var hiltRule = HiltAndroidRule(this)
@@ -64,7 +64,7 @@ class LoginScreenTest {
         // Start the app
         composeTestRule.setContent {
             WireTheme {
-                LoginScreen(serverConfig = ServerConfig.DEFAULT)
+                LoginEmailScreen(serverConfig = ServerConfig.DEFAULT)
             }
         }
     }

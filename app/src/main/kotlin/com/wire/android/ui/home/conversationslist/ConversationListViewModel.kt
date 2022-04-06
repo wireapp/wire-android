@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -20,9 +21,13 @@ import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.android.util.getConversationColor
-import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.ConversationId
-import com.wire.kalium.logic.feature.conversation.GetConversationsUseCase
+import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
+import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
+import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,7 +37,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val getConversations: GetConversationsUseCase,
+    private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
+    private val getPublicAsset: GetPublicAssetUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -40,25 +46,18 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getConversations().let {
-                when (it) {
-                    is GetConversationsUseCase.Result.Failure -> TODO("unhandled error case")
-                    is GetConversationsUseCase.Result.Success -> {
-                        it.convFlow.collect { conversations ->
-                            state = ConversationListState(
-                                newActivities = listOf(),
-                                conversations = conversationMockData(conversations.toGeneralConversationList()),
-                                missedCalls = mockMissedCalls,
-                                callHistory = mockCallHistory,
-                                unreadMentions = mockUnreadMentionList,
-                                allMentions = mockAllMentionList,
-                                unreadMentionsCount = 12,
-                                missedCallsCount = 100,
-                                newActivityCount = 1
-                            )
-                        }
-                    }
-                }
+            observeConversationDetailsList().collect { detailedList ->
+                state = ConversationListState(
+                    newActivities = listOf(),
+                    conversations = conversationMockData(detailedList.toGeneralConversationList()),
+                    missedCalls = mockMissedCalls,
+                    callHistory = mockCallHistory,
+                    unreadMentions = mockUnreadMentionList,
+                    allMentions = mockAllMentionList,
+                    unreadMentionsCount = 12,
+                    missedCallsCount = 100,
+                    newActivityCount = 1
+                )
             }
         }
     }
@@ -126,31 +125,38 @@ class ConversationListViewModel @Inject constructor(
 
     }
 
-    private fun List<Conversation>.toGeneralConversationList() = map { conversation ->
-        if (isPrivateChat(conversation)) {
-            GeneralConversation(
-                ConversationType.PrivateConversation(
-                    userInfo = UserInfo(),
-                    conversationInfo = ConversationInfo(
-                        name = "Some private chat",
-                        membership = Membership.None,
-                        isLegalHold = true
-                    ),
-                    conversationId = conversation.id
+    private fun List<ConversationDetails>.toGeneralConversationList(): List<GeneralConversation> = filter {
+        it is Group || it is OneOne
+    }.map { details ->
+        val conversation = details.conversation
+        when (details) {
+            is Group -> {
+                GeneralConversation(
+                    ConversationType.GroupConversation(
+                        groupColorValue = getConversationColor(conversation.id),
+                        groupName = conversation.name.orEmpty(),
+                        conversationId = conversation.id
+                    )
                 )
-            )
-        } else {
-            GeneralConversation(
-                ConversationType.GroupConversation(
-                    groupColorValue = getConversationColor(conversation.id),
-                    groupName = conversation.name!!,
-                    conversationId = conversation.id
+            }
+            is OneOne -> {
+                val otherUser = details.otherUser
+                GeneralConversation(
+                    ConversationType.PrivateConversation(
+                        userInfo = UserInfo("", UserStatus.NONE), //TODO Get actual status and avatar
+                        conversationInfo = ConversationInfo(
+                            name = otherUser.name.orEmpty(),
+                            membership = Membership.None,
+                            isLegalHold = true
+                        ),
+                        conversationId = conversation.id
+                    )
                 )
-            )
+            }
+            is Self -> {
+                throw IllegalArgumentException("Self conversations should not be visible to the user.")
+            }
         }
     }
-
-    //TODO
-    private fun isPrivateChat(conversation: Conversation) = conversation.name.isNullOrEmpty()
 
 }

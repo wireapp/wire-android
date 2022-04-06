@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -18,24 +19,27 @@ import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
-import com.wire.android.ui.home.newconversation.NewConversationNavigationCommand.KnownContacts
-import com.wire.android.ui.home.newconversation.NewConversationNavigationCommand.NewGroup
-import com.wire.android.ui.home.newconversation.NewConversationNavigationCommand.SearchContacts
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.newGroup.NewGroupScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val newConversationState = rememberNewConversationState()
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(newConversationViewModel.navigateCommand) {
-        when (newConversationViewModel.navigateCommand) {
-            KnownContacts -> newConversationState.navigateToKnownContacts()
-            SearchContacts -> newConversationState.navigateToSearch()
-            NewGroup -> newConversationState.navigateToNewGroup()
-        }
+    LaunchedEffect(newConversationViewModel) {
+        newConversationViewModel.moveToStep.onEach { item ->
+            when (item) {
+                NewConversationNavigationCommand.KnownContacts -> newConversationState.navigateToKnownContacts()
+                NewConversationNavigationCommand.SearchContacts -> newConversationState.navigateToSearch()
+                NewConversationNavigationCommand.NewGroup -> newConversationState.navigateToNewGroup()
+            }
+        }.launchIn(scope)
+        newConversationViewModel.moveBack.onEach {}
     }
 
     with(newConversationViewModel.state) {

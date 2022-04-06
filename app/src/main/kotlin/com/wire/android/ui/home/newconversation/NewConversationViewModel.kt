@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import android.util.Log
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.create.team.CreateTeamNavigationItem
 import com.wire.android.ui.home.newconversation.contacts.Contact
 import com.wire.android.ui.home.newconversation.contacts.toContact
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult
@@ -21,6 +23,7 @@ import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
@@ -56,7 +59,11 @@ class NewConversationViewModel
         )
     }
 
-    var navigateCommand: NewConversationNavigationCommand by mutableStateOf(NewConversationNavigationCommand.KnownContacts)
+//    var navigateCommand: NewConversationNavigationCommand by mutableStateOf(NewConversationNavigationCommand.KnownContacts)
+
+    var moveToStep = MutableSharedFlow<NewConversationNavigationCommand>()
+    var moveBack = MutableSharedFlow<Unit>()
+
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
@@ -164,11 +171,11 @@ class NewConversationViewModel
 
     fun openKnownContacts() {
         innerSearchPeopleState = innerSearchPeopleState.copy(searchQuery = "")
-        navigateCommand = NewConversationNavigationCommand.KnownContacts
+        goToStep(NewConversationNavigationCommand.KnownContacts)
     }
 
     fun openSearchContacts() {
-        navigateCommand = NewConversationNavigationCommand.SearchContacts
+        goToStep(NewConversationNavigationCommand.SearchContacts)
     }
 
     fun close() {
@@ -178,7 +185,17 @@ class NewConversationViewModel
     }
 
     fun openNewGroupScreen() {
-        navigateCommand = NewConversationNavigationCommand.NewGroup
+        if (state.contactsAddedToGroup.isNotEmpty())
+            goToStep(NewConversationNavigationCommand.NewGroup)
+
+    }
+
+    private fun goToStep(item: NewConversationNavigationCommand) {
+        viewModelScope.launch { moveToStep.emit(item) }
+    }
+
+    fun goBackToPreviousStep() {
+        viewModelScope.launch { moveBack.emit(Unit) }
     }
 }
 

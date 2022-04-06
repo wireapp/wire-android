@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LoginEmail(
+fun LoginEmailScreen(
     serverConfig: ServerConfig,
     scrollState: ScrollState = rememberScrollState()
 ) {

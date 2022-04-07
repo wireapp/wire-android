@@ -197,7 +197,7 @@ private fun PasswordTextFields(
         onValueChange = onPasswordChange,
         labelMandatoryIcon = true,
         descriptionText = stringResource(R.string.create_account_details_password_description),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Next),
+        imeAction = ImeAction.Next,
         modifier = Modifier
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             .bringIntoViewOnFocus(coroutineScope),
@@ -209,7 +209,7 @@ private fun PasswordTextFields(
         onValueChange = onConfirmPasswordChange,
         labelText = stringResource(R.string.create_account_details_confirm_password_label),
         labelMandatoryIcon = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = ImeAction.Done),
+        imeAction = ImeAction.Done,
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = Modifier
             .padding(

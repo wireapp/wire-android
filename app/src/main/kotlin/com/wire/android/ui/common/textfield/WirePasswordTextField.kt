@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -40,7 +41,7 @@ fun WirePasswordTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     readOnly: Boolean = false,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false),
+    imeAction: ImeAction = ImeAction.Default,
     keyboardActions: KeyboardActions = KeyboardActions(),
     placeholderText: String? = stringResource(R.string.login_password_placeholder),
     labelText: String? = stringResource(R.string.login_password_label),
@@ -62,7 +63,7 @@ fun WirePasswordTextField(
         readOnly = readOnly,
         singleLine = true,
         maxLines = 1,
-        keyboardOptions = keyboardOptions,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = imeAction),
         keyboardActions = keyboardActions,
         placeholderText = placeholderText,
         labelText = labelText,
@@ -80,7 +81,9 @@ fun WirePasswordTextField(
         trailingIcon = {
             val image = if (passwordVisibility) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
             IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
-                Icon(imageVector = image, "", modifier = Modifier.size(20.dp).testTag("hidePassword"))
+                Icon(imageVector = image, "", modifier = Modifier
+                    .size(20.dp)
+                    .testTag("hidePassword"))
             }
         },
     )

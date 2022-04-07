@@ -2,6 +2,7 @@ package com.wire.android.ui.home.newconversation.newGroup
 
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,29 +15,45 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewGroupScreen() {
-
-    NewGroupScreenContent()
+fun NewGroupScreen(onBackPressed: () -> Unit) {
+    val viewModel: NewConversationViewModel = hiltViewModel()
+    NewGroupScreenContent(
+        state = viewModel.groupNameState,
+        onGroupNameChange = viewModel::onGroupNameChange,
+        onContinuePressed = viewModel::onGroupNameContinueClicked,
+        onGroupNameErrorAnimated = viewModel::onGroupNameErrorAnimated,
+        onBackPressed = onBackPressed
+    )
 }
 
 @OptIn(
@@ -44,10 +61,16 @@ fun NewGroupScreen() {
     androidx.compose.ui.ExperimentalComposeUiApi::class
 )
 @Composable
-fun NewGroupScreenContent() {
-
+fun NewGroupScreenContent(
+    state: NewGroupNameViewState,
+    onGroupNameChange: (TextFieldValue) -> Unit,
+    onContinuePressed: () -> Unit,
+    onGroupNameErrorAnimated: () -> Unit,
+    onBackPressed: () -> Unit,
+) {
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
+            onNavigationPressed = onBackPressed,
             elevation = 0.dp,
             title = stringResource(id = R.string.new_group_title)
         )
@@ -69,30 +92,48 @@ fun NewGroupScreenContent() {
                         top.linkTo(parent.top)
                     }
             )
-
-            WireTextField(
-                value = TextFieldValue(""),
-                onValueChange = { },
-                placeholderText = stringResource(R.string.group_name),
-                labelText = stringResource(R.string.group_name).uppercase(),
-                state = WireTextFieldState.Default,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                modifier = Modifier
-                    .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
-                    .constrainAs(textField) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
+            Box(modifier = Modifier.constrainAs(textField) {
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+            }) {
+                ShakeAnimation { animate ->
+                    if (state.animatedGroupNameError) {
+                        animate()
+                        onGroupNameErrorAnimated()
                     }
-            )
+
+                    var groupNameText by remember { mutableStateOf(state.groupName) }
+
+                    WireTextField(
+                        value = state.groupName,
+                        onValueChange = onGroupNameChange,
+                        placeholderText = stringResource(R.string.group_name),
+                        labelText = stringResource(R.string.group_name).uppercase(),
+                        state = if (state.error is NewGroupNameViewState.GroupNameError.TextFieldError) when (state.error) {
+                            NewGroupNameViewState.GroupNameError.TextFieldError.GroupNameEmptyError ->
+                                WireTextFieldState.Error(stringResource(id = R.string.empty_group_name_error))
+                            NewGroupNameViewState.GroupNameError.TextFieldError.GroupNameExceedLimitError ->
+                                WireTextFieldState.Error(stringResource(id = R.string.group_name_exceeded_limit_error))
+                        } else WireTextFieldState.Default,
+
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                        modifier = Modifier
+                            .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                    )
+                }
+
+            }
+
+
+
 
             WirePrimaryButton(
                 text = stringResource(R.string.label_continue),
-                onClick = {},
+                onClick = onContinuePressed,
                 fillMaxWidth = true,
-                loading = false,
                 trailingIcon = Icons.Filled.ChevronRight.Icon(),
-                state = WireButtonState.Disabled,
+                state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(MaterialTheme.wireDimensions.spacing16x)
@@ -103,3 +144,11 @@ fun NewGroupScreenContent() {
         }
     }
 }
+
+
+@Composable
+@Preview
+private fun NewGroupScreenPreview() {
+    NewGroupScreenContent(NewGroupNameViewState(), {}, {}, {}, {})
+}
+

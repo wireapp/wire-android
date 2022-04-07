@@ -39,7 +39,6 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                 NewConversationNavigationCommand.NewGroup -> newConversationState.navigateToNewGroup()
             }
         }.launchIn(scope)
-        newConversationViewModel.moveBack.onEach {}
     }
 
     with(newConversationViewModel.state) {
@@ -108,7 +107,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
             composable(
                 route = NewConversationStateScreen.NEW_GROUP,
                 content = {
-                    NewGroupScreen()
+                    NewGroupScreen(onBackPressed = { newConversationState.navigateBack() })
                 }
             )
 
@@ -174,6 +173,11 @@ private class NewConversationStateScreen(
     fun navigateToKnownContacts() {
         navController.navigate(KNOWN_CONTACTS)
     }
+
+    fun navigateBack() {
+        navController.popBackStack()
+    }
+
 
     companion object {
         const val KNOWN_CONTACTS = "known_contacts"

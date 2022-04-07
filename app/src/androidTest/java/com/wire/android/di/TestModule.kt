@@ -44,6 +44,7 @@ class TestModule {
     }
 }
 
+@Suppress("MaxLineLength")
 private fun getAuthSessionSnapshot(userId: UserId) = AuthSession(
     userId = userId,
     accessToken = "SncygyfgwC628HSn1akeAP1KZIRr6UX994dl9Ap2FsSI18fHlYhVvjqEulPRMTjKgP9hYOSPPoD5QrjYqGERAg==.v=1.k=1.d=1649375417.t=a.l=.u=f48ea18d-4dfd-4adf-9252-9e48443c15c8.c=17777963853806308667", // ktlint-disable max-line-length

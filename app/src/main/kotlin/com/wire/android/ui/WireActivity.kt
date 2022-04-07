@@ -6,7 +6,6 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewTreeObserver
 import android.view.Window
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -18,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -34,6 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 
 @ExperimentalMaterial3Api
@@ -43,48 +44,25 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class WireActivity : AppCompatActivity() {
 
-
-    val test = Test()
-
     @Inject
     lateinit var navigationManager: NavigationManager
+
     val viewModel: WireActivityViewModel by viewModels()
+
+    private val keyboardSize = KeyboardSize()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        viewModel.handleDeepLink(intent)
 
-        val mRootWindow: Window = window
-        val mRootView: View = mRootWindow.getDecorView().findViewById(R.id.content)
-
-        mRootView.getViewTreeObserver().addOnGlobalLayoutListener(
-            ViewTreeObserver.OnGlobalLayoutListener {
-
-                val r = Rect()
-                val view: View = mRootWindow.getDecorView()
-                view.getWindowVisibleDisplayFrame(r)
-                test.test = r.bottom
-
-                Log.d("TEST", "keyboard isze ${r.left}  ${r.top}  ${r.bottom}  ${r.right}")
-            })
-
-        setContent {
-            WireTheme {
-                val scope = rememberCoroutineScope()
-                val navController = rememberAnimatedNavController()
-                setUpNavigation(navController, scope)
-
-                CompositionLocalProvider(LocalElevations provides test) {
-                    Scaffold {
-                        NavigationGraph(navController = navController, viewModel.startNavigationRoute(), listOf(viewModel.serverConfig))
-                    }
-                }
-            }
-        }
+        handleDeepLink(intent)
+        initializeKeyboardHeightNotifier()
+        setComposableContent()
     }
 
-
-
+    private fun handleDeepLink(intent: Intent) {
+        viewModel.handleDeepLink(intent)
+    }
 
     override fun onNewIntent(intent: Intent?) {
         intent?.let {
@@ -92,6 +70,51 @@ class WireActivity : AppCompatActivity() {
             viewModel.handleDeepLink(intent)
         }
         super.onNewIntent(intent)
+    }
+
+    private fun initializeKeyboardHeightNotifier() {
+        val rootWindow: Window = window
+        val rootView: View = window.decorView.findViewById(R.id.content)
+
+        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val rectWindowVisibleDisplayFrame = Rect()
+            val rootDecorView: View = rootWindow.decorView
+
+            rootDecorView.getWindowVisibleDisplayFrame(rectWindowVisibleDisplayFrame)
+
+            val density = applicationContext.resources.displayMetrics.density
+
+            with(rectWindowVisibleDisplayFrame) {
+                val top = (top / density).roundToInt()
+                val left = (left / density).roundToInt()
+                val right = (right / density).roundToInt()
+                val bottom = (bottom / density).roundToInt()
+
+                val width = right - left
+                val height = top - bottom
+
+                keyboardSize.height = height
+                keyboardSize.width = width
+            }
+
+            Log.d("TEST", "keyboard size :$keyboardSize")
+        }
+    }
+
+    private fun setComposableContent() {
+        setContent {
+            WireTheme {
+                val scope = rememberCoroutineScope()
+                val navController = rememberAnimatedNavController()
+                setUpNavigation(navController, scope)
+
+                CompositionLocalProvider(LocalKeyboardSize provides keyboardSize) {
+                    Scaffold {
+                        NavigationGraph(navController = navController, viewModel.startNavigationRoute(), listOf(viewModel.serverConfig))
+                    }
+                }
+            }
+        }
     }
 
     @Composable
@@ -119,6 +142,10 @@ class WireActivity : AppCompatActivity() {
     }
 }
 
-data class Test(var test: Int = 0)
+@Stable
+data class KeyboardSize(
+    var height: Int = 0,
+    var width: Int = 0
+)
 
-val LocalElevations = compositionLocalOf { Test() }
+val LocalKeyboardSize = compositionLocalOf { KeyboardSize() }

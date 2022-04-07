@@ -19,12 +19,10 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -59,7 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
-import com.wire.android.ui.LocalElevations
+import com.wire.android.ui.LocalKeyboardSize
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -142,26 +140,17 @@ private fun MessageComposer(
         ConstraintLayout(Modifier.fillMaxSize()) {
             var actualBottomIme by remember { mutableStateOf(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET) }
 
-            val bottomIme = with(LocalDensity.current) {
-                WindowInsets.ime.getBottom(this).toDp()
-            }
+            val keyboardSize = LocalKeyboardSize.current
 
-            LaunchedEffect(bottomIme) {
-                Log.d("TEST", bottomIme.toString())
-            }
-
-
-            val test = LocalElevations.current.test
-
-            LaunchedEffect(test) {
-                Log.d("TEST", "this is from local elevation$bottomIme")
+            LaunchedEffect(keyboardSize.height) {
+                Log.d("TEST", "this is from local elevation${keyboardSize.height}")
             }
 
             // if the bottomIme is greater than 0.dp it means that the keyboard did pop up
             //we are able to set the actual size of the keyboard now
-            LaunchedEffect(bottomIme) {
-                if (bottomIme > 0.dp) {
-                    actualBottomIme = bottomIme
+            LaunchedEffect(keyboardSize) {
+                if (keyboardSize.height > 0) {
+                    actualBottomIme = keyboardSize.height.dp
                 }
             }
             // This guide line is used when we have a focus on the TextInputField as well as when the attachment options are visible

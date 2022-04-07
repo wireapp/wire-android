@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,5 +26,6 @@ fun BackNavigationIconButton(onBackButtonClick: () -> Unit) { NavigationIconButt
 enum class NavigationIconType(val icon: ImageVector, @StringRes val contentDescription: Int) {
     Back(Icons.Filled.ArrowBack, R.string.content_description_back_button),
     Close(Icons.Filled.Close, R.string.content_description_close_button),
-    Menu(Icons.Filled.Menu, R.string.content_description_menu_button)
+    Menu(Icons.Filled.Menu, R.string.content_description_menu_button),
+    Collapse(Icons.Filled.KeyboardArrowDown, R.string.content_description_drop_down_icon)
 }

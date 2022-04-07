@@ -16,7 +16,9 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -41,6 +43,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class WireActivity : AppCompatActivity() {
 
+
+    val test = Test()
+
     @Inject
     lateinit var navigationManager: NavigationManager
     val viewModel: WireActivityViewModel by viewModels()
@@ -54,27 +59,32 @@ class WireActivity : AppCompatActivity() {
 
         mRootView.getViewTreeObserver().addOnGlobalLayoutListener(
             ViewTreeObserver.OnGlobalLayoutListener {
+
                 val r = Rect()
                 val view: View = mRootWindow.getDecorView()
                 view.getWindowVisibleDisplayFrame(r)
+                test.test = r.bottom
 
-                Log.d("TEST","keyboard isze ${r.left}  ${r.top}  ${r.bottom}  ${r.right}")
+                Log.d("TEST", "keyboard isze ${r.left}  ${r.top}  ${r.bottom}  ${r.right}")
             })
-
 
         setContent {
             WireTheme {
                 val scope = rememberCoroutineScope()
                 val navController = rememberAnimatedNavController()
-
                 setUpNavigation(navController, scope)
 
-                Scaffold {
-                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), listOf(viewModel.serverConfig))
+                CompositionLocalProvider(LocalElevations provides test) {
+                    Scaffold {
+                        NavigationGraph(navController = navController, viewModel.startNavigationRoute(), listOf(viewModel.serverConfig))
+                    }
                 }
             }
         }
     }
+
+
+
 
     override fun onNewIntent(intent: Intent?) {
         intent?.let {
@@ -108,3 +118,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 }
+
+data class Test(var test: Int = 0)
+
+val LocalElevations = compositionLocalOf { Test() }

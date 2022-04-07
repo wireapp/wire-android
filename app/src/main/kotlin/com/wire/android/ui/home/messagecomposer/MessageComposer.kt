@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
+import com.wire.android.ui.LocalElevations
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -147,6 +148,13 @@ private fun MessageComposer(
 
             LaunchedEffect(bottomIme) {
                 Log.d("TEST", bottomIme.toString())
+            }
+
+
+            val test = LocalElevations.current.test
+
+            LaunchedEffect(test) {
+                Log.d("TEST", "this is from local elevation$bottomIme")
             }
 
             // if the bottomIme is greater than 0.dp it means that the keyboard did pop up

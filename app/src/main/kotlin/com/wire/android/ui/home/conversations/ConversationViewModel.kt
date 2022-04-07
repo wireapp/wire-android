@@ -25,6 +25,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.feature.asset.GetPrivateAssetUseCase
@@ -109,7 +110,10 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(messageText = "")
         viewModelScope.launch {
             // TODO what if conversationId is null???
-            conversationId?.let { sendTextMessage(it, messageText) }
+            conversationId?.let {
+                // TODO: Handle error case when sending message
+                sendTextMessage(it, messageText)
+            }
         }
     }
 
@@ -227,6 +231,10 @@ class ConversationViewModel @Inject constructor(
                 val assetId = content.value.remoteData.assetId
                 val assetToken = content.value.remoteData.assetToken
                 val privateKey = content.value.remoteData.otrKey
+                val (imgWidth, imgHeight) = when (val metadata = content.value.metadata) {
+                    is Image -> metadata.width to metadata.height
+                    else -> 0 to 0
+                }
                 val decodedImgDataResult = getMessageAsset(
                     assetKey = assetId,
                     assetToken = assetToken ?: "",
@@ -239,7 +247,12 @@ class ConversationViewModel @Inject constructor(
                         else -> ByteArray(16)
                     }
                 }
-                ImageMessage(decodedImgDataResult)
+                when {
+                    content.value.mimeType.contains("image") -> ImageMessage(decodedImgDataResult, width = imgWidth, height = imgHeight)
+                    assetId.isEmpty() -> TextMessage(messageBody = MessageBody("The asset message could not be downloaded correctly"))
+                    // TODO: Add generic asset message UI
+                    else -> TextMessage(MessageBody("GENERIC ASSET MESSAGE"))
+                }
             }
             is Text -> TextMessage(messageBody = MessageBody(content.value))
             else -> TextMessage(messageBody = MessageBody((content as? Text)?.value ?: "content is not available"))

@@ -30,6 +30,8 @@ val mockMessageWithText = Message(
     ),
 )
 
+val mockedImg = MessageContent.ImageMessage(ByteArray(16), 0, 0)
+
 fun getMockedMessages(context: Context): List<Message> = listOf(
     Message(
         user = User("", UserStatus.AVAILABLE),
@@ -60,7 +62,7 @@ fun getMockedMessages(context: Context): List<Message> = listOf(
             messageStatus = MessageStatus.Deleted,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage(ByteArray(16)),
+        messageContent = mockedImg,
     ),
     Message(
         user = User("", UserStatus.AVAILABLE),
@@ -72,7 +74,7 @@ fun getMockedMessages(context: Context): List<Message> = listOf(
             messageStatus = MessageStatus.Edited,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage(ByteArray(16)),
+        messageContent = mockedImg,
     ),
     Message(
         user = User("", UserStatus.AVAILABLE),
@@ -84,7 +86,7 @@ fun getMockedMessages(context: Context): List<Message> = listOf(
             messageStatus = MessageStatus.Edited,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage(ByteArray(16)),
+        messageContent = mockedImg,
     ),
     Message(
         user = User("", UserStatus.AVAILABLE),
@@ -115,7 +117,7 @@ fun getMockedMessages(context: Context): List<Message> = listOf(
             messageStatus = MessageStatus.Edited,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage(ByteArray(16)),
+        messageContent = mockedImg,
     ),
     Message(
         user = User("", UserStatus.AVAILABLE),

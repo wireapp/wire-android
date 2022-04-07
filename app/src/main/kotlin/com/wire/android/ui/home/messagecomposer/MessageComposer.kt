@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.messagecomposer
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -70,7 +71,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 
-private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 334.dp
+private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 870.dp
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -144,6 +145,10 @@ private fun MessageComposer(
                 WindowInsets.ime.getBottom(this).toDp()
             }
 
+            LaunchedEffect(bottomIme) {
+                Log.d("TEST", bottomIme.toString())
+            }
+
             // if the bottomIme is greater than 0.dp it means that the keyboard did pop up
             //we are able to set the actual size of the keyboard now
             LaunchedEffect(bottomIme) {
@@ -156,8 +161,7 @@ private fun MessageComposer(
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
             // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
             // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
-            val topOfKeyboardGuideLine =
-                createGuidelineFromTop(messageComposerState.fullScreenHeight - actualBottomIme)
+            val topOfKeyboardGuideLine = createGuidelineFromTop(messageComposerState.fullScreenHeight - actualBottomIme)
 
             val (additionalActions, sendActions, messageInput, additionalOptionsContent) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with

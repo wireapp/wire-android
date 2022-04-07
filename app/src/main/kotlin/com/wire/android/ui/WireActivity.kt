@@ -1,7 +1,13 @@
 package com.wire.android.ui
 
+import android.R
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.view.ViewTreeObserver
+import android.view.Window
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -42,6 +48,20 @@ class WireActivity : AppCompatActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         viewModel.handleDeepLink(intent)
+
+        val mRootWindow: Window = window
+        val mRootView: View = mRootWindow.getDecorView().findViewById(R.id.content)
+
+        mRootView.getViewTreeObserver().addOnGlobalLayoutListener(
+            ViewTreeObserver.OnGlobalLayoutListener {
+                val r = Rect()
+                val view: View = mRootWindow.getDecorView()
+                view.getWindowVisibleDisplayFrame(r)
+
+                Log.d("TEST","keyboard isze ${r.left}  ${r.top}  ${r.bottom}  ${r.right}")
+            })
+
+
         setContent {
             WireTheme {
                 val scope = rememberCoroutineScope()

@@ -130,7 +130,7 @@ private fun MessageComposer(
     onError: (String) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    val keyboardSize = LocalKeyboardSize.current
+
 
     Surface {
         val transition = updateTransition(
@@ -142,6 +142,7 @@ private fun MessageComposer(
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout(Modifier.fillMaxSize()) {
+            val keyboardSize = LocalKeyboardSize.current
 
             var keyboardHeightOffSet by remember {
                 mutableStateOf(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
@@ -155,6 +156,7 @@ private fun MessageComposer(
                 }
             }
 
+            val messageComposer = createRef()
             // This guide line is used when we have a focus on the TextInputField as well as when the attachment options are visible
             // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
@@ -164,21 +166,19 @@ private fun MessageComposer(
                 offset = messageComposerState.fullScreenHeight - keyboardHeightOffSet - 56.dp
             )
 
-            val test1 = createRef()
-
             ConstraintLayout(
                 Modifier
                     .wrapContentSize()
-                    .constrainAs(test1) {
+                    .constrainAs(messageComposer) {
                         top.linkTo(parent.top)
 
-                        if (messageComposerState.hasFocus || messageComposerState.attachmentOptionsDisplayed) {
+                        if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
                             bottom.linkTo(topOfKeyboardGuideLine)
                         } else {
                             bottom.linkTo(parent.bottom)
                         }
 
-                        height = Dimension.fillToConstraints
+                        height = Dimension.preferredWrapContent
                     }) {
 
                 val (additionalActions, sendActions, messageInput) = createRefs()
@@ -190,6 +190,8 @@ private fun MessageComposer(
                         // we want to align the elements to the guideline only when we display attachmentOptions
                         // or we are having focus on the TextInput field
                         bottom.linkTo(additionalActions.top)
+
+                        height = Dimension.preferredWrapContent
                     }
                 ) {
                     Box(
@@ -330,7 +332,6 @@ private fun MessageComposer(
                     }
                 }
 
-
                 // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
                 // constrain our SendActions to it
                 Column(
@@ -340,8 +341,8 @@ private fun MessageComposer(
                             bottom.linkTo(parent.bottom)
                         }
                         .wrapContentSize()) {
+                    Divider()
                     Box(Modifier.wrapContentSize()) {
-                        Divider()
                         transition.AnimatedVisibility(
                             visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
                             // we are animating the exit, so that the MessageComposeActions go down
@@ -356,6 +357,9 @@ private fun MessageComposer(
             }
 
             // Box wrapping for additional options content
+            // we want to offset the AttachmentOptionsComponent equal to where
+            // the device keyboard is displayed, so that when the keyboard is closed,
+            // we get the effect of overlapping it
             if (messageComposerState.attachmentOptionsDisplayed) {
                 Box(
                     Modifier
@@ -363,7 +367,6 @@ private fun MessageComposer(
                         .height(keyboardHeightOffSet)
                         .absoluteOffset(y = messageComposerState.fullScreenHeight - keyboardHeightOffSet)
                 ) {
-                    Divider()
                     AttachmentOptionsComponent(messageComposerState.attachmentInnerState, onSendAttachment, onError)
                 }
             }

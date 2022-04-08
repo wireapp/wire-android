@@ -71,7 +71,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.keyboard.LocalKeyboardSize
 
 
-private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 350.dp
+private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

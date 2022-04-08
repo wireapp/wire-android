@@ -148,17 +148,27 @@ private fun MessageComposer(
 
             // if the bottomIme is greater than 0.dp it means that the keyboard did pop up
             //we are able to set the actual size of the keyboard now
-            LaunchedEffect(keyboardSize) {
+            LaunchedEffect(keyboardSize.height) {
                 if (keyboardSize.height > 0) {
                     actualBottomIme = keyboardSize.height.dp
                 }
             }
+
+//
+//            val test = createRef()
+
+
             // This guide line is used when we have a focus on the TextInputField as well as when the attachment options are visible
             // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
             // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
             // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
             val topOfKeyboardGuideLine = createGuidelineFromTop(messageComposerState.fullScreenHeight - actualBottomIme)
+
+//
+//            Box(Modifier.height(64.dp).fillMaxWidth().background(Color.Red).constrainAs(test){
+//                bottom.linkTo(topOfKeyboardGuideLine)
+//            })
 
             val (additionalActions, sendActions, messageInput, additionalOptionsContent) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
@@ -167,11 +177,9 @@ private fun MessageComposer(
                 Modifier.constrainAs(messageInput) {
                     // we want to align the elements to the guideline only when we display attachmentOptions
                     // or we are having focus on the TextInput field
-                    if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
-                        bottom.linkTo(topOfKeyboardGuideLine)
-                    } else {
+
                         bottom.linkTo(additionalActions.top)
-                    }
+
                     top.linkTo(parent.top)
 
                     height = Dimension.fillToConstraints
@@ -294,11 +302,7 @@ private fun MessageComposer(
             // MessageComposerInput and CollapsingButton
             Box(
                 Modifier.constrainAs(sendActions) {
-                    if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
-                        bottom.linkTo(topOfKeyboardGuideLine)
-                    } else {
-                        bottom.linkTo(additionalActions.top)
-                    }
+                    bottom.linkTo(additionalActions.top)
                     end.linkTo(parent.end)
                 }
             ) {
@@ -325,7 +329,7 @@ private fun MessageComposer(
                 Modifier
                     .constrainAs(additionalActions) {
                         if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
-                            top.linkTo(topOfKeyboardGuideLine)
+                            bottom.linkTo(topOfKeyboardGuideLine)
                         } else {
                             bottom.linkTo(additionalOptionsContent.bottom)
                             top.linkTo(messageInput.bottom)

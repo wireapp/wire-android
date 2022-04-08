@@ -1,12 +1,7 @@
 package com.wire.android.ui
 
-import android.R
 import android.content.Intent
-import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.view.Window
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -17,7 +12,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -29,12 +23,13 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.keyboard.KeyboardInsetsProvider
+import com.wire.android.util.keyboard.KeyboardSize
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 
 @ExperimentalMaterial3Api
@@ -73,31 +68,9 @@ class WireActivity : AppCompatActivity() {
     }
 
     private fun initializeKeyboardHeightNotifier() {
-        val rootWindow: Window = window
-        val rootView: View = window.decorView.findViewById(R.id.content)
-
-        rootView.viewTreeObserver.addOnGlobalLayoutListener {
-            val rectWindowVisibleDisplayFrame = Rect()
-            val rootDecorView: View = rootWindow.decorView
-
-            rootDecorView.getWindowVisibleDisplayFrame(rectWindowVisibleDisplayFrame)
-
-            val density = applicationContext.resources.displayMetrics.density
-
-            with(rectWindowVisibleDisplayFrame) {
-                val top = (top / density).roundToInt()
-                val left = (left / density).roundToInt()
-                val right = (right / density).roundToInt()
-                val bottom = (bottom / density).roundToInt()
-
-                val width = right - left
-                val height = top - bottom
-
-                keyboardSize.height = height
-                keyboardSize.width = width
-            }
-
-            Log.d("TEST", "keyboard size :$keyboardSize")
+        KeyboardInsetsProvider(applicationContext, this) { height, width ->
+            keyboardSize.height = height
+            keyboardSize.width = width
         }
     }
 
@@ -142,10 +115,5 @@ class WireActivity : AppCompatActivity() {
     }
 }
 
-@Stable
-data class KeyboardSize(
-    var height: Int = 0,
-    var width: Int = 0
-)
 
 val LocalKeyboardSize = compositionLocalOf { KeyboardSize() }

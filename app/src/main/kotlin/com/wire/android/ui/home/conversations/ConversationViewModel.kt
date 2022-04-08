@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
@@ -90,6 +92,16 @@ class ConversationViewModel @Inject constructor(
     fun navigateBack() {
         viewModelScope.launch {
             navigationManager.navigateBack()
+        }
+    }
+
+    fun navigateToInitiatingCallScreen() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.CallEstablished.getRouteWithArgs()
+                )
+            )
         }
     }
 

@@ -35,6 +35,7 @@ class LoginSSOViewModel @Inject constructor(
         loginState = loginState.copy(loading = true, loginSSOError = LoginSSOError.None).updateLoginEnabled()
         viewModelScope.launch {
             // TODO implement logic
+            loginState = loginState.copy(loading = false, loginSSOError = LoginSSOError.None).updateLoginEnabled()
         }
     }
 

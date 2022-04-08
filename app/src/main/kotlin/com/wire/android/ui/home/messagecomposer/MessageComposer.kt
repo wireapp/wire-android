@@ -162,8 +162,6 @@ private fun MessageComposer(
                 else messageComposerState.fullScreenHeight - keyboardHeightOffSet
             )
 
-
-
             val (additionalActions, sendActions, messageInput) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
             // CollapseIconButton
@@ -326,6 +324,7 @@ private fun MessageComposer(
                     .constrainAs(additionalActions) {
                         top.linkTo(topOfKeyboardGuideLine)
                         bottom.linkTo(additionalActions.top)
+
                     }
                     .wrapContentSize()) {
                 Box(Modifier.wrapContentSize()) {
@@ -345,13 +344,16 @@ private fun MessageComposer(
             val test = createRef()
 
             // Box wrapping for additional options content
-            if (messageComposerState.attachmentOptionsDisplayed && keyboardSize.height == 0) {
+            if (messageComposerState.attachmentOptionsDisplayed) {
                 Box(
                     Modifier
-                        .wrapContentSize()
+                        .fillMaxWidth()
+                        .height(keyboardHeightOffSet)
                         .constrainAs(test) {
                             top.linkTo(additionalActions.bottom)
                             bottom.linkTo(parent.bottom)
+
+                            height = Dimension.fillToConstraints
                         }) {
                     Divider()
                     AttachmentOptionsComponent(messageComposerState.attachmentInnerState, onSendAttachment, onError)

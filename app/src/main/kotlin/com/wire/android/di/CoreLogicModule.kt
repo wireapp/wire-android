@@ -43,12 +43,12 @@ class CoreLogicModule {
     @Singleton
     @Provides
     fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
-        val proteusPath = context.getDir("proteus", Context.MODE_PRIVATE).path
+        val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
 
         return CoreLogic(
             appContext = context,
-            rootProteusDirectoryPath = proteusPath,
+            rootPath = rootPath,
             clientLabel = deviceLabel
         )
     }
@@ -173,6 +173,11 @@ class UseCaseModule {
     @Provides
     fun registerClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.register
+
+    @ViewModelScoped
+    @Provides
+    fun needsToRegisterClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).client.needsToRegisterClient
 
     @ViewModelScoped
     @Provides

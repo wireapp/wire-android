@@ -74,7 +74,7 @@ object Libraries {
         const val fragment = "1.2.5"
         const val compose = "1.2.0-alpha03"
         const val composeMaterial = compose
-        const val composeMaterial3 = "1.0.0-alpha05"
+        const val composeMaterial3 = "1.0.0-alpha08"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.0-beta02"
         const val accompanist = "0.24.2-alpha"

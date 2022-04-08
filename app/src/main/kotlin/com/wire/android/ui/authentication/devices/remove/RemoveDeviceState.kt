@@ -1,4 +1,4 @@
-package com.wire.android.ui.authentication.devices
+package com.wire.android.ui.authentication.devices.remove
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.authentication.devices.model.Device

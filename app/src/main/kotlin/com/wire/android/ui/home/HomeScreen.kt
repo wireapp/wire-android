@@ -5,9 +5,9 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalDrawer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.RectangleShape
@@ -26,6 +26,7 @@ import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 )
 @Composable
 fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
+    viewModel.checkRequirements()
     val homeState = rememberHomeState()
 
     with(homeState) {
@@ -40,9 +41,9 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             )
         }
 
-        NavigationDrawer(
-            drawerContainerColor = MaterialTheme.colorScheme.surface,
-            drawerTonalElevation = 0.dp,
+        ModalDrawer(
+            drawerBackgroundColor = MaterialTheme.colorScheme.surface,
+            drawerElevation = 0.dp,
             drawerShape = RectangleShape,
             drawerState = drawerState,
             drawerContent = drawerContent,

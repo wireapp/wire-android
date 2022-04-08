@@ -116,6 +116,7 @@ fun MessageComposer(
 * exposes a [onMessageChanged] lambda, giving us the option to control its Message Text from outside the Widget.
 * it also exposes [onSendButtonClicked] lambda's giving us the option to handle the different message actions
 * */
+
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 private fun MessageComposer(
@@ -156,7 +157,12 @@ private fun MessageComposer(
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
             // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
             // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
-            val topOfKeyboardGuideLine = createGuidelineFromTop(messageComposerState.fullScreenHeight - keyboardHeightOffSet - 56.dp)
+            val topOfKeyboardGuideLine = createGuidelineFromTop(
+                offset = if (messageComposerState.hasFocus) messageComposerState.fullScreenHeight - keyboardHeightOffSet - 56.dp
+                else messageComposerState.fullScreenHeight - keyboardHeightOffSet
+            )
+
+
 
             val (additionalActions, sendActions, messageInput) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
@@ -315,10 +321,13 @@ private fun MessageComposer(
 
             // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
             // constrain our SendActions to it
-            Column(Modifier.constrainAs(additionalActions) {
-                top.linkTo(topOfKeyboardGuideLine)
-                bottom.linkTo(additionalActions.top)
-            }.wrapContentSize()) {
+            Column(
+                Modifier
+                    .constrainAs(additionalActions) {
+                        top.linkTo(topOfKeyboardGuideLine)
+                        bottom.linkTo(additionalActions.top)
+                    }
+                    .wrapContentSize()) {
                 Box(Modifier.wrapContentSize()) {
                     Divider()
                     transition.AnimatedVisibility(
@@ -337,10 +346,13 @@ private fun MessageComposer(
 
             // Box wrapping for additional options content
             if (messageComposerState.attachmentOptionsDisplayed && keyboardSize.height == 0) {
-                Box(Modifier.wrapContentSize().constrainAs(test){
-                    top.linkTo(additionalActions.bottom)
-                    bottom.linkTo(parent.bottom)
-                }) {
+                Box(
+                    Modifier
+                        .wrapContentSize()
+                        .constrainAs(test) {
+                            top.linkTo(additionalActions.bottom)
+                            bottom.linkTo(parent.bottom)
+                        }) {
                     Divider()
                     AttachmentOptionsComponent(messageComposerState.attachmentInnerState, onSendAttachment, onError)
                 }

@@ -317,6 +317,7 @@ private fun MessageComposer(
             // constrain our SendActions to it
             Column(Modifier.constrainAs(additionalActions) {
                 top.linkTo(topOfKeyboardGuideLine)
+                bottom.linkTo(additionalActions.top)
             }.wrapContentSize()) {
                 Box(Modifier.wrapContentSize()) {
                     Divider()
@@ -330,13 +331,18 @@ private fun MessageComposer(
                         MessageComposeActions(messageComposerState, focusManager)
                     }
                 }
+            }
 
-                // Box wrapping for additional options content
-                if (messageComposerState.attachmentOptionsDisplayed) {
-                    Box(Modifier.wrapContentSize()) {
-                        Divider()
-                        AttachmentOptionsComponent(messageComposerState.attachmentInnerState, onSendAttachment, onError)
-                    }
+            val test = createRef()
+
+            // Box wrapping for additional options content
+            if (messageComposerState.attachmentOptionsDisplayed && keyboardSize.height == 0) {
+                Box(Modifier.wrapContentSize().constrainAs(test){
+                    top.linkTo(additionalActions.bottom)
+                    bottom.linkTo(parent.bottom)
+                }) {
+                    Divider()
+                    AttachmentOptionsComponent(messageComposerState.attachmentInnerState, onSendAttachment, onError)
                 }
             }
         }

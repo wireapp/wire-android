@@ -29,7 +29,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `when navigateBack is called, execute navigationManager navigateBack`() {
+    fun `given a navigation, when navigating back, then should delegate call to navigation manager back`() {
         coEvery { navigationManager.navigateBack() } returns Unit
         loginViewModel.navigateBack()
         coVerify(exactly = 1) { navigationManager.navigateBack() }

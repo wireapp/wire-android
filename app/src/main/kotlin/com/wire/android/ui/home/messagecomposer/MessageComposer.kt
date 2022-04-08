@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -57,7 +58,6 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
-import com.wire.android.ui.LocalKeyboardSize
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -68,9 +68,10 @@ import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComp
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.keyboard.LocalKeyboardSize
 
 
-private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 870.dp
+private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 350.dp
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -128,6 +129,7 @@ private fun MessageComposer(
     onError: (String) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+    val keyboardSize = LocalKeyboardSize.current
 
     Surface {
         val transition = updateTransition(
@@ -138,24 +140,27 @@ private fun MessageComposer(
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout(Modifier.fillMaxSize()) {
-            var actualBottomIme by remember { mutableStateOf(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET) }
-
-            val keyboardSize = LocalKeyboardSize.current
-
-            LaunchedEffect(keyboardSize.height) {
-                Log.d("TEST", "this is from local elevation${keyboardSize.height}")
+            var keyboardHeightOffSet by remember {
+                mutableStateOf(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
             }
 
-            // if the bottomIme is greater than 0.dp it means that the keyboard did pop up
-            //we are able to set the actual size of the keyboard now
             LaunchedEffect(keyboardSize.height) {
-                if (keyboardSize.height > 0) {
-                    actualBottomIme = keyboardSize.height.dp
+                if (keyboardSize.height.dp > 0.dp) {
+                    Log.d("TEST", "from launched effect keyboardSize  ${keyboardSize.height.dp}")
+                    Log.d("TEST", "from launched effect actualKeyboardHeight  ${keyboardHeightOffSet}")
+                    keyboardHeightOffSet = keyboardSize.height.dp
                 }
             }
-
+            // if the bottomIme is greater than 0.dp it means that the keyboard did pop up
+            //we are able to set the actual size of the keyboard now
+//            LaunchedEffect(keyboardSize.height) {
+//                Log.d("TEST","keyboard size ${keyboardSize.height}")
+//                if (keyboardSize.height > 0) {
+//                    actualBottomIme = keyboardSize.height.dp
+//                }
+//            }
 //
-//            val test = createRef()
+            val test = createRef()
 
 
             // This guide line is used when we have a focus on the TextInputField as well as when the attachment options are visible
@@ -163,12 +168,16 @@ private fun MessageComposer(
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
             // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
             // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
-            val topOfKeyboardGuideLine = createGuidelineFromTop(messageComposerState.fullScreenHeight - actualBottomIme)
+            val topOfKeyboardGuideLine = createGuidelineFromTop(messageComposerState.fullScreenHeight - keyboardHeightOffSet)
 
-//
-//            Box(Modifier.height(64.dp).fillMaxWidth().background(Color.Red).constrainAs(test){
-//                bottom.linkTo(topOfKeyboardGuideLine)
-//            })
+            Box(
+                Modifier
+                    .height(64.dp)
+                    .fillMaxWidth()
+                    .background(Color.Red)
+                    .constrainAs(test) {
+                        bottom.linkTo(topOfKeyboardGuideLine)
+                    })
 
             val (additionalActions, sendActions, messageInput, additionalOptionsContent) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
@@ -177,10 +186,12 @@ private fun MessageComposer(
                 Modifier.constrainAs(messageInput) {
                     // we want to align the elements to the guideline only when we display attachmentOptions
                     // or we are having focus on the TextInput field
-
+                    if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
+                        bottom.linkTo(topOfKeyboardGuideLine)
+                    } else {
                         bottom.linkTo(additionalActions.top)
-
-                    top.linkTo(parent.top)
+                        top.linkTo(parent.top)
+                    }
 
                     height = Dimension.fillToConstraints
                 }
@@ -353,10 +364,7 @@ private fun MessageComposer(
                 Modifier
                     .constrainAs(additionalOptionsContent) {
                         top.linkTo(additionalActions.bottom)
-
-                        if (!(messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus)) {
-                            bottom.linkTo(parent.bottom)
-                        }
+                        bottom.linkTo(parent.bottom)
                     }
                     .wrapContentSize()
             ) {

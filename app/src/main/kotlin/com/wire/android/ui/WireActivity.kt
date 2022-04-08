@@ -12,7 +12,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -24,7 +23,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.keyboard.KeyboardInsetsProvider
-import com.wire.android.util.keyboard.KeyboardSize
+import com.wire.android.util.keyboard.LocalKeyboardSize
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
@@ -44,14 +43,15 @@ class WireActivity : AppCompatActivity() {
 
     val viewModel: WireActivityViewModel by viewModels()
 
-    private val keyboardSize = KeyboardSize()
+    private lateinit var keyboardInsetsProvider: KeyboardInsetsProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        keyboardInsetsProvider = KeyboardInsetsProvider(applicationContext, this)
+
         handleDeepLink(intent)
-        initializeKeyboardHeightNotifier()
         setComposableContent()
     }
 
@@ -67,13 +67,6 @@ class WireActivity : AppCompatActivity() {
         super.onNewIntent(intent)
     }
 
-    private fun initializeKeyboardHeightNotifier() {
-        KeyboardInsetsProvider(applicationContext, this) { height, width ->
-            keyboardSize.height = height
-            keyboardSize.width = width
-        }
-    }
-
     private fun setComposableContent() {
         setContent {
             WireTheme {
@@ -81,7 +74,7 @@ class WireActivity : AppCompatActivity() {
                 val navController = rememberAnimatedNavController()
                 setUpNavigation(navController, scope)
 
-                CompositionLocalProvider(LocalKeyboardSize provides keyboardSize) {
+                CompositionLocalProvider(LocalKeyboardSize provides keyboardInsetsProvider.keyBoardSize) {
                     Scaffold {
                         NavigationGraph(navController = navController, viewModel.startNavigationRoute(), listOf(viewModel.serverConfig))
                     }
@@ -114,6 +107,3 @@ class WireActivity : AppCompatActivity() {
         }
     }
 }
-
-
-val LocalKeyboardSize = compositionLocalOf { KeyboardSize() }

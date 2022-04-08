@@ -8,23 +8,26 @@ import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.Window
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import kotlin.math.roundToInt
-
 
 class KeyboardInsetsProvider constructor(
     applicationContext: Context,
-    activity: Activity,
-    private val onSizeChanged: (Int, Int) -> Unit
+    activity: Activity
 ) : ViewTreeObserver.OnGlobalLayoutListener {
 
     private val rootWindow: Window = activity.window
-    private val rootView: View = rootWindow.decorView.findViewById(R.id.content)
+    private val rootDecorView: View = rootWindow.decorView
+    private val rootView: View = rootDecorView.findViewById(R.id.content)
+
+    private val rectWindowVisibleDisplayFrame = Rect()
 
     private val deviceDensity = applicationContext.resources.displayMetrics.density
 
     private var screenMaxHeight = 0
-    private var screenMaxWidth = 0
 
     val keyBoardSize: KeyboardSize = KeyboardSize()
 
@@ -33,27 +36,21 @@ class KeyboardInsetsProvider constructor(
     }
 
     override fun onGlobalLayout() {
-        val rectWindowVisibleDisplayFrame = Rect()
-        val rootDecorView: View = rootWindow.decorView
-
         rootDecorView.getWindowVisibleDisplayFrame(rectWindowVisibleDisplayFrame)
 
         if (rectWindowVisibleDisplayFrame.bottom > screenMaxHeight) {
             screenMaxHeight = rectWindowVisibleDisplayFrame.bottom
         }
 
-        val keyboardHeight: Int = screenMaxHeight - rectWindowVisibleDisplayFrame.bottom
+        keyBoardSize.height = ((screenMaxHeight - rectWindowVisibleDisplayFrame.bottom) / deviceDensity).roundToInt()
 
-        onSizeChanged((keyboardHeight / deviceDensity).roundToInt(), (keyboardHeight / deviceDensity).roundToInt())
-
-        Log.d("TEST", "keyboard height: : ${(keyboardHeight / deviceDensity).roundToInt()}")
+        Log.d("TEST","keyboard size ${keyBoardSize.height}")
     }
 
 }
 
+val LocalKeyboardSize = compositionLocalOf { KeyboardSize() }
 
-@Stable
-data class KeyboardSize(
-    var height: Int = 0,
-    var width: Int = 0
-)
+class KeyboardSize {
+    var height by mutableStateOf(0)
+}

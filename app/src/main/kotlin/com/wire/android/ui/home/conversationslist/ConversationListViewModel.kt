@@ -140,7 +140,7 @@ class ConversationListViewModel @Inject constructor(
                 GeneralConversation(
                     ConversationType.GroupConversation(
                         groupColorValue = getConversationColor(conversation.id),
-                        groupName = conversation.name!!,
+                        groupName = conversation.name.orEmpty(),
                         conversationId = conversation.id
                     )
                 )

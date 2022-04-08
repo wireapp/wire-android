@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversations.common.ConversationItemFactory
@@ -75,4 +76,9 @@ private fun AllConversationContent(
             }
         }
     }
+}
+@Preview
+@Composable
+fun ComposablePreview() {
+    AllConversationScreen(listOf(), mapOf(), {}, {})
 }

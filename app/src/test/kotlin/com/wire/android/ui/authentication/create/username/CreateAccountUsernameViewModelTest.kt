@@ -48,7 +48,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `when field is empty, button is disabled`() {
+    fun `given empty string, when entering username, then button is disabled`() {
         coEvery { validateUserHandleUseCase.invoke(String.EMPTY) } returns ValidateUserHandleResult.Invalid.TooShort(String.EMPTY)
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue(String.EMPTY))
         createAccountUsernameViewModel.state.continueEnabled shouldBeEqualTo false
@@ -56,7 +56,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `when field is filled, button is enabled`() {
+    fun `given non-empty string, when entering username, then button is disabled`() {
         coEvery { validateUserHandleUseCase.invoke("abc") } returns ValidateUserHandleResult.Valid("abc")
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue("abc"))
         createAccountUsernameViewModel.state.continueEnabled shouldBeEqualTo true
@@ -64,7 +64,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `when forbidden character is entered, it is ignored`() {
+    fun `given forbidden character, when entering username, then forbidden character is ignored`() {
         coEvery { validateUserHandleUseCase.invoke("a1_") } returns ValidateUserHandleResult.Valid("a1_")
         coEvery { validateUserHandleUseCase.invoke("a1_$") } returns ValidateUserHandleResult.Invalid.InvalidCharacters("a1_")
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue("a1_"))
@@ -74,7 +74,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `when button is clicked, show loading`() {
+    fun `given button is clicked, when setting the username, then show loading`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
@@ -92,7 +92,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `when button is clicked and request returns Success, navigateToConvScreen is called`() {
+    fun `given button is clicked, when request returns Success, then navigateToConvScreen is called`() {
         val scheduler = TestCoroutineScheduler()
         val username = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
@@ -110,7 +110,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `when button is clicked and username is invalid, UsernameInvalidError is passed`() {
+    fun `given button is clicked, when username is invalid, then UsernameInvalidError is passed`() {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Invalid.TooShort("a")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.InvalidHandle
         runTest { createAccountUsernameViewModel.onContinue() }
@@ -119,7 +119,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `when button is clicked and request returns HandleExists error, UsernameTakenError is passed`() {
+    fun `given button is clicked, when request returns HandleExists error, then UsernameTakenError is passed`() {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.HandleExists
         runTest { createAccountUsernameViewModel.onContinue() }
@@ -128,7 +128,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `when button is clicked and request returns Generic error, GenericError is passed`() {
+    fun `given button is clicked, when request returns Generic error, then GenericError is passed`() {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
         runTest { createAccountUsernameViewModel.onContinue() }
@@ -139,7 +139,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `when state error is DialogError and dialog is dismissed, hide error`() {
+    fun `given dialog is dismissed, when state error is DialogError, then hide error`() {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
         runTest { createAccountUsernameViewModel.onContinue() }

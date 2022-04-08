@@ -68,7 +68,6 @@ class RemoveDeviceScreenTest {
 
     val invalidPasswordText = "Invalid password"
 
-    @Ignore
     @Test
     fun removeDevice_Successfully() {
         title.assertIsDisplayed()

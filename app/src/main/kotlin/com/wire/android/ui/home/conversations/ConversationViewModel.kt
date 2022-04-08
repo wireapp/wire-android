@@ -237,7 +237,7 @@ class ConversationViewModel @Inject constructor(
                 }
                 val decodedImgDataResult = getMessageAsset(
                     assetKey = assetId,
-                    assetToken = assetToken ?: "",
+                    assetToken = assetToken,
                     conversationId = message.conversationId,
                     messageId = message.id,
                     encryptionKey = privateKey

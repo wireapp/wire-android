@@ -43,12 +43,12 @@ class CoreLogicModule {
     @Singleton
     @Provides
     fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
-        val proteusPath = context.getDir("proteus", Context.MODE_PRIVATE).path
+        val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
 
         return CoreLogic(
             appContext = context,
-            rootProteusDirectoryPath = proteusPath,
+            rootPath = proteusPath,
             clientLabel = deviceLabel
         )
     }

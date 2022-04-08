@@ -33,7 +33,12 @@ android {
         versionCode = AndroidClient.versionCode
         versionName = "v${AndroidClient.versionName}($versionCode)"
         testInstrumentationRunner = AndroidClient.testRunner
-        testInstrumentationRunnerArguments.putAll(mapOf("clearPackageData" to "true"))
+        testInstrumentationRunnerArguments.putAll(
+            mapOf(
+                "clearPackageData" to "true",
+                "force-queryable" to "true"
+            )
+        )
         setProperty("archivesBaseName", "$applicationId-v$versionName($versionCode)")
     }
 
@@ -66,6 +71,7 @@ android {
     }
 
     testOptions {
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
         animationsDisabled = true
         unitTests.isReturnDefaultValues = true
         unitTests.isIncludeAndroidResources = true
@@ -177,6 +183,7 @@ dependencies {
     androidTestImplementation(Libraries.Hilt.hiltTest)
     androidTestImplementation(TestLibraries.workManager)
     kaptAndroidTest(Libraries.Hilt.compiler)
+    androidTestUtil(TestLibraries.testOrchestrator)
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)

@@ -244,7 +244,7 @@ class ConversationViewModel @Inject constructor(
                 ).run {
                     when (this) {
                         is PrivateAssetResult.Success -> decodedAsset
-                        else -> ByteArray(16)
+                        else -> ByteArray(16) // If there is an error while downloading the asset, we return a default Bytearray
                     }
                 }
                 when {

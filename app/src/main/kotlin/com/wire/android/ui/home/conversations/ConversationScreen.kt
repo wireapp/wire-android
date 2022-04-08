@@ -25,7 +25,7 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.Message
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
@@ -158,11 +158,11 @@ private fun EditMessageMenuItems(
 
 @Composable
 private fun ConversationScreenContent(
-    messages: List<Message>,
+    messages: List<MessageViewWrapper>,
     onMessageChanged: (String) -> Unit,
     messageText: String,
     onSendButtonClicked: () -> Unit,
-    onShowContextMenu: (Message) -> Unit,
+    onShowContextMenu: (MessageViewWrapper) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit
 ) {

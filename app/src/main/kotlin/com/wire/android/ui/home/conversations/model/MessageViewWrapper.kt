@@ -17,7 +17,7 @@ enum class MessageStatus(val stringResourceId: Int) {
     Untouched(-1), Deleted(R.string.label_message_status_deleted), Edited(R.string.label_message_status_edited)
 }
 
-data class Message(
+data class MessageViewWrapper(
     val user: User,
     val messageSource: MessageSource = MessageSource.CurrentUser,
     val messageHeader: MessageHeader,

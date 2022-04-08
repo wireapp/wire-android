@@ -35,7 +35,7 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
-import com.wire.android.ui.home.conversations.model.Message
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -50,7 +50,7 @@ import com.wire.android.util.toBitmap
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
-    message: Message,
+    message: MessageViewWrapper,
     onLongClicked: () -> Unit,
 ) {
     with(message) {

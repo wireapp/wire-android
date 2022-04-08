@@ -12,7 +12,7 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.Message
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
@@ -205,10 +205,10 @@ class ConversationViewModel @Inject constructor(
     }
 
 
-    private suspend fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(members: List<MemberDetails>): List<Message> {
+    private suspend fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
             val sender = members.findSender(message.senderUserId)
-            Message(
+            MessageViewWrapper(
                 messageContent = fromMessageModelToMessageContent(message),
                 messageSource = MessageSource.CurrentUser,
                 messageHeader = MessageHeader(

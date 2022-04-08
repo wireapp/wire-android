@@ -67,6 +67,7 @@
         </provider>
 
         <receiver android:name=".notification.NotificationReplyReceiver" />
+        <receiver android:name=".notification.NotificationDismissReceiver" />
 
     </application>
 

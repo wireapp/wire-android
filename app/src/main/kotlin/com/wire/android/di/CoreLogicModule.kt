@@ -48,7 +48,7 @@ class CoreLogicModule {
 
         return CoreLogic(
             appContext = context,
-            rootProteusDirectoryPath = proteusPath,
+            rootPath = proteusPath,
             clientLabel = deviceLabel
         )
     }

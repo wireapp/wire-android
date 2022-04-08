@@ -35,79 +35,6 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
     private val notificationManager = NotificationManagerCompat.from(context)
 
-    //TODO remove it
-    fun testIt() {
-        val sender1 = NotificationMessageAuthor("Sender1", null)
-        val sender2 = NotificationMessageAuthor("Sender2", null)
-        showNotification(
-            NotificationData(
-                listOf(
-                    NotificationConversation(
-                        "1234",
-                        "Test User 1",
-                        null,
-                        listOf(
-                            NotificationMessage.Comment(sender1, System.currentTimeMillis(), CommentResId.FILE),
-                            NotificationMessage.Text(sender1, System.currentTimeMillis(), "message2"),
-                            NotificationMessage.Text(sender1, System.currentTimeMillis(), "message3"),
-                            NotificationMessage.Text(
-                                sender1,
-                                System.currentTimeMillis(),
-                                "message4 loooong long long long long message btw"
-                            ),
-                            NotificationMessage.Comment(sender1, System.currentTimeMillis(), CommentResId.PICTURE)
-                        ),
-                        true,
-                        System.currentTimeMillis()
-                    ),
-                    NotificationConversation(
-                        "1233333",
-                        "Testing chat 1",
-                        null,
-                        listOf(
-                            NotificationMessage.Text(sender1, System.currentTimeMillis(), "message 0"),
-                            NotificationMessage.Text(sender1, System.currentTimeMillis(), "message 1"),
-                            NotificationMessage.Text(sender1, System.currentTimeMillis(), "message 2"),
-                            NotificationMessage.Text(sender2, System.currentTimeMillis(), "message 3"),
-                            NotificationMessage.Text(
-                                sender1,
-                                System.currentTimeMillis(),
-                                "message4 loooong long  glon glong long message btw"
-                            ),
-                            NotificationMessage.Text(sender1, System.currentTimeMillis(), "message5")
-                        ),
-                        false,
-                        System.currentTimeMillis()
-                    )
-                )
-            )
-        )
-    }
-
-    //TODO remove it
-    fun testIt2() {
-        showNotification(
-            NotificationData(
-                listOf(
-                    NotificationConversation(
-                        "1234",
-                        "Test User 2",
-                        null,
-                        listOf(
-                            NotificationMessage.Text(
-                                NotificationMessageAuthor("Sender1", null),
-                                System.currentTimeMillis(),
-                                "https://www.google.com/"
-                            ),
-                        ),
-                        true,
-                        System.currentTimeMillis()
-                    ),
-                )
-            )
-        )
-    }
-
     fun showNotification(data: NotificationData) {
         createNotificationChannelIfNeeded()
         showSummaryIfNeeded(data)
@@ -135,6 +62,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setContentIntent(getPendingIntentSummary())
+            .setDeleteIntent(getDismissPendingIntent(null))
             .build()
 
         notificationManager.notify(SUMMARY_ID, summaryNotification)
@@ -155,6 +83,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             setAutoCancel(true)
 
             setContentIntent(getPendingIntentMessage(conversation.id))
+            setDeleteIntent(getDismissPendingIntent(conversation.id))
             addAction(getActionCall(conversation.id))
             addAction(getActionReply(conversation.id))
 
@@ -224,6 +153,17 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     //TODO
     private fun getPendingIntentMessage(conversationId: String): PendingIntent {
         return getPendingIntentSummary()
+    }
+
+    private fun getDismissPendingIntent(conversationId: String?): PendingIntent {
+        val intent = NotificationDismissReceiver.newIntent(context, conversationId)
+
+        return PendingIntent.getBroadcast(
+            context.applicationContext,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     //TODO

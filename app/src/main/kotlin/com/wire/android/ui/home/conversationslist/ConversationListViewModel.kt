@@ -28,6 +28,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,7 +39,8 @@ import javax.inject.Inject
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
-    private val getPublicAsset: GetPublicAssetUseCase
+    private val getPublicAsset: GetPublicAssetUseCase,
+    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -59,6 +61,10 @@ class ConversationListViewModel @Inject constructor(
                     newActivityCount = 1
                 )
             }
+        }
+
+        viewModelScope.launch {
+            markMessagesAsNotified()
         }
     }
 

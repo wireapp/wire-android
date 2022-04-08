@@ -9,6 +9,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.notification.NotificationConversation
 import com.wire.android.notification.NotificationData
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.GetServerConfigResult
 import com.wire.kalium.logic.configuration.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.ServerConfig
@@ -18,9 +19,9 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @ExperimentalMaterial3Api
@@ -29,7 +30,8 @@ class WireActivityViewModel @Inject constructor(
     private val currentSessionUseCase: CurrentSessionUseCase,
     private val getServerConfigUserCase: GetServerConfigUseCase,
     private val getNotificationProvider: GetNotificationsUseCaseProvider.Factory,
-    private val notificationManager: MessageNotificationManager
+    private val notificationManager: MessageNotificationManager,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     private val currentSession: AuthSession? = runBlocking {
@@ -63,9 +65,11 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val currentSessionResult = currentSessionUseCase()
-            if (currentSessionResult is CurrentSessionResult.Success) {
-                listenForNotifications(currentSessionResult.authSession.userId)
+            withContext(dispatchers.io()) {
+                val currentSessionResult = currentSessionUseCase()
+                if (currentSessionResult is CurrentSessionResult.Success) {
+                    listenForNotifications(currentSessionResult.authSession.userId)
+                }
             }
         }
     }
@@ -73,12 +77,15 @@ class WireActivityViewModel @Inject constructor(
     private suspend fun listenForNotifications(userId: UserId) {
         getNotificationProvider.create(userId)
             .getNotifications()
-            .map { list -> list.mapNotNull { either -> either.fold({ null }) { it } } }
             .filter { it.isNotEmpty() }
-            .collect {
-                notificationManager.showNotification(NotificationData(it.map { dbConversation ->
+            .collect { dbConversations ->
+                val conversations = dbConversations.map { dbConversation ->
                     NotificationConversation.fromDbData(dbConversation)
-                }))
+                }
+                    .map { conversation -> conversation.copy(messages = conversation.messages.sortedBy { it.time }) }
+                    .sortedBy { it.lastMessageTime }
+
+                notificationManager.showNotification(NotificationData(conversations))
             }
     }
 

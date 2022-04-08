@@ -27,6 +27,7 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -43,7 +44,8 @@ class ConversationViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
-    private val deleteMessage: DeleteMessageUseCase
+    private val deleteMessage: DeleteMessageUseCase,
+    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -79,6 +81,10 @@ class ConversationViewModel @Inject constructor(
                 }
                 conversationViewState = conversationViewState.copy(conversationName = conversationName)
             }
+        }
+
+        viewModelScope.launch {
+            markMessagesAsNotified(conversationId!!)
         }
     }
 

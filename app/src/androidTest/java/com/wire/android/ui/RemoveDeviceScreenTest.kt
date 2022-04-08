@@ -13,7 +13,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
-import com.wire.android.ui.authentication.devices.RemoveDeviceScreen
+import com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.PASSWORD
 import com.wire.android.utils.WorkManagerTestRule

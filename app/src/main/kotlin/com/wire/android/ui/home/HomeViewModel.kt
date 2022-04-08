@@ -14,6 +14,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
+import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,35 +31,45 @@ class HomeViewModel
     private val dataStore: UserDataStore,
     private val getPublicAsset: GetPublicAssetUseCase,
     private val getSelf: GetSelfUserUseCase,
+    private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {
 
     var userAvatar by mutableStateOf<ByteArray?>(null)
         private set
 
     init {
-        //listen for the WebSockets updates and update DB accordingly
         viewModelScope.launch {
-            listenToEvents()
+            listenToEvents() // listen for the WebSockets updates and update DB accordingly
+            loadUserAvatar()
         }
+    }
 
-        //check if the user set the handle and open the corresponding screen if not
+    fun checkRequirements() {
         viewModelScope.launch {
-            getSelf().collect {
-                if (it.handle.isNullOrEmpty())
+            when {
+                needsToRegisterClient() -> { // check if the client has been registered and open the proper screen if not
+                    navigationManager.navigate(
+                        NavigationCommand(
+                            NavigationItem.RegisterDevice.getRouteWithArgs(),
+                            BackStackMode.CLEAR_WHOLE
+                        )
+                    )
+                    return@launch
+                }
+                getSelf().first().handle.isNullOrEmpty() -> { // check if the user handle has been set and open the proper screen if not
                     navigationManager.navigate(
                         NavigationCommand(
                             NavigationItem.CreateUsername.getRouteWithArgs(),
                             BackStackMode.CLEAR_WHOLE
                         )
                     )
+                    return@launch
+                }
             }
         }
-
-        loadUserAvatar()
     }
 
-    private fun loadUserAvatar() {
-        viewModelScope.launch {
+    private suspend fun loadUserAvatar() {
             try {
                 dataStore.avatarAssetId.first()?.let {
                     userAvatar = (getPublicAsset(it) as PublicAssetResult.Success).asset
@@ -66,7 +77,6 @@ class HomeViewModel
             } catch (e: ClassCastException) {
                 appLogger.e("There was an error loading the user avatar", e)
             }
-        }
     }
 
     suspend fun navigateTo(item: NavigationItem, extraRouteId: String = "") {

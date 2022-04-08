@@ -160,7 +160,6 @@ fun MessageImage(rawImgData: ByteArray, realImgWidth: Int, realImgHeight: Int) {
 private fun MessageBody(messageBody: MessageBody) {
     Text(
         buildAnnotatedString {
-            appendMentionLabel(label = "@John Doe")
             appendBody(messageBody = messageBody)
         }
     )

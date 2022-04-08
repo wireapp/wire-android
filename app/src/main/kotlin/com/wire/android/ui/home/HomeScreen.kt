@@ -26,6 +26,7 @@ import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 )
 @Composable
 fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
+    viewModel.checkRequirements()
     val homeState = rememberHomeState()
 
     with(homeState) {

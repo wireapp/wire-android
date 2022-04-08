@@ -177,6 +177,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun needsToRegisterClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).client.needsToRegisterClient
+
+    @ViewModelScoped
+    @Provides
     fun listenToEventsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).listenToEvents
 

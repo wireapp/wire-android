@@ -135,11 +135,12 @@ private fun MessageContent(messageContent: MessageContent) {
     }
 }
 
-//TODO: replace with actual imageUrl loading probably with: https://coil-kt.github.io/coil/compose/
 @Composable
 fun MessageImage(rawImgData: ByteArray, realImgWidth: Int, realImgHeight: Int) {
+    // Image size transformations to keep the ratio of the inline message image
     val width = MaterialTheme.wireDimensions.messageImageMaxWidth
     val height = width.value * realImgHeight.toFloat() / realImgWidth
+
     Image(
         painter = rememberAsyncImagePainter(
             rawImgData.toBitmap() ?: getUriFromDrawable(

@@ -12,7 +12,7 @@ import com.wire.android.R
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun DrawHangUpButton() {
+fun HangUpButton() {
     IconButton(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
         onClick = { },

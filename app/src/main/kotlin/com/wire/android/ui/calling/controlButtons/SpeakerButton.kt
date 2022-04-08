@@ -13,7 +13,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.getUriFromDrawable
 
 @Composable
-fun DrawSpeakerButton() {
+fun SpeakerButton() {
     Image(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
         painter = rememberAsyncImagePainter(getUriFromDrawable(LocalContext.current, R.drawable.ic_speaker_off)),

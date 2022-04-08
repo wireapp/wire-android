@@ -1,6 +1,5 @@
 package com.wire.android.navigation
 
-import androidx.compose.animation.shrinkOut
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -29,7 +28,7 @@ import com.wire.android.ui.authentication.devices.register.RegisterDeviceScreen
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
-import com.wire.android.ui.calling.CallEstablishedScreen
+import com.wire.android.ui.calling.OngoingCallScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
@@ -167,10 +166,10 @@ enum class NavigationItem(
         content = { NewConversationRouter() }
     ),
 
-    CallEstablished(
+    OngoingCall(
         primaryRoute = CALL_ESTABLISHED,
         canonicalRoute = CALL_ESTABLISHED,
-        content = { CallEstablishedScreen() }
+        content = { OngoingCallScreen() }
     );
 
     /**

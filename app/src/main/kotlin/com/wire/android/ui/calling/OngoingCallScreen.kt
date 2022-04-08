@@ -18,10 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.ui.calling.controlButtons.DrawCameraButton
-import com.wire.android.ui.calling.controlButtons.DrawHangUpButton
-import com.wire.android.ui.calling.controlButtons.DrawMicrophoneButton
-import com.wire.android.ui.calling.controlButtons.DrawSpeakerButton
+import com.wire.android.ui.calling.controlButtons.CameraButton
+import com.wire.android.ui.calling.controlButtons.HangUpButton
+import com.wire.android.ui.calling.controlButtons.MicrophoneButton
+import com.wire.android.ui.calling.controlButtons.SpeakerButton
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -30,23 +30,23 @@ import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun CallEstablishedScreen(callEstablishedViewModel: CallEstablishedViewModel = hiltViewModel()) {
-    CallEstablishedContent(callEstablishedViewModel.callEstablishedState)
+fun OngoingCallScreen(ongoingOngoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
+    OngoingCallContent(ongoingOngoingCallViewModel.callEstablishedState)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun CallEstablishedContent(state: CallEstablishedState) {
+private fun OngoingCallContent(state: OngoingCallState) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(
-        topBar = { CallEstablishedTopBar(state.conversationName) {} },
+        topBar = { OngoingCallTopBar(state.conversationName) {} },
         sheetShape = RoundedCornerShape(MaterialTheme.wireDimensions.corner16x, MaterialTheme.wireDimensions.corner16x, 0.dp, 0.dp),
         backgroundColor = MaterialTheme.wireColorScheme.callingBackground,
         sheetPeekHeight = MaterialTheme.wireDimensions.defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
         sheetContent = {
-            drawCallingControls()
+            CallingControls()
         },
     ) {
         Column(
@@ -61,7 +61,7 @@ private fun CallEstablishedContent(state: CallEstablishedState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CallEstablishedTopBar(
+private fun OngoingCallTopBar(
     conversationName: String,
     onCollapse: () -> Unit
 ) {
@@ -75,7 +75,7 @@ private fun CallEstablishedTopBar(
 }
 
 @Composable
-private fun drawCallingControls() {
+private fun CallingControls() {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -83,10 +83,10 @@ private fun drawCallingControls() {
             .fillMaxWidth()
             .padding(0.dp, MaterialTheme.wireDimensions.spacing16x, 0.dp, 0.dp)
     ) {
-        DrawMicrophoneButton()
-        DrawCameraButton()
-        DrawSpeakerButton()
-        DrawHangUpButton()
+        MicrophoneButton()
+        CameraButton()
+        SpeakerButton()
+        HangUpButton()
     }
 }
 
@@ -94,5 +94,5 @@ private fun drawCallingControls() {
 @Preview
 @Composable
 fun ComposablePreview() {
-    CallEstablishedTopBar("Default") {}
+    OngoingCallTopBar("Default") {}
 }

@@ -74,6 +74,7 @@ private fun WireIndicator(modifier: Modifier = Modifier) {
     )
 }
 
+@Suppress("MagicNumber")
 @OptIn(ExperimentalPagerApi::class)
 fun PagerState.calculateCurrentTab() = // change the tab if we go over half the offset
     if(this.currentPageOffset.absoluteValue > 0.5f) this.targetPage else this.currentPage

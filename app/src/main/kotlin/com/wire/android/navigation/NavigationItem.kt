@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.BuildConfig
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.CALL_ESTABLISHED
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_USERNAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
@@ -167,8 +166,8 @@ enum class NavigationItem(
     ),
 
     OngoingCall(
-        primaryRoute = CALL_ESTABLISHED,
-        canonicalRoute = CALL_ESTABLISHED,
+        primaryRoute = ONGOING_CALL,
+        canonicalRoute = ONGOING_CALL,
         content = { OngoingCallScreen() }
     );
 
@@ -204,7 +203,7 @@ object NavigationItemDestinationsRoutes {
     const val REGISTER_DEVICE = "register_device_screen"
     const val IMAGE_PICKER = "image_picker_screen"
     const val NEW_CONVERSATION = "new_conversation_screen"
-    const val CALL_ESTABLISHED = "call_established_screen"
+    const val ONGOING_CALL = "ongoing_call_screen"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"

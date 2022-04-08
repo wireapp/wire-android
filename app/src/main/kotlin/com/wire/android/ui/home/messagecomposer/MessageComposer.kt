@@ -131,7 +131,6 @@ private fun MessageComposer(
 ) {
     val focusManager = LocalFocusManager.current
 
-
     Surface {
         val transition = updateTransition(
             targetState = messageComposerState.messageComposeInputState,
@@ -155,7 +154,6 @@ private fun MessageComposer(
                     keyboardHeightOffSet = keyboardSize.height.dp
                 }
             }
-
             val messageComposer = createRef()
             // This guide line is used when we have a focus on the TextInputField as well as when the attachment options are visible
             // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
@@ -163,7 +161,7 @@ private fun MessageComposer(
             // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
             // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
             val topOfKeyboardGuideLine = createGuidelineFromTop(
-                offset = messageComposerState.fullScreenHeight - keyboardHeightOffSet - 56.dp
+                offset = messageComposerState.fullScreenHeight - keyboardHeightOffSet
             )
 
             ConstraintLayout(
@@ -207,7 +205,6 @@ private fun MessageComposer(
                     ) {
                         content()
                     }
-
                     // Column wrapping CollapseIconButton and MessageComposerInput
                     Column(
                         modifier = Modifier
@@ -306,7 +303,6 @@ private fun MessageComposer(
                         }
                     }
                 }
-
                 // Box wrapping the SendActions so that we do not include it in the animationContentSize changed which is applied only for
                 // MessageComposerInput and CollapsingButton
                 Box(
@@ -331,7 +327,6 @@ private fun MessageComposer(
                         }
                     }
                 }
-
                 // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
                 // constrain our SendActions to it
                 Column(
@@ -355,7 +350,6 @@ private fun MessageComposer(
                     }
                 }
             }
-
             // Box wrapping for additional options content
             // we want to offset the AttachmentOptionsComponent equal to where
             // the device keyboard is displayed, so that when the keyboard is closed,

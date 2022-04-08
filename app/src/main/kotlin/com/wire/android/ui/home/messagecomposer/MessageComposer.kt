@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.messagecomposer
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -144,56 +143,36 @@ private fun MessageComposer(
                 mutableStateOf(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
             }
 
+            // if the bottomIme is greater than 0.dp it means that the keyboard did pop up
+            //we are able to set the actual size of the keyboard now
             LaunchedEffect(keyboardSize.height) {
                 if (keyboardSize.height.dp > 0.dp) {
-                    Log.d("TEST", "from launched effect keyboardSize  ${keyboardSize.height.dp}")
-                    Log.d("TEST", "from launched effect actualKeyboardHeight  ${keyboardHeightOffSet}")
                     keyboardHeightOffSet = keyboardSize.height.dp
                 }
             }
-            // if the bottomIme is greater than 0.dp it means that the keyboard did pop up
-            //we are able to set the actual size of the keyboard now
-//            LaunchedEffect(keyboardSize.height) {
-//                Log.d("TEST","keyboard size ${keyboardSize.height}")
-//                if (keyboardSize.height > 0) {
-//                    actualBottomIme = keyboardSize.height.dp
-//                }
-//            }
-//
-            val test = createRef()
-
 
             // This guide line is used when we have a focus on the TextInputField as well as when the attachment options are visible
             // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
             // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
             // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
-            val topOfKeyboardGuideLine = createGuidelineFromTop(messageComposerState.fullScreenHeight - keyboardHeightOffSet)
+            val topOfKeyboardGuideLine = createGuidelineFromTop(messageComposerState.fullScreenHeight - keyboardHeightOffSet - 56.dp)
 
-            Box(
-                Modifier
-                    .height(64.dp)
-                    .fillMaxWidth()
-                    .background(Color.Red)
-                    .constrainAs(test) {
-                        bottom.linkTo(topOfKeyboardGuideLine)
-                    })
-
-            val (additionalActions, sendActions, messageInput, additionalOptionsContent) = createRefs()
+            val (additionalActions, sendActions, messageInput) = createRefs()
             // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
             // CollapseIconButton
             Column(
                 Modifier.constrainAs(messageInput) {
+                    top.linkTo(parent.top)
                     // we want to align the elements to the guideline only when we display attachmentOptions
                     // or we are having focus on the TextInput field
                     if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
                         bottom.linkTo(topOfKeyboardGuideLine)
                     } else {
                         bottom.linkTo(additionalActions.top)
-                        top.linkTo(parent.top)
                     }
 
-                    height = Dimension.fillToConstraints
+                    height = Dimension.preferredWrapContent
                 }
             ) {
                 Box(
@@ -336,41 +315,28 @@ private fun MessageComposer(
 
             // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
             // constrain our SendActions to it
-            Box(
-                Modifier
-                    .constrainAs(additionalActions) {
-                        if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
-                            bottom.linkTo(topOfKeyboardGuideLine)
-                        } else {
-                            bottom.linkTo(additionalOptionsContent.bottom)
-                            top.linkTo(messageInput.bottom)
-                        }
-                    }
-            ) {
-                Divider()
-                transition.AnimatedVisibility(
-                    visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                    // we are animating the exit, so that the MessageComposeActions go down
-                    exit = slideOutVertically(
-                        targetOffsetY = { fullHeight -> fullHeight / 2 }
-                    ) + fadeOut()
-                ) {
-                    MessageComposeActions(messageComposerState, focusManager)
-                }
-            }
-
-            // Box wrapping for additional options content
-            Box(
-                Modifier
-                    .constrainAs(additionalOptionsContent) {
-                        top.linkTo(additionalActions.bottom)
-                        bottom.linkTo(parent.bottom)
-                    }
-                    .wrapContentSize()
-            ) {
-                if (messageComposerState.attachmentOptionsDisplayed) {
+            Column(Modifier.constrainAs(additionalActions) {
+                top.linkTo(topOfKeyboardGuideLine)
+            }.wrapContentSize()) {
+                Box(Modifier.wrapContentSize()) {
                     Divider()
-                    AttachmentOptionsComponent(messageComposerState.attachmentInnerState, onSendAttachment, onError)
+                    transition.AnimatedVisibility(
+                        visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
+                        // we are animating the exit, so that the MessageComposeActions go down
+                        exit = slideOutVertically(
+                            targetOffsetY = { fullHeight -> fullHeight / 2 }
+                        ) + fadeOut()
+                    ) {
+                        MessageComposeActions(messageComposerState, focusManager)
+                    }
+                }
+
+                // Box wrapping for additional options content
+                if (messageComposerState.attachmentOptionsDisplayed) {
+                    Box(Modifier.wrapContentSize()) {
+                        Divider()
+                        AttachmentOptionsComponent(messageComposerState.attachmentInnerState, onSendAttachment, onError)
+                    }
                 }
             }
         }
@@ -476,7 +442,9 @@ private fun MessageComposeActions(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
     ) {
         AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
             focusManager.clearFocus()

@@ -41,7 +41,8 @@ import kotlinx.coroutines.launch
 fun AttachmentOptionsComponent(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (String) -> Unit
+    onError: (String) -> Unit,
+    modifier : Modifier= Modifier
 ) {
     val scope = rememberCoroutineScope()
     val attachmentOptions = buildAttachmentOptionItems { pickedUri -> scope.launch { attachmentInnerState.pickAttachment(pickedUri) } }
@@ -50,7 +51,7 @@ fun AttachmentOptionsComponent(
     LazyVerticalGrid(
         cells = GridCells.Adaptive(dimensions().spacing80x),
         contentPadding = PaddingValues(dimensions().spacing8x),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {

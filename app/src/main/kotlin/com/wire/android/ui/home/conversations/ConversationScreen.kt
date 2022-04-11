@@ -34,12 +34,12 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.dialogErrorStrings
+import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun ConversationScreen(
-    conversationViewModel: ConversationViewModel
-) {
+fun ConversationScreen(conversationViewModel: ConversationViewModel) {
+    val audioPermissionCheck = AudioPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
     ConversationScreen(
         conversationViewState = uiState,
@@ -48,12 +48,22 @@ fun ConversationScreen(
         onSendAttachment = { attachmentBundle -> conversationViewModel.sendAttachmentMessage(attachmentBundle) },
         onBackButtonClick = { conversationViewModel.navigateBack() },
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = { conversationViewModel.conversationId?.let { conversationViewModel.navigateToInitiatingCallScreen(it) } }
+        onCallStart = {
+            audioPermissionCheck.launch()
+        }
     )
     DeleteMessageDialog(
         conversationViewModel = conversationViewModel
     )
 }
+
+@Composable
+private fun AudioPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
+    rememberCallingRecordAudioRequestFlow(onAudioPermissionGranted = {
+        conversationViewModel.conversationId?.let { conversationViewModel.navigateToInitiatingCallScreen(it) }
+    }) {
+        //TODO display an error dialog
+    }
 
 @Composable
 private fun DeleteMessageDialog(

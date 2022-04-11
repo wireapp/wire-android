@@ -21,7 +21,6 @@ import com.wire.android.utils.waitForExecution
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -48,14 +47,12 @@ class RemoveDeviceScreenTest {
     fun setUp() {
         hiltRule.inject()
 
-        // Start the app
         composeTestRule.setContent {
             WireTheme {
                 RemoveDeviceScreen()
             }
         }
     }
-
 
     val title = composeTestRule.onNodeWithText("Remove a Device")
     val backButton = composeTestRule.onNodeWithText("Back button")
@@ -68,7 +65,6 @@ class RemoveDeviceScreenTest {
 
     val invalidPasswordText = "Invalid password"
 
-    @Ignore
     @Test
     fun removeDevice_Successfully() {
         title.assertIsDisplayed()
@@ -77,11 +73,10 @@ class RemoveDeviceScreenTest {
             removeDeviceText.assertIsDisplayed()
         }
         passwordField.onChildren()[1].performTextClearance()
-        passwordField.onChildren()[1].performTextInput("Mustafastaging1!")
+        passwordField.onChildren()[1].performTextInput(PASSWORD)
         removeButton.performClick()
     }
 
-    @Ignore
     @Test
     fun removeDevice_error_wrongPassword() {
         title.assertIsDisplayed()
@@ -92,10 +87,11 @@ class RemoveDeviceScreenTest {
         passwordField.onChildren()[1].performTextClearance()
         passwordField.onChildren()[1].performTextInput("BAD PASSWORD")
         removeButton.performClick()
-        composeTestRule.onNodeWithText(invalidPasswordText).assertIsDisplayed()
+        composeTestRule.waitForExecution {
+            composeTestRule.onNodeWithText(invalidPasswordText).assertIsDisplayed()
+        }
     }
 
-    @Ignore
     @Test
     fun removeDevice_cancel() {
         title.assertIsDisplayed()

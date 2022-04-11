@@ -9,7 +9,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
 import com.wire.kalium.logic.CoreFailure.Unknown
-import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
@@ -43,7 +43,7 @@ class AvatarPickerViewModelTest {
     lateinit var userDataStore: UserDataStore
 
     @MockK
-    lateinit var getPublicAsset: GetPublicAssetUseCase
+    lateinit var getAvatarAsset: GetAvatarAssetUseCase
 
     @MockK
     lateinit var uploadUserAvatarUseCase: UploadUserAvatarUseCase
@@ -62,14 +62,14 @@ class AvatarPickerViewModelTest {
         every { Uri.parse(any()) } returns mockUri
         every { userDataStore.avatarAssetId } returns flow { emit("some-asset-id") }
         coEvery { userDataStore.updateUserAvatarAssetId(any()) } returns Unit
-        coEvery { getPublicAsset(any()) } returns PublicAssetResult.Success("some-asset-id".toByteArray())
+        coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success("some-asset-id".toByteArray())
         coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
 
         avatarPickerViewModel =
             AvatarPickerViewModel(
                 navigationManager,
                 userDataStore,
-                getPublicAsset,
+                getAvatarAsset,
                 uploadUserAvatarUseCase,
                 avatarImageManager,
                 TestDispatcherProvider()

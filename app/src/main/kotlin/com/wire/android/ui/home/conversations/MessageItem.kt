@@ -136,14 +136,14 @@ private fun MessageContent(messageContent: MessageContent) {
 }
 
 @Composable
-fun MessageImage(rawImgData: ByteArray, realImgWidth: Int, realImgHeight: Int) {
+fun MessageImage(rawImgData: ByteArray?, realImgWidth: Int, realImgHeight: Int) {
     // Image size transformations to keep the ratio of the inline message image
     val width = MaterialTheme.wireDimensions.messageImageMaxWidth
     val height = width.value * realImgHeight.toFloat() / realImgWidth
 
     Image(
         painter = rememberAsyncImagePainter(
-            rawImgData.toBitmap() ?: getUriFromDrawable(
+            rawImgData?.toBitmap() ?: getUriFromDrawable(
                 LocalContext.current,
                 R.drawable.ic_gallery
             )

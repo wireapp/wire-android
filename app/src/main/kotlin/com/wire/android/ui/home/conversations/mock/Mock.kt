@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations.mock
 
-import android.content.Context
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -30,9 +29,11 @@ val mockMessageWithText = MessageViewWrapper(
     ),
 )
 
+@Suppress("MagicNumber")
 val mockedImg = MessageContent.ImageMessage(ByteArray(16), 0, 0)
 
-fun getMockedMessages(context: Context): List<MessageViewWrapper> = listOf(
+@Suppress("LongMethod", "MagicNumber")
+fun getMockedMessages(): List<MessageViewWrapper> = listOf(
     MessageViewWrapper(
         user = User("", UserStatus.AVAILABLE),
         messageHeader = MessageHeader(

@@ -12,7 +12,6 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
@@ -20,16 +19,18 @@ import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
-import com.wire.kalium.logic.feature.asset.GetPrivateAssetUseCase
-import com.wire.kalium.logic.feature.asset.PrivateAssetResult
+import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
@@ -53,7 +54,7 @@ class ConversationViewModel @Inject constructor(
     private val observeMemberDetails: ObserveConversationMembersUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
-    private val getMessageAsset: GetPrivateAssetUseCase,
+    private val getMessageAsset: GetMessageAssetUseCase,
     private val deleteMessage: DeleteMessageUseCase
 ) : ViewModel() {
 
@@ -204,8 +205,7 @@ class ConversationViewModel @Inject constructor(
         onDialogDismissed()
     }
 
-
-    private suspend fun List<com.wire.kalium.logic.data.message.Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
+    private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
             val sender = members.findSender(message.senderUserId)
             MessageViewWrapper(
@@ -225,26 +225,21 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun fromMessageModelToMessageContent(message: com.wire.kalium.logic.data.message.Message): MessageContent =
+    private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent =
         when (val content = message.content) {
             is Asset -> {
                 val assetId = content.value.remoteData.assetId
-                val assetToken = content.value.remoteData.assetToken
-                val privateKey = content.value.remoteData.otrKey
                 val (imgWidth, imgHeight) = when (val metadata = content.value.metadata) {
                     is Image -> metadata.width to metadata.height
                     else -> 0 to 0
                 }
                 val decodedImgDataResult = getMessageAsset(
-                    assetKey = assetId,
-                    assetToken = assetToken,
                     conversationId = message.conversationId,
-                    messageId = message.id,
-                    encryptionKey = privateKey
+                    messageId = message.id
                 ).run {
                     when (this) {
-                        is PrivateAssetResult.Success -> decodedAsset
-                        else -> ByteArray(16) // If there is an error while downloading the asset, we return a default Bytearray
+                        is MessageAssetResult.Success -> decodedAsset
+                        else -> null
                     }
                 }
                 when {

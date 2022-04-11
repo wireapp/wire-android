@@ -4,8 +4,8 @@ import android.content.Context
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
-import com.wire.kalium.logic.feature.asset.GetPrivateAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
@@ -49,7 +49,7 @@ class CoreLogicModule {
 
         return CoreLogic(
             appContext = context,
-            rootProteusDirectoryPath = proteusPath,
+            rootPath = proteusPath,
             clientLabel = deviceLabel
         )
     }
@@ -142,7 +142,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getPublicAsset(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetPublicAssetUseCase =
+    fun getPublicAsset(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAvatarAssetUseCase =
         coreLogic.getSessionScope(currentAccount).users.getPublicAsset
 
     @ViewModelScoped
@@ -209,7 +209,7 @@ class UseCaseModule {
     fun providesGetPrivateAssetUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetPrivateAssetUseCase = coreLogic.getSessionScope(currentAccount).messages.getImageAssetMessage
+    ): GetMessageAssetUseCase = coreLogic.getSessionScope(currentAccount).messages.getImageAssetMessage
 
     @ViewModelScoped
     @Provides

@@ -99,7 +99,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.CallEstablished.getRouteWithArgs()
+                    destination = NavigationItem.OngoingCall.getRouteWithArgs()
                 )
             )
         }

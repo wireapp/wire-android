@@ -263,4 +263,11 @@
     <string name="content_description_show_more_options">Show more options</string>
     <string name="label_type_a_message">Type a message</string>
 
+    <!--    Calling-->
+    <string name="calling_mute_call">Mute call</string>
+    <string name="calling_hang_up_call">Hang up call</string>
+    <string name="calling_turn_camera_on_off">Turn camera on/off</string>
+    <string name="calling_turn_speaker_on_off">Turn speaker on/off</string>
+
+
 </resources>

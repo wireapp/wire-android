@@ -165,6 +165,11 @@
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
+    <string name="new_group_title">New Group</string>
+    <string name="new_group_description">Up to 500 people can join a group conversation.</string>
+    <string name="group_name">Group name</string>
+    <string name="empty_group_name_error">Group name should not be empty</string>
+    <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>

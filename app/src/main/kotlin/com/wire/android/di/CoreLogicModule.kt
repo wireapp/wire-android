@@ -24,9 +24,9 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -57,9 +57,7 @@ class CoreLogicModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
-@Suppress("TooManyFunctions")
-class UseCaseModule {
-
+class SessionModule {
     @CurrentAccount
     @ViewModelScoped
     @Provides
@@ -74,6 +72,12 @@ class UseCaseModule {
             }
         }
     }
+}
+
+@Module
+@InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
+class UseCaseModule {
 
     @ViewModelScoped
     @Provides

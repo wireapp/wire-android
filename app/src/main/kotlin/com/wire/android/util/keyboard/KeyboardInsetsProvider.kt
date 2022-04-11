@@ -4,7 +4,6 @@ import android.R
 import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.Window
@@ -43,8 +42,6 @@ class KeyboardInsetsProvider constructor(
         }
 
         keyBoardSize.height = ((screenMaxHeight - rectWindowVisibleDisplayFrame.bottom) / deviceDensity).roundToInt()
-
-        Log.d("TEST","keyboard size ${keyBoardSize.height}")
     }
 
 }

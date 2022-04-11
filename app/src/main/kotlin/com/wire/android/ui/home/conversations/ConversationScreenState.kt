@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.model.Message
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -54,13 +54,13 @@ class ConversationScreenState(
     val coroutineScope: CoroutineScope
 ) {
 
-    var editMessage by mutableStateOf<Message?>(null)
+    var editMessage by mutableStateOf<MessageViewWrapper?>(null)
 
     val editMessageSource by derivedStateOf {
         editMessage?.messageSource
     }
 
-    fun showEditContextMenu(message: Message) {
+    fun showEditContextMenu(message: MessageViewWrapper) {
         editMessage = message
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }

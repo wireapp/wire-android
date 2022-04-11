@@ -43,14 +43,12 @@ class WireActivity : AppCompatActivity() {
 
     val viewModel: WireActivityViewModel by viewModels()
 
-    private lateinit var keyboardInsetsProvider: KeyboardInsetsProvider
+    @Inject
+    lateinit var keyboardInsetsProvider: KeyboardInsetsProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        keyboardInsetsProvider = KeyboardInsetsProvider(applicationContext, this)
-
         handleDeepLink(intent)
         setComposableContent()
     }

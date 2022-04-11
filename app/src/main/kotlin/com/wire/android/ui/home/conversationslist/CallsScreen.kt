@@ -14,7 +14,7 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
-fun CallScreen(
+fun CallsScreen(
     missedCalls: List<ConversationMissedCall> = emptyList(),
     callHistory: List<ConversationMissedCall> = emptyList(),
     onCallItemClick: (ConversationId) -> Unit,

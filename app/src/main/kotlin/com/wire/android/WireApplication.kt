@@ -11,10 +11,12 @@ import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
+private val flavor = BuildConfig.FLAVOR
 var appLogger = KaliumLogger(
     config = KaliumLogger.Config(
-        // Only log events for debug app builds
-        severity = if (BuildConfig.DEBUG) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
+        severity = if (
+            flavor.startsWith("Dev", true) || flavor.startsWith("Internal", true)
+        ) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
     )
 )

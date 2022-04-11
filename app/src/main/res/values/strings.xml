@@ -10,6 +10,7 @@
     <string name="label_continue">Continue</string>
     <string name="label_start_using_wire">Start using Wire</string>
     <string name="label_remove">Remove</string>
+    <string name="label_register">Register</string>
     <string name="label_learn_more">Learn more</string>
     <string name="label_removing">Removing...</string>
     <string name="label_logging_in">Logging in...</string>
@@ -85,6 +86,10 @@
     <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
+
+    <!-- Register Device -->
+    <string name="register_device_title">Register a Device</string>
+    <string name="register_device_text">Register your device by entering your password to start using Wire.</string>
 
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Delete Message?</string>

@@ -23,9 +23,9 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -43,12 +43,12 @@ class CoreLogicModule {
     @Singleton
     @Provides
     fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
-        val proteusPath = context.getDir("proteus", Context.MODE_PRIVATE).path
+        val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
 
         return CoreLogic(
             appContext = context,
-            rootProteusDirectoryPath = proteusPath,
+            rootPath = rootPath,
             clientLabel = deviceLabel
         )
     }
@@ -56,9 +56,7 @@ class CoreLogicModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
-@Suppress("TooManyFunctions")
-class UseCaseModule {
-
+class SessionModule {
     @CurrentAccount
     @ViewModelScoped
     @Provides
@@ -73,6 +71,12 @@ class UseCaseModule {
             }
         }
     }
+}
+
+@Module
+@InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
+class UseCaseModule {
 
     @ViewModelScoped
     @Provides
@@ -173,6 +177,11 @@ class UseCaseModule {
     @Provides
     fun registerClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.register
+
+    @ViewModelScoped
+    @Provides
+    fun needsToRegisterClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).client.needsToRegisterClient
 
     @ViewModelScoped
     @Provides

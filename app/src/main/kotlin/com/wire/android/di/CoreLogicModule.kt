@@ -146,7 +146,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getPublicAsset(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAvatarAssetUseCase =
+    fun getAvatarAsset(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAvatarAssetUseCase =
         coreLogic.getSessionScope(currentAccount).users.getPublicAsset
 
     @ViewModelScoped

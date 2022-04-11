@@ -44,12 +44,12 @@ class CoreLogicModule {
     @Singleton
     @Provides
     fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
-        val proteusPath = context.getDir("proteus", Context.MODE_PRIVATE).path
+        val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
 
         return CoreLogic(
             appContext = context,
-            rootPath = proteusPath,
+            rootPath = rootPath,
             clientLabel = deviceLabel
         )
     }
@@ -57,9 +57,7 @@ class CoreLogicModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
-@Suppress("TooManyFunctions")
-class UseCaseModule {
-
+class SessionModule {
     @CurrentAccount
     @ViewModelScoped
     @Provides
@@ -74,6 +72,12 @@ class UseCaseModule {
             }
         }
     }
+}
+
+@Module
+@InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
+class UseCaseModule {
 
     @ViewModelScoped
     @Provides
@@ -209,7 +213,7 @@ class UseCaseModule {
     fun providesGetPrivateAssetUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetMessageAssetUseCase = coreLogic.getSessionScope(currentAccount).messages.getImageAssetMessage
+    ): GetMessageAssetUseCase = coreLogic.getSessionScope(currentAccount).messages.getAssetMessage
 
     @ViewModelScoped
     @Provides

@@ -126,7 +126,11 @@ data class WireDimensions(
     // Search People
     val defaultSearchLazyColumnHeight: Dp,
     val showAllCollapseButtonMinHeight: Dp,
-    val groupButtonHeight: Dp
+    val groupButtonHeight: Dp,
+    //calling
+    val defaultCallingControlsSize: Dp,
+    val defaultSheetPeekHeight: Dp,
+    val callingUserAvatarSize: Dp
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -225,7 +229,10 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     defaultSearchLazyColumnHeight = 320.dp,
     showAllCollapseButtonMinHeight = 32.dp,
     messageComposerPaddingEnd = 82.dp,
-    groupButtonHeight = 82.dp
+    groupButtonHeight = 82.dp,
+    defaultCallingControlsSize = 66.dp,
+    defaultSheetPeekHeight = 95.dp,
+    callingUserAvatarSize = 80.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

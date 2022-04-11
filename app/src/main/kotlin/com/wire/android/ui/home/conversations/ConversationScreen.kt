@@ -41,7 +41,8 @@ fun ConversationScreen(
         onSendButtonClicked = { conversationViewModel.sendMessage() },
         onSendAttachment = { attachmentBundle -> conversationViewModel.sendAttachmentMessage(attachmentBundle) },
         onBackButtonClick = { conversationViewModel.navigateBack() },
-        onDeleteMessage = conversationViewModel::showDeleteMessageDialog
+        onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
+        onCallStart = conversationViewModel::navigateToInitiatingCallScreen
     )
     DeleteMessageDialog(
         conversationViewModel = conversationViewModel
@@ -57,6 +58,7 @@ private fun ConversationScreen(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String) -> Unit,
+    onCallStart: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -77,7 +79,7 @@ private fun ConversationScreen(
                             onBackButtonClick = onBackButtonClick,
                             onDropDownClick = {},
                             onSearchButtonClick = {},
-                            onVideoButtonClick = {}
+                            onVideoButtonClick = { onCallStart() }
                         )
                     },
                     snackbarHost = {
@@ -208,6 +210,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}
+        {}, {}, {}, {}, {}
     ) {}
 }

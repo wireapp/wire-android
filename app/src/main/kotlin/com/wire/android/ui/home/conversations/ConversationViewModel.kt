@@ -95,11 +95,11 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun navigateToInitiatingCallScreen() {
+    fun navigateToInitiatingCallScreen(conversationId: ConversationId) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs()
+                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
                 )
             )
         }

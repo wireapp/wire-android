@@ -256,6 +256,7 @@ class ConversationViewModel @Inject constructor(
                 }
                 when {
                     content.value.mimeType.contains("image") -> ImageMessage(decodedImgDataResult, width = imgWidth, height = imgHeight)
+                    // TODO: To be changed once the error behavior has been defined with product
                     assetId.isEmpty() -> TextMessage(messageBody = MessageBody("The asset message could not be downloaded correctly"))
                     // TODO: Add generic asset message UI
                     else -> TextMessage(MessageBody("GENERIC ASSET MESSAGE"))

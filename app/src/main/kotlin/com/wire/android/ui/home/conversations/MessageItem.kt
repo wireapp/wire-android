@@ -141,7 +141,6 @@ private fun MessageContent(messageContent: MessageContent) {
 
 @Composable
 fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
-
     Image(
         painter = rememberAsyncImagePainter(
             rawImgData?.toBitmap() ?: getUriFromDrawable(

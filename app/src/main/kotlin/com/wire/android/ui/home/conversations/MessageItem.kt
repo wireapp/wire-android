@@ -159,9 +159,11 @@ fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
 class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {
     // Image size normalizations to keep the ratio of the inline message image
     val normalizedWidth: Dp
+        @Composable
         get() = MaterialTheme.wireDimensions.messageImageMaxWidth
 
     val normalizedHeight: Dp
+        @Composable
         get() = Dp(normalizedWidth.value * realImgHeight.toFloat() / realImgWidth)
 }
 

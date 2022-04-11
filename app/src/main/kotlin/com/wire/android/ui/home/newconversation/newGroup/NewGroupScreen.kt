@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.newconversation.newGroup
 
-
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,10 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -40,8 +35,6 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,9 +94,6 @@ fun NewGroupScreenContent(
                         animate()
                         onGroupNameErrorAnimated()
                     }
-
-                    var groupNameText by remember { mutableStateOf(state.groupName) }
-
                     WireTextField(
                         value = state.groupName,
                         onValueChange = onGroupNameChange,
@@ -118,16 +108,11 @@ fun NewGroupScreenContent(
 
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                        modifier = Modifier
-                            .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                        modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                     )
                 }
 
             }
-
-
-
-
             WirePrimaryButton(
                 text = stringResource(R.string.label_continue),
                 onClick = onContinuePressed,
@@ -151,4 +136,3 @@ fun NewGroupScreenContent(
 private fun NewGroupScreenPreview() {
     NewGroupScreenContent(NewGroupNameViewState(), {}, {}, {}, {})
 }
-

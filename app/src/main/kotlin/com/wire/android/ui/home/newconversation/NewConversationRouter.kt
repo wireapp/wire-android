@@ -25,7 +25,6 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val newConversationState = rememberNewConversationState()
@@ -49,7 +48,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
             composable(
                 route = NewConversationStateScreen.KNOWN_CONTACTS,
                 content = {
-                    screenWithSearchTopBar(
+                    ScreenWithSearchTopBar(
                         newConversationViewModel = newConversationViewModel,
                         searchQuery = searchQuery,
                         scrollPosition = newConversationState.scrollPosition,
@@ -77,7 +76,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
             composable(
                 route = NewConversationStateScreen.SEARCH_PEOPLE,
                 content = {
-                    screenWithSearchTopBar(
+                    ScreenWithSearchTopBar(
                         newConversationViewModel = newConversationViewModel,
                         searchQuery = searchQuery,
                         scrollPosition = newConversationState.scrollPosition,
@@ -116,7 +115,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
 }
 
 @Composable
-fun screenWithSearchTopBar(
+fun ScreenWithSearchTopBar(
     newConversationViewModel: NewConversationViewModel,
     searchQuery: String,
     scrollPosition: Int,

@@ -154,6 +154,7 @@ private fun MessageComposer(
                     keyboardHeightOffSet = keyboardSize.height.dp
                 }
             }
+
             // This guide line is used when we have a focus on the TextInputField as well as when the attachment options are visible
             // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
@@ -177,7 +178,7 @@ private fun MessageComposer(
                             bottom.linkTo(parent.bottom)
                         }
 
-                        height = Dimension.preferredWrapContent
+                        height = Dimension.fillToConstraints
                     }) {
 
                 val (additionalActions, sendActions, messageInput) = createRefs()

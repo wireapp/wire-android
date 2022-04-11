@@ -8,13 +8,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class CallEstablishedViewModel @Inject constructor() : ViewModel() {
-    var callEstablishedState by mutableStateOf(CallEstablishedState())
+class OngoingCallViewModel @Inject constructor() : ViewModel() {
+    var callEstablishedState by mutableStateOf(OngoingCallState())
     private set
 
     init {
         //init with fake values
-        callEstablishedState = CallEstablishedState(
+        callEstablishedState = OngoingCallState(
             conversationName = "The Backlog Boys",
             avatarAssetByteArray = null,
             isMuted = false,

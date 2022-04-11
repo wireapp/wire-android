@@ -6,7 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -22,13 +21,11 @@ import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.newGroup.NewGroupScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = hiltViewModel()) {
     val newConversationState = rememberNewConversationState()
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(newConversationViewModel) {
         newConversationViewModel.moveToStep.onEach { item ->
@@ -37,7 +34,7 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                 NewConversationNavigationCommand.SearchContacts -> newConversationState.navigateToSearch()
                 NewConversationNavigationCommand.NewGroup -> newConversationState.navigateToNewGroup()
             }
-        }.launchIn(scope)
+        }
     }
 
     with(newConversationViewModel.state) {
@@ -70,7 +67,6 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                             )
                         }
                     )
-
                 }
             )
             composable(
@@ -176,7 +172,6 @@ private class NewConversationStateScreen(
     fun navigateBack() {
         navController.popBackStack()
     }
-
 
     companion object {
         const val KNOWN_CONTACTS = "known_contacts"

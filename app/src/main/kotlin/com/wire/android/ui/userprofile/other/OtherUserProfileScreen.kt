@@ -54,7 +54,7 @@ import kotlinx.coroutines.launch
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val state = viewModel.state
 
-    NotConnectedOtherProfileScreenContent(
+    OtherProfileScreenContent(
         state = state,
         onSendConnectionRequest = { viewModel.sendConnectionRequest() },
         onOpenConversation = { viewModel.openConversation() },
@@ -65,7 +65,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, androidx.compose.animation.ExperimentalAnimationApi::class)
 @Composable
-fun NotConnectedOtherProfileScreenContent(
+fun OtherProfileScreenContent(
     state: OtherUserProfileState,
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,

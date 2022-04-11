@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
     // TODO: here we can extract the ID provided to the screen and fetch the data for the conversation

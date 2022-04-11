@@ -28,6 +28,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
@@ -35,11 +36,11 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -130,16 +131,16 @@ private fun Username(username: String) {
 @Composable
 private fun MessageContent(messageContent: MessageContent) {
     when (messageContent) {
-        is MessageContent.ImageMessage -> MessageImage(rawImgData = messageContent.rawImgData, messageContent.width, messageContent.height)
+        is MessageContent.ImageMessage -> MessageImage(
+            rawImgData = messageContent.rawImgData,
+            imgParams = ImageMessageParams(messageContent.width, messageContent.height)
+        )
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
     }
 }
 
 @Composable
-fun MessageImage(rawImgData: ByteArray?, realImgWidth: Int, realImgHeight: Int) {
-    // Image size transformations to keep the ratio of the inline message image
-    val width = MaterialTheme.wireDimensions.messageImageMaxWidth
-    val height = width.value * realImgHeight.toFloat() / realImgWidth
+fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
 
     Image(
         painter = rememberAsyncImagePainter(
@@ -150,9 +151,18 @@ fun MessageImage(rawImgData: ByteArray?, realImgWidth: Int, realImgHeight: Int) 
         ),
         alignment = Alignment.CenterStart,
         contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = Modifier.width(width).height(height.dp),
+        modifier = Modifier.width(imgParams.normalizedWidth).height(imgParams.normalizedHeight),
         contentScale = ContentScale.Crop
     )
+}
+
+class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {
+    // Image size normalizations to keep the ratio of the inline message image
+    val normalizedWidth: Dp
+        get() = MaterialTheme.wireDimensions.messageImageMaxWidth
+
+    val normalizedHeight: Dp
+        get() = Dp(normalizedWidth.value * realImgHeight.toFloat() / realImgWidth)
 }
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,

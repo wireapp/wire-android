@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.newconversation.newGroup
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -36,7 +36,6 @@ import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewGroupScreen(onBackPressed: () -> Unit) {
     val viewModel: NewConversationViewModel = hiltViewModel()
@@ -50,8 +49,8 @@ fun NewGroupScreen(onBackPressed: () -> Unit) {
 }
 
 @OptIn(
-    ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, androidx.compose.animation.ExperimentalAnimationApi::class,
-    androidx.compose.ui.ExperimentalComposeUiApi::class
+    ExperimentalMaterial3Api::class,
+    ExperimentalComposeUiApi::class
 )
 @Composable
 fun NewGroupScreenContent(

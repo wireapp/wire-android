@@ -24,8 +24,8 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import kotlinx.coroutines.launch
@@ -57,8 +57,8 @@ private fun ConversationScreen(
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onBackButtonClick: () -> Unit,
-    onDeleteMessage: (String) -> Unit
-onCallStart: () -> Unit
+    onDeleteMessage: (String) -> Unit,
+    onCallStart: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()

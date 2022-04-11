@@ -10,8 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -49,6 +48,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -73,7 +73,6 @@ import com.wire.android.util.keyboard.LocalKeyboardSize
 
 private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MessageComposer(
     content: @Composable () -> Unit,
@@ -81,11 +80,14 @@ fun MessageComposer(
     onMessageChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (String) -> Unit
+    onError: (String) -> Unit,
+    onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
 ) {
     BoxWithConstraints {
+
         val messageComposerState = rememberMessageComposerInnerState(
-            fullScreenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
+            fullScreenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() },
+            onMessageComposeInputStateChanged = onMessageComposerInputStateChange
         )
 
         LaunchedEffect(messageText) {
@@ -196,15 +198,18 @@ private fun MessageComposer(
                 ) {
                     Box(
                         Modifier
-                            .weight(1f)
-                            .clickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() }
-                            ) {
-                                focusManager.clearFocus()
-                                messageComposerState.clickOutSideMessageComposer()
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onPress = {
+                                        focusManager.clearFocus()
+                                        messageComposerState.clickOutSideMessageComposer()
+                                    },
+                                    onDoubleTap = { /* Called on Double Tap */ },
+                                    onLongPress = { /* Called on Long Press */ },
+                                    onTap = {  /* Called on Tap */ }
+                                )
                             }
-                    ) {
+                            .weight(1f)) {
                         content()
                     }
                     // Column wrapping CollapseIconButton and MessageComposerInput
@@ -227,9 +232,9 @@ private fun MessageComposer(
                                     when (state) {
                                         MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
                                         MessageComposeInputState.FullScreen -> 180f
+
                                     }
                                 }
-
                                 CollapseIconButton(
                                     onCollapseClick = { messageComposerState.toggleFullScreen() },
                                     collapseRotation = collapseButtonRotationDegree

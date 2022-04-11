@@ -3,23 +3,23 @@ package com.wire.android.ui.authentication.login
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.kalium.logic.CoreFailure
 
-data class LoginState(
+data class LoginEmailState(
     val userIdentifier: TextFieldValue = TextFieldValue(""),
     val password: TextFieldValue = TextFieldValue(""),
     val loading: Boolean = false,
     val loginEnabled: Boolean = false,
-    val loginError: LoginError = LoginError.None
+    val loginEmailError: LoginEmailError = LoginEmailError.None
 )
 
-sealed class LoginError {
-    object None: LoginError()
-    sealed class TextFieldError: LoginError() {
+sealed class LoginEmailError {
+    object None: LoginEmailError()
+    sealed class TextFieldError: LoginEmailError() {
         object InvalidUserIdentifierError: TextFieldError()
     }
-    sealed class DialogError: LoginError() {
+    sealed class DialogError: LoginEmailError() {
         object InvalidCredentialsError: DialogError()
         object UserAlreadyExists: DialogError()
         data class GenericError(val coreFailure: CoreFailure): DialogError()
     }
-    object TooManyDevicesError: LoginError()
+    object TooManyDevicesError: LoginEmailError()
 }

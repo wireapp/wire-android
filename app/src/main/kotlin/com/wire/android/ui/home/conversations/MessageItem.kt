@@ -20,33 +20,38 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
-import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.getUriFromDrawable
+import com.wire.android.util.toBitmap
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
-    message: Message,
+    message: MessageViewWrapper,
     onLongClicked: () -> Unit,
 ) {
     with(message) {
@@ -126,20 +131,39 @@ private fun Username(username: String) {
 @Composable
 private fun MessageContent(messageContent: MessageContent) {
     when (messageContent) {
-        is MessageContent.ImageMessage -> MessageImage(imageUrl = messageContent.imageUrl)
+        is MessageContent.ImageMessage -> MessageImage(
+            rawImgData = messageContent.rawImgData,
+            imgParams = ImageMessageParams(messageContent.width, messageContent.height)
+        )
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
     }
 }
 
-//TODO: replace with actual imageUrl loading probably with: https://coil-kt.github.io/coil/compose/
 @Composable
-fun MessageImage(imageUrl: String = "") {
+fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
     Image(
-        painter = painterResource(R.drawable.mock_message_image), "",
+        painter = rememberAsyncImagePainter(
+            rawImgData?.toBitmap() ?: getUriFromDrawable(
+                LocalContext.current,
+                R.drawable.ic_gallery
+            )
+        ),
         alignment = Alignment.CenterStart,
-        modifier = Modifier
-            .width(MaterialTheme.wireDimensions.messageImagePortraitModeWidth)
+        contentDescription = stringResource(R.string.content_description_image_message),
+        modifier = Modifier.width(imgParams.normalizedWidth).height(imgParams.normalizedHeight),
+        contentScale = ContentScale.Crop
     )
+}
+
+class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {
+    // Image size normalizations to keep the ratio of the inline message image
+    val normalizedWidth: Dp
+        @Composable
+        get() = MaterialTheme.wireDimensions.messageImageMaxWidth
+
+    val normalizedHeight: Dp
+        @Composable
+        get() = Dp(normalizedWidth.value * realImgHeight.toFloat() / realImgWidth)
 }
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
@@ -148,7 +172,6 @@ fun MessageImage(imageUrl: String = "") {
 private fun MessageBody(messageBody: MessageBody) {
     Text(
         buildAnnotatedString {
-            appendMentionLabel(label = "@John Doe")
             appendBody(messageBody = messageBody)
         }
     )

@@ -74,7 +74,7 @@ object Libraries {
         const val fragment = "1.2.5"
         const val compose = "1.2.0-alpha03"
         const val composeMaterial = compose
-        const val composeMaterial3 = "1.0.0-alpha05"
+        const val composeMaterial3 = "1.0.0-alpha08"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.0-beta02"
         const val accompanist = "0.24.2-alpha"
@@ -86,7 +86,7 @@ object Libraries {
         const val browser = "1.3.0"
         const val dataStore = "1.0.0"
         const val splashscreen = "1.0.0-beta01"
-        const val coil = "2.0.0-rc01"
+        const val coil = "2.0.0-rc02"
         const val exif = "1.3.3"
     }
 
@@ -189,6 +189,7 @@ object TestLibraries {
         const val kluent = "1.68"
         const val robolectric = "4.5.1"
         const val testRunner = "1.4.0"
+        const val testOrchestrator = "1.4.1"
         const val espresso = "3.4.0"
         const val testExtensions = "1.1.1"
         const val testRules = "1.4.0"
@@ -208,6 +209,7 @@ object TestLibraries {
     const val junit5Engine      = "org.junit.jupiter:junit-jupiter-engine:${Versions.junit5}"
     const val robolectric       = "org.robolectric:robolectric:${Versions.robolectric}"
     const val testRunner        = "androidx.test:runner:${Versions.testRunner}"
+    const val testOrchestrator  = "androidx.test:orchestrator:${Versions.testOrchestrator}"
     const val testExtJunit      = "androidx.test.ext:junit:${Versions.testExtensions}"
     const val testRules         = "androidx.test:rules:${Versions.testRules}"
     const val uiAutomator       = "androidx.test.uiautomator:uiautomator:${Versions.uiAutomator}"

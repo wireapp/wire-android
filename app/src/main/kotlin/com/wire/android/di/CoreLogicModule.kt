@@ -4,7 +4,10 @@ import android.content.Context
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -14,7 +17,6 @@ import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -42,12 +44,12 @@ class CoreLogicModule {
     @Singleton
     @Provides
     fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
-        val proteusPath = context.getDir("proteus", Context.MODE_PRIVATE).path
+        val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
 
         return CoreLogic(
             appContext = context,
-            rootProteusDirectoryPath = proteusPath,
+            rootPath = rootPath,
             clientLabel = deviceLabel
         )
     }
@@ -55,9 +57,7 @@ class CoreLogicModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
-@Suppress("TooManyFunctions")
-class UseCaseModule {
-
+class SessionModule {
     @CurrentAccount
     @ViewModelScoped
     @Provides
@@ -72,6 +72,12 @@ class UseCaseModule {
             }
         }
     }
+}
+
+@Module
+@InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
+class UseCaseModule {
 
     @ViewModelScoped
     @Provides
@@ -120,8 +126,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getConversationsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).conversations.getConversations
+    fun provideObserveConversationListDetailsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeConversationListDetails
 
     @ViewModelScoped
     @Provides
@@ -140,7 +146,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getPublicAsset(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetPublicAssetUseCase =
+    fun getAvatarAsset(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAvatarAssetUseCase =
         coreLogic.getSessionScope(currentAccount).users.getPublicAsset
 
     @ViewModelScoped
@@ -150,8 +156,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getConversationDetailsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).conversations.getConversationDetails
+    fun observeConversationDetailsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeConversationDetails
+
+    @ViewModelScoped
+    @Provides
+    fun observeConversationMembersUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeConversationMembers
 
     @ViewModelScoped
     @Provides
@@ -170,6 +181,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun needsToRegisterClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).client.needsToRegisterClient
+
+    @ViewModelScoped
+    @Provides
     fun listenToEventsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).listenToEvents
 
@@ -183,8 +199,21 @@ class UseCaseModule {
     fun providesSendTextMessageUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): SendTextMessageUseCase =
-        coreLogic.getSessionScope(currentAccount).messages.sendTextMessage
+    ): SendTextMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendTextMessage
+
+    @ViewModelScoped
+    @Provides
+    fun providesSendImageMessageUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SendImageMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendImageMessage
+
+    @ViewModelScoped
+    @Provides
+    fun providesGetPrivateAssetUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetMessageAssetUseCase = coreLogic.getSessionScope(currentAccount).messages.getAssetMessage
 
     @ViewModelScoped
     @Provides
@@ -215,7 +244,6 @@ class UseCaseModule {
     ): GetAllKnownUsersUseCase =
         coreLogic.getSessionScope(currentAccount).users.getAllKnownUsers
 
-
     @ViewModelScoped
     @Provides
     fun providesDeleteMessageUseCase(
@@ -223,5 +251,4 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): DeleteMessageUseCase =
         coreLogic.getSessionScope(currentAccount).messages.deleteMessage
-
 }

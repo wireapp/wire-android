@@ -19,17 +19,25 @@ import com.wire.android.util.toByteArray
 import java.io.IOException
 
 @Composable
-fun rememberMessageComposerInnerState(fullScreenHeight: Dp): MessageComposerInnerState {
+fun rememberMessageComposerInnerState(
+    fullScreenHeight: Dp,
+    onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit
+): MessageComposerInnerState {
     val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
 
     return remember {
-        MessageComposerInnerState(fullScreenHeight,defaultAttachmentInnerState)
+        MessageComposerInnerState(
+            fullScreenHeight= fullScreenHeight,
+            attachmentInnerState = defaultAttachmentInnerState,
+            onMessageComposeInputStateChanged = onMessageComposeInputStateChanged
+        )
     }
 }
 
 class MessageComposerInnerState(
     val fullScreenHeight: Dp,
-    val attachmentInnerState: AttachmentInnerState
+    val attachmentInnerState: AttachmentInnerState,
+    private val onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit
 ) {
 
     var hasFocus by mutableStateOf(false)
@@ -54,7 +62,13 @@ class MessageComposerInnerState(
         attachmentOptionsDisplayed = !attachmentOptionsDisplayed
     }
 
-     private fun toEnabled() {
+    private fun toEnabled() {
+        onMessageComposeInputStateChanged(
+            MessageComposerStateTransition(
+                from = messageComposeInputState,
+                to = MessageComposeInputState.Enabled
+            )
+        )
         messageComposeInputState = MessageComposeInputState.Enabled
     }
 
@@ -65,14 +79,30 @@ class MessageComposerInnerState(
     }
 
     fun toActive() {
+        onMessageComposeInputStateChanged(
+            MessageComposerStateTransition(
+                from = messageComposeInputState,
+                to = MessageComposeInputState.Active
+            )
+        )
+
         hasFocus = true
         attachmentOptionsDisplayed = false
         messageComposeInputState = MessageComposeInputState.Active
     }
 
     fun toggleFullScreen() {
-        messageComposeInputState = if (messageComposeInputState == MessageComposeInputState.Active)
+        val newState = if (messageComposeInputState == MessageComposeInputState.Active)
             MessageComposeInputState.FullScreen else MessageComposeInputState.Active
+
+        onMessageComposeInputStateChanged(
+            MessageComposerStateTransition(
+                from = messageComposeInputState,
+                to = newState
+            )
+        )
+
+        messageComposeInputState = newState
     }
 }
 
@@ -107,3 +137,5 @@ sealed class AttachmentState {
     class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
     object Error : AttachmentState()
 }
+
+data class MessageComposerStateTransition(val from: MessageComposeInputState, val to: MessageComposeInputState)

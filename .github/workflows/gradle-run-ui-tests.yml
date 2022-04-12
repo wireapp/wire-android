@@ -6,7 +6,7 @@ on:
 
 jobs:
   ui-tests:
-    if: ${{ contains(github.ref, 'refs/heads/qa') || contains(github.ref, 'refs/heads/test')}}  # disable for as they are not yet completed
+    if: ${{ contains(github.head_ref, 'qa/') || contains(github.ref_name, 'qa/')}}  # disable for as they are not yet completed
     runs-on: macos-latest
     strategy:
       matrix:

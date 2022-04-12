@@ -155,6 +155,8 @@ private fun MessageComposer(
                 if (keyboardSize.height.dp > 0.dp) {
                     keyboardHeightOffSet = keyboardSize.height.dp
                 }
+
+                messageComposerState.isKeyboardShown = keyboardSize.height.dp != 0.dp
             }
 
             // This guide line is used when we have a focus on the TextInputField as well as when the attachment options are visible
@@ -174,7 +176,7 @@ private fun MessageComposer(
                     .constrainAs(messageComposer) {
                         top.linkTo(parent.top)
 
-                        if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.hasFocus) {
+                        if (messageComposerState.attachmentOptionsDisplayed || messageComposerState.isKeyboardShown) {
                             bottom.linkTo(topOfKeyboardGuideLine)
                         } else {
                             bottom.linkTo(parent.bottom)

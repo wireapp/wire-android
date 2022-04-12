@@ -80,6 +80,11 @@
     <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or username.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
+    <string name="login_tab_email">EMAIL</string>
+    <string name="login_tab_sso">SSO LOGIN</string>
+    <string name="login_sso_code_placeholder">wire://</string>
+    <string name="login_sso_code_label">SSO CODE</string>
+    <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
 
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>

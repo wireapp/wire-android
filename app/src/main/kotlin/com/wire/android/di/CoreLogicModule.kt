@@ -13,6 +13,7 @@ import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversatio
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -247,6 +248,14 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun providesGetKnownUserUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetKnownUserUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getKnownUser
+
+    @ViewModelScoped
+    @Provides
     fun providesDeleteMessageUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -260,4 +269,5 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetOrCreateOneToOneConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.getOrCreateOneToOneConversationUseCase
+
 }

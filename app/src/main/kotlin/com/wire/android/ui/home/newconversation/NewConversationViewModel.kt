@@ -163,7 +163,7 @@ class NewConversationViewModel
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.id, contact.domain, internal))
+                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.domain,contact.id,internal))
                 )
             )
         }
@@ -208,7 +208,6 @@ class NewConversationViewModel
         groupNameState = groupNameState.copy(animatedGroupNameError = false)
     }
 
-
     fun openKnownContacts() {
         innerSearchPeopleState = innerSearchPeopleState.copy(searchQuery = "")
         goToStep(NewConversationNavigationCommand.KnownContacts)
@@ -237,5 +236,4 @@ sealed class NewConversationNavigationCommand {
     object KnownContacts : NewConversationNavigationCommand()
     object SearchContacts : NewConversationNavigationCommand()
     object NewGroup : NewConversationNavigationCommand()
-
 }

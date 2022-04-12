@@ -80,6 +80,11 @@
     <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or username.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
+    <string name="login_tab_email">EMAIL</string>
+    <string name="login_tab_sso">SSO LOGIN</string>
+    <string name="login_sso_code_placeholder">wire://</string>
+    <string name="login_sso_code_label">SSO CODE</string>
+    <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
 
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
@@ -165,6 +170,11 @@
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
+    <string name="new_group_title">New Group</string>
+    <string name="new_group_description">Up to 500 people can join a group conversation.</string>
+    <string name="group_name">Group name</string>
+    <string name="empty_group_name_error">Group name should not be empty</string>
+    <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>

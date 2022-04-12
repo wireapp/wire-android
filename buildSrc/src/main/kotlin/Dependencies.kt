@@ -74,7 +74,7 @@ object Libraries {
         const val fragment = "1.2.5"
         const val compose = "1.2.0-alpha03"
         const val composeMaterial = compose
-        const val composeMaterial3 = "1.0.0-alpha08"
+        const val composeMaterial3 = "1.0.0-alpha09"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.0-beta02"
         const val accompanist = "0.24.2-alpha"
@@ -86,7 +86,7 @@ object Libraries {
         const val browser = "1.3.0"
         const val dataStore = "1.0.0"
         const val splashscreen = "1.0.0-beta01"
-        const val coil = "2.0.0-rc01"
+        const val coil = "2.0.0-rc02"
         const val exif = "1.3.3"
     }
 

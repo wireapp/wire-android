@@ -106,7 +106,7 @@ class LoginEmailViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when registering the client, then show loading`() {
+    fun `given button is clicked, when logging in, then show loading`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials

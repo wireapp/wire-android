@@ -4,6 +4,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
@@ -11,6 +12,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.contacts.Contact
 import com.wire.android.ui.home.newconversation.contacts.toContact
+import com.wire.android.ui.home.newconversation.newGroup.NewGroupNameViewState
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
@@ -28,6 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class NewConversationViewModel
 @Inject constructor(
@@ -40,6 +43,7 @@ class NewConversationViewModel
     //TODO: map this value out with the given back-end configuration later on
     private companion object {
         const val HARDCODED_TEST_DOMAIN = "staging.zinfra.io"
+        const val GROUP_NAME_MAX_COUNT = 64
     }
 
     val state: SearchPeopleState by derivedStateOf {
@@ -56,7 +60,7 @@ class NewConversationViewModel
         )
     }
 
-    var navigateCommand: NewConversationNavigationCommand by mutableStateOf(NewConversationNavigationCommand.KnownContacts)
+    var groupNameState: NewGroupNameViewState by mutableStateOf(NewGroupNameViewState())
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
@@ -73,6 +77,13 @@ class NewConversationViewModel
     )
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
+
+    var scrollPosition by mutableStateOf(0)
+        private set
+
+    fun updateScrollPosition(newScrollPosition: Int) {
+        scrollPosition = newScrollPosition
+    }
 
     init {
         viewModelScope.launch {
@@ -162,13 +173,43 @@ class NewConversationViewModel
         }
     }
 
-    fun openKnownContacts() {
-        innerSearchPeopleState = innerSearchPeopleState.copy(searchQuery = "")
-        navigateCommand = NewConversationNavigationCommand.KnownContacts
+    fun onGroupNameChange(newText: TextFieldValue) {
+        when {
+            newText.text.trim().isEmpty() -> {
+                groupNameState = groupNameState.copy(
+                    animatedGroupNameError = true,
+                    groupName = newText,
+                    continueEnabled = false,
+                    error = NewGroupNameViewState.GroupNameError.TextFieldError.GroupNameEmptyError
+                )
+            }
+            newText.text.trim().count() > GROUP_NAME_MAX_COUNT -> {
+                groupNameState = groupNameState.copy(
+                    animatedGroupNameError = true,
+                    groupName = newText,
+                    continueEnabled = false,
+                    error = NewGroupNameViewState.GroupNameError.TextFieldError.GroupNameExceedLimitError
+                )
+
+            }
+            else -> {
+                groupNameState = groupNameState.copy(
+                    animatedGroupNameError = false,
+                    groupName = newText,
+                    continueEnabled = true,
+                    error = NewGroupNameViewState.GroupNameError.None
+                )
+
+            }
+        }
     }
 
-    fun openSearchContacts() {
-        navigateCommand = NewConversationNavigationCommand.SearchContacts
+    fun onGroupNameContinueClicked() {
+        // todo
+    }
+
+    fun onGroupNameErrorAnimated() {
+        groupNameState = groupNameState.copy(animatedGroupNameError = false)
     }
 
     fun close() {
@@ -176,9 +217,4 @@ class NewConversationViewModel
             navigationManager.navigateBack()
         }
     }
-}
-
-sealed class NewConversationNavigationCommand {
-    object KnownContacts : NewConversationNavigationCommand()
-    object SearchContacts : NewConversationNavigationCommand()
 }

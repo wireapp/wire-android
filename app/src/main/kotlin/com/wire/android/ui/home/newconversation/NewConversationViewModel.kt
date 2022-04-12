@@ -23,7 +23,6 @@ import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
@@ -63,8 +62,6 @@ class NewConversationViewModel
 
     var groupNameState: NewGroupNameViewState by mutableStateOf(NewGroupNameViewState())
 
-    var moveToStep = MutableSharedFlow<NewConversationNavigationCommand>()
-
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
     private var localContactSearchResult by mutableStateOf(
@@ -80,6 +77,13 @@ class NewConversationViewModel
     )
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
+
+    var scrollPosition by mutableStateOf(0)
+        private set
+
+    fun updateScrollPosition(newScrollPosition: Int) {
+        scrollPosition = newScrollPosition
+    }
 
     init {
         viewModelScope.launch {
@@ -208,34 +212,9 @@ class NewConversationViewModel
         groupNameState = groupNameState.copy(animatedGroupNameError = false)
     }
 
-
-    fun openKnownContacts() {
-        innerSearchPeopleState = innerSearchPeopleState.copy(searchQuery = "")
-        goToStep(NewConversationNavigationCommand.KnownContacts)
-    }
-
-    fun openSearchContacts() {
-        goToStep(NewConversationNavigationCommand.SearchContacts)
-    }
-
     fun close() {
         viewModelScope.launch {
             navigationManager.navigateBack()
         }
     }
-
-    fun openNewGroupScreen() {
-        goToStep(NewConversationNavigationCommand.NewGroup)
-    }
-
-    private fun goToStep(item: NewConversationNavigationCommand) {
-        viewModelScope.launch { moveToStep.emit(item) }
-    }
-}
-
-sealed class NewConversationNavigationCommand {
-    object KnownContacts : NewConversationNavigationCommand()
-    object SearchContacts : NewConversationNavigationCommand()
-    object NewGroup : NewConversationNavigationCommand()
-
 }

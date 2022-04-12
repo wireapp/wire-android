@@ -90,8 +90,6 @@ class MainScreenTest {
     fun scroll_Images() {
         images.performScrollToIndex(1).onChildren()[1]
             .assertTextEquals("Welcome to Wire, the most secure collaboration platform!")
-/*        composeTestRule.onNodeWithText("Login").onSiblings()[1].performScrollToIndex(1).onChildren()[1]
-            .assertTextEquals("Welcome to Wire, the most secure collaboration platform!")*/
         images.performScrollToIndex(2).onChildren()[1]
             .assertTextEquals("Absolute confidence your information is secure")
         images.performScrollToIndex(3).onChildren()[1].assertTextEquals("Encrypted audio & video conferencing with up to 50 participants")

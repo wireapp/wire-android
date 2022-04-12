@@ -167,7 +167,7 @@ class NewConversationViewModel
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.domain,contact.id,internal))
+                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.domain, contact.id, internal))
                 )
             )
         }
@@ -212,32 +212,10 @@ class NewConversationViewModel
         groupNameState = groupNameState.copy(animatedGroupNameError = false)
     }
 
-    fun openKnownContacts() {
-        innerSearchPeopleState = innerSearchPeopleState.copy(searchQuery = "")
-        goToStep(NewConversationNavigationCommand.KnownContacts)
-    }
-
-    fun openSearchContacts() {
-        goToStep(NewConversationNavigationCommand.SearchContacts)
-    }
-
     fun close() {
         viewModelScope.launch {
             navigationManager.navigateBack()
         }
     }
 
-    fun openNewGroupScreen() {
-        goToStep(NewConversationNavigationCommand.NewGroup)
-    }
-
-    private fun goToStep(item: NewConversationNavigationCommand) {
-        viewModelScope.launch { moveToStep.emit(item) }
-    }
-}
-
-sealed class NewConversationNavigationCommand {
-    object KnownContacts : NewConversationNavigationCommand()
-    object SearchContacts : NewConversationNavigationCommand()
-    object NewGroup : NewConversationNavigationCommand()
 }

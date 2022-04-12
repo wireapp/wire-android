@@ -47,7 +47,8 @@ data class WireColorScheme(
     val disabledIndeterminateBoxColor : Color,
     val disabledUncheckedBoxColor : Color,
     val uncheckedCheckmarkColor : Color,
-    val checkedCheckmarkColor : Color
+    val checkedCheckmarkColor : Color,
+    val callingBackground : Color
 
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
@@ -61,6 +62,7 @@ data class WireColorScheme(
         background = background,                        onBackground = onBackground,
         surface = surface,                              onSurface = onSurface,
         surfaceVariant = divider,                       onSurfaceVariant = onSurface,
+        surfaceTint = primary,
         inverseSurface = onPrimaryButtonDisabled,       inverseOnSurface = Color.White,
         error = error,                                  onError = onError,
         errorContainer = errorOutline,                  onErrorContainer = error,
@@ -110,7 +112,8 @@ private val LightWireColorScheme = WireColorScheme(
     disabledIndeterminateBoxColor = WireColorPalette.Gray80,
     disabledUncheckedBoxColor = WireColorPalette.Gray80,
     uncheckedCheckmarkColor = WireColorPalette.Gray20,
-    checkedCheckmarkColor = Color.White
+    checkedCheckmarkColor = Color.White,
+    callingBackground = WireColorPalette.Gray90
 )
 
 
@@ -156,7 +159,8 @@ private val DarkWireColorScheme = WireColorScheme(
     disabledIndeterminateBoxColor = WireColorPalette.Gray80,
     disabledUncheckedBoxColor = WireColorPalette.Gray80,
     uncheckedCheckmarkColor = WireColorPalette.Gray20,
-    checkedCheckmarkColor = Color.White
+    checkedCheckmarkColor = Color.White,
+    callingBackground = WireColorPalette.Gray90
 )
 
 @PackagePrivate

@@ -49,7 +49,7 @@ data class WireDimensions(
     val conversationBottomSheetShapeCorner: Dp,
     val wireIconButtonSize: Dp,
     // Message
-    val messageImagePortraitModeWidth: Dp,
+    val messageImageMaxWidth: Dp,
     // Message composer
     val messageComposerActiveInputMaxHeight: Dp,
     val attachmentButtonSize: Dp,
@@ -126,7 +126,11 @@ data class WireDimensions(
     // Search People
     val defaultSearchLazyColumnHeight: Dp,
     val showAllCollapseButtonMinHeight: Dp,
-    val groupButtonHeight: Dp
+    val groupButtonHeight: Dp,
+    //calling
+    val defaultCallingControlsSize: Dp,
+    val defaultSheetPeekHeight: Dp,
+    val callingUserAvatarSize: Dp
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -162,7 +166,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     conversationBottomSheetItemPadding = 14.dp,
     conversationBottomSheetShapeCorner = 12.dp,
     wireIconButtonSize = 16.dp,
-    messageImagePortraitModeWidth = 200.dp,
+    messageImageMaxWidth = 200.dp,
     messageComposerActiveInputMaxHeight = 168.dp,
     attachmentButtonSize = 40.dp,
     textFieldMinHeight = 48.dp,
@@ -225,7 +229,10 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     defaultSearchLazyColumnHeight = 320.dp,
     showAllCollapseButtonMinHeight = 32.dp,
     messageComposerPaddingEnd = 82.dp,
-    groupButtonHeight = 82.dp
+    groupButtonHeight = 82.dp,
+    defaultCallingControlsSize = 66.dp,
+    defaultSheetPeekHeight = 95.dp,
+    callingUserAvatarSize = 80.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

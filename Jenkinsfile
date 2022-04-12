@@ -361,7 +361,7 @@ pipeline {
     adbPort = '5555'
     emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
     trackName = defineTrackName()
-    runAcceptanceTests = true
+    runAcceptanceTests = false
     runUnitTests = true
     runStaticCodeAnalysis = true
     ENABLE_SIGNING = "TRUE"
@@ -406,7 +406,7 @@ pipeline {
       }
 
       sh './gradlew jacocoReport'
-      wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```\n$lastCommits\n```")
+      wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ✅ SUCCESS 🎉"+"\nLast 5 commits:\n```text\n$lastCommits\n```")
     }
 
     aborted {

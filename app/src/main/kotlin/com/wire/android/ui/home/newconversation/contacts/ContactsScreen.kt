@@ -35,6 +35,7 @@ fun ContactsScreen(
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
+    onNewGroupClicked: () -> Unit
 ) {
     val lazyListState = rememberLazyListState { itemIndex ->
         onScrollPositionChanged(itemIndex)
@@ -66,7 +67,7 @@ fun ContactsScreen(
                 }
             }
             Divider()
-            GroupButton(groupSize = contactsAddedToGroup.size)
+            GroupButton(groupSize = contactsAddedToGroup.size, onNewGroupClicked = onNewGroupClicked)
         }
     }
 }

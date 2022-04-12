@@ -1,4 +1,4 @@
-package com.wire.android.ui.main.conversationlist.navigation
+package com.wire.android.ui.home.conversationslist.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

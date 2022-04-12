@@ -6,6 +6,7 @@ on:
 
 jobs:
   ui-tests:
+    if: ${{ false }}  # disable for as they are not yet completed
     runs-on: macos-latest
     strategy:
       matrix:
@@ -53,8 +54,8 @@ jobs:
       - name: Android Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: {{ matrix.api-level }}
-          script: ./gradlew connectedCheck
+          api-level: ${{ matrix.api-level }}
+          script: ./gradlew runAcceptanceTests
             
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.

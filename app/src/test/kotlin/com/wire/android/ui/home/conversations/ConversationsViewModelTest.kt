@@ -14,6 +14,7 @@ import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -54,6 +55,9 @@ class ConversationsViewModelTest {
     lateinit var sendImageMessage: SendImageMessageUseCase
 
     @MockK
+    lateinit var getMessageAsset: GetMessageAssetUseCase
+
+    @MockK
     lateinit var deleteMessage: DeleteMessageUseCase
 
     @MockK
@@ -82,6 +86,7 @@ class ConversationsViewModelTest {
         observeMemberDetails = observeMemberDetails,
         sendTextMessage = sendTextMessage,
         sendImageMessage = sendImageMessage,
+        getMessageAsset = getMessageAsset,
         deleteMessage = deleteMessage
     )
 

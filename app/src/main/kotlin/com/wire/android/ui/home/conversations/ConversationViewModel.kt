@@ -154,6 +154,7 @@ class ConversationViewModel @Inject constructor(
                 it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
             }
         }
+
     fun showDeleteMessageForYourselfDialog(messageId: String) {
         updateDialogState { it.copy(forEveryone = DeleteMessageDialogActiveState.Hidden) }
         updateDialogState {

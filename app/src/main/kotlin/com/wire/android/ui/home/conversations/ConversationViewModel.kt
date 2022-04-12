@@ -144,10 +144,17 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun showDeleteMessageDialog(messageId: String) =
-        updateDialogState {
-            it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
+    fun showDeleteMessageDialog(messageId: String, messageSource: MessageSource?) =
+        if (messageSource == MessageSource.CurrentUser) {
+            updateDialogState {
+                it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
+            }
+        } else {
+            updateDialogState {
+                it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
+            }
         }
+
 
     fun showDeleteMessageForYourselfDialog(messageId: String) {
         updateDialogState { it.copy(forEveryone = DeleteMessageDialogActiveState.Hidden) }

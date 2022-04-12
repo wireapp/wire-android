@@ -57,7 +57,7 @@ private fun ConversationScreen(
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onBackButtonClick: () -> Unit,
-    onDeleteMessage: (String) -> Unit,
+    onDeleteMessage: (String, MessageSource?) -> Unit,
     onCallStart: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
@@ -69,7 +69,7 @@ private fun ConversationScreen(
             menuItems = EditMessageMenuItems(
                 editMessageSource = conversationScreenState.editMessageSource,
                 onCopyMessage = conversationScreenState::copyMessage,
-                onDeleteMessage = { onDeleteMessage(conversationScreenState.editMessage?.messageHeader!!.messageId) }
+                onDeleteMessage = { onDeleteMessage(conversationScreenState.editMessage?.messageHeader!!.messageId, conversationScreenState.editMessageSource) }
             ),
             content = {
                 Scaffold(
@@ -210,6 +210,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, {}
+        {}, {}, {}, {}, { _: String, _: MessageSource? -> }
     ) {}
 }

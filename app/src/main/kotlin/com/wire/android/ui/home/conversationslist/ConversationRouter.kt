@@ -50,7 +50,7 @@ fun ConversationRouterHomeBridge(
         onHomeBottomSheetContentChange {
             ConversationSheetContent(
                 modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
-                muteConversation = { viewModel.muteConversation("someId") },
+                muteConversation = { viewModel.muteSelectedConversation() },
                 addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
                 moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
                 moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
@@ -66,7 +66,10 @@ fun ConversationRouterHomeBridge(
         conversationState = conversationState,
         openConversation = { viewModel.openConversation(it) },
         openNewConversation = { viewModel.openNewConversation() },
-        onExpandBottomSheet = { onExpandHomeBottomSheet() },
+        onExpandBottomSheet = {
+            onExpandHomeBottomSheet()
+            viewModel.setLatestConversationSelected(it)
+        },
         onScrollPositionChanged = onScrollPositionChanged
     )
 }
@@ -80,7 +83,7 @@ private fun ConversationRouter(
     conversationState: ConversationState,
     openConversation: (ConversationId) -> Unit,
     openNewConversation: () -> Unit,
-    onExpandBottomSheet: () -> Unit,
+    onExpandBottomSheet: (ConversationId) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
 ) {
     Scaffold(
@@ -106,7 +109,7 @@ private fun ConversationRouter(
 
         fun editConversation(conversationType: ConversationType) {
             conversationState.changeModalSheetContentState(conversationType)
-            onExpandBottomSheet()
+            onExpandBottomSheet(conversationType.conversationId)
         }
 
         with(uiState) {

@@ -18,8 +18,8 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 
 @Composable
 fun SearchListNavigationHost(
-    navController: NavController,
-    listNavController: NavController,
+    newConversationNavController: NavController,
+    searchNavController: NavController,
     newConversationViewModel: NewConversationViewModel
 ) {
     with(newConversationViewModel.state) {
@@ -36,10 +36,10 @@ fun SearchListNavigationHost(
                 }
             },
             onSearchClicked = {
-                listNavController.navigate(SearchListScreens.SearchPeopleScreen.route)
+                searchNavController.navigate(SearchListScreens.SearchPeopleScreen.route)
             },
             onCloseSearchClicked = {
-                listNavController.navigate(SearchListScreens.KnownContactsScreen.route)
+                searchNavController.navigate(SearchListScreens.KnownContactsScreen.route)
             },
             appTopBar = {
                 WireCenterAlignedTopAppBar(
@@ -51,7 +51,7 @@ fun SearchListNavigationHost(
             },
             content = {
                 NavHost(
-                    navController = listNavController as NavHostController,
+                    navController = searchNavController as NavHostController,
                     startDestination = SearchListScreens.KnownContactsScreen.route
                 ) {
                     composable(
@@ -71,7 +71,7 @@ fun SearchListNavigationHost(
                                     newConversationViewModel.openUserProfile(contact, true)
                                 },
                                 onNewGroupClicked = {
-                                    navController.navigate(Screen.NewGroupNameScreen.route)
+                                    newConversationNavController.navigate(Screen.NewGroupNameScreen.route)
                                 }
                             )
                         }
@@ -95,7 +95,7 @@ fun SearchListNavigationHost(
                                     )
                                 },
                                 onNewGroupClicked = {
-                                    navController.navigate(Screen.NewGroupNameScreen.route)
+                                    newConversationNavController.navigate(Screen.NewGroupNameScreen.route)
                                 }
                             )
                         }

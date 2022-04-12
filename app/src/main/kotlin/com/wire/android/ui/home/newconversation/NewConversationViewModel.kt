@@ -163,7 +163,7 @@ class NewConversationViewModel
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.id, internal))
+                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.id, contact.domain, internal))
                 )
             )
         }

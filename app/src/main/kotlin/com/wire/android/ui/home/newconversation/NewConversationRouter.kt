@@ -105,7 +105,6 @@ fun NewConversationRouter(newConversationViewModel: NewConversationViewModel = h
                     NewGroupScreen(onBackPressed = { newConversationState.navigateBack() })
                 }
             )
-
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations.mock
 
 import com.wire.android.model.UserStatus
+import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
@@ -28,6 +29,25 @@ val mockMessageWithText = MessageViewWrapper(
         )
     ),
 )
+
+val mockAssetMessage = MessageViewWrapper(
+    user = User("", UserStatus.AVAILABLE),
+    messageHeader = MessageHeader(
+        username = "John Doe",
+        membership = Membership.Guest,
+        isLegalHold = true,
+        time = "12.23pm",
+        messageStatus = MessageStatus.Untouched,
+        messageId = ""
+    ),
+    messageContent = MessageContent.AssetMessage(
+            assetName = "This is some test asset message whose name is very very very very very very very very very" +
+                    "very very very very very long",
+            assetExtension = "ZIP",
+            assetId = "asset-id",
+            assetSize = 200335
+        )
+    )
 
 @Suppress("MagicNumber")
 val mockedImg = MessageContent.ImageMessage(ByteArray(16), 0, 0)

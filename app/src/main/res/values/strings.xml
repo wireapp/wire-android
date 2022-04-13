@@ -52,6 +52,7 @@
     <string name="content_description_more_options">More options</string>
     <string name="content_description_add_contact">Add contact</string>
     <string name="content_description_image_message">Image message</string>
+    <string name="content_description_file_message">File message</string>
 
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -175,6 +176,7 @@
     <string name="group_name">Group name</string>
     <string name="empty_group_name_error">Group name should not be empty</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
+    <string name="asset_message_download_text">Tap to download</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
@@ -270,7 +272,7 @@
     <string name="content_description_show_more_options">Show more options</string>
     <string name="label_type_a_message">Type a message</string>
 
-    <!--    Calling-->
+    <!-- Calling-->
     <string name="calling_mute_call">Mute call</string>
     <string name="calling_hang_up_call">Hang up call</string>
     <string name="calling_turn_camera_on_off">Turn camera on/off</string>

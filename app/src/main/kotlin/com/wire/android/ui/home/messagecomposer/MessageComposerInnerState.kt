@@ -2,11 +2,7 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
@@ -99,11 +95,9 @@ class AttachmentInnerState(val context: Context) {
 
     suspend fun pickAttachment(attachmentUri: Uri) {
         attachmentState = try {
-            val attachment =
-                AttachmentBundle(
-                    attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE),
-                    attachmentUri.toByteArray(context)
-                )
+            val mime = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
+            val assetRawData = attachmentUri.toByteArray(context)
+            val attachment = AttachmentBundle(mime, assetRawData)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)

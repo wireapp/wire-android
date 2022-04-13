@@ -16,6 +16,7 @@ import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -256,10 +257,17 @@ class ConversationViewModel @Inject constructor(
                 }
                 when {
                     content.value.mimeType.contains("image") -> ImageMessage(decodedImgDataResult, width = imgWidth, height = imgHeight)
+
                     // TODO: To be changed once the error behavior has been defined with product
                     assetId.isEmpty() -> TextMessage(messageBody = MessageBody("The asset message could not be downloaded correctly"))
-                    // TODO: Add generic asset message UI
-                    else -> TextMessage(MessageBody("GENERIC ASSET MESSAGE"))
+
+                    // Generic Asset Message
+                    else -> AssetMessage(
+                        assetName = content.value.name ?: "",
+                        assetExtension = "",
+                        assetId = content.value.remoteData.assetId,
+                        assetSize = content.value.size
+                    )
                 }
             }
             is Text -> TextMessage(messageBody = MessageBody(content.value))

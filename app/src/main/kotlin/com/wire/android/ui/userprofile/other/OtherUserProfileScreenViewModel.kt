@@ -48,20 +48,19 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
             viewModelScope.launch {
                 getKnownUserUseCase(userId).collect { otherUser ->
-                    if (otherUser != null) {
-                        with(otherUser) {
-                            state = state.copy(
-                                isDataLoading = false,
-                                fullName = name ?: "",
-                                userName = handle ?: "",
-                                teamName = team ?: "",
-                                email = email ?: "",
-                                phone = phone ?: "",
-                                connectionStatus = ConnectionStatus.Connected
-                            )
-                        }
-                    } else {
+                    otherUser?.let {
+                        state = state.copy(
+                            isDataLoading = false,
+                            fullName = it.name ?: String.EMPTY,
+                            userName = it.handle ?: String.EMPTY,
+                            teamName = it.team ?: String.EMPTY,
+                            email = it.email ?: String.EMPTY,
+                            phone = it.phone ?: String.EMPTY,
+                            connectionStatus = ConnectionStatus.Connected
+                        )
+                    } ?: run {
                         appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
+                    }
                     }
                 }
             }

@@ -144,8 +144,8 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun showDeleteMessageDialog(messageId: String, messageSource: MessageSource?) =
-        if (messageSource == MessageSource.CurrentUser) {
+    fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
+        if (isMyMessage) {
             updateDialogState {
                 it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
             }

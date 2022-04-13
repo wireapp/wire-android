@@ -94,7 +94,7 @@ class ConversationsViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() {
         val conversationsViewModel = createTestSubject()
-        conversationsViewModel.showDeleteMessageDialog("", MessageSource.CurrentUser)
+        conversationsViewModel.showDeleteMessageDialog("", true)
         conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
             forYourself = DeleteMessageDialogActiveState.Hidden,
             forEveryone = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!)
@@ -104,7 +104,7 @@ class ConversationsViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() {
         val conversationsViewModel = createTestSubject()
-        conversationsViewModel.showDeleteMessageDialog("", MessageSource.OtherUser)
+        conversationsViewModel.showDeleteMessageDialog("", false)
         conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
             forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!),
             forEveryone = DeleteMessageDialogActiveState.Hidden

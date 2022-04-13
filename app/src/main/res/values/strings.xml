@@ -274,6 +274,7 @@
     <string name="calling_mute_call">Mute call</string>
     <string name="calling_hang_up_call">Hang up call</string>
     <string name="calling_accept_call">Accept call</string>
+    <string name="calling_decline_call">Decline call</string>
     <string name="calling_turn_camera_on_off">Turn camera on/off</string>
     <string name="calling_turn_speaker_on_off">Turn speaker on/off</string>
 

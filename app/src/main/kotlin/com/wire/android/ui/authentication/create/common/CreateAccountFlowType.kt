@@ -13,7 +13,7 @@ enum class CreateAccountFlowType(
 ) {
     CreatePersonalAccount(
         routeArg = "create_personal_account",
-        titleResId = R.string.create_personal_account_summary_title,
+        titleResId = R.string.create_personal_account_title,
         overviewResources = OverviewResources(
             overviewContentTitleResId = null,
             overviewContentTextResId = R.string.create_personal_account_text,
@@ -24,13 +24,14 @@ enum class CreateAccountFlowType(
             emailSubtitleResId = R.string.create_personal_account_email_text
         ),
         summaryResources = SummaryResources(
+            summaryTitleResId = R.string.create_personal_account_title,
             summaryTextResId = R.string.create_personal_account_summary_text,
             summaryIconResId = R.drawable.ic_create_personal_account_success
         )
     ),
     CreateTeam(
         routeArg = "create_team",
-        titleResId = R.string.create_team_summary_title,
+        titleResId = R.string.create_team_title,
         overviewResources = OverviewResources(
             overviewContentTitleResId = R.string.create_team_content_title,
             overviewContentTextResId = R.string.create_team_text,
@@ -41,6 +42,7 @@ enum class CreateAccountFlowType(
             emailSubtitleResId = R.string.create_team_email_text
         ),
         summaryResources = SummaryResources(
+            summaryTitleResId = R.string.create_team_summary_title,
             summaryTextResId = R.string.create_team_summary_text,
             summaryIconResId = R.drawable.ic_create_team_success
         )
@@ -57,6 +59,7 @@ data class OverviewResources(
     @StringRes val overviewLearnMoreTextResId: Int
 )
 data class SummaryResources(
+    @StringRes val summaryTitleResId: Int,
     @StringRes val summaryTextResId: Int,
     @DrawableRes val summaryIconResId: Int
 )

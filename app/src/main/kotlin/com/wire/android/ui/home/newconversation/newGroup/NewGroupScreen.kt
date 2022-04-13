@@ -23,7 +23,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
@@ -32,19 +31,22 @@ import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun NewGroupScreen(onBackPressed: () -> Unit) {
-    val viewModel: NewConversationViewModel = hiltViewModel()
-
+fun NewGroupScreen(
+    onGroupNameViewState: NewGroupNameViewState,
+    onGroupNameChange: (TextFieldValue) -> Unit,
+    onCreateGroup: () -> Unit,
+    onGroupNameErrorAnimated: () -> Unit,
+    onBackPressed: () -> Unit
+) {
     NewGroupScreenContent(
-        state = viewModel.groupNameState,
-        onGroupNameChange = viewModel::onGroupNameChange,
-        onContinuePressed = viewModel::onGroupNameContinueClicked,
-        onGroupNameErrorAnimated = viewModel::onGroupNameErrorAnimated,
+        state = onGroupNameViewState,
+        onGroupNameChange = onGroupNameChange,
+        onContinuePressed = onCreateGroup,
+        onGroupNameErrorAnimated = onGroupNameErrorAnimated,
         onBackPressed = onBackPressed
     )
 }
@@ -130,9 +132,14 @@ fun NewGroupScreenContent(
     }
 }
 
-
 @Composable
 @Preview
 private fun NewGroupScreenPreview() {
-    NewGroupScreenContent(NewGroupNameViewState(), {}, {}, {}, {})
+    NewGroupScreenContent(
+        NewGroupNameViewState(),
+        {},
+        {},
+        {},
+        {}
+    )
 }

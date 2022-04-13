@@ -78,11 +78,8 @@ class NewConversationViewModel
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
 
-    var scrollPosition by mutableStateOf(0)
-        private set
-
     fun updateScrollPosition(newScrollPosition: Int) {
-        scrollPosition = newScrollPosition
+        innerSearchPeopleState = state.copy(scrollPosition = newScrollPosition)
     }
 
     init {
@@ -204,8 +201,8 @@ class NewConversationViewModel
         }
     }
 
-    fun onGroupNameContinueClicked() {
-        // todo
+    fun createGroup() {
+
     }
 
     fun onGroupNameErrorAnimated() {

@@ -13,6 +13,7 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
@@ -60,7 +61,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         )
                     } ?: run {
                         appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
-                    }
                     }
                 }
             }

@@ -5,8 +5,6 @@ import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 
-data class ContactsState(val contacts: List<Contact> = emptyList())
-
 data class Contact(
     val id: String,
     val domain: String,

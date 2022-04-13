@@ -13,7 +13,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.contacts.Contact
 import com.wire.android.ui.home.newconversation.contacts.toContact
-import com.wire.android.ui.home.newconversation.newGroup.NewGroupNameViewState
+import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
@@ -64,7 +64,7 @@ class NewConversationViewModel
         )
     }
 
-    var groupNameState: NewGroupNameViewState by mutableStateOf(NewGroupNameViewState())
+    var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
@@ -181,7 +181,7 @@ class NewConversationViewModel
                     animatedGroupNameError = true,
                     groupName = newText,
                     continueEnabled = false,
-                    error = NewGroupNameViewState.GroupNameError.TextFieldError.GroupNameEmptyError
+                    error = NewGroupState.GroupNameError.TextFieldError.GroupNameEmptyError
                 )
             }
             newText.text.trim().count() > GROUP_NAME_MAX_COUNT -> {
@@ -189,35 +189,37 @@ class NewConversationViewModel
                     animatedGroupNameError = true,
                     groupName = newText,
                     continueEnabled = false,
-                    error = NewGroupNameViewState.GroupNameError.TextFieldError.GroupNameExceedLimitError
+                    error = NewGroupState.GroupNameError.TextFieldError.GroupNameExceedLimitError
                 )
-
             }
             else -> {
                 groupNameState = groupNameState.copy(
                     animatedGroupNameError = false,
                     groupName = newText,
                     continueEnabled = true,
-                    error = NewGroupNameViewState.GroupNameError.None
+                    error = NewGroupState.GroupNameError.None
                 )
-
             }
         }
     }
 
     fun createGroup() {
         viewModelScope.launch {
-            val result = createGroupConversation(
+            groupNameState = groupNameState.copy(isLoading = true)
+
+            when (val result = createGroupConversation(
                 name = groupNameState.groupName.text,
                 members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
                 options = ConverationOptions()
             )
-
-            when (result) {
+            ) {
+                //TODO: handle the error state
                 is Either.Left -> {
-                    Log.d("TEST", "error while creating a group")
+                    groupNameState = groupNameState.copy(isLoading = false)
+                    Log.d("TEST", "error while creating a group ${result.value}")
                 }
                 is Either.Right -> {
+                    groupNameState = groupNameState.copy(isLoading = false)
                     navigationManager.navigate(
                         command = NavigationCommand(
                             destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id))

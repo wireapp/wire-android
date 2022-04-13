@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.home.newconversation.common.Screen
-import com.wire.android.ui.home.newconversation.newGroup.NewGroupScreen
+import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 
 @Composable
 fun NewConversationRouter() {
@@ -35,7 +35,7 @@ fun NewConversationRouter() {
             content = {
                 NewGroupScreen(
                     onBackPressed = { newConversationNavController.popBackStack() },
-                    onGroupNameViewState = newConversationViewModel.groupNameState,
+                    newGroupState = newConversationViewModel.groupNameState,
                     onGroupNameChange = newConversationViewModel::onGroupNameChange,
                     onCreateGroup = newConversationViewModel::createGroup,
                     onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated

@@ -1,8 +1,8 @@
-package com.wire.android.ui.home.newconversation.newGroup
+package com.wire.android.ui.home.newconversation.newgroup
 
 import androidx.compose.ui.text.input.TextFieldValue
 
-data class NewGroupNameViewState(
+data class NewGroupState(
     val groupName: TextFieldValue = TextFieldValue(""),
     val animatedGroupNameError: Boolean = false,
     val continueEnabled: Boolean = false,

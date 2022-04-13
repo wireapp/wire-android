@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import android.util.Log
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +18,8 @@ import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.flow.SearchQueryStateFlow
+import com.wire.kalium.logic.data.conversation.ConverationOptions
+import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
@@ -37,7 +40,8 @@ class NewConversationViewModel
     private val navigationManager: NavigationManager,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUserDirectoryUseCase,
-    private val getAllKnownUsersUseCase: GetAllKnownUsersUseCase
+    private val getAllKnownUsersUseCase: GetAllKnownUsersUseCase,
+    private val createGroupConversation: CreateGroupConversationUseCase
 ) : ViewModel() {
 
     //TODO: map this value out with the given back-end configuration later on
@@ -103,6 +107,13 @@ class NewConversationViewModel
         }
     }
 
+    fun search(searchTerm: String) {
+        //we set the state with a searchQuery, immediately to update the UI first
+        innerSearchPeopleState = state.copy(searchQuery = searchTerm)
+
+        searchQueryStateFlow.search(searchTerm)
+    }
+
     private suspend fun searchKnown(searchTerm: String) {
         //TODO: this is going to be refactored on the Kalium side so that we do not use Flow
         searchKnownUsers(searchTerm).onStart {
@@ -137,13 +148,6 @@ class NewConversationViewModel
                 )
             }
         }
-    }
-
-    fun search(searchTerm: String) {
-        //we set the state with a searchQuery, immediately to update the UI first
-        innerSearchPeopleState = state.copy(searchQuery = searchTerm)
-
-        searchQueryStateFlow.search(searchTerm)
     }
 
     fun addContactToGroup(contact: Contact) {
@@ -202,7 +206,26 @@ class NewConversationViewModel
     }
 
     fun createGroup() {
+        viewModelScope.launch {
+            val result = createGroupConversation(
+                name = groupNameState.groupName.text,
+                members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
+                options = ConverationOptions()
+            )
 
+            when (result) {
+                is Either.Left -> {
+                    Log.d("TEST", "error while creating a group")
+                }
+                is Either.Right -> {
+                    navigationManager.navigate(
+                        command = NavigationCommand(
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id))
+                        )
+                    )
+                }
+            }
+        }
     }
 
     fun onGroupNameErrorAnimated() {

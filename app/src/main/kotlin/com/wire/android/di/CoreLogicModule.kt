@@ -9,6 +9,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -269,5 +270,15 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetOrCreateOneToOneConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.getOrCreateOneToOneConversationUseCase
+
+
+    @ViewModelScoped
+    @Provides
+    fun providesCreateGroupConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): CreateGroupConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.createGroupConversation
+
 
 }

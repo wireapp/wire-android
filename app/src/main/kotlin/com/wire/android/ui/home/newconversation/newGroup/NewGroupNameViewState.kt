@@ -6,6 +6,7 @@ data class NewGroupNameViewState(
     val groupName: TextFieldValue = TextFieldValue(""),
     val animatedGroupNameError: Boolean = false,
     val continueEnabled: Boolean = false,
+    val isLoading : Boolean = false,
     val error: GroupNameError = GroupNameError.None
 ) {
     sealed class GroupNameError {

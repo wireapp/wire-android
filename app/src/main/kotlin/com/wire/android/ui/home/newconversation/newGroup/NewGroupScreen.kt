@@ -107,13 +107,11 @@ fun NewGroupScreenContent(
                             NewGroupNameViewState.GroupNameError.TextFieldError.GroupNameExceedLimitError ->
                                 WireTextFieldState.Error(stringResource(id = R.string.group_name_exceeded_limit_error))
                         } else WireTextFieldState.Default,
-
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                         modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                     )
                 }
-
             }
             WirePrimaryButton(
                 text = stringResource(R.string.label_continue),

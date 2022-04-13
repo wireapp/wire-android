@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.textfield.WirePrimaryButton
@@ -26,10 +27,10 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun CreateAccountSummaryScreen(viewModel: CreateAccountSummaryViewModel) {
+fun CreateAccountSummaryScreen() {
+    val viewModel: CreateAccountSummaryViewModel = hiltViewModel()
     SummaryContent(
         state = viewModel.summaryState,
-        onBackPressed = viewModel::goBackToPreviousStep,
         onContinuePressed = viewModel::onSummaryContinue
     )
 }
@@ -38,15 +39,14 @@ fun CreateAccountSummaryScreen(viewModel: CreateAccountSummaryViewModel) {
 @Composable
 private fun SummaryContent(
     state: CreateAccountSummaryViewState,
-    onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit
 ) {
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
-                title = stringResource(id = state.type.titleResId),
-                onNavigationPressed = onBackPressed
+                title = stringResource(id = state.type.summaryResources.summaryTitleResId),
+                navigationIconType = null
             )
         },
     ) {
@@ -71,7 +71,7 @@ private fun SummaryContent(
             )
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
-                text = stringResource(R.string.label_start_using_wire),
+                text = stringResource(R.string.label_get_started),
                 onClick = onContinuePressed,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -84,5 +84,5 @@ private fun SummaryContent(
 @Preview
 @Composable
 private fun CreateAccountSummaryScreenPreview() {
-    SummaryContent(CreateAccountSummaryViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {})
+    SummaryContent(CreateAccountSummaryViewState(CreateAccountFlowType.CreatePersonalAccount), {})
 }

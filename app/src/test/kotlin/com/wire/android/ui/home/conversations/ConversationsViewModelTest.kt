@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -91,12 +92,22 @@ class ConversationsViewModelTest {
     )
 
     @Test
-    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible`() {
+    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() {
         val conversationsViewModel = createTestSubject()
-        conversationsViewModel.showDeleteMessageDialog("")
+        conversationsViewModel.showDeleteMessageDialog("", MessageSource.CurrentUser)
         conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
             forYourself = DeleteMessageDialogActiveState.Hidden,
             forEveryone = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!)
+        )
+    }
+
+    @Test
+    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() {
+        val conversationsViewModel = createTestSubject()
+        conversationsViewModel.showDeleteMessageDialog("", MessageSource.OtherUser)
+        conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!),
+            forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }
 

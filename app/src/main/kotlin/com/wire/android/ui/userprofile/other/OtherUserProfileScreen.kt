@@ -118,8 +118,7 @@ fun OtherProfileScreenContent(
                                 )
                             }
                         }
-
-                        if(state.phone.isNotEmpty()) {
+                        if (state.phone.isNotEmpty()) {
                             item {
                                 UserDetailInformation(
                                     title = stringResource(R.string.phone_label),
@@ -128,7 +127,6 @@ fun OtherProfileScreenContent(
                                 )
                             }
                         }
-
                     } else {
                         item {
                             Box(

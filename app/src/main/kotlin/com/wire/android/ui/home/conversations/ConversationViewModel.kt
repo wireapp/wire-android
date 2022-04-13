@@ -118,7 +118,9 @@ class ConversationViewModel @Inject constructor(
         val messageText = conversationViewState.messageText
 
         conversationViewState = conversationViewState.copy(messageText = "")
+
         viewModelScope.launch {
+            // TODO: Handle error case when sending message
             sendTextMessage(conversationId, messageText)
         }
     }

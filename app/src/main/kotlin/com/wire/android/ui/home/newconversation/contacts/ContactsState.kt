@@ -19,6 +19,7 @@ data class Contact(
     fun toMember(): Member {
         return Member(UserId(id, domain))
     }
+
 }
 
 fun OtherUser.toContact() =
@@ -28,5 +29,3 @@ fun OtherUser.toContact() =
         name = name ?: "",
         label = handle ?: "",
     )
-
-

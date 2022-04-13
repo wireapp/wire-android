@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -12,8 +11,8 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
+import com.wire.kalium.logic.data.id.ConversationId
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -130,9 +129,11 @@ fun ConversationSheetContent(
     )
 }
 
+sealed class ModalSheetContent(val title: String, val conversationId: ConversationId?) {
+    object Initial : ModalSheetContent("", null)
+    class PrivateConversationEdit(title: String, val avatarUrl: String, conversationId: ConversationId) :
+        ModalSheetContent(title, conversationId)
 
-sealed class ModalSheetContent(val title: String) {
-    object Initial : ModalSheetContent("")
-    class PrivateConversationEdit(title: String, val avatarUrl: String) : ModalSheetContent(title)
-    class GroupConversationEdit(title: String, val groupColorValue: Long) : ModalSheetContent(title)
+    class GroupConversationEdit(title: String, val groupColorValue: Long, conversationId: ConversationId) :
+        ModalSheetContent(title, conversationId)
 }

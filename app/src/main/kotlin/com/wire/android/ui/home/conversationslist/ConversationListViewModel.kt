@@ -26,10 +26,13 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Date
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
@@ -39,7 +42,8 @@ import kotlinx.coroutines.launch
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
-    private val getPublicAsset: GetAvatarAssetUseCase
+    private val getPublicAsset: GetAvatarAssetUseCase,
+    private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -65,12 +69,6 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun setLatestConversationSelected(conversationId: ConversationId) {
-        // assign to state
-        appLogger.d("Selecting conversation: $conversationId")
-        state = state.copy(latestConversationSelected = conversationId)
-    }
-
     fun openConversation(conversationId: ConversationId) {
         viewModelScope.launch {
             navigationManager.navigate(
@@ -91,8 +89,13 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun muteSelectedConversation() {
-        appLogger.d("Muting conversation: ${state.latestConversationSelected}")
+    fun muteConversation(conversationId: ConversationId?) {
+        conversationId?.let {
+            viewModelScope.launch {
+                appLogger.d("Muting conversation: $conversationId")
+                updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, Date().time)
+            }
+        }
     }
 
     // TODO: needs to be implemented

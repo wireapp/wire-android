@@ -207,7 +207,7 @@
     <string name="user_profile_change_status_dialog_checkbox_text">Do not display this information again</string>
 
     <!-- Conversations BottomSheet -->
-    <string name="label_mute">Mute</string>
+    <string name="label_mute">Notifications</string>
     <string name="label_add_to_favourites">Add to Favourites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>

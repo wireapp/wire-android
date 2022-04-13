@@ -13,7 +13,7 @@ enum class CreateAccountFlowType(
 ) {
     CreatePersonalAccount(
         routeArg = "create_personal_account",
-        titleResId = R.string.create_personal_account_title,
+        titleResId = R.string.create_personal_account_summary_title,
         overviewResources = OverviewResources(
             overviewContentTitleResId = null,
             overviewContentTextResId = R.string.create_personal_account_text,
@@ -30,7 +30,7 @@ enum class CreateAccountFlowType(
     ),
     CreateTeam(
         routeArg = "create_team",
-        titleResId = R.string.create_team_title,
+        titleResId = R.string.create_team_summary_title,
         overviewResources = OverviewResources(
             overviewContentTitleResId = R.string.create_team_content_title,
             overviewContentTextResId = R.string.create_team_text,

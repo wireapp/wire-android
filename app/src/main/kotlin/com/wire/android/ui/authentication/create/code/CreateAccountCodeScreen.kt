@@ -92,7 +92,10 @@ private fun CodeContent(
                     )
             )
             Spacer(modifier = Modifier.weight(1f))
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+//                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 CodeTextField(
                     value = state.code.text,
                     onValueChange = onCodeChange,

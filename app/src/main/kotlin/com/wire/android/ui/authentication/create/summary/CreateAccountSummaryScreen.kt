@@ -29,7 +29,6 @@ import com.wire.android.ui.theme.wireTypography
 fun CreateAccountSummaryScreen(viewModel: CreateAccountSummaryViewModel) {
     SummaryContent(
         state = viewModel.summaryState,
-        onBackPressed = viewModel::goBackToPreviousStep,
         onContinuePressed = viewModel::onSummaryContinue
     )
 }
@@ -38,7 +37,6 @@ fun CreateAccountSummaryScreen(viewModel: CreateAccountSummaryViewModel) {
 @Composable
 private fun SummaryContent(
     state: CreateAccountSummaryViewState,
-    onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit
 ) {
     Scaffold(
@@ -46,7 +44,7 @@ private fun SummaryContent(
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = stringResource(id = state.type.titleResId),
-                onNavigationPressed = onBackPressed
+                navigationIconType = null
             )
         },
     ) {
@@ -71,7 +69,7 @@ private fun SummaryContent(
             )
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
-                text = stringResource(R.string.label_start_using_wire),
+                text = stringResource(R.string.label_get_started),
                 onClick = onContinuePressed,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -84,5 +82,5 @@ private fun SummaryContent(
 @Preview
 @Composable
 private fun CreateAccountSummaryScreenPreview() {
-    SummaryContent(CreateAccountSummaryViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {})
+    SummaryContent(CreateAccountSummaryViewState(CreateAccountFlowType.CreatePersonalAccount), {})
 }

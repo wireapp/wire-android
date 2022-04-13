@@ -69,7 +69,12 @@ private fun ConversationScreen(
             menuItems = EditMessageMenuItems(
                 editMessageSource = conversationScreenState.editMessageSource,
                 onCopyMessage = conversationScreenState::copyMessage,
-                onDeleteMessage = { onDeleteMessage(conversationScreenState.editMessage?.messageHeader!!.messageId, conversationScreenState.editMessageSource) }
+                onDeleteMessage = {
+                    onDeleteMessage(
+                        conversationScreenState.editMessage?.messageHeader!!.messageId,
+                        conversationScreenState.editMessageSource
+                    )
+                }
             ),
             content = {
                 Scaffold(

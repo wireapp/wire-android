@@ -1,7 +1,9 @@
 package com.wire.android.ui.userprofile.other
 
+import com.wire.android.model.UserAvatarAsset
+
 data class OtherUserProfileState(
-    val avatarAssetByteArray: ByteArray? = null,
+    val userAvatarAsset: UserAvatarAsset? = null,
     val isAvatarLoading: Boolean = false,
     val fullName: String = "",
     val userName: String = "",

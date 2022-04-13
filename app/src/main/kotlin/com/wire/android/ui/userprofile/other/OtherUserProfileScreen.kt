@@ -99,7 +99,7 @@ fun NotConnectedOtherProfileScreenContent(
                     item {
                         UserProfileInfo(
                             isLoading = state.isAvatarLoading,
-                            avatarAssetByteArray = state.avatarAssetByteArray,
+                            avatarAsset = state.userAvatarAsset,
                             fullName = fullName,
                             userName = userName,
                             teamName = teamName,

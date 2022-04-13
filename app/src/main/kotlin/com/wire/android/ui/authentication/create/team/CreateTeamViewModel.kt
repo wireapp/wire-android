@@ -65,13 +65,12 @@ class CreateTeamViewModel @Inject constructor(
     }
 
     override fun onCodeSuccess() {
-        goToStep(CreateTeamNavigationItem.Summary)
-    }
-
-    override fun onSummarySuccess() {
         viewModelScope.launch {
             navigationManager.navigate(
-                NavigationCommand(NavigationItem.CreateUsername.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE)
+                NavigationCommand(
+                    NavigationItem.CreateAccountSummary.getRouteWithArgs(listOf(CreateAccountFlowType.CreateTeam)),
+                    BackStackMode.CLEAR_WHOLE
+                )
             )
         }
     }

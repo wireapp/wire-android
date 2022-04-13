@@ -50,12 +50,10 @@ abstract class CreateAccountBaseViewModel(
     CreateAccountOverviewViewModel,
     CreateAccountEmailViewModel,
     CreateAccountDetailsViewModel,
-    CreateAccountCodeViewModel,
-    CreateAccountSummaryViewModel {
+    CreateAccountCodeViewModel {
     override var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(type))
     override var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(type))
     override var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(type))
-    override val summaryState: CreateAccountSummaryViewState by mutableStateOf(CreateAccountSummaryViewState(type))
 
     fun closeForm() {
         viewModelScope.launch { navigationManager.navigateBack() }
@@ -266,13 +264,6 @@ abstract class CreateAccountBaseViewModel(
             navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
     }
-
-    // Summary
-    final override fun onSummaryContinue() {
-        onSummarySuccess()
-    }
-
-    abstract fun onSummarySuccess()
 }
 
 private fun RequestActivationCodeResult.toEmailError() = when (this) {

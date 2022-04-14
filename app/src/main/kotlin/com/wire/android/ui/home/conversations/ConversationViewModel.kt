@@ -234,7 +234,10 @@ class ConversationViewModel @Inject constructor(
                     MessageStatus.Untouched,
                     messageId = message.id
                 ),
-                user = User(availabilityStatus = UserStatus.NONE)
+                user = User(
+                    avatarAsset = sender?.previewAsset,
+                    availabilityStatus = UserStatus.NONE
+                )
             )
         }
     }

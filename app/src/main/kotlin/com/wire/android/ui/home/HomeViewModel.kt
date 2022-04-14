@@ -6,14 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
-import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
@@ -33,12 +32,14 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {
 
-    var userAvatar by mutableStateOf<ByteArray?>(null)
+    var userAvatar by mutableStateOf<UserAvatarAsset?>(null)
         private set
 
     init {
         viewModelScope.launch {
             listenToEvents() // listen for the WebSockets updates and update DB accordingly
+        }
+        viewModelScope.launch {
             loadUserAvatar()
         }
     }
@@ -69,13 +70,11 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun loadUserAvatar() {
-            try {
-                dataStore.avatarAssetId.first()?.let {
-                    userAvatar = (getAvatarAsset(it) as PublicAssetResult.Success).asset
-                }
-            } catch (e: ClassCastException) {
-                appLogger.e("There was an error loading the user avatar", e)
+        viewModelScope.launch {
+            getSelf().collect{ selfUser ->
+                userAvatar = selfUser.previewPicture?.let { UserAvatarAsset(it) }
             }
+        }
     }
 
     suspend fun navigateTo(item: NavigationItem, extraRouteId: String = "") {

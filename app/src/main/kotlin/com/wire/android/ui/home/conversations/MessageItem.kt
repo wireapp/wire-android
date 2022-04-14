@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
@@ -64,7 +65,10 @@ fun MessageItem(
                     onLongClick = onLongClicked
                 )
         ) {
-            UserProfileAvatar(status = message.user.availabilityStatus)
+            UserProfileAvatar(
+                userAvatarAsset = message.user.avatarAsset,
+                status = message.user.availabilityStatus
+            )
             Column {
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(6.dp))

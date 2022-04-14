@@ -15,13 +15,13 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEVICE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryScreen
@@ -149,15 +149,16 @@ enum class NavigationItem(
     // for now it is just to be able to proceed forward
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_ID}/{$EXTRA_CONNECTED_STATUS}",
+        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}/{$EXTRA_CONNECTED_STATUS}",
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()
-            val internal: Boolean? = arguments.filterIsInstance<Boolean>().firstOrNull()
+            val userDomain: String = arguments.filterIsInstance<String>()[0]
+            val userProfileId: String = arguments.filterIsInstance<String>()[1]
+            val internal = arguments.filterIsInstance<Boolean>().first()
 
-            return "$primaryRoute/${userProfileId!!}/${internal!!}"
+            return "$primaryRoute/${userDomain}/${userProfileId}/${internal}"
         }
     },
 
@@ -227,6 +228,8 @@ object NavigationItemDestinationsRoutes {
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 const val EXTRA_USER_ID = "extra_user_id"
+const val EXTRA_USER_DOMAIN = "extra_user_domain"
+
 //TODO: internal is here untill we can get the ConnectionStatus from the user
 // for now it is just to be able to proceed forward
 const val EXTRA_CONNECTED_STATUS = "extra_connected_status"

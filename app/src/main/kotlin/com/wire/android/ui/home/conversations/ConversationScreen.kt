@@ -43,7 +43,7 @@ fun ConversationScreen(
         onSendAttachment = { attachmentBundle -> conversationViewModel.sendAttachmentMessage(attachmentBundle) },
         onBackButtonClick = { conversationViewModel.navigateBack() },
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = conversationViewModel::navigateToInitiatingCallScreen
+        onCallStart = { conversationViewModel.navigateToInitiatingCallScreen() }
     )
     DeleteMessageDialog(
         conversationViewModel = conversationViewModel

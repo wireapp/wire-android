@@ -22,7 +22,6 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVIC
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryScreen

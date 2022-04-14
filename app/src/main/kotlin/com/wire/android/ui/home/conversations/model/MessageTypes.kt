@@ -134,9 +134,9 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetSize: 
 
 private fun provideAssetDescription(assetExtension: String, assetSize: Int): String {
     return when {
-        assetSize < 1000 -> "(${assetExtension.uppercase()} $assetSize B)"
-        assetSize in 1000..999999 -> "(${assetExtension.uppercase()} ${assetSize / 1000} KB)"
-        else -> "(${assetExtension.uppercase()} ${((assetSize / 1000000f) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals roundoff
+        assetSize < 1000 -> "${assetExtension.uppercase()} ($assetSize B)"
+        assetSize in 1000..999999 -> "${assetExtension.uppercase()} (${assetSize / 1000} KB)"
+        else -> "${assetExtension.uppercase()} (${((assetSize / 1000000f) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
     }
 }
 

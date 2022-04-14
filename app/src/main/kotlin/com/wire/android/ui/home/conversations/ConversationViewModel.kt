@@ -294,7 +294,7 @@ class ConversationViewModel @Inject constructor(
                     // Generic Asset Message
                     else -> AssetMessage(
                         assetName = content.value.name ?: "",
-                        assetExtension = "",
+                        assetExtension = content.value.name?.split(".")?.last() ?: "",
                         assetId = content.value.remoteData.assetId,
                         assetSize = content.value.size
                     )

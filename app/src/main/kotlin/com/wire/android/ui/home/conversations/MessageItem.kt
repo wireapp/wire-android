@@ -4,7 +4,15 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,9 +26,17 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
-import com.wire.android.ui.home.conversations.model.*
+import com.wire.android.ui.home.conversations.model.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.MessageAsset
+import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageImage
+import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -33,6 +49,11 @@ fun MessageItem(
     with(message) {
         Row(
             Modifier
+                .padding(
+                    start = MaterialTheme.wireDimensions.spacing8x,
+                    end = MaterialTheme.wireDimensions.spacing16x,
+                    bottom = MaterialTheme.wireDimensions.spacing8x
+                )
                 .fillMaxWidth()
                 .combinedClickable(
                     //TODO: implement some action onClick
@@ -113,7 +134,7 @@ private fun MessageContent(messageContent: MessageContent, onAssetClick: (String
         )
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
         is MessageContent.AssetMessage -> MessageAsset(
-            assetName = messageContent.assetName,
+            assetName = messageContent.assetName.split(".").first(),
             assetExtension = messageContent.assetExtension,
             assetSize = messageContent.assetSize,
             onAssetClick = { onAssetClick(messageContent.assetId) }

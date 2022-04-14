@@ -7,6 +7,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_SUMMARY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_USERNAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
@@ -14,14 +15,16 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEVICE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
+import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryScreen
 import com.wire.android.ui.authentication.create.team.CreateTeamScreen
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameScreen
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceScreen
@@ -88,6 +91,20 @@ enum class NavigationItem(
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
+    CreateAccountSummary(
+        primaryRoute = CREATE_ACCOUNT_SUMMARY,
+        canonicalRoute = "$CREATE_ACCOUNT_SUMMARY/{$EXTRA_CREATE_ACCOUNT_FLOW_TYPE}",
+        content = { CreateAccountSummaryScreen() },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val type: CreateAccountFlowType = checkNotNull(
+                arguments.filterIsInstance<CreateAccountFlowType>().firstOrNull()
+            ) { "Unknown CreateAccountFlowType" }
+            return "$primaryRoute/${type.routeArg}"
+        }
+    },
+
     RemoveDevices(
         primaryRoute = REMOVE_DEVICES,
         content = { RemoveDeviceScreen() },
@@ -128,19 +145,20 @@ enum class NavigationItem(
         }
     },
 
-    //TODO: internal is here untill we can get the ConnectionStatus from the user
+    //TODO: internal is here until we can get the ConnectionStatus from the user
     // for now it is just to be able to proceed forward
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_ID}/{$EXTRA_CONNECTED_STATUS}",
+        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}/{$EXTRA_CONNECTED_STATUS}",
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()
-            val internal: Boolean? = arguments.filterIsInstance<Boolean>().firstOrNull()
+            val userDomain: String = arguments.filterIsInstance<String>()[0]
+            val userProfileId: String = arguments.filterIsInstance<String>()[1]
+            val internal = arguments.filterIsInstance<Boolean>().first()
 
-            return "$primaryRoute/${userProfileId!!}/${internal!!}"
+            return "$primaryRoute/${userDomain}/${userProfileId}/${internal}"
         }
     },
 
@@ -168,9 +186,14 @@ enum class NavigationItem(
 
     OngoingCall(
         primaryRoute = ONGOING_CALL,
-        canonicalRoute = ONGOING_CALL,
+        canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { OngoingCallScreen() }
-    );
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+        }
+    };
 
     /**
      * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder.
@@ -195,6 +218,7 @@ object NavigationItemDestinationsRoutes {
     const val CREATE_TEAM = "create_team_screen"
     const val CREATE_PERSONAL_ACCOUNT = "create_personal_account_screen"
     const val CREATE_ACCOUNT_USERNAME = "create_account_username_screen"
+    const val CREATE_ACCOUNT_SUMMARY = "create_account_summary_screen"
     const val HOME = "home_landing_screen"
     const val SELF_USER_PROFILE = "self_user_profile_screen"
     const val OTHER_USER_PROFILE = "other_user_profile_screen"
@@ -209,10 +233,13 @@ object NavigationItemDestinationsRoutes {
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 const val EXTRA_USER_ID = "extra_user_id"
+const val EXTRA_USER_DOMAIN = "extra_user_domain"
+
 //TODO: internal is here untill we can get the ConnectionStatus from the user
 // for now it is just to be able to proceed forward
 const val EXTRA_CONNECTED_STATUS = "extra_connected_status"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
+const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

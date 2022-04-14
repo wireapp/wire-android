@@ -12,6 +12,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSO
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
@@ -36,6 +37,7 @@ import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
+import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -170,6 +172,12 @@ enum class NavigationItem(
         primaryRoute = ONGOING_CALL,
         canonicalRoute = ONGOING_CALL,
         content = { OngoingCallScreen() }
+    ),
+
+    IncomingCall(
+        primaryRoute = INCOMING_CALL,
+        canonicalRoute = INCOMING_CALL,
+        content = { IncomingCallScreen() }
     );
 
     /**
@@ -205,6 +213,7 @@ object NavigationItemDestinationsRoutes {
     const val IMAGE_PICKER = "image_picker_screen"
     const val NEW_CONVERSATION = "new_conversation_screen"
     const val ONGOING_CALL = "ongoing_call_screen"
+    const val INCOMING_CALL = "incoming_call_screen"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"

@@ -24,8 +24,8 @@ class OngoingCallViewModel @Inject constructor(
         private set
 
     val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)
-        ?.parseIntoQualifiedID() ?: throw NullPointerException()
+        .get<String>(EXTRA_CONVERSATION_ID)!!
+        .parseIntoQualifiedID()
 
     init {
         //init with fake values

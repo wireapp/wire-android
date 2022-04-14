@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -17,7 +19,9 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val startCall: StartCallUseCase
+    private val startCall: StartCallUseCase,
+    private val muteCall: MuteCallUseCase,
+    private val unMuteCall: UnMuteCallUseCase
 ) : ViewModel() {
 
     var callEstablishedState by mutableStateOf(OngoingCallState())
@@ -42,7 +46,19 @@ class OngoingCallViewModel @Inject constructor(
     }
 
     private suspend fun initiateCall() {
-            //TODO pass conversation type
-            startCall.invoke(conversationId)
+        //TODO pass conversation type
+        startCall.invoke(conversationId)
+    }
+
+    fun muteCall() {
+        viewModelScope.launch {
+            muteCall.invoke()
+        }
+    }
+
+    fun unMuteCall() {
+        viewModelScope.launch {
+            unMuteCall.invoke()
+        }
     }
 }

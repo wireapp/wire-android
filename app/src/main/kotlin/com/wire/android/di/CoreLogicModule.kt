@@ -11,6 +11,8 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
@@ -265,15 +267,25 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun startCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): StartCallUseCase =
-        coreLogic.getSessionScope(currentAccount).calls.startCall
-
-    @ViewModelScoped
-    @Provides
     fun providesGetOrCreateOneToOneConversationUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): GetOrCreateOneToOneConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.getOrCreateOneToOneConversationUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun startCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): StartCallUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.startCall
+
+    @ViewModelScoped
+    @Provides
+    fun muteCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): MuteCallUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.muteCall
+
+    @ViewModelScoped
+    @Provides
+    fun unMuteCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): UnMuteCallUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.unMuteCall
 
 }

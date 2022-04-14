@@ -16,15 +16,24 @@ import com.wire.android.R
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun MicrophoneButton() {
-    var isCallMuted by remember { mutableStateOf(true) }
+fun MicrophoneButton(
+    isCurrentCallMuted: Boolean,
+    onMuteCall: () -> Unit,
+    onUnMuteCall: () -> Unit
+) {
+    var isMuted by remember { mutableStateOf(isCurrentCallMuted) }
     IconButton(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-        onClick = { isCallMuted = !isCallMuted }
+        onClick = {
+            if (isMuted)
+                onUnMuteCall()
+            else onMuteCall()
+            isMuted = !isMuted
+        }
     ) {
         Image(
             painter = painterResource(
-                id = if (isCallMuted) {
+                id = if (isMuted) {
                     R.drawable.ic_muted
                 } else {
                     R.drawable.ic_unmuted

@@ -14,6 +14,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
@@ -34,6 +35,7 @@ import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
@@ -56,6 +58,7 @@ class ConversationViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeMemberDetails: ObserveConversationMembersUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
+    private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val deleteMessage: DeleteMessageUseCase
@@ -134,15 +137,35 @@ class ConversationViewModel @Inject constructor(
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
             attachmentBundle?.let {
-                appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
+                appLogger.d("> Attachment with name -> ${attachmentBundle.fileName} for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
                 conversationId?.run {
-                    // TODO: Add an attachment bundle type to differentiate whether to invoke sendImageMessage or sendAssetMessage when the
-                    //  rest of the attachment options have been completed
-                    val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
-                    sendImageMessage(this, attachmentBundle.rawContent, imgWidth, imgHeight)
+                    when (attachmentBundle.attachmentType) {
+                        AttachmentType.IMAGE -> {
+                            val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
+                            sendImageMessage(
+                                conversationId = this,
+                                imageRawData = attachmentBundle.rawContent,
+                                imageName = attachmentBundle.fileName,
+                                imgWidth = imgWidth,
+                                imgHeight = imgHeight
+                            )
+                        }
+                        AttachmentType.GENERIC_FILE -> {
+                            sendAssetMessage(
+                                conversationId = this,
+                                assetRawData = attachmentBundle.rawContent,
+                                assetName = attachmentBundle.fileName,
+                                assetMimeType = attachmentBundle.mimeType
+                            )
+                        }
+                    }
                 }
             }
         }
+    }
+
+    fun downloadAsset(assetId: String) {
+        // TODO: Implement asset download flow
     }
 
     fun showDeleteMessageDialog(messageId: String) =

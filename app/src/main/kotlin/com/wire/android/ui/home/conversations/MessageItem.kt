@@ -4,15 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,14 +18,7 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
-import com.wire.android.ui.home.conversations.model.ImageMessageParams
-import com.wire.android.ui.home.conversations.model.MessageAsset
-import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent
-import com.wire.android.ui.home.conversations.model.MessageHeader
-import com.wire.android.ui.home.conversations.model.MessageImage
-import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
+import com.wire.android.ui.home.conversations.model.*
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -43,6 +28,7 @@ import com.wire.android.ui.theme.wireTypography
 fun MessageItem(
     message: MessageViewWrapper,
     onLongClicked: () -> Unit,
+    onAssetMessageClicked: (String) -> Unit
 ) {
     with(message) {
         Row(
@@ -59,7 +45,7 @@ fun MessageItem(
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(6.dp))
                 if (!isDeleted) {
-                    MessageContent(messageContent)
+                    MessageContent(messageContent, onAssetMessageClicked)
                 }
             }
         }
@@ -119,7 +105,7 @@ private fun Username(username: String) {
 }
 
 @Composable
-private fun MessageContent(messageContent: MessageContent) {
+private fun MessageContent(messageContent: MessageContent, onAssetClick: (String) -> Unit) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
@@ -129,12 +115,11 @@ private fun MessageContent(messageContent: MessageContent) {
         is MessageContent.AssetMessage -> MessageAsset(
             assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,
-            assetId = messageContent.assetId,
-            assetSize = messageContent.assetSize
+            assetSize = messageContent.assetSize,
+            onAssetClick = { onAssetClick(messageContent.assetId) }
         )
     }
 }
-
 
 @Composable
 private fun MessageStatusLabel(messageStatus: MessageStatus) {
@@ -160,10 +145,8 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun PreviewMessage() {
-    MessageItem(
-        mockMessageWithText
-    ) {}
+    MessageItem(mockMessageWithText, {}, {})
 }

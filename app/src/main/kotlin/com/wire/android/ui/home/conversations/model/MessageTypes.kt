@@ -3,12 +3,8 @@ package com.wire.android.ui.home.conversations.model
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -67,7 +63,7 @@ fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
 }
 
 @Composable
-internal fun MessageAsset(assetName: String, assetExtension: String, assetId: String, assetSize: Int) {
+internal fun MessageAsset(assetName: String, assetExtension: String, assetSize: Int, onAssetClick: () -> Unit) {
     val assetDescription = provideAssetDescription(assetExtension, assetSize)
     Box(
         modifier = Modifier
@@ -80,6 +76,7 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetId: St
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(MaterialTheme.wireDimensions.messageAssetBorderRadius)
             )
+            .clickable { onAssetClick() }
             .padding(MaterialTheme.wireDimensions.spacing8x)
     ) {
         Column {
@@ -130,7 +127,8 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetId: St
 }
 
 private fun provideAssetDescription(assetExtension: String, assetSize: Int): String {
-    val measuringUnit = if (assetSize.mod(1000000) > 1) "${assetSize / 1000000} MB" else "${assetSize / 1000} KB"
+    val assetSizeMod = if (assetSize.mod(1000000)
+    val measuringUnit = if (assetSizeMod > 1) "${assetSize / 1000000} MB" else "${assetSize / 1000} KB"
     return "${assetExtension.uppercase()} ($measuringUnit)"
 }
 
@@ -166,7 +164,5 @@ class ImageMessageParams(private val realImgWidth: Int, private val realImgHeigh
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetMessage() {
-    MessageItem(
-        mockAssetMessage
-    ) {}
+    MessageItem(mockAssetMessage, {}, {})
 }

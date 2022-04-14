@@ -7,7 +7,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
+import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.toByteArray
@@ -95,9 +97,11 @@ class AttachmentInnerState(val context: Context) {
 
     suspend fun pickAttachment(attachmentUri: Uri) {
         attachmentState = try {
-            val mime = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
+            val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
             val assetRawData = attachmentUri.toByteArray(context)
-            val attachment = AttachmentBundle(mime, assetRawData)
+            val assetFileName = context.getFileName(attachmentUri)
+            val attachmentType = if (mimeType.contains("image/")) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
+            val attachment = AttachmentBundle(mimeType, assetRawData, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)

@@ -1,12 +1,13 @@
 package com.wire.android.ui.userprofile.self
 
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 
 data class SelfUserProfileState(
-    val avatarAssetByteArray: ByteArray? = null,
+    val avatarAsset: UserAvatarAsset? = null,
     val errorMessageCode: ErrorCodes? = null,
     val status: UserStatus = UserStatus.AVAILABLE,
     val fullName: String = "",

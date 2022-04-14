@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.newconversation.contacts
 
 
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 
@@ -11,7 +12,7 @@ data class Contact(
     val domain : String,
     val name: String,
     val userStatus: UserStatus = UserStatus.AVAILABLE,
-    val avatarUrl: String = "",
+    val avatarAsset: UserAvatarAsset? = null,
     val label: String = "",
 )
 
@@ -21,4 +22,5 @@ fun OtherUser.toContact() =
         domain = id.domain,
         name = name ?: "",
         label = handle ?: "",
+        avatarAsset = completePicture?.let { UserAvatarAsset(it) }
     )

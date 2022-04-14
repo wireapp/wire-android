@@ -31,7 +31,7 @@ class ConversationState(
                 with(conversationType) {
                     modalBottomSheetContentState.value = ModalSheetContent.PrivateConversationEdit(
                         title = conversationInfo.name,
-                        avatarUrl = userInfo.avatarUrl
+                        avatarAsset = userInfo.avatarAsset
                     )
                 }
             }

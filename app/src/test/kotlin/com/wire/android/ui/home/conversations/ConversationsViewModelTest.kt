@@ -249,6 +249,7 @@ class ConversationsViewModelTest {
             every { it.selfUser } returns mockk<SelfUser>().also { user ->
                 every { user.id } returns id
                 every { user.name } returns name
+                every { user.previewPicture } returns null
             }
         }
 
@@ -259,6 +260,7 @@ class ConversationsViewModelTest {
             every { it.otherUser } returns mockk<OtherUser>().also { user ->
                 every { user.id } returns id
                 every { user.name } returns name
+                every { user.previewPicture } returns null
             }
         }
     }

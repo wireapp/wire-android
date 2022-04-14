@@ -116,7 +116,7 @@ private fun SelfUserProfileContent(
             ) {
                 UserProfileInfo(
                     isLoading = state.isAvatarLoading,
-                    avatarAssetByteArray = state.avatarAssetByteArray,
+                    avatarAsset = state.avatarAsset,
                     fullName = fullName,
                     userName = userName,
                     teamName = teamName,

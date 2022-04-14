@@ -17,16 +17,15 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val startCallUseCase: StartCallUseCase
+    private val startCall: StartCallUseCase
 ) : ViewModel() {
 
     var callEstablishedState by mutableStateOf(OngoingCallState())
         private set
 
-    val conversationId: QualifiedID? = savedStateHandle
-        .getLiveData<String>(EXTRA_CONVERSATION_ID)
-        .value
-        ?.parseIntoQualifiedID()
+    val conversationId: QualifiedID = savedStateHandle
+        .get<String>(EXTRA_CONVERSATION_ID)!!
+        .parseIntoQualifiedID()
 
     init {
         //init with fake values
@@ -43,9 +42,7 @@ class OngoingCallViewModel @Inject constructor(
     }
 
     private suspend fun initiateCall() {
-        conversationId?.let {
             //TODO pass conversation type
-            startCallUseCase.invoke(it)
-        }
+            startCall.invoke(conversationId)
     }
 }

@@ -23,24 +23,24 @@ fun MutingOptionsSheetContent(
         menuItems = listOf(
             {
                 RichMenuBottomSheetItem(
-                    title = "Everything",
-                    subLine = "Receive notifications for this conversation about everything (including audio and video calls)",
+                    title = stringResource(id = R.string.muting_option_all_allowed_title),
+                    subLine = stringResource(id = R.string.muting_option_all_allowed_text),
                     action = { },
                     onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllAllowed) }
                 )
             },
             {
                 RichMenuBottomSheetItem(
-                    title = "Mentions and replies",
-                    subLine = "Only receive notifications for this conversation when someone mentions you or replies to you",
+                    title = stringResource(id = R.string.muting_option_only_mentions_title),
+                    subLine = stringResource(id = R.string.muting_option_only_mentions_text),
                     action = {},
                     onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.OnlyMentionsAllowed) }
                 )
             },
             {
                 RichMenuBottomSheetItem(
-                    title = "Nothing",
-                    subLine = "Receive no notifications for this conversation at all",
+                    title = stringResource(id = R.string.muting_option_all_muted_title),
+                    subLine = stringResource(id = R.string.muting_option_all_muted_text),
                     action = {},
                     onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllMuted) }
                 )

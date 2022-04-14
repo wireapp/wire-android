@@ -75,7 +75,7 @@ fun ConversationRouterHomeBridge(
     )
 
     MutingOptionsSheetContent(
-        mutingConversationState = mutingConversationState, // TODO: pass current conv muting state
+        mutingConversationState = mutingConversationState,
         onItemClick = { conversationId, mutedStatus ->
             viewModel.muteConversation(conversationId, mutedStatus)
         },

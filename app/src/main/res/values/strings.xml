@@ -218,6 +218,14 @@
     <string name="label_block">Block</string>
     <string name="label_leave_group">Leave Group</string>
 
+    <!-- Muting options BottomSheet -->
+    <string name="muting_option_all_allowed_title">Everything</string>
+    <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
+    <string name="muting_option_only_mentions_title">Mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone mentions you or replies to you</string>
+    <string name="muting_option_all_muted_title">Nothing</string>
+    <string name="muting_option_all_muted_text">Receive no notifications for this conversation at all</string>
+
     <!--Profile image-->
     <string name="profile_image_top_bar_label">Profile image</string>
     <string name="profile_image_modal_sheet_header_title">Change Image</string>

@@ -70,7 +70,7 @@ class ConversationViewModel @Inject constructor(
     )
         private set
 
-    val conversationId: ConversationId = savedStateHandle
+   private val conversationId: ConversationId = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
@@ -102,7 +102,7 @@ class ConversationViewModel @Inject constructor(
 
     fun navigateToInitiatingCallScreen() {
         viewModelScope.launch {
-            conversationId?.let {
+            conversationId.let {
                 navigationManager.navigate(
                     command = NavigationCommand(
                         destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(it))
@@ -141,15 +141,14 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
         if (isMyMessage) {
             updateDialogState {
-                it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
+                it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
             }
         } else {
             updateDialogState {
-                it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
+                it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
             }
         }
 

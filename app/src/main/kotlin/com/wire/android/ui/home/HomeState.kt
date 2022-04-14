@@ -41,7 +41,7 @@ class HomeState(
     var homeBottomSheetContent by mutableStateOf(bottomSheetContent)
         private set
 
-    fun showOrHideBottomSheet() {
+    fun toggleBottomSheetVisibility() {
         coroutineScope.launch {
             if (bottomSheetState.isVisible) bottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
             else bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)

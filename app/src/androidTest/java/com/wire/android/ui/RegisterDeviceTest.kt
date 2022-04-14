@@ -14,13 +14,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceScreen
-import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel
-import com.wire.android.ui.authentication.welcome.WelcomeScreen
-import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.PASSWORD
 import com.wire.android.utils.WorkManagerTestRule
-import com.wire.android.utils.getViewModel
 import com.wire.android.utils.waitForExecution
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

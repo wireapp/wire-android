@@ -4,7 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,6 +39,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
+import kotlin.math.roundToInt
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 // waiting for the backend to implement mapping logic for the MessageBody
@@ -127,9 +133,11 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetSize: 
 }
 
 private fun provideAssetDescription(assetExtension: String, assetSize: Int): String {
-    val assetSizeMod = if (assetSize.mod(1000000)
-    val measuringUnit = if (assetSizeMod > 1) "${assetSize / 1000000} MB" else "${assetSize / 1000} KB"
-    return "${assetExtension.uppercase()} ($measuringUnit)"
+    return when {
+        assetSize < 1000 -> "(${assetExtension.uppercase()} $assetSize B)"
+        assetSize in 1000..999999 -> "(${assetExtension.uppercase()} ${assetSize / 1000} KB)"
+        else -> "(${assetExtension.uppercase()} ${((assetSize / 1000000f) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals roundoff
+    }
 }
 
 // TODO:we should provide the SpanStyle by LocalProvider to our Theme, later on

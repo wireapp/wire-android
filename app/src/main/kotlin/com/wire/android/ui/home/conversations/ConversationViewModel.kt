@@ -163,8 +163,9 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun downloadAsset(assetId: String) {
+        appLogger.d("Trying to download asset with id $assetId")
         // TODO: Implement asset download flow
     }
 

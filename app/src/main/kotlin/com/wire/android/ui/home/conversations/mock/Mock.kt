@@ -43,7 +43,7 @@ val mockAssetMessage = MessageViewWrapper(
         assetName = "This is some test asset message",
         assetExtension = "ZIP",
         assetId = "asset-id",
-        assetSize = 200335
+        assetSize = 21957335
     )
 )
 

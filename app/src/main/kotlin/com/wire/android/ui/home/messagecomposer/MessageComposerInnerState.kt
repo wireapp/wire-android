@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.Dp
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
@@ -19,12 +20,14 @@ import java.io.IOException
 
 @Composable
 fun rememberMessageComposerInnerState(
+    fullScreenHeight: Dp,
     onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit
 ): MessageComposerInnerState {
     val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
 
     return remember {
         MessageComposerInnerState(
+            fullScreenHeight= fullScreenHeight,
             attachmentInnerState = defaultAttachmentInnerState,
             onMessageComposeInputStateChanged = onMessageComposeInputStateChanged
         )
@@ -32,9 +35,14 @@ fun rememberMessageComposerInnerState(
 }
 
 class MessageComposerInnerState(
+    val fullScreenHeight: Dp,
     val attachmentInnerState: AttachmentInnerState,
     private val onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit
 ) {
+
+    var hasFocus by mutableStateOf(false)
+
+    var isKeyboardShown by mutableStateOf(false)
 
     var messageText by mutableStateOf(TextFieldValue(""))
 
@@ -50,6 +58,11 @@ class MessageComposerInnerState(
         }
 
     var attachmentOptionsDisplayed by mutableStateOf(false)
+        private set
+
+    fun toggleAttachmentOptionsVisibility() {
+        attachmentOptionsDisplayed = !attachmentOptionsDisplayed
+    }
 
     private fun toEnabled() {
         onMessageComposeInputStateChanged(
@@ -75,6 +88,7 @@ class MessageComposerInnerState(
             )
         )
 
+        hasFocus = true
         attachmentOptionsDisplayed = false
         messageComposeInputState = MessageComposeInputState.Active
     }

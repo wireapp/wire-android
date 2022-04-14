@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.calling.controlButtons.AcceptButton
 import com.wire.android.ui.calling.controlButtons.CameraButton
@@ -37,13 +38,13 @@ import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun IncomingCallScreen() {
-    IncomingCallContent()
+fun IncomingCallScreen(incomingCallViewModel: IncomingCallViewModel = hiltViewModel()) {
+    IncomingCallContent(state = incomingCallViewModel.callState)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun IncomingCallContent() {
+private fun IncomingCallContent(state: IncomingCallState) {
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberBottomSheetState(BottomSheetValue.Expanded)
@@ -55,7 +56,7 @@ private fun IncomingCallContent() {
         sheetGesturesEnabled = false,
         scaffoldState = scaffoldState,
         sheetContent = {
-            CallingControls()
+            CallingControls(state = state)
         },
     ) {
         Column(
@@ -64,7 +65,7 @@ private fun IncomingCallContent() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Alexandra Olaho",
+                text = state.conversationName,
                 style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)
             )
@@ -97,7 +98,7 @@ private fun IncomingCallTopBar(
 }
 
 @Composable
-private fun CallingControls() {
+private fun CallingControls(state: IncomingCallState) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -108,7 +109,7 @@ private fun CallingControls() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MicrophoneButton()
+            MicrophoneButton(initialState = state.isMicrophoneOn)
             Text(
                 text = stringResource(id = R.string.calling_label_microphone),
                 style = MaterialTheme.wireTypography.label01,
@@ -118,7 +119,7 @@ private fun CallingControls() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CameraButton()
+            CameraButton(initialState = state.isCameraOn)
             Text(
                 text = stringResource(id = R.string.calling_label_camera),
                 style = MaterialTheme.wireTypography.label01,
@@ -128,7 +129,7 @@ private fun CallingControls() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SpeakerButton()
+            SpeakerButton(initialState = state.isMicrophoneOn)
             Text(
                 text = stringResource(id = R.string.calling_label_speaker),
                 style = MaterialTheme.wireTypography.label01,

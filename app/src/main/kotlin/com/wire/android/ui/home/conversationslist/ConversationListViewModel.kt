@@ -145,7 +145,7 @@ class ConversationListViewModel @Inject constructor(
                 GeneralConversation(
                     ConversationType.PrivateConversation(
                         userInfo = UserInfo(
-                            otherUser.completePicture?.let { UserAvatarAsset(it) },
+                            otherUser.previewPicture?.let { UserAvatarAsset(it) },
                             UserStatus.NONE //TODO Get actual status
                         ),
                         conversationInfo = ConversationInfo(

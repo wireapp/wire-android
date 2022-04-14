@@ -33,9 +33,9 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
-import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")

@@ -1,9 +1,6 @@
-package com.wire.android.ui.home.conversationslist.bottomsheet
+package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -14,12 +11,12 @@ import com.wire.android.ui.common.bottomsheet.RichMenuBottomSheetItem
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MutingOptionsSheetContent(
-    state: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
+    mutingConversationState: MutingConversationState = rememberMutingConversationState(),
     onItemClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
     MenuModalSheetLayout(
-        sheetState = state,
+        sheetState = mutingConversationState.sheetState,
         headerTitle = stringResource(R.string.label_notifications),
         menuItems = listOf(
             {

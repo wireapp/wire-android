@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,11 +26,9 @@ import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.MutingOptionsSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.coroutines.launch
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -46,7 +42,7 @@ fun ConversationRouterHomeBridge(
     onExpandHomeBottomSheet: () -> Unit,
     onScrollPositionChanged: (Int) -> Unit
 ) {
-    val mutingOptionsSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val mutingConversationState = rememberMutingConversationState()
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
     val scope = rememberCoroutineScope()
@@ -58,10 +54,8 @@ fun ConversationRouterHomeBridge(
             ConversationSheetContent(
                 modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
                 muteConversation = {
-                    scope.launch {
-                        onExpandHomeBottomSheet()
-                        mutingOptionsSheetState.show()
-                    }
+                    onExpandHomeBottomSheet()
+                    mutingConversationState.toggleSheetState()
                 },
                 addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
                 moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
@@ -83,13 +77,16 @@ fun ConversationRouterHomeBridge(
     )
 
     MutingOptionsSheetContent(
-        state = mutingOptionsSheetState,
+        mutingConversationState = mutingConversationState, // TODO: pass current conv muting state
         onItemClick = {
             viewModel.muteConversation(
                 conversationState.modalBottomSheetContentState.value.conversationId
             )
         },
-        onBackClick = { onExpandHomeBottomSheet() }
+        onBackClick = {
+            onExpandHomeBottomSheet()
+            mutingConversationState.toggleSheetState()
+        }
     )
 }
 

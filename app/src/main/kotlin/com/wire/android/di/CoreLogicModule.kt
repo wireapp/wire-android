@@ -10,6 +10,7 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
@@ -261,6 +262,11 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): DeleteMessageUseCase =
         coreLogic.getSessionScope(currentAccount).messages.deleteMessage
+
+    @ViewModelScoped
+    @Provides
+    fun startCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): StartCallUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.startCall
 
     @ViewModelScoped
     @Provides

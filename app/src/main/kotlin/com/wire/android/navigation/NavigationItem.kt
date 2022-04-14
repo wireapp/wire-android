@@ -75,13 +75,13 @@ enum class NavigationItem(
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
-        content = { CreateTeamScreen(serverConfig = ServerConfig.STAGING) },
+        content = { CreateTeamScreen(serverConfig = ServerConfig.DEFAULT) },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     CreatePersonalAccount(
         primaryRoute = CREATE_PERSONAL_ACCOUNT,
-        content = { CreatePersonalAccountScreen(ServerConfig.STAGING) },
+        content = { CreatePersonalAccountScreen(ServerConfig.DEFAULT) },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 

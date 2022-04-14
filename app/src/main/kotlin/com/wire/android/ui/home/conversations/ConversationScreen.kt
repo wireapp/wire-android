@@ -35,6 +35,7 @@ fun ConversationScreen(
     conversationViewModel: ConversationViewModel
 ) {
     val uiState = conversationViewModel.conversationViewState
+
     ConversationScreen(
         conversationViewState = uiState,
         onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },

@@ -5,9 +5,13 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -17,11 +21,20 @@ data class MutingConversationState(
     val mutedStatus: MutedConversationStatus = MutedConversationStatus.AllAllowed,
     val sheetState: ModalBottomSheetState
 ) {
+    var conversationId by mutableStateOf<ConversationId?>(null)
+        private set
 
-    fun toggleSheetState() {
+    fun openMutedStatusSheetContent(conversationId: ConversationId?) {
         coroutineScope.launch {
-            if (sheetState.isVisible) sheetState.animateTo(ModalBottomSheetValue.Hidden)
-            else sheetState.animateTo(ModalBottomSheetValue.Expanded)
+            this@MutingConversationState.conversationId = conversationId
+            sheetState.animateTo(ModalBottomSheetValue.Expanded)
+        }
+    }
+
+    fun closeMutedStatusSheetContent() {
+        coroutineScope.launch {
+            this@MutingConversationState.conversationId = null
+            sheetState.animateTo(ModalBottomSheetValue.Hidden)
         }
     }
 }

@@ -11,7 +11,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -45,7 +44,6 @@ fun ConversationRouterHomeBridge(
     val mutingConversationState = rememberMutingConversationState()
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
-    val scope = rememberCoroutineScope()
 
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
@@ -55,7 +53,7 @@ fun ConversationRouterHomeBridge(
                 modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
                 muteConversation = {
                     onExpandHomeBottomSheet()
-                    mutingConversationState.toggleSheetState()
+                    mutingConversationState.openMutedStatusSheetContent(conversationState.modalBottomSheetContentState.value.conversationId)
                 },
                 addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
                 moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
@@ -78,14 +76,12 @@ fun ConversationRouterHomeBridge(
 
     MutingOptionsSheetContent(
         mutingConversationState = mutingConversationState, // TODO: pass current conv muting state
-        onItemClick = {
-            viewModel.muteConversation(
-                conversationState.modalBottomSheetContentState.value.conversationId
-            )
+        onItemClick = { conversationId, mutedStatus ->
+            viewModel.muteConversation(conversationId, mutedStatus)
         },
         onBackClick = {
             onExpandHomeBottomSheet()
-            mutingConversationState.toggleSheetState()
+            mutingConversationState.closeMutedStatusSheetContent()
         }
     )
 }

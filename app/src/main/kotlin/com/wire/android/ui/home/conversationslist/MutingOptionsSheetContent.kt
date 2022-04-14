@@ -7,12 +7,14 @@ import com.wire.android.R
 import com.wire.android.ui.common.ArrowLeftIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.RichMenuBottomSheetItem
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MutingOptionsSheetContent(
     mutingConversationState: MutingConversationState = rememberMutingConversationState(),
-    onItemClick: () -> Unit,
+    onItemClick: (ConversationId?, MutedConversationStatus) -> Unit,
     onBackClick: () -> Unit
 ) {
     MenuModalSheetLayout(
@@ -24,7 +26,7 @@ fun MutingOptionsSheetContent(
                     title = "Everything",
                     subLine = "Receive notifications for this conversation about everything (including audio and video calls)",
                     action = { },
-                    onItemClick = onItemClick
+                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllAllowed) }
                 )
             },
             {
@@ -32,7 +34,7 @@ fun MutingOptionsSheetContent(
                     title = "Mentions and replies",
                     subLine = "Only receive notifications for this conversation when someone mentions you or replies to you",
                     action = {},
-                    onItemClick = onItemClick
+                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.OnlyMentionsAllowed) }
                 )
             },
             {
@@ -40,7 +42,7 @@ fun MutingOptionsSheetContent(
                     title = "Nothing",
                     subLine = "Receive no notifications for this conversation at all",
                     action = {},
-                    onItemClick = onItemClick
+                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllMuted) }
                 )
             }
         ),

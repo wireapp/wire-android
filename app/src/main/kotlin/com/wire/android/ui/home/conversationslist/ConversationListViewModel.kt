@@ -33,9 +33,9 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -88,49 +88,43 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun muteConversation(conversationId: ConversationId?) {
+    fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {
         conversationId?.let {
             viewModelScope.launch {
                 appLogger.d("Muting conversation: $conversationId")
-                updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, Date().time)
+                updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)
             }
         }
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun addConversationToFavourites(id: String) {
-
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun moveConversationToFolder(id: String) {
-
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun moveConversationToArchive(id: String) {
-
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun clearConversationContent(id: String) {
-
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun blockUser(id: String) {
-
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun leaveGroup(id: String) {
-
     }
 
     private fun List<ConversationDetails>.toGeneralConversationList(): List<GeneralConversation> = filter {
@@ -153,7 +147,7 @@ class ConversationListViewModel @Inject constructor(
                     ConversationType.PrivateConversation(
                         userInfo = UserInfo(
                             otherUser.previewPicture?.let { UserAvatarAsset(it) },
-                            UserStatus.NONE //TODO Get actual status
+                            UserStatus.NONE // TODO Get actual status
                         ),
                         conversationInfo = ConversationInfo(
                             name = otherUser.name.orEmpty(),
@@ -169,5 +163,4 @@ class ConversationListViewModel @Inject constructor(
             }
         }
     }
-
 }

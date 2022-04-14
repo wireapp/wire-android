@@ -30,7 +30,14 @@ enum class MessageStatus(val stringResourceId: Int) {
 
 sealed class MessageContent {
     data class TextMessage(val messageBody: MessageBody) : MessageContent()
-    data class AssetMessage(val assetName: String, val assetExtension: String, val assetId: String, val assetSizeInBytes: Long) : MessageContent()
+
+    data class AssetMessage(
+        val assetName: String,
+        val assetExtension: String,
+        val assetId: String,
+        val assetSizeInBytes: Long
+    ) : MessageContent()
+
     data class ImageMessage(val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

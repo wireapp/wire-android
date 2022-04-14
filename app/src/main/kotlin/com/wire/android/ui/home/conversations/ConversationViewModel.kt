@@ -135,7 +135,6 @@ class ConversationViewModel @Inject constructor(
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
             attachmentBundle?.let {
-                appLogger.d("> Attachment with name -> ${attachmentBundle.fileName} for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
                 conversationId.run {
                     when (attachmentBundle.attachmentType) {
                         AttachmentType.IMAGE -> {

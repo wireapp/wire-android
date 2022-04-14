@@ -145,7 +145,7 @@ enum class NavigationItem(
         }
     },
 
-    //TODO: internal is here untill we can get the ConnectionStatus from the user
+    //TODO: internal is here until we can get the ConnectionStatus from the user
     // for now it is just to be able to proceed forward
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
@@ -186,9 +186,14 @@ enum class NavigationItem(
 
     OngoingCall(
         primaryRoute = ONGOING_CALL,
-        canonicalRoute = ONGOING_CALL,
+        canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { OngoingCallScreen() }
-    );
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+        }
+    };
 
     /**
      * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder.

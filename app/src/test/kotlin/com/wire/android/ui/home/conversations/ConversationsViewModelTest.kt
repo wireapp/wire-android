@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -222,7 +223,7 @@ class ConversationsViewModelTest {
         fun testConversationDetailsOneOnOne(senderName: String) = ConversationDetails.OneOne(
             mockk(), mockk<OtherUser>().apply {
                 every { name } returns senderName
-            }, ConversationDetails.OneOne.ConnectionState.OUTGOING, LegalHoldStatus.DISABLED
+            }, ConnectionState.PENDING, LegalHoldStatus.DISABLED
         )
 
         fun testConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {

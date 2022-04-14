@@ -306,7 +306,8 @@ private fun MessageComposer(
                             }
                         }
                     }
-                    // Box wrapping the SendActions so that we do not include it in the animationContentSize changed which is applied only for
+                    // Box wrapping the SendActions so that we do not include it in the animationContentSize
+                    // changed which is applied only for
                     // MessageComposerInput and CollapsingButton
                     Box(
                         Modifier.constrainAs(sendActions) {

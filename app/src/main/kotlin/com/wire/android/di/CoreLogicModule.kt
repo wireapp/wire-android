@@ -9,9 +9,11 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -246,9 +248,26 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun providesGetKnownUserUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetKnownUserUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getKnownUser
+
+    @ViewModelScoped
+    @Provides
     fun providesDeleteMessageUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): DeleteMessageUseCase =
         coreLogic.getSessionScope(currentAccount).messages.deleteMessage
+
+    @ViewModelScoped
+    @Provides
+    fun providesGetOrCreateOneToOneConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetOrCreateOneToOneConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.getOrCreateOneToOneConversationUseCase
+
 }

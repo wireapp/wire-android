@@ -9,6 +9,7 @@ data class ContactsState(val contacts: List<Contact> = emptyList())
 
 data class Contact(
     val id: String,
+    val domain : String,
     val name: String,
     val userStatus: UserStatus = UserStatus.AVAILABLE,
     val avatarAsset: UserAvatarAsset? = null,
@@ -18,6 +19,7 @@ data class Contact(
 fun OtherUser.toContact() =
     Contact(
         id = id.value,
+        domain = id.domain,
         name = name ?: "",
         label = handle ?: "",
         avatarAsset = completePicture?.let { UserAvatarAsset(it) }

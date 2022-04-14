@@ -4,13 +4,14 @@ import com.wire.android.model.UserAvatarAsset
 
 data class OtherUserProfileState(
     val userAvatarAsset: UserAvatarAsset? = null,
+    val isDataLoading : Boolean = false,
     val isAvatarLoading: Boolean = false,
     val fullName: String = "",
     val userName: String = "",
     val teamName: String = "",
     val email: String = "",
     val phone: String = "",
-    val connectionStatus: ConnectionStatus = ConnectionStatus.Unknown
+    val connectionStatus: ConnectionStatus = ConnectionStatus.Unknown,
 )
 
 sealed class ConnectionStatus {

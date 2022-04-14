@@ -66,16 +66,16 @@ private fun IncomingCallContent() {
             Text(
                 text = "Alexandra Olaho",
                 style = MaterialTheme.wireTypography.title01,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing24x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)
             )
             Text(
                 text = stringResource(id = R.string.calling_label_incoming_call),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
             UserProfileAvatar(
                 size = MaterialTheme.wireDimensions.callingIncomingUserAvatarSize,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing56x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing56x)
             )
         }
     }
@@ -103,7 +103,7 @@ private fun CallingControls() {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, MaterialTheme.wireDimensions.spacing32x, 0.dp, 0.dp)
+            .padding(top = MaterialTheme.wireDimensions.spacing32x)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -112,7 +112,7 @@ private fun CallingControls() {
             Text(
                 text = stringResource(id = R.string.calling_label_microphone),
                 style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
         }
         Column(
@@ -122,7 +122,7 @@ private fun CallingControls() {
             Text(
                 text = stringResource(id = R.string.calling_label_camera),
                 style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
         }
         Column(
@@ -132,7 +132,7 @@ private fun CallingControls() {
             Text(
                 text = stringResource(id = R.string.calling_label_speaker),
                 style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
         }
     }
@@ -141,10 +141,9 @@ private fun CallingControls() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                MaterialTheme.wireDimensions.spacing40x,
-                MaterialTheme.wireDimensions.spacing32x,
-                MaterialTheme.wireDimensions.spacing40x,
-                0.dp
+                start = MaterialTheme.wireDimensions.spacing40x,
+                top = MaterialTheme.wireDimensions.spacing32x,
+                end = MaterialTheme.wireDimensions.spacing40x
             )
     ) {
         Column(
@@ -155,7 +154,10 @@ private fun CallingControls() {
             Text(
                 text = stringResource(id = R.string.calling_label_decline),
                 style = MaterialTheme.wireTypography.body03,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, MaterialTheme.wireDimensions.spacing40x)
+                modifier = Modifier.padding(
+                    top = MaterialTheme.wireDimensions.spacing8x,
+                    bottom = MaterialTheme.wireDimensions.spacing40x
+                )
             )
         }
         Column(
@@ -167,7 +169,10 @@ private fun CallingControls() {
             Text(
                 text = stringResource(id = R.string.calling_label_accept),
                 style = MaterialTheme.wireTypography.body03,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, MaterialTheme.wireDimensions.spacing40x)
+                modifier = Modifier.padding(
+                    top = MaterialTheme.wireDimensions.spacing8x,
+                    bottom = MaterialTheme.wireDimensions.spacing40x
+                )
             )
         }
     }

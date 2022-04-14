@@ -38,10 +38,10 @@ val detektAll by tasks.registering(Detekt::class) {
     exclude("**/*.kts", "*/build/*", "/buildSrc")
 
     reports {
-        xml.enabled = true
-        html.enabled = true
-        html.destination = file(outputFile)
-        txt.enabled = false
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(file(outputFile))
+        txt.required.set(false)
     }
 
     val reportFile = "Static Analysis Report: $outputFile \n"

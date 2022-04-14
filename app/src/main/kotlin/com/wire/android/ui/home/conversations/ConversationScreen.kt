@@ -56,7 +56,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
 @Composable
 private fun AudioPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
     rememberCallingRecordAudioRequestFlow(onAudioPermissionGranted = {
-        conversationViewModel.conversationId?.let { conversationViewModel.navigateToInitiatingCallScreen(it) }
+        conversationViewModel.navigateToInitiatingCallScreen()
     }) {
         //TODO display an error dialog
     }

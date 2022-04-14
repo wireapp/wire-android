@@ -38,7 +38,7 @@ fun ConversationSheetContent(
         menuItems = listOf(
             {
                 MenuBottomSheetItem(
-                    title = stringResource(R.string.label_mute),
+                    title = stringResource(R.string.label_notifications),
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_mute,

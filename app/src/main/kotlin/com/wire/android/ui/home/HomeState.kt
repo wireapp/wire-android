@@ -41,8 +41,11 @@ class HomeState(
     var homeBottomSheetContent by mutableStateOf(bottomSheetContent)
         private set
 
-    fun expandBottomSheet() {
-        coroutineScope.launch { bottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
+    fun showOrHideBottomSheet() {
+        coroutineScope.launch {
+            if (bottomSheetState.isVisible) bottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
+            else bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+        }
     }
 
     fun changeBottomSheetContent(content: @Composable ColumnScope.() -> Unit) {

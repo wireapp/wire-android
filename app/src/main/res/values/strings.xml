@@ -43,6 +43,7 @@
     <string name="content_description_choose_from_gallery">Choose from gallery</string>
     <string name="content_description_take_a_picture">Take a picture</string>
     <string name="content_description_right_arrow">Right arrow</string>
+    <string name="content_description_left_arrow">Left arrow</string>
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_create_account_summary">Summary image</string>
     <string name="content_description_attachment_item">Attachment item</string>
@@ -207,7 +208,7 @@
     <string name="user_profile_change_status_dialog_checkbox_text">Do not display this information again</string>
 
     <!-- Conversations BottomSheet -->
-    <string name="label_mute">Notifications</string>
+    <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Add to Favourites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>

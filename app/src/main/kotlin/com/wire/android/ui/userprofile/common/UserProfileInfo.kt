@@ -53,7 +53,7 @@ fun UserProfileInfo(
     ) {
         UserProfileAvatar(
             onClick = onUserProfileClick,
-            isClickable = true,
+            isClickable = editableState is EditableState.IsEditable,
             size = dimensions().userAvatarDefaultBigSize,
             userAvatarAsset = avatarAsset,
             status = UserStatus.NONE,

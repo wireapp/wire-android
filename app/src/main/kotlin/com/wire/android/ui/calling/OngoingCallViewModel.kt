@@ -23,9 +23,9 @@ class OngoingCallViewModel @Inject constructor(
     var callEstablishedState by mutableStateOf(OngoingCallState())
         private set
 
-    val conversationId: QualifiedID? = savedStateHandle
+    val conversationId: QualifiedID = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)
-        ?.parseIntoQualifiedID()
+        ?.parseIntoQualifiedID() ?: throw NullPointerException()
 
     init {
         //init with fake values
@@ -42,9 +42,7 @@ class OngoingCallViewModel @Inject constructor(
     }
 
     private suspend fun initiateCall() {
-        conversationId?.let {
             //TODO pass conversation type
-            startCall.invoke(it)
-        }
+            startCall.invoke(conversationId)
     }
 }

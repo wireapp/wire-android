@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent.Asset
@@ -169,11 +170,11 @@ class ConversationViewModel @Inject constructor(
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
         if (isMyMessage) {
             updateDialogState {
-                it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
+                it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
             }
         } else {
             updateDialogState {
-                it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
+                it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
             }
         }
 
@@ -270,37 +271,46 @@ class ConversationViewModel @Inject constructor(
 
     private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent =
         when (val content = message.content) {
-            is Asset -> {
-                val assetId = content.value.remoteData.assetId
-                val (imgWidth, imgHeight) = when (val metadata = content.value.metadata) {
-                    is Image -> metadata.width to metadata.height
-                    else -> 0 to 0
-                }
-                val decodedImgDataResult = getMessageAsset(
-                    conversationId = message.conversationId,
-                    messageId = message.id
-                ).run {
-                    when (this) {
-                        is MessageAssetResult.Success -> decodedAsset
-                        else -> null
-                    }
-                }
-                when {
-                    content.value.mimeType.contains("image") -> ImageMessage(decodedImgDataResult, width = imgWidth, height = imgHeight)
-
-                    // TODO: To be changed once the error behavior has been defined with product
-                    assetId.isEmpty() -> TextMessage(messageBody = MessageBody("The asset message could not be downloaded correctly"))
-
-                    // Generic Asset Message
-                    else -> AssetMessage(
-                        assetName = content.value.name ?: "",
-                        assetExtension = content.value.name?.split(".")?.last() ?: "",
-                        assetId = content.value.remoteData.assetId,
-                        assetSize = content.value.size
-                    )
-                }
-            }
+            is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
             is Text -> TextMessage(messageBody = MessageBody(content.value))
             else -> TextMessage(messageBody = MessageBody((content as? Text)?.value ?: "content is not available"))
         }
+
+    private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent {
+        with(assetContent) {
+            val assetId = remoteData.assetId
+
+            // TODO: To be changed once the error behavior has been defined with product
+            if (assetId.isEmpty()) return TextMessage(messageBody = MessageBody("The asset message could not be downloaded correctly"))
+
+            val (imgWidth, imgHeight) = when (val md = metadata) {
+                is Image -> md.width to md.height
+                else -> 0 to 0
+            }
+            return when {
+                // If it's an image, we download it right away
+                mimeType.contains("image") -> ImageMessage(getRawAssetData(conversationId, messageId), width = imgWidth, height = imgHeight)
+
+                // It's a generic Asset Message so let's not download it yet
+                else -> AssetMessage(
+                    assetName = name ?: "",
+                    assetExtension = name?.split(".")?.last() ?: "",
+                    assetId = remoteData.assetId,
+                    assetSizeInBytes = sizeInBytes
+                )
+            }
+        }
+    }
+
+    private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
+        getMessageAsset(
+            conversationId = conversationId,
+            messageId = messageId
+        ).run {
+            return when (this) {
+                is MessageAssetResult.Success -> decodedAsset
+                else -> null
+            }
+        }
+    }
 }

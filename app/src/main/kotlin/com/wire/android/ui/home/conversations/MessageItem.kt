@@ -139,7 +139,7 @@ private fun MessageContent(messageContent: MessageContent, onAssetClick: (String
         is MessageContent.AssetMessage -> MessageAsset(
             assetName = messageContent.assetName.split(".").first(),
             assetExtension = messageContent.assetExtension,
-            assetSize = messageContent.assetSize,
+            assetSizeInBytes = messageContent.assetSizeInBytes,
             onAssetClick = { onAssetClick(messageContent.assetId) }
         )
     }

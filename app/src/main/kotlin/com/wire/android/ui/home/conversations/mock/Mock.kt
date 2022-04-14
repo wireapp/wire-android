@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations.mock
 
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
@@ -30,7 +31,7 @@ val mockMessageWithText = MessageViewWrapper(
 )
 
 val mockAssetMessage = MessageViewWrapper(
-    user = User("", UserStatus.AVAILABLE),
+    user = User(UserAvatarAsset(""), UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = "John Doe",
         membership = Membership.Guest,
@@ -43,7 +44,7 @@ val mockAssetMessage = MessageViewWrapper(
         assetName = "This is some test asset message",
         assetExtension = "ZIP",
         assetId = "asset-id",
-        assetSize = 21957335
+        assetSizeInBytes = 21957335
     )
 )
 

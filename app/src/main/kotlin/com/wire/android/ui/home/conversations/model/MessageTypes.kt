@@ -69,8 +69,8 @@ fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
 }
 
 @Composable
-internal fun MessageAsset(assetName: String, assetExtension: String, assetSize: Int, onAssetClick: () -> Unit) {
-    val assetDescription = provideAssetDescription(assetExtension, assetSize)
+internal fun MessageAsset(assetName: String, assetExtension: String, assetSizeInBytes: Int, onAssetClick: () -> Unit) {
+    val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
     Box(
         modifier = Modifier
             .background(
@@ -132,11 +132,12 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetSize: 
     }
 }
 
-private fun provideAssetDescription(assetExtension: String, assetSize: Int): String {
+@Suppress("MagicNumber")
+private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Int): String {
     return when {
-        assetSize < 1000 -> "${assetExtension.uppercase()} ($assetSize B)"
-        assetSize in 1000..999999 -> "${assetExtension.uppercase()} (${assetSize / 1000} KB)"
-        else -> "${assetExtension.uppercase()} (${((assetSize / 1000000f) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
+        assetSizeInBytes < 1000 -> "${assetExtension.uppercase()} ($assetSizeInBytes B)"
+        assetSizeInBytes in 1000..999999 -> "${assetExtension.uppercase()} (${assetSizeInBytes / 1000} KB)"
+        else -> "${assetExtension.uppercase()} (${((assetSizeInBytes / 1000000f) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
     }
 }
 

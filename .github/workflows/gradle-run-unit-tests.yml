@@ -28,8 +28,8 @@ jobs:
       - name: Gradle cache
         uses: gradle/gradle-build-action@v2
 
-      - name: Test with Gradle
-        run: ./gradlew runUnitTests
+      - name: Test with coverage
+        run: ./gradlew testCoverage
 
       - name: Install Pip for test result publishing
         run: sudo apt-get install -y python3-pip
@@ -42,6 +42,23 @@ jobs:
             **/build/test-results/testDevDebugUnitTest/**/*.xml
             **/build/test-results/**/*.xml
             **/build/outputs/androidTest-results/**/*.xml
+
+      -   name: Generate report
+          uses: actions/upload-artifact@v2
+          with:
+              name: report
+              path: app/build/reports/jacoco
+
+      -   name: Download Test Reports Folder
+          uses: actions/download-artifact@v2
+          with:
+              name: report
+              path: app/build/reports/jacoco
+
+      -   name: Upload Test Report
+          uses: codecov/codecov-action@v2
+          with:
+              files: "app/build/reports/jacoco/jacocoReport/jacocoReport.xml"
             
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.

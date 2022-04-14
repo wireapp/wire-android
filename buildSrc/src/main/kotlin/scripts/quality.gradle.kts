@@ -15,10 +15,10 @@ android {
         isQuiet = true
         isAbortOnError = false
         isIgnoreWarnings = true
-        disable("InvalidPackage")           //Some libraries have issues with this.
-        disable("OldTargetApi")             //Lint gives this warning related to SDK Beta.
-        disable("IconDensities")            //For testing purpose. This is safe to remove.
-        disable("IconMissingDensityFolder") //For testing purpose. This is safe to remove.
+        disable("InvalidPackage") // Some libraries have issues with this.
+        disable("OldTargetApi") // Lint gives this warning related to SDK Beta.
+        disable("IconDensities") // For testing purpose. This is safe to remove.
+        disable("IconMissingDensityFolder") // For testing purpose. This is safe to remove.
     }
 }
 
@@ -61,12 +61,12 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
     dependsOn("test${Default.BUILD_VARIANT}UnitTest")
 
     val outputDir = "$buildDir/jacoco/html"
-    val classPathBuildVariant =  "${Default.BUILD_FLAVOR}${Default.BUILD_TYPE.capitalize()}"
+    val classPathBuildVariant = "${Default.BUILD_FLAVOR}${Default.BUILD_TYPE.capitalize()}"
 
     reports {
-        xml.isEnabled = true
-        html.isEnabled = true
-        html.destination = file(outputDir)
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(file(outputDir))
     }
 
     classDirectories.setFrom(
@@ -97,11 +97,17 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
         }
     )
 
-    sourceDirectories.setFrom(fileTree(project.projectDir) {
-        include("src/main/java/**", "src/main/kotlin/**") })
+    sourceDirectories.setFrom(
+        fileTree(project.projectDir) {
+            include("src/main/java/**", "src/main/kotlin/**")
+        }
+    )
 
-    executionData.setFrom(fileTree(project.buildDir) {
-        include("**/*.exec", "**/*.ec") })
+    executionData.setFrom(
+        fileTree(project.buildDir) {
+            include("**/*.exec", "**/*.ec")
+        }
+    )
 
     doLast { println("Report file: $outputDir/index.html") }
 }

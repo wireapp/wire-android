@@ -266,9 +266,10 @@ private fun MessageComposer(
                                 }
                             }
                             Spacer(Modifier.width(8.dp))
-                            // MessageComposerInput needs a padding on the end of it to give room for the SendOptions components, because
-                            // it is "floating" freely with an absolute x-y position inside of the ConstrainLayout wrapping the whole content
-                            // when in the FullScreen state we are giving it max height, when in active state we limit the height to max 82.dp
+                            // MessageComposerInput needs a padding on the end of it to give room for the SendOptions components,
+                            // because it is "floating" freely with an absolute x-y position inside of the ConstrainLayout
+                            // wrapping the whole content when in the FullScreen state we are giving it max height
+                            // when in active state we limit the height to max 82.dp
                             // other we let it wrap the content of the height, which will be equivalent to the text
                             MessageComposerInput(
                                 messageText = messageText,

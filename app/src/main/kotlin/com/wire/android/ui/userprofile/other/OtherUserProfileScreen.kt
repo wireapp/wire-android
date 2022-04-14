@@ -1,6 +1,7 @@
 package com.wire.android.ui.userprofile.other
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +55,7 @@ import kotlinx.coroutines.launch
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val state = viewModel.state
 
-    NotConnectedOtherProfileScreenContent(
+    OtherProfileScreenContent(
         state = state,
         onSendConnectionRequest = { viewModel.sendConnectionRequest() },
         onOpenConversation = { viewModel.openConversation() },
@@ -63,9 +64,9 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, androidx.compose.animation.ExperimentalAnimationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun NotConnectedOtherProfileScreenContent(
+fun OtherProfileScreenContent(
     state: OtherUserProfileState,
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,
@@ -99,7 +100,7 @@ fun NotConnectedOtherProfileScreenContent(
                     item {
                         UserProfileInfo(
                             isLoading = state.isAvatarLoading,
-                            avatarAssetByteArray = state.avatarAssetByteArray,
+                            avatarAsset = state.userAvatarAsset,
                             fullName = fullName,
                             userName = userName,
                             teamName = teamName,
@@ -109,21 +110,23 @@ fun NotConnectedOtherProfileScreenContent(
 
                     if (connectionStatus is ConnectionStatus.Connected) {
                         item {
-                            UserDetailInformation(
-                                title = stringResource(R.string.email_label),
-                                value = state.email,
-                                onCopy = { otherUserProfileScreenState.copy(it) }
-                            )
+                            if (state.email.isNotEmpty()) {
+                                UserDetailInformation(
+                                    title = stringResource(R.string.email_label),
+                                    value = state.email,
+                                    onCopy = { otherUserProfileScreenState.copy(it) }
+                                )
+                            }
                         }
-
-                        item {
-                            UserDetailInformation(
-                                title = stringResource(R.string.phone_label),
-                                value = state.phone,
-                                onCopy = { otherUserProfileScreenState.copy(it) }
-                            )
+                        if (state.phone.isNotEmpty()) {
+                            item {
+                                UserDetailInformation(
+                                    title = stringResource(R.string.phone_label),
+                                    value = state.phone,
+                                    onCopy = { otherUserProfileScreenState.copy(it) }
+                                )
+                            }
                         }
-
                     } else {
                         item {
                             Box(

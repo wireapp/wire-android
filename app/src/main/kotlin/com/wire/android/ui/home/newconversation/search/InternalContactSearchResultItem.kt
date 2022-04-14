@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
@@ -18,8 +19,7 @@ import com.wire.android.ui.common.WireCheckbox
 
 @Composable
 fun InternalContactSearchResultItem(
-    //TODO : this will need refactor we are not using avatarUrl
-    avatarUrl: String = "",
+    avatarAsset: UserAvatarAsset?,
     userStatus: UserStatus,
     name: String,
     label: String,
@@ -40,6 +40,7 @@ fun InternalContactSearchResultItem(
                 )
 
                 UserProfileAvatar(
+                    userAvatarAsset = avatarAsset,
                     status = userStatus
                 )
             }
@@ -73,8 +74,7 @@ fun InternalContactSearchResultItem(
 
 @Composable
 fun ExternalContactSearchResultItem(
-    //TODO : this will need refactor we are not using avatarUrl
-    avatarUrl: String = "",
+    avatarAsset: UserAvatarAsset?,
     userStatus: UserStatus,
     name: String,
     label: String,
@@ -87,6 +87,7 @@ fun ExternalContactSearchResultItem(
         leadingIcon = {
             Row {
                 UserProfileAvatar(
+                    userAvatarAsset = avatarAsset,
                     status = userStatus
                 )
             }

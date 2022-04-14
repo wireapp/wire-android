@@ -16,8 +16,8 @@ import com.wire.android.R
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun CameraButton() {
-    var isCameraOn by remember { mutableStateOf(false) }
+fun CameraButton(initialState: Boolean = false) {
+    var isCameraOn by remember { mutableStateOf(initialState) }
 
     IconButton(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),

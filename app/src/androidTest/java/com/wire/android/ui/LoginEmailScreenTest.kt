@@ -28,6 +28,7 @@ import com.wire.android.utils.waitForExecution
 import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.hamcrest.core.AllOf.allOf
 import org.junit.After
 import org.junit.Before
@@ -115,6 +116,8 @@ class LoginEmailScreenTest {
         // Click on show password icon and check password is visible
         hidePassword.performClick()
         passwordField.onChildren()[1].assertTextEquals("123456")
+        hidePassword.performClick()
+        passwordField.onChildren()[1].shouldNotBeEqualTo("123456")
 
         loginButton.assertHasClickAction()
         loginButton.performClick()

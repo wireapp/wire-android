@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -55,7 +57,7 @@ fun CodeTextField(
     textStyle: TextStyle = MaterialTheme.wireTypography.code01,
     state: WireTextFieldState = WireTextFieldState.Default,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    horizontalSpacing: Dp = MaterialTheme.wireDimensions.spacing8x,
+    maxHorizontalSpacing: Dp = MaterialTheme.wireDimensions.spacing16x,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     modifier: Modifier = Modifier
 ) {
@@ -63,7 +65,7 @@ fun CodeTextField(
     val enabled = state !is WireTextFieldState.Disabled
     Column(
         horizontalAlignment = horizontalAlignment,
-        modifier = modifier,
+        modifier = modifier.width(IntrinsicSize.Min),
     ) {
         BasicTextField(
             value = value,
@@ -84,7 +86,9 @@ fun CodeTextField(
             decorationBox = {
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
                     repeat(codeLength) { index ->
-                        if (index != 0) Spacer(modifier = Modifier.width(horizontalSpacing))
+                        if (index != 0) Spacer(modifier = Modifier
+                            .weight(1f, fill = false)
+                            .width(maxHorizontalSpacing))
                         Digit(
                             char = value.text.getOrNull(index),
                             shape = shape,
@@ -105,7 +109,8 @@ fun CodeTextField(
                 text = bottomText,
                 style = MaterialTheme.wireTypography.label04,
                 color = colors.descriptionColor(state).value,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing4x)
+                modifier = Modifier
+                    .padding(top = MaterialTheme.wireDimensions.spacing4x)
             )
         }
     }
@@ -144,3 +149,15 @@ private fun Digit(
 }
 
 data class CodeFieldValue(val text: TextFieldValue, val isFullyFilled: Boolean)
+
+@Preview(name = "Success CodeTextField")
+@Composable
+private fun CodeTextFieldSuccessPreview() {
+    CodeTextField(value = TextFieldValue("123"), onValueChange = {})
+}
+
+@Preview(name = "Error CodeTextField")
+@Composable
+private fun CodeTextFieldErrorPreview() {
+    CodeTextField(value = TextFieldValue("123"), onValueChange = {}, state = WireTextFieldState.Error("error text"))
+}

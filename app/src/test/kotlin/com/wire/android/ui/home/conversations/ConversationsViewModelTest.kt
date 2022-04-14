@@ -11,6 +11,7 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
@@ -213,7 +214,7 @@ class ConversationsViewModelTest {
         fun testConversationDetailsOneOnOne(senderName: String) = ConversationDetails.OneOne(
             mockk(), mockk<OtherUser>().apply {
                 every { name } returns senderName
-            }, ConversationDetails.OneOne.ConnectionState.OUTGOING, LegalHoldStatus.DISABLED
+            }, ConnectionState.PENDING, LegalHoldStatus.DISABLED
         )
 
         fun testConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {

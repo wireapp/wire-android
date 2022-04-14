@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
@@ -58,6 +59,7 @@ fun ContactsScreen(
                 ) { contact ->
                     ContactItem(
                         name = contact.name,
+                        avatarAsset = contact.avatarAsset,
                         userStatus = contact.userStatus,
                         belongsToGroup = contactsAddedToGroup.contains(contact),
                         addToGroup = { onAddToGroup(contact) },
@@ -75,6 +77,7 @@ fun ContactsScreen(
 @Composable
 private fun ContactItem(
     name: String,
+    avatarAsset: UserAvatarAsset?,
     userStatus: UserStatus,
     belongsToGroup: Boolean,
     addToGroup: () -> Unit,
@@ -86,6 +89,7 @@ private fun ContactItem(
             Row {
                 WireCheckbox(checked = belongsToGroup, onCheckedChange = { if (it) addToGroup() else removeFromGroup() })
                 UserProfileAvatar(
+                    userAvatarAsset = avatarAsset,
                     status = userStatus
                 )
             }

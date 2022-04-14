@@ -15,13 +15,13 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEVICE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryScreen
@@ -75,13 +75,13 @@ enum class NavigationItem(
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
-        content = { CreateTeamScreen(serverConfig = ServerConfig.STAGING) },
+        content = { CreateTeamScreen(serverConfig = ServerConfig.DEFAULT) },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     CreatePersonalAccount(
         primaryRoute = CREATE_PERSONAL_ACCOUNT,
-        content = { CreatePersonalAccountScreen(ServerConfig.STAGING) },
+        content = { CreatePersonalAccountScreen(ServerConfig.DEFAULT) },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
@@ -145,19 +145,20 @@ enum class NavigationItem(
         }
     },
 
-    //TODO: internal is here untill we can get the ConnectionStatus from the user
+    //TODO: internal is here until we can get the ConnectionStatus from the user
     // for now it is just to be able to proceed forward
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_ID}/{$EXTRA_CONNECTED_STATUS}",
+        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}/{$EXTRA_CONNECTED_STATUS}",
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()
-            val internal: Boolean? = arguments.filterIsInstance<Boolean>().firstOrNull()
+            val userDomain: String = arguments.filterIsInstance<String>()[0]
+            val userProfileId: String = arguments.filterIsInstance<String>()[1]
+            val internal = arguments.filterIsInstance<Boolean>().first()
 
-            return "$primaryRoute/${userProfileId!!}/${internal!!}"
+            return "$primaryRoute/${userDomain}/${userProfileId}/${internal}"
         }
     },
 
@@ -185,9 +186,14 @@ enum class NavigationItem(
 
     OngoingCall(
         primaryRoute = ONGOING_CALL,
-        canonicalRoute = ONGOING_CALL,
+        canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { OngoingCallScreen() }
-    );
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+        }
+    };
 
     /**
      * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder.
@@ -227,6 +233,8 @@ object NavigationItemDestinationsRoutes {
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 const val EXTRA_USER_ID = "extra_user_id"
+const val EXTRA_USER_DOMAIN = "extra_user_domain"
+
 //TODO: internal is here untill we can get the ConnectionStatus from the user
 // for now it is just to be able to proceed forward
 const val EXTRA_CONNECTED_STATUS = "extra_connected_status"

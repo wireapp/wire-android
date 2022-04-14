@@ -48,7 +48,6 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    // TODO: here we can extract the ID provided to the screen and fetch the data for the conversation
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
@@ -71,15 +70,13 @@ class ConversationViewModel @Inject constructor(
     )
         private set
 
-
-    val conversationId: ConversationId? = savedStateHandle
-        .getLiveData<String>(EXTRA_CONVERSATION_ID)
-        .value
-        ?.parseIntoQualifiedID()
+    val conversationId: ConversationId = savedStateHandle
+        .get<String>(EXTRA_CONVERSATION_ID)!!
+        .parseIntoQualifiedID()
 
     init {
         viewModelScope.launch {
-            getMessages(conversationId!!).combine(observeMemberDetails(conversationId)) { messages, members ->
+            getMessages(conversationId).combine(observeMemberDetails(conversationId)) { messages, members ->
                 messages.toUIMessages(members)
             }.collect { uiMessages ->
                 conversationViewState = conversationViewState.copy(messages = uiMessages)
@@ -87,7 +84,7 @@ class ConversationViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            observeConversationDetails(conversationId!!).collect { conversationDetails ->
+            observeConversationDetails(conversationId).collect { conversationDetails ->
                 val conversationName = when (conversationDetails) {
                     is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
                     else -> conversationDetails.conversation.name.orEmpty()
@@ -105,11 +102,13 @@ class ConversationViewModel @Inject constructor(
 
     fun navigateToInitiatingCallScreen() {
         viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs()
+            conversationId?.let {
+                navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(it))
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -121,12 +120,10 @@ class ConversationViewModel @Inject constructor(
         val messageText = conversationViewState.messageText
 
         conversationViewState = conversationViewState.copy(messageText = "")
+
         viewModelScope.launch {
-            // TODO what if conversationId is null???
-            conversationId?.let {
-                // TODO: Handle error case when sending message
-                sendTextMessage(it, messageText)
-            }
+            // TODO: Handle error case when sending message
+            sendTextMessage(conversationId, messageText)
         }
     }
 
@@ -134,7 +131,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             attachmentBundle?.let {
                 appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
-                conversationId?.run {
+                conversationId.run {
                     // TODO: Add an attachment bundle type to differentiate whether to invoke sendImageMessage or sendAssetMessage when the
                     //  rest of the attachment options have been completed
                     val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
@@ -143,6 +140,7 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
+
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
         if (isMyMessage) {
@@ -161,7 +159,7 @@ class ConversationViewModel @Inject constructor(
             it.copy(
                 forYourself = DeleteMessageDialogActiveState.Visible(
                     messageId = messageId,
-                    conversationId = conversationId!!
+                    conversationId = conversationId
                 )
             )
         }
@@ -203,7 +201,7 @@ class ConversationViewModel @Inject constructor(
                 it.copy(
                     forEveryone = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
-                        conversationId = conversationId!!,
+                        conversationId = conversationId,
                         loading = true
                     )
                 )
@@ -213,13 +211,13 @@ class ConversationViewModel @Inject constructor(
                 it.copy(
                     forYourself = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
-                        conversationId = conversationId!!,
+                        conversationId = conversationId,
                         loading = true
                     )
                 )
             }
         }
-        deleteMessage(conversationId = conversationId!!, messageId = messageId, deleteForEveryone = deleteForEveryone)
+        deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
         onDialogDismissed()
     }
 
@@ -238,7 +236,10 @@ class ConversationViewModel @Inject constructor(
                     MessageStatus.Untouched,
                     messageId = message.id
                 ),
-                user = User(availabilityStatus = UserStatus.NONE)
+                user = User(
+                    avatarAsset = sender?.previewAsset,
+                    availabilityStatus = UserStatus.NONE
+                )
             )
         }
     }

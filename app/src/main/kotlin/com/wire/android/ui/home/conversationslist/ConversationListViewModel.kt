@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -48,8 +48,6 @@ class ConversationListViewModel @Inject constructor(
 
     var state by mutableStateOf(ConversationListState())
         private set
-
-    // markSelectedConversationId and mutate
 
     init {
         viewModelScope.launch {
@@ -98,34 +96,40 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    // TODO: needs to be implemented
+    //TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun addConversationToFavourites(id: String) {
+
     }
 
-    // TODO: needs to be implemented
+    //TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun moveConversationToFolder(id: String) {
+
     }
 
-    // TODO: needs to be implemented
+    //TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun moveConversationToArchive(id: String) {
+
     }
 
-    // TODO: needs to be implemented
+    //TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun clearConversationContent(id: String) {
+
     }
 
-    // TODO: needs to be implemented
+    //TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun blockUser(id: String) {
+
     }
 
-    // TODO: needs to be implemented
+    //TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun leaveGroup(id: String) {
+
     }
 
     private fun List<ConversationDetails>.toGeneralConversationList(): List<GeneralConversation> = filter {
@@ -146,7 +150,10 @@ class ConversationListViewModel @Inject constructor(
                 val otherUser = details.otherUser
                 GeneralConversation(
                     ConversationType.PrivateConversation(
-                        userInfo = UserInfo("", UserStatus.NONE), // TODO Get actual status and avatar
+                        userInfo = UserInfo(
+                            otherUser.previewPicture?.let { UserAvatarAsset(it) },
+                            UserStatus.NONE //TODO Get actual status
+                        ),
                         conversationInfo = ConversationInfo(
                             name = otherUser.name.orEmpty(),
                             membership = Membership.None,
@@ -161,4 +168,5 @@ class ConversationListViewModel @Inject constructor(
             }
         }
     }
+
 }

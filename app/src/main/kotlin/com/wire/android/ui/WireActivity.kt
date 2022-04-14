@@ -37,23 +37,18 @@ class WireActivity : AppCompatActivity() {
 
     @Inject
     lateinit var navigationManager: NavigationManager
+
     val viewModel: WireActivityViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        handleDeepLink(intent)
+        setComposableContent()
+    }
+
+    private fun handleDeepLink(intent: Intent) {
         viewModel.handleDeepLink(intent)
-        setContent {
-            WireTheme {
-                val scope = rememberCoroutineScope()
-                val navController = rememberAnimatedNavController()
-
-                setUpNavigation(navController, scope)
-
-                Scaffold {
-                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), listOf(viewModel.serverConfig))
-                }
-            }
-        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -62,6 +57,20 @@ class WireActivity : AppCompatActivity() {
             viewModel.handleDeepLink(intent)
         }
         super.onNewIntent(intent)
+    }
+
+    private fun setComposableContent() {
+        setContent {
+            WireTheme {
+                val scope = rememberCoroutineScope()
+                val navController = rememberAnimatedNavController()
+                setUpNavigation(navController, scope)
+
+                Scaffold {
+                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), listOf(viewModel.serverConfig))
+                }
+            }
+        }
     }
 
     @Composable

@@ -31,7 +31,7 @@ class SearchPeopleScreenState(
     val lazyListState: LazyListState,
 ) {
 
-    val newGroupContacts = mutableStateListOf<Contact>()
+    private val newGroupContacts = mutableStateListOf<Contact>()
 
     var contactsAllResultsCollapsed: Boolean by mutableStateOf(false)
 

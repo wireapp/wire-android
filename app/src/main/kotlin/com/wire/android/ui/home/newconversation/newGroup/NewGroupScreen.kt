@@ -39,6 +39,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun NewGroupScreen(onBackPressed: () -> Unit) {
     val viewModel: NewConversationViewModel = hiltViewModel()
+
     NewGroupScreenContent(
         state = viewModel.groupNameState,
         onGroupNameChange = viewModel::onGroupNameChange,

@@ -18,24 +18,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import coil.compose.rememberAsyncImagePainter
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.getUriFromDrawable
-import com.wire.android.util.toBitmap
 
 @Composable
 fun UserProfileAvatar(
-// TODO: in the future we would not pass here null, but while developing there may be users having no avatar asset
-    avatarAssetByteArray: ByteArray? = null,
+    userAvatarAsset: UserAvatarAsset? = null,
     status: UserStatus = UserStatus.NONE,
     isClickable: Boolean = false,
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
+    val imageLoader = hiltViewModel<CurrentSessionViewModel>().wireSessionImageLoader
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -46,8 +47,8 @@ fun UserProfileAvatar(
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
         Image(
-            painter = rememberAsyncImagePainter(
-                avatarAssetByteArray?.toBitmap() ?: getUriFromDrawable(
+            painter = imageLoader.paint(
+                userAvatarAsset, getUriFromDrawable(
                     LocalContext.current,
                     R.drawable.ic_default_user_avatar
                 )
@@ -70,5 +71,7 @@ fun UserProfileAvatar(
 @Preview
 @Composable
 fun UserProfileAvatarPreview() {
-    UserProfileAvatar(status = UserStatus.BUSY) {}
+    UserProfileAvatar(
+        status = UserStatus.BUSY
+    ) {}
 }

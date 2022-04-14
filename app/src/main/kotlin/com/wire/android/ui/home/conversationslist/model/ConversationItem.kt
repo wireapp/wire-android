@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist.model
 
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.main.conversationlist.common.UserInfoLabel
 import com.wire.kalium.logic.data.id.ConversationId
@@ -35,7 +36,7 @@ data class ConversationInfo(
 )
 
 data class UserInfo(
-    val avatarUrl: String = "",
+    val avatarAsset: UserAvatarAsset? = null,
     val availabilityStatus: UserStatus = UserStatus.NONE
 )
 

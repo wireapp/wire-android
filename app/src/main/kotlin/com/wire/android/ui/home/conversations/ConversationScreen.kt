@@ -24,8 +24,8 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import kotlinx.coroutines.launch
@@ -35,6 +35,7 @@ fun ConversationScreen(
     conversationViewModel: ConversationViewModel
 ) {
     val uiState = conversationViewModel.conversationViewState
+
     ConversationScreen(
         conversationViewState = uiState,
         onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },
@@ -43,7 +44,7 @@ fun ConversationScreen(
         onDownloadAsset = { assetId -> conversationViewModel.downloadAsset(assetId) },
         onBackButtonClick = { conversationViewModel.navigateBack() },
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = conversationViewModel::navigateToInitiatingCallScreen
+        onCallStart = { conversationViewModel.navigateToInitiatingCallScreen() }
     )
     DeleteMessageDialog(
         conversationViewModel = conversationViewModel

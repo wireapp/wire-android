@@ -10,7 +10,7 @@ import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 
 val mockMessageWithText = MessageViewWrapper(
-    user = User("", UserStatus.AVAILABLE),
+    user = User(null, UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = "John Doe",
         membership = Membership.Guest,
@@ -53,7 +53,7 @@ val mockedImg = MessageContent.ImageMessage(ByteArray(16), 0, 0)
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<MessageViewWrapper> = listOf(
     MessageViewWrapper(
-        user = User("", UserStatus.AVAILABLE),
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.Guest,
@@ -72,7 +72,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         ),
     ),
     MessageViewWrapper(
-        user = User("", UserStatus.AVAILABLE),
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.Guest,
@@ -84,7 +84,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageContent = mockedImg,
     ),
     MessageViewWrapper(
-        user = User("", UserStatus.AVAILABLE),
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.External,
@@ -96,7 +96,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageContent = mockedImg,
     ),
     MessageViewWrapper(
-        user = User("", UserStatus.AVAILABLE),
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.External,
@@ -108,7 +108,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageContent = mockedImg,
     ),
     MessageViewWrapper(
-        user = User("", UserStatus.AVAILABLE),
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.External,
@@ -127,7 +127,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         ),
     ),
     MessageViewWrapper(
-        user = User("", UserStatus.AVAILABLE),
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.External,
@@ -139,7 +139,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageContent = mockedImg,
     ),
     MessageViewWrapper(
-        user = User("", UserStatus.AVAILABLE),
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.External,

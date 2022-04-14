@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations.model
 
 import com.wire.android.R
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversationslist.model.Membership
 
@@ -51,7 +52,7 @@ data class MessageBody(
 )
 
 data class User(
-    val avatarUrl: String = "",
+    val avatarAsset: UserAvatarAsset?,
     val availabilityStatus: UserStatus,
 )
 

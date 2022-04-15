@@ -100,9 +100,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
+        viewModelScope.launch { navigationManager.navigateBack() }
     }
 
     fun navigateToInitiatingCallScreen() {
@@ -135,26 +133,24 @@ class ConversationViewModel @Inject constructor(
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
             attachmentBundle?.let {
-                conversationId.run {
-                    when (attachmentBundle.attachmentType) {
-                        AttachmentType.IMAGE -> {
-                            val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
-                            sendImageMessage(
-                                conversationId = this,
-                                imageRawData = attachmentBundle.rawContent,
-                                imageName = attachmentBundle.fileName,
-                                imgWidth = imgWidth,
-                                imgHeight = imgHeight
-                            )
-                        }
-                        AttachmentType.GENERIC_FILE -> {
-                            sendAssetMessage(
-                                conversationId = this,
-                                assetRawData = attachmentBundle.rawContent,
-                                assetName = attachmentBundle.fileName,
-                                assetMimeType = attachmentBundle.mimeType
-                            )
-                        }
+                when (attachmentBundle.attachmentType) {
+                    AttachmentType.IMAGE -> {
+                        val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
+                        sendImageMessage(
+                            conversationId = conversationId,
+                            imageRawData = attachmentBundle.rawContent,
+                            imageName = attachmentBundle.fileName,
+                            imgWidth = imgWidth,
+                            imgHeight = imgHeight
+                        )
+                    }
+                    AttachmentType.GENERIC_FILE -> {
+                        sendAssetMessage(
+                            conversationId = conversationId,
+                            assetRawData = attachmentBundle.rawContent,
+                            assetName = attachmentBundle.fileName,
+                            assetMimeType = attachmentBundle.mimeType
+                        )
                     }
                 }
             }

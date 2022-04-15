@@ -70,7 +70,7 @@ class ConversationViewModel @Inject constructor(
     )
         private set
 
-   private val conversationId: ConversationId = savedStateHandle
+    private val conversationId: ConversationId = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
@@ -94,37 +94,15 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
-
-    fun navigateToInitiatingCallScreen() {
-        viewModelScope.launch {
-            conversationId.let {
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(it))
-                    )
-                )
-            }
-        }
-    }
-
     fun onMessageChanged(message: String) {
         conversationViewState = conversationViewState.copy(messageText = message)
     }
 
     fun sendMessage() {
-        val messageText = conversationViewState.messageText
-
-        conversationViewState = conversationViewState.copy(messageText = "")
-
         viewModelScope.launch {
-            // TODO: Handle error case when sending message
-            sendTextMessage(conversationId, messageText)
+            sendTextMessage(conversationId, conversationViewState.messageText)
         }
+        conversationViewState = conversationViewState.copy(messageText = "")
     }
 
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
@@ -220,6 +198,24 @@ class ConversationViewModel @Inject constructor(
         onDialogDismissed()
     }
 
+    fun navigateBack() {
+        viewModelScope.launch {
+            navigationManager.navigateBack()
+        }
+    }
+
+    fun navigateToInitiatingCallScreen() {
+        viewModelScope.launch {
+            conversationId.let {
+                navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(it))
+                    )
+                )
+            }
+        }
+    }
+
     private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
             val sender = members.findSender(message.senderUserId)
@@ -228,14 +224,16 @@ class ConversationViewModel @Inject constructor(
                 messageSource = MessageSource.CurrentUser,
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
-                    sender?.name ?: "Deleted User",
-                    Membership.None,
-                    false,
-                    message.date,
-                    MessageStatus.Untouched,
+                    username = sender?.name ?: "Deleted User",
+                    membership = Membership.None,
+                    isLegalHold = false,
+                    time = message.date,
+                    messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.Failure else MessageStatus.Untouched,
                     messageId = message.id
                 ),
-                user = User(availabilityStatus = UserStatus.NONE)
+                user = User(
+                    availabilityStatus = UserStatus.NONE
+                )
             )
         }
     }

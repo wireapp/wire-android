@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -26,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -150,7 +153,9 @@ fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
         ),
         alignment = Alignment.CenterStart,
         contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = Modifier.width(imgParams.normalizedWidth).height(imgParams.normalizedHeight),
+        modifier = Modifier
+            .width(imgParams.normalizedWidth)
+            .height(imgParams.normalizedHeight),
         contentScale = ContentScale.Crop
     )
 }
@@ -197,25 +202,47 @@ private fun AnnotatedString.Builder.appendBody(messageBody: MessageBody) {
 
 @Composable
 private fun MessageStatusLabel(messageStatus: MessageStatus) {
-    Box(
-        modifier = Modifier
-            .wrapContentSize()
-            .border(
-                BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.divider
-                ),
-                shape = RoundedCornerShape(size = 4.dp)
-            )
-            .padding(
-                horizontal = 4.dp,
-                vertical = 2.dp
-            )
+    CompositionLocalProvider(
+        LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        Text(
-            text = stringResource(id = messageStatus.stringResourceId),
-            style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.labelText)
-        )
+    if (messageStatus != MessageStatus.Failure) {
+        Box(
+            modifier = Modifier
+                .wrapContentSize()
+                .border(
+                    BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.wireColorScheme.divider
+                    ),
+                    shape = RoundedCornerShape(size = 4.dp)
+                )
+                .padding(
+                    horizontal = 4.dp,
+                    vertical = 2.dp
+                )
+        ) {
+            Text(
+                text = stringResource(id = messageStatus.stringResourceId),
+                style = LocalTextStyle.current.copy(color = MaterialTheme.wireColorScheme.labelText)
+            )
+        }
+    } else {
+            Row {
+                Text(
+                    text = stringResource(id = messageStatus.stringResourceId),
+                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    style = LocalTextStyle.current.copy(
+                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    text = stringResource(R.string.label_try_again),
+                )
+            }
+        }
     }
 }
 

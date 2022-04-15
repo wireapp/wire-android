@@ -82,8 +82,8 @@ private fun ConversationScreen(
                         ConversationScreenTopAppBar(
                             title = conversationName,
                             onBackButtonClick = onBackButtonClick,
-                            onDropDownClick = {},
-                            onSearchButtonClick = {},
+                            onDropDownClick = { },
+                            onSearchButtonClick = { },
                             onVideoButtonClick = { onCallStart() }
                         )
                     },

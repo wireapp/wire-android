@@ -34,6 +34,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
+import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -69,7 +70,7 @@ fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
 }
 
 @Composable
-internal fun MessageAsset(assetName: String, assetExtension: String, assetSizeInBytes: Int, onAssetClick: () -> Unit) {
+internal fun MessageAsset(assetName: String, assetExtension: String, assetSizeInBytes: Long, onAssetClick: () -> Unit) {
     val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
     Box(
         modifier = Modifier
@@ -133,7 +134,7 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetSizeIn
 }
 
 @Suppress("MagicNumber")
-private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Int): String {
+private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
     return when {
         assetSizeInBytes < 1000 -> "${assetExtension.uppercase()} ($assetSizeInBytes B)"
         assetSizeInBytes in 1000..999999 -> "${assetExtension.uppercase()} (${assetSizeInBytes / 1000} KB)"
@@ -168,6 +169,12 @@ class ImageMessageParams(private val realImgWidth: Int, private val realImgHeigh
     val normalizedHeight: Dp
         @Composable
         get() = Dp(normalizedWidth.value * realImgHeight.toFloat() / realImgWidth)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessage() {
+    MessageItem(mockMessageWithText, {}, {})
 }
 
 @Preview(showBackground = true)

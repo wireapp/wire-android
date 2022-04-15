@@ -168,9 +168,3 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
         )
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewMessage() {
-    MessageItem(mockMessageWithText, {}, {})
-}

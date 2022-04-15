@@ -100,7 +100,7 @@ fun OtherProfileScreenContent(
                     item {
                         UserProfileInfo(
                             isLoading = state.isAvatarLoading,
-                            avatarAssetByteArray = state.avatarAssetByteArray,
+                            avatarAsset = state.userAvatarAsset,
                             fullName = fullName,
                             userName = userName,
                             teamName = teamName,
@@ -128,7 +128,6 @@ fun OtherProfileScreenContent(
                                 )
                             }
                         }
-
                     } else {
                         item {
                             Box(

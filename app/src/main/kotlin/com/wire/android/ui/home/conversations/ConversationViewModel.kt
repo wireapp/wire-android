@@ -102,11 +102,13 @@ class ConversationViewModel @Inject constructor(
 
     fun navigateToInitiatingCallScreen() {
         viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs()
+            conversationId?.let {
+                navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(it))
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -118,7 +120,9 @@ class ConversationViewModel @Inject constructor(
         val messageText = conversationViewState.messageText
 
         conversationViewState = conversationViewState.copy(messageText = "")
+
         viewModelScope.launch {
+            // TODO: Handle error case when sending message
             sendTextMessage(conversationId, messageText)
         }
     }
@@ -137,9 +141,16 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun showDeleteMessageDialog(messageId: String) =
-        updateDialogState {
-            it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
+
+    fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
+        if (isMyMessage) {
+            updateDialogState {
+                it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
+            }
+        } else {
+            updateDialogState {
+                it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId!!))
+            }
         }
 
     fun showDeleteMessageForYourselfDialog(messageId: String) {
@@ -225,7 +236,10 @@ class ConversationViewModel @Inject constructor(
                     MessageStatus.Untouched,
                     messageId = message.id
                 ),
-                user = User(availabilityStatus = UserStatus.NONE)
+                user = User(
+                    avatarAsset = sender?.previewAsset,
+                    availabilityStatus = UserStatus.NONE
+                )
             )
         }
     }

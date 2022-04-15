@@ -20,6 +20,7 @@ import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.MessageSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -54,19 +55,17 @@ class ConversationScreenState(
     val coroutineScope: CoroutineScope
 ) {
 
-    var editMessage by mutableStateOf<MessageViewWrapper?>(null)
+    var selectedMessage by mutableStateOf<MessageViewWrapper?>(null)
 
-    val editMessageSource by derivedStateOf {
-        editMessage?.messageSource
-    }
+    val isSelectedMessageMyMessage = selectedMessage?.messageSource == MessageSource.CurrentUser
 
     fun showEditContextMenu(message: MessageViewWrapper) {
-        editMessage = message
+        selectedMessage = message
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 
     fun copyMessage() {
-        editMessage?.messageContent.let { messageContent ->
+        selectedMessage?.messageContent.let { messageContent ->
             if (messageContent is MessageContent.TextMessage) {
                 clipboardManager.setText(AnnotatedString(messageContent.messageBody.message))
                 coroutineScope.launch {

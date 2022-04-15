@@ -24,8 +24,8 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import kotlinx.coroutines.launch
@@ -43,7 +43,7 @@ fun ConversationScreen(
         onSendAttachment = { attachmentBundle -> conversationViewModel.sendAttachmentMessage(attachmentBundle) },
         onBackButtonClick = { conversationViewModel.navigateBack() },
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = conversationViewModel::navigateToInitiatingCallScreen
+        onCallStart = { conversationViewModel.navigateToInitiatingCallScreen() }
     )
     DeleteMessageDialog(
         conversationViewModel = conversationViewModel
@@ -58,7 +58,7 @@ private fun ConversationScreen(
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onBackButtonClick: () -> Unit,
-    onDeleteMessage: (String) -> Unit,
+    onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
@@ -68,9 +68,14 @@ private fun ConversationScreen(
         MenuModalSheetLayout(
             sheetState = conversationScreenState.modalBottomSheetState,
             menuItems = EditMessageMenuItems(
-                editMessageSource = conversationScreenState.editMessageSource,
+                isMyMessage = conversationScreenState.isSelectedMessageMyMessage,
                 onCopyMessage = conversationScreenState::copyMessage,
-                onDeleteMessage = { onDeleteMessage(conversationScreenState.editMessage?.messageHeader!!.messageId) }
+                onDeleteMessage = {
+                    onDeleteMessage(
+                        conversationScreenState.selectedMessage?.messageHeader!!.messageId,
+                        conversationScreenState.isSelectedMessageMyMessage
+                    )
+                }
             ),
             content = {
                 Scaffold(
@@ -112,7 +117,7 @@ private fun ConversationScreen(
 
 @Composable
 private fun EditMessageMenuItems(
-    editMessageSource: MessageSource?,
+    isMyMessage: Boolean,
     onCopyMessage: () -> Unit,
     onDeleteMessage: () -> Unit
 ): List<@Composable () -> Unit> {
@@ -129,7 +134,7 @@ private fun EditMessageMenuItems(
                 onItemClick = onCopyMessage
             )
         }
-        if (editMessageSource == MessageSource.CurrentUser)
+        if (isMyMessage)
             add {
                 MenuBottomSheetItem(
                     icon = {
@@ -211,6 +216,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, {}
+        {}, {}, {}, {}, { _: String, _: Boolean -> }
     ) {}
 }

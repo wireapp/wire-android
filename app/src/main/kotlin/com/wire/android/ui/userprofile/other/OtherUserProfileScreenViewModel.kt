@@ -13,6 +13,7 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
@@ -41,43 +42,41 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         // for now it is just to be able to proceed forward
         val internalStatus = savedStateHandle.get<String>(EXTRA_CONNECTED_STATUS)
 
-        val booleanStatus = internalStatus == "true"
+        val isAKnownUser = internalStatus == "true"
 
-        if (booleanStatus) {
+        if (isAKnownUser) {
             state = state.copy(isDataLoading = true)
 
             viewModelScope.launch {
                 getKnownUserUseCase(userId).collect { otherUser ->
-                    if (otherUser != null) {
-                        with(otherUser) {
-                            state = state.copy(
-                                isDataLoading = false,
-                                fullName = name ?: "",
-                                userName = handle ?: "",
-                                teamName = team ?: "",
-                                email = email ?: "",
-                                phone = phone ?: "",
-                                connectionStatus = ConnectionStatus.Connected
-                            )
-                        }
-                    } else {
+                    otherUser?.let {
+                        state = state.copy(
+                            isDataLoading = false,
+                            fullName = it.name ?: String.EMPTY,
+                            userName = it.handle ?: String.EMPTY,
+                            teamName = it.team ?: String.EMPTY,
+                            email = it.email ?: String.EMPTY,
+                            phone = it.phone ?: String.EMPTY,
+                            connectionStatus = ConnectionStatus.Connected
+                        )
+                    } ?: run {
                         appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
                     }
                 }
             }
+        } else {
+            //TODO: for now this is a mock data when we open a screen for a not connected user
+            // we need to retrieve it from the back-end ? and not the local source ?
+            state = state.copy(
+                isAvatarLoading = false,
+                fullName = "Kim",
+                userName = "Dawson",
+                teamName = "AWESOME TEAM NAME",
+                email = "kim.dawson@gmail.com",
+                phone = "+49 123 456 000",
+                connectionStatus = if (isAKnownUser) ConnectionStatus.Connected else ConnectionStatus.NotConnected(false)
+            )
         }
-
-        //TODO: for now this is a mock data when we open a screen for a not connected user
-        // we need to retrieve it from the back-end ? and not the local source ?
-        state = state.copy(
-            isAvatarLoading = false,
-            fullName = "Kim",
-            userName = "Dawson",
-            teamName = "AWESOME TEAM NAME",
-            email = "kim.dawson@gmail.com",
-            phone = "+49 123 456 000",
-            connectionStatus = if (booleanStatus) ConnectionStatus.Connected else ConnectionStatus.NotConnected(false)
-        )
     }
 
     fun openConversation() {

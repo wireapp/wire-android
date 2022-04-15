@@ -67,7 +67,10 @@ fun MessageItem(
                     onLongClick = onLongClicked
                 )
         ) {
-            UserProfileAvatar(status = message.user.availabilityStatus)
+            UserProfileAvatar(
+                userAvatarAsset = message.user.avatarAsset,
+                status = message.user.availabilityStatus
+            )
             Column {
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(6.dp))

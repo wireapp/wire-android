@@ -232,7 +232,7 @@ class ConversationViewModel @Inject constructor(
                     messageId = message.id
                 ),
                 user = User(
-                    availabilityStatus = UserStatus.NONE
+                    avatarAsset = sender?.previewAsset,availabilityStatus = UserStatus.NONE
                 )
             )
         }

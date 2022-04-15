@@ -137,7 +137,7 @@ private fun MessageContent(messageContent: MessageContent, onAssetClick: (String
         )
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
         is MessageContent.AssetMessage -> MessageAsset(
-            assetName = messageContent.assetName.split(".").first(),
+            assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
             onAssetClick = { onAssetClick(messageContent.assetId) }

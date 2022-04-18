@@ -1,5 +1,6 @@
 package com.wire.android.ui.common.bottomsheet
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,9 +27,14 @@ fun RichMenuBottomSheetItem(
     subLine: String,
     icon: (@Composable () -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
-    onItemClick: () -> Unit = {}
+    onItemClick: () -> Unit = {},
+    state: RichMenuItemState = RichMenuItemState.DEFAULT
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = if (state == RichMenuItemState.DEFAULT) Modifier.background(MaterialTheme.wireColorScheme.secondaryButtonSelected)
+        else Modifier
+    ) {
         Row(
             modifier = Modifier
                 .wrapContentHeight()
@@ -89,4 +95,8 @@ fun MenuItemSubLine(
         text = subLine,
         modifier = modifier.fillMaxWidth()
     )
+}
+
+enum class RichMenuItemState {
+    DEFAULT, SELECTED
 }

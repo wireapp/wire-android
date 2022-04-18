@@ -12,6 +12,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.ArrowLeftIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.RichMenuBottomSheetItem
+import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -22,7 +23,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun MutingOptionsSheetContent(
     mutingConversationState: MutingConversationState = rememberMutingConversationState(),
     onItemClick: (ConversationId?, MutedConversationStatus) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    currentStatus: MutedConversationStatus = MutedConversationStatus.AllAllowed
 ) {
     MenuModalSheetLayout(
         sheetState = mutingConversationState.sheetState,
@@ -33,7 +35,9 @@ fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_all_allowed_title),
                     subLine = stringResource(id = R.string.muting_option_all_allowed_text),
                     action = { CheckIcon() },
-                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllAllowed) }
+                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllAllowed) },
+                    state = if (currentStatus == MutedConversationStatus.AllAllowed) RichMenuItemState.SELECTED
+                    else RichMenuItemState.DEFAULT
                 )
             },
             {
@@ -41,7 +45,9 @@ fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_only_mentions_title),
                     subLine = stringResource(id = R.string.muting_option_only_mentions_text),
                     action = { CheckIcon() },
-                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.OnlyMentionsAllowed) }
+                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.OnlyMentionsAllowed) },
+                    state = if (currentStatus == MutedConversationStatus.OnlyMentionsAllowed) RichMenuItemState.SELECTED
+                    else RichMenuItemState.DEFAULT
                 )
             },
             {
@@ -49,7 +55,9 @@ fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_all_muted_title),
                     subLine = stringResource(id = R.string.muting_option_all_muted_text),
                     action = { CheckIcon() },
-                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllMuted) }
+                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllMuted) },
+                    state = if (currentStatus == MutedConversationStatus.AllMuted) RichMenuItemState.SELECTED
+                    else RichMenuItemState.DEFAULT
                 )
             }
         ),
@@ -59,12 +67,11 @@ fun MutingOptionsSheetContent(
 }
 
 @Composable
-fun CheckIcon() {
+private fun CheckIcon() {
     Icon(
         painter = painterResource(id = R.drawable.ic_check_circle),
-        contentDescription = stringResource(R.string.content_description_mute),
-        modifier = Modifier
-            .size(MaterialTheme.wireDimensions.wireIconButtonSize),
+        contentDescription = stringResource(R.string.content_description_check),
+        modifier = Modifier.size(MaterialTheme.wireDimensions.wireIconButtonSize),
         tint = MaterialTheme.wireColorScheme.positive
     )
 }

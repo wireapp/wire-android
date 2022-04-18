@@ -273,11 +273,6 @@ class ConversationViewModel @Inject constructor(
 
     private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent {
         with(assetContent) {
-            val assetId = remoteData.assetId
-
-            // TODO: To be changed once the error behavior has been defined with product
-            if (assetId.isEmpty()) return TextMessage(messageBody = MessageBody("The asset message could not be downloaded correctly"))
-
             val (imgWidth, imgHeight) = when (val md = metadata) {
                 is Image -> md.width to md.height
                 else -> 0 to 0

@@ -1,7 +1,6 @@
 package com.wire.android.ui.common.bottomsheet
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -52,7 +51,11 @@ fun RichMenuBottomSheetItem(
                 MenuItemSubLine(subLine = subLine)
             }
             if (action != null) {
-                Box(modifier = Modifier.padding(dimensions().spacing8x)) {
+                Column(
+                    modifier = Modifier
+                        .padding(dimensions().spacing8x)
+                        .align(Alignment.CenterVertically)
+                ) {
                     action()
                 }
             }

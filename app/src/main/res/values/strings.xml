@@ -23,6 +23,7 @@
     <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_user_avatar">User avatar</string>
     <string name="content_description_mute">Mute</string>
+    <string name="content_description_check">Check mark</string>
     <string name="content_description_add_to_favourite">Add to favourite</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>

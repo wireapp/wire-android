@@ -32,8 +32,7 @@ fun RichMenuBottomSheetItem(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = if (state == RichMenuItemState.DEFAULT) Modifier.background(MaterialTheme.wireColorScheme.secondaryButtonSelected)
-        else Modifier
+        modifier = if (isSelectedItem(state)) Modifier.background(MaterialTheme.wireColorScheme.secondaryButtonSelected) else Modifier
     ) {
         Row(
             modifier = Modifier
@@ -52,7 +51,7 @@ fun RichMenuBottomSheetItem(
                     .weight(1f),
             ) {
                 Spacer(modifier = Modifier.width(dimensions().spacing12x))
-                MenuItemHeading(title = title)
+                MenuItemHeading(title = title, state = state)
                 Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 MenuItemSubLine(subLine = subLine)
             }
@@ -73,11 +72,12 @@ fun RichMenuBottomSheetItem(
 @Composable
 fun MenuItemHeading(
     title: String,
+    state: RichMenuItemState = RichMenuItemState.DEFAULT,
     modifier: Modifier = Modifier
 ) {
     Text(
         style = MaterialTheme.wireTypography.body02,
-        color = MaterialTheme.wireColorScheme.onBackground,
+        color = if (isSelectedItem(state)) MaterialTheme.wireColorScheme.primary else MaterialTheme.wireColorScheme.onBackground,
         text = title,
         modifier = modifier.fillMaxWidth()
     )
@@ -96,6 +96,8 @@ fun MenuItemSubLine(
         modifier = modifier.fillMaxWidth()
     )
 }
+
+private fun isSelectedItem(state: RichMenuItemState) = state == RichMenuItemState.SELECTED
 
 enum class RichMenuItemState {
     DEFAULT, SELECTED

@@ -50,7 +50,7 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.
 import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
     SelfUserProfileContent(
@@ -68,7 +68,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SelfUserProfileContent(
     state: SelfUserProfileState,
@@ -153,7 +153,6 @@ private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SelfUserProfileTopBar(
     onCloseClick: () -> Unit,

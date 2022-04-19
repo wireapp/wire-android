@@ -14,16 +14,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -82,12 +87,12 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                 Username(username)
 
                 if (membership != Membership.None) {
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(dimensions().spacing6x))
                     MembershipQualifierLabel(membership)
                 }
 
                 if (isLegalHold) {
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(dimensions().spacing6x))
                     LegalHoldIndicator()
                 }
 /*
@@ -146,24 +151,46 @@ private fun MessageContent(messageContent: MessageContent?, onAssetClick: (Strin
 
 @Composable
 private fun MessageStatusLabel(messageStatus: MessageStatus) {
-    Box(
-        modifier = Modifier
-            .wrapContentSize()
-            .border(
-                BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.divider
-                ),
-                shape = RoundedCornerShape(size = 4.dp)
-            )
-            .padding(
-                horizontal = 4.dp,
-                vertical = 2.dp
-            )
+    CompositionLocalProvider(
+        LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        Text(
-            text = stringResource(id = messageStatus.stringResourceId),
-            style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.labelText)
-        )
+        if (messageStatus != MessageStatus.Failure) {
+            Box(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .border(
+                        BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.wireColorScheme.divider
+                        ),
+                        shape = RoundedCornerShape(size = dimensions().spacing4x)
+                    )
+                    .padding(
+                        horizontal = dimensions().spacing4x,
+                        vertical = dimensions().spacing2x
+                    )
+            ) {
+                Text(
+                    text = stringResource(id = messageStatus.stringResourceId),
+                    style = LocalTextStyle.current.copy(color = MaterialTheme.wireColorScheme.labelText)
+                )
+            }
+        } else {
+            Row {
+                Text(
+                    text = stringResource(id = messageStatus.stringResourceId),
+                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+                )
+                Spacer(Modifier.width(dimensions().spacing4x))
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    style = LocalTextStyle.current.copy(
+                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    text = stringResource(R.string.label_try_again),
+                )
+            }
+        }
     }
 }

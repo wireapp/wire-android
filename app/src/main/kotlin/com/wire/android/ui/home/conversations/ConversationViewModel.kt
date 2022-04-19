@@ -18,7 +18,6 @@ import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -99,35 +98,15 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack() {
-        viewModelScope.launch { navigationManager.navigateBack() }
-    }
-
-    fun navigateToInitiatingCallScreen() {
-        viewModelScope.launch {
-            conversationId.let {
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(it))
-                    )
-                )
-            }
-        }
-    }
-
     fun onMessageChanged(message: String) {
         conversationViewState = conversationViewState.copy(messageText = message)
     }
 
     fun sendMessage() {
-        val messageText = conversationViewState.messageText
-
-        conversationViewState = conversationViewState.copy(messageText = "")
-
         viewModelScope.launch {
-            // TODO: Handle error case when sending message
-            sendTextMessage(conversationId, messageText)
+            sendTextMessage(conversationId, conversationViewState.messageText)
         }
+        conversationViewState = conversationViewState.copy(messageText = "")
     }
 
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
@@ -241,6 +220,24 @@ class ConversationViewModel @Inject constructor(
         onDialogDismissed()
     }
 
+    fun navigateBack() {
+        viewModelScope.launch {
+            navigationManager.navigateBack()
+        }
+    }
+
+    fun navigateToInitiatingCallScreen() {
+        viewModelScope.launch {
+            conversationId.let {
+                navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(it))
+                    )
+                )
+            }
+        }
+    }
+
     private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
             val sender = members.findSender(message.senderUserId)
@@ -249,16 +246,15 @@ class ConversationViewModel @Inject constructor(
                 messageSource = MessageSource.CurrentUser,
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
-                    sender?.name ?: "Deleted User",
-                    Membership.None,
-                    false,
-                    message.date,
-                    MessageStatus.Untouched,
+                    username = sender?.name ?: "Deleted User",
+                    membership = Membership.None,
+                    isLegalHold = false,
+                    time = message.date,
+                    messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.Failure else MessageStatus.Untouched,
                     messageId = message.id
                 ),
                 user = User(
-                    avatarAsset = sender?.previewAsset,
-                    availabilityStatus = UserStatus.NONE
+                    avatarAsset = sender?.previewAsset,availabilityStatus = UserStatus.NONE
                 )
             )
         }
@@ -279,7 +275,11 @@ class ConversationViewModel @Inject constructor(
             }
             return when {
                 // If it's an image, we download it right away
-                mimeType.contains("image") -> ImageMessage(getRawAssetData(conversationId, messageId), width = imgWidth, height = imgHeight)
+                mimeType.contains("image") -> MessageContent.ImageMessage(
+                    getRawAssetData(conversationId, messageId),
+                    width = imgWidth,
+                    height = imgHeight
+                )
 
                 // It's a generic Asset Message so let's not download it yet
                 else -> {

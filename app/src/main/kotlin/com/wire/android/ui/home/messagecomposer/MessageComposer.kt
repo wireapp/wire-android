@@ -60,7 +60,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.WireIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
@@ -204,7 +204,8 @@ private fun MessageComposer(
                                     onLongPress = { /* Called on Long Press */ },
                                     onTap = {  /* Called on Tap */ }
                                 )
-                            }.background(color = MaterialTheme.wireColorScheme.backgroundVariant)
+                            }
+                            .background(color = MaterialTheme.wireColorScheme.backgroundVariant)
                             .weight(1f)) {
                         content()
                     }
@@ -495,82 +496,47 @@ private fun MessageComposeActions(
 
 @Composable
 private fun AdditionalOptionButton(isSelected: Boolean = false, onClick: () -> Unit) {
-    WireSecondaryButton(
-        onClick = { onClick() },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_add),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon)
-            )
-        },
+    WireIconButton(
+        onButtonClicked = onClick,
+        iconResource = R.drawable.ic_add,
+        R.string.content_description_conversation_search_icon,
         state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
-        fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp,
     )
 }
 
 @Composable
 private fun RichTextEditingAction() {
-    WireSecondaryButton(
-        onClick = { },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_rich_text),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-            )
-        },
-        fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp
+    WireIconButton(
+        onButtonClicked = {},
+        iconResource = R.drawable.ic_rich_text,
+        R.string.content_description_conversation_search_icon
     )
 }
 
 @Composable
 private fun AddEmojiAction() {
-    WireSecondaryButton(
-        onClick = { },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_emoticon),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-            )
-        },
-        fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp
+    WireIconButton(
+        onButtonClicked = {},
+        iconResource = R.drawable.ic_emoticon,
+        R.string.content_description_conversation_search_icon
     )
 }
 
 @Composable
 private fun AddGifAction() {
-    WireSecondaryButton(
-        onClick = { },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_gif),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-            )
-        },
-        fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp,
+    WireIconButton(
+        onButtonClicked = {},
+        iconResource = R.drawable.ic_gif,
+        R.string.content_description_conversation_search_icon
     )
 }
 
 @Composable
 private fun AddMentionAction() {
-    WireSecondaryButton(
-        onClick = { },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_mention),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-            )
-        },
-        fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp,
+    WireIconButton(
+        onButtonClicked = {},
+        iconResource = R.drawable.ic_mention,
+        R.string.content_description_conversation_search_icon
     )
 }
 

@@ -204,7 +204,7 @@ private fun MessageComposer(
                                     onLongPress = { /* Called on Long Press */ },
                                     onTap = {  /* Called on Tap */ }
                                 )
-                            }
+                            }.background(color = MaterialTheme.wireColorScheme.backgroundVariant)
                             .weight(1f)) {
                         content()
                     }

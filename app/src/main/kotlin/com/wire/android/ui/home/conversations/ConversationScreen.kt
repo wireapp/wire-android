@@ -27,13 +27,12 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
-import com.wire.android.util.dialogErrorStrings
-import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
+import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import kotlinx.coroutines.launch
 
 @Composable
 fun ConversationScreen(conversationViewModel: ConversationViewModel) {
-    val audioPermissionCheck = AudioPermissionCheckFlow(conversationViewModel)
+    val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
 
     ConversationScreen(
@@ -54,8 +53,8 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
 }
 
 @Composable
-private fun AudioPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
-    rememberCallingRecordAudioRequestFlow(onAudioPermissionGranted = {
+private fun AudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
+    rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
         conversationViewModel.navigateToInitiatingCallScreen()
     }) {
         //TODO display an error dialog

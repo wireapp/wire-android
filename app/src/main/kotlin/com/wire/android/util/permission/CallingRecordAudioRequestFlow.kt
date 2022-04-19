@@ -10,9 +10,9 @@ import androidx.compose.ui.platform.LocalContext
 import com.wire.android.util.extension.checkPermission
 
 @Composable
-fun rememberCallingRecordAudioRequestFlow(
-    onAudioPermissionGranted: () -> Unit,
-    onPermissionDenied: () -> Unit,
+fun rememberCallingRecordAudioBluetoothRequestFlow(
+    onAudioBluetoothPermissionGranted: () -> Unit,
+    onAudioBluetoothPermissionDenied: () -> Unit,
 ): CallingAudioRequestFlow {
     val context = LocalContext.current
 
@@ -20,14 +20,14 @@ fun rememberCallingRecordAudioRequestFlow(
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val allPermissionGranted = permissions.values.all { true }
             if (allPermissionGranted) {
-                onAudioPermissionGranted()
+                onAudioBluetoothPermissionGranted()
             } else {
-                onPermissionDenied()
+                onAudioBluetoothPermissionDenied()
             }
         }
 
     return remember {
-        CallingAudioRequestFlow(context, onAudioPermissionGranted, requestPermissionLauncher)
+        CallingAudioRequestFlow(context, onAudioBluetoothPermissionGranted, requestPermissionLauncher)
     }
 }
 

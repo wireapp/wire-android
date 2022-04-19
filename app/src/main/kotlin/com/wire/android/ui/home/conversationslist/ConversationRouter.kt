@@ -41,9 +41,9 @@ fun ConversationRouterHomeBridge(
     onExpandHomeBottomSheet: () -> Unit,
     onScrollPositionChanged: (Int) -> Unit
 ) {
-    val mutingConversationState = rememberMutingConversationState()
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
+    val mutingConversationState = rememberMutingConversationState()
 
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
@@ -53,7 +53,10 @@ fun ConversationRouterHomeBridge(
                 modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
                 muteConversation = {
                     onExpandHomeBottomSheet()
-                    mutingConversationState.openMutedStatusSheetContent(conversationState.modalBottomSheetContentState.value.conversationId)
+                    mutingConversationState.openMutedStatusSheetContent(
+                        conversationState.modalBottomSheetContentState.value.conversationId,
+                        conversationState.modalBottomSheetContentState.value.mutedStatus
+                    )
                 },
                 addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
                 moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
@@ -82,8 +85,7 @@ fun ConversationRouterHomeBridge(
         onBackClick = {
             onExpandHomeBottomSheet()
             mutingConversationState.closeMutedStatusSheetContent()
-        },
-        currentStatus = conversationState.modalBottomSheetContentState.value.mutedStatus
+        }
     )
 }
 

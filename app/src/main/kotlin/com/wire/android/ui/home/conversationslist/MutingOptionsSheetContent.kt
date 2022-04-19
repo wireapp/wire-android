@@ -23,8 +23,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun MutingOptionsSheetContent(
     mutingConversationState: MutingConversationState = rememberMutingConversationState(),
     onItemClick: (ConversationId?, MutedConversationStatus) -> Unit,
-    onBackClick: () -> Unit,
-    currentStatus: MutedConversationStatus = MutedConversationStatus.AllAllowed
+    onBackClick: () -> Unit
 ) {
     MenuModalSheetLayout(
         sheetState = mutingConversationState.sheetState,
@@ -35,8 +34,11 @@ fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_all_allowed_title),
                     subLine = stringResource(id = R.string.muting_option_all_allowed_text),
                     action = { CheckIcon() },
-                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllAllowed) },
-                    state = if (currentStatus == MutedConversationStatus.AllAllowed) RichMenuItemState.SELECTED
+                    onItemClick = {
+                        onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllAllowed)
+                        mutingConversationState.updateMutedStatus(MutedConversationStatus.AllAllowed)
+                    },
+                    state = if (mutingConversationState.mutedStatus == MutedConversationStatus.AllAllowed) RichMenuItemState.SELECTED
                     else RichMenuItemState.DEFAULT
                 )
             },
@@ -45,9 +47,12 @@ fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_only_mentions_title),
                     subLine = stringResource(id = R.string.muting_option_only_mentions_text),
                     action = { CheckIcon() },
-                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.OnlyMentionsAllowed) },
-                    state = if (currentStatus == MutedConversationStatus.OnlyMentionsAllowed) RichMenuItemState.SELECTED
-                    else RichMenuItemState.DEFAULT
+                    onItemClick = {
+                        onItemClick(mutingConversationState.conversationId, MutedConversationStatus.OnlyMentionsAllowed)
+                        mutingConversationState.updateMutedStatus(MutedConversationStatus.OnlyMentionsAllowed)
+                    },
+                    state = if (mutingConversationState.mutedStatus == MutedConversationStatus.OnlyMentionsAllowed)
+                        RichMenuItemState.SELECTED else RichMenuItemState.DEFAULT
                 )
             },
             {
@@ -55,8 +60,11 @@ fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_all_muted_title),
                     subLine = stringResource(id = R.string.muting_option_all_muted_text),
                     action = { CheckIcon() },
-                    onItemClick = { onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllMuted) },
-                    state = if (currentStatus == MutedConversationStatus.AllMuted) RichMenuItemState.SELECTED
+                    onItemClick = {
+                        onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllMuted)
+                        mutingConversationState.updateMutedStatus(MutedConversationStatus.AllMuted)
+                    },
+                    state = if (mutingConversationState.mutedStatus == MutedConversationStatus.AllMuted) RichMenuItemState.SELECTED
                     else RichMenuItemState.DEFAULT
                 )
             }

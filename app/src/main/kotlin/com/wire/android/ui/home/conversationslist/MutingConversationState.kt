@@ -18,15 +18,18 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 data class MutingConversationState(
     val coroutineScope: CoroutineScope,
-    val mutedStatus: MutedConversationStatus = MutedConversationStatus.AllAllowed,
     val sheetState: ModalBottomSheetState
 ) {
     var conversationId by mutableStateOf<ConversationId?>(null)
         private set
 
-    fun openMutedStatusSheetContent(conversationId: ConversationId?) {
+    var mutedStatus by mutableStateOf<MutedConversationStatus>(MutedConversationStatus.AllAllowed)
+        private set
+
+    fun openMutedStatusSheetContent(conversationId: ConversationId?, mutedStatus: MutedConversationStatus) {
         coroutineScope.launch {
             this@MutingConversationState.conversationId = conversationId
+            updateMutedStatus(mutedStatus)
             sheetState.animateTo(ModalBottomSheetValue.Expanded)
         }
     }
@@ -34,21 +37,23 @@ data class MutingConversationState(
     fun closeMutedStatusSheetContent() {
         coroutineScope.launch {
             this@MutingConversationState.conversationId = null
+            updateMutedStatus(MutedConversationStatus.AllAllowed)
             sheetState.animateTo(ModalBottomSheetValue.Hidden)
         }
+    }
+
+    fun updateMutedStatus(mutedStatus: MutedConversationStatus) {
+        this.mutedStatus = mutedStatus
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberMutingConversationState(
-    mutedStatus: MutedConversationStatus = MutedConversationStatus.AllAllowed,
     sheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 ): MutingConversationState {
 
     val coroutineScope = rememberCoroutineScope()
 
-    return remember {
-        MutingConversationState(coroutineScope, mutedStatus, sheetState)
-    }
+    return remember { MutingConversationState(coroutineScope, sheetState) }
 }

@@ -15,10 +15,11 @@ coverage:
 # which folders/files to ignore
 ignore:
   - ".*/test/.*"
+  - "buildSrc/.*"
+  - "kalium/.*"
   - ".*/androidTest/.*"
   - ".*/_version.py"
   - "setup.py"
-  - "versioneer.py"
 
 # Pull request comments:
 # ----------------------

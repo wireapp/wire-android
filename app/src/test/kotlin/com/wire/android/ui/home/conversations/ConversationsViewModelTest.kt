@@ -120,7 +120,7 @@ class ConversationsViewModelTest {
         val conversationsViewModel = createTestSubject()
         conversationsViewModel.showDeleteMessageForYourselfDialog("")
         conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!),
+            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId),
             forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }

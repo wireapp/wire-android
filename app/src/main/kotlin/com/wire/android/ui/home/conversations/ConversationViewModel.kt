@@ -74,7 +74,7 @@ class ConversationViewModel @Inject constructor(
     )
         private set
 
-    private val conversationId: ConversationId = savedStateHandle
+    val conversationId: ConversationId = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 

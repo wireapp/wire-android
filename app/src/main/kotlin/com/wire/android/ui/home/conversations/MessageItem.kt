@@ -2,7 +2,6 @@ package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -22,45 +21,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.mock.mockMessageWithText
+import com.wire.android.ui.home.conversations.model.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.getUriFromDrawable
-import com.wire.android.util.toBitmap
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
     message: MessageViewWrapper,
     onLongClicked: () -> Unit,
+    onAssetMessageClicked: (String) -> Unit
 ) {
     with(message) {
         Row(
             Modifier
+                .padding(
+                    start = MaterialTheme.wireDimensions.spacing8x,
+                    end = MaterialTheme.wireDimensions.spacing16x,
+                    bottom = MaterialTheme.wireDimensions.spacing8x
+                )
                 .fillMaxWidth()
                 .combinedClickable(
                     //TODO: implement some action onClick
@@ -76,7 +72,7 @@ fun MessageItem(
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(6.dp))
                 if (!isDeleted) {
-                    MessageContent(messageContent)
+                    MessageContent(messageContent, onAssetMessageClicked)
                 }
             }
         }
@@ -136,72 +132,20 @@ private fun Username(username: String) {
 }
 
 @Composable
-private fun MessageContent(messageContent: MessageContent) {
+private fun MessageContent(messageContent: MessageContent, onAssetClick: (String) -> Unit) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height)
         )
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
-    }
-}
-
-@Composable
-fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
-    Image(
-        painter = rememberAsyncImagePainter(
-            rawImgData?.toBitmap() ?: getUriFromDrawable(
-                LocalContext.current,
-                R.drawable.ic_gallery
-            )
-        ),
-        alignment = Alignment.CenterStart,
-        contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = Modifier
-            .width(imgParams.normalizedWidth)
-            .height(imgParams.normalizedHeight),
-        contentScale = ContentScale.Crop
-    )
-}
-
-class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {
-    // Image size normalizations to keep the ratio of the inline message image
-    val normalizedWidth: Dp
-        @Composable
-        get() = MaterialTheme.wireDimensions.messageImageMaxWidth
-
-    val normalizedHeight: Dp
-        @Composable
-        get() = Dp(normalizedWidth.value * realImgHeight.toFloat() / realImgWidth)
-}
-
-// TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
-// waiting for the backend to implement mapping logic for the MessageBody
-@Composable
-private fun MessageBody(messageBody: MessageBody) {
-    Text(
-        buildAnnotatedString {
-            appendBody(messageBody = messageBody)
-        }
-    )
-}
-
-// TODO:we should provide the SpanStyle by LocalProvider to our Theme, later on
-@Composable
-private fun AnnotatedString.Builder.appendMentionLabel(label: String) {
-    withStyle(
-        style = SpanStyle(
-            color = MaterialTheme.colorScheme.primary,
-            background = MaterialTheme.colorScheme.primaryContainer,
+        is MessageContent.AssetMessage -> MessageAsset(
+            assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
+            assetExtension = messageContent.assetExtension,
+            assetSizeInBytes = messageContent.assetSizeInBytes,
+            onAssetClick = { onAssetClick(messageContent.assetId) }
         )
-    ) {
-        append("$label ")
     }
-}
-
-@Composable
-private fun AnnotatedString.Builder.appendBody(messageBody: MessageBody) {
-    append(messageBody.message)
 }
 
 @Composable
@@ -248,12 +192,4 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewMessage() {
-    MessageItem(
-        mockMessageWithText
-    ) {}
 }

@@ -14,9 +14,10 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
-import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -27,12 +28,14 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
@@ -54,6 +57,7 @@ class ConversationViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeMemberDetails: ObserveConversationMembersUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
+    private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val deleteMessage: DeleteMessageUseCase
@@ -108,15 +112,33 @@ class ConversationViewModel @Inject constructor(
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
             attachmentBundle?.let {
-                appLogger.d("> Attachment for conversationId: $conversationId has size: ${attachmentBundle.rawContent.size}")
-                conversationId.run {
-                    // TODO: Add an attachment bundle type to differentiate whether to invoke sendImageMessage or sendAssetMessage when the
-                    //  rest of the attachment options have been completed
-                    val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
-                    sendImageMessage(this, attachmentBundle.rawContent, imgWidth, imgHeight)
+                when (attachmentBundle.attachmentType) {
+                    AttachmentType.IMAGE -> {
+                        val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
+                        sendImageMessage(
+                            conversationId = conversationId,
+                            imageRawData = attachmentBundle.rawContent,
+                            imageName = attachmentBundle.fileName,
+                            imgWidth = imgWidth,
+                            imgHeight = imgHeight
+                        )
+                    }
+                    AttachmentType.GENERIC_FILE -> {
+                        sendAssetMessage(
+                            conversationId = conversationId,
+                            assetRawData = attachmentBundle.rawContent,
+                            assetName = attachmentBundle.fileName,
+                            assetMimeType = attachmentBundle.mimeType
+                        )
+                    }
                 }
             }
         }
+    }
+
+    fun downloadAsset(assetId: String) {
+        appLogger.d("Trying to download asset with id $assetId")
+        // TODO: Implement asset download flow
     }
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
@@ -240,30 +262,50 @@ class ConversationViewModel @Inject constructor(
 
     private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent =
         when (val content = message.content) {
-            is Asset -> {
-                val assetId = content.value.remoteData.assetId
-                val (imgWidth, imgHeight) = when (val metadata = content.value.metadata) {
-                    is Image -> metadata.width to metadata.height
-                    else -> 0 to 0
-                }
-                val decodedImgDataResult = getMessageAsset(
-                    conversationId = message.conversationId,
-                    messageId = message.id
-                ).run {
-                    when (this) {
-                        is MessageAssetResult.Success -> decodedAsset
-                        else -> null
-                    }
-                }
-                when {
-                    content.value.mimeType.contains("image") -> ImageMessage(decodedImgDataResult, width = imgWidth, height = imgHeight)
-                    // TODO: To be changed once the error behavior has been defined with product
-                    assetId.isEmpty() -> TextMessage(messageBody = MessageBody("The asset message could not be downloaded correctly"))
-                    // TODO: Add generic asset message UI
-                    else -> TextMessage(MessageBody("GENERIC ASSET MESSAGE"))
-                }
-            }
+            is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
             is Text -> TextMessage(messageBody = MessageBody(content.value))
             else -> TextMessage(messageBody = MessageBody((content as? Text)?.value ?: "content is not available"))
         }
+
+    private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent {
+        with(assetContent) {
+            val assetId = remoteData.assetId
+
+            // TODO: To be changed once the error behavior has been defined with product
+            if (assetId.isEmpty()) return TextMessage(messageBody = MessageBody("The asset message could not be downloaded correctly"))
+
+            val (imgWidth, imgHeight) = when (val md = metadata) {
+                is Image -> md.width to md.height
+                else -> 0 to 0
+            }
+            return when {
+                // If it's an image, we download it right away
+                mimeType.contains("image") -> MessageContent.ImageMessage(
+                    getRawAssetData(conversationId, messageId),
+                    width = imgWidth,
+                    height = imgHeight
+                )
+
+                // It's a generic Asset Message so let's not download it yet
+                else -> AssetMessage(
+                    assetName = name ?: "",
+                    assetExtension = name?.split(".")?.last() ?: "",
+                    assetId = remoteData.assetId,
+                    assetSizeInBytes = sizeInBytes
+                )
+            }
+        }
+    }
+
+    private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
+        getMessageAsset(
+            conversationId = conversationId,
+            messageId = messageId
+        ).run {
+            return when (this) {
+                is MessageAssetResult.Success -> decodedAsset
+                else -> null
+            }
+        }
+    }
 }

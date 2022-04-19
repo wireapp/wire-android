@@ -132,7 +132,7 @@ private fun Username(username: String) {
 }
 
 @Composable
-private fun MessageContent(messageContent: MessageContent, onAssetClick: (String) -> Unit) {
+private fun MessageContent(messageContent: MessageContent?, onAssetClick: (String) -> Unit) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
@@ -145,6 +145,7 @@ private fun MessageContent(messageContent: MessageContent, onAssetClick: (String
             assetSizeInBytes = messageContent.assetSizeInBytes,
             onAssetClick = { onAssetClick(messageContent.assetId) }
         )
+        else -> {}
     }
 }
 

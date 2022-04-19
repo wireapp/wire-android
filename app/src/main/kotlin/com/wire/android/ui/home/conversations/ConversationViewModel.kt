@@ -264,14 +264,14 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent =
+    private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent? =
         when (val content = message.content) {
             is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
             is Text -> TextMessage(messageBody = MessageBody(content.value))
             else -> TextMessage(messageBody = MessageBody((content as? Text)?.value ?: "content is not available"))
         }
 
-    private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent {
+    private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent? {
         with(assetContent) {
             val (imgWidth, imgHeight) = when (val md = metadata) {
                 is Image -> md.width to md.height
@@ -282,12 +282,17 @@ class ConversationViewModel @Inject constructor(
                 mimeType.contains("image") -> ImageMessage(getRawAssetData(conversationId, messageId), width = imgWidth, height = imgHeight)
 
                 // It's a generic Asset Message so let's not download it yet
-                else -> AssetMessage(
-                    assetName = name ?: "",
-                    assetExtension = name?.split(".")?.last() ?: "",
-                    assetId = remoteData.assetId,
-                    assetSizeInBytes = sizeInBytes
-                )
+                else -> {
+                    return if (remoteData.assetId.isNotEmpty()) {
+                        AssetMessage(
+                            assetName = name ?: "",
+                            assetExtension = name?.split(".")?.last() ?: "",
+                            assetId = remoteData.assetId,
+                            assetSizeInBytes = sizeInBytes
+                        )
+                        // On the first asset message received, the asset ID is null, so we filter it out until the second updates it
+                    } else null
+                }
             }
         }
     }

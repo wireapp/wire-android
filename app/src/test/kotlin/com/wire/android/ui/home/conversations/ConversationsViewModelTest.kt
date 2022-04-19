@@ -3,7 +3,6 @@ package com.wire.android.ui.home.conversations
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -11,9 +10,11 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
@@ -52,6 +53,9 @@ class ConversationsViewModelTest {
     lateinit var sendTextMessage: SendTextMessageUseCase
 
     @MockK
+    lateinit var sendAssetMessage: SendAssetMessageUseCase
+
+    @MockK
     lateinit var sendImageMessage: SendImageMessageUseCase
 
     @MockK
@@ -85,6 +89,7 @@ class ConversationsViewModelTest {
         observeConversationDetails = observeConversationDetails,
         observeMemberDetails = observeMemberDetails,
         sendTextMessage = sendTextMessage,
+        sendAssetMessage = sendAssetMessage,
         sendImageMessage = sendImageMessage,
         getMessageAsset = getMessageAsset,
         deleteMessage = deleteMessage
@@ -96,7 +101,7 @@ class ConversationsViewModelTest {
         conversationsViewModel.showDeleteMessageDialog("", true)
         conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
             forYourself = DeleteMessageDialogActiveState.Hidden,
-            forEveryone = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!)
+            forEveryone = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId)
         )
     }
 
@@ -105,7 +110,7 @@ class ConversationsViewModelTest {
         val conversationsViewModel = createTestSubject()
         conversationsViewModel.showDeleteMessageDialog("", false)
         conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!),
+            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId),
             forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }

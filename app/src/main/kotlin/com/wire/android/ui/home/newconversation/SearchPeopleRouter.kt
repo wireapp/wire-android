@@ -11,8 +11,8 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.newconversation.common.SearchListScreens
-import com.wire.android.ui.home.newconversation.contacts.Contact
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.home.newconversation.search.SearchOpenUserProfile
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState

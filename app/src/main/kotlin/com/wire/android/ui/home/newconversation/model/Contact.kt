@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation.contacts
+package com.wire.android.ui.home.newconversation.model
 
 
 import com.wire.android.model.UserAvatarAsset

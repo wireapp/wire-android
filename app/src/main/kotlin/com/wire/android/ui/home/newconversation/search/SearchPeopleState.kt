@@ -1,6 +1,6 @@
 package com.wire.android.ui.home.newconversation.search
 
-import com.wire.android.ui.home.newconversation.contacts.Contact
+import com.wire.android.ui.home.newconversation.model.Contact
 
 data class SearchPeopleState(
     val searchQuery: String = "",

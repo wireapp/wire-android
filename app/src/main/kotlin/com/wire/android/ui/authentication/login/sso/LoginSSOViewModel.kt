@@ -8,14 +8,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
+import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager
+    private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase
 ) : ViewModel() {
 
     var loginState by mutableStateOf(
@@ -31,11 +30,17 @@ class LoginSSOViewModel @Inject constructor(
     )
         private set
 
+    var openWebUrl = MutableSharedFlow<String>()
+
     fun login(serverConfig: ServerConfig) {
         loginState = loginState.copy(loading = true, loginSSOError = LoginSSOError.None).updateLoginEnabled()
         viewModelScope.launch {
-            // TODO implement logic
-            loginState = loginState.copy(loading = false, loginSSOError = LoginSSOError.None).updateLoginEnabled()
+            ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text, serverConfig)).let { result ->
+                when(result) {
+                    is SSOInitiateLoginResult.Failure -> updateLoginError(result.toLoginSSOError())
+                    is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
+                }
+            }
         }
     }
 
@@ -56,6 +61,13 @@ class LoginSSOViewModel @Inject constructor(
         }
     }
 
+    private fun openWebUrl(url: String) {
+        viewModelScope.launch {
+            loginState = loginState.copy(loading = false, loginSSOError = LoginSSOError.None).updateLoginEnabled()
+            openWebUrl.emit(url)
+        }
+    }
+
     fun onDialogDismiss() {
         clearLoginError()
     }
@@ -64,24 +76,17 @@ class LoginSSOViewModel @Inject constructor(
         updateLoginError(LoginSSOError.None)
     }
 
-    fun onTooManyDevicesError() {
-        clearLoginError()
-        viewModelScope.launch {
-            navigateToRemoveDevicesScreen()
-        }
-    }
-
     private fun LoginSSOState.updateLoginEnabled() =
         copy(loginEnabled = ssoCode.text.isNotEmpty() && !loading)
-
-
-    private suspend fun navigateToRemoveDevicesScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-
-    private suspend fun navigateToConvScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
     private companion object {
         const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
     }
+}
+
+private fun SSOInitiateLoginResult.Failure.toLoginSSOError() = when (this) {
+    SSOInitiateLoginResult.Failure.InvalidCode -> LoginSSOError.TextFieldError.InvalidCodeError
+    is SSOInitiateLoginResult.Failure.Generic -> LoginSSOError.DialogError.GenericError(this.genericFailure)
+    SSOInitiateLoginResult.Failure.InvalidRedirect ->
+        LoginSSOError.DialogError.GenericError(CoreFailure.Unknown(IllegalArgumentException("Invalid Redirect")))
 }

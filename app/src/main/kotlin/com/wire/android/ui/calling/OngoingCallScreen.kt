@@ -90,10 +90,11 @@ private fun CallingControls(ongoingCallViewModel: OngoingCallViewModel = hiltVie
         )
         CameraButton()
         SpeakerButton()
-        HangUpButton()
+        HangUpButton {
+            ongoingOngoingCallViewModel.hangUpCall()
+        }
     }
 }
-
 
 @Preview
 @Composable

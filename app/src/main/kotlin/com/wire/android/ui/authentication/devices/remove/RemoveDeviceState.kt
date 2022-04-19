@@ -21,7 +21,7 @@ sealed class RemoveDeviceDialogState {
         val password: TextFieldValue = TextFieldValue(""),
         val loading: Boolean = false,
         val removeEnabled: Boolean = false,
-        val keyboardVisible: Boolean = true,
+        val keyboardVisible: Boolean = false,
         val error: RemoveDeviceError = RemoveDeviceError.None
     ) : RemoveDeviceDialogState()
 }

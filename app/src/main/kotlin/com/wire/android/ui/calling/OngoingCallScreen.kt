@@ -91,7 +91,7 @@ private fun CallingControls(ongoingCallViewModel: OngoingCallViewModel = hiltVie
         CameraButton()
         SpeakerButton()
         HangUpButton {
-            ongoingOngoingCallViewModel.hangUpCall()
+            ongoingCallViewModel.hangUpCall()
         }
     }
 }

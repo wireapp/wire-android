@@ -3,28 +3,36 @@ package com.wire.android.ui.home.newconversation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
-import com.wire.android.ui.home.newconversation.common.Screen
 import com.wire.android.ui.home.newconversation.common.SearchListScreens
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
+import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.home.newconversation.search.SearchOpenUserProfile
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
+import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 
 @Composable
-fun SearchListNavigationHost(
-    newConversationNavController: NavController,
-    searchNavController: NavController,
-    newConversationViewModel: NewConversationViewModel
+fun SearchPeopleRouter(
+    searchPeopleState: SearchPeopleState,
+    openNewGroup: () -> Unit,
+    onSearchContact: (String) -> Unit,
+    onClose: () -> Unit,
+    onAddContactToGroup: (Contact) -> Unit,
+    onRemoveContactFromGroup: (Contact) -> Unit,
+    onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
+    onScrollPositionChanged: (Int) -> Unit,
 ) {
-    with(newConversationViewModel.state) {
+    val searchNavController = rememberNavController()
+
+    with(searchPeopleState) {
         AppTopBarWithSearchBar(
-            scrollPosition = newConversationViewModel.scrollPosition,
+            scrollPosition = scrollPosition,
             searchBarHint = stringResource(R.string.label_search_people),
             searchQuery = searchQuery,
             onSearchQueryChanged = { searchTerm ->
@@ -32,7 +40,7 @@ fun SearchListNavigationHost(
                 // to the ViewModel, only when the searchQuery inside the ViewModel
                 // is different than searchTerm coming from the TextInputField
                 if (searchTerm != searchQuery) {
-                    newConversationViewModel.search(searchTerm)
+                    onSearchContact(searchTerm)
                 }
             },
             onSearchClicked = {
@@ -46,33 +54,25 @@ fun SearchListNavigationHost(
                     elevation = 0.dp,
                     title = stringResource(R.string.label_new_conversation),
                     navigationIconType = NavigationIconType.Close,
-                    onNavigationPressed = { newConversationViewModel.close() }
+                    onNavigationPressed = onClose
                 )
             },
             content = {
                 NavHost(
-                    navController = searchNavController as NavHostController,
+                    navController = searchNavController,
                     startDestination = SearchListScreens.KnownContactsScreen.route
                 ) {
                     composable(
                         route = SearchListScreens.KnownContactsScreen.route,
                         content = {
                             ContactsScreen(
-                                onScrollPositionChanged = { newConversationViewModel.updateScrollPosition(it) },
+                                onScrollPositionChanged = onScrollPositionChanged,
                                 allKnownContact = allKnownContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
-                                onAddToGroup = { contact ->
-                                    newConversationViewModel.addContactToGroup(contact)
-                                },
-                                onRemoveFromGroup = { contact ->
-                                    newConversationViewModel.removeContactFromGroup(contact)
-                                },
-                                onOpenUserProfile = { contact ->
-                                    newConversationViewModel.openUserProfile(contact, true)
-                                },
-                                onNewGroupClicked = {
-                                    newConversationNavController.navigate(Screen.NewGroupNameScreen.route)
-                                }
+                                onAddToGroup = onAddContactToGroup,
+                                onRemoveFromGroup = onRemoveContactFromGroup,
+                                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, true)) },
+                                onNewGroupClicked = openNewGroup
                             )
                         }
                     )
@@ -86,17 +86,12 @@ fun SearchListNavigationHost(
                                 publicContactSearchResult = publicContactsSearchResult,
                                 federatedBackendResultContact = federatedContactSearchResult,
                                 contactsAddedToGroup = contactsAddedToGroup,
-                                onAddToGroup = { contact -> newConversationViewModel.addContactToGroup(contact) },
-                                onRemoveFromGroup = { contact -> newConversationViewModel.removeContactFromGroup(contact) },
+                                onAddToGroup = onAddContactToGroup,
+                                onRemoveFromGroup = onRemoveContactFromGroup,
                                 onOpenUserProfile = { searchContact ->
-                                    newConversationViewModel.openUserProfile(
-                                        contact = searchContact.contact,
-                                        internal = searchContact.internal
-                                    )
+                                    onOpenUserProfile(SearchOpenUserProfile(searchContact.contact, searchContact.internal))
                                 },
-                                onNewGroupClicked = {
-                                    newConversationNavController.navigate(Screen.NewGroupNameScreen.route)
-                                }
+                                onNewGroupClicked = openNewGroup
                             )
                         }
                     )
@@ -105,3 +100,4 @@ fun SearchListNavigationHost(
         )
     }
 }
+

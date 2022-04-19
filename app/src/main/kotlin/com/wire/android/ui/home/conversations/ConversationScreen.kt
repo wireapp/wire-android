@@ -95,8 +95,8 @@ private fun ConversationScreen(
                         ConversationScreenTopAppBar(
                             title = conversationName,
                             onBackButtonClick = onBackButtonClick,
-                            onDropDownClick = {},
-                            onSearchButtonClick = {},
+                            onDropDownClick = { },
+                            onSearchButtonClick = { },
                             onVideoButtonClick = { onCallStart() }
                         )
                     },
@@ -199,7 +199,9 @@ private fun ConversationScreenContent(
                     .fillMaxHeight()
                     .fillMaxWidth()
             ) {
-                items(messages) { message ->
+                items(messages, key = {
+                    it.messageHeader.messageId
+                }) { message ->
                     MessageItem(
                         message = message,
                         onLongClicked = { onShowContextMenu(message) },

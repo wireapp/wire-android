@@ -68,7 +68,7 @@ fun MessageItem(
                 userAvatarAsset = message.user.avatarAsset,
                 status = message.user.availabilityStatus
             )
-            Spacer(Modifier.padding(start = 12.dp))
+            Spacer(Modifier.padding(start = dimensions().spacing12x))
             Column {
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(dimensions().spacing6x))

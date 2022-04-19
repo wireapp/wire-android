@@ -95,6 +95,7 @@ data class WireDimensions(
     // Spacing
     val spacing2x: Dp,
     val spacing4x: Dp,
+    val spacing6x: Dp,
     val spacing8x: Dp,
     val spacing16x: Dp,
     val spacing24x: Dp,
@@ -131,7 +132,9 @@ data class WireDimensions(
     //calling
     val defaultCallingControlsSize: Dp,
     val defaultSheetPeekHeight: Dp,
-    val callingUserAvatarSize: Dp
+    val callingUserAvatarSize: Dp,
+    // Message item
+    val messageItemBottomPadding : Dp
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -203,6 +206,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     removeDeviceItemTitleVerticalPadding = 8.dp,
     spacing2x = 2.dp,
     spacing4x = 4.dp,
+    spacing6x = 6.dp,
     spacing8x = 8.dp,
     spacing16x = 16.dp,
     spacing24x = 24.dp,
@@ -234,7 +238,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     groupButtonHeight = 82.dp,
     defaultCallingControlsSize = 66.dp,
     defaultSheetPeekHeight = 95.dp,
-    callingUserAvatarSize = 80.dp
+    callingUserAvatarSize = 80.dp,
+    messageItemBottomPadding = 12.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

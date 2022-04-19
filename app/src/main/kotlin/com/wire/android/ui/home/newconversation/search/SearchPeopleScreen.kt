@@ -27,7 +27,7 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.common.GroupButton
-import com.wire.android.ui.home.newconversation.contacts.Contact
+import com.wire.android.ui.home.newconversation.model.Contact
 
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4

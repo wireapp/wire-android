@@ -63,7 +63,7 @@ fun MessageItem(
                     onLongClick = onLongClicked
                 )
         ) {
-            Spacer(Modifier.padding(start = 2.dp))
+            Spacer(Modifier.padding(start = dimensions().spacing2x))
             UserProfileAvatar(
                 userAvatarAsset = message.user.avatarAsset,
                 status = message.user.availabilityStatus

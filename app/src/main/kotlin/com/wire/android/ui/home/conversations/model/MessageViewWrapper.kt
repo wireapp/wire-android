@@ -9,7 +9,7 @@ data class MessageViewWrapper(
     val user: User,
     val messageSource: MessageSource = MessageSource.CurrentUser,
     val messageHeader: MessageHeader,
-    val messageContent: MessageContent,
+    val messageContent: MessageContent?,
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == MessageStatus.Deleted
 

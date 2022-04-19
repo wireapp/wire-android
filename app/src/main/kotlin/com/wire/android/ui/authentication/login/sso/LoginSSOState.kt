@@ -18,5 +18,4 @@ sealed class LoginSSOError {
     sealed class DialogError: LoginSSOError() {
         data class GenericError(val coreFailure: CoreFailure): DialogError()
     }
-    object TooManyDevicesError: LoginSSOError()
 }

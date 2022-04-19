@@ -391,6 +391,7 @@ private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier =
         Icon(
             painter = painterResource(id = R.drawable.ic_collapse),
             contentDescription = stringResource(R.string.content_description_drop_down_icon),
+            tint = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
             modifier = Modifier.rotate(collapseRotation)
         )
     }

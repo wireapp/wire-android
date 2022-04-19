@@ -13,6 +13,7 @@ import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -130,11 +131,21 @@ fun ConversationSheetContent(
     )
 }
 
-sealed class ModalSheetContent(val title: String, val conversationId: ConversationId?) {
-    object Initial : ModalSheetContent("", null)
-    class PrivateConversationEdit(title: String, val avatarAsset: UserAvatarAsset?, conversationId: ConversationId) :
-        ModalSheetContent(title, conversationId)
+sealed class ModalSheetContent(val title: String, val conversationId: ConversationId?, val mutedStatus: MutedConversationStatus) {
+    object Initial : ModalSheetContent("", null, MutedConversationStatus.AllAllowed)
+    class PrivateConversationEdit(
+        title: String,
+        val avatarAsset: UserAvatarAsset?,
+        conversationId: ConversationId,
+        mutedStatus: MutedConversationStatus
+    ) :
+        ModalSheetContent(title, conversationId, mutedStatus)
 
-    class GroupConversationEdit(title: String, val groupColorValue: Long, conversationId: ConversationId) :
-        ModalSheetContent(title, conversationId)
+    class GroupConversationEdit(
+        title: String,
+        val groupColorValue: Long,
+        conversationId: ConversationId,
+        mutedStatus: MutedConversationStatus
+    ) :
+        ModalSheetContent(title, conversationId, mutedStatus)
 }

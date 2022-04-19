@@ -137,7 +137,8 @@ class ConversationListViewModel @Inject constructor(
                     ConversationType.GroupConversation(
                         groupColorValue = getConversationColor(conversation.id),
                         groupName = conversation.name.orEmpty(),
-                        conversationId = conversation.id
+                        conversationId = conversation.id,
+                        mutedStatus = conversation.mutedStatus
                     )
                 )
             }
@@ -154,7 +155,8 @@ class ConversationListViewModel @Inject constructor(
                             membership = Membership.None,
                             isLegalHold = true
                         ),
-                        conversationId = conversation.id
+                        conversationId = conversation.id,
+                        mutedStatus = conversation.mutedStatus
                     )
                 )
             }

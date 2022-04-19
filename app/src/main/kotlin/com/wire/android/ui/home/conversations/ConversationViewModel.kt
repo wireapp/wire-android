@@ -260,20 +260,15 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent =
+    private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent? =
         when (val content = message.content) {
             is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
             is Text -> TextMessage(messageBody = MessageBody(content.value))
             else -> TextMessage(messageBody = MessageBody((content as? Text)?.value ?: "content is not available"))
         }
 
-    private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent {
+    private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent? {
         with(assetContent) {
-            val assetId = remoteData.assetId
-
-            // TODO: To be changed once the error behavior has been defined with product
-            if (assetId.isEmpty()) return TextMessage(messageBody = MessageBody("The asset message could not be downloaded correctly"))
-
             val (imgWidth, imgHeight) = when (val md = metadata) {
                 is Image -> md.width to md.height
                 else -> 0 to 0
@@ -287,12 +282,17 @@ class ConversationViewModel @Inject constructor(
                 )
 
                 // It's a generic Asset Message so let's not download it yet
-                else -> AssetMessage(
-                    assetName = name ?: "",
-                    assetExtension = name?.split(".")?.last() ?: "",
-                    assetId = remoteData.assetId,
-                    assetSizeInBytes = sizeInBytes
-                )
+                else -> {
+                    return if (remoteData.assetId.isNotEmpty()) {
+                        AssetMessage(
+                            assetName = name ?: "",
+                            assetExtension = name?.split(".")?.last() ?: "",
+                            assetId = remoteData.assetId,
+                            assetSizeInBytes = sizeInBytes
+                        )
+                        // On the first asset message received, the asset ID is null, so we filter it out until the second updates it
+                    } else null
+                }
             }
         }
     }

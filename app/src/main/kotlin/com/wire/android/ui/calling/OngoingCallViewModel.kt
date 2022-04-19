@@ -51,12 +51,14 @@ class OngoingCallViewModel @Inject constructor(
     }
 
     fun muteCall() {
+        callEstablishedState = callEstablishedState.copy(isMuted = true)
         viewModelScope.launch {
             muteCall.invoke()
         }
     }
 
     fun unMuteCall() {
+        callEstablishedState = callEstablishedState.copy(isMuted = false)
         viewModelScope.launch {
             unMuteCall.invoke()
         }

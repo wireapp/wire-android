@@ -5,35 +5,30 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.calling.OngoingCallState
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun MicrophoneButton(
-    isCurrentCallMuted: Boolean,
+    ongoingCallState: OngoingCallState,
     onMuteCall: () -> Unit,
     onUnMuteCall: () -> Unit
 ) {
-    var isMuted by remember { mutableStateOf(isCurrentCallMuted) }
     IconButton(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
         onClick = {
-            if (isMuted)
+            if (ongoingCallState.isMuted)
                 onUnMuteCall()
             else onMuteCall()
-            isMuted = !isMuted
         }
     ) {
         Image(
             painter = painterResource(
-                id = if (isMuted) {
+                id = if (ongoingCallState.isMuted) {
                     R.drawable.ic_muted
                 } else {
                     R.drawable.ic_unmuted

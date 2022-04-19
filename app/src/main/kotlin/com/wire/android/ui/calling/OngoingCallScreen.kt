@@ -75,7 +75,7 @@ private fun OngoingCallTopBar(
 }
 
 @Composable
-private fun CallingControls(ongoingOngoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
+private fun CallingControls(ongoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -84,9 +84,9 @@ private fun CallingControls(ongoingOngoingCallViewModel: OngoingCallViewModel = 
             .padding(0.dp, MaterialTheme.wireDimensions.spacing16x, 0.dp, 0.dp)
     ) {
         MicrophoneButton(
-            false, //TODO get this value from current state
-            { ongoingOngoingCallViewModel.muteCall() },
-            { ongoingOngoingCallViewModel.unMuteCall() }
+            ongoingCallViewModel.callEstablishedState,
+            { ongoingCallViewModel.muteCall() },
+            { ongoingCallViewModel.unMuteCall() }
         )
         CameraButton()
         SpeakerButton()

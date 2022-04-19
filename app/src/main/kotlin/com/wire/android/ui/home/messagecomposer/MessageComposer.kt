@@ -209,7 +209,6 @@ private fun MessageComposer(
                         content()
                     }
                     // Column wrapping CollapseIconButton and MessageComposerInput
-
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()

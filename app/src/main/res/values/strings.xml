@@ -289,6 +289,8 @@
     <string name="calling_hang_up_call">Hang up call</string>
     <string name="calling_turn_camera_on_off">Turn camera on/off</string>
     <string name="calling_turn_speaker_on_off">Turn speaker on/off</string>
+    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_try_again">Try again</string>
 
 
 </resources>

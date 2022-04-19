@@ -1,6 +1,6 @@
 package com.wire.android.ui.home.newconversation.search
 
-import com.wire.android.ui.home.newconversation.contacts.Contact
+import com.wire.android.ui.home.newconversation.model.Contact
 
 data class SearchPeopleState(
     val searchQuery: String = "",
@@ -18,7 +18,8 @@ data class SearchPeopleState(
             searchResultState = SearchResultState.Initial
         ),
     val contactsAddedToGroup: List<Contact> = emptyList(),
-    val allKnownContacts: List<Contact> = emptyList()
+    val allKnownContacts: List<Contact> = emptyList(),
+    val scrollPosition : Int = 0,
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {

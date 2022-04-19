@@ -75,7 +75,7 @@ private fun OngoingCallTopBar(
 }
 
 @Composable
-private fun CallingControls(ongoingOngoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
+private fun CallingControls(ongoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -87,7 +87,7 @@ private fun CallingControls(ongoingOngoingCallViewModel: OngoingCallViewModel = 
         CameraButton()
         SpeakerButton()
         HangUpButton {
-            ongoingOngoingCallViewModel.hangUpCall()
+            ongoingCallViewModel.hangUpCall()
         }
     }
 }

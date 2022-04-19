@@ -13,12 +13,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,11 +37,13 @@ import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -52,6 +53,7 @@ fun LoginSSOScreen(
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
     val loginSSOState: LoginSSOState = loginSSOViewModel.loginState
     LoginSSOContent(
@@ -59,10 +61,14 @@ fun LoginSSOScreen(
         loginSSOState = loginSSOState,
         onCodeChange = { loginSSOViewModel.onSSOCodeChange(it) },
         onDialogDismiss = { loginSSOViewModel.onDialogDismiss() },
-        onRemoveDeviceOpen = { loginSSOViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginSSOViewModel.login(serverConfig) },
         scope = scope
     )
+    LaunchedEffect(loginSSOViewModel) {
+        loginSSOViewModel.openWebUrl
+            .onEach { CustomTabsHelper.launchUrl(context, it) }
+            .launchIn(scope)
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -72,7 +78,6 @@ private fun LoginSSOContent(
     loginSSOState: LoginSSOState,
     onCodeChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
-    onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
     scope: CoroutineScope
 ) {
@@ -94,15 +99,7 @@ private fun LoginSSOContent(
                 else -> null
             }
         )
-        Text(
-            modifier = Modifier
-                .align(alignment = Alignment.CenterHorizontally)
-                .padding(top = MaterialTheme.wireDimensions.spacing16x),
-            color = MaterialTheme.wireColorScheme.error,
-            text = "Only UI, logic not implemented yet"  // TODO remove when logic is implemented
-        )
         Spacer(modifier = Modifier.weight(1f))
-
         LoginButton(
             modifier = Modifier.fillMaxWidth(),
             loading = loginSSOState.loading,
@@ -126,8 +123,6 @@ private fun LoginSSOContent(
                 type = WireDialogButtonType.Primary,
             )
         )
-    } else if (loginSSOState.loginSSOError is LoginSSOError.TooManyDevicesError) {
-        onRemoveDeviceOpen()
     }
 }
 
@@ -163,7 +158,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
             interactionSource = interactionSource,
             modifier = Modifier
                 .fillMaxWidth()
-                .testTag("loginButton")
+                .testTag("ssoLoginButton")
         )
     }
 }
@@ -172,6 +167,6 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 private fun LoginSSOScreenPreview() {
     WireTheme(isPreview = true) {
-        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, {}, suspend {}, rememberCoroutineScope())
+        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, suspend {}, rememberCoroutineScope())
     }
 }

@@ -7,8 +7,10 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -86,6 +88,11 @@ class UseCaseModule {
     @Provides
     fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getAuthenticationScope().login
+
+    @ViewModelScoped
+    @Provides
+    fun ssoInitiateLoginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().ssoLoginScope.initiate
 
     @ViewModelScoped
     @Provides
@@ -213,6 +220,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun providesSendAssetMessageUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SendAssetMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendAssetMessage
+
+    @ViewModelScoped
+    @Provides
     fun providesGetPrivateAssetUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -265,15 +279,19 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun startCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): StartCallUseCase =
-        coreLogic.getSessionScope(currentAccount).calls.startCall
-
-    @ViewModelScoped
-    @Provides
     fun providesGetOrCreateOneToOneConversationUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): GetOrCreateOneToOneConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.getOrCreateOneToOneConversationUseCase
 
+    @ViewModelScoped
+    @Provides
+    fun providesStartCallUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): StartCallUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.startCall
+
+    @ViewModelScoped
+    @Provides
+    fun providesEndCallUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): EndCallUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.endCall
 }

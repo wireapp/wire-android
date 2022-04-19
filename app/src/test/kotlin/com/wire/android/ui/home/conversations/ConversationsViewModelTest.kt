@@ -120,7 +120,7 @@ class ConversationsViewModelTest {
         val conversationsViewModel = createTestSubject()
         conversationsViewModel.showDeleteMessageForYourselfDialog("")
         conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!),
+            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId),
             forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }
@@ -240,11 +240,13 @@ class ConversationsViewModelTest {
             id: String = "messageID",
             content: MessageContent = MessageContent.Text(""),
             date: String = "date",
+            status : Message.Status = Message.Status.PENDING
         ): Message = mockk<Message>().also {
             every { it.senderUserId } returns senderId
             every { it.id } returns id
             every { it.content } returns content
             every { it.date } returns date
+            every {it.status} returns status
         }
 
         fun testSelfUserDetails(

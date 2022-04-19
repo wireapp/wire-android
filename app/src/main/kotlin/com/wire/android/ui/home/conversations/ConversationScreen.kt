@@ -24,7 +24,6 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
@@ -41,6 +40,7 @@ fun ConversationScreen(
         onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },
         onSendButtonClicked = { conversationViewModel.sendMessage() },
         onSendAttachment = { attachmentBundle -> conversationViewModel.sendAttachmentMessage(attachmentBundle) },
+        onDownloadAsset = { assetId -> conversationViewModel.downloadAsset(assetId) },
         onBackButtonClick = { conversationViewModel.navigateBack() },
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = { conversationViewModel.navigateToInitiatingCallScreen() }
@@ -57,6 +57,7 @@ private fun ConversationScreen(
     onMessageChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onDownloadAsset: (String) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit
@@ -102,6 +103,7 @@ private fun ConversationScreen(
                             onSendButtonClicked = onSendButtonClicked,
                             onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
                             onSendAttachment = onSendAttachment,
+                            onDownloadAsset = onDownloadAsset,
                             onError = { errorMessage ->
                                 scope.launch {
                                     conversationScreenState.snackBarHostState.showSnackbar(errorMessage)
@@ -171,6 +173,7 @@ private fun ConversationScreenContent(
     onSendButtonClicked: () -> Unit,
     onShowContextMenu: (MessageViewWrapper) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onDownloadAsset: (String) -> Unit,
     onError: (String) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
@@ -188,7 +191,8 @@ private fun ConversationScreenContent(
                 items(messages) { message ->
                     MessageItem(
                         message = message,
-                        onLongClicked = { onShowContextMenu(message) }
+                        onLongClicked = { onShowContextMenu(message) },
+                        onAssetMessageClicked = onDownloadAsset
                     )
                 }
             }
@@ -216,6 +220,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _: String, _: Boolean -> }
+        {}, {}, {}, {}, {}, { _: String, _: Boolean -> }
     ) {}
 }

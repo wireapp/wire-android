@@ -317,7 +317,7 @@ private fun MessageComposer(
                         end.linkTo(parent.end)
                     }
                 ) {
-                    Row {
+                    Row(Modifier.padding(end = dimensions().spacing8x)) {
                         if (messageComposerState.sendButtonEnabled) {
                             ScheduleMessageButton()
                         }
@@ -491,6 +491,7 @@ private fun MessageComposeActions(
         AddEmojiAction()
         AddGifAction()
         AddMentionAction()
+        TakePictureAction()
     }
 }
 
@@ -499,7 +500,7 @@ private fun AdditionalOptionButton(isSelected: Boolean = false, onClick: () -> U
     WireIconButton(
         onButtonClicked = onClick,
         iconResource = R.drawable.ic_add,
-        R.string.content_description_conversation_search_icon,
+        contentDescription = R.string.content_description_conversation_search_icon,
         state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
     )
 }
@@ -509,7 +510,7 @@ private fun RichTextEditingAction() {
     WireIconButton(
         onButtonClicked = {},
         iconResource = R.drawable.ic_rich_text,
-        R.string.content_description_conversation_search_icon
+        contentDescription = R.string.content_description_conversation_search_icon
     )
 }
 
@@ -518,7 +519,7 @@ private fun AddEmojiAction() {
     WireIconButton(
         onButtonClicked = {},
         iconResource = R.drawable.ic_emoticon,
-        R.string.content_description_conversation_search_icon
+        contentDescription = R.string.content_description_conversation_search_icon
     )
 }
 
@@ -527,7 +528,7 @@ private fun AddGifAction() {
     WireIconButton(
         onButtonClicked = {},
         iconResource = R.drawable.ic_gif,
-        R.string.content_description_conversation_search_icon
+        contentDescription = R.string.content_description_conversation_search_icon
     )
 }
 
@@ -536,7 +537,16 @@ private fun AddMentionAction() {
     WireIconButton(
         onButtonClicked = {},
         iconResource = R.drawable.ic_mention,
-        R.string.content_description_conversation_search_icon
+        contentDescription = R.string.content_description_conversation_search_icon
+    )
+}
+
+@Composable
+private fun TakePictureAction() {
+    WireIconButton(
+        onButtonClicked = {},
+        iconResource = R.drawable.ic_take_picture,
+        contentDescription = R.string.content_description_take_a_picture
     )
 }
 

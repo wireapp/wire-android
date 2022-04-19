@@ -47,12 +47,12 @@ class OngoingCallViewModel @Inject constructor(
 
     private suspend fun initiateCall() {
         //TODO pass conversation type
-        startCall.invoke(conversationId)
+        startCall(conversationId)
     }
 
     fun hangUpCall() {
         viewModelScope.launch {
-            endCall.invoke(conversationId)
+            endCall(conversationId)
             navigateBack()
         }
     }

@@ -94,6 +94,7 @@ data class WireDimensions(
     // Spacing
     val spacing2x: Dp,
     val spacing4x: Dp,
+    val spacing6x: Dp,
     val spacing8x: Dp,
     val spacing16x: Dp,
     val spacing24x: Dp,
@@ -201,6 +202,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     removeDeviceItemTitleVerticalPadding = 8.dp,
     spacing2x = 2.dp,
     spacing4x = 4.dp,
+    spacing6x = 6.dp,
     spacing8x = 8.dp,
     spacing16x = 16.dp,
     spacing24x = 24.dp,

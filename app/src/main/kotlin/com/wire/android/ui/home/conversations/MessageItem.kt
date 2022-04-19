@@ -38,6 +38,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
@@ -90,12 +91,12 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                 Username(username)
 
                 if (membership != Membership.None) {
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(dimensions().spacing6x))
                     MembershipQualifierLabel(membership)
                 }
 
                 if (isLegalHold) {
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(dimensions().spacing6x))
                     LegalHoldIndicator()
                 }
 /*
@@ -208,34 +209,34 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-    if (messageStatus != MessageStatus.Failure) {
-        Box(
-            modifier = Modifier
-                .wrapContentSize()
-                .border(
-                    BorderStroke(
-                        width = 1.dp,
-                        color = MaterialTheme.wireColorScheme.divider
-                    ),
-                    shape = RoundedCornerShape(size = 4.dp)
+        if (messageStatus != MessageStatus.Failure) {
+            Box(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .border(
+                        BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.wireColorScheme.divider
+                        ),
+                        shape = RoundedCornerShape(size = dimensions().spacing4x)
+                    )
+                    .padding(
+                        horizontal = dimensions().spacing4x,
+                        vertical = dimensions().spacing2x
+                    )
+            ) {
+                Text(
+                    text = stringResource(id = messageStatus.stringResourceId),
+                    style = LocalTextStyle.current.copy(color = MaterialTheme.wireColorScheme.labelText)
                 )
-                .padding(
-                    horizontal = 4.dp,
-                    vertical = 2.dp
-                )
-        ) {
-            Text(
-                text = stringResource(id = messageStatus.stringResourceId),
-                style = LocalTextStyle.current.copy(color = MaterialTheme.wireColorScheme.labelText)
-            )
-        }
-    } else {
+            }
+        } else {
             Row {
                 Text(
                     text = stringResource(id = messageStatus.stringResourceId),
                     style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
                 )
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(dimensions().spacing4x))
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     style = LocalTextStyle.current.copy(

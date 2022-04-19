@@ -45,9 +45,7 @@ private fun OngoingCallContent(state: OngoingCallState) {
         backgroundColor = MaterialTheme.wireColorScheme.callingBackground,
         sheetPeekHeight = MaterialTheme.wireDimensions.defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
-        sheetContent = {
-            CallingControls()
-        },
+        sheetContent = { CallingControls() },
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -83,11 +81,7 @@ private fun CallingControls(ongoingCallViewModel: OngoingCallViewModel = hiltVie
             .fillMaxWidth()
             .padding(0.dp, MaterialTheme.wireDimensions.spacing16x, 0.dp, 0.dp)
     ) {
-        MicrophoneButton(
-            ongoingCallViewModel.callEstablishedState,
-            { ongoingCallViewModel.muteCall() },
-            { ongoingCallViewModel.unMuteCall() }
-        )
+        MicrophoneButton(ongoingCallViewModel.callEstablishedState) { ongoingCallViewModel.muteOrUnMuteCall() }
         CameraButton()
         SpeakerButton()
         HangUpButton {

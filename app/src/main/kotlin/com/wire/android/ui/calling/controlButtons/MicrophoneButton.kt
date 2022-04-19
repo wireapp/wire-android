@@ -15,16 +15,11 @@ import com.wire.android.ui.theme.wireDimensions
 @Composable
 fun MicrophoneButton(
     ongoingCallState: OngoingCallState,
-    onMuteCall: () -> Unit,
-    onUnMuteCall: () -> Unit
+    onMicrophoneButtonClicked: () -> Unit
 ) {
     IconButton(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-        onClick = {
-            if (ongoingCallState.isMuted)
-                onUnMuteCall()
-            else onMuteCall()
-        }
+        onClick = { onMicrophoneButtonClicked() }
     ) {
         Image(
             painter = painterResource(

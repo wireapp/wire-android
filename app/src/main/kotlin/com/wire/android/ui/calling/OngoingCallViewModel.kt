@@ -67,17 +67,15 @@ class OngoingCallViewModel @Inject constructor(
         }
     }
 
-    fun muteCall() {
-        callEstablishedState = callEstablishedState.copy(isMuted = true)
+    fun muteOrUnMuteCall() {
         viewModelScope.launch {
-            muteCall()
-        }
-    }
-
-    fun unMuteCall() {
-        callEstablishedState = callEstablishedState.copy(isMuted = false)
-        viewModelScope.launch {
-            unMuteCall()
+            callEstablishedState = if (callEstablishedState.isMuted) {
+                muteCall()
+                callEstablishedState.copy(isMuted = true)
+            } else {
+                unMuteCall()
+                callEstablishedState.copy(isMuted = false)
+            }
         }
     }
 }

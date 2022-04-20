@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import android.util.Log
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,13 +11,15 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.newconversation.contacts.Contact
-import com.wire.android.ui.home.newconversation.contacts.toContact
-import com.wire.android.ui.home.newconversation.newGroup.NewGroupNameViewState
+import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.home.newconversation.model.toContact
+import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.flow.SearchQueryStateFlow
+import com.wire.kalium.logic.data.conversation.ConverationOptions
+import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
@@ -37,7 +40,8 @@ class NewConversationViewModel
     private val navigationManager: NavigationManager,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUserDirectoryUseCase,
-    private val getAllKnownUsersUseCase: GetAllKnownUsersUseCase
+    private val getAllKnownUsersUseCase: GetAllKnownUsersUseCase,
+    private val createGroupConversation: CreateGroupConversationUseCase
 ) : ViewModel() {
 
     //TODO: map this value out with the given back-end configuration later on
@@ -60,7 +64,7 @@ class NewConversationViewModel
         )
     }
 
-    var groupNameState: NewGroupNameViewState by mutableStateOf(NewGroupNameViewState())
+    var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
@@ -78,11 +82,8 @@ class NewConversationViewModel
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
 
-    var scrollPosition by mutableStateOf(0)
-        private set
-
     fun updateScrollPosition(newScrollPosition: Int) {
-        scrollPosition = newScrollPosition
+        innerSearchPeopleState = state.copy(scrollPosition = newScrollPosition)
     }
 
     init {
@@ -104,6 +105,13 @@ class NewConversationViewModel
                 launch { searchKnown(searchTerm) }
             }
         }
+    }
+
+    fun search(searchTerm: String) {
+        //we set the state with a searchQuery, immediately to update the UI first
+        innerSearchPeopleState = state.copy(searchQuery = searchTerm)
+
+        searchQueryStateFlow.search(searchTerm)
     }
 
     private suspend fun searchKnown(searchTerm: String) {
@@ -142,13 +150,6 @@ class NewConversationViewModel
         }
     }
 
-    fun search(searchTerm: String) {
-        //we set the state with a searchQuery, immediately to update the UI first
-        innerSearchPeopleState = state.copy(searchQuery = searchTerm)
-
-        searchQueryStateFlow.search(searchTerm)
-    }
-
     fun addContactToGroup(contact: Contact) {
         innerSearchPeopleState = innerSearchPeopleState.copy(
             contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup + contact
@@ -167,7 +168,7 @@ class NewConversationViewModel
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.id, internal))
+                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.domain, contact.id, internal))
                 )
             )
         }
@@ -180,7 +181,7 @@ class NewConversationViewModel
                     animatedGroupNameError = true,
                     groupName = newText,
                     continueEnabled = false,
-                    error = NewGroupNameViewState.GroupNameError.TextFieldError.GroupNameEmptyError
+                    error = NewGroupState.GroupNameError.TextFieldError.GroupNameEmptyError
                 )
             }
             newText.text.trim().count() > GROUP_NAME_MAX_COUNT -> {
@@ -188,24 +189,45 @@ class NewConversationViewModel
                     animatedGroupNameError = true,
                     groupName = newText,
                     continueEnabled = false,
-                    error = NewGroupNameViewState.GroupNameError.TextFieldError.GroupNameExceedLimitError
+                    error = NewGroupState.GroupNameError.TextFieldError.GroupNameExceedLimitError
                 )
-
             }
             else -> {
                 groupNameState = groupNameState.copy(
                     animatedGroupNameError = false,
                     groupName = newText,
                     continueEnabled = true,
-                    error = NewGroupNameViewState.GroupNameError.None
+                    error = NewGroupState.GroupNameError.None
                 )
-
             }
         }
     }
 
-    fun onGroupNameContinueClicked() {
-        // todo
+    fun createGroup() {
+        viewModelScope.launch {
+            groupNameState = groupNameState.copy(isLoading = true)
+
+            when (val result = createGroupConversation(
+                name = groupNameState.groupName.text,
+                members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
+                options = ConverationOptions()
+            )
+            ) {
+                //TODO: handle the error state
+                is Either.Left -> {
+                    groupNameState = groupNameState.copy(isLoading = false)
+                    Log.d("TEST", "error while creating a group ${result.value}")
+                }
+                is Either.Right -> {
+                    groupNameState = groupNameState.copy(isLoading = false)
+                    navigationManager.navigate(
+                        command = NavigationCommand(
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id))
+                        )
+                    )
+                }
+            }
+        }
     }
 
     fun onGroupNameErrorAnimated() {
@@ -217,4 +239,5 @@ class NewConversationViewModel
             navigationManager.navigateBack()
         }
     }
+
 }

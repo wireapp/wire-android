@@ -57,7 +57,7 @@ fun CallConversationItem(
             is ConversationType.PrivateConversation -> {
                 RowItemTemplate(
                     leadingIcon = {
-                        ConversationUserAvatar("")
+                        ConversationUserAvatar(conversationType.userInfo.avatarAsset)
                     },
                     title = { UserLabel(conversationType.toUserInfoLabel()) },
                     subTitle = {

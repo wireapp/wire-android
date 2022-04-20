@@ -8,7 +8,7 @@
     <string name="label_cancel">Cancel</string>
     <string name="label_confirm">Confirm</string>
     <string name="label_continue">Continue</string>
-    <string name="label_start_using_wire">Start using Wire</string>
+    <string name="label_get_started">Get Started</string>
     <string name="label_remove">Remove</string>
     <string name="label_register">Register</string>
     <string name="label_learn_more">Learn more</string>
@@ -52,6 +52,7 @@
     <string name="content_description_more_options">More options</string>
     <string name="content_description_add_contact">Add contact</string>
     <string name="content_description_image_message">Image message</string>
+    <string name="content_description_file_message">File message</string>
 
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -76,8 +77,8 @@
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_error_invalid_credentials_title">Invalid information</string>
-    <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please try again.</string>
-    <string name="login_error_invalid_user_identifier">Please enter a valid format for your email or username.</string>
+    <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please verify your details and try again.</string>
+    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
@@ -109,14 +110,16 @@
 
     <!-- Create Account -->
     <string name="create_personal_account_title">Create a Personal Account</string>
+    <string name="create_personal_account_summary_title">Personal Account Created</string>
     <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
     <string name="create_personal_account_email_text">Enter your email to start using the most secure collaboration platform.</string>
     <string name="create_personal_account_details_text">Enter your personal details:</string>
     <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
     <string name="create_team_title">Create a Team</string>
+    <string name="create_team_summary_title">Team Created</string>
     <string name="create_team_content_title">Wire for Free</string>
     <string name="create_team_text">Messaging for small organizations or single person consulting firms.\n</string>
-    <string name="create_team_learn_more">Learn more about Wire\'s plans &amp; pricing</string>
+    <string name="create_team_learn_more">Learn more about plans and pricing</string>
     <string name="create_team_email_text">Enter your email to create your team:</string>
     <string name="create_team_details_text">Enter your email to create your team:</string>
     <string name="create_team_summary_text">You have successfully created your team account. Start communicating securely – wherever you are!</string>
@@ -124,9 +127,9 @@
     <string name="create_account_email_label">EMAIL</string>
     <string name="create_account_email_footer_text">Already have an account? </string>
     <string name="create_account_email_terms_dialog_title">Terms &amp; Conditions</string>
-    <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms &amp; Conditions and Privacy Policy.</string>
-    <string name="create_account_email_terms_dialog_view_policy">View ToC and Privacy Policy</string>
-    <string name="create_account_email_already_in_use_error">The email address you provided has already been registered.</string>
+    <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
+    <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
+    <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
     <string name="create_account_email_blacklisted_error">The email address you provided has been blacklisted due to a permanent bounce or a complaint.</string>
     <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
     <string name="create_account_email_domain_blocked_error">You can´t create this account as your email domain is intentionally blocked.\nPlease ask your team admin to invite you via email.</string>
@@ -147,11 +150,11 @@
     <string name="create_account_code_error_team_members_limit_reached">This team has reached its membership limit.</string>
     <string name="create_account_code_error_personal_account_creation_restricted">This application version does not allow creation of personal accounts.</string>
     <string name="create_account_code_error_team_creation_restricted">This application version does not allow creation of teams.</string>
-    <string name="create_account_username_title">Your User Name</string>
+    <string name="create_account_username_title">Your Username</string>
     <string name="create_account_username_placeholder">jane.doe</string>
     <string name="create_account_username_label">USERNAME</string>
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
-    <string name="create_account_username_taken_error">Username is already taken. Please enter another one.</string>
+    <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
     <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
 
     <!-- Home -->
@@ -175,6 +178,7 @@
     <string name="group_name">Group name</string>
     <string name="empty_group_name_error">Group name should not be empty</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
+    <string name="asset_message_download_text">Tap to download</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
@@ -270,13 +274,16 @@
     <string name="content_description_show_more_options">Show more options</string>
     <string name="label_type_a_message">Type a message</string>
 
-    <!--    Calling-->
+    <!-- Calling-->
     <string name="calling_mute_call">Mute call</string>
     <string name="calling_hang_up_call">Hang up call</string>
     <string name="calling_accept_call">Accept call</string>
     <string name="calling_decline_call">Decline call</string>
     <string name="calling_turn_camera_on_off">Turn camera on/off</string>
     <string name="calling_turn_speaker_on_off">Turn speaker on/off</string>
+    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_try_again">Try again</string>
+    <string name="content_description_ping_everyone">Ping everyone</string>
     <string name="calling_label_incoming_call">Calling..</string>
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_label_microphone">MICROPHONE</string>
@@ -285,6 +292,5 @@
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
     <string name="calling_label_uknown_caller_name">Unkown</string>
-
 
 </resources>

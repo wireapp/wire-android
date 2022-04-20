@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
@@ -14,8 +13,9 @@ import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -53,6 +53,9 @@ class ConversationsViewModelTest {
     lateinit var sendTextMessage: SendTextMessageUseCase
 
     @MockK
+    lateinit var sendAssetMessage: SendAssetMessageUseCase
+
+    @MockK
     lateinit var sendImageMessage: SendImageMessageUseCase
 
     @MockK
@@ -70,7 +73,7 @@ class ConversationsViewModelTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { savedStateHandle.getLiveData<String>(any()) } returns MutableLiveData("")
+        every { savedStateHandle.get<String>(any()) } returns ("")
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
 
         // Default empty values
@@ -86,18 +89,29 @@ class ConversationsViewModelTest {
         observeConversationDetails = observeConversationDetails,
         observeMemberDetails = observeMemberDetails,
         sendTextMessage = sendTextMessage,
+        sendAssetMessage = sendAssetMessage,
         sendImageMessage = sendImageMessage,
         getMessageAsset = getMessageAsset,
         deleteMessage = deleteMessage
     )
 
     @Test
-    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible`() {
+    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() {
         val conversationsViewModel = createTestSubject()
-        conversationsViewModel.showDeleteMessageDialog("")
+        conversationsViewModel.showDeleteMessageDialog("", true)
         conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
             forYourself = DeleteMessageDialogActiveState.Hidden,
-            forEveryone = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!)
+            forEveryone = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId)
+        )
+    }
+
+    @Test
+    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() {
+        val conversationsViewModel = createTestSubject()
+        conversationsViewModel.showDeleteMessageDialog("", false)
+        conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId),
+            forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }
 
@@ -106,7 +120,7 @@ class ConversationsViewModelTest {
         val conversationsViewModel = createTestSubject()
         conversationsViewModel.showDeleteMessageForYourselfDialog("")
         conversationsViewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId!!),
+            forYourself = DeleteMessageDialogActiveState.Visible("", conversationsViewModel.conversationId),
             forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }
@@ -226,11 +240,13 @@ class ConversationsViewModelTest {
             id: String = "messageID",
             content: MessageContent = MessageContent.Text(""),
             date: String = "date",
+            status : Message.Status = Message.Status.PENDING
         ): Message = mockk<Message>().also {
             every { it.senderUserId } returns senderId
             every { it.id } returns id
             every { it.content } returns content
             every { it.date } returns date
+            every {it.status} returns status
         }
 
         fun testSelfUserDetails(
@@ -240,6 +256,7 @@ class ConversationsViewModelTest {
             every { it.selfUser } returns mockk<SelfUser>().also { user ->
                 every { user.id } returns id
                 every { user.name } returns name
+                every { user.previewPicture } returns null
             }
         }
 
@@ -250,6 +267,7 @@ class ConversationsViewModelTest {
             every { it.otherUser } returns mockk<OtherUser>().also { user ->
                 every { user.id } returns id
                 every { user.name } returns name
+                every { user.previewPicture } returns null
             }
         }
     }

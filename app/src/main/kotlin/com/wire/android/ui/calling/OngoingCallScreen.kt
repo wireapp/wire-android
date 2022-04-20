@@ -30,23 +30,29 @@ import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun OngoingCallScreen(ongoingOngoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
-    OngoingCallContent(ongoingOngoingCallViewModel)
+fun OngoingCallScreen(ongoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
+    OngoingCallContent(ongoingCallViewModel)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun OngoingCallContent(ongoingOngoingCallViewModel: OngoingCallViewModel) {
+private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(
-        topBar = { OngoingCallTopBar(ongoingOngoingCallViewModel.callEstablishedState.conversationName) {} },
+        topBar = { OngoingCallTopBar(ongoingCallViewModel.callEstablishedState.conversationName) {} },
         sheetShape = RoundedCornerShape(MaterialTheme.wireDimensions.corner16x, MaterialTheme.wireDimensions.corner16x, 0.dp, 0.dp),
         backgroundColor = MaterialTheme.wireColorScheme.callingBackground,
         sheetPeekHeight = MaterialTheme.wireDimensions.defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
         sheetContent = {
-            CallingControls ({ ongoingOngoingCallViewModel.hangUpCall() } )
+            with(ongoingCallViewModel) {
+                CallingControls(
+                    callEstablishedState,
+                    { muteOrUnMuteCall() },
+                    { hangUpCall() }
+                )
+            }
         },
     ) {
         Column(
@@ -75,7 +81,11 @@ private fun OngoingCallTopBar(
 }
 
 @Composable
-private fun CallingControls(onHangUpCall: () -> Unit) {
+private fun CallingControls(
+    ongoingCallState: OngoingCallState,
+    onMuteOrUnMuteCall: () -> Unit,
+    onHangUpCall: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -83,7 +93,7 @@ private fun CallingControls(onHangUpCall: () -> Unit) {
             .fillMaxWidth()
             .padding(0.dp, MaterialTheme.wireDimensions.spacing16x, 0.dp, 0.dp)
     ) {
-        MicrophoneButton()
+        MicrophoneButton(ongoingCallState.isMuted) { onMuteOrUnMuteCall() }
         CameraButton()
         SpeakerButton()
         HangUpButton { onHangUpCall() }

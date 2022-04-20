@@ -12,10 +12,10 @@ import com.wire.android.R
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun AcceptButton() {
+fun AcceptButton(buttonClicked: () -> Unit) {
     IconButton(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-        onClick = { }
+        onClick = buttonClicked
     ) {
         Image(
             painter = painterResource(

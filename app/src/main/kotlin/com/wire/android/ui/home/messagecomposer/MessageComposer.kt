@@ -543,8 +543,8 @@ private fun AddMentionAction() {
 private fun TakePictureAction() {
     WireIconButton(
         onButtonClicked = {},
-        iconResource = R.drawable.ic_take_picture,
-        contentDescription = R.string.content_description_take_a_picture
+        iconResource = R.drawable.ic_ping,
+        contentDescription = R.string.content_description_ping_everyone
     )
 }
 

@@ -33,8 +33,7 @@ class IncomingCallViewModel @Inject constructor(
         private set
 
     val conversationId: ConversationId? = savedStateHandle
-        .getLiveData<String>(EXTRA_CONVERSATION_ID)
-        .value
+        .get<String>(EXTRA_CONVERSATION_ID)
         ?.parseIntoQualifiedID()
 
     init {
@@ -43,10 +42,9 @@ class IncomingCallViewModel @Inject constructor(
                 conversationDetails(conversationId = conversationId)
                     .collect {
                         val conversationName = when (it) {
-                            is ConversationDetails.Self -> "Self"
-                            is ConversationDetails.Group -> "Group"
-                            is ConversationDetails.OneOne -> it.otherUser.name ?: "OneToOne"
-                            else -> "Unknown"
+                            is ConversationDetails.Group -> it.conversation.name
+                            is ConversationDetails.OneOne -> it.otherUser.name
+                            else -> null
                         }
                         callState = callState.copy(
                             conversationName = conversationName

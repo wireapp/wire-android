@@ -81,7 +81,7 @@ private fun IncomingCallContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = state.conversationName,
+                text = state.conversationName ?: stringResource(id = R.string.calling_label_uknown_caller_name),
                 style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)
             )

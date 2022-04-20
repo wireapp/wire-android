@@ -31,21 +31,29 @@ import com.wire.android.ui.theme.wireDimensions
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun OngoingCallScreen(ongoingOngoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
-    OngoingCallContent(ongoingOngoingCallViewModel.callEstablishedState)
+    OngoingCallContent(ongoingOngoingCallViewModel)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun OngoingCallContent(state: OngoingCallState) {
+private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(
-        topBar = { OngoingCallTopBar(state.conversationName) {} },
+        topBar = { OngoingCallTopBar(ongoingCallViewModel.callEstablishedState.conversationName) {} },
         sheetShape = RoundedCornerShape(MaterialTheme.wireDimensions.corner16x, MaterialTheme.wireDimensions.corner16x, 0.dp, 0.dp),
         backgroundColor = MaterialTheme.wireColorScheme.callingBackground,
         sheetPeekHeight = MaterialTheme.wireDimensions.defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
-        sheetContent = { CallingControls() },
+        sheetContent = {
+            with(ongoingCallViewModel) {
+                CallingControls(
+                    callEstablishedState,
+                    { muteOrUnMuteCall() },
+                    { hangUpCall() }
+                )
+            }
+        },
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -73,7 +81,11 @@ private fun OngoingCallTopBar(
 }
 
 @Composable
-private fun CallingControls(ongoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
+private fun CallingControls(
+    ongoingCallState: OngoingCallState,
+    onMuteOrUnMuteCall: () -> Unit,
+    onHangUpCall: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -81,12 +93,10 @@ private fun CallingControls(ongoingCallViewModel: OngoingCallViewModel = hiltVie
             .fillMaxWidth()
             .padding(0.dp, MaterialTheme.wireDimensions.spacing16x, 0.dp, 0.dp)
     ) {
-        MicrophoneButton(ongoingCallViewModel.callEstablishedState) { ongoingCallViewModel.muteOrUnMuteCall() }
+        MicrophoneButton(ongoingCallState.isMuted) { onMuteOrUnMuteCall() }
         CameraButton()
         SpeakerButton()
-        HangUpButton {
-            ongoingCallViewModel.hangUpCall()
-        }
+        HangUpButton { onHangUpCall() }
     }
 }
 

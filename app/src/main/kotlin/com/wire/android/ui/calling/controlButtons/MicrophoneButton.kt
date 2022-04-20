@@ -9,12 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.calling.OngoingCallState
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun MicrophoneButton(
-    ongoingCallState: OngoingCallState,
+    isMuted: Boolean,
     onMicrophoneButtonClicked: () -> Unit
 ) {
     IconButton(
@@ -23,7 +22,7 @@ fun MicrophoneButton(
     ) {
         Image(
             painter = painterResource(
-                id = if (ongoingCallState.isMuted) {
+                id = if (isMuted) {
                     R.drawable.ic_muted
                 } else {
                     R.drawable.ic_unmuted

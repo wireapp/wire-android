@@ -29,7 +29,6 @@ class OngoingCallViewModel @Inject constructor(
 ) : ViewModel() {
 
     var callEstablishedState by mutableStateOf(OngoingCallState())
-        private set
 
     val conversationId: QualifiedID = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)!!
@@ -70,11 +69,11 @@ class OngoingCallViewModel @Inject constructor(
     fun muteOrUnMuteCall() {
         viewModelScope.launch {
             callEstablishedState = if (callEstablishedState.isMuted) {
-                muteCall()
-                callEstablishedState.copy(isMuted = true)
-            } else {
                 unMuteCall()
                 callEstablishedState.copy(isMuted = false)
+            } else {
+                muteCall()
+                callEstablishedState.copy(isMuted = true)
             }
         }
     }

@@ -176,9 +176,14 @@ enum class NavigationItem(
 
     IncomingCall(
         primaryRoute = INCOMING_CALL,
-        canonicalRoute = INCOMING_CALL,
-        content = { IncomingCallScreen() }
-    );
+        canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
+        content = { IncomingCallScreen(hiltViewModel()) }
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+        }
+    };
 
     /**
      * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder.

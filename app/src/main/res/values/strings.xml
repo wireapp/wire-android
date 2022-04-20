@@ -284,6 +284,7 @@
     <string name="calling_label_speaker">SPEAKER</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
+    <string name="calling_label_uknown_caller_name">Unkown</string>
 
 
 </resources>

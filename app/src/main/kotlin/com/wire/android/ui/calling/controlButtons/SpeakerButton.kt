@@ -16,8 +16,8 @@ import com.wire.android.R
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun SpeakerButton() {
-    var isSpeakerOn by remember { mutableStateOf(false) }
+fun SpeakerButton(initialState: Boolean = false) {
+    var isSpeakerOn by remember { mutableStateOf(initialState) }
     IconButton(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
         onClick = { isSpeakerOn = !isSpeakerOn }

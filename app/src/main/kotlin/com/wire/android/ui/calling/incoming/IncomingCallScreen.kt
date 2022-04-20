@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.calling.controlButtons.AcceptButton
 import com.wire.android.ui.calling.controlButtons.CameraButton
@@ -37,13 +38,25 @@ import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun IncomingCallScreen() {
-    IncomingCallContent()
+fun IncomingCallScreen(incomingCallViewModel: IncomingCallViewModel = hiltViewModel()) {
+    IncomingCallContent(
+        state = incomingCallViewModel.callState,
+        declineCall = {
+            incomingCallViewModel.declineCall()
+        },
+        acceptCall = {
+            incomingCallViewModel.acceptCall()
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun IncomingCallContent() {
+private fun IncomingCallContent(
+    state: IncomingCallState,
+    declineCall: () -> Unit,
+    acceptCall: () -> Unit
+) {
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberBottomSheetState(BottomSheetValue.Expanded)
@@ -55,7 +68,11 @@ private fun IncomingCallContent() {
         sheetGesturesEnabled = false,
         scaffoldState = scaffoldState,
         sheetContent = {
-            CallingControls()
+            CallingControls(
+                state = state,
+                declineCall = declineCall,
+                acceptCall = acceptCall
+            )
         },
     ) {
         Column(
@@ -64,18 +81,18 @@ private fun IncomingCallContent() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Alexandra Olaho",
+                text = state.conversationName ?: stringResource(id = R.string.calling_label_uknown_caller_name),
                 style = MaterialTheme.wireTypography.title01,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing24x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)
             )
             Text(
                 text = stringResource(id = R.string.calling_label_incoming_call),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
             UserProfileAvatar(
                 size = MaterialTheme.wireDimensions.callingIncomingUserAvatarSize,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing56x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing56x)
             )
         }
     }
@@ -97,42 +114,46 @@ private fun IncomingCallTopBar(
 }
 
 @Composable
-private fun CallingControls() {
+private fun CallingControls(
+    state: IncomingCallState,
+    declineCall: () -> Unit,
+    acceptCall: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, MaterialTheme.wireDimensions.spacing32x, 0.dp, 0.dp)
+            .padding(top = MaterialTheme.wireDimensions.spacing32x)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MicrophoneButton()
+            MicrophoneButton(initialState = state.isMicrophoneOn)
             Text(
                 text = stringResource(id = R.string.calling_label_microphone),
                 style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CameraButton()
+            CameraButton(initialState = state.isCameraOn)
             Text(
                 text = stringResource(id = R.string.calling_label_camera),
                 style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SpeakerButton()
+            SpeakerButton(initialState = state.isSpeakerOn)
             Text(
                 text = stringResource(id = R.string.calling_label_speaker),
                 style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, 0.dp)
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
         }
     }
@@ -141,21 +162,23 @@ private fun CallingControls() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                MaterialTheme.wireDimensions.spacing40x,
-                MaterialTheme.wireDimensions.spacing32x,
-                MaterialTheme.wireDimensions.spacing40x,
-                0.dp
+                start = MaterialTheme.wireDimensions.spacing40x,
+                top = MaterialTheme.wireDimensions.spacing32x,
+                end = MaterialTheme.wireDimensions.spacing40x
             )
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.align(alignment = Alignment.CenterStart)
         ) {
-            DeclineButton()
+            DeclineButton { declineCall() }
             Text(
                 text = stringResource(id = R.string.calling_label_decline),
                 style = MaterialTheme.wireTypography.body03,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, MaterialTheme.wireDimensions.spacing40x)
+                modifier = Modifier.padding(
+                    top = MaterialTheme.wireDimensions.spacing8x,
+                    bottom = MaterialTheme.wireDimensions.spacing40x
+                )
             )
         }
         Column(
@@ -163,11 +186,14 @@ private fun CallingControls() {
             modifier = Modifier
                 .align(alignment = Alignment.CenterEnd)
         ) {
-            AcceptButton()
+            AcceptButton { acceptCall() }
             Text(
                 text = stringResource(id = R.string.calling_label_accept),
                 style = MaterialTheme.wireTypography.body03,
-                modifier = Modifier.padding(0.dp, MaterialTheme.wireDimensions.spacing8x, 0.dp, MaterialTheme.wireDimensions.spacing40x)
+                modifier = Modifier.padding(
+                    top = MaterialTheme.wireDimensions.spacing8x,
+                    bottom = MaterialTheme.wireDimensions.spacing40x
+                )
             )
         }
     }

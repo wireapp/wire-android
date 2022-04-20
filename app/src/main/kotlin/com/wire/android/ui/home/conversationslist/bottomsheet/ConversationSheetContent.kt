@@ -1,17 +1,23 @@
 package com.wire.android.ui.home.conversationslist.bottomsheet
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.UserAvatarAsset
+import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -20,7 +26,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun ConversationSheetContent(
     modalBottomSheetContentState: ModalSheetContent,
-    muteConversation: () -> Unit,
+    notificationsOptionsItem: NotificationsOptionsItem,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
@@ -47,7 +53,8 @@ fun ConversationSheetContent(
                             contentDescription = stringResource(R.string.content_description_mute),
                         )
                     },
-                    onItemClick = muteConversation
+                    action = { NotificationsOptionsItemAction(notificationsOptionsItem.mutedStatus) },
+                    onItemClick = notificationsOptionsItem.muteConversationAction
                 )
             },
             {
@@ -131,6 +138,15 @@ fun ConversationSheetContent(
     )
 }
 
+@Composable
+fun NotificationsOptionsItemAction(
+    mutedStatus: MutedConversationStatus
+) {
+    Text(text = "${mutedStatus.status}")
+    Spacer(modifier = Modifier.size(dimensions().spacing2x))
+    ArrowRightIcon()
+}
+
 sealed class ModalSheetContent(val title: String, val conversationId: ConversationId?, var mutedStatus: MutedConversationStatus) {
     object Initial : ModalSheetContent("", null, MutedConversationStatus.AllAllowed)
     class PrivateConversationEdit(
@@ -149,3 +165,8 @@ sealed class ModalSheetContent(val title: String, val conversationId: Conversati
     ) :
         ModalSheetContent(title, conversationId, mutedStatus)
 }
+
+data class NotificationsOptionsItem(
+    val muteConversationAction: () -> Unit,
+    val mutedStatus: MutedConversationStatus
+)

@@ -25,6 +25,7 @@ import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.NotificationsOptionsItem
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
@@ -51,13 +52,16 @@ fun ConversationRouterHomeBridge(
         onHomeBottomSheetContentChange {
             ConversationSheetContent(
                 modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
-                muteConversation = {
-                    onExpandHomeBottomSheet()
-                    mutingConversationState.openMutedStatusSheetContent(
-                        conversationState.modalBottomSheetContentState.value.conversationId,
-                        conversationState.modalBottomSheetContentState.value.mutedStatus
-                    )
-                },
+                notificationsOptionsItem = NotificationsOptionsItem(
+                    muteConversationAction = {
+                        onExpandHomeBottomSheet()
+                        mutingConversationState.openMutedStatusSheetContent(
+                            conversationState.modalBottomSheetContentState.value.conversationId,
+                            conversationState.modalBottomSheetContentState.value.mutedStatus
+                        )
+                    },
+                    mutedStatus = conversationState.modalBottomSheetContentState.value.mutedStatus
+                ),
                 addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
                 moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
                 moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
@@ -81,6 +85,7 @@ fun ConversationRouterHomeBridge(
         mutingConversationState = mutingConversationState,
         onItemClick = { conversationId, mutedStatus ->
             viewModel.muteConversation(conversationId, mutedStatus)
+            conversationState.modalBottomSheetContentState.value.mutedStatus = mutedStatus
         },
         onBackClick = {
             onExpandHomeBottomSheet()

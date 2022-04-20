@@ -64,12 +64,6 @@ class IncomingCallViewModelTest {
         viewModel.declineCall()
 
         coVerify(exactly = 1) { rejectCall(conversationId = any()) }
-    }
-
-    @Test
-    fun `given an incoming call, when the user decline the call, then the screen is closed`() {
-        viewModel.declineCall()
-
         coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
 
@@ -78,12 +72,6 @@ class IncomingCallViewModelTest {
         viewModel.acceptCall()
 
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }
-    }
-
-    @Test
-    fun `given an incoming call, when the user accepts the call, then the ongoing call screen is shown`() {
-        viewModel.acceptCall()
-
         coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
     }
 }

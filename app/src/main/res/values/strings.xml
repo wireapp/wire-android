@@ -281,6 +281,6 @@
     <string name="calling_turn_speaker_on_off">Turn speaker on/off</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_try_again">Try again</string>
-
+    <string name="content_description_ping_everyone">Ping everyone</string>
 
 </resources>

@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -175,9 +174,10 @@ private fun RemoveDeviceDialog(
                     .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
                     .testTag("remove device password field")
             )
-            SideEffect {
-                if (state.keyboardVisible) focusRequester.requestFocus()
-                else keyboardController?.hide()
+            if (state.hideKeyboard)
+                keyboardController?.hide()
+            LaunchedEffect(Unit) { // executed only once when showing the dialog
+                focusRequester.requestFocus()
             }
         }
     )

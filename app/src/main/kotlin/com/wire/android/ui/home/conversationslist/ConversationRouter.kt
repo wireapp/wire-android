@@ -85,6 +85,8 @@ fun ConversationRouterHomeBridge(
         onBackClick = {
             onExpandHomeBottomSheet()
             mutingConversationState.closeMutedStatusSheetContent()
+            // this could be improved, but would require a refactor of ConversationState.modalBottomSheetContentState component
+            conversationState.modalBottomSheetContentState.value.mutedStatus = mutingConversationState.mutedStatus
         }
     )
 }

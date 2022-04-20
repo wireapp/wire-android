@@ -37,7 +37,6 @@ data class MutingConversationState(
     fun closeMutedStatusSheetContent() {
         coroutineScope.launch {
             this@MutingConversationState.conversationId = null
-            updateMutedStatus(MutedConversationStatus.AllAllowed)
             sheetState.animateTo(ModalBottomSheetValue.Hidden)
         }
     }

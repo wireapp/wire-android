@@ -131,7 +131,7 @@ fun ConversationSheetContent(
     )
 }
 
-sealed class ModalSheetContent(val title: String, val conversationId: ConversationId?, val mutedStatus: MutedConversationStatus) {
+sealed class ModalSheetContent(val title: String, val conversationId: ConversationId?, var mutedStatus: MutedConversationStatus) {
     object Initial : ModalSheetContent("", null, MutedConversationStatus.AllAllowed)
     class PrivateConversationEdit(
         title: String,

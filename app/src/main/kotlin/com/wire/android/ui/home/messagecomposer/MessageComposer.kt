@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +24,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
@@ -60,7 +58,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.WireIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
@@ -204,7 +202,8 @@ private fun MessageComposer(
                                     onLongPress = { /* Called on Long Press */ },
                                     onTap = {  /* Called on Tap */ }
                                 )
-                            }.background(color = MaterialTheme.wireColorScheme.backgroundVariant)
+                            }
+                            .background(color = MaterialTheme.wireColorScheme.backgroundVariant)
                             .weight(1f)) {
                         content()
                     }
@@ -265,7 +264,6 @@ private fun MessageComposer(
                                     }
                                 }
                             }
-                            Spacer(Modifier.width(8.dp))
                             // MessageComposerInput needs a padding on the end of it to give room for the SendOptions components,
                             // because it is "floating" freely with an absolute x-y position inside of the ConstrainLayout
                             // wrapping the whole content when in the FullScreen state we are giving it max height
@@ -316,7 +314,7 @@ private fun MessageComposer(
                         end.linkTo(parent.end)
                     }
                 ) {
-                    Row {
+                    Row(Modifier.padding(end = dimensions().spacing8x)) {
                         if (messageComposerState.sendButtonEnabled) {
                             ScheduleMessageButton()
                         }
@@ -390,6 +388,7 @@ private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier =
         Icon(
             painter = painterResource(id = R.drawable.ic_collapse),
             contentDescription = stringResource(R.string.content_description_drop_down_icon),
+            tint = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
             modifier = Modifier.rotate(collapseRotation)
         )
     }
@@ -490,87 +489,62 @@ private fun MessageComposeActions(
         AddEmojiAction()
         AddGifAction()
         AddMentionAction()
+        TakePictureAction()
     }
 }
 
 @Composable
 private fun AdditionalOptionButton(isSelected: Boolean = false, onClick: () -> Unit) {
-    WireSecondaryButton(
-        onClick = { onClick() },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_add),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon)
-            )
-        },
+    WireIconButton(
+        onButtonClicked = onClick,
+        iconResource = R.drawable.ic_add,
+        contentDescription = R.string.content_description_conversation_search_icon,
         state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
-        fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp,
     )
 }
 
 @Composable
 private fun RichTextEditingAction() {
-    WireSecondaryButton(
-        onClick = { },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_rich_text),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-            )
-        },
-        fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp
+    WireIconButton(
+        onButtonClicked = {},
+        iconResource = R.drawable.ic_rich_text,
+        contentDescription = R.string.content_description_conversation_search_icon
     )
 }
 
 @Composable
 private fun AddEmojiAction() {
-    WireSecondaryButton(
-        onClick = { },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_emoticon),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-            )
-        },
-        fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp
+    WireIconButton(
+        onButtonClicked = {},
+        iconResource = R.drawable.ic_emoticon,
+        contentDescription = R.string.content_description_conversation_search_icon
     )
 }
 
 @Composable
 private fun AddGifAction() {
-    WireSecondaryButton(
-        onClick = { },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_gif),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-            )
-        },
-        fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp,
+    WireIconButton(
+        onButtonClicked = {},
+        iconResource = R.drawable.ic_gif,
+        contentDescription = R.string.content_description_conversation_search_icon
     )
 }
 
 @Composable
 private fun AddMentionAction() {
-    WireSecondaryButton(
-        onClick = { },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_mention),
-                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-            )
-        },
-        fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp,
+    WireIconButton(
+        onButtonClicked = {},
+        iconResource = R.drawable.ic_mention,
+        contentDescription = R.string.content_description_conversation_search_icon
+    )
+}
+
+@Composable
+private fun TakePictureAction() {
+    WireIconButton(
+        onButtonClicked = {},
+        iconResource = R.drawable.ic_ping,
+        contentDescription = R.string.content_description_ping_everyone
     )
 }
 

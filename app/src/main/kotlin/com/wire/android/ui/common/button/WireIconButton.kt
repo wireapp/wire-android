@@ -17,6 +17,7 @@ fun WireIconButton(
     onButtonClicked: () -> Unit,
     @DrawableRes iconResource: Int,
     @StringRes contentDescription: Int,
+    state: WireButtonState = WireButtonState.Default,
     modifier: Modifier = Modifier
 ) {
     WireSecondaryButton(
@@ -33,6 +34,7 @@ fun WireIconButton(
         minWidth = dimensions().spacing40x,
         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
         leadingIconAlignment = IconAlignment.Center,
+        state = state,
         fillMaxWidth = false
     )
 }

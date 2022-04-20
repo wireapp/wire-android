@@ -129,7 +129,9 @@ private fun CallingControls(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MicrophoneButton(initialState = state.isMicrophoneOn)
+            MicrophoneButton(isMuted = state.isMicrophoneMuted) {
+                // do nothing for now
+            }
             Text(
                 text = stringResource(id = R.string.calling_label_microphone),
                 style = MaterialTheme.wireTypography.label01,

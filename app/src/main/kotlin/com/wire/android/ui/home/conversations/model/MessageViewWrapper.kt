@@ -9,9 +9,11 @@ data class MessageViewWrapper(
     val user: User,
     val messageSource: MessageSource = MessageSource.CurrentUser,
     val messageHeader: MessageHeader,
-    val messageContent: MessageContent,
+    val messageContent: MessageContent?,
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == MessageStatus.Deleted
+
+    val sendingFailed : Boolean = messageHeader.messageStatus == MessageStatus.Failure
 }
 
 data class MessageHeader(
@@ -24,12 +26,22 @@ data class MessageHeader(
 )
 
 enum class MessageStatus(val stringResourceId: Int) {
-    Untouched(-1), Deleted(R.string.label_message_status_deleted), Edited(R.string.label_message_status_edited)
+    Untouched(-1),
+    Deleted(R.string.label_message_status_deleted),
+    Edited(R.string.label_message_status_edited),
+    Failure(R.string.label_message_sent_failure)
 }
-
 
 sealed class MessageContent {
     data class TextMessage(val messageBody: MessageBody) : MessageContent()
+
+    data class AssetMessage(
+        val assetName: String,
+        val assetExtension: String,
+        val assetId: String,
+        val assetSizeInBytes: Long
+    ) : MessageContent()
+
     data class ImageMessage(val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -43,6 +55,7 @@ sealed class MessageContent {
             return rawImgData.contentHashCode()
         }
     }
+
 }
 
 data class MessageBody(

@@ -191,6 +191,21 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun getOngoingCallsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.getOngoingCalls
+
+    @ViewModelScoped
+    @Provides
+    fun rejectCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.rejectCall
+
+    @ViewModelScoped
+    @Provides
+    fun acceptCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.answerCall
+
+    @ViewModelScoped
+    @Provides
     fun providesGetSelfUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetSelfUserUseCase =
         coreLogic.getSessionScope(currentAccount).users.getSelfUser
 

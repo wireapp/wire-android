@@ -32,49 +32,41 @@ class IncomingCallViewModel @Inject constructor(
     var callState by mutableStateOf(IncomingCallState())
         private set
 
-    val conversationId: ConversationId? = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)
-        ?.parseIntoQualifiedID()
+    val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
 
     init {
         viewModelScope.launch {
-            conversationId?.run {
-                conversationDetails(conversationId = conversationId)
-                    .collect {
-                        val conversationName = when (it) {
-                            is ConversationDetails.Group -> it.conversation.name
-                            is ConversationDetails.OneOne -> it.otherUser.name
-                            else -> null
-                        }
-                        callState = callState.copy(
-                            conversationName = conversationName
-                        )
+            conversationDetails(conversationId = conversationId)
+                .collect {
+                    val conversationName = when (it) {
+                        is ConversationDetails.Group -> it.conversation.name
+                        is ConversationDetails.OneOne -> it.otherUser.name
+                        else -> null
                     }
-            }
+                    callState = callState.copy(
+                        conversationName = conversationName
+                    )
+                }
         }
     }
 
     fun declineCall() {
-        conversationId?.run {
-            viewModelScope.launch {
-                rejectCall(conversationId = conversationId)
-                navigationManager.navigateBack()
-            }
+        viewModelScope.launch {
+            rejectCall(conversationId = conversationId)
+            navigationManager.navigateBack()
         }
     }
 
     fun acceptCall() {
-        conversationId?.run {
-            viewModelScope.launch {
-                acceptCall(conversationId = conversationId)
+        viewModelScope.launch {
+            acceptCall(conversationId = conversationId)
 
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(),
-                        backStackMode = BackStackMode.CLEAR_TILL_START
-                    )
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.OngoingCall.getRouteWithArgs(),
+                    backStackMode = BackStackMode.CLEAR_TILL_START
                 )
-            }
+            )
         }
     }
 }

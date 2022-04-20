@@ -53,9 +53,8 @@ fun MessageItem(
         Row(
             Modifier
                 .padding(
-                    start = MaterialTheme.wireDimensions.spacing8x,
                     end = MaterialTheme.wireDimensions.spacing16x,
-                    bottom = MaterialTheme.wireDimensions.spacing8x
+                    bottom = MaterialTheme.wireDimensions.messageItemBottomPadding
                 )
                 .fillMaxWidth()
                 .combinedClickable(
@@ -64,13 +63,15 @@ fun MessageItem(
                     onLongClick = onLongClicked
                 )
         ) {
+            Spacer(Modifier.padding(start = dimensions().spacing2x))
             UserProfileAvatar(
                 userAvatarAsset = message.user.avatarAsset,
                 status = message.user.availabilityStatus
             )
+            Spacer(Modifier.padding(start = dimensions().spacing12x))
             Column {
                 MessageHeader(messageHeader)
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(dimensions().spacing6x))
                 if (!isDeleted) {
                     MessageContent(messageContent, onAssetMessageClicked)
                 }

@@ -23,6 +23,8 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -295,6 +297,16 @@ class UseCaseModule {
     @Provides
     fun providesEndCallUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): EndCallUseCase =
         coreLogic.getSessionScope(currentAccount).calls.endCall
+
+    @ViewModelScoped
+    @Provides
+    fun muteCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): MuteCallUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.muteCall
+
+    @ViewModelScoped
+    @Provides
+    fun unMuteCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): UnMuteCallUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.unMuteCall
 
     @ViewModelScoped
     @Provides

@@ -10,6 +10,8 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -21,11 +23,12 @@ class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val startCall: StartCallUseCase,
-    private val endCall: EndCallUseCase
+    private val endCall: EndCallUseCase,
+    private val muteCall: MuteCallUseCase,
+    private val unMuteCall: UnMuteCallUseCase
 ) : ViewModel() {
 
     var callEstablishedState by mutableStateOf(OngoingCallState())
-        private set
 
     val conversationId: QualifiedID = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)!!
@@ -60,6 +63,18 @@ class OngoingCallViewModel @Inject constructor(
     private fun navigateBack() {
         viewModelScope.launch {
             navigationManager.navigateBack()
+        }
+    }
+
+    fun muteOrUnMuteCall() {
+        viewModelScope.launch {
+            callEstablishedState = if (callEstablishedState.isMuted) {
+                unMuteCall()
+                callEstablishedState.copy(isMuted = false)
+            } else {
+                muteCall()
+                callEstablishedState.copy(isMuted = true)
+            }
         }
     }
 }

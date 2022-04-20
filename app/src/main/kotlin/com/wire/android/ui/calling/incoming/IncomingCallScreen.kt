@@ -1,5 +1,6 @@
 package com.wire.android.ui.calling.incoming
 
+import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,12 +41,26 @@ import com.wire.android.ui.theme.wireTypography
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun IncomingCallScreen(incomingCallViewModel: IncomingCallViewModel = hiltViewModel()) {
-    IncomingCallContent(state = incomingCallViewModel.callState)
+    val activity = (LocalContext.current as? Activity)
+
+    IncomingCallContent(
+        state = incomingCallViewModel.callState,
+        declineCall = {
+            incomingCallViewModel.declineCall()
+        },
+        acceptCall = {
+            incomingCallViewModel.acceptCall()
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun IncomingCallContent(state: IncomingCallState) {
+private fun IncomingCallContent(
+    state: IncomingCallState,
+    declineCall: () -> Unit,
+    acceptCall: () -> Unit
+) {
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberBottomSheetState(BottomSheetValue.Expanded)
@@ -56,7 +72,11 @@ private fun IncomingCallContent(state: IncomingCallState) {
         sheetGesturesEnabled = false,
         scaffoldState = scaffoldState,
         sheetContent = {
-            CallingControls(state = state)
+            CallingControls(
+                state = state,
+                declineCall = declineCall,
+                acceptCall = acceptCall
+            )
         },
     ) {
         Column(
@@ -98,7 +118,11 @@ private fun IncomingCallTopBar(
 }
 
 @Composable
-private fun CallingControls(state: IncomingCallState) {
+private fun CallingControls(
+    state: IncomingCallState,
+    declineCall: () -> Unit,
+    acceptCall: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -129,7 +153,7 @@ private fun CallingControls(state: IncomingCallState) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SpeakerButton(initialState = state.isMicrophoneOn)
+            SpeakerButton(initialState = state.isSpeakerOn)
             Text(
                 text = stringResource(id = R.string.calling_label_speaker),
                 style = MaterialTheme.wireTypography.label01,
@@ -151,7 +175,7 @@ private fun CallingControls(state: IncomingCallState) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.align(alignment = Alignment.CenterStart)
         ) {
-            DeclineButton()
+            DeclineButton { declineCall() }
             Text(
                 text = stringResource(id = R.string.calling_label_decline),
                 style = MaterialTheme.wireTypography.body03,
@@ -166,7 +190,7 @@ private fun CallingControls(state: IncomingCallState) {
             modifier = Modifier
                 .align(alignment = Alignment.CenterEnd)
         ) {
-            AcceptButton()
+            AcceptButton { acceptCall() }
             Text(
                 text = stringResource(id = R.string.calling_label_accept),
                 style = MaterialTheme.wireTypography.body03,

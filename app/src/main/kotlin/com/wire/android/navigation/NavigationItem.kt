@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_USERNAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
@@ -176,9 +177,14 @@ enum class NavigationItem(
 
     IncomingCall(
         primaryRoute = INCOMING_CALL,
-        canonicalRoute = INCOMING_CALL,
-        content = { IncomingCallScreen() }
-    );
+        canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
+        content = { IncomingCallScreen(hiltViewModel()) }
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+        }
+    };
 
     /**
      * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder.

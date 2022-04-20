@@ -17,6 +17,7 @@ import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetOngoingCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -28,6 +29,7 @@ class HomeViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
     private val listenToEvents: ListenToEventsUseCase,
+    private val ongoingCalls: GetOngoingCallsUseCase,
     private val dataStore: UserDataStore,
     private val getAvatarAsset: GetAvatarAssetUseCase,
     private val getSelf: GetSelfUserUseCase,
@@ -41,6 +43,17 @@ class HomeViewModel
         viewModelScope.launch {
             listenToEvents() // listen for the WebSockets updates and update DB accordingly
             loadUserAvatar()
+        }
+        viewModelScope.launch {
+            ongoingCalls().collect {
+                if (it.isNotEmpty()) {
+                    navigationManager.navigate(
+                        command = NavigationCommand(
+                            destination = NavigationItem.IncomingCall.getRouteWithArgs(listOf(it.first().conversationId))
+                        )
+                    )
+                }
+            }
         }
     }
 

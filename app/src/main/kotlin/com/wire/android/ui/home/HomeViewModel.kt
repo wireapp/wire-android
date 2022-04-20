@@ -6,13 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
@@ -29,8 +27,6 @@ class HomeViewModel
     private val navigationManager: NavigationManager,
     private val listenToEvents: ListenToEventsUseCase,
     private val ongoingCalls: GetOngoingCallsUseCase,
-    private val dataStore: UserDataStore,
-    private val getAvatarAsset: GetAvatarAssetUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {

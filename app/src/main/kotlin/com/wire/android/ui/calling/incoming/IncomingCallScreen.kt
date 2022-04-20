@@ -1,6 +1,5 @@
 package com.wire.android.ui.calling.incoming
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,8 +39,6 @@ import com.wire.android.ui.theme.wireTypography
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun IncomingCallScreen(incomingCallViewModel: IncomingCallViewModel = hiltViewModel()) {
-    val activity = (LocalContext.current as? Activity)
-
     IncomingCallContent(
         state = incomingCallViewModel.callState,
         declineCall = {

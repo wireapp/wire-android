@@ -26,6 +26,7 @@ import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.common.GroupButton
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireTypography
 
 @Composable

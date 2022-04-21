@@ -82,7 +82,7 @@ class LoginEmailScreenTest {
     val forgotPassword = composeTestRule.onNode(hasTestTag("Forgot password?"))
     val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"), useUnmergedTree = true)
 
-    val loginErrorText = "Please enter a valid format for your email or username."
+    val loginErrorText = "This email or username is invalid. Please verify and try again."
 
     @Test
     fun login_success_case() {
@@ -140,7 +140,7 @@ class LoginEmailScreenTest {
 
         passwordField.assertIsDisplayed()
         passwordField.onChildren()[1].performTextClearance()
-        passwordField.onChildren()[1].performTextInput("123456")
+        passwordField.onChildren()[1].performTextInput("123456")m
 
         loginButton.assertHasClickAction()
         loginButton.performClick()

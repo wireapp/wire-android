@@ -1,4 +1,4 @@
-package com.wire.android.ui.authentication.login
+package com.wire.android.ui.authentication.login.email
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.kalium.logic.CoreFailure

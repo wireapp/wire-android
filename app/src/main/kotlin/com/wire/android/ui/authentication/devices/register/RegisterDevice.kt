@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -76,7 +77,7 @@ private fun RegisterDeviceContent(
                     .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
-                    )
+                    ).testTag("register text")
             )
             PasswordTextField(state = state, onPasswordChange = onPasswordChange)
             Spacer(modifier = Modifier.weight(1f))
@@ -88,7 +89,7 @@ private fun RegisterDeviceContent(
                 state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(MaterialTheme.wireDimensions.spacing16x)
+                    .padding(MaterialTheme.wireDimensions.spacing16x).testTag("register button")
             )
         }
     }
@@ -110,7 +111,7 @@ private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (Tex
             },
             imeAction = ImeAction.Done,
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x).testTag("password field")
         )
 }
 

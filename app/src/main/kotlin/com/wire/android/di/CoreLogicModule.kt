@@ -204,8 +204,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getOngoingCallsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).calls.getOngoingCalls
+    fun getIncomingCallsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.getIncomingCalls
 
     @ViewModelScoped
     @Provides

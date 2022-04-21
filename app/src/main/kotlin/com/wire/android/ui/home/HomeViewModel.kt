@@ -14,7 +14,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetOngoingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -26,7 +26,7 @@ class HomeViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
     private val listenToEvents: ListenToEventsUseCase,
-    private val ongoingCalls: GetOngoingCallsUseCase,
+    private val ongoingCalls: GetIncomingCallsUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {

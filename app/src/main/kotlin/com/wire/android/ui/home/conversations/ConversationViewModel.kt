@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -91,7 +92,7 @@ class ConversationViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            markMessagesAsNotified(conversationId!!)
+            markMessagesAsNotified(conversationId!!, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
         }
     }
 

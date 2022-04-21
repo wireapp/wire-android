@@ -9,7 +9,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
 import com.wire.kalium.logic.CoreFailure.Unknown
-import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
@@ -43,7 +43,7 @@ class AvatarPickerViewModelTest {
     lateinit var userDataStore: UserDataStore
 
     @MockK
-    lateinit var getPublicAsset: GetPublicAssetUseCase
+    lateinit var getPublicAsset: GetAvatarAssetUseCase
 
     @MockK
     lateinit var uploadUserAvatarUseCase: UploadUserAvatarUseCase

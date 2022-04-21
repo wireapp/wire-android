@@ -21,6 +21,9 @@ import androidx.core.text.toSpannable
 import com.wire.android.R
 import com.wire.android.ui.WireActivity
 import com.wire.android.util.toBitmap
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.asString
+import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,10 +38,23 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
     private val notificationManager = NotificationManagerCompat.from(context)
 
-    fun showNotification(data: NotificationData) {
+    fun handleNotification(oldData: List<LocalNotificationConversation>, newData: List<LocalNotificationConversation>) {
+        val oldConversationIds = oldData.map { it.id }
+        val newConversationIds = newData.map { it.id }
+
+        val conversationIdsToRemove = oldConversationIds.filter { !newConversationIds.contains(it) }
+        val conversationsToAdd = newData
+            .filter { conversation ->
+                val oldConversation = oldData.firstOrNull { it.id == conversation.id }
+                oldConversation == null || oldConversation != conversation
+            }
+            .map { NotificationConversation.fromDbData(it) }
+            .sortedBy { it.lastMessageTime }
+
         createNotificationChannelIfNeeded()
-        showSummaryIfNeeded(data)
-        data.conversations.forEach { showConversationNotification(it) }
+        showSummaryIfNeeded(oldData, newData)
+        conversationIdsToRemove.forEach { hideNotification(it) }
+        conversationsToAdd.forEach { showConversationNotification(it) }
     }
 
     private fun createNotificationChannelIfNeeded() {
@@ -52,8 +68,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         }
     }
 
-    private fun showSummaryIfNeeded(data: NotificationData) {
-        if (data.conversations.size <= 1) return
+    private fun showSummaryIfNeeded(oldData: List<LocalNotificationConversation>, newData: List<LocalNotificationConversation>) {
+        if (oldData.size > 1 || newData.size <= 1) return
 
         val summaryNotification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)
@@ -69,8 +85,10 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     }
 
     private fun showConversationNotification(conversation: NotificationConversation) {
-        notificationManager.notify(conversation.id.hashCode(), getConversationNotification(conversation))
+        notificationManager.notify(getNotificationId(conversation.id), getConversationNotification(conversation))
     }
+
+    private fun hideNotification(conversationsId: ConversationId) = notificationManager.cancel(getNotificationId(conversationsId))
 
     private fun getConversationNotification(conversation: NotificationConversation) =
         NotificationCompat.Builder(context.applicationContext, CHANNEL_ID).apply {
@@ -157,10 +175,11 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
     private fun getDismissPendingIntent(conversationId: String?): PendingIntent {
         val intent = NotificationDismissReceiver.newIntent(context, conversationId)
+        val requestCode = conversationId?.hashCode() ?: DISMISS_DEFAULT_REQUEST_CODE
 
         return PendingIntent.getBroadcast(
             context.applicationContext,
-            0,
+            requestCode,
             intent,
             PendingIntent.FLAG_IMMUTABLE
         )
@@ -176,17 +195,22 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
         return PendingIntent.getActivity(
             context.applicationContext,
-            0,
+            SUMMARY_REQUEST_CODE,
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
+
+    private fun getNotificationId(id: ConversationId) = getNotificationId(id.asString())
+    private fun getNotificationId(id: String) = id.hashCode()
 
     companion object {
         private const val CHANNEL_ID = "com.wire.android.notification_channel"
         private const val CHANNEL_NAME = "Messages Channel"
         private const val GROUP_KEY = "wire_reloaded_notification_group"
         private const val SUMMARY_ID = 0
+        private const val SUMMARY_REQUEST_CODE = 0
+        private const val DISMISS_DEFAULT_REQUEST_CODE = 1
 
         const val KEY_TEXT_REPLY = "key_text_notification_reply"
 

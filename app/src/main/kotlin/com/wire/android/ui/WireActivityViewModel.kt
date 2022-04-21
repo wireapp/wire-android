@@ -7,18 +7,17 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.GetNotificationsUseCaseProvider
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.notification.MessageNotificationManager
-import com.wire.android.notification.NotificationConversation
-import com.wire.android.notification.NotificationData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.GetServerConfigResult
 import com.wire.kalium.logic.configuration.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -77,15 +76,10 @@ class WireActivityViewModel @Inject constructor(
     private suspend fun listenForNotifications(userId: UserId) {
         getNotificationProvider.create(userId)
             .getNotifications()
-            .filter { it.isNotEmpty() }
-            .collect { dbConversations ->
-                val conversations = dbConversations.map { dbConversation ->
-                    NotificationConversation.fromDbData(dbConversation)
-                }
-                    .map { conversation -> conversation.copy(messages = conversation.messages.sortedBy { it.time }) }
-                    .sortedBy { it.lastMessageTime }
-
-                notificationManager.showNotification(NotificationData(conversations))
+            .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
+            { old, newList -> old.second to newList }
+            .collect { (oldNotifications, newNotifications) ->
+                notificationManager.handleNotification(oldNotifications, newNotifications)
             }
     }
 

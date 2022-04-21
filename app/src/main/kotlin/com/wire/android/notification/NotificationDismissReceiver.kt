@@ -3,11 +3,13 @@ package com.wire.android.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.constraintlayout.compose.override
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.toConversationId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -32,7 +34,7 @@ class NotificationDismissReceiver : BroadcastReceiver() {
             if (currentSession is CurrentSessionResult.Success) {
                 coreLogic.getSessionScope(currentSession.authSession.userId)
                     .messages
-                    .markMessagesAsNotified(conversationId?.toConversationId())
+                    .markMessagesAsNotified(conversationId?.toConversationId(), System.currentTimeMillis().toStringDate()) //TODO change date //TODO Failure is ignored
             }
         }
     }

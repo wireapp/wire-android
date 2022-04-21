@@ -14,7 +14,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
@@ -29,7 +29,7 @@ import kotlinx.coroutines.withContext
 class AvatarPickerViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
-    private val getUserAvatar: GetPublicAssetUseCase,
+    private val getUserAvatar: GetAvatarAssetUseCase,
     private val uploadUserAvatar: UploadUserAvatarUseCase,
     private val avatarImageManager: AvatarImageManager,
     private val dispatchers: DispatcherProvider

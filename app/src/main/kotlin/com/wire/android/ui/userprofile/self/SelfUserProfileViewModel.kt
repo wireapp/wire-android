@@ -17,7 +17,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAssetId
-import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -34,7 +34,7 @@ import javax.inject.Inject
 class SelfUserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
-    private val getPublicAsset: GetPublicAssetUseCase,
+    private val getPublicAsset: GetAvatarAssetUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val logout: LogoutUseCase,
     private val dispatchers: DispatcherProvider

@@ -3,12 +3,12 @@ package com.wire.android.notification
 import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.kalium.logic.data.id.asString
-import com.wire.kalium.logic.data.notification.DbNotificationCommentType
-import com.wire.kalium.logic.data.notification.DbNotificationConversation
-import com.wire.kalium.logic.data.notification.DbNotificationMessage
+import com.wire.kalium.logic.data.notification.LocalNotificationCommentType
+import com.wire.kalium.logic.data.notification.LocalNotificationConversation
+import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.util.toTimeInMillis
 
-data class NotificationData(val conversations: List<NotificationConversation>)
+data class MessagesNotificationData(val conversations: List<NotificationConversation>)
 
 data class NotificationConversation(
     val id: String,
@@ -19,10 +19,10 @@ data class NotificationConversation(
     val lastMessageTime: Long
 ) {
     companion object {
-        fun fromDbData(dbData: DbNotificationConversation): NotificationConversation {
+        fun fromDbData(dbData: LocalNotificationConversation): NotificationConversation {
 
-            val messages = dbData.messages.map { NotificationMessage.fromDbData(it) }
-            val lastMessageTime = dbData.messages.maxOf { it.time.toTimeInMillis() }
+            val messages = dbData.messages.map { NotificationMessage.fromDbData(it) }.sortedBy { it.time }
+            val lastMessageTime = dbData.messages.maxOfOrNull { it.time.toTimeInMillis() } ?: 0
 
             return NotificationConversation(
                 id = dbData.id.asString(),
@@ -45,22 +45,22 @@ sealed class NotificationMessage(open val author: NotificationMessageAuthor, ope
         NotificationMessage(author, time)
 
     companion object {
-        fun fromDbData(dbData: DbNotificationMessage): NotificationMessage {
+        fun fromDbData(dbData: LocalNotificationMessage): NotificationMessage {
 
             val author = NotificationMessageAuthor(dbData.author.name, null) //TODO image
             val time = dbData.time.toTimeInMillis()
 
             return when (dbData) {
-                is DbNotificationMessage.Text -> Text(author, time, dbData.text)
-                is DbNotificationMessage.Comment -> Comment(author, time, dbTypeIntoCommentResId(dbData.type))
+                is LocalNotificationMessage.Text -> Text(author, time, dbData.text)
+                is LocalNotificationMessage.Comment -> Comment(author, time, dbTypeIntoCommentResId(dbData.type))
             }
         }
 
-        private fun dbTypeIntoCommentResId(dbType: DbNotificationCommentType): CommentResId =
+        private fun dbTypeIntoCommentResId(dbType: LocalNotificationCommentType): CommentResId =
             when (dbType) {
-                DbNotificationCommentType.PICTURE -> CommentResId.PICTURE
-                DbNotificationCommentType.FILE -> CommentResId.FILE
-                DbNotificationCommentType.REACTION -> CommentResId.REACTION
+                LocalNotificationCommentType.PICTURE -> CommentResId.PICTURE
+                LocalNotificationCommentType.FILE -> CommentResId.FILE
+                LocalNotificationCommentType.REACTION -> CommentResId.REACTION
             }
     }
 }

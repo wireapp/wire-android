@@ -12,7 +12,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.feature.asset.GetPublicAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -29,7 +29,7 @@ class HomeViewModel
     private val navigationManager: NavigationManager,
     private val listenToEvents: ListenToEventsUseCase,
     private val dataStore: UserDataStore,
-    private val getPublicAsset: GetPublicAssetUseCase,
+    private val getPublicAsset: GetAvatarAssetUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {

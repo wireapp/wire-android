@@ -65,7 +65,7 @@ class LoginEmailScreenTest {
         // Start the app
         composeTestRule.setContent {
             WireTheme {
-                LoginEmailScreen(serverConfig = ServerConfig.DEFAULT)
+                LoginEmailScreen(serverConfig = ServerConfig.STAGING)
             }
         }
     }

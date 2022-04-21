@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
@@ -22,19 +24,28 @@ import kotlinx.coroutines.launch
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    private val conversationDetails: ObserveConversationDetailsUseCase,
     private val startCall: StartCallUseCase,
     private val endCall: EndCallUseCase,
     private val muteCall: MuteCallUseCase,
     private val unMuteCall: UnMuteCallUseCase
 ) : ViewModel() {
 
-    var callEstablishedState by mutableStateOf(OngoingCallState())
+    var callEstablishedState by mutableStateOf(OngoingCallState(conversationName = ""))
 
     val conversationId: QualifiedID = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
     init {
+
+        viewModelScope.launch {
+            conversationDetails(conversationId = conversationId)
+                .collect {
+                    val conversationName = getConversationName(it)
+                    callEstablishedState = callEstablishedState.copy(conversationName = conversationName)
+                }
+        }
         //init with fake values
         callEstablishedState = OngoingCallState(
             conversationName = "The Backlog Boys",
@@ -46,6 +57,12 @@ class OngoingCallViewModel @Inject constructor(
         viewModelScope.launch {
             initiateCall()
         }
+    }
+
+    private fun getConversationName(conversationDetails: ConversationDetails) = when (conversationDetails) {
+        is ConversationDetails.Group -> conversationDetails.conversation.name
+        is ConversationDetails.OneOne -> conversationDetails.otherUser.name
+        else -> null
     }
 
     private suspend fun initiateCall() {

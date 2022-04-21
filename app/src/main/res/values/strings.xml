@@ -278,7 +278,14 @@
     <string name="calling_mute_call">Mute call</string>
     <string name="calling_hang_up_call">Hang up call</string>
     <string name="calling_turn_camera_on_off">Turn camera on/off</string>
+    <string name="calling_flip_camera_on_off">Flip camera</string>
     <string name="calling_turn_speaker_on_off">Turn speaker on/off</string>
+    <string name="calling_label_microphone">Microphone</string>
+    <string name="calling_label_camera">Camera</string>
+    <string name="calling_label_speaker">Speaker</string>
+    <string name="calling_label_flip">Flip</string>
+    <string name="calling_label_ringing_call">Ringing...</string>
+
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_try_again">Try again</string>
     <string name="content_description_ping_everyone">Ping everyone</string>

@@ -1,5 +1,6 @@
 package com.wire.android.ui.common.bottomsheet
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -16,15 +17,18 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun ModalSheetHeaderItem(
     title: String? = null,
-    leadingIcon: @Composable () -> Unit = {}
+    leadingIcon: @Composable () -> Unit = {},
+    iconAction: () -> Unit = {},
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(
-            start = dimensions().modalBottomSheetHeaderStartPadding,
-            top = dimensions().modalBottomSheetHeaderTopPadding,
-            bottom = dimensions().modalBottomSheetHeaderBottomPadding
-        )
+        modifier = Modifier
+            .padding(
+                start = dimensions().modalBottomSheetHeaderStartPadding,
+                top = dimensions().modalBottomSheetHeaderTopPadding,
+                bottom = dimensions().modalBottomSheetHeaderBottomPadding
+            )
+            .clickable { iconAction() }
     ) {
         leadingIcon()
         Spacer(modifier = Modifier.width(8.dp))

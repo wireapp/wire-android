@@ -43,6 +43,7 @@ fun ConversationRouterHomeBridge(
 ) {
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
+    val mutingConversationState = rememberMutingConversationState()
 
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
@@ -50,7 +51,13 @@ fun ConversationRouterHomeBridge(
         onHomeBottomSheetContentChange {
             ConversationSheetContent(
                 modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
-                muteConversation = { viewModel.muteConversation("someId") },
+                muteConversation = {
+                    onExpandHomeBottomSheet()
+                    mutingConversationState.openMutedStatusSheetContent(
+                        conversationState.modalBottomSheetContentState.value.conversationId,
+                        conversationState.modalBottomSheetContentState.value.mutedStatus
+                    )
+                },
                 addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
                 moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
                 moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
@@ -69,6 +76,19 @@ fun ConversationRouterHomeBridge(
         onExpandBottomSheet = { onExpandHomeBottomSheet() },
         onScrollPositionChanged = onScrollPositionChanged
     )
+
+    MutingOptionsSheetContent(
+        mutingConversationState = mutingConversationState,
+        onItemClick = { conversationId, mutedStatus ->
+            viewModel.muteConversation(conversationId, mutedStatus)
+        },
+        onBackClick = {
+            onExpandHomeBottomSheet()
+            mutingConversationState.closeMutedStatusSheetContent()
+            // this could be improved, but would require a refactor of ConversationState.modalBottomSheetContentState component
+            conversationState.modalBottomSheetContentState.value.mutedStatus = mutingConversationState.mutedStatus
+        }
+    )
 }
 
 @ExperimentalAnimationApi
@@ -80,7 +100,7 @@ private fun ConversationRouter(
     conversationState: ConversationState,
     openConversation: (ConversationId) -> Unit,
     openNewConversation: () -> Unit,
-    onExpandBottomSheet: () -> Unit,
+    onExpandBottomSheet: (ConversationId) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
 ) {
     Scaffold(
@@ -106,7 +126,7 @@ private fun ConversationRouter(
 
         fun editConversation(conversationType: ConversationType) {
             conversationState.changeModalSheetContentState(conversationType)
-            onExpandBottomSheet()
+            onExpandBottomSheet(conversationType.conversationId)
         }
 
         with(uiState) {

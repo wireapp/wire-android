@@ -23,7 +23,9 @@ class ConversationState(
                 with(conversationType) {
                     modalBottomSheetContentState.value = ModalSheetContent.GroupConversationEdit(
                         title = groupName,
-                        groupColorValue = groupColorValue
+                        groupColorValue = groupColorValue,
+                        conversationId = this.conversationId,
+                        mutedStatus = this.mutedStatus
                     )
                 }
             }
@@ -31,7 +33,9 @@ class ConversationState(
                 with(conversationType) {
                     modalBottomSheetContentState.value = ModalSheetContent.PrivateConversationEdit(
                         title = conversationInfo.name,
-                        avatarAsset = userInfo.avatarAsset
+                        avatarAsset = userInfo.avatarAsset,
+                        conversationId = this.conversationId,
+                        mutedStatus = this.mutedStatus
                     )
                 }
             }

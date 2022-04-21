@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist.bottomsheet
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
@@ -8,6 +9,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -19,6 +21,8 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
+import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
@@ -142,9 +146,14 @@ fun ConversationSheetContent(
 fun NotificationsOptionsItemAction(
     mutedStatus: MutedConversationStatus
 ) {
-    Text(text = "${mutedStatus.status}")
-    Spacer(modifier = Modifier.size(dimensions().spacing2x))
-    ArrowRightIcon()
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = mutedStatus.getMutedStatusTextResource(),
+            style = MaterialTheme.wireTypography.body01
+        )
+        Spacer(modifier = Modifier.size(dimensions().spacing2x))
+        ArrowRightIcon()
+    }
 }
 
 sealed class ModalSheetContent(val title: String, val conversationId: ConversationId?, var mutedStatus: MutedConversationStatus) {

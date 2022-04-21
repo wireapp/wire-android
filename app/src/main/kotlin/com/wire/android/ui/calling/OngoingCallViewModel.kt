@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    private val startCall: StartCallUseCase,
     private val endCall: EndCallUseCase,
     private val muteCall: MuteCallUseCase,
     private val unMuteCall: UnMuteCallUseCase
@@ -33,25 +32,6 @@ class OngoingCallViewModel @Inject constructor(
     val conversationId: QualifiedID = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
-
-    init {
-        //init with fake values
-        callEstablishedState = OngoingCallState(
-            conversationName = "The Backlog Boys",
-            avatarAssetByteArray = null,
-            isMuted = false,
-            isCameraOn = false,
-            isSpeakerOn = false
-        )
-        viewModelScope.launch {
-            initiateCall()
-        }
-    }
-
-    private suspend fun initiateCall() {
-        //TODO pass conversation type
-        startCall(conversationId)
-    }
 
     fun hangUpCall() {
         viewModelScope.launch {

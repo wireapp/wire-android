@@ -33,9 +33,6 @@ class OngoingCallViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var startCall: StartCallUseCase
-
-    @MockK
     private lateinit var endCall: EndCallUseCase
 
     @MockK
@@ -58,7 +55,6 @@ class OngoingCallViewModelTest {
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
-            startCall = startCall,
             endCall = endCall,
             muteCall = muteCall,
             unMuteCall = unMuteCall

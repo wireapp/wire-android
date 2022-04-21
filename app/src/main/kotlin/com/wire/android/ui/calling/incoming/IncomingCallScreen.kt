@@ -58,9 +58,7 @@ private fun IncomingCallContent(
     acceptCall: () -> Unit
 ) {
 
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberBottomSheetState(BottomSheetValue.Expanded)
-    )
+    val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(
         topBar = { IncomingCallTopBar { } },
         sheetShape = RoundedCornerShape(MaterialTheme.wireDimensions.corner16x, MaterialTheme.wireDimensions.corner16x, 0.dp, 0.dp),

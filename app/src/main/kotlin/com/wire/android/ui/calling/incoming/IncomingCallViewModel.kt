@@ -63,7 +63,7 @@ class IncomingCallViewModel @Inject constructor(
 
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs(),
+                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId)),
                     backStackMode = BackStackMode.CLEAR_TILL_START
                 )
             )

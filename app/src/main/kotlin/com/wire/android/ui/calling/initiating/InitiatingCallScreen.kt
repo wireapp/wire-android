@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.calling.controlButtons.CallOptionsControls
 import com.wire.android.ui.calling.controlButtons.HangUpButton
@@ -33,18 +34,26 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 
 @Composable
-fun InitiatingCallScreen() {
-    InitiatingCallContent()
+fun InitiatingCallScreen(initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()) {
+    InitiatingCallContent(
+        initiatingCallState = initiatingCallViewModel.callInitiatedState,
+        onNavigateBack = { initiatingCallViewModel.navigateBack() },
+        onHangUpCall = { initiatingCallViewModel.hangUpCall() }
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun InitiatingCallContent() {
+fun InitiatingCallContent(
+    initiatingCallState: InitiatingCallState,
+    onNavigateBack: () -> Unit,
+    onHangUpCall: () -> Unit
+) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     BottomSheetScaffold(
-        topBar = { InitiatingCallTopBar { } },
+        topBar = { InitiatingCallTopBar { onNavigateBack() } },
         sheetShape = RoundedCornerShape(topStart = MaterialTheme.wireDimensions.corner16x, topEnd = MaterialTheme.wireDimensions.corner16x),
         backgroundColor = MaterialTheme.wireColorScheme.initiatingCallBackground,
         scaffoldState = scaffoldState,
@@ -65,7 +74,7 @@ fun InitiatingCallContent() {
                     modifier = Modifier
                         .height(72.dp)
                         .width(72.dp)
-                ) { }
+                ) { onHangUpCall() }
             }
         }
     ) {
@@ -75,7 +84,7 @@ fun InitiatingCallContent() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Name here",
+                text = initiatingCallState.conversationName ?: stringResource(id = R.string.calling_label_default_caller_name),
                 style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)
             )
@@ -85,6 +94,7 @@ fun InitiatingCallContent() {
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
             UserProfileAvatar(
+                userAvatarAsset = initiatingCallState.avatarAssetId,
                 size = MaterialTheme.wireDimensions.initiatingCallUserAvatarSize,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x)
             )
@@ -95,10 +105,10 @@ fun InitiatingCallContent() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun InitiatingCallTopBar(
-    onCollapse: () -> Unit
+    onNavigateBack: () -> Unit
 ) {
     WireCenterAlignedTopAppBar(
-        onNavigationPressed = onCollapse,
+        onNavigationPressed = onNavigateBack,
         title = String.EMPTY,
         navigationIconType = NavigationIconType.Close,
         elevation = 0.dp,

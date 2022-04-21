@@ -13,6 +13,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSO
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
@@ -32,6 +33,7 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.calling.OngoingCallScreen
+import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
@@ -193,6 +195,17 @@ enum class NavigationItem(
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
             return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
         }
+    },
+
+    InitiatingCall(
+        primaryRoute = INITIATING_CALL,
+        canonicalRoute = "$INITIATING_CALL/{$EXTRA_CONVERSATION_ID}",
+        content = { InitiatingCallScreen() }
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+        }
     };
 
     /**
@@ -229,6 +242,7 @@ object NavigationItemDestinationsRoutes {
     const val IMAGE_PICKER = "image_picker_screen"
     const val NEW_CONVERSATION = "new_conversation_screen"
     const val ONGOING_CALL = "ongoing_call_screen"
+    const val INITIATING_CALL = "initiating_call_screen"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"

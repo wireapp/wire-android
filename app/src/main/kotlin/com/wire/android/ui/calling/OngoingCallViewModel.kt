@@ -28,7 +28,7 @@ class OngoingCallViewModel @Inject constructor(
     private val unMuteCall: UnMuteCallUseCase
 ) : ViewModel() {
 
-    var callEstablishedState by mutableStateOf(OngoingCallState(conversationName = ""))
+    var callEstablishedState by mutableStateOf(OngoingCallState())
 
     val conversationId: QualifiedID = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)!!

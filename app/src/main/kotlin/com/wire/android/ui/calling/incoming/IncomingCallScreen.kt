@@ -67,6 +67,7 @@ private fun IncomingCallContent(
         backgroundColor = MaterialTheme.wireColorScheme.callingIncomingBackground,
         sheetGesturesEnabled = false,
         scaffoldState = scaffoldState,
+        sheetPeekHeight = MaterialTheme.wireDimensions.defaultIncomingCallSheetPeekHeight,
         sheetContent = {
             CallingControls(
                 state = state,

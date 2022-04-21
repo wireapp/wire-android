@@ -3,6 +3,7 @@ package com.wire.android.util
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
@@ -52,6 +53,18 @@ fun Uri.getMimeType(context: Context): String? {
     return context.contentResolver.getType(this)
         ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 }
+
+fun Context.getFileName(uri: Uri): String? = when(uri.scheme) {
+    ContentResolver.SCHEME_CONTENT -> getContentFileName(uri)
+    else -> uri.path?.let(::File)?.name
+}
+
+private fun Context.getContentFileName(uri: Uri): String? = runCatching {
+    contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+        cursor.moveToFirst()
+        return@use cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME).let(cursor::getString)
+    }
+}.getOrNull()
 
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"
 private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "temp_video_attachment.mp4"

@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserProfileAvatar
@@ -35,7 +36,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun UserProfileInfo(
     isLoading: Boolean,
-    avatarAssetByteArray: ByteArray?,
+    avatarAsset: UserAvatarAsset?,
     fullName: String,
     userName: String,
     teamName: String?,
@@ -52,9 +53,9 @@ fun UserProfileInfo(
     ) {
         UserProfileAvatar(
             onClick = onUserProfileClick,
-            isClickable = if (editableState is EditableState.NotEditable) false else !isLoading,
+            isClickable = editableState is EditableState.IsEditable,
             size = dimensions().userAvatarDefaultBigSize,
-            avatarAssetByteArray = avatarAssetByteArray,
+            userAvatarAsset = avatarAsset,
             status = UserStatus.NONE,
         )
         if (isLoading) {

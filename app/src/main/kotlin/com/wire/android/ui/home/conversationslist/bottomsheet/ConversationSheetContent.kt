@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
@@ -133,6 +134,6 @@ fun ConversationSheetContent(
 
 sealed class ModalSheetContent(val title: String) {
     object Initial : ModalSheetContent("")
-    class PrivateConversationEdit(title: String, val avatarUrl: String) : ModalSheetContent(title)
+    class PrivateConversationEdit(title: String, val avatarAsset: UserAvatarAsset?) : ModalSheetContent(title)
     class GroupConversationEdit(title: String, val groupColorValue: Long) : ModalSheetContent(title)
 }

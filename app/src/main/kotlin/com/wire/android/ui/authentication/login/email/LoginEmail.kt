@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -35,8 +36,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.authentication.login.LoginEmailError
-import com.wire.android.ui.authentication.login.LoginEmailState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -77,6 +76,7 @@ fun LoginEmailScreen(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginEmailContent(
     scrollState: ScrollState,
@@ -95,7 +95,7 @@ private fun LoginEmailContent(
             .verticalScroll(scrollState)
             .padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
         UserIdentifierInput(
             modifier = Modifier
                 .fillMaxWidth()

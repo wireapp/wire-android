@@ -27,7 +27,7 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.common.GroupButton
-import com.wire.android.ui.home.newconversation.contacts.Contact
+import com.wire.android.ui.home.newconversation.model.Contact
 
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
@@ -45,7 +45,8 @@ fun SearchPeopleScreen(
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
-    onOpenUserProfile: (SearchOpenUserProfile) -> Unit
+    onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
+    onNewGroupClicked: () -> Unit
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -62,7 +63,8 @@ fun SearchPeopleScreen(
                     contactsAddedToGroup = contactsAddedToGroup,
                     onAddToGroup = onAddToGroup,
                     onRemoveContactFromGroup = onRemoveFromGroup,
-                    onOpenUserProfile = onOpenUserProfile
+                    onOpenUserProfile = onOpenUserProfile,
+                    onNewGroupClicked = onNewGroupClicked
                 )
             }
         }
@@ -80,6 +82,7 @@ private fun SearchResult(
     onAddToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
+    onNewGroupClicked: () -> Unit
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
 
@@ -118,7 +121,7 @@ private fun SearchResult(
             )
         }
         Divider()
-        GroupButton(groupSize = contactsAddedToGroup.size)
+        GroupButton(groupSize = contactsAddedToGroup.size, onNewGroupClicked = onNewGroupClicked)
     }
 }
 
@@ -216,7 +219,7 @@ private fun LazyListScope.internalSuccessItem(
         items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
             with(contact) {
                 InternalContactSearchResultItem(
-                    avatarUrl = avatarUrl,
+                    avatarAsset = avatarAsset,
                     userStatus = userStatus,
                     name = name,
                     label = label,
@@ -266,7 +269,7 @@ private fun LazyListScope.externalSuccessItem(
         items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
             with(contact) {
                 ExternalContactSearchResultItem(
-                    avatarUrl = avatarUrl,
+                    avatarAsset = avatarAsset,
                     userStatus = userStatus,
                     name = name,
                     label = label,

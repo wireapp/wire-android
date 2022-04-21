@@ -52,29 +52,18 @@ object Libraries {
     object Versions {
         const val kotlin = "1.6.10"
         const val coroutines = "1.6.0-native-mt"
-        const val cryptobox = "1.1.3"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
         const val ktx = "1.6.0"
         const val material = "1.5.0"
-        const val koin = "2.2.3"
-        const val lifecycleKtx = "2.2.0"
-        const val messageProto = "1.28.2"
-        const val retrofit = "2.9.0"
-        const val okHttpLogging = "4.7.2"
         const val pinEditText = "1.2.3"
-        const val viewPager2 = "1.0.0"
         const val sqlLiteJdbc = "3.36.0"
-        const val room = "2.3.0"
         const val desugaring = "1.1.5"
-        const val paging = "3.0.0"
-        const val glide = "4.12.0"
         const val workManager = "2.7.1"
-        const val scarlet = "0.1.12"
         const val fragment = "1.2.5"
         const val compose = "1.2.0-alpha03"
         const val composeMaterial = compose
-        const val composeMaterial3 = "1.0.0-alpha08"
+        const val composeMaterial3 = "1.0.0-alpha09"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.0-beta02"
         const val accompanist = "0.24.2-alpha"
@@ -86,7 +75,7 @@ object Libraries {
         const val browser = "1.3.0"
         const val dataStore = "1.0.0"
         const val splashscreen = "1.0.0-beta01"
-        const val coil = "2.0.0-rc01"
+        const val coil = "2.0.0-rc02"
         const val exif = "1.3.3"
     }
 
@@ -94,10 +83,6 @@ object Libraries {
     const val appCompat                 = "androidx.appcompat:appcompat:${Versions.jetpack}"
     const val constraintLayout          = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
     const val ktxCore                   = "androidx.core:core-ktx:${Versions.ktx}"
-    const val viewPager2                = "androidx.viewpager2:viewpager2:${Versions.viewPager2}"
-    const val livedataKtx               = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycleKtx}"
-    const val viewModelKtx              = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycleKtx}"
-    const val paging                    = "androidx.paging:paging-runtime-ktx:${Versions.paging}"
     const val workManager               = "androidx.work:work-runtime-ktx:${Versions.workManager}"
     const val fragment                  = "androidx.fragment:fragment:${Versions.fragment}"
     const val composeUi                 = "androidx.compose.ui:ui:${Versions.compose}"
@@ -120,24 +105,11 @@ object Libraries {
     const val accompanistPlaceholder    = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
     const val accompanistNavAnimation   = "com.google.accompanist:accompanist-navigation-animation:${Versions.accompanist}"
     const val material                  = "com.google.android.material:material:${Versions.material}"
-    const val messageProto              = "com.wire:generic-message-proto:${Versions.messageProto}"
-    const val okHttpLogging             = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttpLogging}"
-    const val pinEditText               = "com.poovam:pin-edittext-field:${Versions.pinEditText}"
-    const val glide                     = "com.github.bumptech.glide:glide:${Versions.glide}"
-    const val glideCompiler             = "com.github.bumptech.glide:compiler:${Versions.glide}"
-    const val scarlet                   = "com.tinder.scarlet:scarlet:${Versions.scarlet}"
-    const val scarletOkhttp             = "com.tinder.scarlet:websocket-okhttp:${Versions.scarlet}"
-    const val scarletLifecycle          = "com.tinder.scarlet:lifecycle-android:${Versions.scarlet}"
-    const val scarletGson               = "com.tinder.scarlet:message-adapter-gson:${Versions.scarlet}"
     const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
     const val browser                   = "androidx.browser:browser:${Versions.browser}"
     const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
     const val coil                      = "io.coil-kt:coil:${Versions.coil}"
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
-
-    object Crypto {
-        const val cryptobox    = "com.wire:cryptobox-android:${Versions.cryptobox}"
-    }
 
     object Hilt {
         const val android = "com.google.dagger:hilt-android:${Versions.hilt}"
@@ -159,24 +131,6 @@ object Libraries {
         const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
         const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
         const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
-    }
-
-    object Retrofit {
-        const val core              = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
-        const val gsonConverter     = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
-        const val protoConverter    = "com.squareup.retrofit2:converter-protobuf:${Versions.retrofit}"
-    }
-
-    object Room {
-        // TODO remove the sqlLiteJdbc dependency once room version 2.4.0 is released
-        /*
-        fix to force room to use the latest sqlLiteJdbc (the one compatible with m1 macs)
-        https://issuetracker.google.com/issues/174695268#comment9
-         */
-        const val sqlLiteJdbc       = "org.xerial:sqlite-jdbc:${Versions.sqlLiteJdbc}"
-        const val runtime           = "androidx.room:room-runtime:${Versions.room}"
-        const val ktx               = "androidx.room:room-ktx:${Versions.room}"
-        const val compiler          = "androidx.room:room-compiler:${Versions.room}"
     }
 }
 
@@ -216,7 +170,6 @@ object TestLibraries {
     const val coroutinesTest    = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libraries.Versions.coroutines}"
     const val testCore          = "androidx.arch.core:core-testing:${Versions.testCore}"
     const val androidCore       = "androidx.test:core:${Versions.androidCore}"
-    const val koinTest          = "io.insert-koin:koin-test:${Libraries.Versions.koin}"
     const val mockk             = "io.mockk:mockk:${Versions.mockk}"
     const val mockkAndroid      = "io.mockk:mockk-android:${Versions.mockk}"
     const val kluent            = "org.amshove.kluent:kluent:${Versions.kluent}"

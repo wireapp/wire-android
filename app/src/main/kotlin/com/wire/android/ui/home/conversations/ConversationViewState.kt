@@ -1,9 +1,12 @@
 package com.wire.android.ui.home.conversations
 
-import com.wire.android.ui.home.conversations.model.Message
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 
 data class ConversationViewState(
     val conversationName: String = "",
-    val messages: List<Message> = emptyList(),
+    val messages: List<MessageViewWrapper> = emptyList(),
+    val failedMessages : String = "",
     val messageText: String = ""
 )
+
+

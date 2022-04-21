@@ -9,7 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import com.wire.android.ui.home.newconversation.contacts.Contact
+import com.wire.android.ui.home.newconversation.model.Contact
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -31,7 +31,7 @@ class SearchPeopleScreenState(
     val lazyListState: LazyListState,
 ) {
 
-    val newGroupContacts = mutableStateListOf<Contact>()
+    private val newGroupContacts = mutableStateListOf<Contact>()
 
     var contactsAllResultsCollapsed: Boolean by mutableStateOf(false)
 

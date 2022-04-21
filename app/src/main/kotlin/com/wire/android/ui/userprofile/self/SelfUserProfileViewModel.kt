@@ -8,17 +8,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.ui.userprofile.self.model.OtherAccount
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserAssetId
-import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
-import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,7 +33,6 @@ import javax.inject.Inject
 class SelfUserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
-    private val getPublicAsset: GetAvatarAssetUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val logout: LogoutUseCase,
     private val dispatchers: DispatcherProvider
@@ -89,14 +87,14 @@ class SelfUserProfileViewModel @Inject constructor(
                 try {
                     showLoadingAvatar(true)
                     userProfileState = userProfileState.copy(
-                        avatarAssetByteArray = (getPublicAsset(avatarAssetId) as PublicAssetResult.Success).asset
+                        avatarAsset = UserAvatarAsset(avatarAssetId)
                     )
 
                     // Update avatar asset id on user data store
                     // TODO: obtain the asset id through a useCase once we also store assets ids
                     dataStore.updateUserAvatarAssetId(avatarAssetId)
                 } catch (e: ClassCastException) {
-                    appLogger.e("There was an error while uploading the user avatar", e)
+                    appLogger.e("There was an error while downloading the user avatar", e)
                     // Show error snackbar if avatar download fails
                     showErrorMessage()
                 } finally {

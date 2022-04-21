@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
@@ -25,6 +26,7 @@ import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.common.GroupButton
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
@@ -35,6 +37,7 @@ fun ContactsScreen(
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
+    onNewGroupClicked: () -> Unit
 ) {
     val lazyListState = rememberLazyListState { itemIndex ->
         onScrollPositionChanged(itemIndex)
@@ -57,6 +60,7 @@ fun ContactsScreen(
                 ) { contact ->
                     ContactItem(
                         name = contact.name,
+                        avatarAsset = contact.avatarAsset,
                         userStatus = contact.userStatus,
                         belongsToGroup = contactsAddedToGroup.contains(contact),
                         addToGroup = { onAddToGroup(contact) },
@@ -66,7 +70,7 @@ fun ContactsScreen(
                 }
             }
             Divider()
-            GroupButton(groupSize = contactsAddedToGroup.size)
+            GroupButton(groupSize = contactsAddedToGroup.size, onNewGroupClicked = onNewGroupClicked)
         }
     }
 }
@@ -74,6 +78,7 @@ fun ContactsScreen(
 @Composable
 private fun ContactItem(
     name: String,
+    avatarAsset: UserAvatarAsset?,
     userStatus: UserStatus,
     belongsToGroup: Boolean,
     addToGroup: () -> Unit,
@@ -85,6 +90,7 @@ private fun ContactItem(
             Row {
                 WireCheckbox(checked = belongsToGroup, onCheckedChange = { if (it) addToGroup() else removeFromGroup() })
                 UserProfileAvatar(
+                    userAvatarAsset = avatarAsset,
                     status = userStatus
                 )
             }

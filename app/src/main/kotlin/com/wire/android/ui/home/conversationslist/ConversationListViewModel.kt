@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -150,7 +151,10 @@ class ConversationListViewModel @Inject constructor(
                 val otherUser = details.otherUser
                 GeneralConversation(
                     ConversationType.PrivateConversation(
-                        userInfo = UserInfo("", UserStatus.NONE), //TODO Get actual status and avatar
+                        userInfo = UserInfo(
+                            otherUser.previewPicture?.let { UserAvatarAsset(it) },
+                            UserStatus.NONE //TODO Get actual status
+                        ),
                         conversationInfo = ConversationInfo(
                             name = otherUser.name.orEmpty(),
                             membership = Membership.None,

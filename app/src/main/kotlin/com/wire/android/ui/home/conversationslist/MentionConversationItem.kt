@@ -40,7 +40,7 @@ fun MentionConversationItem(
         is ConversationType.PrivateConversation -> {
             with(conversationType) {
                 RowItemTemplate(
-                    leadingIcon = { ConversationUserAvatar("") },
+                    leadingIcon = { ConversationUserAvatar(conversationType.userInfo.avatarAsset) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,

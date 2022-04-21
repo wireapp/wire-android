@@ -4,10 +4,18 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.test.assertAll
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasAnyChild
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -20,6 +28,7 @@ import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.waitForExecution
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -55,13 +64,13 @@ class RemoveDeviceScreenTest {
     }
 
     val title = composeTestRule.onNodeWithText("Remove a Device")
-    val backButton = composeTestRule.onNodeWithText("Back button")
     val removeDeviceButton = composeTestRule.onAllNodes(hasTestTag("remove device button"))
     val remove = composeTestRule.onNodeWithContentDescription("Remove icon")
     val removeDeviceText = composeTestRule.onNodeWithText("Remove the following device?")
     val removeButton = composeTestRule.onNodeWithText("Remove")
     val cancelButton = composeTestRule.onNodeWithText("Cancel")
     val passwordField = composeTestRule.onNode(hasTestTag("remove device password field"))
+    val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"), useUnmergedTree = true)
 
     val invalidPasswordText = "Invalid password"
 
@@ -74,6 +83,10 @@ class RemoveDeviceScreenTest {
         }
         passwordField.onChildren()[1].performTextClearance()
         passwordField.onChildren()[1].performTextInput(PASSWORD)
+        hidePassword.performClick()
+        passwordField.onChildren()[1].assertTextEquals(PASSWORD)
+        hidePassword.performClick()
+        passwordField.onChildren()[1].shouldNotBeEqualTo(PASSWORD)
         removeButton.performClick()
     }
 
@@ -102,5 +115,12 @@ class RemoveDeviceScreenTest {
         cancelButton.performClick()
         title.assertIsDisplayed()
         removeDeviceButton[1].assertIsDisplayed()
+    }
+
+    @Test
+    fun deviceList_count() {
+        title.assertIsDisplayed()
+//        removeDeviceButton.assertCountEquals(6)
+        removeDeviceButton.assertAll(hasContentDescription("Remove icon") and hasClickAction())
     }
 }

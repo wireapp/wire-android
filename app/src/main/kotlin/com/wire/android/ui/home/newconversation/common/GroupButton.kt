@@ -21,7 +21,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 
 @Composable
-fun GroupButton(groupSize: Int) {
+fun GroupButton(groupSize: Int, onNewGroupClicked: () -> Unit) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -32,9 +32,7 @@ fun GroupButton(groupSize: Int) {
     ) {
         WirePrimaryButton(
             text = "${stringResource(R.string.label_new_group)} (${groupSize})",
-            onClick = {
-                //TODO:open new group screen
-            },
+            onClick = onNewGroupClicked,
             modifier = Modifier.weight(1f)
         )
         Spacer(Modifier.width(dimensions().spacing8x))

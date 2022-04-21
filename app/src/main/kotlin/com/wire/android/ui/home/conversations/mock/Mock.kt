@@ -1,16 +1,17 @@
 package com.wire.android.ui.home.conversations.mock
 
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
-import com.wire.android.ui.home.conversations.model.Message
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 
-val mockMessageWithText = Message(
-    user = User("", UserStatus.AVAILABLE),
+val mockMessageWithText = MessageViewWrapper(
+    user = User(null, UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = "John Doe",
         membership = Membership.Guest,
@@ -29,22 +30,31 @@ val mockMessageWithText = Message(
     ),
 )
 
-val mockMessageWithImage = Message(
-    user = User("", UserStatus.AVAILABLE),
+val mockAssetMessage = MessageViewWrapper(
+    user = User(UserAvatarAsset(""), UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = "John Doe",
         membership = Membership.Guest,
         isLegalHold = true,
         time = "12.23pm",
-        messageStatus = MessageStatus.Deleted,
+        messageStatus = MessageStatus.Untouched,
         messageId = ""
     ),
-    messageContent = MessageContent.ImageMessage("someUrl")
+    messageContent = MessageContent.AssetMessage(
+        assetName = "This is some test asset message",
+        assetExtension = "ZIP",
+        assetId = "asset-id",
+        assetSizeInBytes = 21957335
+    )
 )
 
-val mockMessages = listOf(
-    Message(
-        user = User("", UserStatus.AVAILABLE),
+@Suppress("MagicNumber")
+val mockedImg = MessageContent.ImageMessage(ByteArray(16), 0, 0)
+
+@Suppress("LongMethod", "MagicNumber")
+fun getMockedMessages(): List<MessageViewWrapper> = listOf(
+    MessageViewWrapper(
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.Guest,
@@ -62,8 +72,8 @@ val mockMessages = listOf(
             )
         ),
     ),
-    Message(
-        user = User("", UserStatus.AVAILABLE),
+    MessageViewWrapper(
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.Guest,
@@ -72,10 +82,10 @@ val mockMessages = listOf(
             messageStatus = MessageStatus.Deleted,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage("someUrl"),
+        messageContent = mockedImg,
     ),
-    Message(
-        user = User("", UserStatus.AVAILABLE),
+    MessageViewWrapper(
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.External,
@@ -84,10 +94,10 @@ val mockMessages = listOf(
             messageStatus = MessageStatus.Edited,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage("someUrl"),
+        messageContent = mockedImg,
     ),
-    Message(
-        user = User("", UserStatus.AVAILABLE),
+    MessageViewWrapper(
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.External,
@@ -96,10 +106,10 @@ val mockMessages = listOf(
             messageStatus = MessageStatus.Edited,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage("someUrl"),
+        messageContent = mockedImg,
     ),
-    Message(
-        user = User("", UserStatus.AVAILABLE),
+    MessageViewWrapper(
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.External,
@@ -117,8 +127,8 @@ val mockMessages = listOf(
             )
         ),
     ),
-    Message(
-        user = User("", UserStatus.AVAILABLE),
+    MessageViewWrapper(
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.External,
@@ -127,10 +137,10 @@ val mockMessages = listOf(
             messageStatus = MessageStatus.Edited,
             messageId = ""
         ),
-        messageContent = MessageContent.ImageMessage("someUrl"),
+        messageContent = mockedImg,
     ),
-    Message(
-        user = User("", UserStatus.AVAILABLE),
+    MessageViewWrapper(
+        user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = "John Doe",
             membership = Membership.External,

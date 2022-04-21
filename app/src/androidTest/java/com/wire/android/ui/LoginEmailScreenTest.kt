@@ -140,7 +140,7 @@ class LoginEmailScreenTest {
 
         passwordField.assertIsDisplayed()
         passwordField.onChildren()[1].performTextClearance()
-        passwordField.onChildren()[1].performTextInput("123456")m
+        passwordField.onChildren()[1].performTextInput("123456")
 
         loginButton.assertHasClickAction()
         loginButton.performClick()

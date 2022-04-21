@@ -44,7 +44,7 @@ fun ConversationRouterHomeBridge(
 ) {
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
-    val mutingConversationState = rememberMutingConversationState()
+    val mutingConversationState = rememberMutingConversationState(conversationState.modalBottomSheetContentState.value.mutedStatus)
 
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
@@ -60,7 +60,7 @@ fun ConversationRouterHomeBridge(
                             conversationState.modalBottomSheetContentState.value.mutedStatus
                         )
                     },
-                    mutedStatus = conversationState.modalBottomSheetContentState.value.mutedStatus
+                    mutedStatus = mutingConversationState.mutedStatus
                 ),
                 addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
                 moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
@@ -85,13 +85,12 @@ fun ConversationRouterHomeBridge(
         mutingConversationState = mutingConversationState,
         onItemClick = { conversationId, mutedStatus ->
             viewModel.muteConversation(conversationId, mutedStatus)
-            conversationState.modalBottomSheetContentState.value.mutedStatus = mutedStatus
+            conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutedStatus)
         },
         onBackClick = {
             onExpandHomeBottomSheet()
             mutingConversationState.closeMutedStatusSheetContent()
-            // this could be improved, but would require a refactor of ConversationState.modalBottomSheetContentState component
-            conversationState.modalBottomSheetContentState.value.mutedStatus = mutingConversationState.mutedStatus
+            conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutingConversationState.mutedStatus)
         }
     )
 }

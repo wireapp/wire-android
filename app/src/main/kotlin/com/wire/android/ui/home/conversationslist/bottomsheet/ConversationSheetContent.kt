@@ -164,6 +164,10 @@ sealed class ModalSheetContent(val title: String, val conversationId: Conversati
         mutedStatus: MutedConversationStatus
     ) :
         ModalSheetContent(title, conversationId, mutedStatus)
+
+    fun updateCurrentEditingMutedStatus(mutedStatus: MutedConversationStatus) {
+        this.mutedStatus = mutedStatus
+    }
 }
 
 data class NotificationsOptionsItem(

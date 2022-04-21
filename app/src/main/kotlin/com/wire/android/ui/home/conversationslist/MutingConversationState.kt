@@ -49,10 +49,11 @@ data class MutingConversationState(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberMutingConversationState(
+    mutedStatus: MutedConversationStatus,
     sheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 ): MutingConversationState {
 
     val coroutineScope = rememberCoroutineScope()
 
-    return remember { MutingConversationState(coroutineScope, sheetState) }
+    return remember { MutingConversationState(coroutineScope, sheetState) }.apply { updateMutedStatus(mutedStatus) }
 }

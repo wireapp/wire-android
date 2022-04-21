@@ -39,7 +39,7 @@ class TestModule {
             } else {
                 // execute manual login
                 val authResult = coreLogic.getAuthenticationScope()
-                    .login(EMAIL, PASSWORD, false, ServerConfig.DEFAULT)
+                    .login(EMAIL, PASSWORD, false, ServerConfig.STAGING)
 
                 if (authResult is AuthenticationResult.Success) {
                     // persist locally the session if successful

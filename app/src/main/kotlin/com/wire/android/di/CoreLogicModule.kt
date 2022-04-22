@@ -21,6 +21,7 @@ import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetOngoingCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
@@ -287,6 +288,11 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetOrCreateOneToOneConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.getOrCreateOneToOneConversationUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun providesOnGoingCallUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetOngoingCallUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.onGoingCall
 
     @ViewModelScoped
     @Provides

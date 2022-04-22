@@ -2,6 +2,7 @@ package com.wire.android.ui.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
@@ -10,6 +11,7 @@ import androidx.compose.ui.Modifier
 import com.wire.android.ui.home.conversationslist.common.EventBadgeFactory
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.model.EventType
+import com.wire.android.ui.theme.DEFAULT_WEIGHT
 
 @Composable
 fun RowItemTemplate(
@@ -53,6 +55,7 @@ fun RowItemTemplate(
     eventType: EventType? = null,
     onRowItemClicked: () -> Unit,
     onRowItemLongClicked: () -> Unit,
+    endIcon: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     RowItem(
@@ -63,7 +66,7 @@ fun RowItemTemplate(
         leadingIcon()
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(DEFAULT_WEIGHT)
         ) {
             title()
             subTitle()
@@ -77,6 +80,8 @@ fun RowItemTemplate(
                 EventBadgeFactory(eventType = eventType, modifier = Modifier.align(Alignment.TopEnd))
             }
         }
+        if (endIcon != null) {
+            endIcon()
+        }
     }
 }
-

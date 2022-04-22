@@ -22,8 +22,7 @@ import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @HiltViewModel
-class HomeViewModel
-@Inject constructor(
+class HomeViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val listenToEvents: ListenToEventsUseCase,
     private val ongoingCalls: GetIncomingCallsUseCase,

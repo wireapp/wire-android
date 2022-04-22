@@ -30,8 +30,8 @@ import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun OngoingCallScreen(ongoingOngoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
-    OngoingCallContent(ongoingOngoingCallViewModel)
+fun OngoingCallScreen(ongoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
+    OngoingCallContent(ongoingCallViewModel)
 }
 
 @OptIn(ExperimentalMaterialApi::class)

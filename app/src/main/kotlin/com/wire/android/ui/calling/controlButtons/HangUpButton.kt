@@ -18,9 +18,7 @@ fun HangUpButton(onClick: () -> Unit) {
         onClick = { onClick() },
     ) {
         Image(
-            painter = painterResource(
-                id = R.drawable.ic_hang_up
-            ),
+            painter = painterResource(id = R.drawable.ic_hang_up),
             contentDescription = stringResource(id = R.string.calling_hang_up_call)
         )
     }

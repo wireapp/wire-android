@@ -102,7 +102,7 @@ private fun LoginContent(
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
                     LoginTabItem.EMAIL -> LoginEmailScreen(serverConfig, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(ssoLoginResult, scrollState)
+                    LoginTabItem.SSO -> LoginSSOScreen(serverConfig, ssoLoginResult, scrollState)
                 }
             }
             if(!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)

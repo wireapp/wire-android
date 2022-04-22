@@ -287,18 +287,14 @@
     <string name="calling_label_speaker">Speaker</string>
     <string name="calling_label_flip">Flip</string>
     <string name="calling_label_ringing_call">Ringing...</string>
+    <string name="calling_label_incoming_call">Calling..</string>
     <string name="calling_label_default_caller_name">Default</string>
+    <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
+    <string name="calling_label_decline">Decline</string>
+    <string name="calling_label_accept">Accept</string>
+    <!-- Calling-->
 
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_try_again">Try again</string>
     <string name="content_description_ping_everyone">Ping everyone</string>
-    <string name="calling_label_incoming_call">Calling..</string>
-    <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
-    <string name="calling_label_microphone">MICROPHONE</string>
-    <string name="calling_label_camera">CAMERA</string>
-    <string name="calling_label_speaker">SPEAKER</string>
-    <string name="calling_label_decline">Decline</string>
-    <string name="calling_label_accept">Accept</string>
-    <string name="calling_label_unknown_caller_name">Unknown</string>
-
 </resources>

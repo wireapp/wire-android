@@ -39,32 +39,15 @@ class WireActivityViewModel @Inject constructor(
 
     private val isUserLoggedIn = currentSession != null
     var serverConfig: ServerConfig = ServerConfig.DEFAULT
-    var ssoDeepLinkResult: DeepLinkResult.SSOLogin? = null
-
-    var wireActivityState by mutableStateOf(
-        WireActivityState(ssoErrorDialog = WireActivityError.None)
-    )
-        private set
-
-    fun onDialogDismiss() {
-        clearLoginError()
-    }
-
-    private fun clearLoginError() {
-        updateDialogState(WireActivityError.None)
-    }
-
-    private fun updateDialogState(dialogErrorState: WireActivityError) {
-        wireActivityState = wireActivityState.copy(ssoErrorDialog = dialogErrorState)
-    }
+    private var ssoDeepLinkResult: DeepLinkResult.SSOLogin? = null
 
     fun navigationArguments() =
         if (ssoDeepLinkResult != null) {
-            listOf(serverConfig, ssoDeepLinkResult)
+            listOf(serverConfig, ssoDeepLinkResult!!)
         } else listOf(serverConfig)
 
     fun startNavigationRoute() = when {
-        ssoDeepLinkResult is DeepLinkResult.SSOLogin.Success -> NavigationItem.Login.getRouteWithArgs()
+        ssoDeepLinkResult is DeepLinkResult.SSOLogin -> NavigationItem.Login.getRouteWithArgs()
         serverConfig.apiBaseUrl != ServerConfig.DEFAULT.apiBaseUrl -> NavigationItem.Login.getRouteWithArgs()
         isUserLoggedIn -> NavigationItem.Home.getRouteWithArgs()
         else -> NavigationItem.Welcome.getRouteWithArgs()
@@ -83,11 +66,7 @@ class WireActivityViewModel @Inject constructor(
                 when (this) {
                     is DeepLinkResult.CustomServerConfig ->
                         serverConfig = loadServerConfig(url)
-                    is DeepLinkResult.SSOLogin.Failure -> {
-                        ssoDeepLinkResult = this
-                        updateDialogState(WireActivityError.DialogError.SSOError(ssoError))
-                    }
-                    is DeepLinkResult.SSOLogin.Success ->
+                    is DeepLinkResult.SSOLogin ->
                         ssoDeepLinkResult = this
                     DeepLinkResult.Unknown -> TODO()
                 }

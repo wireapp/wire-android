@@ -39,6 +39,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.ServerConfig
@@ -63,12 +64,13 @@ fun LoginSSOScreen(
         loginSSOState = loginSSOState,
         onCodeChange = { loginSSOViewModel.onSSOCodeChange(it) },
         onDialogDismiss = { loginSSOViewModel.onDialogDismiss() },
-        onLoginButtonClick = suspend { loginSSOViewModel.login(serverConfig) },
-        scope = scope
+        //TODO: replace with retrieved ServerConfig from sso login
+        onLoginButtonClick = suspend { loginSSOViewModel.login(ServerConfig.STAGING) },
+        scope = scope,
+        ssoLoginResult
     )
 
-    if(ssoLoginResult is DeepLinkResult.SSOLogin.Success)
-        loginSSOViewModel.establishSSOSession(ssoLoginResult)
+    loginSSOViewModel.handleSSOResult(ssoLoginResult)
 
     LaunchedEffect(loginSSOViewModel) {
         loginSSOViewModel.openWebUrl
@@ -85,8 +87,9 @@ private fun LoginSSOContent(
     onCodeChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
-    scope: CoroutineScope
-) {
+    scope: CoroutineScope,
+    ssoLoginResult: DeepLinkResult.SSOLogin?
+    ) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -117,6 +120,14 @@ private fun LoginSSOContent(
             is LoginSSOError.DialogError.GenericError -> {
                 loginSSOState.loginSSOError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
             }
+            is LoginSSOError.DialogError.ResultError ->{
+                with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
+                    DialogErrorStrings(
+                        stringResource(R.string.sso_erro_dialog_title),
+                        stringResource(R.string.sso_erro_dialog_message, stringResource(this.ssoError.stringResource), this.ssoError.errorCode)
+                    )
+                }
+            }
         }
         WireDialog(
             title = title,
@@ -129,6 +140,7 @@ private fun LoginSSOContent(
             )
         )
     }
+    SSOFailureDialog(loginSSOState, ssoLoginResult, onDialogDismiss )
 }
 
 @Composable
@@ -144,7 +156,7 @@ private fun SSOCodeInput(
         placeholderText = stringResource(R.string.login_sso_code_placeholder),
         labelText = stringResource(R.string.login_sso_code_label),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         modifier = modifier.testTag("ssoCodeField")
     )
 }
@@ -168,10 +180,28 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
     }
 }
 
+@Composable
+internal fun SSOFailureDialog(loginSSOState: LoginSSOState,ssoLoginResult: DeepLinkResult.SSOLogin?,onDialogDismiss: () -> Unit) {
+    if (loginSSOState.ssoResultError is LoginSSOError.DialogError) {
+        with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
+            WireDialog(
+                title = stringResource(R.string.sso_erro_dialog_title),
+                text = stringResource(R.string.sso_erro_dialog_message, stringResource(this.ssoError.stringResource), this.ssoError.errorCode),
+                onDismiss = onDialogDismiss,
+                optionButton1Properties = WireDialogButtonProperties(
+                    onClick = onDialogDismiss ,
+                    text = stringResource(id = R.string.label_ok),
+                    type = WireDialogButtonType.Primary,
+                )
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun LoginSSOScreenPreview() {
     WireTheme(isPreview = true) {
-        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, suspend {}, rememberCoroutineScope())
+        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, suspend {}, rememberCoroutineScope(),null)
     }
 }

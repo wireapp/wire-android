@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -114,6 +115,20 @@ class LoginSSOViewModel @Inject constructor(
             loginState.copy(loginSSOError = loginError)
         } else {
             loginState.copy(loading = false, loginSSOError = loginError).updateLoginEnabled()
+        }
+    }
+
+    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?) = when(ssoLoginResult){
+        is DeepLinkResult.SSOLogin.Success -> establishSSOSession(ssoLoginResult)
+        is DeepLinkResult.SSOLogin.Failure -> updateResultDialogError(LoginSSOError.DialogError.ResultError(ssoLoginResult.ssoError))
+        else -> updateResultDialogError(LoginSSOError.DialogError.ResultError(SSOFailureCodes.Unknown))
+    }
+
+    private fun updateResultDialogError(loginError: LoginSSOError) {
+        loginState = if (loginError is LoginSSOError.None) {
+            loginState.copy(ssoResultError = loginError)
+        } else {
+            loginState.copy(ssoResultError = loginError).updateLoginEnabled()
         }
     }
 

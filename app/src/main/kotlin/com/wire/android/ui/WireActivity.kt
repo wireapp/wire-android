@@ -72,8 +72,6 @@ class WireActivity : AppCompatActivity() {
                 val scope = rememberCoroutineScope()
                 val navController = rememberAnimatedNavController()
                 setUpNavigation(navController, scope)
-                SSOFailureDialog()
-
                 Scaffold {
                     NavigationGraph(navController = navController, viewModel.startNavigationRoute(), viewModel.navigationArguments())
                 }
@@ -81,23 +79,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-    @Composable
-    internal fun SSOFailureDialog() {
-        if (viewModel.wireActivityState.ssoErrorDialog is WireActivityError.DialogError) {
-            with(viewModel.ssoDeepLinkResult as DeepLinkResult.SSOLogin.Failure) {
-                WireDialog(
-                    title = getString(R.string.sso_erro_dialog_title),
-                    text = getString(R.string.sso_erro_dialog_message, getString(this.ssoError.stringResource), this.ssoError.errorCode),
-                    onDismiss = { viewModel.onDialogDismiss() },
-                    optionButton1Properties = WireDialogButtonProperties(
-                        onClick = { viewModel.onDialogDismiss() },
-                        text = stringResource(id = R.string.label_ok),
-                        type = WireDialogButtonType.Primary,
-                    )
-                )
-            }
-        }
-    }
+
 
     @Composable
     private fun setUpNavigation(

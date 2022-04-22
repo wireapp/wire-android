@@ -18,8 +18,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.sso.SSOEstablishSessionResult
-import com.wire.kalium.logic.feature.auth.sso.SSOEstablishSessionUseCase
+import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
@@ -28,13 +27,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase,
-    private val ssoEstablishSessionUseCase: SSOEstablishSessionUseCase,
+    private val getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val navigationManager: NavigationManager,
@@ -61,13 +61,13 @@ class LoginSSOViewModel @Inject constructor(
 
     fun establishSSOSession(ssoLoginResult: DeepLinkResult.SSOLogin.Success) {
         viewModelScope.launch {
-            val authSession = ssoEstablishSessionUseCase(ssoLoginResult.cookie, ServerConfig.STAGING)
+            val authSession = getSSOLoginSessionUseCase(ssoLoginResult.cookie, ServerConfig.STAGING)
                 .let {
                     when (it) {
-                        is SSOEstablishSessionResult.Failure -> {
+                        is SSOLoginSessionResult.Failure -> {
                             return@launch
                         }
-                        is SSOEstablishSessionResult.Success -> it.userSession
+                        is SSOLoginSessionResult.Success -> it.userSession
                     }
                 }
             val storedUserId = addAuthenticatedUser(authSession, false).let {

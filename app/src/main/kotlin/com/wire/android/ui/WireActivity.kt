@@ -1,6 +1,7 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -72,6 +73,7 @@ class WireActivity : AppCompatActivity() {
                 val navController = rememberAnimatedNavController()
                 setUpNavigation(navController, scope)
                 SSOFailureDialog()
+
                 Scaffold {
                     NavigationGraph(navController = navController, viewModel.startNavigationRoute(), viewModel.navigationArguments())
                 }

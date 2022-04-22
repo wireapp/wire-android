@@ -99,8 +99,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun ssoEstablishSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope().ssoLoginScope.ssoEstablishSession
+    fun getLoginSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().ssoLoginScope.getLoginSessionGet
 
     @ViewModelScoped
     @Provides

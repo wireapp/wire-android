@@ -200,7 +200,7 @@ enum class NavigationItem(
     IncomingCall(
         primaryRoute = INCOMING_CALL,
         canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
-        content = { IncomingCallScreen(hiltViewModel()) }
+        content = { IncomingCallScreen() }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()

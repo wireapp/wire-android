@@ -33,9 +33,6 @@ class OngoingCallViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var startCall: StartCallUseCase
-
-    @MockK
     private lateinit var endCall: EndCallUseCase
 
     @MockK
@@ -58,7 +55,6 @@ class OngoingCallViewModelTest {
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
-            startCall = startCall,
             endCall = endCall,
             muteCall = muteCall,
             unMuteCall = unMuteCall
@@ -67,6 +63,7 @@ class OngoingCallViewModelTest {
 
     @Test
     fun `given muteOrUnMuteCall is called, when active call is muted, then un-mute the call`() {
+        ongoingCallViewModel.callEstablishedState = ongoingCallViewModel.callEstablishedState.copy(isMuted = false)
         coEvery { muteCall.invoke() } returns Unit
 
         runTest { ongoingCallViewModel.muteOrUnMuteCall() }

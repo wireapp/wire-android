@@ -124,7 +124,8 @@ private fun LoginSSOContent(
                 with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
                     DialogErrorStrings(
                         stringResource(R.string.sso_erro_dialog_title),
-                        stringResource(R.string.sso_erro_dialog_message, stringResource(this.ssoError.stringResource), this.ssoError.errorCode)
+                        stringResource(R.string.sso_erro_dialog_message, stringResource(this.ssoError.stringResource),
+                            this.ssoError.errorCode)
                     )
                 }
             }
@@ -140,7 +141,6 @@ private fun LoginSSOContent(
             )
         )
     }
-    SSOFailureDialog(loginSSOState, ssoLoginResult, onDialogDismiss )
 }
 
 @Composable
@@ -177,24 +177,6 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
                 .fillMaxWidth()
                 .testTag("ssoLoginButton")
         )
-    }
-}
-
-@Composable
-internal fun SSOFailureDialog(loginSSOState: LoginSSOState,ssoLoginResult: DeepLinkResult.SSOLogin?,onDialogDismiss: () -> Unit) {
-    if (loginSSOState.ssoResultError is LoginSSOError.DialogError) {
-        with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
-            WireDialog(
-                title = stringResource(R.string.sso_erro_dialog_title),
-                text = stringResource(R.string.sso_erro_dialog_message, stringResource(this.ssoError.stringResource), this.ssoError.errorCode),
-                onDismiss = onDialogDismiss,
-                optionButton1Properties = WireDialogButtonProperties(
-                    onClick = onDialogDismiss ,
-                    text = stringResource(id = R.string.label_ok),
-                    type = WireDialogButtonType.Primary,
-                )
-            )
-        }
     }
 }
 

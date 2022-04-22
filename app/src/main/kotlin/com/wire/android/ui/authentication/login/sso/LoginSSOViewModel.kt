@@ -120,17 +120,10 @@ class LoginSSOViewModel @Inject constructor(
 
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?) = when(ssoLoginResult){
         is DeepLinkResult.SSOLogin.Success -> establishSSOSession(ssoLoginResult)
-        is DeepLinkResult.SSOLogin.Failure -> updateResultDialogError(LoginSSOError.DialogError.ResultError(ssoLoginResult.ssoError))
-        else -> updateResultDialogError(LoginSSOError.DialogError.ResultError(SSOFailureCodes.Unknown))
+        is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginSSOError.DialogError.ResultError(ssoLoginResult.ssoError))
+        else -> updateLoginError(LoginSSOError.DialogError.ResultError(SSOFailureCodes.Unknown))
     }
 
-    private fun updateResultDialogError(loginError: LoginSSOError) {
-        loginState = if (loginError is LoginSSOError.None) {
-            loginState.copy(ssoResultError = loginError)
-        } else {
-            loginState.copy(ssoResultError = loginError).updateLoginEnabled()
-        }
-    }
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {

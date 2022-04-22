@@ -37,16 +37,7 @@ class IncomingCallViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             conversationDetails(conversationId = conversationId)
-                .collect {
-                    val conversationName = when (it) {
-                        is ConversationDetails.Group -> it.conversation.name
-                        is ConversationDetails.OneOne -> it.otherUser.name
-                        else -> null
-                    }
-                    callState = callState.copy(
-                        conversationName = conversationName
-                    )
-                }
+                .collect { observeConversationDetails(conversationDetails = it) }
         }
     }
 
@@ -61,12 +52,23 @@ class IncomingCallViewModel @Inject constructor(
         viewModelScope.launch {
             acceptCall(conversationId = conversationId)
 
+            navigationManager.navigateBack()
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId)),
-                    backStackMode = BackStackMode.CLEAR_TILL_START
+                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
                 )
             )
         }
+    }
+
+    private fun observeConversationDetails(conversationDetails: ConversationDetails) {
+        val conversationName = when (conversationDetails) {
+            is ConversationDetails.Group -> conversationDetails.conversation.name
+            is ConversationDetails.OneOne -> conversationDetails.otherUser.name
+            else -> null
+        }
+        callState = callState.copy(
+            conversationName = conversationName
+        )
     }
 }

@@ -8,22 +8,37 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.ClientScopeProvider
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
+import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
+import com.wire.kalium.logic.feature.auth.sso.SSOEstablishSessionResult
+import com.wire.kalium.logic.feature.auth.sso.SSOEstablishSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.wire.kalium.logic.data.user.UserId
 
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase
-) : ViewModel() {
+    private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase,
+    private val ssoEstablishSessionUseCase: SSOEstablishSessionUseCase,
+    private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
+    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    private val navigationManager: NavigationManager,
+    ) : ViewModel() {
 
     var loginState by mutableStateOf(
         LoginSSOState(ssoCode = TextFieldValue(savedStateHandle.get(SSO_CODE_SAVED_STATE_KEY) ?: String.EMPTY))
@@ -43,6 +58,46 @@ class LoginSSOViewModel @Inject constructor(
             }
         }
     }
+
+    fun establishSSOSession(ssoLoginResult: DeepLinkResult.SSOLogin.Success) {
+        viewModelScope.launch {
+            val authSession = ssoEstablishSessionUseCase(ssoLoginResult.cookie, ServerConfig.STAGING)
+                .let {
+                    when (it) {
+                        is SSOEstablishSessionResult.Failure -> {
+                            return@launch
+                        }
+                        is SSOEstablishSessionResult.Success -> it.userSession
+                    }
+                }
+            val storedUserId = addAuthenticatedUser(authSession, false).let {
+                when (it) {
+                    is AddAuthenticatedUserUseCase.Result.Failure -> {
+                        return@launch
+                    }
+                    is AddAuthenticatedUserUseCase.Result.Success -> it.userId
+                }
+            }
+            registerClient(storedUserId).let {
+                when (it) {
+                    is RegisterClientResult.Failure -> {
+                        return@launch
+                    }
+                    is RegisterClientResult.Success -> navigateToConvScreen()
+                }
+            }
+        }
+
+    }
+
+    private suspend fun registerClient(userId: UserId): RegisterClientResult {
+        val clientScope = clientScopeProviderFactory.create(userId).clientScope
+        return clientScope.register(null, null)
+    }
+
+    private suspend fun navigateToConvScreen() =
+        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+
 
     fun onSSOCodeChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared

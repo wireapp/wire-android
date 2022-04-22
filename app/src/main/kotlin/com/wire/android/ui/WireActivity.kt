@@ -14,13 +14,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.wire.android.R
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.deeplink.DeepLinkResult
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
@@ -65,10 +71,28 @@ class WireActivity : AppCompatActivity() {
                 val scope = rememberCoroutineScope()
                 val navController = rememberAnimatedNavController()
                 setUpNavigation(navController, scope)
-
+                SSOFailureDialog()
                 Scaffold {
-                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), listOf(viewModel.serverConfig))
+                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), viewModel.navigationArguments())
                 }
+            }
+        }
+    }
+
+    @Composable
+    internal fun SSOFailureDialog() {
+        if (viewModel.wireActivityState.ssoErrorDialog is WireActivityError.DialogError) {
+            with(viewModel.ssoDeepLinkResult as DeepLinkResult.SSOLogin.Failure) {
+                WireDialog(
+                    title = getString(R.string.sso_erro_dialog_title),
+                    text = getString(R.string.sso_erro_dialog_message, getString(this.ssoError.stringResource), this.ssoError.errorCode),
+                    onDismiss = { viewModel.onDialogDismiss() },
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = { viewModel.onDialogDismiss() },
+                        text = stringResource(id = R.string.label_ok),
+                        type = WireDialogButtonType.Primary,
+                    )
+                )
             }
         }
     }

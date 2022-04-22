@@ -39,6 +39,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +50,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginSSOScreen(
-    serverConfig: ServerConfig,
+    ssoLoginResult: DeepLinkResult.SSOLogin?,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
@@ -64,6 +65,10 @@ fun LoginSSOScreen(
         onLoginButtonClick = suspend { loginSSOViewModel.login(serverConfig) },
         scope = scope
     )
+
+    if(ssoLoginResult is DeepLinkResult.SSOLogin.Success)
+        loginSSOViewModel.establishSSOSession(ssoLoginResult)
+
     LaunchedEffect(loginSSOViewModel) {
         loginSSOViewModel.openWebUrl
             .onEach { CustomTabsHelper.launchUrl(context, it) }
@@ -106,7 +111,6 @@ private fun LoginSSOContent(
             enabled = loginSSOState.loginEnabled
         ) { scope.launch { onLoginButtonClick() } }
     }
-
     if (loginSSOState.loginSSOError is LoginSSOError.DialogError) {
         val (title, message) = when (loginSSOState.loginSSOError) {
             is LoginSSOError.DialogError.GenericError -> {

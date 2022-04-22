@@ -14,7 +14,7 @@ import com.google.accompanist.navigation.animation.composable
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun NavigationGraph(navController: NavHostController, startDestination: String, appInitialArgs: List<Any> = emptyList()) {
+fun NavigationGraph(navController: NavHostController, startDestination: String, appInitialArgs: List<Any?> = emptyList()) {
     AnimatedNavHost(navController, startDestination) {
         NavigationItem.values().onEach { item ->
             composable(

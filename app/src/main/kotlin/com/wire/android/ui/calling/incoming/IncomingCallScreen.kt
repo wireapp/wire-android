@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
-import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -80,7 +78,7 @@ private fun IncomingCallContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = state.conversationName ?: stringResource(id = R.string.calling_label_uknown_caller_name),
+                text = state.conversationName ?: stringResource(id = R.string.calling_label_unknown_caller_name),
                 style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)
             )

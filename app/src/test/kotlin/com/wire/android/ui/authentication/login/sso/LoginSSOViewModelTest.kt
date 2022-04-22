@@ -4,12 +4,18 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.di.ClientScopeProvider
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
+import com.wire.kalium.logic.feature.auth.sso.SSOEstablishSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
+import com.wire.kalium.logic.feature.client.ClientScope
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -36,11 +42,24 @@ class LoginSSOViewModelTest {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
+
     @MockK
     private lateinit var serverConfig: ServerConfig
+
     @MockK
     private lateinit var ssoInitiateLoginUseCase: SSOInitiateLoginUseCase
 
+    @MockK
+    private lateinit var addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase
+
+    @MockK
+    private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
+
+    @MockK
+    private lateinit var ssoEstablishSessionUseCase: SSOEstablishSessionUseCase
+
+    @MockK
+    private lateinit var navigationManager: NavigationManager
     private lateinit var loginViewModel: LoginSSOViewModel
 
     private val apiBaseUrl: String = "apiBaseUrl"
@@ -52,7 +71,14 @@ class LoginSSOViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { serverConfig.apiBaseUrl } returns apiBaseUrl
         every { serverConfig.id } returns "0"
-        loginViewModel = LoginSSOViewModel(savedStateHandle, ssoInitiateLoginUseCase)
+        loginViewModel = LoginSSOViewModel(
+            savedStateHandle,
+            ssoInitiateLoginUseCase,
+            ssoEstablishSessionUseCase,
+            addAuthenticatedUserUseCase,
+            clientScopeProviderFactory,
+            navigationManager
+        )
     }
 
     @Test

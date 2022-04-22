@@ -25,7 +25,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val listenToEvents: ListenToEventsUseCase,
-    private val ongoingCalls: GetIncomingCallsUseCase,
+    private val incomingCalls: GetIncomingCallsUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {
@@ -41,7 +41,7 @@ class HomeViewModel @Inject constructor(
             loadUserAvatar()
         }
         viewModelScope.launch {
-            ongoingCalls().collect {
+            incomingCalls().collect {
                 if (it.isNotEmpty()) {
                     navigationManager.navigate(
                         command = NavigationCommand(

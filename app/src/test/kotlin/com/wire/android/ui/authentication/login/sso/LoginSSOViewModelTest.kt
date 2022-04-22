@@ -11,11 +11,9 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.sso.SSOEstablishSessionUseCase
+import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
-import com.wire.kalium.logic.feature.client.ClientScope
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -56,7 +54,7 @@ class LoginSSOViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var ssoEstablishSessionUseCase: SSOEstablishSessionUseCase
+    private lateinit var getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase
 
     @MockK
     private lateinit var navigationManager: NavigationManager
@@ -74,7 +72,7 @@ class LoginSSOViewModelTest {
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
             ssoInitiateLoginUseCase,
-            ssoEstablishSessionUseCase,
+            getSSOLoginSessionUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             navigationManager

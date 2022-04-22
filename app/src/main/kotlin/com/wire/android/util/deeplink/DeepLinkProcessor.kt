@@ -53,22 +53,34 @@ class DeepLinkProcessor{
 }
 
 enum class SSOFailureCodes(val label:String, val errorCode: Int,val stringResource: Int){
-    ServerErrorUnsupportedSaml("server-error-unsupported-saml",1, R.string.sso_error_server_error_unsupported_saml),
-    BadSuccessRedirect("bad-success-redirect",2, R.string.sso_error_bad_success_redirect),
-    BadFailureRedirect("bad-failure-redirect",3, R.string.sso_error_bad_failure_redirect),
-    BadUsername("bad-username",4, R.string.sso_error_bad_username),
-    BadUpstream("bad-upstream",5, R.string.sso_error_bad_upstream),
-    ServerError("server-error",6, R.string.sso_error_server_error),
-    NotFound("not-found",7, R.string.sso_error_not_found),
-    Forbidden("forbidden",8, R.string.sso_error_forbidden),
-    NoMatchingAuthReq("no-matching-auth-req",9, R.string.sso_error_no_matching_auth_req),
-    InsufficientPermissions("insufficient-permissions",10, R.string.sso_error_insufficient_permissions),
-    Unknown("unknown",0, R.string.sso_error_unknown);
+    ServerErrorUnsupportedSaml("server-error-unsupported-saml",ERROR_CODE_ServerErrorUnsupportedSaml, R.string.sso_error_server_error_unsupported_saml),
+    BadSuccessRedirect("bad-success-redirect",ERROR_CODE_BadSuccessRedirect, R.string.sso_error_bad_success_redirect),
+    BadFailureRedirect("bad-failure-redirect",ERROR_CODE_BadFailureRedirect, R.string.sso_error_bad_failure_redirect),
+    BadUsername("bad-username",ERROR_CODE_BadUsername, R.string.sso_error_bad_username),
+    BadUpstream("bad-upstream",ERROR_CODE_BadUpstream, R.string.sso_error_bad_upstream),
+    ServerError("server-error",ERROR_CODE_ServerError, R.string.sso_error_server_error),
+    NotFound("not-found",ERROR_CODE_NotFound, R.string.sso_error_not_found),
+    Forbidden("forbidden",ERROR_CODE_Forbidden, R.string.sso_error_forbidden),
+    NoMatchingAuthReq("no-matching-auth-req",ERROR_CODE_NoMatchingAuthReq, R.string.sso_error_no_matching_auth_req),
+    InsufficientPermissions("insufficient-permissions",ERROR_CODE_InsufficientPermissions, R.string.sso_error_insufficient_permissions),
+    Unknown("unknown",ERROR_CODE_Unknown, R.string.sso_error_unknown);
     companion object {
         fun getByCode(errorCode: Int) = values().first { it.errorCode == errorCode }
         fun getByLabel(label: String) = values().first { it.label == label }
     }
 }
+
+private const val ERROR_CODE_ServerErrorUnsupportedSaml=1
+private const val ERROR_CODE_BadSuccessRedirect=2
+private const val ERROR_CODE_BadFailureRedirect=3
+private const val ERROR_CODE_BadUsername=4
+private const val ERROR_CODE_BadUpstream=5
+private const val ERROR_CODE_ServerError=6
+private const val ERROR_CODE_NotFound=7
+private const val ERROR_CODE_Forbidden=8
+private const val ERROR_CODE_NoMatchingAuthReq=9
+private const val ERROR_CODE_InsufficientPermissions=10
+private const val ERROR_CODE_Unknown=0
 
 
 

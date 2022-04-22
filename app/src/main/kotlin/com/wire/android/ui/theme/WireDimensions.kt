@@ -133,7 +133,9 @@ data class WireDimensions(
     //calling
     val defaultCallingControlsSize: Dp,
     val defaultSheetPeekHeight: Dp,
+    val defaultIncomingCallSheetPeekHeight: Dp,
     val callingUserAvatarSize: Dp,
+    val callingIncomingUserAvatarSize: Dp,
     // Message item
     val messageItemBottomPadding : Dp
 )
@@ -240,7 +242,9 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     groupButtonHeight = 82.dp,
     defaultCallingControlsSize = 66.dp,
     defaultSheetPeekHeight = 95.dp,
+    defaultIncomingCallSheetPeekHeight = 280.dp,
     callingUserAvatarSize = 80.dp,
+    callingIncomingUserAvatarSize = 128.dp,
     messageItemBottomPadding = 12.dp
 )
 

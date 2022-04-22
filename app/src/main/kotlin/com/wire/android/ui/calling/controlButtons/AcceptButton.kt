@@ -12,14 +12,16 @@ import com.wire.android.R
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun HangUpButton(onClick: () -> Unit) {
+fun AcceptButton(buttonClicked: () -> Unit) {
     IconButton(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-        onClick = { onClick() },
+        onClick = buttonClicked
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_hang_up),
-            contentDescription = stringResource(id = R.string.calling_hang_up_call)
+            painter = painterResource(
+                id = R.drawable.ic_accept
+            ),
+            contentDescription = stringResource(id = R.string.calling_accept_call)
         )
     }
 }

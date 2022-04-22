@@ -27,12 +27,12 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
+import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun ConversationScreen(
-    conversationViewModel: ConversationViewModel
-) {
+fun ConversationScreen(conversationViewModel: ConversationViewModel) {
+    val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
 
     ConversationScreen(
@@ -43,12 +43,22 @@ fun ConversationScreen(
         onDownloadAsset = { assetId -> conversationViewModel.downloadAsset(assetId) },
         onBackButtonClick = { conversationViewModel.navigateBack() },
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = { conversationViewModel.navigateToInitiatingCallScreen() }
+        onCallStart = {
+            audioPermissionCheck.launch()
+        }
     )
     DeleteMessageDialog(
         conversationViewModel = conversationViewModel
     )
 }
+
+@Composable
+private fun AudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
+    rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
+        conversationViewModel.navigateToInitiatingCallScreen()
+    }) {
+        //TODO display an error dialog
+    }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable

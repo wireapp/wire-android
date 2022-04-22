@@ -6,16 +6,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
+import com.wire.kalium.logic.feature.call.Call
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -23,12 +23,10 @@ import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @HiltViewModel
-class HomeViewModel
-@Inject constructor(
+class HomeViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val listenToEvents: ListenToEventsUseCase,
-    private val dataStore: UserDataStore,
-    private val getAvatarAsset: GetAvatarAssetUseCase,
+    private val incomingCalls: GetIncomingCallsUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {
@@ -38,10 +36,11 @@ class HomeViewModel
 
     init {
         viewModelScope.launch {
-            listenToEvents() // listen for the WebSockets updates and update DB accordingly
-        }
-        viewModelScope.launch {
-            loadUserAvatar()
+            launch { listenToEvents() } // listen for the WebSockets updates and update DB accordingly
+            launch { loadUserAvatar() }
+            launch {
+                incomingCalls().collect { observeIncomingCalls(calls = it) }
+            }
         }
     }
 
@@ -72,9 +71,19 @@ class HomeViewModel
 
     private suspend fun loadUserAvatar() {
         viewModelScope.launch {
-            getSelf().collect{ selfUser ->
+            getSelf().collect { selfUser ->
                 userAvatar = selfUser.previewPicture?.let { UserAvatarAsset(it) }
             }
+        }
+    }
+
+    private suspend fun observeIncomingCalls(calls: List<Call>) {
+        if (calls.isNotEmpty()) {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.IncomingCall.getRouteWithArgs(listOf(calls.first().conversationId))
+                )
+            )
         }
     }
 

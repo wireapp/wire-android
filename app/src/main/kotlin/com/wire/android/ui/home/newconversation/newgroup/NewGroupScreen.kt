@@ -33,7 +33,6 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-
 @Composable
 fun NewGroupScreen(
     newGroupState: NewGroupState,

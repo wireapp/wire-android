@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.DEFAULT_WEIGHT
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import io.github.esentsov.PackagePrivate
@@ -48,7 +49,7 @@ fun RichMenuBottomSheetItem(
                 modifier = Modifier
                     .padding(dimensions().spacing12x)
                     .height(dimensions().spacing64x)
-                    .weight(1f),
+                    .weight(DEFAULT_WEIGHT),
             ) {
                 Spacer(modifier = Modifier.width(dimensions().spacing12x))
                 MenuItemHeading(title = title, state = state)

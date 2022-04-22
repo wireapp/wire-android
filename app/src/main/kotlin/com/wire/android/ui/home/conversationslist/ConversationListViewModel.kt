@@ -29,13 +29,12 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
-import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -43,7 +42,6 @@ import kotlinx.coroutines.launch
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
-    private val getPublicAsset: GetAvatarAssetUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 ) : ViewModel() {
 

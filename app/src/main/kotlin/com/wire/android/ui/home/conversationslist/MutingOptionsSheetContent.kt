@@ -21,7 +21,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MutingOptionsSheetContent(
-    mutingConversationState: MutingConversationState = rememberMutingConversationState(),
+    mutingConversationState: MutingConversationState = rememberMutingConversationState(MutedConversationStatus.AllAllowed),
     onItemClick: (ConversationId?, MutedConversationStatus) -> Unit,
     onBackClick: () -> Unit
 ) {

@@ -258,3 +258,5 @@ val WireDimensionsTypes: ScreenSizeDependent<OrientationDependent<WireDimensions
     tablet7 = DefaultPhoneOrientationDependentWireDimensions,
     tablet10 = DefaultPhoneOrientationDependentWireDimensions
 )
+
+const val DEFAULT_WEIGHT = 1f

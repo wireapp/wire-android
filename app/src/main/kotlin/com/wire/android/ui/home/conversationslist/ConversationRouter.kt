@@ -25,6 +25,7 @@ import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.NotificationsOptionsItem
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
@@ -43,7 +44,7 @@ fun ConversationRouterHomeBridge(
 ) {
     val conversationState = rememberConversationState()
     val viewModel: ConversationListViewModel = hiltViewModel()
-    val mutingConversationState = rememberMutingConversationState()
+    val mutingConversationState = rememberMutingConversationState(conversationState.modalBottomSheetContentState.value.mutedStatus)
 
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
@@ -51,13 +52,16 @@ fun ConversationRouterHomeBridge(
         onHomeBottomSheetContentChange {
             ConversationSheetContent(
                 modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
-                muteConversation = {
-                    onExpandHomeBottomSheet()
-                    mutingConversationState.openMutedStatusSheetContent(
-                        conversationState.modalBottomSheetContentState.value.conversationId,
-                        conversationState.modalBottomSheetContentState.value.mutedStatus
-                    )
-                },
+                notificationsOptionsItem = NotificationsOptionsItem(
+                    muteConversationAction = {
+                        onExpandHomeBottomSheet()
+                        mutingConversationState.openMutedStatusSheetContent(
+                            conversationState.modalBottomSheetContentState.value.conversationId,
+                            conversationState.modalBottomSheetContentState.value.mutedStatus
+                        )
+                    },
+                    mutedStatus = mutingConversationState.mutedStatus
+                ),
                 addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
                 moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
                 moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
@@ -81,12 +85,12 @@ fun ConversationRouterHomeBridge(
         mutingConversationState = mutingConversationState,
         onItemClick = { conversationId, mutedStatus ->
             viewModel.muteConversation(conversationId, mutedStatus)
+            conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutedStatus)
         },
         onBackClick = {
             onExpandHomeBottomSheet()
             mutingConversationState.closeMutedStatusSheetContent()
-            // this could be improved, but would require a refactor of ConversationState.modalBottomSheetContentState component
-            conversationState.modalBottomSheetContentState.value.mutedStatus = mutingConversationState.mutedStatus
+            conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutingConversationState.mutedStatus)
         }
     )
 }

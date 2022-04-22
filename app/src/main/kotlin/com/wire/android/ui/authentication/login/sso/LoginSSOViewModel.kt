@@ -61,6 +61,7 @@ class LoginSSOViewModel @Inject constructor(
 
     fun establishSSOSession(ssoLoginResult: DeepLinkResult.SSOLogin.Success) {
         viewModelScope.launch {
+            //TODO: serverConfig should be fetched of the serverConfigRepository
             val authSession = getSSOLoginSessionUseCase(ssoLoginResult.cookie, ServerConfig.STAGING)
                 .let {
                     when (it) {

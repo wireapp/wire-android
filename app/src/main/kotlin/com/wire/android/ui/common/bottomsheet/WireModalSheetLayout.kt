@@ -52,7 +52,6 @@ fun MenuModalSheetLayout(
     sheetState: ModalBottomSheetState,
     headerTitle: String? = null,
     headerIcon: @Composable () -> Unit = {},
-    headerAction: () -> Unit = {},
     menuItems: List<@Composable () -> Unit>,
     content: @Composable () -> Unit,
 ) {
@@ -62,7 +61,6 @@ fun MenuModalSheetLayout(
             MenuModalSheetContent(
                 headerTitle,
                 headerIcon,
-                headerAction,
                 menuItems
             )
         }
@@ -75,13 +73,11 @@ fun MenuModalSheetLayout(
 fun MenuModalSheetContent(
     headerTitle: String? = null,
     headerIcon: @Composable () -> Unit = {},
-    headerAction: () -> Unit = {},
     menuItems: List<@Composable () -> Unit>,
 ) {
     ModalSheetHeaderItem(
         title = headerTitle,
-        leadingIcon = headerIcon,
-        iconAction = headerAction
+        leadingIcon = headerIcon
     )
 
     buildMenuSheetItems(items = menuItems)

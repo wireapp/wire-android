@@ -41,7 +41,7 @@ fun GeneralConversationItem(
                     eventType = eventType,
                     onRowItemClicked = onConversationItemClick,
                     onRowItemLongClicked = onConversationItemLongClick,
-                    endIcon = {
+                    trailingIcon = {
                         if (this.mutedStatus != MutedConversationStatus.AllAllowed) {
                             MutedConversationIconBadge(onConversationItemClick)
                         }

@@ -151,7 +151,7 @@ fun NotificationsOptionsItemAction(
             text = mutedStatus.getMutedStatusTextResource(),
             style = MaterialTheme.wireTypography.body01
         )
-        Spacer(modifier = Modifier.size(dimensions().spacing2x))
+        Spacer(modifier = Modifier.size(dimensions().spacing16x))
         ArrowRightIcon()
     }
 }

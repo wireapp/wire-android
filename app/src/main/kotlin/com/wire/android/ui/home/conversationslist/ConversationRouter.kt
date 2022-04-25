@@ -39,7 +39,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun ConversationRouterHomeBridge(
     onHomeBottomSheetContentChange: (@Composable ColumnScope.() -> Unit) -> Unit,
-    onExpandHomeBottomSheet: () -> Unit,
+    onBottomSheetVisibilityToggled: () -> Unit,
     onScrollPositionChanged: (Int) -> Unit
 ) {
     val conversationState = rememberConversationState()
@@ -54,7 +54,7 @@ fun ConversationRouterHomeBridge(
                 modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
                 notificationsOptionsItem = NotificationsOptionsItem(
                     muteConversationAction = {
-                        onExpandHomeBottomSheet()
+                        onBottomSheetVisibilityToggled()
                         mutingConversationState.openMutedStatusSheetContent(
                             conversationState.modalBottomSheetContentState.value.conversationId,
                             conversationState.modalBottomSheetContentState.value.mutedStatus
@@ -77,7 +77,7 @@ fun ConversationRouterHomeBridge(
         conversationState = conversationState,
         openConversation = { viewModel.openConversation(it) },
         openNewConversation = { viewModel.openNewConversation() },
-        onExpandBottomSheet = { onExpandHomeBottomSheet() },
+        onExpandBottomSheet = { onBottomSheetVisibilityToggled() },
         onScrollPositionChanged = onScrollPositionChanged
     )
 
@@ -88,7 +88,7 @@ fun ConversationRouterHomeBridge(
             conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutedStatus)
         },
         onBackClick = {
-            onExpandHomeBottomSheet()
+            onBottomSheetVisibilityToggled()
             mutingConversationState.closeMutedStatusSheetContent()
             conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutingConversationState.mutedStatus)
         }

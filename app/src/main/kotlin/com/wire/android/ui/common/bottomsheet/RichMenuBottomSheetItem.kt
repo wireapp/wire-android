@@ -26,8 +26,8 @@ import io.github.esentsov.PackagePrivate
 fun RichMenuBottomSheetItem(
     title: String,
     subLine: String,
-    icon: (@Composable () -> Unit)? = null,
-    action: (@Composable () -> Unit)? = null,
+    icon: @Composable () -> Unit = { },
+    action: @Composable () -> Unit = { },
     onItemClick: () -> Unit = {},
     state: RichMenuItemState = RichMenuItemState.DEFAULT
 ) {
@@ -41,9 +41,7 @@ fun RichMenuBottomSheetItem(
                 .wrapContentWidth()
                 .clickable { onItemClick() }
         ) {
-            if (icon != null) {
-                icon()
-            }
+            icon()
             Column(
                 horizontalAlignment = Alignment.Start,
                 modifier = Modifier
@@ -56,7 +54,7 @@ fun RichMenuBottomSheetItem(
                 Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 MenuItemSubLine(subLine = subLine)
             }
-            if (action != null) {
+            if (isSelectedItem(state)) {
                 Column(
                     modifier = Modifier
                         .padding(dimensions().spacing8x)

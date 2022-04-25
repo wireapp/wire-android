@@ -2,7 +2,6 @@ package com.wire.android.ui.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
@@ -55,7 +54,7 @@ fun RowItemTemplate(
     eventType: EventType? = null,
     onRowItemClicked: () -> Unit,
     onRowItemLongClicked: () -> Unit,
-    endIcon: (@Composable () -> Unit)? = null,
+    trailingIcon: @Composable () -> Unit = { },
     modifier: Modifier = Modifier
 ) {
     RowItem(
@@ -80,8 +79,6 @@ fun RowItemTemplate(
                 EventBadgeFactory(eventType = eventType, modifier = Modifier.align(Alignment.TopEnd))
             }
         }
-        if (endIcon != null) {
-            endIcon()
-        }
+        trailingIcon()
     }
 }

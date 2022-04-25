@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Icon
@@ -69,8 +70,7 @@ fun MutingOptionsSheetContent(
                 )
             }
         ),
-        headerIcon = { ArrowLeftIcon() },
-        headerAction = onBackClick
+        headerIcon = { ArrowLeftIcon(modifier = Modifier.clickable { onBackClick() }) }
     ) {}
 }
 

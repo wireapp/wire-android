@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,19 +38,15 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
 
     ConversationScreen(
         conversationViewState = uiState,
-        onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },
-        onSendButtonClicked = { conversationViewModel.sendMessage() },
-        onSendAttachment = { attachmentBundle -> conversationViewModel.sendAttachmentMessage(attachmentBundle) },
-        onDownloadAsset = { assetId -> conversationViewModel.downloadAsset(assetId) },
-        onBackButtonClick = { conversationViewModel.navigateBack() },
+        onMessageChanged = conversationViewModel::onMessageChanged,
+        onSendButtonClicked = conversationViewModel::sendMessage,
+        onSendAttachment = conversationViewModel::sendAttachmentMessage,
+        onDownloadAsset = conversationViewModel::downloadAsset,
+        onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = {
-            audioPermissionCheck.launch()
-        }
+        onCallStart = audioPermissionCheck::launch
     )
-    DeleteMessageDialog(
-        conversationViewModel = conversationViewModel
-    )
+    DeleteMessageDialog(conversationViewModel = conversationViewModel)
 }
 
 @Composable
@@ -182,7 +179,7 @@ private fun ConversationScreenContent(
     messageText: String,
     onSendButtonClicked: () -> Unit,
     onShowContextMenu: (MessageViewWrapper) -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: suspend (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onError: (String) -> Unit
 ) {
@@ -212,7 +209,15 @@ private fun ConversationScreenContent(
         messageText = messageText,
         onMessageChanged = onMessageChanged,
         onSendButtonClicked = onSendButtonClicked,
-        onSendAttachment = onSendAttachment,
+        onSendAttachment = {
+            coroutineScope.launch {
+                onSendAttachment(it)
+                // We add some extra delay to allowing some time to insert the message in the database, display it in the screen and be able
+                // to scroll to the bottom of the chat with the new list of messages
+                delay(2000)
+                lazyListState.animateScrollToItem(0)
+            }
+        },
         onError = onError,
         onMessageComposerInputStateChange = { messageComposerState ->
             if (messageComposerState.to == MessageComposeInputState.Active

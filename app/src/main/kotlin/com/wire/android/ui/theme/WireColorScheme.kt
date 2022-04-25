@@ -165,8 +165,8 @@ private val DarkWireColorScheme = WireColorScheme(
     uncheckedCheckmarkColor = WireColorPalette.Gray20,
     checkedCheckmarkColor = Color.White,
     ongoingCallBackground = WireColorPalette.Gray90,
-    callingIncomingBackground = WireColorPalette.Gray20,
-    initiatingCallBackground = WireColorPalette.Gray20
+    initiatingCallBackground = WireColorPalette.Gray20,
+    callingIncomingBackground = WireColorPalette.Gray20
 )
 
 @PackagePrivate

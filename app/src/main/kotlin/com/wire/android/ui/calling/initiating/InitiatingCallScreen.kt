@@ -72,8 +72,8 @@ fun InitiatingCallContent(
                 )
                 HangUpButton(
                     modifier = Modifier
-                        .height(72.dp)
-                        .width(72.dp)
+                        .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
+                        .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
                 ) { onHangUpCall() }
             }
         }

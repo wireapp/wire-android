@@ -17,6 +17,7 @@ plugins {
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
     id(ScriptPlugins.spotless)
+    id(BuildPlugins.gms)
 }
 
 repositories {
@@ -145,6 +146,10 @@ dependencies {
     implementation(Libraries.Hilt.android)
     implementation(Libraries.Hilt.navigationCompose)
     kapt(Libraries.Hilt.compiler)
+
+    // firebase
+    implementation(platform(Libraries.Firebase.firebaseBOM))
+    implementation(Libraries.Firebase.firebaseCloudMessaging)
 
     implementation(Libraries.workManager)
 

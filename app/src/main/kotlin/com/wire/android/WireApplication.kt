@@ -2,6 +2,7 @@ package com.wire.android
 
 import android.app.Application
 import androidx.work.Configuration
+import com.google.firebase.FirebaseApp
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
@@ -38,7 +39,7 @@ class WireApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-
+        FirebaseApp.initializeApp(this)
         if (BuildConfig.DEBUG) {
             CoreLogger.setLoggingLevel(
                 level = KaliumLogLevel.DEBUG

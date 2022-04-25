@@ -48,7 +48,8 @@ data class WireColorScheme(
     val disabledUncheckedBoxColor : Color,
     val uncheckedCheckmarkColor : Color,
     val checkedCheckmarkColor : Color,
-    val callingBackground : Color,
+    val ongoingCallBackground : Color,
+    val initiatingCallBackground : Color,
     val callingIncomingBackground : Color
 
 ) {
@@ -114,7 +115,8 @@ private val LightWireColorScheme = WireColorScheme(
     disabledUncheckedBoxColor = WireColorPalette.Gray80,
     uncheckedCheckmarkColor = WireColorPalette.Gray20,
     checkedCheckmarkColor = Color.White,
-    callingBackground = WireColorPalette.Gray90,
+    ongoingCallBackground = WireColorPalette.Gray90,
+    initiatingCallBackground = WireColorPalette.Gray20,
     callingIncomingBackground = WireColorPalette.Gray20
 )
 
@@ -162,7 +164,8 @@ private val DarkWireColorScheme = WireColorScheme(
     disabledUncheckedBoxColor = WireColorPalette.Gray80,
     uncheckedCheckmarkColor = WireColorPalette.Gray20,
     checkedCheckmarkColor = Color.White,
-    callingBackground = WireColorPalette.Gray90,
+    ongoingCallBackground = WireColorPalette.Gray90,
+    initiatingCallBackground = WireColorPalette.Gray20,
     callingIncomingBackground = WireColorPalette.Gray20
 )
 

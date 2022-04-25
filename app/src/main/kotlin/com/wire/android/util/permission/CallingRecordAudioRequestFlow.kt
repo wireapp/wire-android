@@ -1,12 +1,14 @@
 package com.wire.android.util.permission
 
 import android.content.Context
+import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.wire.android.appLogger
 import com.wire.android.util.extension.checkPermission
 
 @Composable
@@ -18,8 +20,10 @@ fun rememberCallingRecordAudioBluetoothRequestFlow(
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            val allPermissionGranted = permissions.values.all { true }
-            if (allPermissionGranted) {
+            var permissionsGranted = true
+            permissions.values.forEach { if (!it) permissionsGranted = false }
+
+            if (permissionsGranted) {
                 onAudioBluetoothPermissionGranted()
             } else {
                 onAudioBluetoothPermissionDenied()
@@ -37,17 +41,25 @@ class CallingAudioRequestFlow(
     private val audioRecordPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
 ) {
     fun launch() {
-        if (context.checkPermission(android.Manifest.permission.RECORD_AUDIO) &&
-            context.checkPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
-        ) {
+        val audioPermissionEnabled = context.checkPermission(android.Manifest.permission.RECORD_AUDIO)
+        val bluetoothPermissionEnabled = context.checkPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+
+        val neededPermissions = arrayOf(
+            android.Manifest.permission.RECORD_AUDIO
+        )
+
+        val permissionsEnabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            neededPermissions[neededPermissions.size] = android.Manifest.permission.BLUETOOTH_CONNECT
+
+            audioPermissionEnabled && bluetoothPermissionEnabled
+        } else {
+            audioPermissionEnabled
+        }
+
+        if (permissionsEnabled) {
             permissionGranted()
         } else {
-            audioRecordPermissionLauncher.launch(
-                arrayOf(
-                    android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.BLUETOOTH_CONNECT
-                )
-            )
+            audioRecordPermissionLauncher.launch(neededPermissions)
         }
     }
 }

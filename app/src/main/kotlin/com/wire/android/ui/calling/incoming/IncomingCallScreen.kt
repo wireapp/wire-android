@@ -142,7 +142,7 @@ private fun CallingControls(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CameraButton(initialState = state.isCameraOn)
+            CameraButton(isCameraOn = state.isCameraOn) { }
             Text(
                 text = stringResource(id = R.string.calling_label_camera),
                 style = MaterialTheme.wireTypography.label01,
@@ -152,7 +152,7 @@ private fun CallingControls(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SpeakerButton(initialState = state.isSpeakerOn)
+            SpeakerButton(isSpeakerOn = state.isSpeakerOn) { }
             Text(
                 text = stringResource(id = R.string.calling_label_speaker),
                 style = MaterialTheme.wireTypography.label01,

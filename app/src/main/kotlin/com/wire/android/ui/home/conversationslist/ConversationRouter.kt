@@ -50,25 +50,46 @@ fun ConversationRouterHomeBridge(
     // to pass the new Composable
     LaunchedEffect(conversationState.modalBottomSheetContentState) {
         onHomeBottomSheetContentChange {
-            ConversationSheetContent(
-                modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
-                notificationsOptionsItem = NotificationsOptionsItem(
-                    muteConversationAction = {
-                        onBottomSheetVisibilityToggled()
-                        mutingConversationState.openMutedStatusSheetContent(
-                            conversationState.modalBottomSheetContentState.value.conversationId,
-                            conversationState.modalBottomSheetContentState.value.mutedStatus
-                        )
-                    },
-                    mutedStatus = mutingConversationState.mutedStatus
-                ),
-                addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
-                moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
-                moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
-                clearConversationContent = { viewModel.clearConversationContent("someId") },
-                blockUser = { viewModel.blockUser("someId") },
-                leaveGroup = { viewModel.leaveGroup("someId") }
-            )
+            when (conversationState.isEditingMutedSetting.value) {
+                true -> {
+                    MutingOptionsSheetContent(
+                        mutingConversationState = mutingConversationState,
+                        onItemClick = { conversationId, mutedStatus ->
+                            viewModel.muteConversation(conversationId, mutedStatus)
+                            conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutedStatus)
+                        },
+                        onBackClick = {
+                            mutingConversationState.closeMutedStatusSheetContent()
+                            conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(
+                                mutingConversationState.mutedStatus
+                            )
+                            conversationState.toggleEditMutedSetting(false)
+                        }
+                    )
+                }
+                false -> {
+                    ConversationSheetContent(
+                        modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
+                        notificationsOptionsItem = NotificationsOptionsItem(
+                            muteConversationAction = {
+                                mutingConversationState.openMutedStatusSheetContent(
+                                    conversationState.modalBottomSheetContentState.value.conversationId,
+                                    conversationState.modalBottomSheetContentState.value.mutedStatus
+                                )
+                                // here we trigger a sheet content change, enabling muted settings toggle
+                                conversationState.toggleEditMutedSetting(true)
+                            },
+                            mutedStatus = mutingConversationState.mutedStatus
+                        ),
+                        addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
+                        moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
+                        moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
+                        clearConversationContent = { viewModel.clearConversationContent("someId") },
+                        blockUser = { viewModel.blockUser("someId") },
+                        leaveGroup = { viewModel.leaveGroup("someId") }
+                    )
+                }
+            }
         }
     }
 
@@ -79,19 +100,6 @@ fun ConversationRouterHomeBridge(
         openNewConversation = { viewModel.openNewConversation() },
         onExpandBottomSheet = { onBottomSheetVisibilityToggled() },
         onScrollPositionChanged = onScrollPositionChanged
-    )
-
-    MutingOptionsSheetContent(
-        mutingConversationState = mutingConversationState,
-        onItemClick = { conversationId, mutedStatus ->
-            viewModel.muteConversation(conversationId, mutedStatus)
-            conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutedStatus)
-        },
-        onBackClick = {
-            onBottomSheetVisibilityToggled()
-            mutingConversationState.closeMutedStatusSheetContent()
-            conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutingConversationState.mutedStatus)
-        }
     )
 }
 

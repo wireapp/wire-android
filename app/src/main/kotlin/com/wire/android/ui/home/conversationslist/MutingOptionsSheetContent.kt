@@ -11,7 +11,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowLeftIcon
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.RichMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.theme.wireColorScheme
@@ -26,8 +26,7 @@ fun MutingOptionsSheetContent(
     onItemClick: (ConversationId?, MutedConversationStatus) -> Unit,
     onBackClick: () -> Unit
 ) {
-    MenuModalSheetLayout(
-        sheetState = mutingConversationState.sheetState,
+    MenuModalSheetContent(
         headerTitle = stringResource(R.string.label_notifications),
         menuItems = listOf(
             {
@@ -71,7 +70,7 @@ fun MutingOptionsSheetContent(
             }
         ),
         headerIcon = { ArrowLeftIcon(modifier = Modifier.clickable { onBackClick() }) }
-    ) {}
+    )
 }
 
 @Composable

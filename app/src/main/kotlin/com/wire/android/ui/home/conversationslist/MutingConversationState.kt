@@ -13,7 +13,6 @@ import androidx.compose.runtime.setValue
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 data class MutingConversationState(
@@ -27,18 +26,12 @@ data class MutingConversationState(
         private set
 
     fun openMutedStatusSheetContent(conversationId: ConversationId?, mutedStatus: MutedConversationStatus) {
-        coroutineScope.launch {
-            this@MutingConversationState.conversationId = conversationId
-            updateMutedStatus(mutedStatus)
-            sheetState.animateTo(ModalBottomSheetValue.Expanded)
-        }
+        this@MutingConversationState.conversationId = conversationId
+        updateMutedStatus(mutedStatus)
     }
 
     fun closeMutedStatusSheetContent() {
-        coroutineScope.launch {
-            this@MutingConversationState.conversationId = null
-            sheetState.animateTo(ModalBottomSheetValue.Hidden)
-        }
+        this@MutingConversationState.conversationId = null
     }
 
     fun updateMutedStatus(mutedStatus: MutedConversationStatus) {

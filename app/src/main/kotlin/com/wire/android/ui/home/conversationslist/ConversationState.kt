@@ -15,7 +15,12 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 class ConversationState(
     val navHostController: NavHostController,
     val modalBottomSheetContentState: MutableState<ModalSheetContent>,
+    val isEditingMutedSetting: MutableState<Boolean>
 ) {
+
+    fun toggleEditMutedSetting(enable: Boolean) {
+        isEditingMutedSetting.value = enable
+    }
 
     fun changeModalSheetContentState(conversationType: ConversationType) {
         when (conversationType) {
@@ -50,9 +55,11 @@ fun rememberConversationState(
     modalBottomSheetContentState: MutableState<ModalSheetContent> = remember {
         mutableStateOf(ModalSheetContent.Initial)
     },
+    isEditingMutedSetting: MutableState<Boolean> = remember { mutableStateOf(false) },
 ) = remember(navHostController, modalBottomSheetContentState) {
     ConversationState(
         navHostController,
         modalBottomSheetContentState,
+        isEditingMutedSetting
     )
 }

@@ -292,7 +292,7 @@
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
-    <string name="calling_label_unknown_caller_name">Unknown</string>
+    <string name="calling_label_unknown_caller_name">Default</string>
 
     <string name="content_description_ping_everyone">Ping everyone</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>

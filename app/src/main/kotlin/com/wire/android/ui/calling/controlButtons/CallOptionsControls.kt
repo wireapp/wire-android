@@ -31,7 +31,7 @@ fun CallOptionsControls() {
         ) {
             MicrophoneButton(isMuted = true) { }
             Text(
-                text = stringResource(id = R.string.calling_label_microphone),
+                text = stringResource(id = R.string.calling_label_microphone).uppercase(),
                 style = MaterialTheme.wireTypography.label01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
@@ -42,7 +42,7 @@ fun CallOptionsControls() {
         ) {
             CameraButton(isCameraOn = false) { }
             Text(
-                text = stringResource(id = R.string.calling_label_camera),
+                text = stringResource(id = R.string.calling_label_camera).uppercase(),
                 style = MaterialTheme.wireTypography.label01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
@@ -53,7 +53,7 @@ fun CallOptionsControls() {
         ) {
             CameraFlipButton(isCameraFlipped = false) { }
             Text(
-                text = stringResource(id = R.string.calling_label_flip),
+                text = stringResource(id = R.string.calling_label_flip).uppercase(),
                 style = MaterialTheme.wireTypography.label01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
@@ -64,7 +64,7 @@ fun CallOptionsControls() {
         ) {
             SpeakerButton(isSpeakerOn = true) { }
             Text(
-                text = stringResource(id = R.string.calling_label_speaker),
+                text = stringResource(id = R.string.calling_label_speaker).uppercase(),
                 style = MaterialTheme.wireTypography.label01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )

@@ -15,8 +15,9 @@ import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetOngoingCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,10 +28,10 @@ import javax.inject.Inject
 class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    private val startCall: StartCallUseCase,
-    private val endCall: EndCallUseCase,
     private val conversationDetails: ObserveConversationDetailsUseCase,
-    private val ongoingCall: GetOngoingCallUseCase
+    private val allCalls: GetAllCallsUseCase,
+    private val startCall: StartCallUseCase,
+    private val endCall: EndCallUseCase
 ) : ViewModel() {
 
     var callInitiatedState by mutableStateOf(InitiatingCallState())
@@ -44,22 +45,26 @@ class InitiatingCallViewModel @Inject constructor(
         viewModelScope.launch {
             launch { initiateCall() }
             launch { initializeScreenState() }
-            launch { observeOnActiveCall() }
+            launch { observeStartedCall() }
         }
     }
 
-    private suspend fun observeOnActiveCall() {
-        ongoingCall.invoke().collect {
-            if (it.isNotEmpty() && (it.first().conversationId == conversationId)) {
-                navigateBack()
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
-                    )
-                )
-            }
+    private suspend fun observeStartedCall() {
+        allCalls().collect {
+            if (it.first().conversationId == conversationId)
+                when (it.first().status) {
+                    CallStatus.CLOSED -> navigateBack()
+                    CallStatus.ESTABLISHED -> {
+                        navigateBack()
+                        navigationManager.navigate(
+                            command = NavigationCommand(
+                                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                            )
+                        )
+                    }
+                    else -> print("DO NOTHING")
+                }
         }
-
     }
 
     private suspend fun initializeScreenState() {

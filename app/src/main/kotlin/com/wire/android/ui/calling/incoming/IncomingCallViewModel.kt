@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -17,6 +16,8 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.call.CallStatus
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,6 +27,7 @@ class IncomingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
+    private val allCalls: GetAllCallsUseCase,
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase
 ) : ViewModel() {
@@ -36,8 +38,23 @@ class IncomingCallViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            conversationDetails(conversationId = conversationId)
-                .collect { observeConversationDetails(conversationDetails = it) }
+            launch {
+                conversationDetails(conversationId = conversationId)
+                    .collect { observeConversationDetails(conversationDetails = it) }
+            }
+            launch {
+                observeIncomingCall()
+            }
+        }
+    }
+
+    private suspend fun observeIncomingCall() {
+        allCalls().collect {
+            if (it.first().conversationId == conversationId)
+                when (it.first().status) {
+                    CallStatus.CLOSED -> navigationManager.navigateBack()
+                    else -> print("DO NOTHING")
+                }
         }
     }
 

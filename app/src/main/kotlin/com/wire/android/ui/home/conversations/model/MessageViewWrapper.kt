@@ -7,7 +7,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 
 data class MessageViewWrapper(
     val user: User,
-    val messageSource: MessageSource = MessageSource.CurrentUser,
+    val messageSource: MessageSource,
     val messageHeader: MessageHeader,
     val messageContent: MessageContent?,
 ) {
@@ -68,5 +68,5 @@ data class User(
 )
 
 enum class MessageSource {
-    CurrentUser, OtherUser
+    Self, OtherUser
 }

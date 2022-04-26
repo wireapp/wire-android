@@ -243,10 +243,10 @@ class ConversationViewModel @Inject constructor(
             val sender = members.findSender(message.senderUserId)
             MessageViewWrapper(
                 messageContent = fromMessageModelToMessageContent(message),
-                messageSource = MessageSource.CurrentUser,
+                messageSource = if(sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
-                    username = sender?.name ?: "Deleted User",
+                    username = sender.name ?: "Deleted User",
                     membership = Membership.None,
                     isLegalHold = false,
                     time = message.date,
@@ -254,7 +254,7 @@ class ConversationViewModel @Inject constructor(
                     messageId = message.id
                 ),
                 user = User(
-                    avatarAsset = sender?.previewAsset,availabilityStatus = UserStatus.NONE
+                    avatarAsset = sender.previewAsset,availabilityStatus = UserStatus.NONE
                 )
             )
         }

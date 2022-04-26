@@ -79,12 +79,12 @@ private fun ConversationScreen(
         MenuModalSheetLayout(
             sheetState = conversationScreenState.modalBottomSheetState,
             menuItems = EditMessageMenuItems(
-                isMyMessage = conversationScreenState.isSelectedMessageMyMessage,
+                isMyMessage = conversationScreenState.isSelectedMessageMyMessage(),
                 onCopyMessage = conversationScreenState::copyMessage,
                 onDeleteMessage = {
                     onDeleteMessage(
                         conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                        conversationScreenState.isSelectedMessageMyMessage
+                        conversationScreenState.isSelectedMessageMyMessage()
                     )
                 }
             ),

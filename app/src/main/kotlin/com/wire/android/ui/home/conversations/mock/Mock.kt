@@ -5,6 +5,7 @@ import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.User
@@ -28,6 +29,7 @@ val mockMessageWithText = MessageViewWrapper(
                     "very very very very very long"
         )
     ),
+    messageSource = MessageSource.Self
 )
 
 val mockAssetMessage = MessageViewWrapper(
@@ -45,7 +47,8 @@ val mockAssetMessage = MessageViewWrapper(
         assetExtension = "ZIP",
         assetId = "asset-id",
         assetSizeInBytes = 21957335
-    )
+    ),
+    messageSource = MessageSource.Self
 )
 
 @Suppress("MagicNumber")
@@ -71,6 +74,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
                         "very very very very very long"
             )
         ),
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
@@ -83,6 +87,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
             messageId = ""
         ),
         messageContent = mockedImg,
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
@@ -95,6 +100,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
             messageId = ""
         ),
         messageContent = mockedImg,
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
@@ -107,6 +113,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
             messageId = ""
         ),
         messageContent = mockedImg,
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
@@ -126,6 +133,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
                         "very very very very very long"
             )
         ),
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
@@ -138,6 +146,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
             messageId = ""
         ),
         messageContent = mockedImg,
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
@@ -173,5 +182,6 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
                         "very very very very very long"
             )
         ),
+        messageSource = MessageSource.Self
     )
 )

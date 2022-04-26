@@ -323,7 +323,7 @@ class ConversationsViewModelTest {
 
     private fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {
         every { name } returns conversationName
-    })
+    }, mockk())
 
     private fun mockSelfUserDetails(
         name: String,

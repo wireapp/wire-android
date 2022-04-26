@@ -8,17 +8,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun MicrophoneButton(
-    isMuted: Boolean,
+    isMuted: Boolean = true,
     onMicrophoneButtonClicked: () -> Unit
 ) {
     IconButton(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-        onClick = { onMicrophoneButtonClicked() }
+        onClick = onMicrophoneButtonClicked
     ) {
         Image(
             painter = painterResource(
@@ -31,4 +32,10 @@ fun MicrophoneButton(
             contentDescription = stringResource(id = R.string.calling_hang_up_call)
         )
     }
+}
+
+@Preview
+@Composable
+fun ComposableMicrophoneButtonPreview() {
+    MicrophoneButton(onMicrophoneButtonClicked = { })
 }

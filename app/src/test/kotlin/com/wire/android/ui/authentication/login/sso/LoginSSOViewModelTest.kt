@@ -119,24 +119,30 @@ class LoginSSOViewModelTest {
         val url = "https://wire.com/sso"
         coEvery { ssoInitiateLoginUseCase.invoke(param) } returns SSOInitiateLoginResult.Success(url)
         loginViewModel.onSSOCodeChange(TextFieldValue(ssoCode))
+
         runTest {
             loginViewModel.login(serverConfig)
             loginViewModel.openWebUrl.first() shouldBe url
         }
+
         coVerify(exactly = 1) { ssoInitiateLoginUseCase.invoke(param) }
     }
 
     @Test
     fun `given button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() {
         coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.InvalidCode
+
         runTest { loginViewModel.login(serverConfig) }
+
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginSSOError.TextFieldError.InvalidCodeError::class
     }
 
     @Test
     fun `given button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() {
         coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.InvalidRedirect
+
         runTest { loginViewModel.login(serverConfig) }
+
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginSSOError.DialogError.GenericError::class
         with(loginViewModel.loginState.loginSSOError as LoginSSOError.DialogError.GenericError) {
             coreFailure shouldBeInstanceOf CoreFailure.Unknown::class
@@ -148,11 +154,13 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given button is clicked, when login returns Generic error, then GenericError is passed`() {
-        coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
+        val networkFailure = NetworkFailure.NoNetworkConnection(null)
+        coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.Generic(networkFailure)
+
         runTest { loginViewModel.login(serverConfig) }
+
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginSSOError.DialogError.GenericError::class
-        (loginViewModel.loginState.loginSSOError as LoginSSOError.DialogError.GenericError).coreFailure shouldBe
-                NetworkFailure.NoNetworkConnection
+        (loginViewModel.loginState.loginSSOError as LoginSSOError.DialogError.GenericError).coreFailure shouldBe networkFailure
     }
 }
 

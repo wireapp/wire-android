@@ -6,25 +6,26 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
-import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -209,6 +210,21 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun getIncomingCallsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.getIncomingCalls
+
+    @ViewModelScoped
+    @Provides
+    fun rejectCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.rejectCall
+
+    @ViewModelScoped
+    @Provides
+    fun acceptCallUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.answerCall
+
+    @ViewModelScoped
+    @Provides
     fun providesGetSelfUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetSelfUserUseCase =
         coreLogic.getSessionScope(currentAccount).users.getSelfUser
 
@@ -263,10 +279,10 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun providesGetAllKnownUsers(
+    fun providesGetAllContactsUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetAllKnownUsersUseCase =
+    ): GetAllContactsUseCase =
         coreLogic.getSessionScope(currentAccount).users.getAllKnownUsers
 
     @ViewModelScoped
@@ -321,5 +337,11 @@ class UseCaseModule {
     ): CreateGroupConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.createGroupConversation
 
-
+    @ViewModelScoped
+    @Provides
+    fun providesUpdateConversationMutedStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateConversationMutedStatusUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.updateConversationMutedStatus
 }

@@ -9,14 +9,14 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
-import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class OngoingCallViewModel @Inject constructor(

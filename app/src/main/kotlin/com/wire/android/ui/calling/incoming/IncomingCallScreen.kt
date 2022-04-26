@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.calling.controlButtons.AcceptButton
 import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.DeclineButton
@@ -33,17 +34,20 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun IncomingCallScreen(incomingCallViewModel: IncomingCallViewModel = hiltViewModel()) {
+    val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(incomingCallViewModel = incomingCallViewModel)
+
     IncomingCallContent(
         state = incomingCallViewModel.callState,
         declineCall = {
             incomingCallViewModel.declineCall()
         },
         acceptCall = {
-            incomingCallViewModel.acceptCall()
+            audioPermissionCheck.launch()
         }
     )
 }
@@ -138,7 +142,7 @@ private fun CallingControls(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CameraButton(initialState = state.isCameraOn)
+            CameraButton(isCameraOn = state.isCameraOn) { }
             Text(
                 text = stringResource(id = R.string.calling_label_camera),
                 style = MaterialTheme.wireTypography.label01,
@@ -148,7 +152,7 @@ private fun CallingControls(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SpeakerButton(initialState = state.isSpeakerOn)
+            SpeakerButton(isSpeakerOn = state.isSpeakerOn) { }
             Text(
                 text = stringResource(id = R.string.calling_label_speaker),
                 style = MaterialTheme.wireTypography.label01,
@@ -197,6 +201,16 @@ private fun CallingControls(
         }
     }
 }
+
+@Composable
+private fun AudioBluetoothPermissionCheckFlow(incomingCallViewModel: IncomingCallViewModel) =
+    rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
+        appLogger.d("IncomingCall - Permissions granted")
+        incomingCallViewModel.acceptCall()
+    }) {
+        appLogger.d("IncomingCall - Permissions denied")
+        incomingCallViewModel.declineCall()
+    }
 
 @Preview
 @Composable

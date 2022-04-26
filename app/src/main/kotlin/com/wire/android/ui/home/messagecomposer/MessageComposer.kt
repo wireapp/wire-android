@@ -68,7 +68,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-
 private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
 
 @Composable
@@ -105,7 +104,10 @@ fun MessageComposer(
                 }
             },
             onSendButtonClicked = onSendButtonClicked,
-            onSendAttachment = onSendAttachment,
+            onSendAttachment = {
+                onSendAttachment(it)
+                messageComposerState.toggleAttachmentOptionsVisibility()
+            },
             onError = onError
         )
     }

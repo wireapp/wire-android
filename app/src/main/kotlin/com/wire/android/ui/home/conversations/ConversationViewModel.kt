@@ -115,8 +115,8 @@ class ConversationViewModel @Inject constructor(
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                attachmentBundle?.let {
-                    when (attachmentBundle.attachmentType) {
+                attachmentBundle?.run {
+                    when (attachmentType) {
                         AttachmentType.IMAGE -> {
                             val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
                             sendImageMessage(

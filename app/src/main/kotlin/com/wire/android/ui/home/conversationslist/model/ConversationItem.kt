@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversationslist.model
 import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
 sealed class ConversationItem(val conversationType: ConversationType) {
@@ -15,12 +16,14 @@ class ConversationUnreadMention(val mentionInfo: MentionInfo, conversationType: 
 
 sealed class ConversationType {
     abstract val conversationId: ConversationId
+    abstract val mutedStatus: MutedConversationStatus
     abstract val isLegalHold: Boolean
 
     data class GroupConversation(
         val groupColorValue: Long,
         val groupName: String,
         override val conversationId: ConversationId,
+        override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false
     ) : ConversationType()
 
@@ -28,6 +31,7 @@ sealed class ConversationType {
         val userInfo: UserInfo,
         val conversationInfo: ConversationInfo,
         override val conversationId: ConversationId,
+        override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false
     ) : ConversationType()
 }

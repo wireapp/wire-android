@@ -307,8 +307,10 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun providesObserveCallByConversationIdUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAllCallsUseCase =
-        coreLogic.getSessionScope(currentAccount).calls.allCalls
+    fun providesObserveCallByConversationIdUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetAllCallsUseCase = coreLogic.getSessionScope(currentAccount).calls.allCalls
 
     @ViewModelScoped
     @Provides

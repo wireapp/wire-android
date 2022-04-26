@@ -60,12 +60,7 @@ class SelfUserProfileViewModel @Inject constructor(
                         fullName = name.orEmpty(),
                         userName = handle.orEmpty(),
                         teamName = team,
-
-                        // TODO: remove mocked team when other accounts functionality is ready
-                        otherAccounts = listOf(
-                            OtherAccount("someId", "", name.orEmpty(), "Wire Swiss GmbH"),
-                            OtherAccount("someId", "", "B. A. Baracus", "The A-Team"),
-                        )
+                        otherAccounts = listOf() //TODO: implement other accounts functionality
                     )
                 }
             }

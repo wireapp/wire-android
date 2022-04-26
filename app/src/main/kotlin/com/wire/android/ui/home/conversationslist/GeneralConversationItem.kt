@@ -2,14 +2,14 @@ package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
-import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
-import com.wire.android.ui.home.conversations.common.GroupName
+import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.ConversationTitle
+import com.wire.android.ui.home.conversationslist.common.ConversationUserAvatar
+import com.wire.android.ui.home.conversationslist.common.UserLabel
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
-import com.wire.android.ui.main.conversationlist.common.UserLabel
 
 @Composable
 fun GeneralConversationItem(
@@ -25,7 +25,7 @@ fun GeneralConversationItem(
                     leadingIcon = {
                         GroupConversationAvatar(colorValue = groupColorValue)
                     },
-                    title = { GroupName(name = groupName) },
+                    title = { ConversationTitle(name = groupName, isLegalHold = conversationType.isLegalHold) },
                     eventType = eventType,
                     onRowItemClicked = onConversationItemClick,
                     onRowItemLongClicked = onConversationItemLongClick
@@ -34,9 +34,7 @@ fun GeneralConversationItem(
         }
         is ConversationType.PrivateConversation -> {
             RowItemTemplate(
-                leadingIcon = {
-                    ConversationUserAvatar(conversationType.userInfo.avatarAsset)
-                },
+                leadingIcon = { with(conversationType.userInfo) { ConversationUserAvatar(avatarAsset, availabilityStatus) } },
                 title = { UserLabel(userInfoLabel = conversationType.toUserInfoLabel()) },
                 eventType = eventType,
                 onRowItemClicked = onConversationItemClick,

@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -13,8 +12,7 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -33,8 +31,8 @@ fun ConversationSheetContent(
         headerIcon = {
             if (modalBottomSheetContentState is ModalSheetContent.GroupConversationEdit) {
                 GroupConversationAvatar(colorValue = modalBottomSheetContentState.groupColorValue)
-            } else {
-                UserProfileAvatar()
+            } else if(modalBottomSheetContentState is ModalSheetContent.PrivateConversationEdit) {
+                UserProfileAvatar(userAvatarAsset = modalBottomSheetContentState.avatarAsset)
             }
         },
         menuItems = listOf(

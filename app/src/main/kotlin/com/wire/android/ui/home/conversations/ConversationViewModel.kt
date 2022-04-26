@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
@@ -26,6 +27,7 @@ import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.extractImageParams
+import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.AssetContent
@@ -93,7 +95,17 @@ class ConversationViewModel @Inject constructor(
                     is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
                     else -> conversationDetails.conversation.name.orEmpty()
                 }
-                conversationViewState = conversationViewState.copy(conversationName = conversationName)
+                val conversationAvatar = when (conversationDetails) {
+                    is ConversationDetails.OneOne ->
+                        ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) })
+                    is ConversationDetails.Group ->
+                        ConversationAvatar.Group(getConversationColor(conversationDetails.conversation.id))
+                    else -> ConversationAvatar.None
+                }
+                conversationViewState = conversationViewState.copy(
+                    conversationName = conversationName,
+                    conversationAvatar = conversationAvatar
+                )
             }
         }
     }

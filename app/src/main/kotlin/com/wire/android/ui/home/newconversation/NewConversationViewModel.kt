@@ -89,8 +89,10 @@ class NewConversationViewModel
     init {
         viewModelScope.launch {
             launch {
+                val allContacts = getAllContacts()
+
                 innerSearchPeopleState = innerSearchPeopleState.copy(
-                    allKnownContacts = getAllContacts().map { otherUser -> otherUser.toContact() }
+                    allKnownContacts = allContacts.map { otherUser -> otherUser.toContact() }
                 )
             }
 
@@ -117,7 +119,7 @@ class NewConversationViewModel
 
         }.flowOn(Dispatchers.IO).collect {
             localContactSearchResult = ContactSearchResult.InternalContact(
-                SearchResultState.Success(it.result.map { publicUser -> publicUser.toContact() })
+                SearchResultState.Success(it.result.map { otherUser -> otherUser.toContact() })
             )
         }
     }

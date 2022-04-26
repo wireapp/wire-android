@@ -146,9 +146,10 @@ class RegisterDeviceViewModelTest {
 
     @Test
     fun `given dialog is dismissed, when state error is DialogError, then hide error`() {
+        val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns
-                RegisterClientResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null))
+                RegisterClientResult.Failure.Generic(networkFailure)
 
         runTest { registerDeviceViewModel.onContinue() }
 

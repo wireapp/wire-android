@@ -91,7 +91,9 @@ class RegisterDeviceViewModelTest {
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
         coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
+
         runTest { registerDeviceViewModel.onContinue() }
+
         coVerify(exactly = 1) { validatePasswordUseCase.invoke(password) }
         coVerify(exactly = 1) { registerClientUseCase.invoke(password, any(), any()) }
         coVerify(exactly = 1) {
@@ -108,7 +110,9 @@ class RegisterDeviceViewModelTest {
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Failure.TooManyClients
         coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
+
         runTest { registerDeviceViewModel.onContinue() }
+
         coVerify(exactly = 1) { validatePasswordUseCase.invoke(password) }
         coVerify(exactly = 1) { registerClientUseCase.invoke(password, any(), any()) }
         coVerify(exactly = 1) {
@@ -120,27 +124,34 @@ class RegisterDeviceViewModelTest {
     fun `given button is clicked, when password is invalid, then UsernameInvalidError is passed`() {
         coEvery { validatePasswordUseCase.invoke(any()) } returns false
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Failure.InvalidCredentials
+
         runTest { registerDeviceViewModel.onContinue() }
+
         registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.InvalidCredentialsError::class
     }
 
     @Test
     fun `given button is clicked, when request returns Generic error, then GenericError is passed`() {
+        val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns
-                RegisterClientResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
+                RegisterClientResult.Failure.Generic(networkFailure)
+
         runTest { registerDeviceViewModel.onContinue() }
+
         registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
         val error = registerDeviceViewModel.state.error as RegisterDeviceError.GenericError
-        error.coreFailure shouldBe NetworkFailure.NoNetworkConnection
+        error.coreFailure shouldBe networkFailure
     }
 
     @Test
     fun `given dialog is dismissed, when state error is DialogError, then hide error`() {
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns
-                RegisterClientResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
+                RegisterClientResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null))
+
         runTest { registerDeviceViewModel.onContinue() }
+
         registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
         registerDeviceViewModel.onErrorDismiss()
         registerDeviceViewModel.state.error shouldBe RegisterDeviceError.None

@@ -124,11 +124,11 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given button is clicked, when login returns Generic error, then GenericError is passed`() {
-        coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
+        val networkFailure = NetworkFailure.NoNetworkConnection(null)
+        coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.Generic(networkFailure)
         runTest { loginViewModel.login(serverConfig) }
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginSSOError.DialogError.GenericError::class
-        (loginViewModel.loginState.loginSSOError as LoginSSOError.DialogError.GenericError).coreFailure shouldBe
-                NetworkFailure.NoNetworkConnection
+        (loginViewModel.loginState.loginSSOError as LoginSSOError.DialogError.GenericError).coreFailure shouldBe networkFailure
     }
 }
 

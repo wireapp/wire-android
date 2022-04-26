@@ -100,7 +100,9 @@ class CreateAccountUsernameViewModelTest {
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Success
         coEvery { navigationManager.navigate(any()) } returns Unit
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue(username))
+
         runTest { createAccountUsernameViewModel.onContinue() }
+
         // FIXME: change to 1 once the viewModel is fixed
         coVerify(exactly = 2) { validateUserHandleUseCase.invoke(username) }
         coVerify(exactly = 1) { setUserHandleUseCase.invoke(username) }
@@ -113,7 +115,9 @@ class CreateAccountUsernameViewModelTest {
     fun `given button is clicked, when username is invalid, then UsernameInvalidError is passed`() {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Invalid.TooShort("a")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.InvalidHandle
+
         runTest { createAccountUsernameViewModel.onContinue() }
+
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError::class
     }
@@ -122,27 +126,34 @@ class CreateAccountUsernameViewModelTest {
     fun `given button is clicked, when request returns HandleExists error, then UsernameTakenError is passed`() {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.HandleExists
+
         runTest { createAccountUsernameViewModel.onContinue() }
+
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameTakenError::class
     }
 
     @Test
     fun `given button is clicked, when request returns Generic error, then GenericError is passed`() {
+        val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
-        coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
+        coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(networkFailure)
+
         runTest { createAccountUsernameViewModel.onContinue() }
+
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 CreateAccountUsernameViewState.UsernameError.DialogError.GenericError::class
         val error = createAccountUsernameViewModel.state.error as CreateAccountUsernameViewState.UsernameError.DialogError.GenericError
-        error.coreFailure shouldBe NetworkFailure.NoNetworkConnection
+        error.coreFailure shouldBe networkFailure
     }
 
     @Test
     fun `given dialog is dismissed, when state error is DialogError, then hide error`() {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
-        coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection)
+        coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null))
+
         runTest { createAccountUsernameViewModel.onContinue() }
+
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 CreateAccountUsernameViewState.UsernameError.DialogError.GenericError::class
         createAccountUsernameViewModel.onErrorDismiss()

@@ -44,12 +44,12 @@ class CallingAudioRequestFlow(
         val audioPermissionEnabled = context.checkPermission(android.Manifest.permission.RECORD_AUDIO)
         val bluetoothPermissionEnabled = context.checkPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
 
-        val neededPermissions = arrayOf(
+        val neededPermissions = mutableListOf(
             android.Manifest.permission.RECORD_AUDIO
         )
 
         val permissionsEnabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            neededPermissions[neededPermissions.size] = android.Manifest.permission.BLUETOOTH_CONNECT
+            neededPermissions.add(android.Manifest.permission.BLUETOOTH_CONNECT)
 
             audioPermissionEnabled && bluetoothPermissionEnabled
         } else {
@@ -59,7 +59,7 @@ class CallingAudioRequestFlow(
         if (permissionsEnabled) {
             permissionGranted()
         } else {
-            audioRecordPermissionLauncher.launch(neededPermissions)
+            audioRecordPermissionLauncher.launch(neededPermissions.toTypedArray())
         }
     }
 }

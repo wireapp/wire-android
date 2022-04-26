@@ -238,5 +238,3 @@ fun ConversationScreenPreview() {
         {}, {}, {}, {}, {}, { _: String, _: Boolean -> }
     ) {}
 }
-
-private const val MESSAGE_SCROLL_DELAY = 2000L

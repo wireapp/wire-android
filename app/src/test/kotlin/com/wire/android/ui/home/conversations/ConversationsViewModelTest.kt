@@ -1,8 +1,10 @@
 package com.wire.android.ui.home.conversations
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -69,6 +71,12 @@ class ConversationsViewModelTest {
 
     @MockK
     lateinit var observeMemberDetails: ObserveConversationMembersUseCase
+
+    @MockK
+    lateinit var uiText: UIText
+
+    @MockK
+    lateinit var context: Context
 
     @BeforeEach
     fun setUp() {
@@ -183,17 +191,23 @@ class ConversationsViewModelTest {
 
         coEvery { getMessages(any()) } returns flowOf(messages)
         coEvery { observeMemberDetails(any()) } returns flowOf(listOf(selfMember))
+        every { uiText.asString(any()) } returns (selfUserName)
 
         val conversationsViewModel = createTestSubject()
 
-        assertEquals(selfUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username)
+        assertEquals(selfUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username.asString(context))
     }
 
     @Test
     fun `given message sent by another user, when solving the message header, then the state should contain that user name`() = runTest {
+
         val senderId = UserId("value", "domain")
         val messages = listOf(testMessage(senderId = senderId))
         val otherUserName = "other user"
+
+        every { uiText.asString(any()) } returns (otherUserName)
+
+
         val otherMember = testOtherUserDetails(otherUserName, senderId)
 
         coEvery { getMessages(any()) } returns flowOf(messages)
@@ -201,7 +215,7 @@ class ConversationsViewModelTest {
 
         val conversationsViewModel = createTestSubject()
 
-        assertEquals(otherUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username)
+        assertEquals(otherUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username.asString(context))
     }
 
     @Test
@@ -212,16 +226,20 @@ class ConversationsViewModelTest {
         val secondUserName = "User changed their name"
         val otherMemberUpdatesChannel = Channel<List<MemberDetails>>(capacity = Channel.UNLIMITED)
 
+
         coEvery { getMessages(any()) } returns flowOf(messages)
         coEvery { observeMemberDetails(any()) } returns otherMemberUpdatesChannel.consumeAsFlow()
 
         val conversationsViewModel = createTestSubject()
 
         otherMemberUpdatesChannel.send(listOf(testOtherUserDetails(firstUserName, senderId)))
-        assertEquals(firstUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username)
 
+        every { uiText.asString(any()) } returns (firstUserName)
+        assertEquals(firstUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username.asString(context))
+
+        every { uiText.asString(any()) } returns (secondUserName)
         otherMemberUpdatesChannel.send(listOf(testOtherUserDetails(secondUserName, senderId)))
-        assertEquals(secondUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username)
+        assertEquals(secondUserName, conversationsViewModel.conversationViewState.messages.first().messageHeader.username.asString(context))
     }
 
     private companion object {

@@ -1,7 +1,5 @@
 package com.wire.android.ui.authentication.login.email
 
-import android.content.Context
-import android.util.Log
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,9 +8,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.FirebaseApp
-import com.google.firebase.messaging.FirebaseMessaging
+import com.wire.android.BuildConfig
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -25,9 +21,9 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import okhttp3.Headers
 import javax.inject.Inject
 
 @ExperimentalMaterialApi
@@ -49,30 +45,6 @@ class LoginEmailViewModel @Inject constructor(
         private set
 
     fun login(serverConfig: ServerConfig) {
-        Log.e("222222222", "test")
-
-//        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener(OnCompleteListener { task ->
-//            if (!task.isSuccessful) {
-//                Log.e("fail22",task.exception.toString())
-//                return@OnCompleteListener
-//            }
-//            // Get new Instance ID token
-//            val token = task.result?.token
-//            Log.e("TAG22", token + " 11" )
-//        })
-
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.e("fail22",task.exception.toString())
-//                    Log.w(TAG, "Fetching FCM registration token failed", task.exception)
-                return@OnCompleteListener
-            }
-
-            // Get new FCM registration token
-            val token = task.result
-            Log.e("TAG22", token + " 11" )
-        })
-
         loginState = loginState.copy(loading = true, loginEmailError = LoginEmailError.None).updateLoginEnabled()
         viewModelScope.launch {
             val authSession = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
@@ -108,7 +80,12 @@ class LoginEmailViewModel @Inject constructor(
 
     private suspend fun registerClient(userId: UserId): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.register(loginState.password.text, null)
+        return clientScope.register(
+            RegisterClientUseCase.RegisterClientParam.ClientWithToken(
+                password = loginState.password.text,
+                capabilities = null, senderId = BuildConfig.SENDER_ID
+            )
+        )
     }
 
     fun onUserIdentifierChange(newText: TextFieldValue) {

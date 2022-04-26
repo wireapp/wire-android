@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.work.Configuration
 import com.google.firebase.FirebaseApp
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.notification.MyFirebaseMessagingService
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
@@ -44,7 +43,6 @@ class WireApplication : Application(), Configuration.Provider {
         if (this.isGoogleServicesAvailable()) {
             FirebaseApp.initializeApp(this)
         }
-        MyFirebaseMessagingService(coreLogic)
         if (BuildConfig.DEBUG) {
             CoreLogger.setLoggingLevel(
                 level = KaliumLogLevel.DEBUG

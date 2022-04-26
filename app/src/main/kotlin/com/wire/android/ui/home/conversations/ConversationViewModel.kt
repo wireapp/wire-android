@@ -25,6 +25,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
@@ -45,6 +46,7 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
@@ -60,7 +62,8 @@ class ConversationViewModel @Inject constructor(
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
-    private val deleteMessage: DeleteMessageUseCase
+    private val deleteMessage: DeleteMessageUseCase,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -111,25 +114,27 @@ class ConversationViewModel @Inject constructor(
 
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
-            attachmentBundle?.let {
-                when (attachmentBundle.attachmentType) {
-                    AttachmentType.IMAGE -> {
-                        val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
-                        sendImageMessage(
-                            conversationId = conversationId,
-                            imageRawData = attachmentBundle.rawContent,
-                            imageName = attachmentBundle.fileName,
-                            imgWidth = imgWidth,
-                            imgHeight = imgHeight
-                        )
-                    }
-                    AttachmentType.GENERIC_FILE -> {
-                        sendAssetMessage(
-                            conversationId = conversationId,
-                            assetRawData = attachmentBundle.rawContent,
-                            assetName = attachmentBundle.fileName,
-                            assetMimeType = attachmentBundle.mimeType
-                        )
+            withContext(dispatchers.io()) {
+                attachmentBundle?.run {
+                    when (attachmentType) {
+                        AttachmentType.IMAGE -> {
+                            val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
+                            sendImageMessage(
+                                conversationId = conversationId,
+                                imageRawData = attachmentBundle.rawContent,
+                                imageName = attachmentBundle.fileName,
+                                imgWidth = imgWidth,
+                                imgHeight = imgHeight
+                            )
+                        }
+                        AttachmentType.GENERIC_FILE -> {
+                            sendAssetMessage(
+                                conversationId = conversationId,
+                                assetRawData = attachmentBundle.rawContent,
+                                assetName = attachmentBundle.fileName,
+                                assetMimeType = attachmentBundle.mimeType
+                            )
+                        }
                     }
                 }
             }
@@ -254,7 +259,7 @@ class ConversationViewModel @Inject constructor(
                     messageId = message.id
                 ),
                 user = User(
-                    avatarAsset = sender?.previewAsset,availabilityStatus = UserStatus.NONE
+                    avatarAsset = sender?.previewAsset, availabilityStatus = UserStatus.NONE
                 )
             )
         }

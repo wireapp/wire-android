@@ -23,6 +23,7 @@
     <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_user_avatar">User avatar</string>
     <string name="content_description_mute">Mute</string>
+    <string name="content_description_check">Check mark</string>
     <string name="content_description_add_to_favourite">Add to favourite</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
@@ -43,6 +44,7 @@
     <string name="content_description_choose_from_gallery">Choose from gallery</string>
     <string name="content_description_take_a_picture">Take a picture</string>
     <string name="content_description_right_arrow">Right arrow</string>
+    <string name="content_description_left_arrow">Left arrow</string>
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_create_account_summary">Summary image</string>
     <string name="content_description_attachment_item">Attachment item</string>
@@ -211,13 +213,21 @@
     <string name="user_profile_change_status_dialog_checkbox_text">Do not display this information again</string>
 
     <!-- Conversations BottomSheet -->
-    <string name="label_mute">Mute</string>
+    <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Add to Favourites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_clear_content">Clear Content...</string>
     <string name="label_block">Block</string>
     <string name="label_leave_group">Leave Group</string>
+
+    <!-- Muting options BottomSheet -->
+    <string name="muting_option_all_allowed_title">Everything</string>
+    <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
+    <string name="muting_option_only_mentions_title">Mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone mentions you or replies to you</string>
+    <string name="muting_option_all_muted_title">Nothing</string>
+    <string name="muting_option_all_muted_text">Receive no notifications for this conversation at all</string>
 
     <!--Profile image-->
     <string name="profile_image_top_bar_label">Profile image</string>

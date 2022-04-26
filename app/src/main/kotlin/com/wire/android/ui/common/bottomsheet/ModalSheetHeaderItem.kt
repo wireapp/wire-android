@@ -20,11 +20,12 @@ fun ModalSheetHeaderItem(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(
-            start = dimensions().modalBottomSheetHeaderStartPadding,
-            top = dimensions().modalBottomSheetHeaderTopPadding,
-            bottom = dimensions().modalBottomSheetHeaderBottomPadding
-        )
+        modifier = Modifier
+            .padding(
+                start = dimensions().modalBottomSheetHeaderStartPadding,
+                top = dimensions().modalBottomSheetHeaderTopPadding,
+                bottom = dimensions().modalBottomSheetHeaderBottomPadding
+            )
     ) {
         leadingIcon()
         Spacer(modifier = Modifier.width(8.dp))

@@ -1,8 +1,6 @@
 package com.wire.android.ui.home.conversationslist
 
-
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
-import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
 import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation

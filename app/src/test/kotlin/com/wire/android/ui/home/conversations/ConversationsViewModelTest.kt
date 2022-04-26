@@ -233,7 +233,7 @@ class ConversationsViewModelTest {
 
         fun testConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {
             every { name } returns conversationName
-        })
+        }, LegalHoldStatus.DISABLED)
 
         fun testMessage(
             senderId: UserId,

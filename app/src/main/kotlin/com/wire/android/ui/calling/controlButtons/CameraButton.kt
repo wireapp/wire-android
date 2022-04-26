@@ -12,16 +12,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun CameraButton() {
-    var isCameraOn by remember { mutableStateOf(false) }
+fun CameraButton(
+    isCameraOn: Boolean = false,
+    onHangUpButtonClicked: () -> Unit
+) {
+    var isCameraOn by remember { mutableStateOf(isCameraOn) }
 
     IconButton(
         modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-        onClick = { isCameraOn = !isCameraOn }
+        onClick = onHangUpButtonClicked
     ) {
         Image(
             painter = painterResource(
@@ -34,4 +38,10 @@ fun CameraButton() {
             contentDescription = stringResource(id = R.string.calling_turn_camera_on_off),
         )
     }
+}
+
+@Preview
+@Composable
+fun ComposableCameraButtonPreview() {
+    CameraButton(onHangUpButtonClicked = { })
 }

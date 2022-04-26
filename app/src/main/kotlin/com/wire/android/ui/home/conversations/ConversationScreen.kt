@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,28 +28,34 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
+import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun ConversationScreen(
-    conversationViewModel: ConversationViewModel
-) {
+fun ConversationScreen(conversationViewModel: ConversationViewModel) {
+    val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
 
     ConversationScreen(
         conversationViewState = uiState,
-        onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },
-        onSendButtonClicked = { conversationViewModel.sendMessage() },
-        onSendAttachment = { attachmentBundle -> conversationViewModel.sendAttachmentMessage(attachmentBundle) },
-        onDownloadAsset = { assetId -> conversationViewModel.downloadAsset(assetId) },
-        onBackButtonClick = { conversationViewModel.navigateBack() },
+        onMessageChanged = conversationViewModel::onMessageChanged,
+        onSendButtonClicked = conversationViewModel::sendMessage,
+        onSendAttachment = conversationViewModel::sendAttachmentMessage,
+        onDownloadAsset = conversationViewModel::downloadAsset,
+        onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = { conversationViewModel.navigateToInitiatingCallScreen() }
+        onCallStart = audioPermissionCheck::launch
     )
-    DeleteMessageDialog(
-        conversationViewModel = conversationViewModel
-    )
+    DeleteMessageDialog(conversationViewModel = conversationViewModel)
 }
+
+@Composable
+private fun AudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
+    rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
+        conversationViewModel.navigateToInitiatingCallScreen()
+    }) {
+        //TODO display an error dialog
+    }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -104,6 +111,7 @@ private fun ConversationScreen(
                             onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
                             onSendAttachment = onSendAttachment,
                             onDownloadAsset = onDownloadAsset,
+                            conversationState = this,
                             onError = { errorMessage ->
                                 scope.launch {
                                     conversationScreenState.snackBarHostState.showSnackbar(errorMessage)
@@ -174,10 +182,15 @@ private fun ConversationScreenContent(
     onShowContextMenu: (MessageViewWrapper) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onError: (String) -> Unit
+    onError: (String) -> Unit,
+    conversationState: ConversationViewState
 ) {
     val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(conversationState.messages) {
+        lazyListState.animateScrollToItem(0)
+    }
 
     MessageComposer(
         content = {

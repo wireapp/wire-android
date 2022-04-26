@@ -30,8 +30,8 @@ import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun OngoingCallScreen(ongoingOngoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
-    OngoingCallContent(ongoingOngoingCallViewModel)
+fun OngoingCallScreen(ongoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
+    OngoingCallContent(ongoingCallViewModel)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -40,9 +40,9 @@ private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(
-        topBar = { OngoingCallTopBar(ongoingCallViewModel.callEstablishedState.conversationName) {} },
-        sheetShape = RoundedCornerShape(MaterialTheme.wireDimensions.corner16x, MaterialTheme.wireDimensions.corner16x, 0.dp, 0.dp),
-        backgroundColor = MaterialTheme.wireColorScheme.callingBackground,
+        topBar = { OngoingCallTopBar(ongoingCallViewModel.callEstablishedState.conversationName!!) {} },
+        sheetShape = RoundedCornerShape(topStart = MaterialTheme.wireDimensions.corner16x, topEnd = MaterialTheme.wireDimensions.corner16x),
+        backgroundColor = MaterialTheme.wireColorScheme.ongoingCallBackground,
         sheetPeekHeight = MaterialTheme.wireDimensions.defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
         sheetContent = {
@@ -60,7 +60,7 @@ private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            UserProfileAvatar(size = MaterialTheme.wireDimensions.callingUserAvatarSize)
+            UserProfileAvatar(size = MaterialTheme.wireDimensions.onGoingCallUserAvatarSize)
         }
     }
 }
@@ -94,8 +94,8 @@ private fun CallingControls(
             .padding(0.dp, MaterialTheme.wireDimensions.spacing16x, 0.dp, 0.dp)
     ) {
         MicrophoneButton(ongoingCallState.isMuted) { onMuteOrUnMuteCall() }
-        CameraButton()
-        SpeakerButton()
+        CameraButton(onHangUpButtonClicked = { })
+        SpeakerButton(onSpeakerButtonClicked = { })
         HangUpButton { onHangUpCall() }
     }
 }

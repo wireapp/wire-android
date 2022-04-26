@@ -21,7 +21,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
-import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @Composable

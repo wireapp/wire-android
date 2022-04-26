@@ -199,6 +199,7 @@ class ConversationsViewModelTest {
         // When
         viewModel.sendAttachmentMessage(mockedAttachment)
 
+        // Then
         coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any()) }
     }
 
@@ -213,6 +214,7 @@ class ConversationsViewModelTest {
         // When
         viewModel.sendAttachmentMessage(mockedAttachment)
 
+        // Then
         coVerify(exactly = 1) { arrangement.sendImageMessage.invoke(any(), any(), any(), any(), any()) }
     }
 

@@ -18,7 +18,7 @@ import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.flow.SearchQueryStateFlow
-import com.wire.kalium.logic.data.conversation.ConverationOptions
+import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
@@ -210,7 +210,7 @@ class NewConversationViewModel
             when (val result = createGroupConversation(
                 name = groupNameState.groupName.text,
                 members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
-                options = ConverationOptions()
+                options = ConversationOptions()
             )
             ) {
                 //TODO: handle the error state

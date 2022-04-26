@@ -4,6 +4,7 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.ui.UIText
 
 data class MessageViewWrapper(
     val user: User,
@@ -17,7 +18,7 @@ data class MessageViewWrapper(
 }
 
 data class MessageHeader(
-    val username: String,
+    val username: UIText,
     val membership: Membership,
     val isLegalHold: Boolean,
     val time: String,
@@ -59,7 +60,7 @@ sealed class MessageContent {
 }
 
 data class MessageBody(
-    val message: String
+    val message: UIText
 )
 
 data class User(

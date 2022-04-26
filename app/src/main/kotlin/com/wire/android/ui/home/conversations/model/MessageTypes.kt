@@ -64,7 +64,9 @@ fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
         ),
         alignment = Alignment.CenterStart,
         contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = Modifier.width(imgParams.normalizedWidth).height(imgParams.normalizedHeight),
+        modifier = Modifier
+            .width(imgParams.normalizedWidth)
+            .height(imgParams.normalizedHeight),
         contentScale = ContentScale.Crop
     )
 }
@@ -93,7 +95,10 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetSizeIn
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            ConstraintLayout(Modifier.fillMaxWidth().padding(top = MaterialTheme.wireDimensions.spacing8x)) {
+            ConstraintLayout(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = MaterialTheme.wireDimensions.spacing8x)) {
                 val (icon, description, downloadStatus) = createRefs()
                 Image(
                     modifier = Modifier
@@ -157,7 +162,7 @@ private fun AnnotatedString.Builder.appendMentionLabel(label: String) {
 
 @Composable
 private fun AnnotatedString.Builder.appendBody(messageBody: MessageBody) {
-    append(messageBody.message)
+    append(messageBody.message.asString())
 }
 
 class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {

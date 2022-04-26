@@ -67,7 +67,7 @@ class ConversationScreenState(
     fun copyMessage() {
         selectedMessage?.messageContent.let { messageContent ->
             if (messageContent is MessageContent.TextMessage) {
-                clipboardManager.setText(AnnotatedString(messageContent.messageBody.message))
+                clipboardManager.setText(AnnotatedString(messageContent.messageBody.message.asString(context)))
                 coroutineScope.launch {
                     modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
                     snackBarHostState.showSnackbar(context.getString(R.string.info_message_copied))

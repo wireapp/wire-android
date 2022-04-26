@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,7 +29,6 @@ import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -111,6 +111,7 @@ private fun ConversationScreen(
                             onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
                             onSendAttachment = onSendAttachment,
                             onDownloadAsset = onDownloadAsset,
+                            conversationState = this,
                             onError = { errorMessage ->
                                 scope.launch {
                                     conversationScreenState.snackBarHostState.showSnackbar(errorMessage)
@@ -179,12 +180,17 @@ private fun ConversationScreenContent(
     messageText: String,
     onSendButtonClicked: () -> Unit,
     onShowContextMenu: (MessageViewWrapper) -> Unit,
-    onSendAttachment: suspend (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onError: (String) -> Unit
+    onError: (String) -> Unit,
+    conversationState: ConversationViewState
 ) {
     val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(conversationState.messages) {
+        lazyListState.animateScrollToItem(0)
+    }
 
     MessageComposer(
         content = {
@@ -209,15 +215,7 @@ private fun ConversationScreenContent(
         messageText = messageText,
         onMessageChanged = onMessageChanged,
         onSendButtonClicked = onSendButtonClicked,
-        onSendAttachment = {
-            coroutineScope.launch {
-                onSendAttachment(it)
-                // We add some extra delay to allowing some time to insert the message in the database, display it in the screen and be able
-                // to scroll to the bottom of the chat with the new list of messages
-                delay(MESSAGE_SCROLL_DELAY)
-                lazyListState.animateScrollToItem(0)
-            }
-        },
+        onSendAttachment = onSendAttachment,
         onError = onError,
         onMessageComposerInputStateChange = { messageComposerState ->
             if (messageComposerState.to == MessageComposeInputState.Active

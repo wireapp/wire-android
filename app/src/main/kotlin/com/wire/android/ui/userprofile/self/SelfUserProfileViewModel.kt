@@ -19,8 +19,11 @@ import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.combineLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,6 +37,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
+    private val getSelfTeam: GetSelfTeamUseCase,
     private val logout: LogoutUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
@@ -49,7 +53,8 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private suspend fun fetchSelfUser() {
         viewModelScope.launch {
-            getSelf().collect { selfUser ->
+            getSelf().combine(getSelfTeam(), ::Pair)
+                .collect { (selfUser, selfTeam) ->
                 with(selfUser) {
                     // Load user avatar raw image data
                     completePicture?.let { updateUserAvatar(it) }
@@ -59,11 +64,12 @@ class SelfUserProfileViewModel @Inject constructor(
                         status = UserStatus.AVAILABLE,
                         fullName = name.orEmpty(),
                         userName = handle.orEmpty(),
-                        teamName = team,
+                        teamName = selfTeam?.name,
                         otherAccounts = listOf() //TODO: implement other accounts functionality
                     )
                 }
             }
+
         }
     }
 

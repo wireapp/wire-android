@@ -15,6 +15,7 @@ import com.wire.android.ui.home.conversationslist.model.MentionInfo
 import com.wire.android.ui.home.conversationslist.model.MentionMessage
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.UserInfo
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
 val mockConversations1 = listOf(
@@ -26,7 +27,8 @@ val mockConversations1 = listOf(
                 membership = Membership.Guest,
                 isLegalHold = true
             ),
-            conversationId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain"),
+            mutedStatus = MutedConversationStatus.AllAllowed
         )
     ),
     GeneralConversation(
@@ -37,7 +39,8 @@ val mockConversations1 = listOf(
                 membership = Membership.Guest,
                 isLegalHold = true
             ),
-            conversationId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain"),
+            mutedStatus = MutedConversationStatus.AllAllowed
         )
     ),
     GeneralConversation(
@@ -48,7 +51,8 @@ val mockConversations1 = listOf(
                 membership = Membership.Guest,
                 isLegalHold = true
             ),
-            conversationId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain"),
+            mutedStatus = MutedConversationStatus.AllAllowed
         )
     ),
 )
@@ -62,7 +66,8 @@ val mockConversations2 = listOf(
                 membership = Membership.External,
                 isLegalHold = true
             ),
-            conversationId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain"),
+            mutedStatus = MutedConversationStatus.AllAllowed
         )
     ),
     ConversationMissedCall(
@@ -74,7 +79,8 @@ val mockConversations2 = listOf(
                 membership = Membership.None,
                 isLegalHold = true
             ),
-            conversationId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain"),
+            mutedStatus = MutedConversationStatus.AllAllowed
         )
     ),
     ConversationUnreadMention(
@@ -82,7 +88,8 @@ val mockConversations2 = listOf(
         conversationType = ConversationType.GroupConversation(
             groupColorValue = 0xFF00FF00,
             groupName = "Some group name",
-            conversationId = ConversationId("someId", "someDomain")
+            conversationId = ConversationId("someId", "someDomain"),
+            mutedStatus = MutedConversationStatus.AllAllowed
         ),
     )
 )
@@ -94,13 +101,15 @@ val mockConversation = ConversationType.PrivateConversation(
         membership = Membership.Guest,
         isLegalHold = true
     ),
-    conversationId = ConversationId("someId", "someDomain")
+    conversationId = ConversationId("someId", "someDomain"),
+    mutedStatus = MutedConversationStatus.AllAllowed
 )
 
 val mockGroupConversation = ConversationType.GroupConversation(
     groupColorValue = 0xFFFF0000,
     groupName = "Some group name",
-    conversationId = ConversationId("someId", "someDomain")
+    conversationId = ConversationId("someId", "someDomain"),
+    mutedStatus = MutedConversationStatus.AllAllowed
 )
 
 val mockGeneralConversation = GeneralConversation(
@@ -111,7 +120,8 @@ val mockGeneralConversation = GeneralConversation(
             membership = Membership.Guest,
             isLegalHold = true
         ),
-        conversationId = ConversationId("someId", "someDomain")
+        conversationId = ConversationId("someId", "someDomain"),
+        mutedStatus = MutedConversationStatus.AllAllowed
     )
 )
 
@@ -123,8 +133,8 @@ val conversationMockData = mapOf(
     ConversationFolder("THIS IS A TEST FOLDER") to mockConversations1,
     ConversationFolder(
         "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +
-                " VERY VERY VERY VERY VERY VERY VERY " +
-                "VERY VERY VERY VERY VERY LONG NAME"
+            " VERY VERY VERY VERY VERY VERY VERY " +
+            "VERY VERY VERY VERY VERY LONG NAME"
     ) to mockConversations1
 )
 
@@ -149,9 +159,9 @@ val mockShortMentionInfo = MentionInfo(mentionMessage = MentionMessage("Short me
 val mockLongMentionInfo = MentionInfo(
     mentionMessage = MentionMessage(
         "THis is a very very very very very very very " +
-                "very very very very very very very" +
-                " very very very very very very very " +
-                "very very very very very very very mention message"
+            "very very very very very very very" +
+            " very very very very very very very " +
+            "very very very very very very very mention message"
     )
 )
 

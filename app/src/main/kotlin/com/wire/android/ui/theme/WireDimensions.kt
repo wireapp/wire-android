@@ -67,6 +67,7 @@ data class WireDimensions(
     val buttonVerticalContentPadding: Dp,
     val buttonCornerSize: Dp,
     val buttonSmallCornerSize: Dp,
+    val badgeSmallMinSize: DpSize,
     // Dialog
     val dialogButtonsSpacing: Dp,
     val dialogTextsSpacing: Dp,
@@ -130,7 +131,7 @@ data class WireDimensions(
     val defaultSearchLazyColumnHeight: Dp,
     val showAllCollapseButtonMinHeight: Dp,
     val groupButtonHeight: Dp,
-    //calling
+    // calling
     val defaultCallingControlsSize: Dp,
     val defaultSheetPeekHeight: Dp,
     val defaultIncomingCallSheetPeekHeight: Dp,
@@ -140,7 +141,7 @@ data class WireDimensions(
     val initiatingCallUserAvatarSize: Dp,
     val initiatingCallHangUpButtonSize: Dp,
     // Message item
-    val messageItemBottomPadding : Dp
+    val messageItemBottomPadding: Dp
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -190,6 +191,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     buttonVerticalContentPadding = 8.dp,
     buttonCornerSize = 12.dp,
     buttonSmallCornerSize = 12.dp,
+    badgeSmallMinSize = DpSize(32.dp, 24.dp),
     dialogButtonsSpacing = 8.dp,
     dialogTextsSpacing = 16.dp,
     dialogContentPadding = 24.dp,
@@ -268,3 +270,5 @@ val WireDimensionsTypes: ScreenSizeDependent<OrientationDependent<WireDimensions
     tablet7 = DefaultPhoneOrientationDependentWireDimensions,
     tablet10 = DefaultPhoneOrientationDependentWireDimensions
 )
+
+const val DEFAULT_WEIGHT = 1f

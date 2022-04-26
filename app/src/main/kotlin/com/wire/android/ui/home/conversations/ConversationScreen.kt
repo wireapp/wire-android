@@ -214,7 +214,7 @@ private fun ConversationScreenContent(
                 onSendAttachment(it)
                 // We add some extra delay to allowing some time to insert the message in the database, display it in the screen and be able
                 // to scroll to the bottom of the chat with the new list of messages
-                delay(2000)
+                delay(MESSAGE_SCROLL_DELAY)
                 lazyListState.animateScrollToItem(0)
             }
         },
@@ -240,3 +240,5 @@ fun ConversationScreenPreview() {
         {}, {}, {}, {}, {}, { _: String, _: Boolean -> }
     ) {}
 }
+
+private const val MESSAGE_SCROLL_DELAY = 2000L

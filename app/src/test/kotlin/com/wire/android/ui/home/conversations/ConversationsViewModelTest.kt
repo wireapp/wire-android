@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -92,7 +93,8 @@ class ConversationsViewModelTest {
         sendAssetMessage = sendAssetMessage,
         sendImageMessage = sendImageMessage,
         getMessageAsset = getMessageAsset,
-        deleteMessage = deleteMessage
+        deleteMessage = deleteMessage,
+        dispatchers = TestDispatcherProvider()
     )
 
     @Test
@@ -240,13 +242,13 @@ class ConversationsViewModelTest {
             id: String = "messageID",
             content: MessageContent = MessageContent.Text(""),
             date: String = "date",
-            status : Message.Status = Message.Status.PENDING
+            status: Message.Status = Message.Status.PENDING
         ): Message = mockk<Message>().also {
             every { it.senderUserId } returns senderId
             every { it.id } returns id
             every { it.content } returns content
             every { it.date } returns date
-            every {it.status} returns status
+            every { it.status } returns status
         }
 
         fun testSelfUserDetails(

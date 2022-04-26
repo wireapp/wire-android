@@ -20,7 +20,7 @@ import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
-import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
@@ -40,7 +40,7 @@ class NewConversationViewModel
     private val navigationManager: NavigationManager,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUserDirectoryUseCase,
-    private val getAllKnownUsersUseCase: GetAllKnownUsersUseCase,
+    private val getAllContacts: GetAllContactsUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase
 ) : ViewModel() {
 
@@ -89,15 +89,9 @@ class NewConversationViewModel
     init {
         viewModelScope.launch {
             launch {
-                getAllKnownUsersUseCase()
-                    .onStart {
-                        innerSearchPeopleState = innerSearchPeopleState.copy()
-                    }
-                    .collect {
-                        innerSearchPeopleState = innerSearchPeopleState.copy(
-                            allKnownContacts = it.map { publicUser -> publicUser.toContact() }
-                        )
-                    }
+                innerSearchPeopleState = innerSearchPeopleState.copy(
+                    allKnownContacts = getAllContacts().map { otherUser -> otherUser.toContact() }
+                )
             }
 
             searchQueryStateFlow.onSearchAction { searchTerm ->

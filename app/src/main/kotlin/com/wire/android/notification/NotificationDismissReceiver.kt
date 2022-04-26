@@ -34,7 +34,8 @@ class NotificationDismissReceiver : BroadcastReceiver() {
             if (currentSession is CurrentSessionResult.Success) {
                 coreLogic.getSessionScope(currentSession.authSession.userId)
                     .messages
-                    .markMessagesAsNotified(conversationId?.toConversationId(), System.currentTimeMillis().toStringDate()) //TODO change date //TODO Failure is ignored
+                    //TODO change date //TODO Failure is ignored
+                    .markMessagesAsNotified(conversationId?.toConversationId(), System.currentTimeMillis().toStringDate())
             }
         }
     }

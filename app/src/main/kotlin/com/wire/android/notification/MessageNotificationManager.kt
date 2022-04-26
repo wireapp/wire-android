@@ -33,6 +33,7 @@ import javax.inject.Singleton
     ExperimentalMaterialApi::class,
     ExperimentalComposeUiApi::class
 )
+@Suppress("TooManyFunctions")
 @Singleton
 class MessageNotificationManager @Inject constructor(private val context: Context) {
 
@@ -48,7 +49,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
                 val oldConversation = oldData.firstOrNull { it.id == conversation.id }
                 oldConversation == null || oldConversation != conversation
             }
-            .map { NotificationConversation.fromDbData(it) }
+            .map { it.intoNotificationConversation() }
             .sortedBy { it.lastMessageTime }
 
         createNotificationChannelIfNeeded()

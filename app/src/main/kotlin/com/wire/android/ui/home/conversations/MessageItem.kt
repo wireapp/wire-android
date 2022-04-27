@@ -85,7 +85,7 @@ private fun MessageHeader(messageHeader: MessageHeader) {
     with(messageHeader) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Username(username)
+                Username(username.asString())
 
                 if (membership != Membership.None) {
                     Spacer(modifier = Modifier.width(dimensions().spacing6x))

@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -43,19 +44,15 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
 
     ConversationScreen(
         conversationViewState = uiState,
-        onMessageChanged = { message -> conversationViewModel.onMessageChanged(message) },
-        onSendButtonClicked = { conversationViewModel.sendMessage() },
-        onSendAttachment = { attachmentBundle -> conversationViewModel.sendAttachmentMessage(attachmentBundle) },
-        onDownloadAsset = { assetId -> conversationViewModel.downloadAsset(assetId) },
-        onBackButtonClick = { conversationViewModel.navigateBack() },
+        onMessageChanged = conversationViewModel::onMessageChanged,
+        onSendButtonClicked = conversationViewModel::sendMessage,
+        onSendAttachment = conversationViewModel::sendAttachmentMessage,
+        onDownloadAsset = conversationViewModel::downloadAsset,
+        onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = {
-            audioPermissionCheck.launch()
-        }
+        onCallStart = audioPermissionCheck::launch
     )
-    DeleteMessageDialog(
-        conversationViewModel = conversationViewModel
-    )
+    DeleteMessageDialog(conversationViewModel = conversationViewModel)
 }
 
 @Composable
@@ -85,12 +82,12 @@ private fun ConversationScreen(
         MenuModalSheetLayout(
             sheetState = conversationScreenState.modalBottomSheetState,
             menuItems = EditMessageMenuItems(
-                isMyMessage = conversationScreenState.isSelectedMessageMyMessage,
+                isMyMessage = conversationScreenState.isSelectedMessageMyMessage(),
                 onCopyMessage = conversationScreenState::copyMessage,
                 onDeleteMessage = {
                     onDeleteMessage(
                         conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                        conversationScreenState.isSelectedMessageMyMessage
+                        conversationScreenState.isSelectedMessageMyMessage()
                     )
                 }
             ),
@@ -127,6 +124,7 @@ private fun ConversationScreen(
                             onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
                             onSendAttachment = onSendAttachment,
                             onDownloadAsset = onDownloadAsset,
+                            conversationState = this,
                             onError = { errorMessage ->
                                 scope.launch {
                                     conversationScreenState.snackBarHostState.showSnackbar(errorMessage)
@@ -197,10 +195,15 @@ private fun ConversationScreenContent(
     onShowContextMenu: (MessageViewWrapper) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onError: (String) -> Unit
+    onError: (String) -> Unit,
+    conversationState: ConversationViewState
 ) {
     val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(conversationState.messages) {
+        lazyListState.animateScrollToItem(0)
+    }
 
     MessageComposer(
         content = {

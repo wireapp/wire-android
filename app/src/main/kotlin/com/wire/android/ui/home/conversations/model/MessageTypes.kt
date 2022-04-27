@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -55,18 +56,26 @@ internal fun MessageBody(messageBody: MessageBody) {
 
 @Composable
 fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
-    Image(
-        painter = rememberAsyncImagePainter(
-            rawImgData?.toBitmap() ?: getUriFromDrawable(
-                LocalContext.current,
-                R.drawable.ic_gallery
-            )
-        ),
-        alignment = Alignment.CenterStart,
-        contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = Modifier.width(imgParams.normalizedWidth).height(imgParams.normalizedHeight),
-        contentScale = ContentScale.Crop
-    )
+    Box(Modifier
+        .clip(shape = RoundedCornerShape(MaterialTheme.wireDimensions.messageAssetBorderRadius))
+        .clickable {
+            // TODO: Add navigation to preview full screen mode here
+        }) {
+        Image(
+            painter = rememberAsyncImagePainter(
+                rawImgData?.toBitmap() ?: getUriFromDrawable(
+                    LocalContext.current,
+                    R.drawable.ic_gallery
+                )
+            ),
+            alignment = Alignment.CenterStart,
+            contentDescription = stringResource(R.string.content_description_image_message),
+            modifier = Modifier
+            .width(imgParams.normalizedWidth)
+            .height(imgParams.normalizedHeight),
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 @Composable
@@ -93,7 +102,10 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetSizeIn
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            ConstraintLayout(Modifier.fillMaxWidth().padding(top = MaterialTheme.wireDimensions.spacing8x)) {
+            ConstraintLayout(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = MaterialTheme.wireDimensions.spacing8x)) {
                 val (icon, description, downloadStatus) = createRefs()
                 Image(
                     modifier = Modifier
@@ -108,13 +120,14 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetSizeIn
                 )
                 Text(
                     modifier = Modifier
-                        .padding(start = MaterialTheme.wireDimensions.spacing8x)
+                        .padding(start = MaterialTheme.wireDimensions.spacing4x)
                         .constrainAs(description) {
                             top.linkTo(parent.top)
                             start.linkTo(icon.end)
                             bottom.linkTo(parent.bottom)
                         },
                     text = assetDescription,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
                     style = MaterialTheme.wireTypography.subline01
                 )
                 Text(
@@ -126,6 +139,7 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetSizeIn
                             bottom.linkTo(parent.bottom)
                         },
                     text = stringResource(R.string.asset_message_download_text),
+                    color = MaterialTheme.wireColorScheme.secondaryText,
                     style = MaterialTheme.wireTypography.subline01
                 )
             }
@@ -157,7 +171,7 @@ private fun AnnotatedString.Builder.appendMentionLabel(label: String) {
 
 @Composable
 private fun AnnotatedString.Builder.appendBody(messageBody: MessageBody) {
-    append(messageBody.message)
+    append(messageBody.message.asString())
 }
 
 class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {

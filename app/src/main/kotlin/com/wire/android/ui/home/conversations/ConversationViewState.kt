@@ -8,5 +8,3 @@ data class ConversationViewState(
     val failedMessages : String = "",
     val messageText: String = ""
 )
-
-

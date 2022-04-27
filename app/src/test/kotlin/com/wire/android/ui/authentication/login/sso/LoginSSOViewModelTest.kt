@@ -7,13 +7,22 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
+import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
+import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
+import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
+import com.wire.kalium.logic.feature.client.ClientScope
+import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -54,13 +63,26 @@ class LoginSSOViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
+    private lateinit var clientScope: ClientScope
+
+    @MockK
+    private lateinit var registerClientUseCase: RegisterClientUseCase
+
+    @MockK
     private lateinit var getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase
+
+    @MockK
+    private lateinit var authSession: AuthSession
+
+    @MockK
+    private lateinit var client: Client
 
     @MockK
     private lateinit var navigationManager: NavigationManager
     private lateinit var loginViewModel: LoginSSOViewModel
 
     private val apiBaseUrl: String = "apiBaseUrl"
+    private val userId: QualifiedID = QualifiedID("userId", "domain")
 
     @BeforeEach
     fun setup() {
@@ -68,6 +90,8 @@ class LoginSSOViewModelTest {
         every { savedStateHandle.get<String>(any()) } returns ""
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { serverConfig.apiBaseUrl } returns apiBaseUrl
+        every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
+        every { clientScope.register } returns registerClientUseCase
         every { serverConfig.id } returns "0"
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
@@ -161,6 +185,50 @@ class LoginSSOViewModelTest {
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginSSOError.DialogError.GenericError::class
         (loginViewModel.loginState.loginSSOError as LoginSSOError.DialogError.GenericError).coreFailure shouldBe networkFailure
+    }
+
+    @Test
+    fun `given successful sso result, when establish the sso login session, then SSOLoginResult is passed`(){
+        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
+
+        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("","")) }
+
+        coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
+    }
+
+    @Test
+    fun `given invalid cookie sso result, when establish the sso login session, then SSOLoginResult fails`(){
+        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Failure.InvalidCookie
+        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
+
+        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("","")) }
+
+        coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
+    }
+
+    @Test
+    fun `given null, when calling HandleSSOResult, then loginSSOError state should be none`(){
+        runTest { loginViewModel.handleSSOResult(null) }
+        loginViewModel.loginState.loginSSOError shouldBeEqualTo LoginSSOError.None
+    }
+
+    @Test
+    fun `given sso login failure, when calling HandleSSOResult, then loginSSOError state should be dialog error`(){
+        runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)) }
+        loginViewModel.loginState.loginSSOError shouldBeEqualTo LoginSSOError.DialogError.ResultError(SSOFailureCodes.Unknown)
+    }
+
+    @Test
+    fun `given sso login success, when calling HandleSSOResult, then establish function should be called`(){
+        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
+
+        runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("","")) }
+        coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
     }
 }
 

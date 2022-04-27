@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.login.sso
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,7 +16,6 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -60,6 +60,7 @@ class LoginSSOViewModel @Inject constructor(
         }
     }
 
+    @VisibleForTesting
     fun establishSSOSession(ssoLoginResult: DeepLinkResult.SSOLogin.Success) {
         viewModelScope.launch {
             //TODO: serverConfig should be fetched of the serverConfigRepository
@@ -97,7 +98,8 @@ class LoginSSOViewModel @Inject constructor(
         return clientScope.register(null, null)
     }
 
-    private suspend fun navigateToConvScreen() =
+    @VisibleForTesting
+    suspend fun navigateToConvScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
 
@@ -121,7 +123,7 @@ class LoginSSOViewModel @Inject constructor(
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?) = when(ssoLoginResult){
         is DeepLinkResult.SSOLogin.Success -> establishSSOSession(ssoLoginResult)
         is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginSSOError.DialogError.ResultError(ssoLoginResult.ssoError))
-        else -> updateLoginError(LoginSSOError.DialogError.ResultError(SSOFailureCodes.Unknown))
+        else -> {}
     }
 
 

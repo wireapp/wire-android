@@ -41,13 +41,15 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.user.UserAssetId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
     message: MessageViewWrapper,
     onLongClicked: () -> Unit,
-    onAssetMessageClicked: (String) -> Unit
+    onAssetMessageClicked: (String) -> Unit,
+    onImageMessageClicked: (UserAssetId) -> Unit
 ) {
     with(message) {
         Row(
@@ -73,7 +75,7 @@ fun MessageItem(
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(dimensions().spacing6x))
                 if (!isDeleted) {
-                    MessageContent(messageContent, onAssetMessageClicked)
+                    MessageContent(messageContent, onAssetMessageClicked, onImageMessageClicked)
                 }
             }
         }
@@ -133,11 +135,12 @@ private fun Username(username: String) {
 }
 
 @Composable
-private fun MessageContent(messageContent: MessageContent?, onAssetClick: (String) -> Unit) {
+private fun MessageContent(messageContent: MessageContent?, onAssetClick: (String) -> Unit, onImageClick: (UserAssetId) -> Unit = {}) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
-            imgParams = ImageMessageParams(messageContent.width, messageContent.height)
+            imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+            onImageClick = { onImageClick(messageContent.assetId) }
         )
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
         is MessageContent.AssetMessage -> MessageAsset(

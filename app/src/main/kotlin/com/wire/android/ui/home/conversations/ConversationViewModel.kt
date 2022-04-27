@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
+import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
@@ -227,6 +228,7 @@ class ConversationViewModel @Inject constructor(
         onDialogDismissed()
     }
 
+    // -------------- Navigation --------------
     fun navigateBack() {
         viewModelScope.launch {
             navigationManager.navigateBack()
@@ -240,6 +242,18 @@ class ConversationViewModel @Inject constructor(
                     destination = NavigationItem.InitiatingCall.getRouteWithArgs(listOf(conversationId))
                 )
             )
+        }
+    }
+
+    fun navigateToGallery(userAssetId: UserAssetId) {
+        viewModelScope.launch {
+            userAssetId.let { assetId ->
+                navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.Gallery.getRouteWithArgs(listOf(assetId))
+                    )
+                )
+            }
         }
     }
 
@@ -279,17 +293,19 @@ class ConversationViewModel @Inject constructor(
                 is Image -> md.width to md.height
                 else -> 0 to 0
             }
-            return when {
-                // If it's an image, we download it right away
-                mimeType.contains("image") -> MessageContent.ImageMessage(
-                    getRawAssetData(conversationId, messageId),
-                    width = imgWidth,
-                    height = imgHeight
-                )
 
-                // It's a generic Asset Message so let's not download it yet
-                else -> {
-                    return if (remoteData.assetId.isNotEmpty()) {
+            return if (remoteData.assetId.isNotEmpty()) {
+                when {
+                    // If it's an image, we download it right away
+                    mimeType.contains("image") -> MessageContent.ImageMessage(
+                        assetId = remoteData.assetId,
+                        rawImgData = getRawAssetData(conversationId, messageId),
+                        width = imgWidth,
+                        height = imgHeight
+                    )
+
+                    // It's a generic Asset Message so let's not download it yet
+                    else -> {
                         AssetMessage(
                             assetName = name ?: "",
                             assetExtension = name?.split(".")?.last() ?: "",
@@ -297,9 +313,9 @@ class ConversationViewModel @Inject constructor(
                             assetSizeInBytes = sizeInBytes
                         )
                         // On the first asset message received, the asset ID is null, so we filter it out until the second updates it
-                    } else null
+                    }
                 }
-            }
+            } else null
         }
     }
 

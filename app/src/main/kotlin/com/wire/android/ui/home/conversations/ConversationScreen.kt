@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.kalium.logic.data.user.UserAssetId
 import kotlinx.coroutines.launch
 
 @Composable
@@ -42,6 +43,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onSendButtonClicked = conversationViewModel::sendMessage,
         onSendAttachment = conversationViewModel::sendAttachmentMessage,
         onDownloadAsset = conversationViewModel::downloadAsset,
+        onImageFullMode = { conversationViewModel.navigateToGallery(it) },
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch
@@ -65,6 +67,7 @@ private fun ConversationScreen(
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
+    onImageFullMode: (UserAssetId) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit
@@ -111,6 +114,7 @@ private fun ConversationScreen(
                             onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
                             onSendAttachment = onSendAttachment,
                             onDownloadAsset = onDownloadAsset,
+                            onImageFullMode = onImageFullMode,
                             conversationState = this,
                             onError = { errorMessage ->
                                 scope.launch {
@@ -182,6 +186,7 @@ private fun ConversationScreenContent(
     onShowContextMenu: (MessageViewWrapper) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
+    onImageFullMode: (UserAssetId) -> Unit,
     onError: (String) -> Unit,
     conversationState: ConversationViewState
 ) {
@@ -207,7 +212,8 @@ private fun ConversationScreenContent(
                     MessageItem(
                         message = message,
                         onLongClicked = { onShowContextMenu(message) },
-                        onAssetMessageClicked = onDownloadAsset
+                        onAssetMessageClicked = onDownloadAsset,
+                        onImageMessageClicked = onImageFullMode
                     )
                 }
             }
@@ -235,6 +241,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, {}, { _: String, _: Boolean -> }
+        {}, {}, {}, {}, {}, {}, { _: String, _: Boolean -> }
     ) {}
 }

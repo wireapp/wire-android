@@ -1,6 +1,7 @@
 package com.wire.android.ui.calling.initiating
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
@@ -40,6 +41,9 @@ class InitiatingCallViewModelTest {
     private lateinit var endCall: EndCallUseCase
 
     @MockK
+    private lateinit var callRinger: CallRinger
+
+    @MockK
     private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     private lateinit var initiatingCallViewModel: InitiatingCallViewModel
@@ -59,7 +63,8 @@ class InitiatingCallViewModelTest {
             allCalls = allCalls,
             startCall = startCall,
             endCall = endCall,
-            conversationDetails = observeConversationDetails
+            conversationDetails = observeConversationDetails,
+            callRinger = callRinger
         )
     }
 
@@ -71,6 +76,7 @@ class InitiatingCallViewModelTest {
         runTest { initiatingCallViewModel.hangUpCall() }
 
         coVerify(exactly = 1) { endCall.invoke(any()) }
+        coVerify(exactly = 1) { callRinger.stop() }
         coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
 

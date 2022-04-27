@@ -332,9 +332,12 @@ class ConversationsViewModelTest {
     }
 
     private fun withMockConversationDetailsOneOnOne(senderName: String) = ConversationDetails.OneOne(
-        mockk(), mockk<OtherUser>().apply {
+        mockk(),
+        mockk<OtherUser>().apply {
             every { name } returns senderName
-        }, ConnectionState.PENDING, LegalHoldStatus.DISABLED, UserType.INTERNAL
+        },
+        ConnectionState.PENDING,
+        LegalHoldStatus.DISABLED, UserType.INTERNAL
     )
 
     private fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {

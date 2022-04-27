@@ -34,7 +34,7 @@ fun ConversationScreenTopAppBar(
     onBackButtonClick: () -> Unit,
     onDropDownClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
-    onVideoButtonClick: () -> Unit
+    onPhoneButtonClick: () -> Unit
 ) {
     SmallTopAppBar(
         title = {
@@ -62,7 +62,7 @@ fun ConversationScreenTopAppBar(
                 onClick = onSearchButtonClick,
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_search_icon),
+                        painter = painterResource(id = R.drawable.ic_search),
                         contentDescription = stringResource(R.string.content_description_conversation_search_icon),
                         tint = MaterialTheme.colorScheme.onBackground
                     )
@@ -75,11 +75,11 @@ fun ConversationScreenTopAppBar(
             )
             Spacer(Modifier.width(6.dp))
             WireSecondaryButton(
-                onClick = onVideoButtonClick,
+                onClick = onPhoneButtonClick,
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_video_icon),
-                        contentDescription = stringResource(R.string.content_description_conversation_video_icon),
+                        painter = painterResource(id = R.drawable.ic_phone),
+                        contentDescription = stringResource(R.string.content_description_conversation_phone_icon),
                     )
                 },
                 fillMaxWidth = false,

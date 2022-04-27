@@ -84,6 +84,7 @@ fun InitiatingCallContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
+                //TODO handle it in a different way
                 text = initiatingCallState.conversationName ?: stringResource(id = R.string.calling_label_default_caller_name),
                 style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)

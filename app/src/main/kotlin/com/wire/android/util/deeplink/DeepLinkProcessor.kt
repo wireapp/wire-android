@@ -78,25 +78,23 @@ enum class SSOFailureCodes(val label: String, val errorCode: Int, val stringReso
         fun getByCode(errorCode: Int) = values().first { it.errorCode == errorCode }
         fun getByLabel(label: String) = values().first { it.label == label }
     }
-}
-
-class SSOServerErrorCode {
-    companion object {
-        const val SERVER_ERROR_UNSUPPORTED_SAML = 1
-        const val BAD_SUCCESS_REDIRECT = 2
-        const val BAD_FAILURE_REDIRECT = 3
-        const val BAD_USERNAME = 4
-        const val BAD_UPSTREAM = 5
-        const val SERVER_ERROR = 6
-        const val NOT_FOUND = 7
-        const val FORBIDDEN = 8
-        const val NO_MATCHING_AUTH_REQ = 9
-        const val INSUFFICIENT_PERMISSIONS = 10
-
-        @VisibleForTesting
-        const val UNKNOWN = 0
+    object SSOServerErrorCode {
+            const val SERVER_ERROR_UNSUPPORTED_SAML = 1
+            const val BAD_SUCCESS_REDIRECT = 2
+            const val BAD_FAILURE_REDIRECT = 3
+            const val BAD_USERNAME = 4
+            const val BAD_UPSTREAM = 5
+            const val SERVER_ERROR = 6
+            const val NOT_FOUND = 7
+            const val FORBIDDEN = 8
+            const val NO_MATCHING_AUTH_REQ = 9
+            const val INSUFFICIENT_PERMISSIONS = 10
+            @VisibleForTesting
+            const val UNKNOWN = 0
     }
 }
+
+
 
 
 

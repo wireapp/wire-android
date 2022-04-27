@@ -4,6 +4,7 @@ import android.net.Uri
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
+import com.wire.android.util.deeplink.SSOServerErrorCode
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -34,7 +35,15 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a valid remote success sso login deeplink, returns SSOLogin-Success object`() {
+    fun `given a remote config deeplink with null parameters, returns DeeplinkResult-Unknown `() {
+        generateRemoteConfigDeeplink(null)
+        val result = deepLinkProcessor(uri)
+        assertInstanceOf(DeepLinkResult.Unknown::class.java, result)
+        assertEquals(DeepLinkResult.Unknown, result)
+    }
+
+    @Test
+    fun `given a valid success sso login deeplink, returns SSOLogin-Success object`() {
         generateSSOLoginSuccessDeeplink(FAKE_COOKIE, FAKE_REMOTE_SERVER_ID)
         val result = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.SSOLogin.Success::class.java, result)
@@ -42,11 +51,27 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a valid remote failed sso login deeplink, returns SSOLogin-Failure object`() {
-        generateSSOLoginSuccessDeeplink(FAKE_ERROR)
+    fun `given a sso login success deeplink with null parameters, returns SSOLogin-Failure with unknown error`() {
+        generateSSOLoginSuccessDeeplink(null, null)
+        val loginSuccessNullResult = deepLinkProcessor(uri)
+        assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, loginSuccessNullResult)
+        assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOServerErrorCode.UNKNOWN)), loginSuccessNullResult)
+    }
+
+    @Test
+    fun `given a valid failed sso login deeplink, returns SSOLogin-Failure object`() {
+        generateSSOLoginFailureDeeplink(FAKE_ERROR)
         val result = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, result)
         assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(FAKE_ERROR)), result)
+    }
+
+    @Test
+    fun `given a sso login failure deeplink with null parameters, returns SSOLogin-Failure with unknown error`() {
+        generateSSOLoginFailureDeeplink(null)
+        val loginFailureNullResult = deepLinkProcessor(uri)
+        assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, loginFailureNullResult)
+        assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOServerErrorCode.UNKNOWN)), loginFailureNullResult)
     }
 
     @Test
@@ -57,19 +82,19 @@ class DeepLinkProcessorTest {
         assertEquals(DeepLinkResult.Unknown, result)
     }
 
-    private fun generateRemoteConfigDeeplink(url: String) {
+    private fun generateRemoteConfigDeeplink(url: String?) {
         coEvery { uri.host } returns REMOTE_CONFIG_HOST
         coEvery { uri.getQueryParameter(CONFIG_PARAM) } returns url
     }
 
-    private fun generateSSOLoginSuccessDeeplink(cookie: String, location: String) {
+    private fun generateSSOLoginSuccessDeeplink(cookie: String?, location: String?) {
         coEvery { uri.host } returns SSO_LOGIN_HOST
         coEvery { uri.lastPathSegment } returns SSO_SUCCESS_PATH
         coEvery { uri.getQueryParameter(COOKIE_PARAM) } returns cookie
         coEvery { uri.getQueryParameter(LOCATION_PARAM) } returns location
     }
 
-    private fun generateSSOLoginSuccessDeeplink(error: String) {
+    private fun generateSSOLoginFailureDeeplink(error: String?) {
         coEvery { uri.host } returns SSO_LOGIN_HOST
         coEvery { uri.lastPathSegment } returns SSO_FAILURE_PATH
         coEvery { uri.getQueryParameter(ERROR_PARAM) } returns error

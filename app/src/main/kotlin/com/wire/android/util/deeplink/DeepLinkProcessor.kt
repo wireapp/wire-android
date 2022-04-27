@@ -1,6 +1,7 @@
 package com.wire.android.util.deeplink
 
 import android.net.Uri
+import androidx.annotation.VisibleForTesting
 import com.wire.android.R
 
 sealed class DeepLinkResult {
@@ -55,21 +56,23 @@ class DeepLinkProcessor {
 
 enum class SSOFailureCodes(val label: String, val errorCode: Int, val stringResource: Int) {
     ServerErrorUnsupportedSaml(
-        "server-error-unsupported-saml", ERROR_CODE_SERVER_ERROR_UNSUPPORTED_SAML, R.string.sso_error_server_error_unsupported_saml
+        "server-error-unsupported-saml",
+        SSOServerErrorCode.SERVER_ERROR_UNSUPPORTED_SAML,
+        R.string.sso_error_server_error_unsupported_saml
     ),
-    BadSuccessRedirect("bad-success-redirect", ERROR_CODE_BAD_SUCCESS_REDIRECT, R.string.sso_error_bad_success_redirect),
-    BadFailureRedirect("bad-failure-redirect", ERROR_CODE_BAD_FAILURE_REDIRECT, R.string.sso_error_bad_failure_redirect),
-    BadUsername("bad-username", ERROR_CODE_BAD_USERNAME, R.string.sso_error_bad_username),
-    BadUpstream("bad-upstream", ERROR_CODE_BAD_UPSTREAM, R.string.sso_error_bad_upstream),
-    ServerError("server-error", ERROR_CODE_SERVER_ERROR, R.string.sso_error_server_error),
-    NotFound("not-found", ERROR_CODE_NOT_FOUND, R.string.sso_error_not_found),
-    Forbidden("forbidden", ERROR_CODE_FORBIDDEN, R.string.sso_error_forbidden),
-    NoMatchingAuthReq("no-matching-auth-req", ERROR_CODE_NO_MATCHING_AUTH_REQ, R.string.sso_error_no_matching_auth_req),
+    BadSuccessRedirect("bad-success-redirect", SSOServerErrorCode.BAD_SUCCESS_REDIRECT, R.string.sso_error_bad_success_redirect),
+    BadFailureRedirect("bad-failure-redirect", SSOServerErrorCode.BAD_FAILURE_REDIRECT, R.string.sso_error_bad_failure_redirect),
+    BadUsername("bad-username", SSOServerErrorCode.BAD_USERNAME, R.string.sso_error_bad_username),
+    BadUpstream("bad-upstream", SSOServerErrorCode.BAD_UPSTREAM, R.string.sso_error_bad_upstream),
+    ServerError("server-error", SSOServerErrorCode.SERVER_ERROR, R.string.sso_error_server_error),
+    NotFound("not-found", SSOServerErrorCode.NOT_FOUND, R.string.sso_error_not_found),
+    Forbidden("forbidden", SSOServerErrorCode.FORBIDDEN, R.string.sso_error_forbidden),
+    NoMatchingAuthReq("no-matching-auth-req", SSOServerErrorCode.NO_MATCHING_AUTH_REQ, R.string.sso_error_no_matching_auth_req),
     InsufficientPermissions(
         "insufficient-permissions",
-        ERROR_CODE_INSUFFICIENT_PERMISSIONS, R.string.sso_error_insufficient_permissions
+        SSOServerErrorCode.INSUFFICIENT_PERMISSIONS, R.string.sso_error_insufficient_permissions
     ),
-    Unknown("unknown", ERROR_CODE_UNKNOWN, R.string.sso_error_unknown);
+    Unknown("unknown", SSOServerErrorCode.UNKNOWN, R.string.sso_error_unknown);
 
     companion object {
         fun getByCode(errorCode: Int) = values().first { it.errorCode == errorCode }
@@ -77,17 +80,24 @@ enum class SSOFailureCodes(val label: String, val errorCode: Int, val stringReso
     }
 }
 
-private const val ERROR_CODE_SERVER_ERROR_UNSUPPORTED_SAML = 1
-private const val ERROR_CODE_BAD_SUCCESS_REDIRECT = 2
-private const val ERROR_CODE_BAD_FAILURE_REDIRECT = 3
-private const val ERROR_CODE_BAD_USERNAME = 4
-private const val ERROR_CODE_BAD_UPSTREAM = 5
-private const val ERROR_CODE_SERVER_ERROR = 6
-private const val ERROR_CODE_NOT_FOUND = 7
-private const val ERROR_CODE_FORBIDDEN = 8
-private const val ERROR_CODE_NO_MATCHING_AUTH_REQ = 9
-private const val ERROR_CODE_INSUFFICIENT_PERMISSIONS = 10
-private const val ERROR_CODE_UNKNOWN = 0
+class SSOServerErrorCode {
+    companion object {
+        const val SERVER_ERROR_UNSUPPORTED_SAML = 1
+        const val BAD_SUCCESS_REDIRECT = 2
+        const val BAD_FAILURE_REDIRECT = 3
+        const val BAD_USERNAME = 4
+        const val BAD_UPSTREAM = 5
+        const val SERVER_ERROR = 6
+        const val NOT_FOUND = 7
+        const val FORBIDDEN = 8
+        const val NO_MATCHING_AUTH_REQ = 9
+        const val INSUFFICIENT_PERMISSIONS = 10
+
+        @VisibleForTesting
+        const val UNKNOWN = 0
+    }
+}
+
 
 
 

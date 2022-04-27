@@ -35,6 +35,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
+import com.wire.kalium.logic.data.conversation
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -129,6 +130,7 @@ class ConversationListViewModel @Inject constructor(
         it is Group || it is OneOne
     }.map { details ->
         val conversation = details.conversation
+
         when (details) {
             is Group -> {
                 GeneralConversation(
@@ -142,6 +144,7 @@ class ConversationListViewModel @Inject constructor(
             }
             is OneOne -> {
                 val otherUser = details.otherUser
+
                 GeneralConversation(
                     ConversationType.PrivateConversation(
                         userInfo = UserInfo(
@@ -150,7 +153,7 @@ class ConversationListViewModel @Inject constructor(
                         ),
                         conversationInfo = ConversationInfo(
                             name = otherUser.name.orEmpty(),
-                            membership = Membership.None,
+                            membership = mapUserType(details.userType),
                             isLegalHold = true
                         ),
                         conversationId = conversation.id,
@@ -161,6 +164,15 @@ class ConversationListViewModel @Inject constructor(
             is Self -> {
                 throw IllegalArgumentException("Self conversations should not be visible to the user.")
             }
+        }
+    }
+
+    private fun mapUserType(userType: UserType): Membership {
+        return when (userType) {
+            GUEST -> Membership.Guest
+            FEDERATED -> Membership.Federated
+            EXTERNAL -> Membership.External
+            INTERNAL -> Membership.None
         }
     }
 }

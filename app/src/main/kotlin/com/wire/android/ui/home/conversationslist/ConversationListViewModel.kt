@@ -35,7 +35,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
-import com.wire.kalium.logic.data.conversation
+import com.wire.kalium.logic.data.conversation.UserType
+import java.lang.IllegalStateException
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -154,7 +155,7 @@ class ConversationListViewModel @Inject constructor(
                         conversationInfo = ConversationInfo(
                             name = otherUser.name.orEmpty(),
                             membership = mapUserType(details.userType),
-                            isLegalHold = true
+                            isLegalHold = false
                         ),
                         conversationId = conversation.id,
                         mutedStatus = conversation.mutedStatus
@@ -169,10 +170,11 @@ class ConversationListViewModel @Inject constructor(
 
     private fun mapUserType(userType: UserType): Membership {
         return when (userType) {
-            GUEST -> Membership.Guest
-            FEDERATED -> Membership.Federated
-            EXTERNAL -> Membership.External
-            INTERNAL -> Membership.None
+            UserType.GUEST -> Membership.Guest
+            UserType.FEDERATED -> Membership.Federated
+            UserType.EXTERNAL -> Membership.External
+            UserType.INTERNAL -> Membership.None
+            else -> {  throw IllegalStateException("Unknown UserType") }
         }
     }
 }

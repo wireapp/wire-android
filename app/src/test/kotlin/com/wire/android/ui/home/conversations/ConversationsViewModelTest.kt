@@ -153,10 +153,11 @@ class ConversationsViewModelTest {
         val messages = listOf(mockedMessage(senderId = senderId))
         val selfUserName = "self user"
         val selfMember = mockSelfUserDetails(selfUserName, senderId)
-        val (_, viewModel) = Arrangement().withChannelUpdates(messages, listOf(selfMember)).arrange()
+        val (arrangement, viewModel) = Arrangement().withChannelUpdates(messages, listOf(selfMember)).arrange()
 
         // When - Then
-        assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(context))
+        every { arrangement.uiText.asString(any()) } returns (selfUserName)
+        assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
     }
 
     @Test
@@ -166,14 +167,13 @@ class ConversationsViewModelTest {
         val messages = listOf(mockedMessage(senderId = senderId))
         val otherUserName = "other user"
 
-        every { uiText.asString(any()) } returns (otherUserName)
-
 
         val otherMember = mockOtherUserDetails(otherUserName, senderId)
-        val (_, viewModel) = Arrangement().withChannelUpdates(messages, listOf(otherMember)).arrange()
+        val (arrangement, viewModel) = Arrangement().withChannelUpdates(messages, listOf(otherMember)).arrange()
 
         // When - Then
-        assertEquals(otherUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(context))
+        every { arrangement.uiText.asString(any()) } returns (otherUserName)
+        assertEquals(otherUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
     }
 
     @Test
@@ -187,11 +187,13 @@ class ConversationsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(firstUserName, viewModel.conversationViewState.messages.first().messageHeader.username)
+        every { arrangement.uiText.asString(any()) } returns (firstUserName)
+        assertEquals(firstUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
 
         // When - Then
+        every { arrangement.uiText.asString(any()) } returns (secondUserName)
         arrangement.withChannelUpdates(messages, listOf(mockOtherUserDetails(secondUserName, senderId)))
-        assertEquals(secondUserName, viewModel.conversationViewState.messages.first().messageHeader.username)
+        assertEquals(secondUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
     }
 
     @Test
@@ -280,11 +282,17 @@ class ConversationsViewModelTest {
         @MockK
         lateinit var observeMemberDetails: ObserveConversationMembersUseCase
 
+        @MockK
+        lateinit var context: Context
+
+        @MockK
+        lateinit var uiText: UIText
+
         val otherMemberUpdatesChannel = Channel<List<MemberDetails>>(capacity = Channel.UNLIMITED)
         val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
 
-private val viewModel by lazy {
+        private val viewModel by lazy {
             ConversationViewModel(
                 savedStateHandle = savedStateHandle,
                 navigationManager = navigationManager,

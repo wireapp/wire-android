@@ -54,17 +54,19 @@ class InitiatingCallViewModel @Inject constructor(
             if (it.isNotEmpty() && it.first().conversationId == conversationId)
                 when (it.first().status) {
                     CallStatus.CLOSED -> navigateBack()
-                    CallStatus.ESTABLISHED -> {
-                        navigateBack()
-                        navigationManager.navigate(
-                            command = NavigationCommand(
-                                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
-                            )
-                        )
-                    }
+                    CallStatus.ESTABLISHED -> onCallEstablished()
                     else -> print("DO NOTHING")
                 }
         }
+    }
+
+    private suspend fun onCallEstablished() {
+        navigateBack()
+        navigationManager.navigate(
+            command = NavigationCommand(
+                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+            )
+        )
     }
 
     private suspend fun initializeScreenState() {

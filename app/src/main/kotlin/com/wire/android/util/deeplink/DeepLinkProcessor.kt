@@ -93,4 +93,3 @@ enum class SSOFailureCodes(val label: String, val errorCode: Int, val stringReso
             const val UNKNOWN = 0
     }
 }
-

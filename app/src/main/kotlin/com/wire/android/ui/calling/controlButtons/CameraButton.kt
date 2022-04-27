@@ -25,7 +25,7 @@ import com.wire.android.util.extension.checkPermission
 @Composable
 fun CameraButton(
     isCameraOn: Boolean = false,
-    cameraPermissionDenied: () -> Unit,
+    onCameraPermissionDenied: () -> Unit,
     onCameraButtonClicked: () -> Unit
 ) {
     var isCameraOn by remember { mutableStateOf(isCameraOn) }
@@ -37,7 +37,7 @@ fun CameraButton(
         if (isGranted) {
             onCameraButtonClicked()
         } else {
-            cameraPermissionDenied()
+            onCameraPermissionDenied()
         }
     }
 
@@ -75,5 +75,5 @@ private fun verifyCameraPermission(
 @Preview
 @Composable
 fun ComposableCameraButtonPreview() {
-    CameraButton(cameraPermissionDenied = { }, onCameraButtonClicked = { })
+    CameraButton(onCameraPermissionDenied = { }, onCameraButtonClicked = { })
 }

@@ -94,7 +94,7 @@ private fun CallingControls(
             .padding(0.dp, MaterialTheme.wireDimensions.spacing16x, 0.dp, 0.dp)
     ) {
         MicrophoneButton(ongoingCallState.isMuted) { onMuteOrUnMuteCall() }
-        CameraButton(cameraPermissionDenied = { }, onCameraButtonClicked = { })
+        CameraButton(onCameraPermissionDenied = { }, onCameraButtonClicked = { })
         SpeakerButton(onSpeakerButtonClicked = { })
         HangUpButton { onHangUpCall() }
     }

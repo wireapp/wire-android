@@ -142,7 +142,7 @@ private fun CallingControls(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CameraButton(isCameraOn = state.isCameraOn, cameraPermissionDenied = { }) { }
+            CameraButton(isCameraOn = state.isCameraOn, onCameraPermissionDenied = { }) { }
             Text(
                 text = stringResource(id = R.string.calling_label_camera),
                 style = MaterialTheme.wireTypography.label01,

@@ -40,7 +40,7 @@ fun CallOptionsControls() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CameraButton(isCameraOn = false, cameraPermissionDenied = { }) { }
+            CameraButton(isCameraOn = false, onCameraPermissionDenied = { }) { }
             Text(
                 text = stringResource(id = R.string.calling_label_camera).uppercase(),
                 style = MaterialTheme.wireTypography.label01,

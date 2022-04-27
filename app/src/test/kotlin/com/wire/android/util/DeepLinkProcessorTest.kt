@@ -54,7 +54,10 @@ class DeepLinkProcessorTest {
         generateSSOLoginSuccessDeeplink(null, null)
         val loginSuccessNullResult = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, loginSuccessNullResult)
-        assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOFailureCodes.SSOServerErrorCode.UNKNOWN)), loginSuccessNullResult)
+        assertEquals(
+            DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOFailureCodes.SSOServerErrorCode.UNKNOWN)),
+            loginSuccessNullResult
+        )
     }
 
     @Test
@@ -70,7 +73,10 @@ class DeepLinkProcessorTest {
         generateSSOLoginFailureDeeplink(null)
         val loginFailureNullResult = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, loginFailureNullResult)
-        assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOFailureCodes.SSOServerErrorCode.UNKNOWN)), loginFailureNullResult)
+        assertEquals(
+            DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOFailureCodes.SSOServerErrorCode.UNKNOWN)),
+            loginFailureNullResult
+        )
     }
 
     @Test

@@ -29,12 +29,13 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -47,6 +48,8 @@ class ConversationListViewModel @Inject constructor(
 
     var state by mutableStateOf(ConversationListState())
         private set
+
+    var errorState by mutableStateOf<ConversationOperationErrorState?>(null)
 
     init {
         viewModelScope.launch {
@@ -89,8 +92,10 @@ class ConversationListViewModel @Inject constructor(
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {
         conversationId?.let {
             viewModelScope.launch {
-                appLogger.d("Muting conversation: $conversationId")
-                updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)
+                when (updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)) {
+                    ConversationUpdateStatusResult.Failure -> errorState = ConversationOperationErrorState.MutingOperationErrorState()
+                    ConversationUpdateStatusResult.Success -> appLogger.d("MutedStatus changed for conversation: $conversationId")
+                }
             }
         }
     }

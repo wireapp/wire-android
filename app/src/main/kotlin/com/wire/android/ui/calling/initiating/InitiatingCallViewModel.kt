@@ -60,9 +60,7 @@ class InitiatingCallViewModel @Inject constructor(
                             conversationType = ConversationType.Conference
                         )
                     }
-                    else -> {
-                        callInitiatedState.copy(conversationName = null)
-                    }
+                    else -> throw IllegalStateException("Invalid conversation type")
                 }
             }
     }

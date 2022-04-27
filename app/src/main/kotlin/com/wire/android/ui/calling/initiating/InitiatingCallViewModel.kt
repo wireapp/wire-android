@@ -51,7 +51,7 @@ class InitiatingCallViewModel @Inject constructor(
 
     private suspend fun observeStartedCall() {
         allCalls().collect {
-            if (it.first().conversationId == conversationId)
+            if (it.isNotEmpty() && it.first().conversationId == conversationId)
                 when (it.first().status) {
                     CallStatus.CLOSED -> navigateBack()
                     CallStatus.ESTABLISHED -> {

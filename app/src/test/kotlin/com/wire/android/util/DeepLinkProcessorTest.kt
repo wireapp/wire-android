@@ -4,7 +4,6 @@ import android.net.Uri
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
-import com.wire.android.util.deeplink.SSOServerErrorCode
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -55,7 +54,7 @@ class DeepLinkProcessorTest {
         generateSSOLoginSuccessDeeplink(null, null)
         val loginSuccessNullResult = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, loginSuccessNullResult)
-        assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOServerErrorCode.UNKNOWN)), loginSuccessNullResult)
+        assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOFailureCodes.SSOServerErrorCode.UNKNOWN)), loginSuccessNullResult)
     }
 
     @Test
@@ -71,7 +70,7 @@ class DeepLinkProcessorTest {
         generateSSOLoginFailureDeeplink(null)
         val loginFailureNullResult = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, loginFailureNullResult)
-        assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOServerErrorCode.UNKNOWN)), loginFailureNullResult)
+        assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOFailureCodes.SSOServerErrorCode.UNKNOWN)), loginFailureNullResult)
     }
 
     @Test

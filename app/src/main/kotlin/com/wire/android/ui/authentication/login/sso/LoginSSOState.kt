@@ -9,7 +9,7 @@ data class LoginSSOState(
     val ssoCode: TextFieldValue = TextFieldValue(""),
     val loading: Boolean = false,
     val loginEnabled: Boolean = false,
-    val loginSSOError: LoginSSOError = LoginSSOError.None,
+    val loginSSOError: LoginSSOError = LoginSSOError.None
 )
 
 sealed class LoginSSOError {

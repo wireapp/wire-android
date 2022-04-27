@@ -89,7 +89,7 @@ private fun LoginSSOContent(
     onLoginButtonClick: suspend () -> Unit,
     scope: CoroutineScope,
     ssoLoginResult: DeepLinkResult.SSOLogin?
-    ) {
+) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -120,12 +120,14 @@ private fun LoginSSOContent(
             is LoginSSOError.DialogError.GenericError -> {
                 loginSSOState.loginSSOError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
             }
-            is LoginSSOError.DialogError.ResultError ->{
+            is LoginSSOError.DialogError.ResultError -> {
                 with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
                     DialogErrorStrings(
                         stringResource(R.string.sso_erro_dialog_title),
-                        stringResource(R.string.sso_erro_dialog_message, stringResource(this.ssoError.stringResource),
-                            this.ssoError.errorCode)
+                        stringResource(
+                            R.string.sso_erro_dialog_message, stringResource(this.ssoError.stringResource),
+                            this.ssoError.errorCode
+                        )
                     )
                 }
             }
@@ -184,6 +186,6 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 private fun LoginSSOScreenPreview() {
     WireTheme(isPreview = true) {
-        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, suspend {}, rememberCoroutineScope(),null)
+        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, suspend {}, rememberCoroutineScope(), null)
     }
 }

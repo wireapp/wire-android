@@ -106,7 +106,7 @@ private fun ConversationScreen(
                             onBackButtonClick = onBackButtonClick,
                             onDropDownClick = { },
                             onSearchButtonClick = { },
-                            onVideoButtonClick = { onCallStart() }
+                            onPhoneButtonClick = { onCallStart() }
                         )
                     },
                     snackbarHost = {

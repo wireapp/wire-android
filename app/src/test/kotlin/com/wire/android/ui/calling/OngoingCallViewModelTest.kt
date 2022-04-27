@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery

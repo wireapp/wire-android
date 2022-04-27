@@ -40,7 +40,7 @@ fun SearchBar(
         {
             IconButton(onClick = { }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_search_icon),
+                    painter = painterResource(id = R.drawable.ic_search),
                     contentDescription = stringResource(R.string.content_description_conversation_search_icon),
                     tint = MaterialTheme.wireColorScheme.onBackground
                 )

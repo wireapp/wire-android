@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -27,6 +28,7 @@ import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.AssetContent
@@ -248,10 +250,10 @@ class ConversationViewModel @Inject constructor(
             val sender = members.findSender(message.senderUserId)
             MessageViewWrapper(
                 messageContent = fromMessageModelToMessageContent(message),
-                messageSource = MessageSource.CurrentUser,
+                messageSource = if (sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
-                    username = sender?.name ?: "Deleted User",
+                    username = sender.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
                     membership = Membership.None,
                     isLegalHold = false,
                     time = message.date,
@@ -259,7 +261,7 @@ class ConversationViewModel @Inject constructor(
                     messageId = message.id
                 ),
                 user = User(
-                    avatarAsset = sender?.previewAsset, availabilityStatus = UserStatus.NONE
+                    avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
                 )
             )
         }
@@ -268,8 +270,9 @@ class ConversationViewModel @Inject constructor(
     private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent? =
         when (val content = message.content) {
             is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
-            is Text -> TextMessage(messageBody = MessageBody(content.value))
-            else -> TextMessage(messageBody = MessageBody((content as? Text)?.value ?: "content is not available"))
+            is Text -> TextMessage(messageBody = MessageBody(UIText.DynamicString(content.value)))
+            else -> TextMessage(messageBody = MessageBody((content as? Text)?.let { UIText.DynamicString(it.value) }
+                ?: UIText.StringResource(R.string.content_is_not_available)))
         }
 
     private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent? {

@@ -42,7 +42,6 @@ fun ConversationScreenTopAppBar(
     SmallTopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                //TODO:This Box is only for the design preview, this is going to be changed, ignore it during code-review
                 avatar()
                 Spacer(Modifier.width(6.dp))
                 Text(

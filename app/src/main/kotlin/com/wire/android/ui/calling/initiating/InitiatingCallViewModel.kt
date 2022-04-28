@@ -10,6 +10,7 @@ import com.wire.android.model.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
+import com.wire.android.ui.calling.getConversationName
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -49,13 +50,13 @@ class InitiatingCallViewModel @Inject constructor(
                 callInitiatedState = when (it) {
                     is ConversationDetails.Group -> {
                         callInitiatedState.copy(
-                            conversationName = it.conversation.name,
+                            conversationName = getConversationName(it.conversation.name),
                             conversationType = ConversationType.OneOnOne
                         )
                     }
                     is ConversationDetails.OneOne -> {
                         callInitiatedState.copy(
-                            conversationName = it.otherUser.name,
+                            conversationName = getConversationName(it.otherUser.name),
                             avatarAssetId = UserAvatarAsset(it.otherUser.completePicture ?: ""),
                             conversationType = ConversationType.Conference
                         )

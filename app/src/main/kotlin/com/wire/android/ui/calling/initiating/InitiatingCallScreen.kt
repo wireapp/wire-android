@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.controlButtons.CallOptionsControls
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.common.UserProfileAvatar
@@ -84,8 +85,11 @@ fun InitiatingCallContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                //TODO handle it in a different way
-                text = initiatingCallState.conversationName ?: stringResource(id = R.string.calling_label_default_caller_name),
+                text = when (initiatingCallState.conversationName) {
+                    is ConversationName.Known -> initiatingCallState.conversationName.name
+                    is ConversationName.Unknown -> stringResource(id = initiatingCallState.conversationName.resourceId)
+                    else -> ""
+                },
                 style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)
             )

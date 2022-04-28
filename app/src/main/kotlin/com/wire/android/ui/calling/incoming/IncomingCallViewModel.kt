@@ -6,12 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
+import com.wire.android.ui.calling.getConversationName
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -37,7 +37,7 @@ class IncomingCallViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             conversationDetails(conversationId = conversationId)
-                .collect { observeConversationDetails(conversationDetails = it) }
+                .collect { initializeScreenState(conversationDetails = it) }
         }
     }
 
@@ -61,14 +61,19 @@ class IncomingCallViewModel @Inject constructor(
         }
     }
 
-    private fun observeConversationDetails(conversationDetails: ConversationDetails) {
-        val conversationName = when (conversationDetails) {
-            is ConversationDetails.Group -> conversationDetails.conversation.name
-            is ConversationDetails.OneOne -> conversationDetails.otherUser.name
-            else -> null
+    private fun initializeScreenState(conversationDetails: ConversationDetails) {
+        callState = when (conversationDetails) {
+            is ConversationDetails.Group -> {
+                callState.copy(
+                    conversationName = getConversationName(conversationDetails.conversation.name)
+                )
+            }
+            is ConversationDetails.OneOne -> {
+                callState.copy(
+                    conversationName = getConversationName(conversationDetails.otherUser.name)
+                )
+            }
+            else -> throw IllegalStateException("Invalid conversation type")
         }
-        callState = callState.copy(
-            conversationName = conversationName
-        )
     }
 }

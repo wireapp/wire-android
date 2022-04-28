@@ -29,7 +29,7 @@
     <string name="content_description_move_to_archive">Move to archive</string>
     <string name="content_description_block_the_user">Block the user</string>
     <string name="content_description_leave_the_group">Leave the group</string>
-    <string name="content_description_conversation_video_icon">Conversation video icon</string>
+    <string name="content_description_conversation_phone_icon">Make audio call</string>
     <string name="content_description_welcome_carousel_item">Welcome image</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Conversation search icon</string>
@@ -300,11 +300,13 @@
     <string name="calling_label_flip">Flip</string>
     <string name="calling_label_ringing_call">Ringing...</string>
     <string name="calling_label_incoming_call">Calling..</string>
+    <string name="calling_label_default_caller_name">Default</string>
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
     <string name="calling_label_unknown_caller_name">Default</string>
 
+    <string name="content_description_ping_everyone">Ping everyone</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_try_again">Try again</string>
     <string name="content_description_ping_everyone">Ping everyone</string>

@@ -44,8 +44,6 @@ class MessageComposerInnerState(
 
     var hasFocus by mutableStateOf(false)
 
-    var isKeyboardShown by mutableStateOf(false)
-
     var messageText by mutableStateOf(TextFieldValue(""))
 
     var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)

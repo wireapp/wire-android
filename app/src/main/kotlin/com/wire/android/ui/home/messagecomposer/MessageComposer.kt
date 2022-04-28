@@ -64,6 +64,12 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
+import com.wire.android.ui.home.messagecomposer.button.AddEmojiAction
+import com.wire.android.ui.home.messagecomposer.button.AddGifAction
+import com.wire.android.ui.home.messagecomposer.button.AddMentionAction
+import com.wire.android.ui.home.messagecomposer.button.AdditionalOptionButton
+import com.wire.android.ui.home.messagecomposer.button.RichTextEditingAction
+import com.wire.android.ui.home.messagecomposer.button.TakePictureAction
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -493,61 +499,6 @@ private fun MessageComposeActions(
         AddMentionAction()
         TakePictureAction()
     }
-}
-
-@Composable
-private fun AdditionalOptionButton(isSelected: Boolean = false, onClick: () -> Unit) {
-    WireIconButton(
-        onButtonClicked = onClick,
-        iconResource = R.drawable.ic_add,
-        contentDescription = R.string.content_description_conversation_search_icon,
-        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
-    )
-}
-
-@Composable
-private fun RichTextEditingAction() {
-    WireIconButton(
-        onButtonClicked = {},
-        iconResource = R.drawable.ic_rich_text,
-        contentDescription = R.string.content_description_conversation_search_icon
-    )
-}
-
-@Composable
-private fun AddEmojiAction() {
-    WireIconButton(
-        onButtonClicked = {},
-        iconResource = R.drawable.ic_emoticon,
-        contentDescription = R.string.content_description_conversation_search_icon
-    )
-}
-
-@Composable
-private fun AddGifAction() {
-    WireIconButton(
-        onButtonClicked = {},
-        iconResource = R.drawable.ic_gif,
-        contentDescription = R.string.content_description_conversation_search_icon
-    )
-}
-
-@Composable
-private fun AddMentionAction() {
-    WireIconButton(
-        onButtonClicked = {},
-        iconResource = R.drawable.ic_mention,
-        contentDescription = R.string.content_description_conversation_search_icon
-    )
-}
-
-@Composable
-private fun TakePictureAction() {
-    WireIconButton(
-        onButtonClicked = {},
-        iconResource = R.drawable.ic_ping,
-        contentDescription = R.string.content_description_ping_everyone
-    )
 }
 
 sealed class KeyboardHeight(open val height: Dp) {

@@ -39,6 +39,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
@@ -95,7 +96,7 @@ private fun LoginSSOContent(
             ssoCode = loginSSOState.ssoCode,
             onCodeChange = onCodeChange,
             error = when (loginSSOState.loginSSOError) {
-                LoginSSOError.TextFieldError.InvalidCodeError -> stringResource(R.string.login_error_invalid_sso_code)
+                LoginSSOError.TextFieldError.InvalidCodeFormatError -> stringResource(R.string.login_error_invalid_sso_code_format)
                 else -> null
             }
         )
@@ -109,9 +110,12 @@ private fun LoginSSOContent(
 
     if (loginSSOState.loginSSOError is LoginSSOError.DialogError) {
         val (title, message) = when (loginSSOState.loginSSOError) {
-            is LoginSSOError.DialogError.GenericError -> {
+            is LoginSSOError.DialogError.GenericError ->
                 loginSSOState.loginSSOError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
-            }
+            is LoginSSOError.DialogError.InvalidCodeError -> DialogErrorStrings(
+                title = stringResource(id = R.string.login_error_invalid_credentials_title),
+                message = stringResource(id = R.string.login_error_invalid_sso_code)
+            )
         }
         WireDialog(
             title = title,
@@ -170,3 +174,4 @@ private fun LoginSSOScreenPreview() {
         LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, suspend {}, rememberCoroutineScope())
     }
 }
+

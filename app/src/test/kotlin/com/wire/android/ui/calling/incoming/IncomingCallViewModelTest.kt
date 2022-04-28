@@ -2,6 +2,7 @@ package com.wire.android.ui.calling.incoming
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
@@ -40,6 +41,9 @@ class IncomingCallViewModelTest {
     @MockK
     lateinit var acceptCall: AnswerCallUseCase
 
+    @MockK
+    private lateinit var callRinger: CallRinger
+
     private lateinit var viewModel: IncomingCallViewModel
 
     @BeforeEach
@@ -60,7 +64,8 @@ class IncomingCallViewModelTest {
             conversationDetails = conversationDetails,
             allCalls = allCalls,
             rejectCall = rejectCall,
-            acceptCall = acceptCall
+            acceptCall = acceptCall,
+            callRinger = callRinger
         )
     }
 
@@ -70,6 +75,7 @@ class IncomingCallViewModelTest {
 
         coVerify(exactly = 1) { rejectCall(conversationId = any()) }
         coVerify(exactly = 1) { navigationManager.navigateBack() }
+        coVerify(exactly = 1) { callRinger.stop() }
     }
 
     @Test
@@ -78,5 +84,6 @@ class IncomingCallViewModelTest {
 
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }
         coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
+        coVerify(exactly = 1) { callRinger.stop() }
     }
 }

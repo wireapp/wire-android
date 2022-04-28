@@ -26,6 +26,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -63,7 +64,7 @@ class InitiatingCallViewModel @Inject constructor(
         }
     }
 
-    private suspend fun onCallClosed() {
+    private fun onCallClosed() {
         callRinger.stop()
         navigateBack()
     }

@@ -236,7 +236,8 @@ class LoginSSOViewModelTest {
 
 
     @Test
-    fun `given establishSSOSession is called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
+    fun `given establishSSOSession is called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`()
+    {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 

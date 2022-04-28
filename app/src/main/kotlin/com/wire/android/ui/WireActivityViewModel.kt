@@ -79,7 +79,7 @@ class WireActivityViewModel @Inject constructor(
         withContext(dispatchers.io()) {
             //TODO this intervalFlow is a temporary solution to have updated UserId,
             // waiting for refactoring in kalium
-            intervalFlow(60_000)
+            intervalFlow(CHECK_USER_ID_FREQUENCY_MS)
                 .map {
                     when (val result = currentSessionUseCase()) {
                         is CurrentSessionResult.Success -> result.authSession.userId
@@ -113,5 +113,6 @@ class WireActivityViewModel @Inject constructor(
 
     companion object {
         const val SERVER_CONFIG_DEEPLINK = "config"
+        private const val CHECK_USER_ID_FREQUENCY_MS = 60_000L
     }
 }

@@ -95,7 +95,9 @@ class WireActivityViewModel @Inject constructor(
 
     private suspend fun listenForNotificationsIfPossible() {
         withContext(dispatchers.io()) {
-            //TODO this intervalFlow is a temporary solution to have updated UserId,
+            // checking CurrentSession every minute, to subscribe/unsubscribe from the notifications
+            // according ot UserId changes
+            // TODO this intervalFlow is a temporary solution to have updated UserId,
             // waiting for refactoring in kalium
             intervalFlow(CHECK_USER_ID_FREQUENCY_MS)
                 .map {
@@ -104,17 +106,24 @@ class WireActivityViewModel @Inject constructor(
                         else -> null
                     }
                 }
+                // do nothing if UserId wasn't changed
                 .distinctUntilChanged()
                 .flatMapLatest { userId ->
                     if (userId != null) {
                         getNotificationProvider.create(userId).getNotifications()
                     } else {
+                        // if userId == null means there is no current user (logged out e.x.)
+                        // so we need to unsubscribe from the notification changes (it's done by `flatMapLatest`)
+                        // and remove the notifications that were displayed previously
+                        // (empty list in here makes all the pre. notifications be removed)
                         flowOf(listOf())
                     }
                         // we need to remember prev. displayed Notifications,
                         // so we can remove notifications that were displayed previously but are not in the new list
                         .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
                         { old, newList -> old.second to newList }
+                        // combining all the data that is necessary for Notifications into small data class,
+                        // just to make it more readable than Triple<List<LocalNotificationConversation>, List<LocalNotificationConversation>, QualifiedID?>
                         .map { (oldNotifications, newNotifications) ->
                             NotificationsData(oldNotifications, newNotifications, userId)
                         }

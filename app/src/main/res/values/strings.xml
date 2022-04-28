@@ -81,6 +81,10 @@
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please verify your details and try again.</string>
     <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
+    <string name="login_error_user_already_logged_in_title">User Already LoggedIn</string>
+    <string name="login_error_user_already_logged_in_message">These account already logged in in the app!</string>
+    <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
+    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try to login again.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
@@ -309,7 +313,11 @@
 
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_try_again">Try again</string>
+
+    <!--sso dialog-->
+    <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
+    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
+
     <string name="content_description_ping_everyone">Ping everyone</string>
     <string name="label_federated_membership">Federated</string>
-
 </resources>

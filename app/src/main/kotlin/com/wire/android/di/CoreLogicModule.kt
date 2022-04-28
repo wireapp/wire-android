@@ -102,6 +102,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun getLoginSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().ssoLoginScope.getLoginSessionGet
+
+    @ViewModelScoped
+    @Provides
     fun logoutUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): LogoutUseCase =
         coreLogic.getSessionScope(currentAccount).logout
 

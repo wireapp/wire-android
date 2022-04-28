@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,6 +28,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.R
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +42,13 @@ private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(
-        topBar = { OngoingCallTopBar(ongoingCallViewModel.callEstablishedState.conversationName!!) {} },
+        topBar = {
+            //TODO to handle null name in different way
+            OngoingCallTopBar(
+                ongoingCallViewModel.callEstablishedState.conversationName
+                    ?: stringResource(id = R.string.calling_label_default_caller_name)
+            ) {}
+        },
         sheetShape = RoundedCornerShape(topStart = MaterialTheme.wireDimensions.corner16x, topEnd = MaterialTheme.wireDimensions.corner16x),
         backgroundColor = MaterialTheme.wireColorScheme.ongoingCallBackground,
         sheetPeekHeight = MaterialTheme.wireDimensions.defaultSheetPeekHeight,
@@ -60,7 +68,10 @@ private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            UserProfileAvatar(size = MaterialTheme.wireDimensions.onGoingCallUserAvatarSize)
+            UserProfileAvatar(
+                userAvatarAsset = ongoingCallViewModel.callEstablishedState.avatarAssetId,
+                size = MaterialTheme.wireDimensions.onGoingCallUserAvatarSize
+            )
         }
     }
 }

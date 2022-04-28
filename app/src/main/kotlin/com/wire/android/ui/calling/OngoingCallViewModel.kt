@@ -6,15 +6,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.parseIntoQualifiedID
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,6 +26,7 @@ import javax.inject.Inject
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsUseCase,
     private val endCall: EndCallUseCase,
     private val muteCall: MuteCallUseCase,
@@ -37,13 +41,35 @@ class OngoingCallViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeOngoingCall()
+            launch { initializeScreenState() }
+            launch { observeOngoingCall() }
         }
     }
 
+    private suspend fun initializeScreenState() {
+        conversationDetails(conversationId = conversationId)
+            .collect {
+                callEstablishedState = when (it) {
+                    is ConversationDetails.Group -> {
+                        callEstablishedState.copy(
+                            conversationName = it.conversation.name
+                        )
+                    }
+                    is ConversationDetails.OneOne -> {
+                        callEstablishedState.copy(
+                            conversationName = it.otherUser.name,
+                            avatarAssetId = UserAvatarAsset(it.otherUser.completePicture ?: "")
+                        )
+                    }
+                    else -> throw IllegalStateException("Invalid conversation type")
+                }
+            }
+    }
+
+
     private suspend fun observeOngoingCall() {
         allCalls().collect {
-            if(it.first().conversationId == conversationId)
+            if (it.first().conversationId == conversationId)
                 when (it.first().status) {
                     CallStatus.CLOSED -> navigateBack()
                     else -> { print("DO NOTHING") }

@@ -92,6 +92,7 @@ private fun IncomingCallContent(
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
             UserProfileAvatar(
+                userAvatarAsset = state.avatarAssetId,
                 size = MaterialTheme.wireDimensions.callingIncomingUserAvatarSize,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing56x)
             )

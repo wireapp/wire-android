@@ -123,7 +123,8 @@ class WireActivityViewModel @Inject constructor(
                         .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
                         { old, newList -> old.second to newList }
                         // combining all the data that is necessary for Notifications into small data class,
-                        // just to make it more readable than Triple<List<LocalNotificationConversation>, List<LocalNotificationConversation>, QualifiedID?>
+                        // just to make it more readable than
+                        // Triple<List<LocalNotificationConversation>, List<LocalNotificationConversation>, QualifiedID?>
                         .map { (oldNotifications, newNotifications) ->
                             NotificationsData(oldNotifications, newNotifications, userId)
                         }

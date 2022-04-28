@@ -93,6 +93,8 @@ class WireActivityViewModel @Inject constructor(
                     } else {
                         flowOf(listOf())
                     }
+                        // we need to remember prev. displayed Notifications,
+                        // so we can remove notifications that were displayed previously but are not in the new list
                         .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
                         { old, newList -> old.second to newList }
                         .map { (oldNotifications, newNotifications) ->

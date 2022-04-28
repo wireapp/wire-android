@@ -127,7 +127,7 @@ class LoginSSOViewModelTest {
         loginViewModel.onSSOCodeChange(TextFieldValue("abc"))
         loginViewModel.loginState.loginEnabled shouldBeEqualTo true
         loginViewModel.loginState.loading shouldBeEqualTo false
-        loginViewModel.login(serverConfig)
+        loginViewModel.login()
         loginViewModel.loginState.loginEnabled shouldBeEqualTo false
         loginViewModel.loginState.loading shouldBeEqualTo true
         scheduler.advanceUntilIdle()
@@ -146,7 +146,7 @@ class LoginSSOViewModelTest {
         loginViewModel.onSSOCodeChange(TextFieldValue(ssoCode))
 
         runTest {
-            loginViewModel.login(serverConfig)
+            loginViewModel.login()
             loginViewModel.openWebUrl.first() shouldBe url
         }
 
@@ -157,7 +157,7 @@ class LoginSSOViewModelTest {
     fun `given button is clicked, when login returns InvalidCodeFormat error, then InvalidCodeFormatError is passed`() {
         coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.InvalidCodeFormat
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
     }
@@ -166,7 +166,7 @@ class LoginSSOViewModelTest {
     fun `given button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() {
         coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.InvalidCode
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidCodeError::class
     }
@@ -175,7 +175,7 @@ class LoginSSOViewModelTest {
     fun `given button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() {
         coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.InvalidRedirect
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.GenericError::class
         with(loginViewModel.loginState.loginSSOError as LoginError.DialogError.GenericError) {
@@ -191,7 +191,7 @@ class LoginSSOViewModelTest {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.Generic(networkFailure)
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.GenericError::class
         (loginViewModel.loginState.loginSSOError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
@@ -203,11 +203,11 @@ class LoginSSOViewModelTest {
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
 
-        runTest { loginViewModel.establishSSOSession("", "") }
+        runTest { loginViewModel.establishSSOSession("") }
 
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
-        coVerify(exactly = 1) { registerClientUseCase.invoke(null,null) }
+        coVerify(exactly = 1) { registerClientUseCase.invoke(null, null) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
     }
 
@@ -217,7 +217,7 @@ class LoginSSOViewModelTest {
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
 
-        runTest { loginViewModel.establishSSOSession("", "") }
+        runTest { loginViewModel.establishSSOSession("") }
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
         coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
@@ -253,7 +253,7 @@ class LoginSSOViewModelTest {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
-        runTest { loginViewModel.establishSSOSession("", "") }
+        runTest { loginViewModel.establishSSOSession("") }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
         coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
@@ -268,11 +268,11 @@ class LoginSSOViewModelTest {
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Failure.TooManyClients
 
-        runTest { loginViewModel.establishSSOSession("", "") }
+        runTest { loginViewModel.establishSSOSession("") }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TooManyDevicesError::class
 
-        coVerify(exactly = 1) { registerClientUseCase.invoke(null,null) }
+        coVerify(exactly = 1) { registerClientUseCase.invoke(null, null) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }

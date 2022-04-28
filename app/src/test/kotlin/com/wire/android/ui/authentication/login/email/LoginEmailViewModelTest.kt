@@ -116,7 +116,7 @@ class LoginEmailViewModelTest {
         loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
         loginViewModel.loginState.loginEnabled shouldBeEqualTo true
         loginViewModel.loginState.loading shouldBeEqualTo false
-        loginViewModel.login(serverConfig)
+        loginViewModel.login()
         loginViewModel.loginState.loginEnabled shouldBeEqualTo false
         loginViewModel.loginState.loading shouldBeEqualTo true
         scheduler.advanceUntilIdle()
@@ -135,7 +135,7 @@ class LoginEmailViewModelTest {
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
         coVerify(exactly = 1) { registerClientUseCase.invoke(password, null) }
         coVerify(exactly = 1) {
@@ -147,7 +147,7 @@ class LoginEmailViewModelTest {
     fun `given button is clicked, when login returns InvalidUserIdentifier error, then InvalidUserIdentifierError is passed`() {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidUserIdentifier
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
         loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
     }
@@ -156,7 +156,7 @@ class LoginEmailViewModelTest {
     fun `given button is clicked, when login returns InvalidCredentials error, then InvalidCredentialsError is passed`() {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
         loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
     }
@@ -167,7 +167,7 @@ class LoginEmailViewModelTest {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns
                 AuthenticationResult.Failure.Generic(networkFailure)
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
         loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.GenericError::class
         (loginViewModel.loginState.loginEmailError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
@@ -177,7 +177,7 @@ class LoginEmailViewModelTest {
     fun `given dialog is dismissed, when login returns DialogError, then hide error`() {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
         loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
         loginViewModel.onDialogDismiss()
@@ -189,7 +189,7 @@ class LoginEmailViewModelTest {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
         loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
     }

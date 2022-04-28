@@ -85,10 +85,12 @@ class LoginSSOViewModel @Inject constructor(
 }
 
 private fun SSOInitiateLoginResult.Failure.toLoginSSOError() = when (this) {
-    SSOInitiateLoginResult.Failure.InvalidCode -> LoginSSOError.TextFieldError.InvalidCodeError
+    SSOInitiateLoginResult.Failure.InvalidCodeFormat -> LoginSSOError.TextFieldError.InvalidCodeFormatError
+    SSOInitiateLoginResult.Failure.InvalidCode -> LoginSSOError.DialogError.InvalidCodeError
     is SSOInitiateLoginResult.Failure.Generic -> LoginSSOError.DialogError.GenericError(this.genericFailure)
     SSOInitiateLoginResult.Failure.InvalidRedirect ->
         LoginSSOError.DialogError.GenericError(CoreFailure.Unknown(IllegalArgumentException("Invalid Redirect")))
     SSOInitiateLoginResult.Failure.InvalidCodeFormat ->
         LoginSSOError.DialogError.GenericError(CoreFailure.Unknown(IllegalArgumentException("Invalid Code Format")))
 }
+

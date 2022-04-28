@@ -79,7 +79,12 @@ internal fun WireTextField(
             Label(labelText, labelMandatoryIcon, state, interactionSource, colors)
         BasicTextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = {
+                onValueChange(
+                    if(singleLine || maxLines == 1) it.copy(it.text.replace("\n", ""))
+                    else it
+                )
+            },
             textStyle = textStyle.copy(color = colors.textColor(state = state).value),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,

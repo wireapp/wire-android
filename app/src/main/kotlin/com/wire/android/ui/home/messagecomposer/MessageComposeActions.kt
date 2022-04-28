@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.messagecomposer.button.AddEmojiAction
 import com.wire.android.ui.home.messagecomposer.button.AddGifAction
@@ -20,7 +19,7 @@ import com.wire.android.ui.home.messagecomposer.button.TakePictureAction
 @Composable
 fun MessageComposeActions(
     messageComposerState: MessageComposerState,
-    focusManager: FocusManager
+    onShowAdditionalActions: () -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -29,10 +28,7 @@ fun MessageComposeActions(
             .fillMaxWidth()
             .height(56.dp)
     ) {
-        AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-            focusManager.clearFocus()
-            messageComposerState.toggleAttachmentOptionsVisibility()
-        }
+        AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed, onShowAdditionalActions)
         RichTextEditingAction()
         AddEmojiAction()
         AddGifAction()

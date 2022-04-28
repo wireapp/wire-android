@@ -14,11 +14,9 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -139,11 +137,14 @@ private fun MessageComposer(
             targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
         )
-
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
-        ConstraintLayout(Modifier.fillMaxSize()) {
+        ConstraintLayout(
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
             // This guide line is used was when the attachment options are visible
             // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
@@ -157,7 +158,8 @@ private fun MessageComposer(
 
             ConstraintLayout(
                 Modifier
-                    .wrapContentSize()
+                    .fillMaxWidth()
+                    .wrapContentHeight()
                     .constrainAs(messageComposer) {
                         top.linkTo(parent.top)
 
@@ -188,12 +190,17 @@ private fun MessageComposer(
                             focusManager.clearFocus()
                             messageComposerState.clickOutSideMessageComposer()
                         },
-                        content = content
+                        content = content,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .weight(1f)
                     )
                     // Column wrapping CollapseIconButton and MessageComposerInput
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .wrapContentHeight()
                             .animateContentSize()
                     ) {
                         Divider()
@@ -290,27 +297,29 @@ private fun MessageComposer(
                             top.linkTo(messageInput.bottom)
                             bottom.linkTo(parent.bottom)
                         }
-                        .wrapContentSize()
+                        .fillMaxWidth()
+                        .wrapContentHeight()
                 ) {
                     MessageComposeActionsWrapper(
                         transition = transition,
                         messageComposerState = messageComposerState,
-                        onShowAdditionalAction = {
+                        onShowAdditionalActions = {
                             focusManager.clearFocus()
                             messageComposerState.toggleAttachmentOptionsVisibility()
                         }
                     )
                 }
             }
-            AttachmentOptions(
-                isVisible = messageComposerState.attachmentOptionsDisplayed,
-                height = keyboardHeightOffSet.height,
-                verticalOffset = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height,
-                attachmentState = messageComposerState.attachmentState,
-                onSendAttachment = onSendAttachment,
-                onError = onError
-            )
         }
+
+        AttachmentOptionsWrapper(
+            isVisible = messageComposerState.attachmentOptionsDisplayed,
+            height = keyboardHeightOffSet.height,
+            verticalAbsoluteOffset = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height,
+            attachmentState = messageComposerState.attachmentState,
+            onSendAttachment = onSendAttachment,
+            onError = onError
+        )
     }
 }
 
@@ -319,7 +328,7 @@ private fun MessageComposer(
 fun MessageComposeActionsWrapper(
     transition: Transition<MessageComposeInputState>,
     messageComposerState: MessageComposerState,
-    onShowAdditionalAction: () -> Unit
+    onShowAdditionalActions: () -> Unit
 ) {
     Divider()
     Box(Modifier.wrapContentSize()) {
@@ -332,7 +341,7 @@ fun MessageComposeActionsWrapper(
         ) {
             MessageComposeActions(
                 messageComposerState = messageComposerState,
-                onShowAdditionalAttachmentOptions = onShowAdditionalAction
+                onShowAdditionalActions = onShowAdditionalActions
             )
         }
     }
@@ -388,7 +397,6 @@ fun AdditionalOptionButtonWrapper(
 @ExperimentalAnimationApi
 @Composable
 fun CollapseIconButtonWrapper(transition: Transition<MessageComposeInputState>, onCollapseClicked: () -> Unit) {
-
     transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
         Box(
             contentAlignment = Alignment.Center,
@@ -414,8 +422,13 @@ fun CollapseIconButtonWrapper(transition: Transition<MessageComposeInputState>, 
     }
 }
 
+
 @Composable
-fun ColumnScope.ContentWrapper(onContentClicked: () -> Unit, content: @Composable () -> Unit) {
+fun ContentWrapper(
+    onContentClicked: () -> Unit,
+    content: @Composable () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Box(
         Modifier
             .pointerInput(Unit) {
@@ -429,7 +442,9 @@ fun ColumnScope.ContentWrapper(onContentClicked: () -> Unit, content: @Composabl
                 )
             }
             .background(color = MaterialTheme.wireColorScheme.backgroundVariant)
-            .weight(1f)) {
+            .then(
+                modifier
+            )) {
         content()
     }
 }
@@ -439,10 +454,10 @@ fun ColumnScope.ContentWrapper(onContentClicked: () -> Unit, content: @Composabl
 // the device keyboard is displayed, so that when the keyboard is closed,
 // we get the effect of overlapping it
 @Composable
-private fun AttachmentOptions(
+private fun AttachmentOptionsWrapper(
     isVisible: Boolean,
     height: Dp,
-    verticalOffset: Dp,
+    verticalAbsoluteOffset: Dp,
     attachmentState: AttachmentState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit,
@@ -452,7 +467,7 @@ private fun AttachmentOptions(
             Modifier
                 .fillMaxWidth()
                 .height(height)
-                .absoluteOffset(y = verticalOffset)
+                .absoluteOffset(y = verticalAbsoluteOffset)
         ) {
             Divider()
             AttachmentOptionsComponent(

@@ -82,7 +82,7 @@ private fun IncomingCallContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = state.conversationName ?: stringResource(id = R.string.calling_label_unknown_caller_name),
+                text = state.conversationName ?: stringResource(id = R.string.calling_label_default_caller_name),
                 style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)
             )
@@ -142,7 +142,7 @@ private fun CallingControls(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CameraButton(isCameraOn = state.isCameraOn) { }
+            CameraButton(isCameraOn = state.isCameraOn, onCameraPermissionDenied = { }) { }
             Text(
                 text = stringResource(id = R.string.calling_label_camera),
                 style = MaterialTheme.wireTypography.label01,

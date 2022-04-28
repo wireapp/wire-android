@@ -196,6 +196,7 @@ private fun MessageComposer(
                             .fillMaxWidth()
                             .animateContentSize()
                     ) {
+                        Divider()
                         CollapseIconButtonWrapper(
                             transition = transition,
                             onCollapseClicked = { messageComposerState.toggleFullScreen() }
@@ -289,19 +290,16 @@ private fun MessageComposer(
                             top.linkTo(messageInput.bottom)
                             bottom.linkTo(parent.bottom)
                         }
-                        .wrapContentSize()) {
-                    Divider()
-                    Box(Modifier.wrapContentSize()) {
-                        transition.AnimatedVisibility(
-                            visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                            // we are animating the exit, so that the MessageComposeActions go down
-                            exit = slideOutVertically(
-                                targetOffsetY = { fullHeight -> fullHeight / 2 }
-                            ) + fadeOut()
-                        ) {
-                            MessageComposeActions(messageComposerState, focusManager)
+                        .wrapContentSize()
+                ) {
+                    MessageComposeActionsWrapper(
+                        transition = transition,
+                        messageComposerState = messageComposerState,
+                        onShowAdditionalAction = {
+                            focusManager.clearFocus()
+                            messageComposerState.toggleAttachmentOptionsVisibility()
                         }
-                    }
+                    )
                 }
             }
             AttachmentOptions(
@@ -311,6 +309,30 @@ private fun MessageComposer(
                 attachmentState = messageComposerState.attachmentState,
                 onSendAttachment = onSendAttachment,
                 onError = onError
+            )
+        }
+    }
+}
+
+@ExperimentalAnimationApi
+@Composable
+fun MessageComposeActionsWrapper(
+    transition: Transition<MessageComposeInputState>,
+    messageComposerState: MessageComposerState,
+    onShowAdditionalAction: () -> Unit
+) {
+    Divider()
+    Box(Modifier.wrapContentSize()) {
+        transition.AnimatedVisibility(
+            visible = { state -> state != MessageComposeInputState.Enabled },
+            // we are animating the exit, so that the MessageComposeActions go down
+            exit = slideOutVertically(
+                targetOffsetY = { fullHeight -> fullHeight / 2 }
+            ) + fadeOut()
+        ) {
+            MessageComposeActions(
+                messageComposerState = messageComposerState,
+                onShowAdditionalAttachmentOptions = onShowAdditionalAction
             )
         }
     }
@@ -366,7 +388,7 @@ fun AdditionalOptionButtonWrapper(
 @ExperimentalAnimationApi
 @Composable
 fun CollapseIconButtonWrapper(transition: Transition<MessageComposeInputState>, onCollapseClicked: () -> Unit) {
-    Divider()
+
     transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
         Box(
             contentAlignment = Alignment.Center,
@@ -380,7 +402,6 @@ fun CollapseIconButtonWrapper(transition: Transition<MessageComposeInputState>, 
                 when (state) {
                     MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
                     MessageComposeInputState.FullScreen -> 180f
-
                 }
             }
             CollapseIconButton(

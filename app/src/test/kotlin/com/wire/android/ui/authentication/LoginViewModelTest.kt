@@ -2,6 +2,7 @@ package com.wire.android.ui.authentication
 
 import androidx.compose.material.ExperimentalMaterialApi
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginViewModel
 import io.mockk.MockKAnnotations
@@ -20,12 +21,15 @@ class LoginViewModelTest {
     @MockK
     private lateinit var navigationManager: NavigationManager
 
+    @MockK
+    private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
+
     private lateinit var loginViewModel: LoginViewModel
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        loginViewModel = LoginViewModel(navigationManager)
+        loginViewModel = LoginViewModel(navigationManager, clientScopeProviderFactory)
     }
 
     @Test

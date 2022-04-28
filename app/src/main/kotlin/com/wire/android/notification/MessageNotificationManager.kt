@@ -22,6 +22,7 @@ import com.wire.android.R
 import com.wire.android.ui.WireActivity
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.asString
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import javax.inject.Inject
@@ -39,7 +40,11 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
     private val notificationManager = NotificationManagerCompat.from(context)
 
-    fun handleNotification(oldData: List<LocalNotificationConversation>, newData: List<LocalNotificationConversation>) {
+    fun handleNotification(
+        oldData: List<LocalNotificationConversation>,
+        newData: List<LocalNotificationConversation>,
+        userId: QualifiedID?
+    ) {
         val oldConversationIds = oldData.map { it.id }
         val newConversationIds = newData.map { it.id }
 
@@ -52,10 +57,12 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             .map { it.intoNotificationConversation() }
             .sortedBy { it.lastMessageTime }
 
+        val userIdString = userId?.asString()
+
         createNotificationChannelIfNeeded()
-        showSummaryIfNeeded(oldData, newData)
+        showSummaryIfNeeded(oldData, newData, userIdString)
         conversationIdsToRemove.forEach { hideNotification(it) }
-        conversationsToAdd.forEach { showConversationNotification(it) }
+        conversationsToAdd.forEach { showConversationNotification(it, userIdString) }
     }
 
     private fun createNotificationChannelIfNeeded() {
@@ -69,29 +76,33 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         }
     }
 
-    private fun showSummaryIfNeeded(oldData: List<LocalNotificationConversation>, newData: List<LocalNotificationConversation>) {
+    private fun showSummaryIfNeeded(
+        oldData: List<LocalNotificationConversation>,
+        newData: List<LocalNotificationConversation>,
+        userId: String?
+    ) {
         if (oldData.size > 1 || newData.size <= 1) return
 
-        notificationManager.notify(SUMMARY_ID, getSummaryNotification())
+        notificationManager.notify(SUMMARY_ID, getSummaryNotification(userId))
     }
 
-    private fun showConversationNotification(conversation: NotificationConversation) {
-        notificationManager.notify(getNotificationId(conversation.id), getConversationNotification(conversation))
+    private fun showConversationNotification(conversation: NotificationConversation, userId: String?) {
+        notificationManager.notify(getNotificationId(conversation.id), getConversationNotification(conversation, userId))
     }
 
     private fun hideNotification(conversationsId: ConversationId) = notificationManager.cancel(getNotificationId(conversationsId))
 
-    private fun getSummaryNotification() = NotificationCompat.Builder(context, CHANNEL_ID)
+    private fun getSummaryNotification(userId: String?) = NotificationCompat.Builder(context, CHANNEL_ID)
         .setSmallIcon(R.drawable.notification_icon_small)
         .setGroup(GROUP_KEY)
         .setGroupSummary(true)
         .setDefaults(NotificationCompat.DEFAULT_ALL)
         .setPriority(NotificationCompat.PRIORITY_MAX)
         .setContentIntent(getPendingIntentSummary())
-        .setDeleteIntent(getDismissPendingIntent(null))
+        .setDeleteIntent(getDismissPendingIntent(null, userId))
         .build()
 
-    private fun getConversationNotification(conversation: NotificationConversation) =
+    private fun getConversationNotification(conversation: NotificationConversation, userId: String?) =
         NotificationCompat.Builder(context.applicationContext, CHANNEL_ID).apply {
             setDefaults(NotificationCompat.DEFAULT_ALL)
 
@@ -102,7 +113,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             setAutoCancel(true)
 
             setContentIntent(getPendingIntentMessage(conversation.id))
-            setDeleteIntent(getDismissPendingIntent(conversation.id))
+            setDeleteIntent(getDismissPendingIntent(conversation.id, userId))
             addAction(getActionCall(conversation.id))
             addAction(getActionReply(conversation.id))
 
@@ -174,8 +185,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         return getPendingIntentSummary()
     }
 
-    private fun getDismissPendingIntent(conversationId: String?): PendingIntent {
-        val intent = NotificationDismissReceiver.newIntent(context, conversationId)
+    private fun getDismissPendingIntent(conversationId: String?, userId: String?): PendingIntent {
+        val intent = NotificationDismissReceiver.newIntent(context, conversationId, userId)
         val requestCode = conversationId?.hashCode() ?: DISMISS_DEFAULT_REQUEST_CODE
 
         return PendingIntent.getBroadcast(

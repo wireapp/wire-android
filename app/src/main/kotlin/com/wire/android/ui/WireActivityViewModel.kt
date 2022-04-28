@@ -12,6 +12,7 @@ import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.configuration.GetServerConfigResult
 import com.wire.kalium.logic.configuration.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -92,14 +93,23 @@ class WireActivityViewModel @Inject constructor(
                     } else {
                         flowOf(listOf())
                     }
+                        .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
+                        { old, newList -> old.second to newList }
+                        .map { (oldNotifications, newNotifications) ->
+                            NotificationsData(oldNotifications, newNotifications, userId)
+                        }
                 }
-                .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
-                { old, newList -> old.second to newList }
-                .collect { (oldNotifications, newNotifications) ->
-                    notificationManager.handleNotification(oldNotifications, newNotifications)
+                .collect { (oldNotifications, newNotifications, userId) ->
+                    notificationManager.handleNotification(oldNotifications, newNotifications, userId)
                 }
         }
     }
+
+    private data class NotificationsData(
+        val oldNotifications: List<LocalNotificationConversation>,
+        val newNotifications: List<LocalNotificationConversation>,
+        val userId: QualifiedID?
+    )
 
     companion object {
         const val SERVER_CONFIG_DEEPLINK = "config"

@@ -43,7 +43,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class LoginSSOViewModelTest {
@@ -140,7 +139,7 @@ class LoginSSOViewModelTest {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         val ssoCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
-        val param = SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode, serverConfig)
+        val param = SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode, loginViewModel.serverConfig)
         val url = "https://wire.com/sso"
         coEvery { ssoInitiateLoginUseCase.invoke(param) } returns SSOInitiateLoginResult.Success(url)
         loginViewModel.onSSOCodeChange(TextFieldValue(ssoCode))
@@ -249,7 +248,7 @@ class LoginSSOViewModelTest {
 
 
     @Test
-    fun `given establishSSOSession is called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
+    fun `given establishSSOSession called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 

@@ -311,7 +311,6 @@
     <string name="calling_label_accept">Accept</string>
     <!-- Calling-->
 
-    <string name="content_description_ping_everyone">Ping everyone</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_try_again">Try again</string>
 
@@ -330,4 +329,7 @@
     <string name="sso_error_no_matching_auth_req">No Matching Auth Req</string>
     <string name="sso_error_insufficient_permissions">Insufficient Permissions</string>
     <string name="sso_error_unknown">Unknown</string>
+
+    <string name="content_description_ping_everyone">Ping everyone</string>
+    <string name="label_federated_membership">Federated</string>
 </resources>

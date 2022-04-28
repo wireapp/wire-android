@@ -54,24 +54,28 @@ class InitiatingCallViewModel @Inject constructor(
 
     private suspend fun observeStartedCall() {
         allCalls().collect {
-            if (it.first().conversationId == conversationId)
+            if (it.isNotEmpty() && it.first().conversationId == conversationId)
                 when (it.first().status) {
-                    CallStatus.CLOSED -> {
-                        callRinger.stop()
-                        navigateBack()
-                    }
-                    CallStatus.ESTABLISHED -> {
-                        callRinger.ring(R.raw.ready_to_talk, isLooping = false)
-                        navigateBack()
-                        navigationManager.navigate(
-                            command = NavigationCommand(
-                                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
-                            )
-                        )
-                    }
+                    CallStatus.CLOSED -> onCallClosed()
+                    CallStatus.ESTABLISHED -> onCallEstablished()
                     else -> print("DO NOTHING")
                 }
         }
+    }
+
+    private suspend fun onCallClosed() {
+        callRinger.stop()
+        navigateBack()
+    }
+
+    private suspend fun onCallEstablished() {
+        callRinger.ring(R.raw.ready_to_talk, isLooping = false)
+        navigateBack()
+        navigationManager.navigate(
+            command = NavigationCommand(
+                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+            )
+        )
     }
 
     private suspend fun initializeScreenState() {
@@ -91,9 +95,7 @@ class InitiatingCallViewModel @Inject constructor(
                             conversationType = ConversationType.Conference
                         )
                     }
-                    else -> {
-                        callInitiatedState.copy(conversationName = null)
-                    }
+                    else -> throw IllegalStateException("Invalid conversation type")
                 }
             }
     }

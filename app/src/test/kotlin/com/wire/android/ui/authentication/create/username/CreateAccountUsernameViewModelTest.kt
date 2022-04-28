@@ -151,7 +151,9 @@ class CreateAccountUsernameViewModelTest {
     fun `given dialog is dismissed, when state error is DialogError, then hide error`() {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null))
+
         runTest { createAccountUsernameViewModel.onContinue() }
+
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 CreateAccountUsernameViewState.UsernameError.DialogError.GenericError::class
         createAccountUsernameViewModel.onErrorDismiss()

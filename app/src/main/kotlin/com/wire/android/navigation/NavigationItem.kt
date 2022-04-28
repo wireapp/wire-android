@@ -13,6 +13,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSO
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
@@ -47,6 +48,7 @@ import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
+import com.wire.android.util.deeplink.DeepLinkResult
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -72,7 +74,8 @@ enum class NavigationItem(
         primaryRoute = LOGIN,
         content = { contentParams ->
             val serverConfig = contentParams.arguments.filterIsInstance<ServerConfig>().firstOrNull()
-            LoginScreen(serverConfig ?: ServerConfig.DEFAULT)
+            val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
+            LoginScreen(serverConfig ?: ServerConfig.DEFAULT, ssoLoginResult)
         },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
@@ -280,5 +283,5 @@ fun String.parseIntoQualifiedID(): QualifiedID {
 
 data class ContentParams(
     val navBackStackEntry: NavBackStackEntry,
-    val arguments: List<Any> = emptyList()
+    val arguments: List<Any?> = emptyList()
 )

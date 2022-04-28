@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationCommand
@@ -26,12 +27,16 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
+import com.wire.kalium.logic.data.conversation.UserType
+import java.lang.IllegalStateException
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -39,7 +44,7 @@ import javax.inject.Inject
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
-    private val getPublicAsset: GetAvatarAssetUseCase
+    private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -83,77 +88,77 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-
-    //TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun muteConversation(id: String) {
-
+    fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {
+        conversationId?.let {
+            viewModelScope.launch {
+                appLogger.d("Muting conversation: $conversationId")
+                updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)
+            }
+        }
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun addConversationToFavourites(id: String) {
-
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun moveConversationToFolder(id: String) {
-
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun moveConversationToArchive(id: String) {
-
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun clearConversationContent(id: String) {
-
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun blockUser(id: String) {
-
     }
 
-    //TODO: needs to be implemented
+    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun leaveGroup(id: String) {
-
     }
 
     private fun List<ConversationDetails>.toGeneralConversationList(): List<GeneralConversation> = filter {
         it is Group || it is OneOne
     }.map { details ->
         val conversation = details.conversation
+
         when (details) {
             is Group -> {
                 GeneralConversation(
                     ConversationType.GroupConversation(
                         groupColorValue = getConversationColor(conversation.id),
                         groupName = conversation.name.orEmpty(),
-                        conversationId = conversation.id
+                        conversationId = conversation.id,
+                        mutedStatus = conversation.mutedStatus
                     )
                 )
             }
             is OneOne -> {
                 val otherUser = details.otherUser
+
                 GeneralConversation(
                     ConversationType.PrivateConversation(
                         userInfo = UserInfo(
                             otherUser.previewPicture?.let { UserAvatarAsset(it) },
-                            UserStatus.NONE //TODO Get actual status
+                            UserStatus.NONE // TODO Get actual status
                         ),
                         conversationInfo = ConversationInfo(
                             name = otherUser.name.orEmpty(),
-                            membership = Membership.None,
-                            isLegalHold = true
+                            membership = mapUserType(details.userType),
+                            isLegalHold = false
                         ),
-                        conversationId = conversation.id
+                        conversationId = conversation.id,
+                        mutedStatus = conversation.mutedStatus
                     )
                 )
             }
@@ -163,4 +168,13 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
+    private fun mapUserType(userType: UserType): Membership {
+        return when (userType) {
+            UserType.GUEST -> Membership.Guest
+            UserType.FEDERATED -> Membership.Federated
+            UserType.EXTERNAL -> Membership.External
+            UserType.INTERNAL -> Membership.None
+            else -> {  throw IllegalStateException("Unknown UserType") }
+        }
+    }
 }

@@ -1,7 +1,5 @@
 package com.wire.android.ui.home.messagecomposer
 
-import android.content.Context
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,35 +8,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
-import com.wire.android.appLogger
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.AttachmentType
-import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
-import com.wire.android.util.getFileName
-import com.wire.android.util.getMimeType
-import com.wire.android.util.orDefault
-import com.wire.android.util.toByteArray
-import java.io.IOException
+import com.wire.android.ui.home.messagecomposer.attachment.AttachmentState
 
-@Composable
-fun rememberMessageComposerInnerState(
-    fullScreenHeight: Dp,
-    onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit
-): MessageComposerInnerState {
-    val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
 
-    return remember {
-        MessageComposerInnerState(
-            fullScreenHeight = fullScreenHeight,
-            attachmentInnerState = defaultAttachmentInnerState,
-            onMessageComposeInputStateChanged = onMessageComposeInputStateChanged
-        )
-    }
-}
-
-class MessageComposerInnerState(
+class MessageComposerState(
     val fullScreenHeight: Dp,
-    val attachmentInnerState: AttachmentInnerState,
+    val attachmentState: AttachmentState,
     private val onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit
 ) {
 
@@ -108,36 +83,24 @@ class MessageComposerInnerState(
     }
 }
 
-class AttachmentInnerState(val context: Context) {
-    var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
+@Composable
+fun rememberMessageComposerInnerState(
+    fullScreenHeight: Dp,
+    onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit
+): MessageComposerState {
+    val defaultAttachmentState = AttachmentState(LocalContext.current)
 
-    suspend fun pickAttachment(attachmentUri: Uri) {
-        attachmentState = try {
-            val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val assetRawData = attachmentUri.toByteArray(context)
-            val assetFileName = context.getFileName(attachmentUri)
-            val attachmentType = if (mimeType.contains("image/")) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
-            val attachment = AttachmentBundle(mimeType, assetRawData, assetFileName, attachmentType)
-            AttachmentState.Picked(attachment)
-        } catch (e: IOException) {
-            appLogger.e("There was an error while obtaining the file from disk", e)
-            AttachmentState.Error
-        }
-    }
-
-    fun resetAttachmentState() {
-        attachmentState = AttachmentState.NotPicked
+    return remember {
+        MessageComposerState(
+            fullScreenHeight = fullScreenHeight,
+            attachmentState = defaultAttachmentState,
+            onMessageComposeInputStateChanged = onMessageComposeInputStateChanged
+        )
     }
 }
 
 enum class MessageComposeInputState {
     Active, Enabled, FullScreen
-}
-
-sealed class AttachmentState {
-    object NotPicked : AttachmentState()
-    class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
-    object Error : AttachmentState()
 }
 
 data class MessageComposerStateTransition(val from: MessageComposeInputState, val to: MessageComposeInputState)

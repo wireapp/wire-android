@@ -20,8 +20,8 @@ import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
+import com.wire.android.ui.home.messagecomposer.AttachmentFileState
 import com.wire.android.util.getWritableImageAttachment
 import com.wire.android.util.getWritableVideoAttachment
 import com.wire.android.util.permission.UseCameraRequestFlow
@@ -37,14 +37,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AttachmentOptionsComponent(
-    attachmentInnerState: AttachmentInnerState,
+    attachmentState: AttachmentState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit,
     modifier : Modifier= Modifier
 ) {
     val scope = rememberCoroutineScope()
-    val attachmentOptions = buildAttachmentOptionItems { pickedUri -> scope.launch { attachmentInnerState.pickAttachment(pickedUri) } }
-    configureStateHandling(attachmentInnerState, onSendAttachment, onError)
+    val attachmentOptions = buildAttachmentOptionItems { pickedUri -> scope.launch { attachmentState.pickAttachment(pickedUri) } }
+    configureStateHandling(attachmentState, onSendAttachment, onError)
 
     LazyVerticalGrid(
         cells = GridCells.Adaptive(dimensions().spacing80x),
@@ -61,20 +61,20 @@ fun AttachmentOptionsComponent(
 
 @Composable
 private fun configureStateHandling(
-    attachmentInnerState: AttachmentInnerState,
+    attachmentState: AttachmentState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit
 ) {
-    when (val state = attachmentInnerState.attachmentState) {
-        is AttachmentState.NotPicked -> appLogger.d("Not picked yet")
-        is AttachmentState.Picked -> {
+    when (val state = attachmentState.attachmentFileState) {
+        is AttachmentFileState.NotPicked -> appLogger.d("Not picked yet")
+        is AttachmentFileState.Picked -> {
             onSendAttachment(state.attachmentBundle)
-            attachmentInnerState.resetAttachmentState()
+            attachmentState.resetAttachmentState()
         }
-        is AttachmentState.Error -> {
+        is AttachmentFileState.Error -> {
             // FIXME. later on expand to other possible errors
             onError(stringResource(R.string.error_unknown_message))
-            attachmentInnerState.resetAttachmentState()
+            attachmentState.resetAttachmentState()
         }
     }
 }
@@ -154,5 +154,5 @@ private data class AttachmentOptionItem(@StringRes val text: Int, @DrawableRes v
 @Composable
 fun PreviewAttachmentComponents() {
     val context = LocalContext.current
-    AttachmentOptionsComponent(AttachmentInnerState(context), {}, {})
+    AttachmentOptionsComponent(AttachmentState(context), {}, {})
 }

@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -7,10 +8,12 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent.Text
@@ -151,10 +154,11 @@ class ConversationsViewModelTest {
         val messages = listOf(mockedMessage(senderId = senderId))
         val selfUserName = "self user"
         val selfMember = mockSelfUserDetails(selfUserName, senderId)
-        val (_, viewModel) = Arrangement().withChannelUpdates(messages, listOf(selfMember)).arrange()
+        val (arrangement, viewModel) = Arrangement().withChannelUpdates(messages, listOf(selfMember)).arrange()
 
         // When - Then
-        assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username)
+        every { arrangement.uiText.asString(any()) } returns (selfUserName)
+        assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
     }
 
     @Test
@@ -163,11 +167,14 @@ class ConversationsViewModelTest {
         val senderId = UserId("value", "domain")
         val messages = listOf(mockedMessage(senderId = senderId))
         val otherUserName = "other user"
+
+
         val otherMember = mockOtherUserDetails(otherUserName, senderId)
-        val (_, viewModel) = Arrangement().withChannelUpdates(messages, listOf(otherMember)).arrange()
+        val (arrangement, viewModel) = Arrangement().withChannelUpdates(messages, listOf(otherMember)).arrange()
 
         // When - Then
-        assertEquals(otherUserName, viewModel.conversationViewState.messages.first().messageHeader.username)
+        every { arrangement.uiText.asString(any()) } returns (otherUserName)
+        assertEquals(otherUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
     }
 
     @Test
@@ -181,11 +188,13 @@ class ConversationsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(firstUserName, viewModel.conversationViewState.messages.first().messageHeader.username)
+        every { arrangement.uiText.asString(any()) } returns (firstUserName)
+        assertEquals(firstUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
 
         // When - Then
+        every { arrangement.uiText.asString(any()) } returns (secondUserName)
         arrangement.withChannelUpdates(messages, listOf(mockOtherUserDetails(secondUserName, senderId)))
-        assertEquals(secondUserName, viewModel.conversationViewState.messages.first().messageHeader.username)
+        assertEquals(secondUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
     }
 
     @Test
@@ -274,8 +283,15 @@ class ConversationsViewModelTest {
         @MockK
         lateinit var observeMemberDetails: ObserveConversationMembersUseCase
 
+        @MockK
+        lateinit var context: Context
+
+        @MockK
+        lateinit var uiText: UIText
+
         val otherMemberUpdatesChannel = Channel<List<MemberDetails>>(capacity = Channel.UNLIMITED)
         val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
+
 
         private val viewModel by lazy {
             ConversationViewModel(
@@ -316,9 +332,13 @@ class ConversationsViewModelTest {
     }
 
     private fun withMockConversationDetailsOneOnOne(senderName: String) = ConversationDetails.OneOne(
-        mockk(), mockk<OtherUser>().apply {
+        mockk(),
+        mockk<OtherUser>().apply {
             every { name } returns senderName
-        }, ConnectionState.PENDING, LegalHoldStatus.DISABLED
+        },
+        ConnectionState.PENDING,
+        LegalHoldStatus.DISABLED,
+        UserType.INTERNAL
     )
 
     private fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {

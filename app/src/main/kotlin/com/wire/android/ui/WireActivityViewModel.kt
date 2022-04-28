@@ -54,7 +54,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun loadServerConfig(url: String) = runBlocking {
-        return@runBlocking when (val result = getServerConfigUseCase.invoke(url)) {
+        return@runBlocking when (val result = getServerConfigUseCase(url)) {
             is GetServerConfigResult.Success -> result.serverConfig
             else -> ServerConfig.DEFAULT
         }

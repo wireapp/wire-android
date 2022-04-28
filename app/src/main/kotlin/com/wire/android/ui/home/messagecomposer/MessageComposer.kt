@@ -14,9 +14,11 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -140,11 +142,7 @@ private fun MessageComposer(
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
-        ConstraintLayout(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
+        ConstraintLayout(Modifier.fillMaxSize()) {
             // This guide line is used was when the attachment options are visible
             // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
@@ -283,10 +281,10 @@ private fun MessageComposer(
                     }
                 ) {
                     SendActionsWrapper(
+                        transition = transition,
                         isScheduleButtonVisible = messageComposerState.sendButtonEnabled,
                         isSendButtonEnabled = messageComposerState.sendButtonEnabled,
                         onSendButtonClicked = onSendButtonClicked,
-                        transition = transition
                     )
                 }
                 // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
@@ -315,7 +313,7 @@ private fun MessageComposer(
         AttachmentOptionsWrapper(
             isVisible = messageComposerState.attachmentOptionsDisplayed,
             height = keyboardHeightOffSet.height,
-            verticalAbsoluteOffset = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height,
+            verticalOffset = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height,
             attachmentState = messageComposerState.attachmentState,
             onSendAttachment = onSendAttachment,
             onError = onError
@@ -350,10 +348,10 @@ fun MessageComposeActionsWrapper(
 @ExperimentalAnimationApi
 @Composable
 fun SendActionsWrapper(
+    transition: Transition<MessageComposeInputState>,
     isScheduleButtonVisible: Boolean,
     isSendButtonEnabled: Boolean,
-    onSendButtonClicked: () -> Unit,
-    transition: Transition<MessageComposeInputState>
+    onSendButtonClicked: () -> Unit
 ) {
     Row(Modifier.padding(end = dimensions().spacing8x)) {
         if (isScheduleButtonVisible) {
@@ -375,8 +373,8 @@ fun SendActionsWrapper(
 @ExperimentalAnimationApi
 @Composable
 fun AdditionalOptionButtonWrapper(
-    isVisible: Boolean,
     transition: Transition<MessageComposeInputState>,
+    isVisible: Boolean,
     onAdditionalOptionClicked: () -> Unit
 ) {
     transition.AnimatedVisibility(
@@ -396,7 +394,10 @@ fun AdditionalOptionButtonWrapper(
 
 @ExperimentalAnimationApi
 @Composable
-fun CollapseIconButtonWrapper(transition: Transition<MessageComposeInputState>, onCollapseClicked: () -> Unit) {
+fun CollapseIconButtonWrapper(
+    transition: Transition<MessageComposeInputState>,
+    onCollapseClicked: () -> Unit
+) {
     transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
         Box(
             contentAlignment = Alignment.Center,
@@ -421,7 +422,6 @@ fun CollapseIconButtonWrapper(transition: Transition<MessageComposeInputState>, 
         }
     }
 }
-
 
 @Composable
 fun ContentWrapper(
@@ -457,7 +457,7 @@ fun ContentWrapper(
 private fun AttachmentOptionsWrapper(
     isVisible: Boolean,
     height: Dp,
-    verticalAbsoluteOffset: Dp,
+    verticalOffset: Dp,
     attachmentState: AttachmentState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (String) -> Unit,
@@ -467,7 +467,7 @@ private fun AttachmentOptionsWrapper(
             Modifier
                 .fillMaxWidth()
                 .height(height)
-                .absoluteOffset(y = verticalAbsoluteOffset)
+                .absoluteOffset(y = verticalOffset)
         ) {
             Divider()
             AttachmentOptionsComponent(

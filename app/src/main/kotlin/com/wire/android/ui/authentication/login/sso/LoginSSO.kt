@@ -107,7 +107,7 @@ private fun LoginSSOContent(
             ssoCode = loginSSOState.ssoCode,
             onCodeChange = onCodeChange,
             error = when (loginSSOState.loginSSOError) {
-                LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_sso_code)
+                LoginError.TextFieldError.InvalidCodeFormatError -> stringResource(R.string.login_error_invalid_sso_code_format)
                 else -> null
             }
         )
@@ -122,6 +122,10 @@ private fun LoginSSOContent(
         val (title, message) = when (loginSSOState.loginSSOError) {
             is LoginError.DialogError.GenericError ->
                 loginSSOState.loginSSOError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
+            is LoginError.DialogError.InvalidCodeError -> DialogErrorStrings(
+                title = stringResource(id = R.string.login_error_invalid_credentials_title),
+                message = stringResource(id = R.string.login_error_invalid_sso_code)
+            )
             is LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
                 stringResource(id = R.string.login_error_invalid_credentials_title),
                 stringResource(id = R.string.login_error_invalid_credentials_message)
@@ -207,3 +211,4 @@ private fun LoginSSOScreenPreview() {
         LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, {}, suspend {}, rememberCoroutineScope(), null)
     }
 }
+

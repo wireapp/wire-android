@@ -155,12 +155,21 @@ class LoginSSOViewModelTest {
     }
 
     @Test
+    fun `given button is clicked, when login returns InvalidCodeFormat error, then InvalidCodeFormatError is passed`() {
+        coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.InvalidCodeFormat
+
+        runTest { loginViewModel.login(serverConfig) }
+
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginSSOError.TextFieldError.InvalidCodeFormatError::class
+    }
+
+    @Test
     fun `given button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() {
         coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.InvalidCode
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidValue::class
     }
 
     @Test

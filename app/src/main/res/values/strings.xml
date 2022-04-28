@@ -306,7 +306,6 @@
     <string name="calling_label_accept">Accept</string>
     <string name="calling_label_unknown_caller_name">Default</string>
 
-    <string name="content_description_ping_everyone">Ping everyone</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_try_again">Try again</string>
     <string name="content_description_ping_everyone">Ping everyone</string>

@@ -40,7 +40,7 @@ class LoginEmailViewModel @Inject constructor(
     )
         private set
 
-    fun login(serverConfig: ServerConfig) {
+    fun login() {
         loginState = loginState.copy(loading = true, loginEmailError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
             val authSession = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)

@@ -317,7 +317,7 @@
 
     <!--sso dialog-->
     <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
-    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\nTitle: %s\nCode: %d"</string>
+    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
     <!-- sso failure messages -->
     <string name="sso_error_server_error_unsupported_saml">Server Error Unsupported Saml</string>
     <string name="sso_error_bad_success_redirect">Bad Success Redirect</string>

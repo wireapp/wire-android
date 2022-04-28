@@ -46,7 +46,7 @@ class LoginSSOViewModel @Inject constructor(
 
     var openWebUrl = MutableSharedFlow<String>()
 
-    fun login(serverConfig: ServerConfig) {
+    fun login() {
         loginState = loginState.copy(loading = true, loginSSOError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
             ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text, serverConfig)).let { result ->
@@ -59,10 +59,9 @@ class LoginSSOViewModel @Inject constructor(
     }
 
     @VisibleForTesting
-    fun establishSSOSession(cookie: String, serverConfigId: String) {
+    fun establishSSOSession(cookie: String, serverConfig: ServerConfig) {
         viewModelScope.launch {
-            //TODO: serverConfig should be fetched from serverConfigRepository by serverConfigId
-            val authSession = getSSOLoginSessionUseCase(cookie, ServerConfig.STAGING)
+            val authSession = getSSOLoginSessionUseCase(cookie, serverConfig)
                 .let {
                     when (it) {
                         is SSOLoginSessionResult.Failure -> {
@@ -111,10 +110,13 @@ class LoginSSOViewModel @Inject constructor(
     }
 
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?) = when (ssoLoginResult) {
-        is DeepLinkResult.SSOLogin.Success -> establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId)
+        is DeepLinkResult.SSOLogin.Success -> {
+            establishSSOSession(ssoLoginResult.cookie, serverConfig)
+        }
         is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
         else -> {}
     }
+
 
 
     private fun openWebUrl(url: String) {

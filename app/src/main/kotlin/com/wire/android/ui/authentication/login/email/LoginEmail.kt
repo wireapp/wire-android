@@ -59,7 +59,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginEmailScreen(
-    serverConfig: ServerConfig,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
@@ -72,8 +71,8 @@ fun LoginEmailScreen(
         onPasswordChange = { loginEmailViewModel.onPasswordChange(it) },
         onDialogDismiss = { loginEmailViewModel.onDialogDismiss() },
         onRemoveDeviceOpen = { loginEmailViewModel.onTooManyDevicesError() },
-        onLoginButtonClick = suspend { loginEmailViewModel.login(serverConfig) },
-        accountsBaseUrl = serverConfig.accountsBaseUrl,
+        onLoginButtonClick = suspend { loginEmailViewModel.login() },
+        accountsBaseUrl = loginEmailViewModel.serverConfig.accountsBaseUrl,
         scope = scope
     )
 }

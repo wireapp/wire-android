@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.login
 
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
@@ -48,11 +47,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(serverConfig: ServerConfig, ssoLoginResult: DeepLinkResult.SSOLogin?) {
     val loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel.updateServerConfig(ssoLoginResult, serverConfig)
     LoginContent(
         onBackPressed = { loginViewModel.navigateBack() },
         //todo: temporary to show the remoteConfig
-        serverTitle = serverConfig.title,
-        serverConfig = serverConfig,
+        serverTitle = loginViewModel.serverConfig.title,
+        serverConfig = loginViewModel.serverConfig,
         ssoLoginResult = ssoLoginResult
     )
 }
@@ -101,8 +101,8 @@ private fun LoginContent(
                 modifier = Modifier.fillMaxWidth()
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
-                    LoginTabItem.EMAIL -> LoginEmailScreen(serverConfig, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(serverConfig, ssoLoginResult, scrollState)
+                    LoginTabItem.EMAIL -> LoginEmailScreen(scrollState)
+                    LoginTabItem.SSO -> LoginSSOScreen(ssoLoginResult, scrollState)
                 }
             }
             if(!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)

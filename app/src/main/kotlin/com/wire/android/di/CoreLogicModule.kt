@@ -155,10 +155,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun currentSessionFlowUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().session.currentSessionFlow
-
-    @ViewModelScoped
-    @Provides
     fun selfClientsUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.selfClients
 

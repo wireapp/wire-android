@@ -8,19 +8,20 @@ import com.wire.android.di.GetNotificationsUseCaseProvider
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.configuration.GetServerConfigResult
 import com.wire.kalium.logic.configuration.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AuthSession
-import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -32,7 +33,6 @@ import javax.inject.Inject
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
     private val currentSessionUseCase: CurrentSessionUseCase,
-    private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUserCase: GetServerConfigUseCase,
     private val getNotificationProvider: GetNotificationsUseCaseProvider.Factory,
     private val notificationManager: MessageNotificationManager,
@@ -70,33 +70,35 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                currentSessionFlow()
-                    .flatMapLatest { result ->
-                        if (result is CurrentSessionResult.Success) {
-                            getNotificationProvider.create(result.authSession.userId)
-                                .getNotifications()
-                        } else {
-                            flowOf(listOf())
-                        }
-                    }
-                    .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
-                    { old, newList -> old.second to newList }
-                    .collect { (oldNotifications, newNotifications) ->
-                        notificationManager.handleNotification(oldNotifications, newNotifications)
-                    }
-            }
+            listenForNotificationsIfPossible()
         }
     }
 
-    private suspend fun listenForNotifications(userId: UserId) {
-        getNotificationProvider.create(userId)
-            .getNotifications()
-            .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
-            { old, newList -> old.second to newList }
-            .collect { (oldNotifications, newNotifications) ->
-                notificationManager.handleNotification(oldNotifications, newNotifications)
-            }
+    private suspend fun listenForNotificationsIfPossible() {
+        withContext(dispatchers.io()) {
+            //TODO this intervalFlow is a temporary solution to have updated UserId,
+            // waiting for refactoring in kalium
+            intervalFlow(60_000)
+                .map {
+                    when (val result = currentSessionUseCase()) {
+                        is CurrentSessionResult.Success -> result.authSession.userId
+                        else -> null
+                    }
+                }
+                .distinctUntilChanged()
+                .flatMapLatest { userId ->
+                    if (userId != null) {
+                        getNotificationProvider.create(userId).getNotifications()
+                    } else {
+                        flowOf(listOf())
+                    }
+                }
+                .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
+                { old, newList -> old.second to newList }
+                .collect { (oldNotifications, newNotifications) ->
+                    notificationManager.handleNotification(oldNotifications, newNotifications)
+                }
+        }
     }
 
     companion object {

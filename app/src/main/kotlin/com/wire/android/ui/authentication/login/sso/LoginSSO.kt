@@ -107,7 +107,7 @@ private fun LoginSSOContent(
             ssoCode = loginSSOState.ssoCode,
             onCodeChange = onCodeChange,
             error = when (loginSSOState.loginSSOError) {
-                LoginError.TextFieldError.InvalidCodeFormatError -> stringResource(R.string.login_error_invalid_sso_code_format)
+                LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_sso_code_format)
                 else -> null
             }
         )

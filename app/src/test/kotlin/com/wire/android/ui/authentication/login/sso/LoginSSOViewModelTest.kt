@@ -160,7 +160,7 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginSSOError.TextFieldError.InvalidCodeFormatError::class
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
     }
 
     @Test
@@ -169,7 +169,7 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidValue::class
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidCodeError::class
     }
 
     @Test

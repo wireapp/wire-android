@@ -14,6 +14,7 @@ sealed class LoginError {
         data class GenericError(val coreFailure: CoreFailure) : LoginError.DialogError()
         object InvalidCredentialsError : DialogError()
         object InvalidSSOCookie : DialogError()
+        object InvalidCodeError: DialogError()
         object UserAlreadyExists : DialogError()
         data class SSOResultError @OptIn(ExperimentalMaterial3Api::class) constructor(val result: SSOFailureCodes) :
             LoginError.DialogError()

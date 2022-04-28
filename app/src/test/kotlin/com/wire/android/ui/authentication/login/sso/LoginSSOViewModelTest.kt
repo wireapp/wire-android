@@ -17,6 +17,7 @@ import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
@@ -189,47 +190,70 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given successful sso result, when establish the sso login session, then SSOLoginResult is passed`(){
+    fun `given establishSSOSession is called, when SSOLogin Success, then SSOLoginResult is passed`() {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
 
-        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("","")) }
+        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("", "")) }
 
         coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
     }
 
     @Test
-    fun `given invalid cookie sso result, when establish the sso login session, then SSOLoginResult fails`(){
+    fun `given establishSSOSession is called, when SSOLoginSessionResult return InvalidCookie, then SSOLoginResult fails`() {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Failure.InvalidCookie
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
 
-        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("","")) }
-
+        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("", "")) }
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
     }
 
     @Test
-    fun `given null, when calling HandleSSOResult, then loginSSOError state should be none`(){
+    fun `given HandleSSOResult is called, when ssoResult is null, then loginSSOError state should be none`() {
         runTest { loginViewModel.handleSSOResult(null) }
         loginViewModel.loginState.loginSSOError shouldBeEqualTo LoginError.None
     }
 
     @Test
-    fun `given sso login failure, when calling HandleSSOResult, then loginSSOError state should be dialog error`(){
+    fun `given HandleSSOResult is called, when ssoResult is failure, then loginSSOError state should be dialog error`() {
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)) }
         loginViewModel.loginState.loginSSOError shouldBeEqualTo LoginError.DialogError.SSOResultError(SSOFailureCodes.Unknown)
     }
 
     @Test
-    fun `given sso login success, when calling HandleSSOResult, then establish function should be called`(){
+    fun `given HandleSSOResult is called, when SSOLoginResult is success, then establishSSOSession should be called once`() {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
 
-        runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("","")) }
+        runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", "")) }
         coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
     }
+
+
+    @Test
+    fun `given establishSSOSession is called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
+        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
+
+        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("", "")) }
+
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
+    }
+
+    @Test
+    fun `given establishSSOSession is called, when registerClientUseCase returns TooManyClients error, then TooManyClients is passed`() {
+        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Failure.TooManyClients
+
+        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("", "")) }
+
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TooManyDevicesError::class
+    }
+
 }
 

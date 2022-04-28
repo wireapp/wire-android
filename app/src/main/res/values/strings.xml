@@ -85,9 +85,10 @@
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO LOGIN</string>
-    <string name="login_sso_code_placeholder">wire://</string>
+    <string name="login_sso_code_placeholder">wire-</string>
     <string name="login_sso_code_label">SSO CODE</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
+    <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
 
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
@@ -304,7 +305,7 @@
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
-    <string name="calling_label_unknown_caller_name">Default</string>
+    <!-- Calling-->
 
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_try_again">Try again</string>

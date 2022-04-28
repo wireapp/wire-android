@@ -13,9 +13,11 @@ data class LoginSSOState(
 sealed class LoginSSOError {
     object None: LoginSSOError()
     sealed class TextFieldError: LoginSSOError() {
-        object InvalidCodeError: TextFieldError()
+        object InvalidCodeFormatError: TextFieldError()
     }
     sealed class DialogError: LoginSSOError() {
+        object InvalidCodeError: DialogError()
         data class GenericError(val coreFailure: CoreFailure): DialogError()
     }
 }
+

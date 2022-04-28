@@ -9,6 +9,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.ServerConfig
@@ -148,7 +149,7 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginEmailError.TextFieldError.InvalidUserIdentifierError::class
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.TextFieldError.InvalidUserIdentifierError::class
     }
 
     @Test
@@ -157,7 +158,7 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginEmailError.DialogError.InvalidCredentialsError::class
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
     }
 
     @Test
@@ -168,8 +169,8 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginEmailError.DialogError.GenericError::class
-        (loginViewModel.loginState.loginEmailError as LoginEmailError.DialogError.GenericError).coreFailure shouldBe networkFailure
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.GenericError::class
+        (loginViewModel.loginState.loginEmailError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
     }
 
     @Test
@@ -178,9 +179,9 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginEmailError.DialogError.InvalidCredentialsError::class
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
         loginViewModel.onDialogDismiss()
-        loginViewModel.loginState.loginEmailError shouldBe LoginEmailError.None
+        loginViewModel.loginState.loginEmailError shouldBe LoginError.None
     }
 
     @Test
@@ -190,7 +191,7 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginEmailError.DialogError.UserAlreadyExists::class
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
     }
 }
 

@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
@@ -158,7 +159,7 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginSSOError.TextFieldError.InvalidCodeError::class
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
     }
 
     @Test
@@ -167,8 +168,8 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginSSOError.DialogError.GenericError::class
-        with(loginViewModel.loginState.loginSSOError as LoginSSOError.DialogError.GenericError) {
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.GenericError::class
+        with(loginViewModel.loginState.loginSSOError as LoginError.DialogError.GenericError) {
             coreFailure shouldBeInstanceOf CoreFailure.Unknown::class
             with(coreFailure as CoreFailure.Unknown) {
                 this.rootCause shouldBeInstanceOf IllegalArgumentException::class
@@ -183,8 +184,8 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginSSOError.DialogError.GenericError::class
-        (loginViewModel.loginState.loginSSOError as LoginSSOError.DialogError.GenericError).coreFailure shouldBe networkFailure
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.GenericError::class
+        (loginViewModel.loginState.loginSSOError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
     }
 
     @Test
@@ -212,13 +213,13 @@ class LoginSSOViewModelTest {
     @Test
     fun `given null, when calling HandleSSOResult, then loginSSOError state should be none`(){
         runTest { loginViewModel.handleSSOResult(null) }
-        loginViewModel.loginState.loginSSOError shouldBeEqualTo LoginSSOError.None
+        loginViewModel.loginState.loginSSOError shouldBeEqualTo LoginError.None
     }
 
     @Test
     fun `given sso login failure, when calling HandleSSOResult, then loginSSOError state should be dialog error`(){
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)) }
-        loginViewModel.loginState.loginSSOError shouldBeEqualTo LoginSSOError.DialogError.ResultError(SSOFailureCodes.Unknown)
+        loginViewModel.loginState.loginSSOError shouldBeEqualTo LoginError.DialogError.SSOResultError(SSOFailureCodes.Unknown)
     }
 
     @Test

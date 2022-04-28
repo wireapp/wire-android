@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -62,8 +63,9 @@ fun LoginSSOScreen(
     LoginSSOContent(
         scrollState = scrollState,
         loginSSOState = loginSSOState,
-        onCodeChange = { loginSSOViewModel.onSSOCodeChange(it) },
-        onDialogDismiss = { loginSSOViewModel.onDialogDismiss() },
+        onCodeChange = loginSSOViewModel::onSSOCodeChange,
+        onDialogDismiss = loginSSOViewModel::onDialogDismiss,
+        onRemoveDeviceOpen = loginSSOViewModel::onTooManyDevicesError,
         //TODO: replace with retrieved ServerConfig from sso login
         onLoginButtonClick = suspend { loginSSOViewModel.login(ServerConfig.STAGING) },
         scope = scope,
@@ -86,6 +88,7 @@ private fun LoginSSOContent(
     loginSSOState: LoginSSOState,
     onCodeChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
+    onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
     scope: CoroutineScope,
     ssoLoginResult: DeepLinkResult.SSOLogin?
@@ -104,7 +107,7 @@ private fun LoginSSOContent(
             ssoCode = loginSSOState.ssoCode,
             onCodeChange = onCodeChange,
             error = when (loginSSOState.loginSSOError) {
-                LoginSSOError.TextFieldError.InvalidCodeError -> stringResource(R.string.login_error_invalid_sso_code)
+                LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_sso_code)
                 else -> null
             }
         )
@@ -115,12 +118,25 @@ private fun LoginSSOContent(
             enabled = loginSSOState.loginEnabled
         ) { scope.launch { onLoginButtonClick() } }
     }
-    if (loginSSOState.loginSSOError is LoginSSOError.DialogError) {
+    if (loginSSOState.loginSSOError is LoginError.DialogError) {
         val (title, message) = when (loginSSOState.loginSSOError) {
-            is LoginSSOError.DialogError.GenericError -> {
+            is LoginError.DialogError.GenericError ->
                 loginSSOState.loginSSOError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
-            }
-            is LoginSSOError.DialogError.ResultError -> {
+            is LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
+                stringResource(id = R.string.login_error_invalid_credentials_title),
+                stringResource(id = R.string.login_error_invalid_credentials_message)
+            )
+            // TODO: sync with design about the error message
+            is LoginError.DialogError.UserAlreadyExists -> DialogErrorStrings(
+                stringResource(id = R.string.login_error_user_already_logged_in_title),
+                stringResource(id = R.string.login_error_user_already_logged_in_message)
+            )
+            // TODO: sync with design about the error message
+            is LoginError.DialogError.InvalidSSOCookie -> DialogErrorStrings(
+                stringResource(id = R.string.login_sso_error_invalid_cookie_title),
+                stringResource(id = R.string.login_sso_error_invalid_cookie_message)
+            )
+            is LoginError.DialogError.SSOResultError -> {
                 with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
                     DialogErrorStrings(
                         stringResource(R.string.sso_erro_dialog_title),
@@ -142,6 +158,8 @@ private fun LoginSSOContent(
                 type = WireDialogButtonType.Primary,
             )
         )
+    } else if (loginSSOState.loginSSOError is LoginError.TooManyDevicesError) {
+        onRemoveDeviceOpen()
     }
 }
 
@@ -186,6 +204,6 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 private fun LoginSSOScreenPreview() {
     WireTheme(isPreview = true) {
-        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, suspend {}, rememberCoroutineScope(), null)
+        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, {}, suspend {}, rememberCoroutineScope(), null)
     }
 }

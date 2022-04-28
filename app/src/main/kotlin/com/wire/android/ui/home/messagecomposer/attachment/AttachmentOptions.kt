@@ -20,8 +20,6 @@ import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.messagecomposer.AttachmentState
-import com.wire.android.ui.home.messagecomposer.AttachmentFileState
 import com.wire.android.util.getWritableImageAttachment
 import com.wire.android.util.getWritableVideoAttachment
 import com.wire.android.util.permission.UseCameraRequestFlow

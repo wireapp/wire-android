@@ -3,6 +3,7 @@ package com.wire.android.ui.home.messagecomposer
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
@@ -13,6 +14,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -48,6 +50,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
+import com.wire.android.ui.home.messagecomposer.attachment.AttachmentState
 import com.wire.android.ui.home.messagecomposer.button.AdditionalOptionButton
 import com.wire.android.ui.home.messagecomposer.button.CollapseIconButton
 import com.wire.android.ui.home.messagecomposer.button.ScheduleMessageButton
@@ -132,7 +135,7 @@ private fun MessageComposer(
     }
 
     Surface {
-        val transition = updateTransition(
+        val transition: Transition<MessageComposeInputState> = updateTransition(
             targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
         )
@@ -180,52 +183,23 @@ private fun MessageComposer(
                         height = Dimension.preferredWrapContent
                     }
                 ) {
-                    Box(
-                        Modifier
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onPress = {
-                                        focusManager.clearFocus()
-                                        messageComposerState.clickOutSideMessageComposer()
-                                    },
-                                    onDoubleTap = { /* Called on Double Tap */ },
-                                    onLongPress = { /* Called on Long Press */ },
-                                    onTap = {  /* Called on Tap */ }
-                                )
-                            }
-                            .background(color = MaterialTheme.wireColorScheme.backgroundVariant)
-                            .weight(1f)) {
-                        content()
-                    }
+                    ContentWrapper(
+                        onContentClicked = {
+                            focusManager.clearFocus()
+                            messageComposerState.clickOutSideMessageComposer()
+                        },
+                        content = content
+                    )
                     // Column wrapping CollapseIconButton and MessageComposerInput
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .animateContentSize()
                     ) {
-                        Divider()
-                        transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentHeight()
-                            ) {
-                                val collapseButtonRotationDegree by transition.animateFloat(
-                                    label = stringResource(R.string.animation_label_button_rotation_degree_transistion)
-                                ) { state ->
-                                    when (state) {
-                                        MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
-                                        MessageComposeInputState.FullScreen -> 180f
-
-                                    }
-                                }
-                                CollapseIconButton(
-                                    onCollapseClick = { messageComposerState.toggleFullScreen() },
-                                    collapseRotation = collapseButtonRotationDegree
-                                )
-                            }
-                        }
+                        CollapseIconButtonWrapper(
+                            transition = transition,
+                            onCollapseClicked = { messageComposerState.toggleFullScreen() }
+                        )
                         // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
                         // when we are in the Fullscreen state, we want to align the TextField to Top of the Row, when other we center it
                         // vertically. Once we go to Fullscreen, we set the weight to 1f so that it fills the whole Row which is =
@@ -245,15 +219,11 @@ private fun MessageComposer(
                                         Modifier
                                 )
                         ) {
-                            transition.AnimatedVisibility(
-                                visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
-                            ) {
-                                Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
-                                    AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                                        messageComposerState.toggleAttachmentOptionsVisibility()
-                                    }
-                                }
-                            }
+                            AdditionalOptionButtonWrapper(
+                                isVisible = messageComposerState.attachmentOptionsDisplayed,
+                                transition = transition,
+                                onAdditionalOptionClicked = { messageComposerState.toggleAttachmentOptionsVisibility() }
+                            )
                             // MessageComposerInput needs a padding on the end of it to give room for the SendOptions components,
                             // because it is "floating" freely with an absolute x-y position inside of the ConstrainLayout
                             // wrapping the whole content when in the FullScreen state we are giving it max height
@@ -304,21 +274,12 @@ private fun MessageComposer(
                         end.linkTo(parent.end)
                     }
                 ) {
-                    Row(Modifier.padding(end = dimensions().spacing8x)) {
-                        if (messageComposerState.sendButtonEnabled) {
-                            ScheduleMessageButton()
-                        }
-                        transition.AnimatedVisibility(
-                            visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            SendButton(
-                                isEnabled = messageComposerState.sendButtonEnabled,
-                                onSendButtonClicked = onSendButtonClicked
-                            )
-                        }
-                    }
+                    SendActionsWrapper(
+                        isScheduleButtonVisible = messageComposerState.sendButtonEnabled,
+                        isSendButtonEnabled = messageComposerState.sendButtonEnabled,
+                        onSendButtonClicked = onSendButtonClicked,
+                        transition = transition
+                    )
                 }
                 // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
                 // constrain our SendActions to it
@@ -343,26 +304,142 @@ private fun MessageComposer(
                     }
                 }
             }
-            // Box wrapping for additional options content
-            // we want to offset the AttachmentOptionsComponent equal to where
-            // the device keyboard is displayed, so that when the keyboard is closed,
-            // we get the effect of overlapping it
-            if (messageComposerState.attachmentOptionsDisplayed) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(keyboardHeightOffSet.height)
-                        .absoluteOffset(y = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height)
-                ) {
-                    Divider()
-                    AttachmentOptionsComponent(
-                        messageComposerState.attachmentState,
-                        onSendAttachment,
-                        onError,
-                        Modifier.align(Alignment.Center)
-                    )
+            AttachmentOptions(
+                isVisible = messageComposerState.attachmentOptionsDisplayed,
+                height = keyboardHeightOffSet.height,
+                verticalOffset = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height,
+                attachmentState = messageComposerState.attachmentState,
+                onSendAttachment = onSendAttachment,
+                onError = onError
+            )
+        }
+    }
+}
+
+@ExperimentalAnimationApi
+@Composable
+fun SendActionsWrapper(
+    isScheduleButtonVisible: Boolean,
+    isSendButtonEnabled: Boolean,
+    onSendButtonClicked: () -> Unit,
+    transition: Transition<MessageComposeInputState>
+) {
+    Row(Modifier.padding(end = dimensions().spacing8x)) {
+        if (isScheduleButtonVisible) {
+            ScheduleMessageButton()
+        }
+        transition.AnimatedVisibility(
+            visible = { state -> state != MessageComposeInputState.Enabled },
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            SendButton(
+                isEnabled = isSendButtonEnabled,
+                onSendButtonClicked = onSendButtonClicked
+            )
+        }
+    }
+}
+
+@ExperimentalAnimationApi
+@Composable
+fun AdditionalOptionButtonWrapper(
+    isVisible: Boolean,
+    transition: Transition<MessageComposeInputState>,
+    onAdditionalOptionClicked: () -> Unit
+) {
+    transition.AnimatedVisibility(
+        visible = { state ->
+            state == MessageComposeInputState.Enabled
+        }
+    ) {
+        Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
+            AdditionalOptionButton(
+                isVisible
+            ) {
+                onAdditionalOptionClicked()
+            }
+        }
+    }
+}
+
+@ExperimentalAnimationApi
+@Composable
+fun CollapseIconButtonWrapper(transition: Transition<MessageComposeInputState>, onCollapseClicked: () -> Unit) {
+    Divider()
+    transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            val collapseButtonRotationDegree by transition.animateFloat(
+                label = stringResource(R.string.animation_label_button_rotation_degree_transistion)
+            ) { state ->
+                when (state) {
+                    MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
+                    MessageComposeInputState.FullScreen -> 180f
+
                 }
             }
+            CollapseIconButton(
+                onCollapseClick = {
+                    onCollapseClicked()
+                },
+                collapseRotation = collapseButtonRotationDegree
+            )
+        }
+    }
+}
+
+@Composable
+fun ColumnScope.ContentWrapper(onContentClicked: () -> Unit, content: @Composable () -> Unit) {
+    Box(
+        Modifier
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        onContentClicked()
+                    },
+                    onDoubleTap = { /* Called on Double Tap */ },
+                    onLongPress = { /* Called on Long Press */ },
+                    onTap = {  /* Called on Tap */ }
+                )
+            }
+            .background(color = MaterialTheme.wireColorScheme.backgroundVariant)
+            .weight(1f)) {
+        content()
+    }
+}
+
+// Box wrapping for additional options content
+// we want to offset the AttachmentOptionsComponent equal to where
+// the device keyboard is displayed, so that when the keyboard is closed,
+// we get the effect of overlapping it
+@Composable
+private fun AttachmentOptions(
+    isVisible: Boolean,
+    height: Dp,
+    verticalOffset: Dp,
+    attachmentState: AttachmentState,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onError: (String) -> Unit,
+) {
+    if (isVisible) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(height)
+                .absoluteOffset(y = verticalOffset)
+        ) {
+            Divider()
+            AttachmentOptionsComponent(
+                attachmentState,
+                onSendAttachment,
+                onError,
+                Modifier.align(Alignment.Center)
+            )
         }
     }
 }

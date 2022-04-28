@@ -35,9 +35,9 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
-import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -358,4 +358,10 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateConversationMutedStatusUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.updateConversationMutedStatus
+
+    @ViewModelScoped
+    @Provides
+    fun markMessagesAsNotifiedUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).messages.markMessagesAsNotified
+
 }

@@ -27,7 +27,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -37,8 +38,10 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.EMPTY
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.formatMediumDateTime
+import com.wire.kalium.logic.data.client.ClientType
 import kotlinx.coroutines.android.awaitFrame
 
 @Composable
@@ -59,7 +62,7 @@ fun RemoveDeviceScreen() {
 @Composable
 private fun RemoveDeviceContent(
     state: RemoveDeviceState,
-    onItemClicked: (Device) -> Unit,
+    onItemClicked: (Client) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
     onRemoveConfirm: () -> Unit,
     onDialogDismiss: () -> Unit,
@@ -71,7 +74,7 @@ private fun RemoveDeviceContent(
             is RemoveDeviceState.Success ->
                 RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
             RemoveDeviceState.Loading ->
-                RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
+                RemoveDeviceItemsList(lazyListState, listOf(), true, onItemClicked)
         }
         // TODO handle list loading errors
         if (state is RemoveDeviceState.Success && state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
@@ -107,9 +110,9 @@ private fun RemoveDeviceContent(
 @Composable
 private fun RemoveDeviceItemsList(
     lazyListState: LazyListState,
-    items: List<Device>,
+    items: List<Client>,
     placeholders: Boolean,
-    onItemClicked: (Device) -> Unit,
+    onItemClicked: (Client) -> Unit,
 ) {
     SurfaceBackgroundWrapper {
         LazyColumn(
@@ -134,12 +137,12 @@ private fun RemoveDeviceDialog(
 ) {
     WireDialog(
         title = stringResource(R.string.remove_device_dialog_title),
-        text = state.device.name + "\n" +
-            stringResource(
-                R.string.remove_device_id_and_time_label,
-                state.device.clientId.value,
-                state.device.registrationTime.formatMediumDateTime() ?: ""
-            ),
+        text = (state.client.label ?: state.client.model ?: String.EMPTY) + "\n" +
+                stringResource(
+                    R.string.remove_device_id_and_time_label,
+                    state.client.clientId.value,
+                    state.client.registrationTime.formatMediumDateTime() ?: ""
+                ),
         onDismiss = onDialogDismiss,
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDialogDismiss,
@@ -187,7 +190,19 @@ private fun RemoveDeviceDialog(
 @Composable
 private fun RemoveDeviceScreenPreview() {
     RemoveDeviceContent(
-        state = RemoveDeviceState.Success(List(10) { Device(name = "device") }, RemoveDeviceDialogState.Hidden),
+        state = RemoveDeviceState.Success(List(10) {
+            Client(
+                ClientId("client_id"),
+                ClientType.Permanent,
+                "2022",
+                null,
+                null,
+                "client lable",
+                null,
+                null,
+                null
+            )
+        }, RemoveDeviceDialogState.Hidden),
         onItemClicked = {},
         onPasswordChange = {},
         onRemoveConfirm = {},

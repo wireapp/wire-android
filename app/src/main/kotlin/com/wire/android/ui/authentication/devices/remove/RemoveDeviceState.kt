@@ -1,12 +1,12 @@
 package com.wire.android.ui.authentication.devices.remove
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.CoreFailure
 
 sealed class RemoveDeviceState {
     data class Success(
-        val deviceList: List<Device>,
+        val deviceList: List<Client>,
         val removeDeviceDialogState: RemoveDeviceDialogState
     ) : RemoveDeviceState()
 
@@ -17,7 +17,7 @@ sealed class RemoveDeviceState {
 sealed class RemoveDeviceDialogState {
     object Hidden : RemoveDeviceDialogState()
     data class Visible(
-        val device: Device,
+        val client: Client,
         val password: TextFieldValue = TextFieldValue(""),
         val loading: Boolean = false,
         val removeEnabled: Boolean = false,

@@ -11,7 +11,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
@@ -45,13 +45,7 @@ class RemoveDeviceViewModel @Inject constructor(
             val selfClientsResult = selfClientsUseCase()
             if (selfClientsResult is SelfClientsResult.Success)
                 state = RemoveDeviceState.Success(
-                    deviceList = selfClientsResult.clients.map {
-                        Device(
-                            name = it.label ?: it.model ?: "",
-                            clientId = it.clientId,
-                            registrationTime = it.registrationTime
-                        )
-                    },
+                    deviceList = selfClientsResult.clients,
                     removeDeviceDialogState = RemoveDeviceDialogState.Hidden
                 )
         }
@@ -74,8 +68,8 @@ class RemoveDeviceViewModel @Inject constructor(
         updateStateIfDialogVisible { it.copy(error = RemoveDeviceError.None) }
     }
 
-    fun onItemClicked(device: Device) {
-        updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(device = device)) }
+    fun onItemClicked(client: Client) {
+        updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(client = client)) }
     }
 
     fun onRemoveConfirmed() {
@@ -83,7 +77,7 @@ class RemoveDeviceViewModel @Inject constructor(
             (it.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
                 updateStateIfDialogVisible { it.copy(loading = true, removeEnabled = false) }
                 viewModelScope.launch {
-                    val deleteClientParam = DeleteClientParam(dialogStateVisible.password.text, dialogStateVisible.device.clientId)
+                    val deleteClientParam = DeleteClientParam(dialogStateVisible.password.text, dialogStateVisible.client.clientId)
                     val deleteClientResult = deleteClientUseCase(deleteClientParam)
                     val removeDeviceError =
                         if (deleteClientResult is DeleteClientResult.Success)

@@ -70,7 +70,7 @@
         <receiver android:name=".notification.NotificationReplyReceiver" />
 
         <service
-                android:name=".notification.MyFirebaseMessagingService"
+                android:name=".notification.WireFirebaseMessagingService"
                 android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

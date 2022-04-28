@@ -54,42 +54,37 @@ class DeepLinkProcessor {
     }
 }
 
-enum class SSOFailureCodes(val label: String, val errorCode: Int, val stringResource: Int) {
-    ServerErrorUnsupportedSaml(
-        "server-error-unsupported-saml",
-        SSOServerErrorCode.SERVER_ERROR_UNSUPPORTED_SAML,
-        R.string.sso_error_server_error_unsupported_saml
-    ),
-    BadSuccessRedirect("bad-success-redirect", SSOServerErrorCode.BAD_SUCCESS_REDIRECT, R.string.sso_error_bad_success_redirect),
-    BadFailureRedirect("bad-failure-redirect", SSOServerErrorCode.BAD_FAILURE_REDIRECT, R.string.sso_error_bad_failure_redirect),
-    BadUsername("bad-username", SSOServerErrorCode.BAD_USERNAME, R.string.sso_error_bad_username),
-    BadUpstream("bad-upstream", SSOServerErrorCode.BAD_UPSTREAM, R.string.sso_error_bad_upstream),
-    ServerError("server-error", SSOServerErrorCode.SERVER_ERROR, R.string.sso_error_server_error),
-    NotFound("not-found", SSOServerErrorCode.NOT_FOUND, R.string.sso_error_not_found),
-    Forbidden("forbidden", SSOServerErrorCode.FORBIDDEN, R.string.sso_error_forbidden),
-    NoMatchingAuthReq("no-matching-auth-req", SSOServerErrorCode.NO_MATCHING_AUTH_REQ, R.string.sso_error_no_matching_auth_req),
-    InsufficientPermissions(
-        "insufficient-permissions",
-        SSOServerErrorCode.INSUFFICIENT_PERMISSIONS, R.string.sso_error_insufficient_permissions
-    ),
-    Unknown("unknown", SSOServerErrorCode.UNKNOWN, R.string.sso_error_unknown);
+enum class SSOFailureCodes(val label: String, val errorCode: Int) {
+    ServerErrorUnsupportedSaml("server-error-unsupported-saml", SSOServerErrorCode.SERVER_ERROR_UNSUPPORTED_SAML),
+    BadSuccessRedirect("bad-success-redirect", SSOServerErrorCode.BAD_SUCCESS_REDIRECT),
+    BadFailureRedirect("bad-failure-redirect", SSOServerErrorCode.BAD_FAILURE_REDIRECT),
+    BadUsername("bad-username", SSOServerErrorCode.BAD_USERNAME),
+    BadUpstream("bad-upstream", SSOServerErrorCode.BAD_UPSTREAM),
+    ServerError("server-error", SSOServerErrorCode.SERVER_ERROR),
+    NotFound("not-found", SSOServerErrorCode.NOT_FOUND),
+    Forbidden("forbidden", SSOServerErrorCode.FORBIDDEN),
+    NoMatchingAuthReq("no-matching-auth-req", SSOServerErrorCode.NO_MATCHING_AUTH_REQ),
+    InsufficientPermissions("insufficient-permissions", SSOServerErrorCode.INSUFFICIENT_PERMISSIONS),
+    Unknown("unknown", SSOServerErrorCode.UNKNOWN);
 
     companion object {
         fun getByCode(errorCode: Int) = values().first { it.errorCode == errorCode }
         fun getByLabel(label: String) = values().first { it.label == label }
     }
+
     object SSOServerErrorCode {
-            const val SERVER_ERROR_UNSUPPORTED_SAML = 1
-            const val BAD_SUCCESS_REDIRECT = 2
-            const val BAD_FAILURE_REDIRECT = 3
-            const val BAD_USERNAME = 4
-            const val BAD_UPSTREAM = 5
-            const val SERVER_ERROR = 6
-            const val NOT_FOUND = 7
-            const val FORBIDDEN = 8
-            const val NO_MATCHING_AUTH_REQ = 9
-            const val INSUFFICIENT_PERMISSIONS = 10
-            @VisibleForTesting
-            const val UNKNOWN = 0
+        const val SERVER_ERROR_UNSUPPORTED_SAML = 1
+        const val BAD_SUCCESS_REDIRECT = 2
+        const val BAD_FAILURE_REDIRECT = 3
+        const val BAD_USERNAME = 4
+        const val BAD_UPSTREAM = 5
+        const val SERVER_ERROR = 6
+        const val NOT_FOUND = 7
+        const val FORBIDDEN = 8
+        const val NO_MATCHING_AUTH_REQ = 9
+        const val INSUFFICIENT_PERMISSIONS = 10
+
+        @VisibleForTesting
+        const val UNKNOWN = 0
     }
 }

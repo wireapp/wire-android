@@ -317,18 +317,6 @@
     <!--sso dialog-->
     <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
     <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
-    <!-- sso failure messages -->
-    <string name="sso_error_server_error_unsupported_saml">Server Error Unsupported Saml</string>
-    <string name="sso_error_bad_success_redirect">Bad Success Redirect</string>
-    <string name="sso_error_bad_failure_redirect">Bad Failure Redirect</string>
-    <string name="sso_error_bad_username">Bad Username</string>
-    <string name="sso_error_bad_upstream">Bad Upstream</string>
-    <string name="sso_error_server_error">Server Error</string>
-    <string name="sso_error_not_found">Not Found</string>
-    <string name="sso_error_forbidden">Forbidden</string>
-    <string name="sso_error_no_matching_auth_req">No Matching Auth Req</string>
-    <string name="sso_error_insufficient_permissions">Insufficient Permissions</string>
-    <string name="sso_error_unknown">Unknown</string>
 
     <string name="content_description_ping_everyone">Ping everyone</string>
     <string name="label_federated_membership">Federated</string>

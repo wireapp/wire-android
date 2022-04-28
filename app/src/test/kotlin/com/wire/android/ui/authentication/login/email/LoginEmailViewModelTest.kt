@@ -149,7 +149,7 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login(serverConfig) }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.TextFieldError.InvalidUserIdentifierError::class
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
     }
 
     @Test

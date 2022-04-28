@@ -79,8 +79,6 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-
-
     @Composable
     private fun setUpNavigation(
         navController: NavHostController,

@@ -337,7 +337,8 @@ class ConversationsViewModelTest {
             every { name } returns senderName
         },
         ConnectionState.PENDING,
-        LegalHoldStatus.DISABLED, UserType.INTERNAL
+        LegalHoldStatus.DISABLED,
+        UserType.INTERNAL
     )
 
     private fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {

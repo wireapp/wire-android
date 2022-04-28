@@ -208,6 +208,7 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("", "")) }
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
+        coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
     }
 

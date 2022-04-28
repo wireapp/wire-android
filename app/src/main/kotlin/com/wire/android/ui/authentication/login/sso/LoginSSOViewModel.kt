@@ -59,10 +59,10 @@ class LoginSSOViewModel @Inject constructor(
     }
 
     @VisibleForTesting
-    fun establishSSOSession(ssoLoginResult: DeepLinkResult.SSOLogin.Success) {
+    fun establishSSOSession(cookie: String, serverConfigId: String) {
         viewModelScope.launch {
-            //TODO: serverConfig should be fetched of the serverConfigRepository
-            val authSession = getSSOLoginSessionUseCase(ssoLoginResult.cookie, ServerConfig.STAGING)
+            //TODO: serverConfig should be fetched from serverConfigRepository by serverConfigId
+            val authSession = getSSOLoginSessionUseCase(cookie, ServerConfig.STAGING)
                 .let {
                     when (it) {
                         is SSOLoginSessionResult.Failure -> {
@@ -111,7 +111,7 @@ class LoginSSOViewModel @Inject constructor(
     }
 
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?) = when (ssoLoginResult) {
-        is DeepLinkResult.SSOLogin.Success -> establishSSOSession(ssoLoginResult)
+        is DeepLinkResult.SSOLogin.Success -> establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId)
         is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
         else -> {}
     }

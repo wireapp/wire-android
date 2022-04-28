@@ -195,7 +195,7 @@ class LoginSSOViewModelTest {
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
 
-        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("", "")) }
+        runTest { loginViewModel.establishSSOSession("", "") }
 
         coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
     }
@@ -206,7 +206,7 @@ class LoginSSOViewModelTest {
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
 
-        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("", "")) }
+        runTest { loginViewModel.establishSSOSession("", "") }
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
         coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
@@ -240,7 +240,7 @@ class LoginSSOViewModelTest {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
-        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("", "")) }
+        runTest { loginViewModel.establishSSOSession("", "") }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
     }
@@ -251,7 +251,7 @@ class LoginSSOViewModelTest {
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Failure.TooManyClients
 
-        runTest { loginViewModel.establishSSOSession(DeepLinkResult.SSOLogin.Success("", "")) }
+        runTest { loginViewModel.establishSSOSession("", "") }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TooManyDevicesError::class
     }

@@ -17,7 +17,6 @@ import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
-import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
@@ -206,7 +205,10 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.establishSSOSession("", "") }
 
-        coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
+        coVerify(exactly = 1) { navigationManager.navigate(any()) }
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { registerClientUseCase.invoke(null,null) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
     }
 
     @Test
@@ -217,7 +219,9 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.establishSSOSession("", "") }
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
+        coVerify(exactly = 0) { addAuthenticatedUserUseCase.invoke(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
     }
 
@@ -245,14 +249,17 @@ class LoginSSOViewModelTest {
 
 
     @Test
-    fun `given establishSSOSession is called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`()
-    {
+    fun `given establishSSOSession is called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
         runTest { loginViewModel.establishSSOSession("", "") }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
+        coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
+        coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
     }
 
     @Test
@@ -264,7 +271,11 @@ class LoginSSOViewModelTest {
         runTest { loginViewModel.establishSSOSession("", "") }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TooManyDevicesError::class
-    }
 
+        coVerify(exactly = 1) { registerClientUseCase.invoke(null,null) }
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
+        coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
+    }
 }
 

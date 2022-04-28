@@ -62,7 +62,7 @@ class LoginEmailViewModel @Inject constructor(
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
-            registerClient(storedUserId, loginState.password.text, null).let {
+            registerClient(storedUserId, loginState.password.text).let {
                 when (it) {
                     is RegisterClientResult.Failure -> {
                         updateLoginError(it.toLoginError())

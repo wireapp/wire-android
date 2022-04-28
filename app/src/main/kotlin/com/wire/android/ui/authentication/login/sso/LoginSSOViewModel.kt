@@ -90,7 +90,5 @@ private fun SSOInitiateLoginResult.Failure.toLoginSSOError() = when (this) {
     is SSOInitiateLoginResult.Failure.Generic -> LoginSSOError.DialogError.GenericError(this.genericFailure)
     SSOInitiateLoginResult.Failure.InvalidRedirect ->
         LoginSSOError.DialogError.GenericError(CoreFailure.Unknown(IllegalArgumentException("Invalid Redirect")))
-    SSOInitiateLoginResult.Failure.InvalidCodeFormat ->
-        LoginSSOError.DialogError.GenericError(CoreFailure.Unknown(IllegalArgumentException("Invalid Code Format")))
 }
 

@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.GetNotificationsUseCaseProvider
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.notification.MessageNotificationManager
+import com.wire.android.util.deeplink.DeepLinkProcessor
+import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.configuration.GetServerConfigResult
@@ -34,7 +36,8 @@ import javax.inject.Inject
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
     private val currentSessionUseCase: CurrentSessionUseCase,
-    private val getServerConfigUserCase: GetServerConfigUseCase,
+    private val getServerConfigUseCase: GetServerConfigUseCase,
+    private val deepLinkProcessor: DeepLinkProcessor,
     private val getNotificationProvider: GetNotificationsUseCaseProvider.Factory,
     private val notificationManager: MessageNotificationManager,
     private val dispatchers: DispatcherProvider
@@ -49,23 +52,38 @@ class WireActivityViewModel @Inject constructor(
 
     private val isUserLoggedIn = currentSession != null
     var serverConfig: ServerConfig = ServerConfig.DEFAULT
+    private var ssoDeepLinkResult: DeepLinkResult.SSOLogin? = null
+
+    fun navigationArguments() =
+        if (ssoDeepLinkResult != null) {
+            listOf(serverConfig, ssoDeepLinkResult!!)
+        } else listOf(serverConfig)
 
     fun startNavigationRoute() = when {
+        ssoDeepLinkResult is DeepLinkResult.SSOLogin -> NavigationItem.Login.getRouteWithArgs()
         serverConfig.apiBaseUrl != ServerConfig.DEFAULT.apiBaseUrl -> NavigationItem.Login.getRouteWithArgs()
         isUserLoggedIn -> NavigationItem.Home.getRouteWithArgs()
         else -> NavigationItem.Welcome.getRouteWithArgs()
     }
 
     private fun loadServerConfig(url: String) = runBlocking {
-        return@runBlocking when (val result = getServerConfigUserCase(url)) {
+        return@runBlocking when (val result = getServerConfigUseCase(url)) {
             is GetServerConfigResult.Success -> result.serverConfig
             else -> ServerConfig.DEFAULT
         }
     }
 
     fun handleDeepLink(intent: Intent) {
-        intent.data?.getQueryParameter(SERVER_CONFIG_DEEPLINK)?.let {
-            serverConfig = loadServerConfig(it)
+        intent.data?.let {
+            with(deepLinkProcessor(it)) {
+                when (this) {
+                    is DeepLinkResult.CustomServerConfig ->
+                        serverConfig = loadServerConfig(url)
+                    is DeepLinkResult.SSOLogin ->
+                        ssoDeepLinkResult = this
+                    DeepLinkResult.Unknown -> TODO()
+                }
+            }
         }
     }
 
@@ -114,7 +132,6 @@ class WireActivityViewModel @Inject constructor(
     )
 
     companion object {
-        const val SERVER_CONFIG_DEEPLINK = "config"
         private const val CHECK_USER_ID_FREQUENCY_MS = 60_000L
     }
 }

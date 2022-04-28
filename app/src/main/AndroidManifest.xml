@@ -41,6 +41,9 @@
 
                 <data android:host="access"
                         android:scheme="wire" />
+
+                <data android:host="sso-login"
+                        android:scheme="wire"/>
             </intent-filter>
         </activity>
 

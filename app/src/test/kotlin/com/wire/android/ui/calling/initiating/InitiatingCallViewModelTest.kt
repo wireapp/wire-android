@@ -72,6 +72,7 @@ class InitiatingCallViewModelTest {
     fun `given active call, when user end call, then invoke endCall useCase`() {
         coEvery { navigationManager.navigateBack() } returns Unit
         coEvery { endCall.invoke(any()) } returns Unit
+        every { callRinger.stop() } returns Unit
 
         runTest { initiatingCallViewModel.hangUpCall() }
 

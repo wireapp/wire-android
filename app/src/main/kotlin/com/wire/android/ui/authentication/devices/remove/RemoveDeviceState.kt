@@ -30,5 +30,6 @@ sealed class RemoveDeviceError {
     object None : RemoveDeviceError()
     object InvalidCredentialsError : RemoveDeviceError()
     object TooManyDevicesError : RemoveDeviceError()
+    object PasswordRequired: RemoveDeviceError()
     data class GenericError(val coreFailure: CoreFailure) : RemoveDeviceError()
 }

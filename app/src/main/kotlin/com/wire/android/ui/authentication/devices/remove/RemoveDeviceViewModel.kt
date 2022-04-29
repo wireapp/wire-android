@@ -11,6 +11,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.launchOnIO
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -69,7 +70,23 @@ class RemoveDeviceViewModel @Inject constructor(
     }
 
     fun onItemClicked(client: Client) {
-        updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(client = client)) }
+        tryToDeleteOrShowDialog(client)
+    }
+
+    private fun tryToDeleteOrShowDialog(client: Client) {
+        launchOnIO {
+            when(val deleteResult = deleteClientUseCase(DeleteClientParam(null, client.id))) {
+                DeleteClientResult.Success -> registerClientUseCase(null, null).also {
+                    when(it) {
+                        is RegisterClientResult.Failure -> updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(client = client)) }
+                        is RegisterClientResult.Success -> it.client
+                    }
+                }
+                is DeleteClientResult.Failure.Generic -> state = RemoveDeviceState.Error(deleteResult.genericFailure)
+                DeleteClientResult.Failure.InvalidCredentials -> updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(client = client)) }
+                DeleteClientResult.Failure.PasswordAuthRequired -> updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(client = client)) }
+            }
+        }
     }
 
     fun onRemoveConfirmed() {
@@ -77,7 +94,7 @@ class RemoveDeviceViewModel @Inject constructor(
             (it.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
                 updateStateIfDialogVisible { it.copy(loading = true, removeEnabled = false) }
                 viewModelScope.launch {
-                    val deleteClientParam = DeleteClientParam(dialogStateVisible.password.text, dialogStateVisible.client.clientId)
+                    val deleteClientParam = DeleteClientParam(dialogStateVisible.password.text, dialogStateVisible.client.id)
                     val deleteClientResult = deleteClientUseCase(deleteClientParam)
                     val removeDeviceError =
                         if (deleteClientResult is DeleteClientResult.Success)
@@ -99,6 +116,7 @@ class RemoveDeviceViewModel @Inject constructor(
         when (this) {
             is DeleteClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             DeleteClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
+            DeleteClientResult.Failure.PasswordAuthRequired -> RemoveDeviceError.PasswordRequired
             DeleteClientResult.Success -> RemoveDeviceError.None
         }
 
@@ -107,11 +125,12 @@ class RemoveDeviceViewModel @Inject constructor(
             is RegisterClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
+            is RegisterClientResult.Failure.PasswordAuthRequired -> RemoveDeviceError.PasswordRequired
             is RegisterClientResult.Success -> RemoveDeviceError.None
         }
 
 
-    private fun updateStateIfSuccess(newValue: (RemoveDeviceState.Success) -> RemoveDeviceState) =
+    private inline fun updateStateIfSuccess(newValue: (RemoveDeviceState.Success) -> RemoveDeviceState) =
         (state as? RemoveDeviceState.Success)?.let { state = newValue(it) }
 
     private fun updateStateIfDialogVisible(newValue: (RemoveDeviceDialogState.Visible) -> RemoveDeviceDialogState) =

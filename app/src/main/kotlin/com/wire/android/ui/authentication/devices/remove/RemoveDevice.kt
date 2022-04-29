@@ -137,10 +137,10 @@ private fun RemoveDeviceDialog(
 ) {
     WireDialog(
         title = stringResource(R.string.remove_device_dialog_title),
-        text = (state.client.label ?: state.client.model ?: String.EMPTY) + "\n" +
+        text = state.client.name + "\n" +
                 stringResource(
                     R.string.remove_device_id_and_time_label,
-                    state.client.clientId.value,
+                    state.client.id.value,
                     state.client.registrationTime.formatMediumDateTime() ?: ""
                 ),
         onDismiss = onDialogDismiss,

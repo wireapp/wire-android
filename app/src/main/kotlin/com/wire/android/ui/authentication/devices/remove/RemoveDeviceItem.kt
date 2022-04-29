@@ -106,7 +106,7 @@ private fun RemoveDeviceItemTexts(client: Client, placeholder: Boolean) {
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
     val details = stringResource(
         R.string.remove_device_id_and_time_label,
-        client.clientId.value,
+        client.id.value,
         client.registrationTime.formatMediumDateTime() ?: ""
     )
     Text(

@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.login
 
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.ViewModel
@@ -19,7 +20,8 @@ import javax.inject.Inject
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
-import dagger.assisted.AssistedInject
+import com.wire.kalium.logic.CoreFailure
+import java.lang.IllegalStateException
 
 @ExperimentalMaterialApi
 @HiltViewModel
@@ -89,6 +91,10 @@ fun RegisterClientResult.Failure.toLoginError() = when (this) {
     is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
     RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
+    RegisterClientResult.Failure.PasswordAuthRequired -> {
+        Log.wtf("TAG", "wrong password when register client after login")
+        LoginError.DialogError.GenericError(CoreFailure.Unknown(IllegalStateException("wrong password when register client after login")))
+    }
 }
 
 fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {

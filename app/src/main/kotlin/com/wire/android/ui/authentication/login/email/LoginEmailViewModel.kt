@@ -6,22 +6,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.login.LoginError
+import com.wire.android.ui.authentication.login.LoginViewModel
+import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.configuration.ServerConfig
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,10 +26,10 @@ import javax.inject.Inject
 class LoginEmailViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
-    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager
-) : ViewModel() {
+    navigationManager: NavigationManager
+) : LoginViewModel(navigationManager, clientScopeProviderFactory) {
 
     var loginState by mutableStateOf(
         LoginEmailState(
@@ -44,8 +39,8 @@ class LoginEmailViewModel @Inject constructor(
     )
         private set
 
-    fun login(serverConfig: ServerConfig) {
-        loginState = loginState.copy(loading = true, loginEmailError = LoginEmailError.None).updateLoginEnabled()
+    fun login() {
+        loginState = loginState.copy(loading = true, loginEmailError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
             val authSession = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
                 .let {
@@ -66,7 +61,7 @@ class LoginEmailViewModel @Inject constructor(
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
-            registerClient(storedUserId).let {
+            registerClient(storedUserId, loginState.password.text).let {
                 when (it) {
                     is RegisterClientResult.Failure -> {
                         updateLoginError(it.toLoginError())
@@ -78,19 +73,9 @@ class LoginEmailViewModel @Inject constructor(
         }
     }
 
-    private suspend fun registerClient(userId: UserId): RegisterClientResult {
-        val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.register(
-            RegisterClientUseCase.RegisterClientParam.ClientWithToken(
-                password = loginState.password.text,
-                capabilities = null, senderId = BuildConfig.SENDER_ID
-            )
-        )
-    }
-
     fun onUserIdentifierChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared
-        if (loginState.loginEmailError is LoginEmailError.TextFieldError && newText != loginState.userIdentifier) {
+        if (loginState.loginEmailError is LoginError.TextFieldError && newText != loginState.userIdentifier) {
             clearLoginError()
         }
         loginState = loginState.copy(userIdentifier = newText).updateLoginEnabled()
@@ -101,39 +86,18 @@ class LoginEmailViewModel @Inject constructor(
         loginState = loginState.copy(password = newText).updateLoginEnabled()
     }
 
-    private fun updateLoginError(loginError: LoginEmailError) {
-        loginState = if (loginError is LoginEmailError.None) {
-            loginState.copy(loginEmailError = loginError)
+    override fun updateLoginError(error: LoginError) {
+        loginState = if (error is LoginError.None) {
+            loginState.copy(loginEmailError = error)
         } else {
-            loginState.copy(loading = false, loginEmailError = loginError).updateLoginEnabled()
+            loginState.copy(loading = false, loginEmailError = error).updateLoginEnabled()
         }
 
     }
 
-    fun onDialogDismiss() {
-        clearLoginError()
-    }
-
-    private fun clearLoginError() {
-        updateLoginError(LoginEmailError.None)
-    }
-
-    fun onTooManyDevicesError() {
-        clearLoginError()
-        viewModelScope.launch {
-            navigateToRemoveDevicesScreen()
-        }
-    }
 
     private fun LoginEmailState.updateLoginEnabled() =
         copy(loginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !loading)
-
-
-    private suspend fun navigateToRemoveDevicesScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-
-    private suspend fun navigateToConvScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
     private companion object {
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
@@ -141,19 +105,5 @@ class LoginEmailViewModel @Inject constructor(
 }
 
 // TODO: login error Mapper ?
-private fun AuthenticationResult.Failure.toLoginError() = when (this) {
-    is AuthenticationResult.Failure.Generic -> LoginEmailError.DialogError.GenericError(this.genericFailure)
-    AuthenticationResult.Failure.InvalidCredentials -> LoginEmailError.DialogError.InvalidCredentialsError
-    AuthenticationResult.Failure.InvalidUserIdentifier -> LoginEmailError.TextFieldError.InvalidUserIdentifierError
-}
 
-private fun RegisterClientResult.Failure.toLoginError() = when (this) {
-    is RegisterClientResult.Failure.Generic -> LoginEmailError.DialogError.GenericError(this.genericFailure)
-    RegisterClientResult.Failure.InvalidCredentials -> LoginEmailError.DialogError.InvalidCredentialsError
-    RegisterClientResult.Failure.TooManyClients -> LoginEmailError.TooManyDevicesError
-}
 
-private fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginEmailError = when (this) {
-    is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginEmailError.DialogError.GenericError(this.genericFailure)
-    AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginEmailError.DialogError.UserAlreadyExists
-}

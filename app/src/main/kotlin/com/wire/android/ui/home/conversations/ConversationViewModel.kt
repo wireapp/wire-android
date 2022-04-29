@@ -44,7 +44,9 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -65,7 +67,8 @@ class ConversationViewModel @Inject constructor(
     private val sendTextMessage: SendTextMessageUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val deleteMessage: DeleteMessageUseCase,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -100,6 +103,10 @@ class ConversationViewModel @Inject constructor(
                 }
                 conversationViewState = conversationViewState.copy(conversationName = conversationName)
             }
+        }
+
+        viewModelScope.launch {
+            markMessagesAsNotified(conversationId!!, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
         }
     }
 

@@ -41,6 +41,9 @@
 
                 <data android:host="access"
                         android:scheme="wire" />
+
+                <data android:host="sso-login"
+                        android:scheme="wire"/>
             </intent-filter>
         </activity>
 
@@ -68,6 +71,7 @@
         </provider>
 
         <receiver android:name=".notification.NotificationReplyReceiver" />
+        <receiver android:name=".notification.NotificationDismissReceiver" />
 
         <service
                 android:name=".notification.WireFirebaseMessagingService"

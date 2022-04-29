@@ -67,7 +67,6 @@ class OngoingCallViewModel @Inject constructor(
             }
     }
 
-
     private suspend fun observeOngoingCall() {
         allCalls().collect {
             if (it.first().conversationId == conversationId)

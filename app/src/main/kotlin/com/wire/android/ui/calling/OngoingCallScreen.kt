@@ -27,8 +27,8 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.R
+import com.wire.android.ui.common.dimensions
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -49,9 +49,9 @@ private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
                     ?: stringResource(id = R.string.calling_label_default_caller_name)
             ) {}
         },
-        sheetShape = RoundedCornerShape(topStart = MaterialTheme.wireDimensions.corner16x, topEnd = MaterialTheme.wireDimensions.corner16x),
+        sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
         backgroundColor = MaterialTheme.wireColorScheme.ongoingCallBackground,
-        sheetPeekHeight = MaterialTheme.wireDimensions.defaultSheetPeekHeight,
+        sheetPeekHeight = dimensions().defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
         sheetContent = {
             with(ongoingCallViewModel) {
@@ -70,7 +70,7 @@ private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
         ) {
             UserProfileAvatar(
                 userAvatarAsset = ongoingCallViewModel.callEstablishedState.avatarAssetId,
-                size = MaterialTheme.wireDimensions.onGoingCallUserAvatarSize
+                size = dimensions().onGoingCallUserAvatarSize
             )
         }
     }
@@ -102,7 +102,7 @@ private fun CallingControls(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, MaterialTheme.wireDimensions.spacing16x, 0.dp, 0.dp)
+            .padding(0.dp, dimensions().spacing16x, 0.dp, 0.dp)
     ) {
         MicrophoneButton(ongoingCallState.isMuted) { onMuteOrUnMuteCall() }
         CameraButton(onCameraPermissionDenied = { }, onCameraButtonClicked = { })

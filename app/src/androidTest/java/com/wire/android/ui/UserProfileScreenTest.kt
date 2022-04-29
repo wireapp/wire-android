@@ -116,6 +116,32 @@ class UserProfileScreenTest {
     }
 
     @Test
+    fun userProfile_check_donotdisplay() {
+        title.assertIsDisplayed()
+        awayButton.onSibling().performClick()
+        val awayText = composeTestRule.onNodeWithText("Set yourself to Away")
+        awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains("Do not display this information again")
+        okButton.performClick()
+        awayText.assertDoesNotExist()
+        awayButton.onSibling().performClick()
+        awayText.assertDoesNotExist()
+    }
+
+    @Test
+    fun userProfile_change_status_cancel() {
+        title.assertIsDisplayed()
+        awayButton.onSibling().performClick()
+        val awayText = composeTestRule.onNodeWithText("Set yourself to Away")
+        awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains("Do not display this information again")
+        cancelButton.performClick()
+        awayText.assertDoesNotExist()
+        awayButton.onSibling().performClick()
+        awayText.assertIsDisplayed()
+        cancelButton.performClick()
+        awayText.assertDoesNotExist()
+    }
+
+    @Test
     fun userProfile_logout() {
         title.assertIsDisplayed()
         logoutButton.performClick()

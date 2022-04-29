@@ -7,6 +7,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.R
+import com.wire.android.media.CallRinger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -24,6 +26,7 @@ import kotlinx.coroutines.launch
 import java.lang.IllegalStateException
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class IncomingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -31,7 +34,8 @@ class IncomingCallViewModel @Inject constructor(
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsUseCase,
     private val rejectCall: RejectCallUseCase,
-    private val acceptCall: AnswerCallUseCase
+    private val acceptCall: AnswerCallUseCase,
+    private val callRinger: CallRinger
 ) : ViewModel() {
     var callState by mutableStateOf(IncomingCallState())
         private set
@@ -40,6 +44,7 @@ class IncomingCallViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            callRinger.ring(R.raw.ringing_from_them)
             launch {
                 conversationDetails(conversationId = conversationId)
                     .collect { initializeScreenState(conversationDetails = it) }
@@ -54,13 +59,19 @@ class IncomingCallViewModel @Inject constructor(
         allCalls().collect {
             if (it.first().conversationId == conversationId)
                 when (it.first().status) {
-                    CallStatus.CLOSED -> navigationManager.navigateBack()
+                    CallStatus.CLOSED -> onCallClosed()
                     else -> print("DO NOTHING")
                 }
         }
     }
 
+    private fun onCallClosed() {
+        callRinger.stop()
+        viewModelScope.launch { navigationManager.navigateBack() }
+    }
+
     fun declineCall() {
+        callRinger.stop()
         viewModelScope.launch {
             rejectCall(conversationId = conversationId)
             navigationManager.navigateBack()
@@ -68,6 +79,7 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     fun acceptCall() {
+        callRinger.stop()
         viewModelScope.launch {
             acceptCall(conversationId = conversationId)
 

@@ -1,7 +1,7 @@
 package com.wire.android.ui.home.conversations.model
 
 import com.wire.android.R
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText

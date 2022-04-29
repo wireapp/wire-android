@@ -1,6 +1,6 @@
 package com.wire.android.ui.userprofile.other
 
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 
 data class OtherUserProfileState(
     val userAvatarAsset: UserAvatarAsset? = null,

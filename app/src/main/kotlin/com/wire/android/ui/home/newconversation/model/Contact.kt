@@ -1,7 +1,7 @@
 package com.wire.android.ui.home.newconversation.model
 
 
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.publicuser.model.OtherUser

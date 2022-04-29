@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
@@ -41,7 +42,6 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.kalium.logic.data.user.UserAssetId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -49,7 +49,7 @@ fun MessageItem(
     message: MessageViewWrapper,
     onLongClicked: () -> Unit,
     onAssetMessageClicked: (String) -> Unit,
-    onImageMessageClicked: (UserAssetId) -> Unit
+    onImageMessageClicked: (String) -> Unit
 ) {
     with(message) {
         Row(
@@ -75,7 +75,9 @@ fun MessageItem(
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(dimensions().spacing6x))
                 if (!isDeleted) {
-                    MessageContent(messageContent, onAssetMessageClicked, onImageMessageClicked)
+                    MessageContent(messageContent, onAssetMessageClicked, onImageClick = {
+                        onImageMessageClicked(message.messageHeader.messageId)
+                    })
                 }
             }
         }
@@ -135,12 +137,12 @@ private fun Username(username: String) {
 }
 
 @Composable
-private fun MessageContent(messageContent: MessageContent?, onAssetClick: (String) -> Unit, onImageClick: (UserAssetId) -> Unit = {}) {
+private fun MessageContent(messageContent: MessageContent?, onAssetClick: (String) -> Unit, onImageClick: () -> Unit = {}) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-            onImageClick = { onImageClick(messageContent.assetId) }
+            onImageClick = { onImageClick() }
         )
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
         is MessageContent.AssetMessage -> MessageAsset(

@@ -6,8 +6,11 @@ import androidx.compose.ui.graphics.painter.Painter
 import coil.Coil
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 
 /**
  * An ImageLoader that is able to load AssetIds supplied by Kalium.
@@ -22,13 +25,14 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
      */
     @Composable
     fun paint(
-        asset: UserAvatarAsset?,
+        asset: ImageAsset?,
         fallbackData: Any? = null
     ): Painter = rememberAsyncImagePainter(asset ?: fallbackData, imageLoader = coilImageLoader)
 
     class Factory(
         context: Context,
-        private val getAvatarAssetUseCase: GetAvatarAssetUseCase
+        private val getAvatarAssetUseCase: GetAvatarAssetUseCase,
+        private val getPrivateAssetUseCase: GetMessageAssetUseCase,
     ) {
         private val defaultImageLoader = Coil.imageLoader(context)
         private val resources = context.resources
@@ -36,7 +40,7 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
         fun newImageLoader(): WireSessionImageLoader = WireSessionImageLoader(
             defaultImageLoader.newBuilder()
                 .components {
-                    add(AssetImageFetcher.Factory(getAvatarAssetUseCase, resources))
+                    add(AssetImageFetcher.Factory(getAvatarAssetUseCase, getPrivateAssetUseCase, resources))
                 }.build()
         )
     }

@@ -8,34 +8,58 @@ import coil.fetch.DrawableResult
 import coil.fetch.FetchResult
 import coil.fetch.Fetcher
 import coil.request.Options
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 
 class AssetImageFetcher(
-    val data: UserAvatarAsset,
-    val getAvatarAsset: GetAvatarAssetUseCase,
+    val data: ImageAsset,
+    val getPublicAsset: GetAvatarAssetUseCase,
+    val getPrivateAsset: GetMessageAssetUseCase,
     val resources: Resources,
     val imageLoader: ImageLoader
 ) : Fetcher {
 
-    override suspend fun fetch(): FetchResult? = when (val result = getAvatarAsset(data.userAssetId)) {
-        is PublicAssetResult.Failure -> null
-        is PublicAssetResult.Success -> {
-            // Does coil cache this in memory? We can add our own cache if needed
-            // imageLoader.memoryCache.set(MemoryCache.Key("assetKey"), MemoryCache.Value("result.asset.toBitmap()"))
-            DrawableResult(
-                BitmapDrawable(resources, result.asset.toBitmap()), false, DataSource.DISK
-            )
+    override suspend fun fetch(): FetchResult? {
+
+        return when (data) {
+            is ImageAsset.UserAvatarAsset -> {
+                when (val result = getPublicAsset(data.userAssetId)) {
+                    is PublicAssetResult.Failure -> null
+                    is PublicAssetResult.Success -> {
+                        // Does coil cache this in memory? We can add our own cache if needed
+                        // imageLoader.memoryCache.set(MemoryCache.Key("assetKey"), MemoryCache.Value("result.asset.toBitmap()"))
+                        DrawableResult(
+                            BitmapDrawable(resources, result.asset.toBitmap()), false, DataSource.DISK
+                        )
+                    }
+                }
+            }
+            is ImageAsset.PrivateAsset -> {
+                when (val result = getPrivateAsset(data.conversationId, data.messageId)) {
+                    is MessageAssetResult.Failure -> null
+                    is MessageAssetResult.Success -> {
+                        // Does coil cache this in memory? We can add our own cache if needed
+                        // imageLoader.memoryCache.set(MemoryCache.Key("assetKey"), MemoryCache.Value("result.asset.toBitmap()"))
+                        DrawableResult(
+                            BitmapDrawable(resources, result.decodedAsset.toBitmap()), false, DataSource.DISK
+                        )
+                    }
+                }
+            }
         }
+
     }
 
     class Factory(
-        private val getAvatarAssetUseCase: GetAvatarAssetUseCase,
+        private val getPublicAssetUseCase: GetAvatarAssetUseCase,
+        private val getPrivateAssetUseCase: GetMessageAssetUseCase,
         private val resources: Resources
-    ) : Fetcher.Factory<UserAvatarAsset> {
-        override fun create(data: UserAvatarAsset, options: Options, imageLoader: ImageLoader): Fetcher =
-            AssetImageFetcher(data, getAvatarAssetUseCase, resources, imageLoader)
+    ) : Fetcher.Factory<ImageAsset> {
+        override fun create(data: ImageAsset, options: Options, imageLoader: ImageLoader): Fetcher =
+            AssetImageFetcher(data, getPublicAssetUseCase, getPrivateAssetUseCase, resources, imageLoader)
     }
 }

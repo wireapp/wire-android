@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
@@ -36,7 +37,6 @@ import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
-import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
@@ -104,6 +104,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    // region ------------------------------ UI triggered actions -----------------------------
     fun onMessageChanged(message: String) {
         conversationViewState = conversationViewState.copy(messageText = message)
     }
@@ -228,7 +229,20 @@ class ConversationViewModel @Inject constructor(
         onDialogDismissed()
     }
 
-    // -------------- Navigation --------------
+    private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
+        getMessageAsset(
+            conversationId = conversationId,
+            messageId = messageId
+        ).run {
+            return when (this) {
+                is MessageAssetResult.Success -> decodedAsset
+                else -> null
+            }
+        }
+    }
+    // endregion
+
+    // region ------------------------------ Navigation ------------------------------
     fun navigateBack() {
         viewModelScope.launch {
             navigationManager.navigateBack()
@@ -245,18 +259,18 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun navigateToGallery(userAssetId: UserAssetId) {
+    fun navigateToGallery(messageId: String) {
         viewModelScope.launch {
-            userAssetId.let { assetId ->
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.Gallery.getRouteWithArgs(listOf(assetId))
-                    )
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.Gallery.getRouteWithArgs(listOf(ImageAsset.PrivateAsset(conversationId, messageId)))
                 )
-            }
+            )
         }
     }
+    // endregion
 
+    // region ------------------------------ Mapper Helpers ------------------------------
     private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
             val sender = members.findSender(message.senderUserId)
@@ -318,16 +332,5 @@ class ConversationViewModel @Inject constructor(
             } else null
         }
     }
-
-    private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
-        getMessageAsset(
-            conversationId = conversationId,
-            messageId = messageId
-        ).run {
-            return when (this) {
-                is MessageAssetResult.Success -> decodedAsset
-                else -> null
-            }
-        }
-    }
+    // endregion
 }

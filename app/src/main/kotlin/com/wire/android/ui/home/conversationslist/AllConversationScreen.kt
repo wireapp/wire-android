@@ -9,7 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.extension.rememberLazyListState
-import com.wire.android.ui.home.conversations.common.ConversationItemFactory
+import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
@@ -65,7 +65,10 @@ private fun AllConversationContent(
 
         conversations.forEach { (conversationFolder, conversationList) ->
             folderWithElements(
-                header = { conversationFolder.folderName },
+                header = { when(conversationFolder) {
+                    is ConversationFolder.Predefined -> stringResource(id = conversationFolder.folderNameResId)
+                    is ConversationFolder.Custom -> conversationFolder.folderName
+                } },
                 items = conversationList
             ) { generalConversation ->
                 GeneralConversationItem(

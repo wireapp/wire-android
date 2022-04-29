@@ -5,15 +5,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
-import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
-import com.wire.android.ui.home.conversations.common.GroupName
+import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.ConversationTitle
+import com.wire.android.ui.home.conversationslist.common.ConversationUserAvatar
+import com.wire.android.ui.home.conversationslist.common.UserLabel
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.MentionMessage
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
-import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
@@ -29,7 +29,7 @@ fun MentionConversationItem(
             with(conversationType) {
                 RowItemTemplate(
                     leadingIcon = { GroupConversationAvatar(colorValue = groupColorValue) },
-                    title = { GroupName(name = groupName) },
+                    title = { ConversationTitle(name = groupName, isLegalHold = conversationType.isLegalHold) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,
                     onRowItemClicked = onMentionItemClick,
@@ -40,7 +40,7 @@ fun MentionConversationItem(
         is ConversationType.PrivateConversation -> {
             with(conversationType) {
                 RowItemTemplate(
-                    leadingIcon = { ConversationUserAvatar(conversationType.userInfo.avatarAsset) },
+                    leadingIcon = { with(conversationType.userInfo) { ConversationUserAvatar(avatarAsset, availabilityStatus) } },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,

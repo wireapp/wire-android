@@ -11,7 +11,7 @@ data class Contact(
     val id: String,
     val domain: String,
     val name: String,
-    val userStatus: UserStatus = UserStatus.AVAILABLE,
+    val userStatus: UserStatus = UserStatus.NONE,
     val avatarAsset: UserAvatarAsset? = null,
     val label: String = "",
 ) {

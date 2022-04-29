@@ -12,15 +12,16 @@ import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversationslist.mock.conversationMockData
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
+import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -28,6 +29,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -56,16 +58,19 @@ class ConversationListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             observeConversationDetailsList().collect { detailedList ->
+                val newActivities = listOf<NewActivity>() //TODO: needs to be implemented
+                val missedCalls = mockMissedCalls //TODO: needs to be implemented
+                val unreadMentions = mockUnreadMentionList //TODO: needs to be implemented
                 state = ConversationListState(
-                    newActivities = listOf(),
-                    conversations = conversationMockData(detailedList.toGeneralConversationList()),
-                    missedCalls = mockMissedCalls,
-                    callHistory = mockCallHistory,
-                    unreadMentions = mockUnreadMentionList,
-                    allMentions = mockAllMentionList,
-                    unreadMentionsCount = 12,
-                    missedCallsCount = 100,
-                    newActivityCount = 1
+                    newActivities = newActivities,
+                    conversations = detailedList.toConversationsFoldersMap(),
+                    missedCalls = missedCalls,
+                    callHistory = mockCallHistory, //TODO: needs to be implemented
+                    unreadMentions = unreadMentions,
+                    allMentions = mockAllMentionList, //TODO: needs to be implemented
+                    unreadMentionsCount = unreadMentions.size,
+                    missedCallsCount = missedCalls.size,
+                    newActivityCount = newActivities.size
                 )
             }
         }
@@ -74,6 +79,9 @@ class ConversationListViewModel @Inject constructor(
             markMessagesAsNotified(null, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
         }
     }
+
+    private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<GeneralConversation>> =
+        mapOf(ConversationFolder.Predefined.Conversations to this.toGeneralConversationList())
 
     fun openConversation(conversationId: ConversationId) {
         viewModelScope.launch {
@@ -146,7 +154,8 @@ class ConversationListViewModel @Inject constructor(
                         groupColorValue = getConversationColor(conversation.id),
                         groupName = conversation.name.orEmpty(),
                         conversationId = conversation.id,
-                        mutedStatus = conversation.mutedStatus
+                        mutedStatus = conversation.mutedStatus,
+                        isLegalHold = details.legalHoldStatus.showLegalHoldIndicator()
                     )
                 )
             }
@@ -161,11 +170,11 @@ class ConversationListViewModel @Inject constructor(
                         ),
                         conversationInfo = ConversationInfo(
                             name = otherUser.name.orEmpty(),
-                            membership = mapUserType(details.userType),
-                            isLegalHold = false
+                            membership = mapUserType(details.userType)
                         ),
                         conversationId = conversation.id,
-                        mutedStatus = conversation.mutedStatus
+                        mutedStatus = conversation.mutedStatus,
+                        isLegalHold = details.legalHoldStatus.showLegalHoldIndicator()
                     )
                 )
             }
@@ -185,3 +194,5 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 }
+
+private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED

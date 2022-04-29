@@ -15,7 +15,12 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 class ConversationState(
     val navHostController: NavHostController,
     val modalBottomSheetContentState: MutableState<ModalSheetContent>,
+    val isEditingMutedSetting: MutableState<Boolean>
 ) {
+
+    fun toggleEditMutedSetting(enable: Boolean) {
+        isEditingMutedSetting.value = enable
+    }
 
     fun changeModalSheetContentState(conversationType: ConversationType) {
         when (conversationType) {
@@ -23,7 +28,9 @@ class ConversationState(
                 with(conversationType) {
                     modalBottomSheetContentState.value = ModalSheetContent.GroupConversationEdit(
                         title = groupName,
-                        groupColorValue = groupColorValue
+                        groupColorValue = groupColorValue,
+                        conversationId = this.conversationId,
+                        mutedStatus = this.mutedStatus
                     )
                 }
             }
@@ -31,7 +38,9 @@ class ConversationState(
                 with(conversationType) {
                     modalBottomSheetContentState.value = ModalSheetContent.PrivateConversationEdit(
                         title = conversationInfo.name,
-                        avatarAsset = userInfo.avatarAsset
+                        avatarAsset = userInfo.avatarAsset,
+                        conversationId = this.conversationId,
+                        mutedStatus = this.mutedStatus
                     )
                 }
             }
@@ -46,9 +55,11 @@ fun rememberConversationState(
     modalBottomSheetContentState: MutableState<ModalSheetContent> = remember {
         mutableStateOf(ModalSheetContent.Initial)
     },
+    isEditingMutedSetting: MutableState<Boolean> = remember { mutableStateOf(false) },
 ) = remember(navHostController, modalBottomSheetContentState) {
     ConversationState(
         navHostController,
         modalBottomSheetContentState,
+        isEditingMutedSetting
     )
 }

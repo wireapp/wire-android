@@ -30,11 +30,13 @@ fun MenuBottomSheetItem(
     action: (@Composable () -> Unit)? = null,
     onItemClick: () -> Unit = {}
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-        .height(MaterialTheme.wireDimensions.conversationBottomSheetItemHeight)
-        .fillMaxWidth()
-        .clickable { onItemClick() }
-        .padding(MaterialTheme.wireDimensions.conversationBottomSheetItemPadding)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .height(MaterialTheme.wireDimensions.conversationBottomSheetItemHeight)
+            .fillMaxWidth()
+            .clickable { onItemClick() }
+            .padding(MaterialTheme.wireDimensions.conversationBottomSheetItemPadding)
     ) {
         icon()
         Spacer(modifier = Modifier.width(12.dp))

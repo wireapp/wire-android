@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
@@ -31,6 +32,9 @@ class IncomingCallViewModelTest {
     lateinit var conversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
+    private lateinit var allCalls: GetAllCallsUseCase
+
+    @MockK
     lateinit var rejectCall: RejectCallUseCase
 
     @MockK
@@ -54,6 +58,7 @@ class IncomingCallViewModelTest {
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
             conversationDetails = conversationDetails,
+            allCalls = allCalls,
             rejectCall = rejectCall,
             acceptCall = acceptCall
         )

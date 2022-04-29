@@ -7,11 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
@@ -88,4 +88,3 @@ class CreateAccountUsernameViewModel @Inject constructor(
         state = state.copy(animateUsernameError = false)
     }
 }
-

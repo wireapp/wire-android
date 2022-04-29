@@ -7,7 +7,6 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,17 +56,18 @@ class ConversationScreenState(
 
     var selectedMessage by mutableStateOf<MessageViewWrapper?>(null)
 
-    val isSelectedMessageMyMessage = selectedMessage?.messageSource == MessageSource.CurrentUser
+    fun isSelectedMessageMyMessage() = selectedMessage?.messageSource == MessageSource.Self
 
     fun showEditContextMenu(message: MessageViewWrapper) {
         selectedMessage = message
+
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 
     fun copyMessage() {
         selectedMessage?.messageContent.let { messageContent ->
             if (messageContent is MessageContent.TextMessage) {
-                clipboardManager.setText(AnnotatedString(messageContent.messageBody.message))
+                clipboardManager.setText(AnnotatedString(messageContent.messageBody.message.asString(context)))
                 coroutineScope.launch {
                     modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
                     snackBarHostState.showSnackbar(context.getString(R.string.info_message_copied))

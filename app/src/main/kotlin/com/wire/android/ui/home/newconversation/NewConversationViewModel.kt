@@ -18,9 +18,9 @@ import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.flow.SearchQueryStateFlow
-import com.wire.kalium.logic.data.conversation.ConverationOptions
+import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
-import com.wire.kalium.logic.feature.publicuser.GetAllKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
@@ -40,7 +40,7 @@ class NewConversationViewModel
     private val navigationManager: NavigationManager,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUserDirectoryUseCase,
-    private val getAllKnownUsersUseCase: GetAllKnownUsersUseCase,
+    private val getAllContacts: GetAllContactsUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase
 ) : ViewModel() {
 
@@ -89,15 +89,11 @@ class NewConversationViewModel
     init {
         viewModelScope.launch {
             launch {
-                getAllKnownUsersUseCase()
-                    .onStart {
-                        innerSearchPeopleState = innerSearchPeopleState.copy()
-                    }
-                    .collect {
-                        innerSearchPeopleState = innerSearchPeopleState.copy(
-                            allKnownContacts = it.map { publicUser -> publicUser.toContact() }
-                        )
-                    }
+                val allContacts = getAllContacts()
+
+                innerSearchPeopleState = innerSearchPeopleState.copy(
+                    allKnownContacts = allContacts.map { otherUser -> otherUser.toContact() }
+                )
             }
 
             searchQueryStateFlow.onSearchAction { searchTerm ->
@@ -123,7 +119,7 @@ class NewConversationViewModel
 
         }.flowOn(Dispatchers.IO).collect {
             localContactSearchResult = ContactSearchResult.InternalContact(
-                SearchResultState.Success(it.result.map { publicUser -> publicUser.toContact() })
+                SearchResultState.Success(it.result.map { otherUser -> otherUser.toContact() })
             )
         }
     }
@@ -210,7 +206,7 @@ class NewConversationViewModel
             when (val result = createGroupConversation(
                 name = groupNameState.groupName.text,
                 members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
-                options = ConverationOptions()
+                options = ConversationOptions()
             )
             ) {
                 //TODO: handle the error state

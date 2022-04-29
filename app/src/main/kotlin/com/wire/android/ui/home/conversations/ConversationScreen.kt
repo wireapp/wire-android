@@ -1,7 +1,9 @@
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -18,14 +20,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
+import com.wire.android.ui.home.conversationslist.bottomsheet.ModalSheetContent
+import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
@@ -90,6 +96,13 @@ private fun ConversationScreen(
                     topBar = {
                         ConversationScreenTopAppBar(
                             title = conversationName,
+                            avatar = {
+                                when (conversationAvatar) {
+                                    is ConversationAvatar.Group -> GroupConversationAvatar(colorValue = conversationAvatar.groupColorValue)
+                                    is ConversationAvatar.OneOne -> UserProfileAvatar(userAvatarAsset = conversationAvatar.avatarAsset)
+                                    ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
+                                }
+                            },
                             onBackButtonClick = onBackButtonClick,
                             onDropDownClick = { },
                             onSearchButtonClick = { },

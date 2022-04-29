@@ -89,7 +89,7 @@ class IncomingCallViewModel @Inject constructor(
                     avatarAssetId = conversationDetails.otherUser.completePicture?.let { UserAvatarAsset(it) }
                 )
             }
-            else -> throw IllegalStateException("Invalid conversation type")
+            is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
         }
     }
 }

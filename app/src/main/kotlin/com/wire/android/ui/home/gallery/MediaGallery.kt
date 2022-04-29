@@ -4,9 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -15,11 +15,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
@@ -30,7 +28,6 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.getUriFromDrawable
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -64,17 +61,11 @@ fun MediaGalleryContent(imageAsset: ImageAsset.PrivateAsset) {
 
     Box(Modifier.fillMaxWidth().fillMaxHeight().background(colorsScheme().surface)) {
         Image(
-            painter = imageLoader.paint(
-                imageAsset, getUriFromDrawable(
-                    LocalContext.current,
-                    R.drawable.ic_default_user_avatar
-                )
-            ),
+            painter = imageLoader.paint(imageAsset, null),
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
                 .padding(dimensions().userAvatarStatusBorderSize)
-                .background(MaterialTheme.wireColorScheme.divider, CircleShape)
-                .wrapContentWidth()
+                .fillMaxSize()
                 .align(alignment = Alignment.Center),
             contentScale = ContentScale.Fit
         )

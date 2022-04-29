@@ -31,6 +31,8 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -44,7 +46,8 @@ import java.lang.IllegalStateException
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
-    private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
+    private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
+    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -65,6 +68,10 @@ class ConversationListViewModel @Inject constructor(
                     newActivityCount = 1
                 )
             }
+        }
+
+        viewModelScope.launch {
+            markMessagesAsNotified(null, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
         }
     }
 

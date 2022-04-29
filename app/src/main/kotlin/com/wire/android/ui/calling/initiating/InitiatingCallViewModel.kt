@@ -96,7 +96,7 @@ class InitiatingCallViewModel @Inject constructor(
                             conversationType = ConversationType.Conference
                         )
                     }
-                    else -> throw IllegalStateException("Invalid conversation type")
+                    is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
                 }
             }
     }

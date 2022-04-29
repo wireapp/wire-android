@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.media.CallRinger
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -22,6 +23,7 @@ import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.lang.IllegalStateException
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
@@ -45,7 +47,7 @@ class IncomingCallViewModel @Inject constructor(
             callRinger.ring(R.raw.ringing_from_them)
             launch {
                 conversationDetails(conversationId = conversationId)
-                    .collect { observeConversationDetails(conversationDetails = it) }
+                    .collect { initializeScreenState(conversationDetails = it) }
             }
             launch {
                 observeIncomingCall()
@@ -90,14 +92,16 @@ class IncomingCallViewModel @Inject constructor(
         }
     }
 
-    private fun observeConversationDetails(conversationDetails: ConversationDetails) {
-        val conversationName = when (conversationDetails) {
-            is ConversationDetails.Group -> conversationDetails.conversation.name
-            is ConversationDetails.OneOne -> conversationDetails.otherUser.name
-            else -> null
+    private fun initializeScreenState(conversationDetails: ConversationDetails) {
+        callState = when (conversationDetails) {
+            is ConversationDetails.Group -> callState.copy(conversationName = conversationDetails.conversation.name)
+            is ConversationDetails.OneOne -> {
+                callState.copy(
+                    conversationName = conversationDetails.otherUser.name,
+                    avatarAssetId = conversationDetails.otherUser.completePicture?.let { UserAvatarAsset(it) }
+                )
+            }
+            is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
         }
-        callState = callState.copy(
-            conversationName = conversationName
-        )
     }
 }

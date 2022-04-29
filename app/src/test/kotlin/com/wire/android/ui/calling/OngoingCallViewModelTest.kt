@@ -22,6 +22,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.After
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OngoingCallViewModelTest {
@@ -44,6 +45,9 @@ class OngoingCallViewModelTest {
     @MockK
     private lateinit var unMuteCall: UnMuteCallUseCase
 
+    @MockK
+    private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
     @BeforeEach
@@ -58,6 +62,7 @@ class OngoingCallViewModelTest {
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
+            conversationDetails = observeConversationDetails,
             allCalls = allCalls,
             endCall = endCall,
             muteCall = muteCall,

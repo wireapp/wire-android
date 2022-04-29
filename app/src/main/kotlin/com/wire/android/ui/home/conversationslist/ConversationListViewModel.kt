@@ -155,7 +155,7 @@ class ConversationListViewModel @Inject constructor(
                         groupName = conversation.name.orEmpty(),
                         conversationId = conversation.id,
                         mutedStatus = conversation.mutedStatus,
-                        isLegalHold = details.legalHoldStatus == LegalHoldStatus.ENABLED
+                        isLegalHold = details.legalHoldStatus.showLegalHoldIndicator()
                     )
                 )
             }
@@ -174,7 +174,7 @@ class ConversationListViewModel @Inject constructor(
                         ),
                         conversationId = conversation.id,
                         mutedStatus = conversation.mutedStatus,
-                        isLegalHold = details.legalHoldStatus == LegalHoldStatus.ENABLED
+                        isLegalHold = details.legalHoldStatus.showLegalHoldIndicator()
                     )
                 )
             }
@@ -194,3 +194,5 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 }
+
+private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED

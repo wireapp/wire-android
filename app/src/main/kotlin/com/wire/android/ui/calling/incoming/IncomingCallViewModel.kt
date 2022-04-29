@@ -86,7 +86,7 @@ class IncomingCallViewModel @Inject constructor(
             is ConversationDetails.OneOne -> {
                 callState.copy(
                     conversationName = conversationDetails.otherUser.name,
-                    avatarAssetId = UserAvatarAsset(conversationDetails.otherUser.completePicture ?: "")
+                    avatarAssetId = conversationDetails.otherUser.completePicture?.let { UserAvatarAsset(it) }
                 )
             }
             else -> throw IllegalStateException("Invalid conversation type")

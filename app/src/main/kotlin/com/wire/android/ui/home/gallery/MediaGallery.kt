@@ -46,7 +46,7 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                 Scaffold(
                     topBar = {
                         MediaGalleryScreenTopAppBar(
-                            title = screenTitle,
+                            title = screenTitle ?: stringResource(R.string.media_gallery_default_title_name),
                             onCloseClick = mediaGalleryViewModel::navigateBack,
                             onOptionsClick = mediaGalleryScreenState::showEditContextMenu
                         )

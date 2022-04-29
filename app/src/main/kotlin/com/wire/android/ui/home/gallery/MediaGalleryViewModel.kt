@@ -36,12 +36,12 @@ class MediaGalleryViewModel @Inject constructor(
     private fun observeConversationDetails() {
         viewModelScope.launch {
             getConversationDetails(imageAssetId.conversationId).collect {
-                updateMediaGalleryTitle(it.conversation.name ?: "")
+                updateMediaGalleryTitle(it.conversation.name)
             }
         }
     }
 
-    private fun updateMediaGalleryTitle(conversationName: String) {
+    private fun updateMediaGalleryTitle(conversationName: String?) {
         mediaGalleryViewState = mediaGalleryViewState.copy(screenTitle = conversationName)
     }
 

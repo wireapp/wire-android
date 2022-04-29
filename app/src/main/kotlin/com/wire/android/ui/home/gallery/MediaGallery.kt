@@ -1,34 +1,42 @@
 package com.wire.android.ui.home.gallery
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.topappbar.NavigationIconType
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.getUriFromDrawable
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
-
     val uiState = mediaGalleryViewModel.mediaGalleryViewState
-
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
-    val scope = rememberCoroutineScope()
 
     with(uiState) {
         MenuModalSheetLayout(
@@ -36,8 +44,14 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
             menuItems = EditGalleryMenuItems(onDeleteMessage = {}),
             content = {
                 Scaffold(
-                    topBar = {MediaGalleryScreenTopAppBar(screenTitle, {} ,{})},
-                    content = {}
+                    topBar = {
+                        MediaGalleryScreenTopAppBar(
+                            title = screenTitle,
+                            onCloseClick = mediaGalleryViewModel::navigateBack,
+                            onOptionsClick = mediaGalleryScreenState::showEditContextMenu
+                        )
+                    },
+                    content = { MediaGalleryContent(mediaGalleryViewModel.imageAssetId) }
                 )
             }
         )
@@ -45,30 +59,26 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
 }
 
 @Composable
-fun MediaGalleryScreenTopAppBar(
-    title: String,
-    onCloseClick: () -> Unit,
-    onOptionsClick: () -> Unit,
-) {
-    WireCenterAlignedTopAppBar(
-        onNavigationPressed = onCloseClick,
-        title = title,
-        navigationIconType = NavigationIconType.Close,
-        elevation = 0.dp,
-        actions = {
-            WireSecondaryButton(
-                onClick = onOptionsClick,
-                fillMaxWidth = false,
-                minHeight = dimensions().userProfileLogoutBtnHeight,
-                leadingIcon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_more),
-                        contentDescription = stringResource(R.string.content_description_menu_button),
-                    )
-                }
-            )
-        }
-    )
+fun MediaGalleryContent(imageAsset: ImageAsset.PrivateAsset) {
+    val imageLoader = hiltViewModel<MediaGalleryViewModel>().wireSessionImageLoader
+
+    Box(Modifier.fillMaxWidth().fillMaxHeight().background(colorsScheme().surface)) {
+        Image(
+            painter = imageLoader.paint(
+                imageAsset, getUriFromDrawable(
+                    LocalContext.current,
+                    R.drawable.ic_default_user_avatar
+                )
+            ),
+            contentDescription = stringResource(R.string.content_description_user_avatar),
+            modifier = Modifier
+                .padding(dimensions().userAvatarStatusBorderSize)
+                .background(MaterialTheme.wireColorScheme.divider, CircleShape)
+                .wrapContentWidth()
+                .align(alignment = Alignment.Center),
+            contentScale = ContentScale.Fit
+        )
+    }
 }
 
 fun EditGalleryMenuItems(

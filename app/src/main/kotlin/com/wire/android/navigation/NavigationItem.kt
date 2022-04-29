@@ -230,8 +230,9 @@ enum class NavigationItem(
         content = { MediaGalleryScreen() }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val imageAssetId: UserAssetId? = arguments.filterIsInstance<UserAssetId>().firstOrNull()
-            return imageAssetId?.run { "$primaryRoute/${this}" } ?: primaryRoute
+            val imageAssetId: ImageAsset.PrivateAsset? = arguments.filterIsInstance<ImageAsset.PrivateAsset>().firstOrNull()
+            val mappedArgs = imageAssetId?.mapIntoArgumentsString() ?: ""
+            return imageAssetId?.run { "$primaryRoute/${mappedArgs}" } ?: primaryRoute
         }
     };
 
@@ -287,10 +288,17 @@ const val EXTRA_IMAGE_DATA = "extra_image_data"
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 
 private fun QualifiedID.mapIntoArgumentString(): String = "$domain@$value"
+private fun ImageAsset.PrivateAsset.mapIntoArgumentsString(): String = "${conversationId.mapIntoArgumentString()}:$messageId"
 
 fun String.parseIntoQualifiedID(): QualifiedID {
     val components = split("@")
     return QualifiedID(components.last(), components.first())
+}
+
+fun String.parseIntoPrivateImageAsset(): ImageAsset.PrivateAsset {
+    val (conversationIdString, messageId) = split(":")
+    val conversationIdParam = conversationIdString.parseIntoQualifiedID()
+    return ImageAsset.PrivateAsset(conversationIdParam, messageId)
 }
 
 data class ContentParams(

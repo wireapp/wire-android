@@ -31,10 +31,14 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
+import com.wire.kalium.logic.data.conversation.UserType
+import java.lang.IllegalStateException
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -42,7 +46,8 @@ import javax.inject.Inject
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
-    private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
+    private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
+    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -63,6 +68,10 @@ class ConversationListViewModel @Inject constructor(
                     newActivityCount = 1
                 )
             }
+        }
+
+        viewModelScope.launch {
+            markMessagesAsNotified(null, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
         }
     }
 
@@ -129,6 +138,7 @@ class ConversationListViewModel @Inject constructor(
         it is Group || it is OneOne
     }.map { details ->
         val conversation = details.conversation
+
         when (details) {
             is Group -> {
                 GeneralConversation(
@@ -142,6 +152,7 @@ class ConversationListViewModel @Inject constructor(
             }
             is OneOne -> {
                 val otherUser = details.otherUser
+
                 GeneralConversation(
                     ConversationType.PrivateConversation(
                         userInfo = UserInfo(
@@ -150,8 +161,8 @@ class ConversationListViewModel @Inject constructor(
                         ),
                         conversationInfo = ConversationInfo(
                             name = otherUser.name.orEmpty(),
-                            membership = Membership.None,
-                            isLegalHold = true
+                            membership = mapUserType(details.userType),
+                            isLegalHold = false
                         ),
                         conversationId = conversation.id,
                         mutedStatus = conversation.mutedStatus
@@ -161,6 +172,16 @@ class ConversationListViewModel @Inject constructor(
             is Self -> {
                 throw IllegalArgumentException("Self conversations should not be visible to the user.")
             }
+        }
+    }
+
+    private fun mapUserType(userType: UserType): Membership {
+        return when (userType) {
+            UserType.GUEST -> Membership.Guest
+            UserType.FEDERATED -> Membership.Federated
+            UserType.EXTERNAL -> Membership.External
+            UserType.INTERNAL -> Membership.None
+            else -> {  throw IllegalStateException("Unknown UserType") }
         }
     }
 }

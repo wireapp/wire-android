@@ -10,6 +10,8 @@ import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetOngoingCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
@@ -33,9 +35,9 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
-import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -97,6 +99,11 @@ class UseCaseModule {
     @Provides
     fun ssoInitiateLoginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getAuthenticationScope().ssoLoginScope.initiate
+
+    @ViewModelScoped
+    @Provides
+    fun getLoginSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().ssoLoginScope.getLoginSessionGet
 
     @ViewModelScoped
     @Provides
@@ -306,6 +313,18 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun providesObserveCallByConversationIdUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetAllCallsUseCase = coreLogic.getSessionScope(currentAccount).calls.allCalls
+
+    @ViewModelScoped
+    @Provides
+    fun providesOnGoingCallUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetOngoingCallUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.onGoingCall
+
+    @ViewModelScoped
+    @Provides
     fun providesStartCallUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): StartCallUseCase =
         coreLogic.getSessionScope(currentAccount).calls.startCall
 
@@ -339,4 +358,10 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateConversationMutedStatusUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.updateConversationMutedStatus
+
+    @ViewModelScoped
+    @Provides
+    fun markMessagesAsNotifiedUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).messages.markMessagesAsNotified
+
 }

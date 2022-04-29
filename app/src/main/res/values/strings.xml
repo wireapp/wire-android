@@ -19,6 +19,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_try_again">Try again</string>
+    <string name="label_federated_membership">Federated</string>
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
@@ -84,13 +85,18 @@
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please verify your details and try again.</string>
     <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
+    <string name="login_error_user_already_logged_in_title">User Already LoggedIn</string>
+    <string name="login_error_user_already_logged_in_message">These account already logged in in the app!</string>
+    <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
+    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try to login again.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO LOGIN</string>
-    <string name="login_sso_code_placeholder">wire://</string>
+    <string name="login_sso_code_placeholder">wire-</string>
     <string name="login_sso_code_label">SSO CODE</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
+    <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
 
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
@@ -307,8 +313,12 @@
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
-    <string name="calling_label_unknown_caller_name">Default</string>
 
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
+
+    <!--sso dialog-->
+    <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
+    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
+
 </resources>

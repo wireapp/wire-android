@@ -3,6 +3,7 @@ package com.wire.android.ui.calling
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import io.mockk.MockKAnnotations
@@ -32,6 +33,9 @@ class OngoingCallViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
+    private lateinit var allCalls: GetAllCallsUseCase
+
+    @MockK
     private lateinit var endCall: EndCallUseCase
 
     @MockK
@@ -54,6 +58,7 @@ class OngoingCallViewModelTest {
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
+            allCalls = allCalls,
             endCall = endCall,
             muteCall = muteCall,
             unMuteCall = unMuteCall

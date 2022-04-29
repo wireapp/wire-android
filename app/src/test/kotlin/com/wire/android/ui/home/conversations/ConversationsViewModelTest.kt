@@ -30,6 +30,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -284,6 +285,9 @@ class ConversationsViewModelTest {
         lateinit var observeMemberDetails: ObserveConversationMembersUseCase
 
         @MockK
+        lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+
+        @MockK
         lateinit var context: Context
 
         @MockK
@@ -305,7 +309,8 @@ class ConversationsViewModelTest {
                 sendImageMessage = sendImageMessage,
                 getMessageAsset = getMessageAsset,
                 deleteMessage = deleteMessage,
-                dispatchers = TestDispatcherProvider()
+                dispatchers = TestDispatcherProvider(),
+                markMessagesAsNotified = markMessagesAsNotified
             )
         }
 

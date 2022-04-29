@@ -3,6 +3,7 @@ package com.wire.android.di
 import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.Module
@@ -28,4 +29,7 @@ object AppModule {
     @Singleton
     @Provides
     fun providesDefaultDispatchers(): DispatcherProvider = DefaultDispatcherProvider()
+
+    @Provides
+    fun provideDeepLinkProcessor(): DeepLinkProcessor = DeepLinkProcessor()
 }

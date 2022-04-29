@@ -5,15 +5,17 @@ import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.ui.UIText
 
 val mockMessageWithText = MessageViewWrapper(
     user = User(null, UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
-        username = "John Doe",
+        username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
         isLegalHold = true,
         time = "12.23pm",
@@ -22,18 +24,21 @@ val mockMessageWithText = MessageViewWrapper(
     ),
     messageContent = MessageContent.TextMessage(
         messageBody = MessageBody(
-            "This is some test message that is very very" +
-                    "very very very very" +
-                    " very very very" +
-                    "very very very very very long"
+            UIText.DynamicString(
+                "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
+            )
         )
     ),
+    messageSource = MessageSource.Self
 )
 
 val mockAssetMessage = MessageViewWrapper(
     user = User(UserAvatarAsset(""), UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
-        username = "John Doe",
+        username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
         isLegalHold = true,
         time = "12.23pm",
@@ -45,7 +50,8 @@ val mockAssetMessage = MessageViewWrapper(
         assetExtension = "ZIP",
         assetId = "asset-id",
         assetSizeInBytes = 21957335
-    )
+    ),
+    messageSource = MessageSource.Self
 )
 
 @Suppress("MagicNumber")
@@ -56,7 +62,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "John Doe",
+            username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
             isLegalHold = true,
             time = "12.23pm",
@@ -65,17 +71,20 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(
-                "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long"
+                UIText.DynamicString(
+                    "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long"
+                )
             )
         ),
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "John Doe",
+            username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
             isLegalHold = true,
             time = "12.23pm",
@@ -83,11 +92,12 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
             messageId = ""
         ),
         messageContent = mockedImg,
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "John Doe",
+            username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
@@ -95,11 +105,12 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
             messageId = ""
         ),
         messageContent = mockedImg,
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "John Doe",
+            username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
@@ -107,11 +118,12 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
             messageId = ""
         ),
         messageContent = mockedImg,
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "John Doe",
+            username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
@@ -120,17 +132,20 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(
-                "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long"
+                UIText.DynamicString(
+                    "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long"
+                )
             )
         ),
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "John Doe",
+            username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
@@ -138,11 +153,12 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
             messageId = ""
         ),
         messageContent = mockedImg,
+        messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
-            username = "John Doe",
+            username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
@@ -151,27 +167,30 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(
-                "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long" +
-                        "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long" +
-                        "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long" +
-                        "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long" +
-                        "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long"
+                UIText.DynamicString(
+                    "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long" +
+                            "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long" +
+                            "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long" +
+                            "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long" +
+                            "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long"
+                )
             )
         ),
+        messageSource = MessageSource.Self
     )
 )

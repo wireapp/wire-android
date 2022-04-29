@@ -39,18 +39,21 @@ import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
-fun LoginScreen(serverConfig: ServerConfig) {
+fun LoginScreen(serverConfig: ServerConfig, ssoLoginResult: DeepLinkResult.SSOLogin?) {
     val loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel.updateServerConfig(ssoLoginResult, serverConfig)
     LoginContent(
         onBackPressed = { loginViewModel.navigateBack() },
         //todo: temporary to show the remoteConfig
-        serverTitle = serverConfig.title,
-        serverConfig = serverConfig
+        serverTitle = loginViewModel.serverConfig.title,
+        serverConfig = loginViewModel.serverConfig,
+        ssoLoginResult = ssoLoginResult
     )
 }
 
@@ -59,11 +62,12 @@ fun LoginScreen(serverConfig: ServerConfig) {
 private fun LoginContent(
     onBackPressed: () -> Unit,
     serverTitle: String,
-    serverConfig: ServerConfig
+    serverConfig: ServerConfig,
+    ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-    val initialPageIndex = LoginTabItem.EMAIL.ordinal
+    val initialPageIndex = if (ssoLoginResult == null) LoginTabItem.EMAIL.ordinal else LoginTabItem.SSO.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
     Scaffold(
         topBar = {
@@ -97,8 +101,8 @@ private fun LoginContent(
                 modifier = Modifier.fillMaxWidth()
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
-                    LoginTabItem.EMAIL -> LoginEmailScreen(serverConfig, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(serverConfig, scrollState)
+                    LoginTabItem.EMAIL -> LoginEmailScreen(scrollState)
+                    LoginTabItem.SSO -> LoginSSOScreen(ssoLoginResult, scrollState)
                 }
             }
             if(!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)
@@ -120,7 +124,7 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @Composable
 private fun LoginScreenPreview() {
     WireTheme(isPreview = true) {
-        LoginContent(onBackPressed = { }, serverTitle = "", serverConfig = ServerConfig.STAGING)
+        LoginContent(onBackPressed = { }, serverTitle = "", serverConfig = ServerConfig.STAGING, ssoLoginResult = null)
     }
 }
 

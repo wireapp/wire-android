@@ -1,9 +1,11 @@
 package com.wire.android.ui.calling
 
+import com.wire.android.model.UserAvatarAsset
+
 data class OngoingCallState(
-    val conversationName: String = "Default",
-    val avatarAssetByteArray: ByteArray? = null,
-    val isMuted: Boolean = true,
+    val conversationName: String? = null,
+    val avatarAssetId: UserAvatarAsset? = null,
+    val isMuted: Boolean = false,
     val isCameraOn: Boolean = false,
     val isSpeakerOn: Boolean = false
 )

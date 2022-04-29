@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -49,6 +50,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.DialogErrorStrings
+import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
@@ -57,7 +59,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginEmailScreen(
-    serverConfig: ServerConfig,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
@@ -70,8 +71,8 @@ fun LoginEmailScreen(
         onPasswordChange = { loginEmailViewModel.onPasswordChange(it) },
         onDialogDismiss = { loginEmailViewModel.onDialogDismiss() },
         onRemoveDeviceOpen = { loginEmailViewModel.onTooManyDevicesError() },
-        onLoginButtonClick = suspend { loginEmailViewModel.login(serverConfig) },
-        accountsBaseUrl = serverConfig.accountsBaseUrl,
+        onLoginButtonClick = suspend { loginEmailViewModel.login() },
+        accountsBaseUrl = loginEmailViewModel.serverConfig.accountsBaseUrl,
         scope = scope
     )
 }
@@ -103,7 +104,7 @@ private fun LoginEmailContent(
             userIdentifier = loginEmailState.userIdentifier,
             onUserIdentifierChange = onUserIdentifierChange,
             error = when (loginEmailState.loginEmailError) {
-                LoginEmailError.TextFieldError.InvalidUserIdentifierError -> stringResource(R.string.login_error_invalid_user_identifier)
+                LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                 else -> null
             }
         )
@@ -133,17 +134,24 @@ private fun LoginEmailContent(
         }
     }
 
-    if (loginEmailState.loginEmailError is LoginEmailError.DialogError) {
+    if (loginEmailState.loginEmailError is LoginError.DialogError) {
         val (title, message) = when (loginEmailState.loginEmailError) {
-            LoginEmailError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
+            is LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
                 stringResource(id = R.string.login_error_invalid_credentials_title),
                 stringResource(id = R.string.login_error_invalid_credentials_message)
             )
             // TODO: sync with design about the error message
-            LoginEmailError.DialogError.UserAlreadyExists -> DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
-            is LoginEmailError.DialogError.GenericError -> {
+            is LoginError.DialogError.UserAlreadyExists -> DialogErrorStrings(
+                stringResource(id = R.string.login_error_user_already_logged_in_title),
+                stringResource(id = R.string.login_error_user_already_logged_in_message)
+            )
+            is LoginError.DialogError.GenericError -> {
                 loginEmailState.loginEmailError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
             }
+            else -> DialogErrorStrings(
+                stringResource(R.string.error_unknown_title),
+                stringResource(R.string.error_unknown_message)
+            )
         }
         WireDialog(
             title = title,
@@ -155,7 +163,7 @@ private fun LoginEmailContent(
                 type = WireDialogButtonType.Primary,
             )
         )
-    } else if (loginEmailState.loginEmailError is LoginEmailError.TooManyDevicesError) {
+    } else if (loginEmailState.loginEmailError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }
 }

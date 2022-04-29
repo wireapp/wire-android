@@ -22,28 +22,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.calling.controlButtons.AcceptButton
 import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.DeclineButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
 import com.wire.android.ui.calling.controlButtons.SpeakerButton
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun IncomingCallScreen(incomingCallViewModel: IncomingCallViewModel = hiltViewModel()) {
+    val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(incomingCallViewModel = incomingCallViewModel)
+
     IncomingCallContent(
         state = incomingCallViewModel.callState,
         declineCall = {
             incomingCallViewModel.declineCall()
         },
         acceptCall = {
-            incomingCallViewModel.acceptCall()
+            audioPermissionCheck.launch()
         }
     )
 }
@@ -59,11 +63,11 @@ private fun IncomingCallContent(
     val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(
         topBar = { IncomingCallTopBar { } },
-        sheetShape = RoundedCornerShape(MaterialTheme.wireDimensions.corner16x, MaterialTheme.wireDimensions.corner16x, 0.dp, 0.dp),
+        sheetShape = RoundedCornerShape(dimensions().corner16x, dimensions().corner16x, 0.dp, 0.dp),
         backgroundColor = MaterialTheme.wireColorScheme.callingIncomingBackground,
         sheetGesturesEnabled = false,
         scaffoldState = scaffoldState,
-        sheetPeekHeight = MaterialTheme.wireDimensions.defaultIncomingCallSheetPeekHeight,
+        sheetPeekHeight = dimensions().defaultIncomingCallSheetPeekHeight,
         sheetContent = {
             CallingControls(
                 state = state,
@@ -78,18 +82,19 @@ private fun IncomingCallContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = state.conversationName ?: stringResource(id = R.string.calling_label_unknown_caller_name),
+                text = state.conversationName ?: stringResource(id = R.string.calling_label_default_caller_name),
                 style = MaterialTheme.wireTypography.title01,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)
+                modifier = Modifier.padding(top = dimensions().spacing24x)
             )
             Text(
                 text = stringResource(id = R.string.calling_label_incoming_call),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
+                modifier = Modifier.padding(top = dimensions().spacing8x)
             )
             UserProfileAvatar(
-                size = MaterialTheme.wireDimensions.callingIncomingUserAvatarSize,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing56x)
+                userAvatarAsset = state.avatarAssetId,
+                size = dimensions().callingIncomingUserAvatarSize,
+                modifier = Modifier.padding(top = dimensions().spacing56x)
             )
         }
     }
@@ -121,7 +126,7 @@ private fun CallingControls(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = MaterialTheme.wireDimensions.spacing32x)
+            .padding(top = dimensions().spacing32x)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -132,27 +137,27 @@ private fun CallingControls(
             Text(
                 text = stringResource(id = R.string.calling_label_microphone),
                 style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
+                modifier = Modifier.padding(top = dimensions().spacing8x)
             )
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CameraButton(initialState = state.isCameraOn)
+            CameraButton(isCameraOn = state.isCameraOn, onCameraPermissionDenied = { }) { }
             Text(
                 text = stringResource(id = R.string.calling_label_camera),
                 style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
+                modifier = Modifier.padding(top = dimensions().spacing8x)
             )
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SpeakerButton(initialState = state.isSpeakerOn)
+            SpeakerButton(isSpeakerOn = state.isSpeakerOn) { }
             Text(
                 text = stringResource(id = R.string.calling_label_speaker),
                 style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
+                modifier = Modifier.padding(top = dimensions().spacing8x)
             )
         }
     }
@@ -161,9 +166,9 @@ private fun CallingControls(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = MaterialTheme.wireDimensions.spacing40x,
-                top = MaterialTheme.wireDimensions.spacing32x,
-                end = MaterialTheme.wireDimensions.spacing40x
+                start = dimensions().spacing40x,
+                top = dimensions().spacing32x,
+                end = dimensions().spacing40x
             )
     ) {
         Column(
@@ -175,8 +180,8 @@ private fun CallingControls(
                 text = stringResource(id = R.string.calling_label_decline),
                 style = MaterialTheme.wireTypography.body03,
                 modifier = Modifier.padding(
-                    top = MaterialTheme.wireDimensions.spacing8x,
-                    bottom = MaterialTheme.wireDimensions.spacing40x
+                    top = dimensions().spacing8x,
+                    bottom = dimensions().spacing40x
                 )
             )
         }
@@ -190,13 +195,23 @@ private fun CallingControls(
                 text = stringResource(id = R.string.calling_label_accept),
                 style = MaterialTheme.wireTypography.body03,
                 modifier = Modifier.padding(
-                    top = MaterialTheme.wireDimensions.spacing8x,
-                    bottom = MaterialTheme.wireDimensions.spacing40x
+                    top = dimensions().spacing8x,
+                    bottom = dimensions().spacing40x
                 )
             )
         }
     }
 }
+
+@Composable
+private fun AudioBluetoothPermissionCheckFlow(incomingCallViewModel: IncomingCallViewModel) =
+    rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
+        appLogger.d("IncomingCall - Permissions granted")
+        incomingCallViewModel.acceptCall()
+    }) {
+        appLogger.d("IncomingCall - Permissions denied")
+        incomingCallViewModel.declineCall()
+    }
 
 @Preview
 @Composable

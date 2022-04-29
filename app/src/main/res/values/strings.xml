@@ -23,12 +23,13 @@
     <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_user_avatar">User avatar</string>
     <string name="content_description_mute">Mute</string>
+    <string name="content_description_check">Check mark</string>
     <string name="content_description_add_to_favourite">Add to favourite</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
     <string name="content_description_block_the_user">Block the user</string>
     <string name="content_description_leave_the_group">Leave the group</string>
-    <string name="content_description_conversation_video_icon">Conversation video icon</string>
+    <string name="content_description_conversation_phone_icon">Make audio call</string>
     <string name="content_description_welcome_carousel_item">Welcome image</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Conversation search icon</string>
@@ -43,6 +44,7 @@
     <string name="content_description_choose_from_gallery">Choose from gallery</string>
     <string name="content_description_take_a_picture">Take a picture</string>
     <string name="content_description_right_arrow">Right arrow</string>
+    <string name="content_description_left_arrow">Left arrow</string>
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_create_account_summary">Summary image</string>
     <string name="content_description_attachment_item">Attachment item</string>
@@ -79,13 +81,18 @@
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please verify your details and try again.</string>
     <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
+    <string name="login_error_user_already_logged_in_title">User Already LoggedIn</string>
+    <string name="login_error_user_already_logged_in_message">These account already logged in in the app!</string>
+    <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
+    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try to login again.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO LOGIN</string>
-    <string name="login_sso_code_placeholder">wire://</string>
+    <string name="login_sso_code_placeholder">wire-</string>
     <string name="login_sso_code_label">SSO CODE</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
+    <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
 
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
@@ -126,7 +133,7 @@
     <string name="create_account_email_placeholder">jane@example.com</string>
     <string name="create_account_email_label">EMAIL</string>
     <string name="create_account_email_footer_text">Already have an account? </string>
-    <string name="create_account_email_terms_dialog_title">Terms &amp; Conditions</string>
+    <string name="create_account_email_terms_dialog_title">Terms of Use</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
     <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
@@ -164,6 +171,8 @@
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALLS HISTORY</string>
     <string name="conversation_label_new_activity">NEW ACTIVITY</string>
+    <string name="conversation_label_favorites">FAVORITES</string>
+    <string name="conversation_label_conversations">CONVERSATIONS</string>
     <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
     <string name="label_message_status_deleted">Deleted</string>
@@ -173,12 +182,14 @@
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
+    <string name="content_is_not_available">content is not available</string>
     <string name="new_group_title">New Group</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name">Group name</string>
     <string name="empty_group_name_error">Group name should not be empty</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
     <string name="asset_message_download_text">Tap to download</string>
+    <string name="member_name_deleted_label">Deleted User</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
@@ -211,13 +222,21 @@
     <string name="user_profile_change_status_dialog_checkbox_text">Do not display this information again</string>
 
     <!-- Conversations BottomSheet -->
-    <string name="label_mute">Mute</string>
+    <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Add to Favourites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_clear_content">Clear Content...</string>
     <string name="label_block">Block</string>
     <string name="label_leave_group">Leave Group</string>
+
+    <!-- Muting options BottomSheet -->
+    <string name="muting_option_all_allowed_title">Everything</string>
+    <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
+    <string name="muting_option_only_mentions_title">Mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone mentions you or replies to you</string>
+    <string name="muting_option_all_muted_title">Nothing</string>
+    <string name="muting_option_all_muted_text">Receive no notifications for this conversation at all</string>
 
     <!--Profile image-->
     <string name="profile_image_top_bar_label">Profile image</string>
@@ -280,17 +299,27 @@
     <string name="calling_accept_call">Accept call</string>
     <string name="calling_decline_call">Decline call</string>
     <string name="calling_turn_camera_on_off">Turn camera on/off</string>
+    <string name="calling_flip_camera_on_off">Flip camera</string>
     <string name="calling_turn_speaker_on_off">Turn speaker on/off</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
-    <string name="label_try_again">Try again</string>
-    <string name="content_description_ping_everyone">Ping everyone</string>
+    <string name="calling_label_microphone">Microphone</string>
+    <string name="calling_label_camera">Camera</string>
+    <string name="calling_label_speaker">Speaker</string>
+    <string name="calling_label_flip">Flip</string>
+    <string name="calling_label_ringing_call">Ringing...</string>
     <string name="calling_label_incoming_call">Calling..</string>
+    <string name="calling_label_default_caller_name">Default</string>
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
-    <string name="calling_label_microphone">MICROPHONE</string>
-    <string name="calling_label_camera">CAMERA</string>
-    <string name="calling_label_speaker">SPEAKER</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
-    <string name="calling_label_unknown_caller_name">Unknown</string>
+    <!-- Calling-->
 
+    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_try_again">Try again</string>
+
+    <!--sso dialog-->
+    <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
+    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
+
+    <string name="content_description_ping_everyone">Ping everyone</string>
+    <string name="label_federated_membership">Federated</string>
 </resources>

@@ -26,26 +26,23 @@ import com.wire.android.R
 import com.wire.android.ui.common.OnDropDownIconButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.topappbar.BackNavigationIconButton
+import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.getConversationColor
 
 @Composable
 fun ConversationScreenTopAppBar(
     title: String,
+    avatar: @Composable () -> Unit = {},
     onBackButtonClick: () -> Unit,
     onDropDownClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
-    onVideoButtonClick: () -> Unit
+    onPhoneButtonClick: () -> Unit
 ) {
     SmallTopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                //TODO:This Box is only for the design preview, this is going to be changed, ignore it during code-review
-                Box(
-                    modifier = Modifier
-                        .background(color = Color.Green, shape = RoundedCornerShape(8.dp))
-                        .width(24.dp)
-                        .height(24.dp)
-                )
+                avatar()
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = title,
@@ -62,7 +59,7 @@ fun ConversationScreenTopAppBar(
                 onClick = onSearchButtonClick,
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_search_icon),
+                        painter = painterResource(id = R.drawable.ic_search),
                         contentDescription = stringResource(R.string.content_description_conversation_search_icon),
                         tint = MaterialTheme.colorScheme.onBackground
                     )
@@ -75,11 +72,11 @@ fun ConversationScreenTopAppBar(
             )
             Spacer(Modifier.width(6.dp))
             WireSecondaryButton(
-                onClick = onVideoButtonClick,
+                onClick = onPhoneButtonClick,
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_video_icon),
-                        contentDescription = stringResource(R.string.content_description_conversation_video_icon),
+                        painter = painterResource(id = R.drawable.ic_phone),
+                        contentDescription = stringResource(R.string.content_description_conversation_phone_icon),
                     )
                 },
                 fillMaxWidth = false,
@@ -103,6 +100,7 @@ fun ConversationScreenTopAppBar(
 fun ConversationScreenTopAppBarLongTitlePreview() {
     ConversationScreenTopAppBar(
         "This is some very very very very very very very very very very long conversation title",
+        { GroupConversationAvatar(colorValue = 0xFF00FF00) },
         {},
         {},
         {},
@@ -115,6 +113,7 @@ fun ConversationScreenTopAppBarLongTitlePreview() {
 fun ConversationScreenTopAppBarShortTitlePreview() {
     ConversationScreenTopAppBar(
         "Short title",
+        { GroupConversationAvatar(colorValue = 0xFF00FF00) },
         {},
         {},
         {},

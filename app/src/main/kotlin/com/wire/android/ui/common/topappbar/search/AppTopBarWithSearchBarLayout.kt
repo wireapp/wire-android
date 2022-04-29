@@ -196,7 +196,7 @@ private fun AppTopBarWithSearchBarContent(
                                 }) {
                                     Icon(
                                         painter = painterResource(
-                                            id = if (isVisible) R.drawable.ic_search_icon
+                                            id = if (isVisible) R.drawable.ic_search
                                             else R.drawable.ic_arrow_left
                                         ),
                                         contentDescription = stringResource(R.string.content_description_conversation_search_icon),

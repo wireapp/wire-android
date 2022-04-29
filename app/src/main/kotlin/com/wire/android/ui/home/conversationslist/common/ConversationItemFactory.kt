@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations.common
+package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.home.conversationslist.CallConversationItem

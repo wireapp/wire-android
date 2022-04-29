@@ -72,6 +72,7 @@ fun MediaGalleryContent(imageAsset: ImageAsset.PrivateAsset) {
     }
 }
 
+@Composable
 fun EditGalleryMenuItems(
     onDeleteMessage: () -> Unit
 ): List<@Composable () -> Unit> {

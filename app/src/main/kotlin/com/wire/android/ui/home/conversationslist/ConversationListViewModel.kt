@@ -28,9 +28,11 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
@@ -39,8 +41,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
-import com.wire.kalium.logic.data.conversation.UserType
-import java.lang.IllegalStateException
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -55,19 +55,21 @@ class ConversationListViewModel @Inject constructor(
     var state by mutableStateOf(ConversationListState())
         private set
 
+    var errorState by mutableStateOf<ConversationOperationErrorState?>(null)
+
     init {
         viewModelScope.launch {
             observeConversationDetailsList().collect { detailedList ->
-                val newActivities = listOf<NewActivity>() //TODO: needs to be implemented
-                val missedCalls = mockMissedCalls //TODO: needs to be implemented
-                val unreadMentions = mockUnreadMentionList //TODO: needs to be implemented
+                val newActivities = listOf<NewActivity>() // TODO: needs to be implemented
+                val missedCalls = mockMissedCalls // TODO: needs to be implemented
+                val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
                 state = ConversationListState(
                     newActivities = newActivities,
                     conversations = detailedList.toConversationsFoldersMap(),
                     missedCalls = missedCalls,
-                    callHistory = mockCallHistory, //TODO: needs to be implemented
+                    callHistory = mockCallHistory, // TODO: needs to be implemented
                     unreadMentions = unreadMentions,
-                    allMentions = mockAllMentionList, //TODO: needs to be implemented
+                    allMentions = mockAllMentionList, // TODO: needs to be implemented
                     unreadMentionsCount = unreadMentions.size,
                     missedCallsCount = missedCalls.size,
                     newActivityCount = newActivities.size
@@ -76,7 +78,7 @@ class ConversationListViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            markMessagesAsNotified(null, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
+            markMessagesAsNotified(null, System.currentTimeMillis().toStringDate()) // TODO Failure is ignored
         }
     }
 
@@ -106,8 +108,10 @@ class ConversationListViewModel @Inject constructor(
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {
         conversationId?.let {
             viewModelScope.launch {
-                appLogger.d("Muting conversation: $conversationId")
-                updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)
+                when (updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)) {
+                    ConversationUpdateStatusResult.Failure -> errorState = ConversationOperationErrorState.MutingOperationErrorState()
+                    ConversationUpdateStatusResult.Success -> appLogger.d("MutedStatus changed for conversation: $conversationId")
+                }
             }
         }
     }
@@ -190,7 +194,9 @@ class ConversationListViewModel @Inject constructor(
             UserType.FEDERATED -> Membership.Federated
             UserType.EXTERNAL -> Membership.External
             UserType.INTERNAL -> Membership.None
-            else -> {  throw IllegalStateException("Unknown UserType") }
+            else -> {
+                throw IllegalStateException("Unknown UserType")
+            }
         }
     }
 }

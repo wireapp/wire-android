@@ -44,18 +44,21 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `given updateServerConfig called, when ssoLoginResult is null & server config has a value, then result is same serverConfig`(){
+    fun `given updateServerConfig called, when ssoLoginResult is null & server config has a value, then result is same serverConfig`() {
         loginViewModel.serverConfig = ServerConfig.PRODUCTION
         loginViewModel.updateServerConfig(null, ServerConfig.STAGING)
         assertEquals(loginViewModel.serverConfig, ServerConfig.STAGING)
     }
 
     @Test
-    fun `given updateServerConfig called, when ssoLoginResult & server config have values, then result is same staging`(){
-        loginViewModel.updateServerConfig(ssoLoginResult = DeepLinkResult.SSOLogin.Success("",""), ServerConfig.STAGING)
+    fun `given updateServerConfig called, when ssoLoginResult & server config have values, then result is same staging`() {
+        loginViewModel.updateServerConfig(ssoLoginResult = DeepLinkResult.SSOLogin.Success("", ""), ServerConfig.STAGING)
         assertEquals(loginViewModel.serverConfig, ServerConfig.STAGING)
 
-        loginViewModel.updateServerConfig(ssoLoginResult = DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.ServerError), ServerConfig.STAGING)
+        loginViewModel.updateServerConfig(
+            ssoLoginResult = DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.ServerError),
+            ServerConfig.STAGING
+        )
         assertEquals(loginViewModel.serverConfig, ServerConfig.STAGING)
     }
 

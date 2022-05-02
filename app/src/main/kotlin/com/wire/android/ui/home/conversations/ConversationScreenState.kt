@@ -64,6 +64,10 @@ class ConversationScreenState(
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 
+    fun hideEditContextMenu(){
+        coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden) }
+    }
+
     fun copyMessage() {
         selectedMessage?.messageContent.let { messageContent ->
             if (messageContent is MessageContent.TextMessage) {

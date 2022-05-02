@@ -85,6 +85,7 @@ private fun ConversationScreen(
                 isMyMessage = conversationScreenState.isSelectedMessageMyMessage(),
                 onCopyMessage = conversationScreenState::copyMessage,
                 onDeleteMessage = {
+                    conversationScreenState.hideEditContextMenu()
                     onDeleteMessage(
                         conversationScreenState.selectedMessage?.messageHeader!!.messageId,
                         conversationScreenState.isSelectedMessageMyMessage()

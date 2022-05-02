@@ -122,7 +122,7 @@ private fun EmailContent(
         TermsConditionsDialog(
             onDialogDismiss = onTermsDialogDismiss,
             onContinuePressed = onTermsAccept,
-            onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, "https://${websiteBaseUrl}/legal") }
+            onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, "$websiteBaseUrl/legal") }
         )
     }
     if (state.error is CreateAccountEmailViewState.EmailError.DialogError.GenericError)

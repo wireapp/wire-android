@@ -81,13 +81,18 @@
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please verify your details and try again.</string>
     <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
+    <string name="login_error_user_already_logged_in_title">User Already LoggedIn</string>
+    <string name="login_error_user_already_logged_in_message">These account already logged in in the app!</string>
+    <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
+    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try to login again.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO LOGIN</string>
-    <string name="login_sso_code_placeholder">wire://</string>
+    <string name="login_sso_code_placeholder">wire-</string>
     <string name="login_sso_code_label">SSO CODE</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
+    <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
 
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
@@ -128,7 +133,7 @@
     <string name="create_account_email_placeholder">jane@example.com</string>
     <string name="create_account_email_label">EMAIL</string>
     <string name="create_account_email_footer_text">Already have an account? </string>
-    <string name="create_account_email_terms_dialog_title">Terms &amp; Conditions</string>
+    <string name="create_account_email_terms_dialog_title">Terms of Use</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
     <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
@@ -166,6 +171,8 @@
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALLS HISTORY</string>
     <string name="conversation_label_new_activity">NEW ACTIVITY</string>
+    <string name="conversation_label_favorites">FAVORITES</string>
+    <string name="conversation_label_conversations">CONVERSATIONS</string>
     <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
     <string name="label_message_status_deleted">Deleted</string>
@@ -305,9 +312,15 @@
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
-    <string name="calling_label_unknown_caller_name">Default</string>
+    <!-- Calling-->
 
-    <string name="content_description_ping_everyone">Ping everyone</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_try_again">Try again</string>
+
+    <!--sso dialog-->
+    <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
+    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
+
+    <string name="content_description_ping_everyone">Ping everyone</string>
+    <string name="label_federated_membership">Federated</string>
 </resources>

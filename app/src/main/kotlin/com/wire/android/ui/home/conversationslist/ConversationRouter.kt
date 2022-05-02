@@ -105,7 +105,10 @@ fun ConversationRouterHomeBridge(
         conversationState = conversationState,
         openConversation = { viewModel.openConversation(it) },
         openNewConversation = { viewModel.openNewConversation() },
-        onExpandBottomSheet = { onBottomSheetVisibilityToggled() },
+        onExpandBottomSheet = {
+            conversationState.toggleEditMutedSetting(false)
+            onBottomSheetVisibilityToggled()
+        },
         onScrollPositionChanged = onScrollPositionChanged,
         onError = onBottomSheetVisibilityToggled
     )

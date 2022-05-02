@@ -2,6 +2,7 @@ package com.wire.android.ui.calling.incoming
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
@@ -12,6 +13,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.BeforeEach
@@ -40,6 +42,9 @@ class IncomingCallViewModelTest {
     @MockK
     lateinit var acceptCall: AnswerCallUseCase
 
+    @MockK
+    private lateinit var callRinger: CallRinger
+
     private lateinit var viewModel: IncomingCallViewModel
 
     @BeforeEach
@@ -60,23 +65,30 @@ class IncomingCallViewModelTest {
             conversationDetails = conversationDetails,
             allCalls = allCalls,
             rejectCall = rejectCall,
-            acceptCall = acceptCall
+            acceptCall = acceptCall,
+            callRinger = callRinger
         )
     }
 
     @Test
     fun `given an incoming call, when the user decline the call, then the reject call use case is called`() {
+        every { callRinger.stop() } returns Unit
+
         viewModel.declineCall()
 
         coVerify(exactly = 1) { rejectCall(conversationId = any()) }
         coVerify(exactly = 1) { navigationManager.navigateBack() }
+        verify(exactly = 1) { callRinger.stop() }
     }
 
     @Test
     fun `given an incoming call, when the user accepts the call, then the accept call use case is called`() {
+        every { callRinger.stop() } returns Unit
+
         viewModel.acceptCall()
 
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }
         coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
+        verify(exactly = 1) { callRinger.stop() }
     }
 }

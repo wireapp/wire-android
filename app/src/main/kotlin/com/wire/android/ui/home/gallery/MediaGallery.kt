@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
@@ -27,7 +26,6 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -60,15 +58,7 @@ fun MediaGalleryContent(imageAsset: ImageAsset.PrivateAsset) {
     val imageLoader = hiltViewModel<MediaGalleryViewModel>().wireSessionImageLoader
 
     Box(Modifier.fillMaxWidth().fillMaxHeight().background(colorsScheme().surface)) {
-        Image(
-            painter = imageLoader.paint(imageAsset, null),
-            contentDescription = stringResource(R.string.content_description_user_avatar),
-            modifier = Modifier
-                .padding(dimensions().userAvatarStatusBorderSize)
-                .fillMaxSize()
-                .align(alignment = Alignment.Center),
-            contentScale = ContentScale.Fit
-        )
+        ZoomableImage(imageAsset = imageAsset, contentDescription = stringResource(R.string.content_description_user_avatar), imageLoader = imageLoader)
     }
 }
 

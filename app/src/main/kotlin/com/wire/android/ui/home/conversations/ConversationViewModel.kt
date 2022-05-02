@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.model.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
@@ -29,6 +30,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.AssetContent
@@ -44,7 +46,9 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -65,7 +69,8 @@ class ConversationViewModel @Inject constructor(
     private val sendTextMessage: SendTextMessageUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val deleteMessage: DeleteMessageUseCase,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -98,8 +103,22 @@ class ConversationViewModel @Inject constructor(
                     is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
                     else -> conversationDetails.conversation.name.orEmpty()
                 }
-                conversationViewState = conversationViewState.copy(conversationName = conversationName)
+                val conversationAvatar = when (conversationDetails) {
+                    is ConversationDetails.OneOne ->
+                        ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) })
+                    is ConversationDetails.Group ->
+                        ConversationAvatar.Group(getConversationColor(conversationDetails.conversation.id))
+                    else -> ConversationAvatar.None
+                }
+                conversationViewState = conversationViewState.copy(
+                    conversationName = conversationName,
+                    conversationAvatar = conversationAvatar
+                )
             }
+        }
+
+        viewModelScope.launch {
+            markMessagesAsNotified(conversationId!!, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
         }
     }
 

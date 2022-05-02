@@ -12,16 +12,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.home.conversations.common.ConversationUserAvatar
-import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
-import com.wire.android.ui.home.conversations.common.GroupName
+import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.ConversationTitle
+import com.wire.android.ui.home.conversationslist.common.ConversationUserAvatar
+import com.wire.android.ui.home.conversationslist.common.UserLabel
 import com.wire.android.ui.home.conversationslist.model.CallEvent
 import com.wire.android.ui.home.conversationslist.model.CallTime
 import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
-import com.wire.android.ui.main.conversationlist.common.UserLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
@@ -39,7 +39,7 @@ fun CallConversationItem(
                     leadingIcon = {
                         GroupConversationAvatar(colorValue = conversationType.groupColorValue)
                     },
-                    title = { GroupName(conversationType.groupName) },
+                    title = { ConversationTitle(name = conversationType.groupName, isLegalHold = conversationType.isLegalHold) },
                     subTitle = {
                         with(callInfo) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -56,9 +56,7 @@ fun CallConversationItem(
             }
             is ConversationType.PrivateConversation -> {
                 RowItemTemplate(
-                    leadingIcon = {
-                        ConversationUserAvatar(conversationType.userInfo.avatarAsset)
-                    },
+                    leadingIcon = { with(conversationType.userInfo) { ConversationUserAvatar(avatarAsset, availabilityStatus) } },
                     title = { UserLabel(conversationType.toUserInfoLabel()) },
                     subTitle = {
                         with(callInfo) {

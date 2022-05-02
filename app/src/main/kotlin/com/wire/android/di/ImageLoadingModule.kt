@@ -21,9 +21,9 @@ class ImageLoadingModule {
     @Provides
     fun provideImageLoaderFactory(
         @ApplicationContext context: Context,
-        getAvatarAssetUseCase: GetAvatarAssetUseCase,
-        getMessageAssetUseCase: GetMessageAssetUseCase,
-    ): WireSessionImageLoader.Factory = WireSessionImageLoader.Factory(context, getAvatarAssetUseCase, getMessageAssetUseCase)
+        getAvatarAsset: GetAvatarAssetUseCase,
+        getMessageAsset: GetMessageAssetUseCase,
+    ): WireSessionImageLoader.Factory = WireSessionImageLoader.Factory(context, getAvatarAsset, getMessageAsset)
 
     // For better performance/caching. We shouldn't create many of these ImageLoaders.
     @Provides

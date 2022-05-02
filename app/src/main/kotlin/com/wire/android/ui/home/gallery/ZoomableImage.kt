@@ -1,11 +1,14 @@
 package com.wire.android.ui.home.gallery
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -16,7 +19,6 @@ import com.wire.android.util.ui.WireSessionImageLoader
 
 @Composable
 fun ZoomableImage(imageAsset: ImageAsset, contentDescription: String, imageLoader: WireSessionImageLoader, imageScale: Float = 1.0f) {
-    var scale by remember { mutableStateOf(imageScale) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var zoom by remember { mutableStateOf(1f) }
@@ -38,10 +40,10 @@ fun ZoomableImage(imageAsset: ImageAsset, contentDescription: String, imageLoade
                     detectTransformGestures(
                         onGesture = { _, pan, gestureZoom, _ ->
                             zoom = (zoom * gestureZoom).coerceIn(minScale, maxScale)
-                            if(zoom > 1) {
+                            if (zoom > 1) {
                                 offsetX += pan.x * zoom
                                 offsetY += pan.y * zoom
-                            }else{
+                            } else {
                                 offsetX = 0f
                                 offsetY = 0f
                             }

@@ -47,7 +47,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onSendButtonClicked = conversationViewModel::sendMessage,
         onSendAttachment = conversationViewModel::sendAttachmentMessage,
         onDownloadAsset = conversationViewModel::downloadAsset,
-        onImageFullMode = { conversationViewModel.navigateToGallery(it) },
+        onImageFullScreenMode = { conversationViewModel.navigateToGallery(it) },
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch
@@ -71,7 +71,7 @@ private fun ConversationScreen(
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullMode: (String) -> Unit,
+    onImageFullScreenMode: (String) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit
@@ -125,7 +125,7 @@ private fun ConversationScreen(
                             onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
                             onSendAttachment = onSendAttachment,
                             onDownloadAsset = onDownloadAsset,
-                            onImageFullMode = onImageFullMode,
+                            onImageFullScreenMode = onImageFullScreenMode,
                             conversationState = this,
                             onError = { errorMessage ->
                                 scope.launch {
@@ -197,7 +197,7 @@ private fun ConversationScreenContent(
     onShowContextMenu: (MessageViewWrapper) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullMode: (String) -> Unit,
+    onImageFullScreenMode: (String) -> Unit,
     onError: (String) -> Unit,
     conversationState: ConversationViewState
 ) {
@@ -224,7 +224,7 @@ private fun ConversationScreenContent(
                         message = message,
                         onLongClicked = { onShowContextMenu(message) },
                         onAssetMessageClicked = onDownloadAsset,
-                        onImageMessageClicked = onImageFullMode
+                        onImageMessageClicked = onImageFullScreenMode
                     )
                 }
             }

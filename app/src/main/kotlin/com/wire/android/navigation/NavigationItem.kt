@@ -289,20 +289,6 @@ const val EXTRA_IMAGE_DATA = "extra_image_data"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 
-private fun QualifiedID.mapIntoArgumentString(): String = "$domain@$value"
-private fun ImageAsset.PrivateAsset.mapIntoArgumentsString(): String = "${conversationId.mapIntoArgumentString()}:$messageId"
-
-fun String.parseIntoQualifiedID(): QualifiedID {
-    val components = split("@")
-    return QualifiedID(components.last(), components.first())
-}
-
-fun String.parseIntoPrivateImageAsset(): ImageAsset.PrivateAsset {
-    val (conversationIdString, messageId) = split(":")
-    val conversationIdParam = conversationIdString.parseIntoQualifiedID()
-    return ImageAsset.PrivateAsset(conversationIdParam, messageId)
-}
-
 data class ContentParams(
     val navBackStackEntry: NavBackStackEntry,
     val arguments: List<Any?> = emptyList()

@@ -62,6 +62,7 @@ fun ConversationRouterHomeBridge(
                         onItemClick = { conversationId, mutedStatus ->
                             viewModel.muteConversation(conversationId, mutedStatus)
                             conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutedStatus)
+                            conversationState.toggleEditMutedSetting(false)
                         },
                         onBackClick = {
                             mutingConversationState.closeMutedStatusSheetContent()

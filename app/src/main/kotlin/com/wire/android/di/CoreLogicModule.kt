@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.Module
@@ -35,9 +36,9 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
-import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -232,6 +233,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun providesGetSelfTeamUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetSelfTeamUseCase =
+        coreLogic.getSessionScope(currentAccount).team.getSelfTeamUseCase
+
+    @ViewModelScoped
+    @Provides
     fun providesSendTextMessageUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -358,4 +364,10 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateConversationMutedStatusUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.updateConversationMutedStatus
+
+    @ViewModelScoped
+    @Provides
+    fun markMessagesAsNotifiedUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).messages.markMessagesAsNotified
+
 }

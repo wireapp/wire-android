@@ -26,10 +26,10 @@ import com.wire.android.R
 import com.wire.android.ui.calling.controlButtons.CallOptionsControls
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 
@@ -54,11 +54,11 @@ fun InitiatingCallContent(
 
     BottomSheetScaffold(
         topBar = { InitiatingCallTopBar { onNavigateBack() } },
-        sheetShape = RoundedCornerShape(topStart = MaterialTheme.wireDimensions.corner16x, topEnd = MaterialTheme.wireDimensions.corner16x),
+        sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
         backgroundColor = MaterialTheme.wireColorScheme.initiatingCallBackground,
         scaffoldState = scaffoldState,
         sheetGesturesEnabled = false,
-        sheetPeekHeight = MaterialTheme.wireDimensions.defaultInitiatingCallSheetPeekHeight,
+        sheetPeekHeight = dimensions().defaultInitiatingCallSheetPeekHeight,
         sheetContent = {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -72,8 +72,8 @@ fun InitiatingCallContent(
                 )
                 HangUpButton(
                     modifier = Modifier
-                        .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
-                        .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
+                        .height(dimensions().initiatingCallHangUpButtonSize)
+                        .width(dimensions().initiatingCallHangUpButtonSize)
                 ) { onHangUpCall() }
             }
         }
@@ -87,17 +87,17 @@ fun InitiatingCallContent(
                 //TODO handle it in a different way
                 text = initiatingCallState.conversationName ?: stringResource(id = R.string.calling_label_default_caller_name),
                 style = MaterialTheme.wireTypography.title01,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing24x)
+                modifier = Modifier.padding(top = dimensions().spacing24x)
             )
             Text(
                 text = stringResource(id = R.string.calling_label_ringing_call),
                 style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
+                modifier = Modifier.padding(top = dimensions().spacing8x)
             )
             UserProfileAvatar(
                 userAvatarAsset = initiatingCallState.avatarAssetId,
-                size = MaterialTheme.wireDimensions.initiatingCallUserAvatarSize,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x)
+                size = dimensions().initiatingCallUserAvatarSize,
+                modifier = Modifier.padding(top = dimensions().spacing16x)
             )
         }
     }

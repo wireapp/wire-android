@@ -101,8 +101,10 @@ private fun LoginContent(
                 modifier = Modifier.fillMaxWidth()
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
-                    LoginTabItem.EMAIL -> LoginEmailScreen(scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(ssoLoginResult, scrollState)
+                    LoginTabItem.EMAIL -> LoginEmailScreen(serverConfig, scrollState)
+                    //todo: remove after switching the sso to production
+                    //LoginTabItem.SSO -> LoginSSOScreen(serverConfig, ssoLoginResult)
+                    LoginTabItem.SSO -> LoginSSOScreen(ServerConfig.STAGING, ssoLoginResult)
                 }
             }
             if(!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)

@@ -20,11 +20,11 @@ import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -43,8 +43,8 @@ fun ConversationSheetContent(
         headerIcon = {
             if (modalBottomSheetContentState is ModalSheetContent.GroupConversationEdit) {
                 GroupConversationAvatar(colorValue = modalBottomSheetContentState.groupColorValue)
-            } else {
-                UserProfileAvatar()
+            } else if(modalBottomSheetContentState is ModalSheetContent.PrivateConversationEdit) {
+                UserProfileAvatar(userAvatarAsset = modalBottomSheetContentState.avatarAsset)
             }
         },
         menuItems = listOf(

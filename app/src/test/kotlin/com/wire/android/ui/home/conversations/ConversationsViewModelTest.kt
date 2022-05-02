@@ -9,6 +9,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -20,6 +21,7 @@ import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
@@ -30,6 +32,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -37,6 +40,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -240,6 +244,32 @@ class ConversationsViewModelTest {
         coVerify(inverse = true) { arrangement.sendImageMessage.invoke(any(), any(), any(), any(), any()) }
     }
 
+    @Test
+    fun `given a 1 on 1 conversation, when solving the conversation avatar, then the avatar of the other user is used`() = runTest {
+        // Given
+        val conversationDetails = withMockConversationDetailsOneOnOne("", "userAssetId")
+        val otherUserAvatar = conversationDetails.otherUser.previewPicture
+        val (_, viewModel) = Arrangement().withChannelUpdates(conversationDetails = conversationDetails).arrange()
+        val actualAvatar = viewModel.conversationViewState.conversationAvatar
+        // When - Then
+        assert(actualAvatar is ConversationAvatar.OneOne)
+        assertEquals(otherUserAvatar, (actualAvatar as ConversationAvatar.OneOne).avatarAsset?.userAssetId)
+    }
+
+    @Test
+    fun `given a group conversation, when solving the conversation avatar, then the color of the conversation is used`() = runTest {
+        // Given
+        val conversationDetails = mockConversationDetailsGroup("")
+        val conversationColor = 0xFF00FF00
+        mockkStatic("com.wire.android.util.ColorUtilKt")
+        every { getConversationColor(any()) } returns conversationColor
+        val (_, viewModel) = Arrangement().withChannelUpdates(conversationDetails = conversationDetails).arrange()
+        val actualAvatar = viewModel.conversationViewState.conversationAvatar
+        // When - Then
+        assert(actualAvatar is ConversationAvatar.Group)
+        assertEquals(conversationColor, (actualAvatar as ConversationAvatar.Group).groupColorValue)
+    }
+
     private class Arrangement {
         init {
             // Tests setup
@@ -284,6 +314,9 @@ class ConversationsViewModelTest {
         lateinit var observeMemberDetails: ObserveConversationMembersUseCase
 
         @MockK
+        lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+
+        @MockK
         lateinit var context: Context
 
         @MockK
@@ -305,7 +338,8 @@ class ConversationsViewModelTest {
                 sendImageMessage = sendImageMessage,
                 getMessageAsset = getMessageAsset,
                 deleteMessage = deleteMessage,
-                dispatchers = TestDispatcherProvider()
+                dispatchers = TestDispatcherProvider(),
+                markMessagesAsNotified = markMessagesAsNotified
             )
         }
 
@@ -331,10 +365,11 @@ class ConversationsViewModelTest {
         fun arrange() = this to viewModel
     }
 
-    private fun withMockConversationDetailsOneOnOne(senderName: String) = ConversationDetails.OneOne(
+    private fun withMockConversationDetailsOneOnOne(senderName: String, senderAvatar: UserAssetId? = null) = ConversationDetails.OneOne(
         mockk(),
         mockk<OtherUser>().apply {
             every { name } returns senderName
+            every { previewPicture } returns senderAvatar
         },
         ConnectionState.PENDING,
         LegalHoldStatus.DISABLED,
@@ -343,6 +378,7 @@ class ConversationsViewModelTest {
 
     private fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {
         every { name } returns conversationName
+        every { id } returns ConversationId("someId", "someDomain")
     }, mockk())
 
     private fun mockSelfUserDetails(

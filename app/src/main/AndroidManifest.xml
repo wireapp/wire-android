@@ -10,7 +10,12 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- needed to switch between speaker/earpiece -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Allows showing incoming call when device is sleeping -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
             android:name=".WireApplication"
@@ -71,6 +76,7 @@
         </provider>
 
         <receiver android:name=".notification.NotificationReplyReceiver" />
+        <receiver android:name=".notification.NotificationDismissReceiver" />
 
     </application>
 

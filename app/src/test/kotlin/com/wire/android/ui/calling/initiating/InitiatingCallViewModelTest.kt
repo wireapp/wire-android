@@ -1,6 +1,7 @@
 package com.wire.android.ui.calling.initiating
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
@@ -17,7 +18,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -40,6 +40,9 @@ class InitiatingCallViewModelTest {
     private lateinit var endCall: EndCallUseCase
 
     @MockK
+    private lateinit var callRinger: CallRinger
+
+    @MockK
     private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     private lateinit var initiatingCallViewModel: InitiatingCallViewModel
@@ -59,7 +62,8 @@ class InitiatingCallViewModelTest {
             allCalls = allCalls,
             startCall = startCall,
             endCall = endCall,
-            conversationDetails = observeConversationDetails
+            conversationDetails = observeConversationDetails,
+            callRinger = callRinger
         )
     }
 
@@ -67,10 +71,12 @@ class InitiatingCallViewModelTest {
     fun `given active call, when user end call, then invoke endCall useCase`() {
         coEvery { navigationManager.navigateBack() } returns Unit
         coEvery { endCall.invoke(any()) } returns Unit
+        every { callRinger.stop() } returns Unit
 
         runTest { initiatingCallViewModel.hangUpCall() }
 
         coVerify(exactly = 1) { endCall.invoke(any()) }
+        coVerify(exactly = 1) { callRinger.stop() }
         coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
 

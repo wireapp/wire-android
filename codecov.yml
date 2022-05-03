@@ -21,6 +21,7 @@ ignore:
   - ".*/_version.py"
   - "setup.py"
   - ".*/_Screen.kt"
+  - ".*/mock/.*"
   - ".*/theme/.*"
   - ".*/common/.*"
   - ".*/navigation/.*"

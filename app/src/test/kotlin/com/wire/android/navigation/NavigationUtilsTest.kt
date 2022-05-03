@@ -65,27 +65,34 @@ internal class NavigationUtilsTest {
         // Given
         val mockQualifiedIdValue = "mocked-value"
         val mockQualifiedIdDomain = "mocked.domain"
-        val mockQualifiedId = QualifiedID(mockQualifiedIdValue, mockQualifiedIdDomain)
+        val actualQualifiedId = QualifiedID(value = mockQualifiedIdValue, domain = mockQualifiedIdDomain)
+        val expectedQualifiedID = "$mockQualifiedIdValue@$mockQualifiedIdDomain"
 
         // When
-        val mappedQualifiedId = mockQualifiedId.toString()
+        val mappedQualifiedId = actualQualifiedId.toString()
 
         // Then
-        assertEquals(mappedQualifiedId, "$mockQualifiedIdDomain@$mockQualifiedIdValue")
+        assertEquals(mappedQualifiedId, expectedQualifiedID)
     }
 
     @Test
-    fun `Given some correct Image PrivateAsset object, it parses it to string`() {
+    fun `Given some correct Image PrivateAsset object, it parses it correctly to string`() {
         // Given
         val mockQualifiedIdValue = "mocked-value"
         val mockQualifiedIdDomain = "mocked.domain"
         val mockMessageId = "mocked-message-id"
-        val mockPrivateImageAsset = ImageAsset.PrivateAsset(QualifiedID(mockQualifiedIdValue, mockQualifiedIdDomain), mockMessageId)
+        val actualPrivateAssetImage = ImageAsset.PrivateAsset(
+            QualifiedID(
+                value = mockQualifiedIdValue,
+                domain = mockQualifiedIdDomain
+            ), mockMessageId
+        )
+        val expectedPrivateAssetImage = "$mockQualifiedIdValue@$mockQualifiedIdDomain:$mockMessageId"
 
         // When
-        val mappedImagePrivateAsset = mockPrivateImageAsset.toString()
+        val mappedImagePrivateAsset = actualPrivateAssetImage.toString()
 
         // Then
-        assertEquals(mappedImagePrivateAsset, "$mockQualifiedIdDomain@$mockQualifiedIdValue:$mockMessageId")
+        assertEquals(mappedImagePrivateAsset, expectedPrivateAssetImage)
     }
 }

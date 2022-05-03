@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.newconversation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -29,6 +30,7 @@ fun SearchPeopleRouter(
     onScrollPositionChanged: (Int) -> Unit,
 ) {
     val searchNavController = rememberNavController()
+    val context = LocalContext.current
 
     with(searchPeopleState) {
         AppTopBarWithSearchBar(

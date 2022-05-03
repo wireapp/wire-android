@@ -30,7 +30,6 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
-import com.wire.android.ui.home.conversationslist.bottomsheet.ModalSheetContent
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
@@ -48,6 +47,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onSendButtonClicked = conversationViewModel::sendMessage,
         onSendAttachment = conversationViewModel::sendAttachmentMessage,
         onDownloadAsset = conversationViewModel::downloadAsset,
+        onImageFullScreenMode = { conversationViewModel.navigateToGallery(it) },
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch
@@ -71,6 +71,7 @@ private fun ConversationScreen(
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
+    onImageFullScreenMode: (String) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit
@@ -85,6 +86,7 @@ private fun ConversationScreen(
                 isMyMessage = conversationScreenState.isSelectedMessageMyMessage(),
                 onCopyMessage = conversationScreenState::copyMessage,
                 onDeleteMessage = {
+                    conversationScreenState.hideEditContextMenu()
                     onDeleteMessage(
                         conversationScreenState.selectedMessage?.messageHeader!!.messageId,
                         conversationScreenState.isSelectedMessageMyMessage()
@@ -124,6 +126,7 @@ private fun ConversationScreen(
                             onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
                             onSendAttachment = onSendAttachment,
                             onDownloadAsset = onDownloadAsset,
+                            onImageFullScreenMode = onImageFullScreenMode,
                             conversationState = this,
                             onError = { errorMessage ->
                                 scope.launch {
@@ -195,6 +198,7 @@ private fun ConversationScreenContent(
     onShowContextMenu: (MessageViewWrapper) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
+    onImageFullScreenMode: (String) -> Unit,
     onError: (String) -> Unit,
     conversationState: ConversationViewState
 ) {
@@ -220,7 +224,8 @@ private fun ConversationScreenContent(
                     MessageItem(
                         message = message,
                         onLongClicked = { onShowContextMenu(message) },
-                        onAssetMessageClicked = onDownloadAsset
+                        onAssetMessageClicked = onDownloadAsset,
+                        onImageMessageClicked = onImageFullScreenMode
                     )
                 }
             }
@@ -248,6 +253,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, {}, { _: String, _: Boolean -> }
+        {}, {}, {}, {}, {}, {}, { _: String, _: Boolean -> }
     ) {}
 }

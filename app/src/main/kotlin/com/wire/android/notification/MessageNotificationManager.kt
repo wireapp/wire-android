@@ -23,7 +23,6 @@ import com.wire.android.ui.WireActivity
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.asString
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -57,7 +56,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             .map { it.intoNotificationConversation() }
             .sortedBy { it.lastMessageTime }
 
-        val userIdString = userId?.asString()
+        val userIdString = userId?.toString()
 
         createNotificationChannelIfNeeded()
         showSummaryIfNeeded(oldData, newData, userIdString)
@@ -213,7 +212,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         )
     }
 
-    private fun getNotificationId(conversationId: ConversationId) = getNotificationId(conversationId.asString())
+    private fun getNotificationId(conversationId: ConversationId) = getNotificationId(conversationId.toString())
     private fun getNotificationId(conversationIdString: String) = conversationIdString.hashCode()
 
     companion object {

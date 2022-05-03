@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.ExperimentalMaterialApi
@@ -75,7 +76,12 @@ fun MutingOptionsSheetContent(
         headerIcon = {
             ArrowLeftIcon(modifier = Modifier.clickable { onBackClick() })
             Spacer(modifier = Modifier.width(dimensions().spacing8x))
-        }
+        },
+        headerModifier = Modifier.padding(
+            start = dimensions().spacing8x,
+            top = dimensions().spacing16x,
+            bottom = dimensions().spacing16x
+        )
     )
 }
 

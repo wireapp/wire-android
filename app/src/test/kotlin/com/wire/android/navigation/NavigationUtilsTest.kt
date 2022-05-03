@@ -15,7 +15,7 @@ internal class NavigationUtilsTest {
         // Given
         val mockQualifiedIdValue = "mocked-value"
         val mockQualifiedIdDomain = "mocked.domain"
-        val correctQualifiedIdString = "$mockQualifiedIdDomain@$mockQualifiedIdValue"
+        val correctQualifiedIdString = "$mockQualifiedIdValue@$mockQualifiedIdDomain"
 
         // When
         val correctQualifiedId = correctQualifiedIdString.parseIntoQualifiedID()
@@ -31,7 +31,7 @@ internal class NavigationUtilsTest {
         val mockConversationIdValue = "mocked-conversation-id-value"
         val mockConversationIdDomain = "mocked.domain"
         val mockMessageId = "mocked-message-id"
-        val correctImagePrivateAssetString = "$mockConversationIdDomain@$mockConversationIdValue:$mockMessageId"
+        val correctImagePrivateAssetString = "$mockConversationIdValue@$mockConversationIdDomain:$mockMessageId"
 
         // When
         val privateImgAsset = correctImagePrivateAssetString.parseIntoPrivateImageAsset()

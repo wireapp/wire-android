@@ -20,6 +20,7 @@ ignore:
   - ".*/androidTest/.*"
   - ".*/_version.py"
   - "setup.py"
+  - ".*/_Screen.kt"
   - ".*/theme/.*"
   - ".*/common/.*"
   - ".*/navigation/.*"

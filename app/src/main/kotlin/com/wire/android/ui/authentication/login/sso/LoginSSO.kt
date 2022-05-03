@@ -43,6 +43,7 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
+import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -51,12 +52,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginSSOScreen(
+    serverConfig: ServerConfig,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
+    loginSSOViewModel.updateServerConfig(ssoLoginResult, serverConfig)
     val loginSSOState: LoginSSOState = loginSSOViewModel.loginState
     loginSSOViewModel.handleSSOResult(ssoLoginResult)
     LoginSSOContent(

@@ -2,6 +2,7 @@
 <resources>
     <string name="app_version">App version: %s</string>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
+    <string name="app_logo_description">App Logo</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -16,7 +17,9 @@
     <string name="label_logging_in">Logging in...</string>
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
-    <string name="app_logo_description">App Logo</string>
+    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_try_again">Try again</string>
+    <string name="label_federated_membership">Federated</string>
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
@@ -55,6 +58,7 @@
     <string name="content_description_add_contact">Add contact</string>
     <string name="content_description_image_message">Image message</string>
     <string name="content_description_file_message">File message</string>
+    <string name="content_description_ping_everyone">Ping everyone</string>
 
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -271,6 +275,7 @@
     <string name="error_no_network_message">Please check your Internet connection</string>
     <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Image could not be uploaded</string>
+    <string name="error_updating_muting_setting">Notifications could not be updated</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
@@ -311,15 +316,12 @@
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
-    <!-- Calling-->
 
-    <string name="label_message_sent_failure">Message could not be sent.</string>
-    <string name="label_try_again">Try again</string>
+    <!-- Gallery -->
+    <string name="media_gallery_default_title_name">Media Gallery</string>
 
     <!--sso dialog-->
     <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
     <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
 
-    <string name="content_description_ping_everyone">Ping everyone</string>
-    <string name="label_federated_membership">Federated</string>
 </resources>

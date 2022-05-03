@@ -20,9 +20,9 @@ ignore:
   - ".*/androidTest/.*"
   - ".*/_version.py"
   - "setup.py"
-  - "**/theme/*.*"
-  - "**/common/*.*"
-  - "**/navigation/*.*"
+  - ".*/theme/.*"
+  - ".*/common/.*"
+  - ".*/navigation/.*"
 
 # Pull request comments:
 # ----------------------

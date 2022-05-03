@@ -50,8 +50,8 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.6.10"
-        const val coroutines = "1.6.0-native-mt"
+        const val kotlin = "1.6.20"
+        const val coroutines = "1.6.1-native-mt"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
         const val ktx = "1.6.0"
@@ -61,7 +61,7 @@ object Libraries {
         const val desugaring = "1.1.5"
         const val workManager = "2.7.1"
         const val fragment = "1.2.5"
-        const val compose = "1.2.0-alpha03"
+        const val compose = "1.2.0-alpha08"
         const val composeMaterial = compose
         const val composeMaterial3 = "1.0.0-alpha09"
         const val composeActivity = "1.4.0"

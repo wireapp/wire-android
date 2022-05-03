@@ -185,6 +185,7 @@ private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     return when (errorCode) {

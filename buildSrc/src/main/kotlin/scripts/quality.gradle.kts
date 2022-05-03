@@ -93,9 +93,9 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
                 "**/*Response.*",
                 "**/*Application.*",
                 "**/*Entity.*",
-                "**/theme/*.*", // Ignores jetpack compose theme related code
-                "**/common/*.*", // Ignores jetpack compose common components related code
-                "**/navigation/*.*", // Ignores jetpack navigation related code
+                "**/theme/**/*.*", // Ignores jetpack compose theme related code
+                "**/common/**/*.*", // Ignores jetpack compose common components related code
+                "**/navigation/**/*.*", // Ignores jetpack navigation related code
             )
         }
     )

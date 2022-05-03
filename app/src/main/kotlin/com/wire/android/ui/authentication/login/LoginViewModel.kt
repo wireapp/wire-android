@@ -55,11 +55,11 @@ open class LoginViewModel @Inject constructor(
         }
     }
 
-    fun updateServerConfig(ssoLoginResult: DeepLinkResult.SSOLogin?, default: ServerConfig) {
-        serverConfig = ssoLoginResult?.let {
+    fun updateServerConfig(ssoLoginResult: DeepLinkResult.SSOLogin?, serverConfig: ServerConfig) {
+        this.serverConfig = ssoLoginResult?.let {
             //todo: fetch the serverConfig by the uuid
             ServerConfig.STAGING
-        } ?: default
+        } ?: serverConfig
     }
 
     suspend fun registerClient(

@@ -42,7 +42,7 @@ fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel, serve
             contentText = stringResource(id = viewModel.type.overviewResources.overviewContentTextResId),
             contentIconResId = viewModel.type.overviewResources.overviewContentIconResId,
             learnMoreText = stringResource(id = viewModel.type.overviewResources.overviewLearnMoreTextResId),
-            learnMoreUrl = "https://${serverConfig.websiteUrl}/pricing"
+            learnMoreUrl = "${serverConfig.websiteUrl}/pricing"
         )
     )
 }

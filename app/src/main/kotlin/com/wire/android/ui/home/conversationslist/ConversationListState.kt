@@ -5,6 +5,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
 import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.NewActivity
+import java.util.UUID
 
 data class ConversationListState(
     val newActivities: List<NewActivity> = emptyList(),
@@ -17,3 +18,10 @@ data class ConversationListState(
     val missedCallsCount: Int = 0,
     val unreadMentionsCount: Int = 0
 )
+
+/**
+ * We are adding a [randomEventIdentifier] as [UUID], so the error can be discarded every time after being generated.
+ */
+sealed class ConversationOperationErrorState(private val randomEventIdentifier: UUID) {
+    class MutingOperationErrorState : ConversationOperationErrorState(UUID.randomUUID())
+}

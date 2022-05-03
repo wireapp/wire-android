@@ -1,10 +1,11 @@
 package com.wire.android.ui.home.conversations.model
 
 import com.wire.android.R
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.user.UserAssetId
 
 data class MessageViewWrapper(
     val user: User,
@@ -13,8 +14,7 @@ data class MessageViewWrapper(
     val messageContent: MessageContent?,
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == MessageStatus.Deleted
-
-    val sendingFailed : Boolean = messageHeader.messageStatus == MessageStatus.Failure
+    val sendingFailed: Boolean = messageHeader.messageStatus == MessageStatus.Failure
 }
 
 data class MessageHeader(
@@ -43,11 +43,12 @@ sealed class MessageContent {
         val assetSizeInBytes: Long
     ) : MessageContent()
 
-    data class ImageMessage(val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
+    data class ImageMessage(val assetId: UserAssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
             other as ImageMessage
+            if (assetId != other.assetId) return false
             if (!rawImgData.contentEquals(other.rawImgData)) return false
             return true
         }
@@ -56,7 +57,6 @@ sealed class MessageContent {
             return rawImgData.contentHashCode()
         }
     }
-
 }
 
 data class MessageBody(

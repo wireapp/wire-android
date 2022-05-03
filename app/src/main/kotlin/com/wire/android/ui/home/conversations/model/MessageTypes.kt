@@ -41,6 +41,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
+import com.wire.kalium.logic.data.user.UserAssetId
 import kotlin.math.roundToInt
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
@@ -55,12 +56,11 @@ internal fun MessageBody(messageBody: MessageBody) {
 }
 
 @Composable
-fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
+fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageClick: () -> Unit) {
     Box(Modifier
         .clip(shape = RoundedCornerShape(MaterialTheme.wireDimensions.messageAssetBorderRadius))
-        .clickable {
-            // TODO: Add navigation to preview full screen mode here
-        }) {
+        .clickable { onImageClick() }
+    ) {
         Image(
             painter = rememberAsyncImagePainter(
                 rawImgData?.toBitmap() ?: getUriFromDrawable(
@@ -188,11 +188,11 @@ class ImageMessageParams(private val realImgWidth: Int, private val realImgHeigh
 @Preview(showBackground = true)
 @Composable
 fun PreviewMessage() {
-    MessageItem(mockMessageWithText, {}, {})
+    MessageItem(mockMessageWithText, {}, {}, {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetMessage() {
-    MessageItem(mockAssetMessage, {}, {})
+    MessageItem(mockAssetMessage, {}, {}, {})
 }

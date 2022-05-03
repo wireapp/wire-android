@@ -54,9 +54,9 @@ class OngoingCallViewModelTest {
     fun setup() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-
+        val dummyConversationId = "some-dummy-value@some.dummy.domain"
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>(any()) } returns ""
+        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
 
         ongoingCallViewModel = OngoingCallViewModel(

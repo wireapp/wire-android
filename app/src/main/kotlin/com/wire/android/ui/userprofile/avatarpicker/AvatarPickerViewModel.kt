@@ -58,6 +58,7 @@ class AvatarPickerViewModel @Inject constructor(
 
     fun uploadNewPickedAvatarAndBack() {
         val imgUri = pictureState.avatarUri
+        pictureState = PictureState.Uploading(imgUri)
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 val data = avatarImageManager.uriToByteArray(imgUri)
@@ -71,6 +72,8 @@ class AvatarPickerViewModel @Inject constructor(
                         is NetworkFailure.NoNetworkConnection -> ErrorCodes.NoNetworkError
                         else -> ErrorCodes.UploadAvatarError
                     }
+                    // reset picked state
+                    pictureState = PictureState.Picked(imgUri)
                 }
             }
         }
@@ -105,6 +108,7 @@ class AvatarPickerViewModel @Inject constructor(
     }
 
     sealed class PictureState(open val avatarUri: Uri) {
+        data class Uploading(override val avatarUri: Uri) : PictureState(avatarUri)
         data class Initial(override val avatarUri: Uri) : PictureState(avatarUri)
         data class Picked(override val avatarUri: Uri) : PictureState(avatarUri)
         object Empty : PictureState("".toUri())

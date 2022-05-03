@@ -1,11 +1,11 @@
 package com.wire.android.ui.userprofile.other
 
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.kalium.logic.data.user.ConnectionState
 
 data class OtherUserProfileState(
     val userAvatarAsset: UserAvatarAsset? = null,
-    val isDataLoading : Boolean = false,
+    val isDataLoading: Boolean = false,
     val isAvatarLoading: Boolean = false,
     val fullName: String = "",
     val userName: String = "",
@@ -21,7 +21,7 @@ sealed class ConnectionStatus {
     data class NotConnected(val isConnectionRequestPending: Boolean = false) : ConnectionStatus()
 }
 
-fun ConnectionState.toOtherUserProfileConnectionStatus() = when(this) {
+fun ConnectionState.toOtherUserProfileConnectionStatus() = when (this) {
     ConnectionState.NOT_CONNECTED -> ConnectionStatus.NotConnected(false)
     ConnectionState.PENDING -> ConnectionStatus.NotConnected(true)
     ConnectionState.SENT -> ConnectionStatus.NotConnected(true)

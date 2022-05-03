@@ -47,6 +47,9 @@ fun ImageVector.Icon(modifier: Modifier = Modifier): @Composable (() -> Unit) =
 internal fun dimensions() = MaterialTheme.wireDimensions
 
 @Composable
+internal fun colorsScheme() = MaterialTheme.wireColorScheme
+
+@Composable
 fun LazyListState.appBarElevation(): Dp = MaterialTheme.wireDimensions.topBarShadowElevation.let {  maxElevation ->
     if (firstVisibleItemIndex == 0) minOf(firstVisibleItemScrollOffset.toFloat().dp, maxElevation)
     else maxElevation

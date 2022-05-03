@@ -7,9 +7,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.parseIntoPrivateImageAsset
 import com.wire.android.navigation.EXTRA_IMAGE_DATA
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.navigation.parseIntoPrivateImageAsset
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

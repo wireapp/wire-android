@@ -46,11 +46,10 @@ import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
+import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
-import com.wire.android.util.deeplink.DeepLinkResult
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -183,7 +182,7 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
         }
     },
 
@@ -200,7 +199,7 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
         }
     },
 
@@ -211,7 +210,7 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
         }
     },
 
@@ -222,7 +221,7 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
         }
     },
 
@@ -233,7 +232,7 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val imageAssetId: ImageAsset.PrivateAsset? = arguments.filterIsInstance<ImageAsset.PrivateAsset>().firstOrNull()
-            val mappedArgs = imageAssetId?.mapIntoArgumentsString() ?: ""
+            val mappedArgs = imageAssetId?.toString() ?: ""
             return imageAssetId?.run { "$primaryRoute/${mappedArgs}" } ?: primaryRoute
         }
     };

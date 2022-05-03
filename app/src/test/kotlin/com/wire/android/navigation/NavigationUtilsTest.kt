@@ -1,7 +1,9 @@
 package com.wire.android.navigation
 
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.parseIntoPrivateImageAsset
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -9,63 +11,81 @@ import org.junit.jupiter.api.assertThrows
 internal class NavigationUtilsTest {
 
     @Test
-    fun `Parsing string correctly to QualifiedID`() {
+    fun `Given some correct string, when calling parseIntoQualifiedID, then it correctly parses it to QualifiedID`() {
+        // Given
         val mockQualifiedIdValue = "mocked-value"
         val mockQualifiedIdDomain = "mocked.domain"
         val correctQualifiedIdString = "$mockQualifiedIdDomain@$mockQualifiedIdValue"
+
+        // When
         val correctQualifiedId = correctQualifiedIdString.parseIntoQualifiedID()
 
+        // Then
         assertEquals(correctQualifiedId.value, mockQualifiedIdValue)
         assertEquals(correctQualifiedId.domain, mockQualifiedIdDomain)
     }
 
     @Test
-    fun `Parsing string correctly to PrivateImageAsset`() {
+    fun `Given some correct string, when calling parseIntoPrivateImageAsset, then it correctly parses it to PrivateImageAsset`() {
+        // Given
         val mockConversationIdValue = "mocked-conversation-id-value"
         val mockConversationIdDomain = "mocked.domain"
         val mockMessageId = "mocked-message-id"
         val correctImagePrivateAssetString = "$mockConversationIdDomain@$mockConversationIdValue:$mockMessageId"
+
+        // When
         val privateImgAsset = correctImagePrivateAssetString.parseIntoPrivateImageAsset()
 
+        // Then
         assertEquals(privateImgAsset.conversationId.value, mockConversationIdValue)
         assertEquals(privateImgAsset.conversationId.domain, mockConversationIdDomain)
         assertEquals(privateImgAsset.messageId, mockMessageId)
     }
 
     @Test
-    fun `Parsing incorrect string to QualifiedId throws exception`() {
+    fun `Given an incorrect string, when parsing it to QualifiedId, then it throws an exception`() {
+        // Given
         val mockWrongImagePrivateAssetString = "wrong-private-asset/image"
 
+        // When, Then
         assertThrows<Exception> { mockWrongImagePrivateAssetString.parseIntoQualifiedID() }
     }
 
     @Test
-    fun `Parsing incorrect string to PrivateImageAsset throws exception`() {
+    fun `Given an incorrect string, when parsing it to PrivateImageAsset, then it throws an exception`() {
+        // Given
         val mockWrongImagePrivateAssetString = "wrong-private-asset@image"
 
+        // When, Then
         assertThrows<Exception> { mockWrongImagePrivateAssetString.parseIntoPrivateImageAsset() }
     }
 
     @Test
-    fun `Map QualifiedId correctly to string`() {
+    fun `Given some correct QualifiedId object, it parses it correctly to string`() {
+        // Given
         val mockQualifiedIdValue = "mocked-value"
         val mockQualifiedIdDomain = "mocked.domain"
         val mockQualifiedId = QualifiedID(mockQualifiedIdValue, mockQualifiedIdDomain)
 
-        val mappedQualifiedId = mockQualifiedId.mapIntoArgumentString()
+        // When
+        val mappedQualifiedId = mockQualifiedId.toString()
 
+        // Then
         assertEquals(mappedQualifiedId, "$mockQualifiedIdDomain@$mockQualifiedIdValue")
     }
 
     @Test
-    fun `Map correct Image PrivateAsset to string`() {
+    fun `Given some correct Image PrivateAsset object, it parses it to string`() {
+        // Given
         val mockQualifiedIdValue = "mocked-value"
         val mockQualifiedIdDomain = "mocked.domain"
         val mockMessageId = "mocked-message-id"
         val mockPrivateImageAsset = ImageAsset.PrivateAsset(QualifiedID(mockQualifiedIdValue, mockQualifiedIdDomain), mockMessageId)
 
-        val mappedImagePrivateAsset = mockPrivateImageAsset.mapIntoArgumentsString()
+        // When
+        val mappedImagePrivateAsset = mockPrivateImageAsset.toString()
 
+        // Then
         assertEquals(mappedImagePrivateAsset, "$mockQualifiedIdDomain@$mockQualifiedIdValue:$mockMessageId")
     }
 }

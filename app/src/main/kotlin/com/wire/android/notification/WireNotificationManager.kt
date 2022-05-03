@@ -6,6 +6,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -28,14 +29,33 @@ class WireNotificationManager @Inject constructor(
      * Can be used in Services (e.g., after receiving FCM)
      * @param userId QualifiedID of User that need to check Notifications for
      */
-    suspend fun fetchAndShowMessageNotificationsOnce(userId: UserId) {
-        coreLogic.getSessionScope(userId).syncPendingEvents()
+    suspend fun fetchAndShowMessageNotificationsOnce(userId: String) {
+        coreLogic.getSessionScope(getQualifiedIDFromUserId(userId = userId)).syncPendingEvents()
 
-        val notificationsList = getNotificationProvider.create(userId)
+        val notificationsList = getNotificationProvider.create(getQualifiedIDFromUserId(userId = userId))
             .getNotifications()
             .first()
 
-        notificationManager.handleNotification(listOf(), notificationsList, userId)
+        notificationManager.handleNotification(listOf(), notificationsList, getQualifiedIDFromUserId(userId = userId))
+    }
+
+    // todo to be deleted as soon as we get the qualifiedID from the notification payload
+    private fun getQualifiedIDFromUserId(userId: String): QualifiedID {
+        coreLogic.getAuthenticationScope().getSessions().let {
+            when (it) {
+                is GetAllSessionsResult.Success -> {
+                    for (sessions in it.sessions) {
+                        if (sessions.userId.value == userId) {
+                            return sessions.userId
+                        }
+                    }
+                }
+                is GetAllSessionsResult.Failure -> {
+                    return QualifiedID(userId, "wire.com")
+                }
+            }
+        }
+        return QualifiedID(userId, "wire.com")
     }
 
     /**

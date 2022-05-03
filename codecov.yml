@@ -5,7 +5,7 @@ coverage:
     project:
       default:
         # basic
-        target: 60%
+        target: auto
         threshold: 5%
         base: auto
     patch: false
@@ -20,6 +20,9 @@ ignore:
   - ".*/androidTest/.*"
   - ".*/_version.py"
   - "setup.py"
+  - "**/theme/*.*"
+  - "**/common/*.*"
+  - "**/navigation/*.*"
 
 # Pull request comments:
 # ----------------------

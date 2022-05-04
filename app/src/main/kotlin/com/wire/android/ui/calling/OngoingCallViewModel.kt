@@ -6,12 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
@@ -72,7 +72,9 @@ class OngoingCallViewModel @Inject constructor(
             if (it.first().conversationId == conversationId)
                 when (it.first().status) {
                     CallStatus.CLOSED -> navigateBack()
-                    else -> { print("DO NOTHING") }
+                    else -> {
+                        print("DO NOTHING")
+                    }
                 }
         }
     }

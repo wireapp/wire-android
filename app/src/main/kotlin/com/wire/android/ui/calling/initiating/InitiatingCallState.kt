@@ -1,6 +1,6 @@
 package com.wire.android.ui.calling.initiating
 
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.kalium.logic.data.call.ConversationType
 
 data class InitiatingCallState(

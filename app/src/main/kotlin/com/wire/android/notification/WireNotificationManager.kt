@@ -29,14 +29,15 @@ class WireNotificationManager @Inject constructor(
      * Can be used in Services (e.g., after receiving FCM)
      * @param userId QualifiedID of User that need to check Notifications for
      */
-    suspend fun fetchAndShowMessageNotificationsOnce(userId: String) {
-        coreLogic.getSessionScope(getQualifiedIDFromUserId(userId = userId)).syncPendingEvents()
+    suspend fun fetchAndShowMessageNotificationsOnce(userIdValue: String) {
+        val userId = getQualifiedIDFromUserId(userId = userIdValue)
+        coreLogic.getSessionScope(userId).syncPendingEvents()
 
-        val notificationsList = getNotificationProvider.create(getQualifiedIDFromUserId(userId = userId))
+        val notificationsList = getNotificationProvider.create(userId)
             .getNotifications()
             .first()
 
-        notificationManager.handleNotification(listOf(), notificationsList, getQualifiedIDFromUserId(userId = userId))
+        notificationManager.handleNotification(listOf(), notificationsList, userId)
     }
 
     // todo to be deleted as soon as we get the qualifiedID from the notification payload

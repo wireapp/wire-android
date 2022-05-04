@@ -251,7 +251,8 @@ abstract class CreateAccountBaseViewModel(
         clientScopeProviderFactory.create(userId).clientScope.register(
             RegisterClientParam.ClientWithToken(
                 password = password,
-                capabilities = null, senderId = BuildConfig.SENDER_ID
+                capabilities = null,
+                senderId = BuildConfig.SENDER_ID
             )
         )
 

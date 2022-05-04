@@ -48,7 +48,8 @@ class RegisterDeviceViewModel @Inject constructor(
             else when (val registerDeviceResult = registerClientUseCase(
                 RegisterClientUseCase.RegisterClientParam.ClientWithToken(
                     password = state.password.text,
-                    capabilities = null, senderId = BuildConfig.SENDER_ID
+                    capabilities = null,
+                    senderId = BuildConfig.SENDER_ID
                 ))) {
                 is RegisterClientResult.Failure.TooManyClients -> navigateToRemoveDevicesScreen()
                 is RegisterClientResult.Success -> {

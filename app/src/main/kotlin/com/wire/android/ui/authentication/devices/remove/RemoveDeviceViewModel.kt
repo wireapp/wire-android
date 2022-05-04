@@ -92,7 +92,8 @@ class RemoveDeviceViewModel @Inject constructor(
                             else registerClientUseCase(
                                 RegisterClientUseCase.RegisterClientParam.ClientWithToken(
                                     password = dialogStateVisible.password.text,
-                                    capabilities = null, senderId = BuildConfig.SENDER_ID
+                                    capabilities = null,
+                                    senderId = BuildConfig.SENDER_ID
                                 )
                             ).toRemoveDeviceError()
                         else

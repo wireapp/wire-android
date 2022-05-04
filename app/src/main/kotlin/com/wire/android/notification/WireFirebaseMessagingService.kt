@@ -25,15 +25,15 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        var userId = ""
+        var userIdValue = ""
         for (items in message.data) {
             if (items.key == "user") {
-                userId = items.value
+                userIdValue = items.value
                 break
             }
         }
         runBlocking {
-            wireNotificationManager.fetchAndShowMessageNotificationsOnce(userId)
+            wireNotificationManager.fetchAndShowMessageNotificationsOnce(userIdValue)
         }
     }
 }

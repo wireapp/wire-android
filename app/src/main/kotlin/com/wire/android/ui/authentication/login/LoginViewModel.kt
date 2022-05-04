@@ -71,7 +71,8 @@ open class LoginViewModel @Inject constructor(
         return clientScope.register(
             RegisterClientUseCase.RegisterClientParam.ClientWithToken(
                 password = password,
-                capabilities = capabilities, senderId = BuildConfig.SENDER_ID
+                capabilities = capabilities,
+                senderId = BuildConfig.SENDER_ID
             ))
     }
 

@@ -21,6 +21,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(p0: String) {
         super.onNewToken(p0)
         coreLogic.getAuthenticationScope().saveNotificationToken(p0, "GCM")
+        // todo handle the fail case
     }
 
     override fun onMessageReceived(message: RemoteMessage) {

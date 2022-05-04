@@ -146,6 +146,10 @@ dependencies {
     implementation(Libraries.Hilt.navigationCompose)
     kapt(Libraries.Hilt.compiler)
 
+    // firebase
+    implementation(platform(Libraries.Firebase.firebaseBOM))
+    implementation(Libraries.Firebase.firebaseCloudMessaging)
+
     implementation(Libraries.workManager)
 
     // TODO: remove or move to Libraries

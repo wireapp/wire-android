@@ -8,13 +8,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.PrivateAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.navigation.parseIntoQualifiedID
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -29,10 +29,11 @@ import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
-import com.wire.android.util.ui.UIText
 import com.wire.android.util.getConversationColor
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
 import com.wire.kalium.logic.data.message.Message
@@ -118,10 +119,11 @@ class ConversationViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            markMessagesAsNotified(conversationId!!, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
+            markMessagesAsNotified(conversationId, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
         }
     }
 
+    // region ------------------------------ UI triggered actions -----------------------------
     fun onMessageChanged(message: String) {
         conversationViewState = conversationViewState.copy(messageText = message)
     }
@@ -246,6 +248,20 @@ class ConversationViewModel @Inject constructor(
         onDialogDismissed()
     }
 
+    private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
+        getMessageAsset(
+            conversationId = conversationId,
+            messageId = messageId
+        ).run {
+            return when (this) {
+                is MessageAssetResult.Success -> decodedAsset
+                else -> null
+            }
+        }
+    }
+    // endregion
+
+    // region ------------------------------ Navigation ------------------------------
     fun navigateBack() {
         viewModelScope.launch {
             navigationManager.navigateBack()
@@ -262,6 +278,18 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    fun navigateToGallery(messageId: String) {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId)))
+                )
+            )
+        }
+    }
+    // endregion
+
+    // region ------------------------------ Mapper Helpers ------------------------------
     private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
             val sender = members.findSender(message.senderUserId)
@@ -298,17 +326,19 @@ class ConversationViewModel @Inject constructor(
                 is Image -> md.width to md.height
                 else -> 0 to 0
             }
-            return when {
-                // If it's an image, we download it right away
-                mimeType.contains("image") -> MessageContent.ImageMessage(
-                    getRawAssetData(conversationId, messageId),
-                    width = imgWidth,
-                    height = imgHeight
-                )
 
-                // It's a generic Asset Message so let's not download it yet
-                else -> {
-                    return if (remoteData.assetId.isNotEmpty()) {
+            return if (remoteData.assetId.isNotEmpty()) {
+                when {
+                    // If it's an image, we download it right away
+                    mimeType.contains("image") -> MessageContent.ImageMessage(
+                        assetId = remoteData.assetId,
+                        rawImgData = getRawAssetData(conversationId, messageId),
+                        width = imgWidth,
+                        height = imgHeight
+                    )
+
+                    // It's a generic Asset Message so let's not download it yet
+                    else -> {
                         AssetMessage(
                             assetName = name ?: "",
                             assetExtension = name?.split(".")?.last() ?: "",
@@ -316,21 +346,10 @@ class ConversationViewModel @Inject constructor(
                             assetSizeInBytes = sizeInBytes
                         )
                         // On the first asset message received, the asset ID is null, so we filter it out until the second updates it
-                    } else null
+                    }
                 }
-            }
+            } else null
         }
     }
-
-    private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
-        getMessageAsset(
-            conversationId = conversationId,
-            messageId = messageId
-        ).run {
-            return when (this) {
-                is MessageAssetResult.Success -> decodedAsset
-                else -> null
-            }
-        }
-    }
+    // endregion
 }

@@ -50,7 +50,8 @@ class IncomingCallViewModelTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>(any()) } returns ("conversationId")
+        val dummyConversationId = "some-dummy-value@some.dummy.domain"
+        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
 
         // Default empty values
         coEvery { navigationManager.navigateBack() } returns Unit

@@ -41,18 +41,15 @@ class WireNotificationManager @Inject constructor(
     }
 
     // todo to be deleted as soon as we get the qualifiedID from the notification payload
+    @Suppress("NestedBlockDepth")
     private fun getQualifiedIDFromUserId(userId: String): QualifiedID {
         coreLogic.getAuthenticationScope().getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
                     for (sessions in it.sessions) {
-                        if (sessions.userId.value == userId) {
+                        if (sessions.userId.value == userId)
                             return sessions.userId
-                        }
                     }
-                }
-                is GetAllSessionsResult.Failure -> {
-                    return QualifiedID(userId, "wire.com")
                 }
             }
         }

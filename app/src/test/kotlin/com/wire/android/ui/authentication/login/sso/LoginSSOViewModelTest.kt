@@ -200,13 +200,17 @@ class LoginSSOViewModelTest {
     fun `given establishSSOSession is called, when SSOLogin Success, then SSOLoginResult is passed`() {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
+        coEvery {
+            registerClientUseCase.invoke(any())
+        } returns RegisterClientResult.Success(client)
 
         runTest { loginViewModel.establishSSOSession("") }
 
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
-        coVerify(exactly = 1) { registerClientUseCase.invoke(null, null) }
+        coVerify(exactly = 1) {
+            registerClientUseCase.invoke(any())
+        }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
     }
 
@@ -214,7 +218,9 @@ class LoginSSOViewModelTest {
     fun `given establishSSOSession is called, when SSOLoginSessionResult return InvalidCookie, then SSOLoginResult fails`() {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Failure.InvalidCookie
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
+        coEvery {
+            registerClientUseCase.invoke(any())
+        } returns RegisterClientResult.Success(client)
 
         runTest { loginViewModel.establishSSOSession("") }
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
@@ -240,7 +246,9 @@ class LoginSSOViewModelTest {
     fun `given HandleSSOResult is called, when SSOLoginResult is success, then establishSSOSession should be called once`() {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
+        coEvery {
+            registerClientUseCase.invoke(any())
+        } returns RegisterClientResult.Success(client)
 
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", "")) }
         coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
@@ -265,13 +273,17 @@ class LoginSSOViewModelTest {
     fun `given establishSSOSession is called, when registerClientUseCase returns TooManyClients error, then TooManyClients is passed`() {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Failure.TooManyClients
+        coEvery {
+            registerClientUseCase.invoke(any())
+        } returns RegisterClientResult.Failure.TooManyClients
 
         runTest { loginViewModel.establishSSOSession("") }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TooManyDevicesError::class
 
-        coVerify(exactly = 1) { registerClientUseCase.invoke(null, null) }
+        coVerify(exactly = 1) {
+            registerClientUseCase.invoke(any())
+        }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }

@@ -77,6 +77,7 @@ object Libraries {
         const val splashscreen = "1.0.0-beta01"
         const val coil = "2.0.0-rc02"
         const val exif = "1.3.3"
+        const val firebaseBOM = "29.3.1"
     }
 
     // AndroidX Dependencies
@@ -131,6 +132,10 @@ object Libraries {
         const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
         const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
         const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+    }
+    object Firebase {
+        const val firebaseBOM = "com.google.firebase:firebase-bom:${Versions.firebaseBOM}"
+        const val firebaseCloudMessaging = "com.google.firebase:firebase-messaging-ktx"
     }
 }
 

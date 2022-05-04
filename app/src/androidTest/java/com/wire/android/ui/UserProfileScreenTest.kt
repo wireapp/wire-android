@@ -81,7 +81,8 @@ class UserProfileScreenTest {
         composeTestRule.waitForExecution {
             busyText.assertIsDisplayed()
         }
-        busyText.onSiblings()[0].assertTextContains("You will appear as Busy to other people. You will only receive notifications for mentions, replies, and calls in conversations that are not muted.")
+        busyText.onSiblings()[0].assertTextContains("You will appear as Busy to other people. You will only receive notifications " +
+                "for mentions, replies, and calls in conversations that are not muted.")
         busyText.onSiblings()[1].performClick().assertIsOn()
         busyText.onSiblings()[1].performClick().assertIsOff().assertTextContains("Do not display this information again")
         okButton.performClick()
@@ -108,7 +109,8 @@ class UserProfileScreenTest {
         composeTestRule.waitForExecution {
             awayText.assertIsDisplayed()
         }
-        awayText.onSiblings()[1].performClick().assertIsOn().performClick().assertIsOff().assertTextContains("Do not display this information again")
+        awayText.onSiblings()[1].performClick().assertIsOn().performClick().assertIsOff().assertTextContains("Do not display this" +
+                " information again")
         okButton.performClick()
         awayText.assertDoesNotExist()
     }
@@ -131,7 +133,8 @@ class UserProfileScreenTest {
         title.assertIsDisplayed()
         awayButton.onSibling().performClick()
         val awayText = composeTestRule.onNodeWithText("Set yourself to Away")
-        awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains("Do not display this information again")
+        awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains("Do not display this " +
+                "information again")
         okButton.performClick()
         awayText.assertDoesNotExist()
         awayButton.onSibling().performClick()

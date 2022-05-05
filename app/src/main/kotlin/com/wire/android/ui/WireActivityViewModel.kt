@@ -23,10 +23,12 @@ import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -104,6 +106,7 @@ class WireActivityViewModel @Inject constructor(
                 }
                 // do nothing if UserId wasn't changed
                 .distinctUntilChanged()
+                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
             launch { notificationManager.observeMessageNotifications(getUserIdFlow) }
             launch { observeIncomingCalls(getUserIdFlow) }

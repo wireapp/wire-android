@@ -34,7 +34,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
             }
         }
         runBlocking {
-            wireNotificationManager.fetchAndShowMessageNotificationsOnce(userIdValue)
+            wireNotificationManager.fetchAndShowNotificationsOnce(userIdValue)
         }
     }
 }

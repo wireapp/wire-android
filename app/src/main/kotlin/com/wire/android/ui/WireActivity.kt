@@ -1,8 +1,11 @@
 package com.wire.android.ui
 
+import android.app.KeyguardManager
+import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -15,19 +18,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.wire.android.R
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.deeplink.DeepLinkResult
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
@@ -92,6 +89,11 @@ class WireActivity : AppCompatActivity() {
                 if (command == null) return@onEach
                 keyboardController?.hide()
                 navigateToItem(navController, command)
+                if (command.destination.startsWith("incoming_call_screen", true)) {
+                    turnScreenOnAndKeyguardOff()
+                } else {
+                    removeFlags()
+                }
             }.launchIn(scope)
 
             navigationManager.navigateBack
@@ -100,6 +102,43 @@ class WireActivity : AppCompatActivity() {
                     navController.popBackStack()
                 }
                 .launchIn(scope)
+        }
+    }
+
+    //TODO improve it before merging
+    private fun turnScreenOnAndKeyguardOff() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        } else {
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                        or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+            )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            with(getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager) {
+                requestDismissKeyguard(this@WireActivity, null)
+            }
+        }
+    }
+
+    private fun removeFlags() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(false)
+            setTurnScreenOn(false)
+        } else {
+            window.clearFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                        or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+            )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            with(getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager) {
+                requestDismissKeyguard(this@WireActivity, null)
+            }
         }
     }
 }

@@ -32,21 +32,29 @@ class WireNotificationManager @Inject constructor(
      * Can be used in Services (e.g., after receiving FCM)
      * @param userId QualifiedID of User that need to check Notifications for
      */
-    suspend fun fetchAndShowMessageNotificationsOnce(userIdValue: String) {
+    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         val userId = getQualifiedIDFromUserId(userId = userIdValue)
         coreLogic.getSessionScope(userId).syncPendingEvents()
 
-        val notificationsList = getNotificationProvider.create(userId)
-            .getNotifications()
-            .first()
+        println("cyka fetchAndShowNotificationsOnce $userId")
+        fetchAndShowMessageNotificationsOnce(userId)
+        fetchAndShowCallNotificationsOnce(userId)
+    }
 
-        messagesManager.handleNotification(listOf(), notificationsList, userId)
-
+    private suspend fun fetchAndShowCallNotificationsOnce(userId: QualifiedID) {
         val callsList = getIncomingCallsProvider.create(userId)
             .getCalls()
             .first()
 
         callsManager.handleCalls(callsList, userId)
+    }
+
+    private suspend fun fetchAndShowMessageNotificationsOnce(userId: QualifiedID) {
+        val notificationsList = getNotificationProvider.create(userId)
+            .getNotifications()
+            .first()
+
+        messagesManager.handleNotification(listOf(), notificationsList, userId)
     }
 
     // todo to be deleted as soon as we get the qualifiedID from the notification payload

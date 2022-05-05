@@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.R
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.asString
 import com.wire.kalium.logic.data.notification.LocalNotificationCall
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,6 +28,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     private val notificationManager = NotificationManagerCompat.from(context)
 
     fun handleCalls(calls: List<LocalNotificationCall>, userId: QualifiedID) {
+        println("cyka handleCalls : $calls")
         if (calls.isEmpty()) hideCallNotification()
         else showIncomingCallNotification(calls.first(), userId)
     }
@@ -55,8 +55,8 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     }
 
     private fun getNotification(data: LocalNotificationCall, userId: QualifiedID): Notification {
-        val conversationIdString = data.conversationId.asString()
-        val userIdString = userId.asString()
+        val conversationIdString = data.conversationId.toString()
+        val userIdString = userId.toString()
         val title = data.notificationTitle
         val content = data.notificationBody?.let { context.getString(R.string.notification_group_call_content, it) }
             ?: context.getString(R.string.notification_call_content)
@@ -77,8 +77,8 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         .setContentTitle(title)
         .setContentText(content)
         .setSmallIcon(R.drawable.notification_icon_small)
-        .setActions(getOpenCallAction(conversationIdString))
         .setActions(getDeclineCallAction(conversationIdString, userIdString))
+        .setActions(getOpenCallAction(conversationIdString))
         .setFullScreenIntent(fullScreenCallPendingIntent(context), true)
         .setAutoCancel(true)
         .setDeleteIntent(declineCallPendingIntent(context, conversationIdString, userIdString))
@@ -92,8 +92,8 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     ) = NotificationCompat.Builder(context, CHANNEL_ID)
         .setContentTitle(title)
         .setContentText(content)
-        .addAction(getOpenCallCompatAction(conversationIdString))
         .addAction(getDeclineCallCompatAction(conversationIdString, userIdString))
+        .addAction(getOpenCallCompatAction(conversationIdString))
         .setSmallIcon(R.drawable.notification_icon_small)
         .setFullScreenIntent(fullScreenCallPendingIntent(context), true)
         .setAutoCancel(true)

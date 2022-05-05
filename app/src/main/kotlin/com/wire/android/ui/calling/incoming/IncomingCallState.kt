@@ -1,6 +1,6 @@
 package com.wire.android.ui.calling.incoming
 
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 
 data class IncomingCallState(
     val conversationName: String? = null,

@@ -15,12 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -58,7 +59,7 @@ fun UserProfileAvatar(
                 .padding(dimensions().userAvatarStatusBorderSize)
                 .background(MaterialTheme.wireColorScheme.divider, CircleShape)
                 .size(size)
-                .clip(CircleShape),
+                .clip(CircleShape).testTag("User avatar"),
             contentScale = ContentScale.Crop
         )
         UserStatusIndicator(

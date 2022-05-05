@@ -27,6 +27,7 @@ import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
@@ -136,7 +137,8 @@ private fun AvatarPickerContent(
                         hasPickedImage = hasPickedImage(viewModel.pictureState),
                         onSaveClick = onSaveClick,
                         onCancelClick = { viewModel.loadInitialAvatarState() },
-                        onChangeImage = { state.showModalBottomSheet() }
+                        onChangeImage = { state.showModalBottomSheet() },
+                        isUploadingImage = isUploadingImage(viewModel.pictureState)
                     )
                 }
             }
@@ -144,14 +146,16 @@ private fun AvatarPickerContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AvatarPickerActionButtons(
+    isUploadingImage: Boolean,
     hasPickedImage: Boolean,
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit,
     onChangeImage: () -> Unit
 ) {
-    if (hasPickedImage) {
+    if (hasPickedImage || isUploadingImage) {
         Row(Modifier.fillMaxWidth()) {
             WireSecondaryButton(
                 modifier = Modifier
@@ -165,7 +169,9 @@ private fun AvatarPickerActionButtons(
                     .padding(dimensions().spacing16x)
                     .weight(1f),
                 text = stringResource(R.string.label_confirm),
-                onClick = { onSaveClick() }
+                onClick = { onSaveClick() },
+                loading = isUploadingImage,
+                state = if (isUploadingImage) WireButtonState.Disabled else WireButtonState.Default
             )
         }
     } else {
@@ -197,3 +203,6 @@ private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 private fun hasPickedImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Picked
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun isUploadingImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Uploading

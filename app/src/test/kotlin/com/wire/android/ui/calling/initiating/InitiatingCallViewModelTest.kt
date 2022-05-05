@@ -50,10 +50,11 @@ class InitiatingCallViewModelTest {
     @BeforeEach
     fun setup() {
         val scheduler = TestCoroutineScheduler()
+        val dummyConversationId = "some-dummy-value@some.dummy.domain"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
 
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>(any()) } returns ""
+        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
 
         initiatingCallViewModel = InitiatingCallViewModel(

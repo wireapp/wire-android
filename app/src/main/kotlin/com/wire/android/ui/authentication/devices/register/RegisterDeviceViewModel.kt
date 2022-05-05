@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -44,9 +45,15 @@ class RegisterDeviceViewModel @Inject constructor(
         viewModelScope.launch {
             if (!validatePasswordUseCase(state.password.text))
                 state = state.copy(loading = false, continueEnabled = true, error = RegisterDeviceError.InvalidCredentialsError)
-            else when (val registerDeviceResult = registerClientUseCase(state.password.text, null)) {
+            else when (val registerDeviceResult = registerClientUseCase(
+                RegisterClientUseCase.RegisterClientParam.ClientWithToken(
+                    password = state.password.text,
+                    capabilities = null,
+                    senderId = BuildConfig.SENDER_ID
+                ))) {
                 is RegisterClientResult.Failure.TooManyClients -> navigateToRemoveDevicesScreen()
-                is RegisterClientResult.Success -> navigateToHomeScreen()
+                is RegisterClientResult.Success -> {
+                    navigateToHomeScreen()}
                 is RegisterClientResult.Failure.Generic -> state = state.copy(
                         loading = false,
                         continueEnabled = true,

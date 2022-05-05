@@ -273,8 +273,9 @@ class ConversationsViewModelTest {
     private class Arrangement {
         init {
             // Tests setup
+            val dummyConversationId = "some-dummy-value@some.dummy.domain"
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>(any()) } returns ("")
+            every { savedStateHandle.get<String>(any()) } returns dummyConversationId
             every { savedStateHandle.set(any(), any<String>()) } returns Unit
 
             // Default empty values

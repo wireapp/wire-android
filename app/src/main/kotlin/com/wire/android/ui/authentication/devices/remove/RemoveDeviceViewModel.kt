@@ -66,8 +66,6 @@ class RemoveDeviceViewModel @Inject constructor(
     }
 
     fun onDialogDismissed() {
-        // it has to be 2-step process, first we have to hide the keyboard for the dialog's content and then dismiss the dialog
-        updateStateIfDialogVisible { it.copy(hideKeyboard = true) }
         updateStateIfDialogVisible { RemoveDeviceDialogState.Hidden }
     }
 
@@ -79,7 +77,7 @@ class RemoveDeviceViewModel @Inject constructor(
         updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(device = device)) }
     }
 
-    fun onRemoveConfirmed() {
+    fun onRemoveConfirmed(hideKeyboard: () -> Unit) {
         (state as? RemoveDeviceState.Success)?.let {
             (it.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
                 updateStateIfDialogVisible { it.copy(loading = true, removeEnabled = false) }
@@ -100,7 +98,7 @@ class RemoveDeviceViewModel @Inject constructor(
                             deleteClientResult.toRemoveDeviceError()
                     updateStateIfDialogVisible { it.copy(loading = false, error = removeDeviceError) }
                     if (removeDeviceError is RemoveDeviceError.None) {
-                        updateStateIfDialogVisible { it.copy(hideKeyboard = true) }
+                        hideKeyboard()
                         navigateToConvScreen()
                     }
                 }

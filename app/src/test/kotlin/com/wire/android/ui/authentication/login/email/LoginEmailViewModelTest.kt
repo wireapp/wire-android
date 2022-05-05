@@ -47,22 +47,31 @@ class LoginEmailViewModelTest {
 
     @MockK
     private lateinit var loginUseCase: LoginUseCase
+
     @MockK
     private lateinit var addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase
+
     @MockK
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
+
     @MockK
     private lateinit var clientScope: ClientScope
+
     @MockK
     private lateinit var registerClientUseCase: RegisterClientUseCase
+
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
+
     @MockK
     private lateinit var navigationManager: NavigationManager
+
     @MockK
     private lateinit var authSession: AuthSession
+
     @MockK
     private lateinit var serverConfig: ServerConfig
+
     @MockK
     private lateinit var client: Client
 
@@ -132,12 +141,16 @@ class LoginEmailViewModelTest {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
+        coEvery {
+            registerClientUseCase.invoke(any())
+        } returns RegisterClientResult.Success(client)
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
 
-        coVerify(exactly = 1) { registerClientUseCase.invoke(password, null) }
+        coVerify(exactly = 1) {
+            registerClientUseCase.invoke(any())
+        }
         coVerify(exactly = 1) {
             navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.HOME, BackStackMode.CLEAR_WHOLE))
         }

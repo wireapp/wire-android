@@ -286,7 +286,7 @@ private fun ColumnScope.OtherAccountsList(
         WirePrimaryButton(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
-                .padding(dimensions().spacing16x),
+                .padding(dimensions().spacing16x).testTag("New Team or Account"),
             text = stringResource(R.string.user_profile_new_account_text),
             onClick = onAddAccountClick
         )

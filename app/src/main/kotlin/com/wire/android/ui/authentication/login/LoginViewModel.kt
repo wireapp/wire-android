@@ -4,6 +4,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -19,7 +20,7 @@ import javax.inject.Inject
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
-import dagger.assisted.AssistedInject
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 
 @ExperimentalMaterialApi
 @HiltViewModel
@@ -67,7 +68,12 @@ open class LoginViewModel @Inject constructor(
         capabilities: List<ClientCapability>? = null
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.register(password, capabilities)
+        return clientScope.register(
+            RegisterClientUseCase.RegisterClientParam.ClientWithToken(
+                password = password,
+                capabilities = capabilities,
+                senderId = BuildConfig.SENDER_ID
+            ))
     }
 
     @VisibleForTesting

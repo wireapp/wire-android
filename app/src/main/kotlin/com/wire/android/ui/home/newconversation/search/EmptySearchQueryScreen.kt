@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation.search
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,7 @@ import com.wire.android.util.CustomTabsHelper
 
 @Composable
 fun EmptySearchQueryScreen() {
+    val context = LocalContext.current
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -49,15 +51,10 @@ fun EmptySearchQueryScreen() {
                     textDecoration = TextDecoration.Underline,
                     color = MaterialTheme.colorScheme.primary
                 ),
-                modifier = Modifier.clickable { openLearnMoreAboutSearchUrl() }
+                modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, learnMoreAboutUsersSearchUrl) }
             )
         }
     }
-}
-
-@Composable
-private fun openLearnMoreAboutSearchUrl() {
-    CustomTabsHelper.launchUrl(LocalContext.current, learnMoreAboutUsersSearchUrl)
 }
 
 private const val learnMoreAboutUsersSearchUrl = "https://support.wire.com/hc/en-us/articles/203121850-How-can-I-find-someone"

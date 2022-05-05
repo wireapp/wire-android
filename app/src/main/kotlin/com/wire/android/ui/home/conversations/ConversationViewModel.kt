@@ -15,6 +15,8 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_MAX_IMAGE_SIZE
+import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_SENDING_IMAGE
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -42,6 +44,7 @@ import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
@@ -141,14 +144,20 @@ class ConversationViewModel @Inject constructor(
                 attachmentBundle?.run {
                     when (attachmentType) {
                         AttachmentType.IMAGE -> {
-                            val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
-                            sendImageMessage(
-                                conversationId = conversationId,
-                                imageRawData = attachmentBundle.rawContent,
-                                imageName = attachmentBundle.fileName,
-                                imgWidth = imgWidth,
-                                imgHeight = imgHeight
-                            )
+                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onError(ERROR_MAX_IMAGE_SIZE)
+                            else {
+                                val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
+                                val result = sendImageMessage(
+                                    conversationId = conversationId,
+                                    imageRawData = attachmentBundle.rawContent,
+                                    imageName = attachmentBundle.fileName,
+                                    imgWidth = imgWidth,
+                                    imgHeight = imgHeight
+                                )
+                                if (result is SendImageMessageResult.Failure) {
+                                    onError(ERROR_SENDING_IMAGE)
+                                }
+                            }
                         }
                         AttachmentType.GENERIC_FILE -> {
                             sendAssetMessage(
@@ -162,6 +171,10 @@ class ConversationViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onError(errorCode: ConversationErrors) {
+        conversationViewState = conversationViewState.copy(onError = errorCode)
     }
 
     fun downloadAsset(assetId: String) {
@@ -352,4 +365,8 @@ class ConversationViewModel @Inject constructor(
         }
     }
     // endregion
+
+    companion object {
+        const val IMAGE_SIZE_LIMIT_BYTES = 15000000
+    }
 }

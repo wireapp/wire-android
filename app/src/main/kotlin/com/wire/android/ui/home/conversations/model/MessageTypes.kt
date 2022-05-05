@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations.model
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
@@ -41,7 +44,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
-import com.wire.kalium.logic.data.user.UserAssetId
 import kotlin.math.roundToInt
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
@@ -61,18 +63,15 @@ fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageC
         .clip(shape = RoundedCornerShape(MaterialTheme.wireDimensions.messageAssetBorderRadius))
         .clickable { onImageClick() }
     ) {
+        val imageData: Bitmap? =
+            if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
         Image(
-            painter = rememberAsyncImagePainter(
-                rawImgData?.toBitmap() ?: getUriFromDrawable(
-                    LocalContext.current,
-                    R.drawable.ic_gallery
-                )
-            ),
+            painter = rememberAsyncImagePainter(imageData ?: getUriFromDrawable(LocalContext.current, R.drawable.ic_gallery)),
             alignment = Alignment.CenterStart,
             contentDescription = stringResource(R.string.content_description_image_message),
             modifier = Modifier
-            .width(imgParams.normalizedWidth)
-            .height(imgParams.normalizedHeight),
+                .width(if (imageData != null) imgParams.normalizedWidth else dimensions().spacing24x)
+                .height(if (imageData != null) imgParams.normalizedHeight else dimensions().spacing24x),
             contentScale = ContentScale.Crop
         )
     }
@@ -105,7 +104,8 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetSizeIn
             ConstraintLayout(
                 Modifier
                     .fillMaxWidth()
-                    .padding(top = MaterialTheme.wireDimensions.spacing8x)) {
+                    .padding(top = MaterialTheme.wireDimensions.spacing8x)
+            ) {
                 val (icon, description, downloadStatus) = createRefs()
                 Image(
                     modifier = Modifier

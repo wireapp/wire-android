@@ -7,7 +7,7 @@ data class ConversationViewState(
     val conversationName: String = "",
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
     val messages: List<MessageViewWrapper> = emptyList(),
-    val failedMessages: String = "",
+    val onError: ConversationErrors? = null,
     val messageText: String = ""
 )
 

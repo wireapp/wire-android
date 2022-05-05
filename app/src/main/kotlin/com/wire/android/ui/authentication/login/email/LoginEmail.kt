@@ -224,7 +224,7 @@ private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
 }
 
 private fun openForgotPasswordPage(context: Context, accountsBaseUrl: String) {
-    val url = "https://${accountsBaseUrl}/forgot"
+    val url = "${accountsBaseUrl}/forgot"
     CustomTabsHelper.launchUrl(context, url)
 }
 

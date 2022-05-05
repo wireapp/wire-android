@@ -14,8 +14,6 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
-import com.wire.kalium.logic.feature.call.Call
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -26,7 +24,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val listenToEvents: ListenToEventsUseCase,
-    private val incomingCalls: GetIncomingCallsUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {
@@ -38,9 +35,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             launch { listenToEvents() } // listen for the WebSockets updates and update DB accordingly
             launch { loadUserAvatar() }
-            launch {
-                incomingCalls().collect { observeIncomingCalls(calls = it) }
-            }
         }
     }
 
@@ -74,16 +68,6 @@ class HomeViewModel @Inject constructor(
             getSelf().collect { selfUser ->
                 userAvatar = selfUser.previewPicture?.let { UserAvatarAsset(it) }
             }
-        }
-    }
-
-    private suspend fun observeIncomingCalls(calls: List<Call>) {
-        if (calls.isNotEmpty()) {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.IncomingCall.getRouteWithArgs(listOf(calls.first().conversationId))
-                )
-            )
         }
     }
 

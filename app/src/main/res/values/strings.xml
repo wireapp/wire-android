@@ -293,6 +293,10 @@
     <string name="content_description_copy">Copy</string>
     <string name="content_description_show_more_options">Show more options</string>
     <string name="label_type_a_message">Type a message</string>
+    <string name="notification_action_open_call">Open Call</string>
+    <string name="notification_action_decline_call">Decline</string>
+    <string name="notification_call_content">Calling...</string>
+    <string name="notification_group_call_content">%s calling...</string>
 
     <!-- Calling-->
     <string name="calling_mute_call">Mute call</string>

@@ -1,5 +1,6 @@
 package com.wire.android.notification
 
+import com.wire.android.di.GetIncomingCallsUseCaseProvider
 import com.wire.android.di.GetNotificationsUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
@@ -20,7 +21,9 @@ import javax.inject.Singleton
 class WireNotificationManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val getNotificationProvider: GetNotificationsUseCaseProvider.Factory,
-    private val notificationManager: MessageNotificationManager,
+    private val getIncomingCallsProvider: GetIncomingCallsUseCaseProvider.Factory,
+    private val messagesManager: MessageNotificationManager,
+    private val callsManager: CallNotificationManager,
 ) {
 
     /**
@@ -35,7 +38,13 @@ class WireNotificationManager @Inject constructor(
             .getNotifications()
             .first()
 
-        notificationManager.handleNotification(listOf(), notificationsList, userId)
+        messagesManager.handleNotification(listOf(), notificationsList, userId)
+
+        val callsList = getIncomingCallsProvider.create(userId)
+            .getCalls()
+            .first()
+
+        callsManager.handleCalls(callsList, userId)
     }
 
     /**
@@ -44,7 +53,7 @@ class WireNotificationManager @Inject constructor(
      * @param userIdFlow Flow of QualifiedID of User
      */
     @ExperimentalCoroutinesApi
-    suspend fun listenForMessageNotifications(userIdFlow: Flow<UserId?>) {
+    suspend fun observeMessageNotifications(userIdFlow: Flow<UserId?>) {
         userIdFlow
             .flatMapLatest { userId ->
                 if (userId != null) {
@@ -68,7 +77,7 @@ class WireNotificationManager @Inject constructor(
                     }
             }
             .collect { (oldNotifications, newNotifications, userId) ->
-                notificationManager.handleNotification(oldNotifications, newNotifications, userId)
+                messagesManager.handleNotification(oldNotifications, newNotifications, userId)
             }
     }
 

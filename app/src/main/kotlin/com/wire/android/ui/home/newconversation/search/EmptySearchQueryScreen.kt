@@ -20,11 +20,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.configuration.ClientConfig
 
 @Composable
 fun EmptySearchQueryScreen() {
@@ -57,4 +59,4 @@ fun EmptySearchQueryScreen() {
     }
 }
 
-private const val learnMoreAboutUsersSearchUrl = "https://support.wire.com/hc/en-us/articles/203121850-How-can-I-find-someone"
+private const val learnMoreAboutUsersSearchUrl = "${BuildConfig.SUPPORT_URL}/hc/en-us/articles/203121850-How-can-I-find-someone"

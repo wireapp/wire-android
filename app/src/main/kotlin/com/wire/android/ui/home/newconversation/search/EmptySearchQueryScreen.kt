@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.newconversation.search
 
-import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +25,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.configuration.ClientConfig
 
 @Composable
 fun EmptySearchQueryScreen() {
@@ -53,10 +51,10 @@ fun EmptySearchQueryScreen() {
                     textDecoration = TextDecoration.Underline,
                     color = MaterialTheme.colorScheme.primary
                 ),
-                modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, learnMoreAboutUsersSearchUrl) }
+                modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, LEARN_ABOUT_SEARCH_URL) }
             )
         }
     }
 }
 
-private const val learnMoreAboutUsersSearchUrl = "${BuildConfig.SUPPORT_URL}/hc/en-us/articles/203121850-How-can-I-find-someone"
+private const val LEARN_ABOUT_SEARCH_URL = "${BuildConfig.SUPPORT_URL}/hc/en-us/articles/203121850-How-can-I-find-someone"

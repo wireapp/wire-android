@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
@@ -60,13 +61,13 @@ internal fun DeletedMessage() {
         modifier = Modifier
             .border(
                 width = 1.dp,
-                color = MaterialTheme.wireColorScheme.deletedMessageTextBorder,
-                shape = RoundedCornerShape(4.dp)
+                color = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
+                shape = RoundedCornerShape(dimensions().corner4x)
             )
     ) {
         Text(
             text = stringResource(R.string.deleted_message_text),
-            color = MaterialTheme.wireColorScheme.deletedMessageTextColor,
+            color = MaterialTheme.wireColorScheme.labelText,
             style = MaterialTheme.wireTypography.label03,
             modifier = Modifier
                 .padding(

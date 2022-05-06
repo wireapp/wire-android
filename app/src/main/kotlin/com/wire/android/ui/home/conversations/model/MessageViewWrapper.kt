@@ -14,7 +14,8 @@ data class MessageViewWrapper(
     val messageContent: MessageContent?,
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == MessageStatus.Deleted
-    val sendingFailed: Boolean = messageHeader.messageStatus == MessageStatus.Failure
+    val sendingFailed: Boolean = messageHeader.messageStatus == MessageStatus.SendFailure
+    val receivingFailed: Boolean = messageHeader.messageStatus == MessageStatus.ReceiveFailure
 }
 
 data class MessageHeader(
@@ -30,7 +31,8 @@ enum class MessageStatus(val stringResourceId: Int) {
     Untouched(-1),
     Deleted(R.string.label_message_status_deleted),
     Edited(R.string.label_message_status_edited),
-    Failure(R.string.label_message_sent_failure)
+    SendFailure(R.string.label_message_sent_failure),
+    ReceiveFailure(R.string.label_message_receive_failure)
 }
 
 sealed class MessageContent {

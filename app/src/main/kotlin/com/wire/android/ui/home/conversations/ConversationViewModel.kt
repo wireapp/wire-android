@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
@@ -43,6 +42,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.asset.MarkAssetMessageAsDownloadedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -71,7 +71,8 @@ class ConversationViewModel @Inject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
-    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
+    private val markAssetMessageAsDownloaded: MarkAssetMessageAsDownloadedUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -164,9 +165,8 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun downloadAsset(assetId: String) {
-        appLogger.d("Trying to download asset with id $assetId")
-        // TODO: Implement asset download flow
+    fun downloadAsset(messageId: String) {
+        viewModelScope.launch { getRawAssetData(conversationId, messageId) }
     }
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
@@ -302,7 +302,7 @@ class ConversationViewModel @Inject constructor(
                     membership = Membership.None,
                     isLegalHold = false,
                     time = message.date,
-                    messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.Failure else MessageStatus.Untouched,
+                    messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
                     messageId = message.id
                 ),
                 user = User(

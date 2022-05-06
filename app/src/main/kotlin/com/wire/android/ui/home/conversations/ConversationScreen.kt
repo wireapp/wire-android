@@ -47,7 +47,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onSendButtonClicked = conversationViewModel::sendMessage,
         onSendAttachment = conversationViewModel::sendAttachmentMessage,
         onDownloadAsset = conversationViewModel::downloadAsset,
-        onImageFullScreenMode = { conversationViewModel.navigateToGallery(it) },
+        onImageFullScreenMode = conversationViewModel::navigateToGallery,
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch

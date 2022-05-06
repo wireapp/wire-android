@@ -25,7 +25,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
@@ -75,9 +74,13 @@ fun MessageItem(
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(dimensions().spacing6x))
                 if (!isDeleted) {
-                    MessageContent(messageContent, onAssetMessageClicked, onImageClick = {
-                        onImageMessageClicked(message.messageHeader.messageId)
-                    })
+                    MessageContent(messageContent,
+                        onAssetClick = { assetId ->
+                            onAssetMessageClicked(message.messageHeader.messageId, assetId)
+                        },
+                        onImageClick = {
+                            onImageMessageClicked(message.messageHeader.messageId)
+                        })
                 }
             }
         }
@@ -160,7 +163,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        if (messageStatus != MessageStatus.Failure) {
+        if (messageStatus != MessageStatus.SendFailure) {
             Box(
                 modifier = Modifier
                     .wrapContentSize()

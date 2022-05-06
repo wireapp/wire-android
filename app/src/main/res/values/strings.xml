@@ -18,6 +18,7 @@
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_receive_failure">Download Error</string>
     <string name="label_try_again">Try again</string>
     <string name="label_federated_membership">Federated</string>
 

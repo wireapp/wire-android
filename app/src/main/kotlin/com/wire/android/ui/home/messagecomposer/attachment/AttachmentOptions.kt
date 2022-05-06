@@ -20,7 +20,7 @@ import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationErrors
-import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_PICKING_ATTACHMENT
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorPickingAttachment
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
@@ -74,7 +74,7 @@ private fun configureStateHandling(
             attachmentInnerState.resetAttachmentState()
         }
         is AttachmentState.Error -> {
-            onError(ERROR_PICKING_ATTACHMENT)
+            onError(ErrorPickingAttachment)
             attachmentInnerState.resetAttachmentState()
         }
     }

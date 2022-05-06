@@ -15,9 +15,9 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_MAX_IMAGE_SIZE
-import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_MAX_ASSET_SIZE
-import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_SENDING_IMAGE
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxImageSize
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxAssetSize
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingSize
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -145,7 +145,7 @@ class ConversationViewModel @Inject constructor(
                 attachmentBundle?.run {
                     when (attachmentType) {
                         AttachmentType.IMAGE -> {
-                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onError(ERROR_MAX_IMAGE_SIZE)
+                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onError(ErrorMaxImageSize)
                             else {
                                 val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
                                 val result = sendImageMessage(
@@ -156,12 +156,12 @@ class ConversationViewModel @Inject constructor(
                                     imgHeight = imgHeight
                                 )
                                 if (result is SendImageMessageResult.Failure) {
-                                    onError(ERROR_SENDING_IMAGE)
+                                    onError(ErrorSendingSize)
                                 }
                             }
                         }
                         AttachmentType.GENERIC_FILE -> {
-                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onError(ERROR_MAX_ASSET_SIZE)
+                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onError(ErrorMaxAssetSize)
                             else {
                                 sendAssetMessage(
                                     conversationId = conversationId,

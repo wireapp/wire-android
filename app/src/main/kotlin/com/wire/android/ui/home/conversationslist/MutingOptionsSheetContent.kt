@@ -1,7 +1,10 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +17,7 @@ import com.wire.android.ui.common.ArrowLeftIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.RichMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -69,7 +73,15 @@ fun MutingOptionsSheetContent(
                 )
             }
         ),
-        headerIcon = { ArrowLeftIcon(modifier = Modifier.clickable { onBackClick() }) }
+        headerIcon = {
+            ArrowLeftIcon(modifier = Modifier.clickable { onBackClick() })
+            Spacer(modifier = Modifier.width(dimensions().spacing8x))
+        },
+        headerModifier = Modifier.padding(
+            start = dimensions().spacing8x,
+            top = dimensions().spacing16x,
+            bottom = dimensions().spacing16x
+        )
     )
 }
 

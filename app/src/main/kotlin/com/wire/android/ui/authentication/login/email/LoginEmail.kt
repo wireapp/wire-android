@@ -50,7 +50,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.DialogErrorStrings
-import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.ServerConfig
 import kotlinx.coroutines.CoroutineScope
@@ -59,10 +58,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginEmailScreen(
+    serverConfig: ServerConfig,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
     val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+    loginEmailViewModel.updateServerConfig(ssoLoginResult = null, serverConfig)
     val loginEmailState: LoginEmailState = loginEmailViewModel.loginState
     LoginEmailContent(
         scrollState = scrollState,
@@ -73,7 +74,8 @@ fun LoginEmailScreen(
         onRemoveDeviceOpen = { loginEmailViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginEmailViewModel.login() },
         accountsBaseUrl = loginEmailViewModel.serverConfig.accountsBaseUrl,
-        scope = scope
+        scope = scope,
+        serverTitle = loginEmailViewModel.serverConfig.title
     )
 }
 
@@ -88,7 +90,9 @@ private fun LoginEmailContent(
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
     accountsBaseUrl: String,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    //todo: temporary to show to pointing server
+    serverTitle: String
 ) {
     Column(
         modifier = Modifier
@@ -106,7 +110,8 @@ private fun LoginEmailContent(
             error = when (loginEmailState.loginEmailError) {
                 LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                 else -> null
-            }
+            },
+            serverTitle = serverTitle
         )
         PasswordInput(
             modifier = Modifier
@@ -173,13 +178,15 @@ private fun UserIdentifierInput(
     modifier: Modifier,
     userIdentifier: TextFieldValue,
     error: String?,
-    onUserIdentifierChange: (TextFieldValue) -> Unit
+    onUserIdentifierChange: (TextFieldValue) -> Unit,
+    //todo: temporary to show to pointing server
+    serverTitle: String
 ) {
     WireTextField(
         value = userIdentifier,
         onValueChange = onUserIdentifierChange,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
-        labelText = stringResource(R.string.login_user_identifier_label),
+        labelText = stringResource(R.string.login_user_identifier_label) + " on $serverTitle",
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
         modifier = modifier.testTag("emailField")
@@ -222,7 +229,7 @@ private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
 }
 
 private fun openForgotPasswordPage(context: Context, accountsBaseUrl: String) {
-    val url = "https://${accountsBaseUrl}/forgot"
+    val url = "$accountsBaseUrl/forgot"
     CustomTabsHelper.launchUrl(context, url)
 }
 
@@ -259,7 +266,8 @@ private fun LoginEmailScreenPreview() {
             onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
             accountsBaseUrl = "",
-            scope = scope
+            scope = scope,
+            serverTitle = "Test Server"
         )
     }
 }

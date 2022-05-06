@@ -1,6 +1,6 @@
 package com.wire.android.ui.home.conversations.mock
 
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
@@ -55,7 +55,7 @@ val mockAssetMessage = MessageViewWrapper(
 )
 
 @Suppress("MagicNumber")
-val mockedImg = MessageContent.ImageMessage(ByteArray(16), 0, 0)
+val mockedImg = MessageContent.ImageMessage("asset-id", ByteArray(16), 0, 0)
 
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<MessageViewWrapper> = listOf(

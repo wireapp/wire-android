@@ -9,7 +9,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,10 +73,12 @@ fun MenuModalSheetContent(
     headerTitle: String? = null,
     headerIcon: @Composable () -> Unit = {},
     menuItems: List<@Composable () -> Unit>,
+    headerModifier: Modifier = Modifier
 ) {
     ModalSheetHeaderItem(
         title = headerTitle,
-        leadingIcon = headerIcon
+        leadingIcon = headerIcon,
+        modifier = headerModifier
     )
 
     buildMenuSheetItems(items = menuItems)

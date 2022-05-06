@@ -16,6 +16,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_MAX_IMAGE_SIZE
+import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_MAX_ASSET_SIZE
 import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_SENDING_IMAGE
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
@@ -160,12 +161,15 @@ class ConversationViewModel @Inject constructor(
                             }
                         }
                         AttachmentType.GENERIC_FILE -> {
-                            sendAssetMessage(
-                                conversationId = conversationId,
-                                assetRawData = attachmentBundle.rawContent,
-                                assetName = attachmentBundle.fileName,
-                                assetMimeType = attachmentBundle.mimeType
-                            )
+                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onError(ERROR_MAX_ASSET_SIZE)
+                            else {
+                                sendAssetMessage(
+                                    conversationId = conversationId,
+                                    assetRawData = attachmentBundle.rawContent,
+                                    assetName = attachmentBundle.fileName,
+                                    assetMimeType = attachmentBundle.mimeType
+                                )
+                            }
                         }
                     }
                 }
@@ -368,5 +372,6 @@ class ConversationViewModel @Inject constructor(
 
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15000000
+        const val ASSET_SIZE_LIMIT_BYTES = 100000000
     }
 }

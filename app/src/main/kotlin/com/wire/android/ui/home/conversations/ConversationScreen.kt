@@ -26,6 +26,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_MAX_ASSET_SIZE
 import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_MAX_IMAGE_SIZE
 import com.wire.android.ui.home.conversations.ConversationErrors.ERROR_SENDING_IMAGE
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
@@ -145,6 +146,7 @@ private fun ConversationScreen(
 @Composable
 fun getErrorMessage(errorCode: ConversationErrors) =
     when (errorCode) {
+        ERROR_MAX_ASSET_SIZE -> stringResource(R.string.error_conversation_max_asset_size_limit)
         ERROR_MAX_IMAGE_SIZE -> stringResource(R.string.error_conversation_max_image_size_limit)
         ERROR_SENDING_IMAGE -> stringResource(R.string.error_conversation_sending_image)
         else -> stringResource(R.string.error_conversation_generic)

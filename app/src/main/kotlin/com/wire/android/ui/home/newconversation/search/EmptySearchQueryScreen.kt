@@ -15,17 +15,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-
+import com.wire.android.util.CustomTabsHelper
 
 @Composable
 fun EmptySearchQueryScreen() {
+    val context = LocalContext.current
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -48,10 +51,10 @@ fun EmptySearchQueryScreen() {
                     textDecoration = TextDecoration.Underline,
                     color = MaterialTheme.colorScheme.primary
                 ),
-                modifier = Modifier.clickable {
-                    //TODO: redirect to somewhere ?
-                }
+                modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, LEARN_ABOUT_SEARCH_URL) }
             )
         }
     }
 }
+
+private const val LEARN_ABOUT_SEARCH_URL = "${BuildConfig.SUPPORT_URL}/hc/en-us/articles/203121850-How-can-I-find-someone"

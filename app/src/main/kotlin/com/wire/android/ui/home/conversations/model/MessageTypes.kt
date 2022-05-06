@@ -61,7 +61,7 @@ internal fun DeletedMessage() {
         modifier = Modifier
             .border(
                 width = 1.dp,
-                color = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
+                color = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
                 shape = RoundedCornerShape(dimensions().corner4x)
             )
     ) {

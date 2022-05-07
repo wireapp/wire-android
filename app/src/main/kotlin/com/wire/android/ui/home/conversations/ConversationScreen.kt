@@ -28,7 +28,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxImageSize
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingSize
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingAsset
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
@@ -148,7 +148,7 @@ fun getErrorMessage(errorCode: ConversationErrors) =
     when (errorCode) {
         ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit)
         ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
-        ErrorSendingSize -> stringResource(R.string.error_conversation_sending_image)
+        ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_image)
         else -> stringResource(R.string.error_conversation_generic)
     }
 

@@ -17,7 +17,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxImageSize
 import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxAssetSize
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingSize
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingAsset
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -156,7 +156,7 @@ class ConversationViewModel @Inject constructor(
                                     imgHeight = imgHeight
                                 )
                                 if (result is SendImageMessageResult.Failure) {
-                                    onError(ErrorSendingSize)
+                                    onError(ErrorSendingAsset)
                                 }
                             }
                         }

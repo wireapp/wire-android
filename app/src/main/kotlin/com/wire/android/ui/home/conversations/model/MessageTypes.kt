@@ -58,10 +58,35 @@ internal fun MessageBody(messageBody: MessageBody) {
 }
 
 @Composable
+internal fun DeletedMessage() {
+    Box(
+        modifier = Modifier
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.wireColorScheme.divider,
+                shape = RoundedCornerShape(dimensions().corner4x)
+            )
+    ) {
+        Text(
+            text = stringResource(R.string.deleted_message_text),
+            color = MaterialTheme.wireColorScheme.labelText,
+            style = MaterialTheme.wireTypography.label03,
+            modifier = Modifier
+                .padding(
+                    horizontal = MaterialTheme.wireDimensions.spacing4x,
+                    vertical = MaterialTheme.wireDimensions.spacing2x
+                )
+        )
+    }
+
+}
+
+@Composable
 fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageClick: () -> Unit) {
-    Box(Modifier
-        .clip(shape = RoundedCornerShape(MaterialTheme.wireDimensions.messageAssetBorderRadius))
-        .clickable { onImageClick() }
+    Box(
+        Modifier
+            .clip(shape = RoundedCornerShape(MaterialTheme.wireDimensions.messageAssetBorderRadius))
+            .clickable { onImageClick() }
     ) {
         val imageData: Bitmap? =
             if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
@@ -189,6 +214,12 @@ class ImageMessageParams(private val realImgWidth: Int, private val realImgHeigh
 @Composable
 fun PreviewMessage() {
     MessageItem(mockMessageWithText, {}, {}, {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDeletedMessage() {
+    DeletedMessage()
 }
 
 @Preview(showBackground = true)

@@ -10,6 +10,7 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOADED
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -42,7 +43,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
-import com.wire.kalium.logic.feature.asset.MarkAssetMessageAsDownloadedUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -72,7 +73,7 @@ class ConversationViewModel @Inject constructor(
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
-    private val markAssetMessageAsDownloaded: MarkAssetMessageAsDownloadedUseCase
+    private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -166,7 +167,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun downloadAsset(messageId: String) {
-        viewModelScope.launch { getRawAssetData(conversationId, messageId) }
+        viewModelScope.launch { updateAssetMessageDownloadStatus(DOWNLOADED, conversationId, messageId) }
     }
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =

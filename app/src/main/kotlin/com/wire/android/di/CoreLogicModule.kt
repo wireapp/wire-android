@@ -370,4 +370,9 @@ class UseCaseModule {
     fun markMessagesAsNotifiedUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).messages.markMessagesAsNotified
 
+    @ViewModelScoped
+    @Provides
+    fun updateAssetMessageDownloadStatusUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).messages.updateAssetMessageDownloadStatus
+
 }

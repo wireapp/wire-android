@@ -46,7 +46,7 @@ class NewConversationViewModel
 
     //TODO: map this value out with the given back-end configuration later on
     private companion object {
-        const val HARDCODED_TEST_DOMAIN = "staging.zinfra.io"
+        const val HARDCODED_TEST_DOMAIN = "wire.com"
         const val GROUP_NAME_MAX_COUNT = 64
     }
 

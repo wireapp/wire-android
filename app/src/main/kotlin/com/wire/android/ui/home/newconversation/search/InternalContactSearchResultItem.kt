@@ -16,7 +16,6 @@ import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 
-
 @Composable
 fun InternalContactSearchResultItem(
     avatarAsset: UserAvatarAsset?,
@@ -79,6 +78,7 @@ fun ExternalContactSearchResultItem(
     name: String,
     label: String,
     searchQuery: String,
+    isUnconnected: Boolean,
     onRowItemClicked: () -> Unit,
     onRowItemLongClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -105,11 +105,10 @@ fun ExternalContactSearchResultItem(
             )
         },
         actions = {
-            AddContactButton({ })
+            if (isUnconnected) AddContactButton({ })
         },
         onRowItemClicked = onRowItemClicked,
         onRowItemLongClicked = onRowItemLongClicked,
         modifier = modifier
     )
 }
-

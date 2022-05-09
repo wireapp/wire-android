@@ -273,6 +273,7 @@ private fun LazyListScope.externalSuccessItem(
                     userStatus = userStatus,
                     name = name,
                     label = label,
+                    isUnconnected = contact.isUnconnected,
                     searchQuery = searchQuery,
                     onRowItemClicked = { onOpenUserProfile(contact) },
                     onRowItemLongClicked = { }

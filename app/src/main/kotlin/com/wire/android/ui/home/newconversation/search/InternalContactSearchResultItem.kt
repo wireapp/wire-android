@@ -78,7 +78,7 @@ fun ExternalContactSearchResultItem(
     name: String,
     label: String,
     searchQuery: String,
-    isUnconnected: Boolean,
+    isConnectedOrPending: Boolean,
     onRowItemClicked: () -> Unit,
     onRowItemLongClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -105,7 +105,7 @@ fun ExternalContactSearchResultItem(
             )
         },
         actions = {
-            if (isUnconnected) AddContactButton({ })
+            if (!isConnectedOrPending) AddContactButton({ })
         },
         onRowItemClicked = onRowItemClicked,
         onRowItemLongClicked = onRowItemLongClicked,

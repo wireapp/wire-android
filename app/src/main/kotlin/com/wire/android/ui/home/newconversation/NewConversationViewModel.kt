@@ -25,13 +25,13 @@ import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions")
 @HiltViewModel
@@ -44,7 +44,7 @@ class NewConversationViewModel
     private val createGroupConversation: CreateGroupConversationUseCase
 ) : ViewModel() {
 
-    //TODO: map this value out with the given back-end configuration later on
+    // TODO: map this value out with the given back-end configuration later on
     private companion object {
         const val HARDCODED_TEST_DOMAIN = "wire.com"
         const val GROUP_NAME_MAX_COUNT = 64
@@ -52,9 +52,9 @@ class NewConversationViewModel
 
     val state: SearchPeopleState by derivedStateOf {
         val noneSearchSucceed: Boolean =
-            localContactSearchResult.searchResultState is SearchResultState.Failure
-                    && publicContactsSearchResult.searchResultState is SearchResultState.Failure
-                    && federatedContactSearchResult.searchResultState is SearchResultState.Failure
+            localContactSearchResult.searchResultState is SearchResultState.Failure &&
+                publicContactsSearchResult.searchResultState is SearchResultState.Failure &&
+                federatedContactSearchResult.searchResultState is SearchResultState.Failure
 
         innerSearchPeopleState.copy(
             noneSearchSucceed = noneSearchSucceed,
@@ -104,19 +104,18 @@ class NewConversationViewModel
     }
 
     fun search(searchTerm: String) {
-        //we set the state with a searchQuery, immediately to update the UI first
+        // we set the state with a searchQuery, immediately to update the UI first
         innerSearchPeopleState = state.copy(searchQuery = searchTerm)
 
         searchQueryStateFlow.search(searchTerm)
     }
 
     private suspend fun searchKnown(searchTerm: String) {
-        //TODO: this is going to be refactored on the Kalium side so that we do not use Flow
+        // TODO: this is going to be refactored on the Kalium side so that we do not use Flow
         searchKnownUsers(searchTerm).onStart {
             localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
         }.catch {
             localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.Failure())
-
         }.flowOn(Dispatchers.IO).collect {
             localContactSearchResult = ContactSearchResult.InternalContact(
                 SearchResultState.Success(it.result.map { otherUser -> otherUser.toContact() })
@@ -158,13 +157,15 @@ class NewConversationViewModel
         )
     }
 
-    //TODO: internal is here untill we can get the ConnectionStatus from the user
-    // for now it is just to be able to proceed forward
-    fun openUserProfile(contact: Contact, internal: Boolean) {
+    fun openUserProfile(contact: Contact) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(contact.domain, contact.id, internal))
+                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
+                        listOf(
+                            contact.domain, contact.id, contact.connectionState
+                        )
+                    )
                 )
             )
         }
@@ -203,13 +204,14 @@ class NewConversationViewModel
         viewModelScope.launch {
             groupNameState = groupNameState.copy(isLoading = true)
 
-            when (val result = createGroupConversation(
-                name = groupNameState.groupName.text,
-                members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
-                options = ConversationOptions()
-            )
+            when (
+                val result = createGroupConversation(
+                    name = groupNameState.groupName.text,
+                    members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
+                    options = ConversationOptions()
+                )
             ) {
-                //TODO: handle the error state
+                // TODO: handle the error state
                 is Either.Left -> {
                     groupNameState = groupNameState.copy(isLoading = false)
                     Log.d("TEST", "error while creating a group ${result.value}")
@@ -235,5 +237,4 @@ class NewConversationViewModel
             navigationManager.navigateBack()
         }
     }
-
 }

@@ -14,12 +14,17 @@ data class Contact(
     val userStatus: UserStatus = UserStatus.NONE,
     val avatarAsset: UserAvatarAsset? = null,
     val label: String = "",
-    val isUnconnected: Boolean = true
+    val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED
 ) {
 
     fun toMember(): Member {
         return Member(UserId(id, domain))
     }
+
+    val isConnectedOrPending =
+        connectionState == ConnectionState.ACCEPTED ||
+            connectionState == ConnectionState.SENT ||
+            connectionState == ConnectionState.PENDING
 }
 
 fun OtherUser.toContact() =
@@ -29,5 +34,5 @@ fun OtherUser.toContact() =
         name = name ?: "",
         label = handle ?: "",
         avatarAsset = completePicture?.let { UserAvatarAsset(it) },
-        isUnconnected = connectionStatus == ConnectionState.NOT_CONNECTED
+        connectionState = connectionStatus
     )

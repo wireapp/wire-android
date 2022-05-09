@@ -56,12 +56,6 @@ class HomeState(
         scrollPosition = newScrollPosition
     }
 
-    fun closeDrawer() {
-        coroutineScope.launch {
-            drawerState.close()
-        }
-    }
-
     fun openDrawer() {
         coroutineScope.launch {
             drawerState.open()

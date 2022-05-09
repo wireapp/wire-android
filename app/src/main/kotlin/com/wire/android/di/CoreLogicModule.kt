@@ -10,9 +10,9 @@ import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetOngoingCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetOngoingCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
@@ -36,9 +36,9 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -84,6 +84,15 @@ class SessionModule {
             }
         }
     }
+}
+
+@Module
+@InstallIn(ViewModelComponent::class)
+class ConnectionModule {
+    @ViewModelScoped
+    @Provides
+    fun sendConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.sendConnectionRequest
 }
 
 @Module
@@ -369,5 +378,4 @@ class UseCaseModule {
     @Provides
     fun markMessagesAsNotifiedUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).messages.markMessagesAsNotified
-
 }

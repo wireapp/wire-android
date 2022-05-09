@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.EXTRA_CONNECTED_STATUS
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
@@ -51,6 +52,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 getKnownUserUseCase(userId).collect { otherUser ->
                     otherUser?.let {
                         state = state.copy(
+                            userAvatarAsset = it.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(pic) },
                             isDataLoading = false,
                             fullName = it.name ?: String.EMPTY,
                             userName = it.handle ?: String.EMPTY,

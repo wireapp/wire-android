@@ -20,6 +20,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.DeletedMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -313,11 +314,15 @@ class ConversationViewModel @Inject constructor(
     }
 
     private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent? =
-        when (val content = message.content) {
-            is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
-            is Text -> TextMessage(messageBody = MessageBody(UIText.DynamicString(content.value)))
-            else -> TextMessage(messageBody = MessageBody((content as? Text)?.let { UIText.DynamicString(it.value) }
-                ?: UIText.StringResource(R.string.content_is_not_available)))
+        when (message.visibility) {
+            Message.Visibility.VISIBLE -> when (val content = message.content) {
+                is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
+                is Text -> TextMessage(messageBody = MessageBody(UIText.DynamicString(content.value)))
+                else -> TextMessage(messageBody = MessageBody((content as? Text)?.let { UIText.DynamicString(it.value) }
+                    ?: UIText.StringResource(R.string.content_is_not_available)))
+            }
+            Message.Visibility.DELETED -> DeletedMessage
+            Message.Visibility.HIDDEN -> DeletedMessage
         }
 
     private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent? {

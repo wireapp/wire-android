@@ -82,7 +82,7 @@ private fun RegisterDeviceContent(
             PasswordTextField(state = state, onPasswordChange = onPasswordChange)
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
-                text = stringResource(R.string.label_register),
+                text = stringResource(R.string.label_add_device),
                 onClick = onContinuePressed,
                 fillMaxWidth = true,
                 loading = state.loading,

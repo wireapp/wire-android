@@ -6,6 +6,10 @@ import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOADED
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.NOT_DOWNLOADED
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
+import com.wire.kalium.logic.data.message.Message
 
 data class MessageViewWrapper(
     val user: User,
@@ -42,7 +46,8 @@ sealed class MessageContent {
         val assetName: String,
         val assetExtension: String,
         val assetId: String,
-        val assetSizeInBytes: Long
+        val assetSizeInBytes: Long,
+        val downloadStatus: Message.DownloadStatus
     ) : MessageContent()
 
     data class ImageMessage(val assetId: UserAssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {

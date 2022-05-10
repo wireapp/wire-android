@@ -10,7 +10,6 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOADED
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -37,6 +36,9 @@ import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOADED
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -167,7 +169,23 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun downloadAsset(messageId: String) {
-        viewModelScope.launch { updateAssetMessageDownloadStatus(DOWNLOADED, conversationId, messageId) }
+        viewModelScope.launch {
+            if (!isAssetDownloaded(messageId)) {
+                updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
+                val result = getRawAssetData(conversationId, messageId)
+                updateAssetMessageDownloadStatus(if (result != null) DOWNLOADED else FAILED, conversationId, messageId)
+            }
+        }
+    }
+
+    private fun isAssetDownloaded(messageId: String): Boolean {
+        return conversationViewState.messages.firstOrNull {
+            it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
+        }?.run {
+            (messageContent as AssetMessage).downloadStatus.run {
+                this == DOWNLOADED || this == IN_PROGRESS
+            }
+        } ?: false
     }
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
@@ -344,7 +362,8 @@ class ConversationViewModel @Inject constructor(
                             assetName = name ?: "",
                             assetExtension = name?.split(".")?.last() ?: "",
                             assetId = remoteData.assetId,
-                            assetSizeInBytes = sizeInBytes
+                            assetSizeInBytes = sizeInBytes,
+                            downloadStatus = downloadStatus
                         )
                         // On the first asset message received, the asset ID is null, so we filter it out until the second updates it
                     }

@@ -76,7 +76,7 @@ fun MessageItem(
                 if (!isDeleted) {
                     MessageContent(messageContent,
                         onAssetClick = { assetId ->
-                            onAssetMessageClicked(message.messageHeader.messageId, assetId)
+                            onAssetMessageClicked(message.messageHeader.messageId)
                         },
                         onImageClick = {
                             onImageMessageClicked(message.messageHeader.messageId)
@@ -152,6 +152,7 @@ private fun MessageContent(messageContent: MessageContent?, onAssetClick: (Strin
             assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
+            assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = { onAssetClick(messageContent.assetId) }
         )
         else -> {}

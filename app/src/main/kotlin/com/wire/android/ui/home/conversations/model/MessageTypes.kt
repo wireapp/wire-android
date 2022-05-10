@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
@@ -41,7 +42,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
-import com.wire.kalium.logic.data.user.UserAssetId
 import kotlin.math.roundToInt
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
@@ -56,10 +56,35 @@ internal fun MessageBody(messageBody: MessageBody) {
 }
 
 @Composable
+internal fun DeletedMessage() {
+    Box(
+        modifier = Modifier
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.wireColorScheme.divider,
+                shape = RoundedCornerShape(dimensions().corner4x)
+            )
+    ) {
+        Text(
+            text = stringResource(R.string.deleted_message_text),
+            color = MaterialTheme.wireColorScheme.labelText,
+            style = MaterialTheme.wireTypography.label03,
+            modifier = Modifier
+                .padding(
+                    horizontal = MaterialTheme.wireDimensions.spacing4x,
+                    vertical = MaterialTheme.wireDimensions.spacing2x
+                )
+        )
+    }
+
+}
+
+@Composable
 fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageClick: () -> Unit) {
-    Box(Modifier
-        .clip(shape = RoundedCornerShape(MaterialTheme.wireDimensions.messageAssetBorderRadius))
-        .clickable { onImageClick() }
+    Box(
+        Modifier
+            .clip(shape = RoundedCornerShape(MaterialTheme.wireDimensions.messageAssetBorderRadius))
+            .clickable { onImageClick() }
     ) {
         Image(
             painter = rememberAsyncImagePainter(
@@ -71,8 +96,8 @@ fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageC
             alignment = Alignment.CenterStart,
             contentDescription = stringResource(R.string.content_description_image_message),
             modifier = Modifier
-            .width(imgParams.normalizedWidth)
-            .height(imgParams.normalizedHeight),
+                .width(imgParams.normalizedWidth)
+                .height(imgParams.normalizedHeight),
             contentScale = ContentScale.Crop
         )
     }
@@ -189,6 +214,12 @@ class ImageMessageParams(private val realImgWidth: Int, private val realImgHeigh
 @Composable
 fun PreviewMessage() {
     MessageItem(mockMessageWithText, {}, {}, {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDeletedMessage() {
+    DeletedMessage()
 }
 
 @Preview(showBackground = true)

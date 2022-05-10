@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -73,7 +74,17 @@ fun OtherProfileScreenContent(
     onCancelConnectionRequest: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
+
+    val requestSentMessage = stringResource(id = R.string.connection_request_sent)
+    LaunchedEffect(state.connectionStatus) {
+        when (val status = state.connectionStatus) {
+            is ConnectionStatus.Connected -> {}
+            is ConnectionStatus.NotConnected -> if (status.isConnectionRequestPending) snackbarHostState.showSnackbar(requestSentMessage)
+            is ConnectionStatus.Unknown -> {}
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -119,7 +130,7 @@ fun OtherProfileScreenContent(
                             }
                         }
 
-                        if(state.phone.isNotEmpty()) {
+                        if (state.phone.isNotEmpty()) {
                             item {
                                 UserDetailInformation(
                                     title = stringResource(R.string.phone_label),
@@ -137,7 +148,7 @@ fun OtherProfileScreenContent(
                                     .padding(dimensions().spacing32x)
                             ) {
                                 Text(
-                                    text = stringResource(R.string.label_member_not_belongs_to_team),
+                                    text = stringResource(R.string.connection_label_member_not_belongs_to_team),
                                     textAlign = TextAlign.Center,
                                     color = MaterialTheme.wireColorScheme.labelText,
                                     style = MaterialTheme.wireTypography.body01
@@ -158,12 +169,12 @@ fun OtherProfileScreenContent(
                         AnimatedContent(connectionStatus) {
                             if (connectionStatus.isConnectionRequestPending) {
                                 WireSecondaryButton(
-                                    text = stringResource(R.string.label_cancel_request),
+                                    text = stringResource(R.string.connection_label_cancel_request),
                                     onClick = onCancelConnectionRequest
                                 )
                             } else {
                                 WirePrimaryButton(
-                                    text = stringResource(R.string.label_connect),
+                                    text = stringResource(R.string.connection_label_connect),
                                     onClick = onSendConnectionRequest,
                                     leadingIcon = {
                                         Icon(
@@ -241,7 +252,6 @@ fun OtherUserProfileTopBar(
     )
 }
 
-
 @Composable
 fun rememberOtherUserProfileScreenState(
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
@@ -268,5 +278,4 @@ class OtherUserProfileScreenState(
         clipBoardManager.setText(AnnotatedString(text))
         coroutineScope.launch { snackbarHostState.showSnackbar(text) }
     }
-
 }

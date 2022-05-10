@@ -114,7 +114,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> appLogger.d(("Couldn't send a connect request to user $userId"))
-                is SendConnectionRequestResult.Success -> state = state.copy(connectionStatus = ConnectionStatus.NotConnected(true))
+                is SendConnectionRequestResult.Success -> {
+                    state = state.copy(connectionStatus = ConnectionStatus.NotConnected(true))
+                    navigateBack()
+                }
             }
         }
     }

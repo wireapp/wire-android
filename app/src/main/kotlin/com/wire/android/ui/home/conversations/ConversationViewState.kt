@@ -8,11 +8,17 @@ data class ConversationViewState(
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
     val messages: List<MessageViewWrapper> = emptyList(),
     val failedMessages: String = "",
-    val messageText: String = ""
+    val messageText: String = "",
+    val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden
 )
 
 sealed class ConversationAvatar {
     object None : ConversationAvatar()
     class OneOne(val avatarAsset: UserAvatarAsset?) : ConversationAvatar()
     class Group(val groupColorValue: Long) : ConversationAvatar()
+}
+
+sealed class DownloadedAssetDialogVisibilityState {
+    object Hidden : DownloadedAssetDialogVisibilityState()
+    class Displayed (val assetName: String?) : DownloadedAssetDialogVisibilityState()
 }

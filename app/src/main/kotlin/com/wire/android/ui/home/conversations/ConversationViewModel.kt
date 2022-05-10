@@ -14,6 +14,8 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
+import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Displayed
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -174,8 +176,18 @@ class ConversationViewModel @Inject constructor(
                 updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
                 val result = getRawAssetData(conversationId, messageId)
                 updateAssetMessageDownloadStatus(if (result != null) DOWNLOADED else FAILED, conversationId, messageId)
+
+                if (result != null) {
+                    showOnAssetDownloadedDialog(true, messageId)
+                }
             }
         }
+    }
+
+    fun showOnAssetDownloadedDialog(show: Boolean, messageId: String) {
+        conversationViewState = conversationViewState.copy(
+            downloadedAssetDialogState = if (show) Displayed(getAssetName(messageId)) else Hidden
+        )
     }
 
     private fun isAssetDownloaded(messageId: String): Boolean {
@@ -188,20 +200,24 @@ class ConversationViewModel @Inject constructor(
         } ?: false
     }
 
+    private fun getAssetName(messageId: String): String? = conversationViewState.messages.firstOrNull {
+        it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
+    }?.run { (messageContent as AssetMessage).assetName }
+
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
         if (isMyMessage) {
-            updateDialogState {
+            updateDeleteDialogState {
                 it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
             }
         } else {
-            updateDialogState {
+            updateDeleteDialogState {
                 it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
             }
         }
 
     fun showDeleteMessageForYourselfDialog(messageId: String) {
-        updateDialogState { it.copy(forEveryone = DeleteMessageDialogActiveState.Hidden) }
-        updateDialogState {
+        updateDeleteDialogState { it.copy(forEveryone = DeleteMessageDialogActiveState.Hidden) }
+        updateDeleteDialogState {
             it.copy(
                 forYourself = DeleteMessageDialogActiveState.Visible(
                     messageId = messageId,
@@ -212,7 +228,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun onDialogDismissed() {
-        updateDialogState {
+        updateDeleteDialogState {
             it.copy(
                 forEveryone = DeleteMessageDialogActiveState.Hidden,
                 forYourself = DeleteMessageDialogActiveState.Hidden
@@ -224,11 +240,11 @@ class ConversationViewModel @Inject constructor(
         updateStateIfDialogVisible { it.copy(error = DeleteMessageError.None) }
     }
 
-    private fun updateDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
+    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
         (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let { deleteMessageDialogsState = newValue(it) }
 
     private fun updateStateIfDialogVisible(newValue: (DeleteMessageDialogActiveState.Visible) -> DeleteMessageDialogActiveState) =
-        updateDialogState {
+        updateDeleteDialogState {
             when {
                 it.forEveryone is DeleteMessageDialogActiveState.Visible -> it.copy(forEveryone = newValue(it.forEveryone))
                 it.forYourself is DeleteMessageDialogActiveState.Visible -> it.copy(
@@ -243,7 +259,7 @@ class ConversationViewModel @Inject constructor(
     fun deleteMessage(messageId: String, deleteForEveryone: Boolean) = viewModelScope.launch {
         //update dialogs state to loading
         if (deleteForEveryone) {
-            updateDialogState {
+            updateDeleteDialogState {
                 it.copy(
                     forEveryone = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
@@ -253,7 +269,7 @@ class ConversationViewModel @Inject constructor(
                 )
             }
         } else {
-            updateDialogState {
+            updateDeleteDialogState {
                 it.copy(
                     forYourself = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,

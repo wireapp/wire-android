@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +43,7 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
@@ -144,6 +146,7 @@ private fun SelfUserProfileContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     return when (errorCode) {
@@ -186,69 +189,75 @@ private fun CurrentSelfUserStatus(
             .fillMaxWidth()
             .padding(dimensions().spacing16x),
     ) {
-        WireSecondaryButton(
-            onClick = { onStatusClicked(UserStatus.AVAILABLE) },
+        ProfileStatusButton(
+            userStatus = UserStatus.AVAILABLE,
+            modifier = Modifier.weight(weight = 6F),
+            onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_available),
-            fillMaxWidth = false,
-            minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (userStatus == UserStatus.AVAILABLE) WireButtonState.Selected else WireButtonState.Default,
+            currentStatus = userStatus,
             shape = RoundedCornerShape(
                 topStart = dimensions().corner16x,
                 bottomStart = dimensions().corner16x
             ),
-            leadingIcon = {
-                UserStatusIndicator(
-                    status = UserStatus.AVAILABLE,
-                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("Available")
-                )
-            }
         )
-        WireSecondaryButton(
-            onClick = { onStatusClicked(UserStatus.BUSY) },
+        ProfileStatusButton(
+            userStatus = UserStatus.BUSY,
+            modifier = Modifier.weight(weight = 4F),
+            onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_busy),
-            fillMaxWidth = false,
-            minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (userStatus == UserStatus.BUSY) WireButtonState.Selected else WireButtonState.Default,
-            shape = RoundedCornerShape(0.dp),
-            leadingIcon = {
-                UserStatusIndicator(
-                    status = UserStatus.BUSY,
-                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("Busy")
-                )
-            }
+            currentStatus = userStatus,
         )
-        WireSecondaryButton(
-            onClick = { onStatusClicked(UserStatus.AWAY) },
+        ProfileStatusButton(
+            userStatus = UserStatus.AWAY,
+            modifier = Modifier.weight(weight = 4F),
+            onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_away),
-            fillMaxWidth = false,
-            minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (userStatus == UserStatus.AWAY) WireButtonState.Selected else WireButtonState.Default,
-            shape = RoundedCornerShape(0.dp),
-            leadingIcon = {
-                UserStatusIndicator(
-                    status = UserStatus.AWAY,
-                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("Away")
-                )
-            }
+            currentStatus = userStatus,
         )
-        WireSecondaryButton(
-            onClick = { onStatusClicked(UserStatus.NONE) },
+        ProfileStatusButton(
+            userStatus = UserStatus.NONE,
+            modifier = Modifier.weight(weight = 3F),
+            onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_none),
-            fillMaxWidth = false,
+            currentStatus = userStatus,
             shape = RoundedCornerShape(
                 topEnd = dimensions().corner16x,
                 bottomEnd = dimensions().corner16x
             ),
-            minHeight = dimensions().userProfileStatusBtnHeight,
-            state = if (userStatus == UserStatus.NONE) WireButtonState.Selected else WireButtonState.Default,
-            leadingIcon = {
-                UserStatusIndicator(
-                    status = UserStatus.NONE,
-                    modifier = Modifier.padding(end = dimensions().spacing4x).testTag("None")
-                )
-            }
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProfileStatusButton(
+    onClick: (UserStatus) -> Unit,
+    userStatus: UserStatus,
+    currentStatus: UserStatus,
+    text: String,
+    shape: Shape = RoundedCornerShape(0.dp),
+    modifier: Modifier = Modifier,
+) {
+    WireSecondaryButton(
+        onClick = { onClick(userStatus) },
+        text = text,
+        fillMaxWidth = true,
+        contentPadding = PaddingValues(
+            vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
+        ),
+        minHeight = dimensions().userProfileStatusBtnHeight,
+        state = if (currentStatus == userStatus) WireButtonState.Selected else WireButtonState.Default,
+        shape = shape,
+        leadingIcon = {
+            UserStatusIndicator(
+                status = userStatus,
+                modifier = Modifier
+                    .padding(end = dimensions().spacing4x)
+                    .testTag(text)
+            )
+        },
+        modifier = modifier,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -286,7 +295,8 @@ private fun ColumnScope.OtherAccountsList(
         WirePrimaryButton(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
-                .padding(dimensions().spacing16x).testTag("New Team or Account"),
+                .padding(dimensions().spacing16x)
+                .testTag("New Team or Account"),
             text = stringResource(R.string.user_profile_new_account_text),
             onClick = onAddAccountClick
         )

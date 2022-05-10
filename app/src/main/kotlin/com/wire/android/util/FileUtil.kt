@@ -28,9 +28,9 @@ fun getUriFromDrawable(
 ): Uri {
     return Uri.parse(
         ContentResolver.SCHEME_ANDROID_RESOURCE +
-            "://" + context.resources.getResourcePackageName(drawableId) +
-            '/' + context.resources.getResourceTypeName(drawableId) +
-            '/' + context.resources.getResourceEntryName(drawableId)
+                "://" + context.resources.getResourcePackageName(drawableId) +
+                '/' + context.resources.getResourceTypeName(drawableId) +
+                '/' + context.resources.getResourceEntryName(drawableId)
     )
 }
 
@@ -57,7 +57,7 @@ fun Uri.getMimeType(context: Context): String? {
         ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 }
 
-fun Context.getFileName(uri: Uri): String? = when(uri.scheme) {
+fun Context.getFileName(uri: Uri): String? = when (uri.scheme) {
     ContentResolver.SCHEME_CONTENT -> getContentFileName(uri)
     else -> uri.path?.let(::File)?.name
 }
@@ -85,15 +85,11 @@ fun Context.logToFile() {
             appLogger.e("create Log file failed", e)
         }
     }
-    this.startFileShareIntent()
+    this.startFileShareIntent(this.externalCacheDir?.absolutePath + "/logs/" + "log.txt")
 }
 
-private fun rename(from: File, to: File): Boolean {
-    return from.parentFile.exists() && from.exists() && from.renameTo(to)
-}
-
-fun Context.startFileShareIntent() {
-    val file = File(this.externalCacheDir?.absolutePath + "/logs/" + "log.txt")
+fun Context.startFileShareIntent(path: String) {
+    val file = File(path)
     val fileURI = FileProvider.getUriForFile(
         this, this.packageName + ".provider",
         file

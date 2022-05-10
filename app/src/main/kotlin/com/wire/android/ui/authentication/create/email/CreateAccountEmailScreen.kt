@@ -23,6 +23,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -97,7 +98,7 @@ private fun EmailContent(
                     .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
-                    )
+                    ).testTag("createTeamText")
             )
             WireTextField(
                 value = state.email,
@@ -108,7 +109,7 @@ private fun EmailContent(
                 else WireTextFieldState.Error(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x).testTag("emailField")
             )
             AnimatedVisibility(visible = state.error !is CreateAccountEmailViewState.EmailError.None) {
                 EmailErrorText(state.error)
@@ -233,13 +234,13 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
                 fillMaxWidth = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x),
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x).testTag("cancelButton"),
             )
             WireSecondaryButton(
                 text = stringResource(R.string.create_account_email_terms_dialog_view_policy),
                 onClick = onViewPolicyPressed,
                 fillMaxWidth = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("viewTC")
             )
         }
     }

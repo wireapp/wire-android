@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
@@ -22,6 +23,8 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
+import com.wire.kalium.logic.feature.user.GetUserInfoResult
+import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -32,6 +35,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     private val getKnownUser: GetKnownUserUseCase,
+    private val getUserInfo: GetUserInfoUseCase,
     private val sendConnectionRequest: SendConnectionRequestUseCase
 ) : ViewModel() {
 
@@ -43,41 +47,45 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     )
 
     init {
+        state = state.copy(isDataLoading = true)
         val internalStatus = savedStateHandle.get<String>(EXTRA_CONNECTED_STATUS)
-        when (val connectedStatus = getConnectedStatus(internalStatus)) {
-            is ConnectionStatus.Connected -> {
-            }
-            else -> {
-                state = state.copy(
-                    isAvatarLoading = false,
-                    fullName = "Kim",
-                    userName = "Dawson",
-                    teamName = "AWESOME TEAM NAME",
-                    email = "kim.dawson@gmail.com",
-                    phone = "+49 123 456 000",
-                    connectionStatus = connectedStatus
-                )
+        when (getConnectedStatus(internalStatus)) {
+            is ConnectionStatus.Connected -> getContactInformationDetails()
+            else -> getExternalUserInformationDetails()
+        }
+    }
+
+    private fun getExternalUserInformationDetails() {
+        viewModelScope.launch {
+            when (val result = getUserInfo(userId)) {
+                is GetUserInfoResult.Failure ->
+                    appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
+                is GetUserInfoResult.Success -> loadViewState(result.otherUser)
             }
         }
-        state = state.copy(isDataLoading = true)
+    }
+
+    private fun getContactInformationDetails() {
         viewModelScope.launch {
             getKnownUser(userId).collect { otherUser ->
-                otherUser?.let {
-                    state = state.copy(
-                        userAvatarAsset = it.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(pic) },
-                        isDataLoading = false,
-                        fullName = it.name ?: String.EMPTY,
-                        userName = it.handle ?: String.EMPTY,
-                        teamName = it.team ?: String.EMPTY,
-                        email = it.email ?: String.EMPTY,
-                        phone = it.phone ?: String.EMPTY,
-                        connectionStatus = it.connectionStatus.toOtherUserProfileConnectionStatus()
-                    )
-                } ?: run {
+                otherUser?.let { loadViewState(it) } ?: run {
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
                 }
             }
         }
+    }
+
+    private fun loadViewState(otherUser: OtherUser) {
+        state = state.copy(
+            isDataLoading = false,
+            userAvatarAsset = otherUser.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(pic) },
+            fullName = otherUser.name ?: String.EMPTY,
+            userName = otherUser.handle ?: String.EMPTY,
+            teamName = otherUser.team ?: String.EMPTY,
+            email = otherUser.email ?: String.EMPTY,
+            phone = otherUser.phone ?: String.EMPTY,
+            connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus()
+        )
     }
 
     private fun getConnectedStatus(internalStatus: String?): ConnectionStatus {

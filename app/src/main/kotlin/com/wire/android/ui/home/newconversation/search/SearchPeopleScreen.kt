@@ -98,7 +98,7 @@ private fun SearchResult(
                 contactSearchResult = knownContactSearchResult,
                 showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() },
-                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it)) },
+                onOpenUserProfile = { contact -> onOpenUserProfile(SearchOpenUserProfile(contact)) },
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_public_wire) },
@@ -106,7 +106,7 @@ private fun SearchResult(
                 contactSearchResult = publicContactSearchResult,
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
-                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it)) }
+                onOpenUserProfile = { externalUser -> onOpenUserProfile(SearchOpenUserProfile(externalUser)) }
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_federated_backends) },
@@ -114,7 +114,7 @@ private fun SearchResult(
                 contactSearchResult = federatedBackendResultContact,
                 showAllItems = searchPeopleScreenState.federatedBackendResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() },
-                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it)) }
+                onOpenUserProfile = { federatedUser -> onOpenUserProfile(SearchOpenUserProfile(federatedUser)) }
             )
         }
         Divider()

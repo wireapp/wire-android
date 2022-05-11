@@ -49,7 +49,6 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.ConnectionState
 import io.github.esentsov.PackagePrivate
 
 @OptIn(
@@ -156,16 +155,15 @@ enum class NavigationItem(
 
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}/{$EXTRA_CONNECTED_STATUS}",
+        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}",
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userDomain: String = arguments.filterIsInstance<String>()[0]
             val userProfileId: String = arguments.filterIsInstance<String>()[1]
-            val connectedStatus = arguments.filterIsInstance<ConnectionState>().first()
 
-            return "$primaryRoute/$userDomain/$userProfileId/${connectedStatus.ordinal}"
+            return "$primaryRoute/$userDomain/$userProfileId"
         }
     },
 
@@ -278,9 +276,6 @@ private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_USER_DOMAIN = "extra_user_domain"
 
-// TODO: internal is here untill we can get the ConnectionStatus from the user
-// for now it is just to be able to proceed forward
-const val EXTRA_CONNECTED_STATUS = "extra_connected_status"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 const val EXTRA_IMAGE_DATA = "extra_image_data"

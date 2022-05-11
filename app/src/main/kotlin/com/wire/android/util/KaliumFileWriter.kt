@@ -22,7 +22,7 @@ typealias LogElement = Triple<String, Severity, String?>
 const val LOG_FILE_NAME = "wire_logs.txt"
 private const val LOG_FILE_MAX_SIZE_THRESHOLD = 5 * 1024 * 1024
 
-@Suppress("TooGenericExceptionCaught")
+@Suppress("TooGenericExceptionCaught", "BlockingMethodInNonBlockingContext")
 class KaliumFileWriter : LogWriter() {
 
     private var flushCompleted = MutableStateFlow<Long>(0)

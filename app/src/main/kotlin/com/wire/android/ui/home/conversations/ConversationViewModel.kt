@@ -155,6 +155,7 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(messageText = "")
     }
 
+    @Suppress("MagicNumber")
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {

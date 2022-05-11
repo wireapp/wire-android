@@ -14,8 +14,8 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Displayed
+import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -172,22 +172,25 @@ class ConversationViewModel @Inject constructor(
 
     fun downloadAsset(messageId: String) {
         viewModelScope.launch {
-            if (!isAssetDownloaded(messageId)) {
+            if (!isAssetDownloaded(messageId))
                 updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
-                val result = getRawAssetData(conversationId, messageId)
-                updateAssetMessageDownloadStatus(if (result != null) DOWNLOADED else FAILED, conversationId, messageId)
 
-                if (result != null) {
-                    showOnAssetDownloadedDialog(true, messageId)
-                }
+            val result = getRawAssetData(conversationId, messageId)
+            updateAssetMessageDownloadStatus(if (result != null) DOWNLOADED else FAILED, conversationId, messageId)
+
+            if (result != null) {
+                val assetName = getAssetName(messageId)
+                showOnAssetDownloadedDialog(assetName, result)
             }
         }
     }
 
-    fun showOnAssetDownloadedDialog(show: Boolean, messageId: String) {
-        conversationViewState = conversationViewState.copy(
-            downloadedAssetDialogState = if (show) Displayed(getAssetName(messageId)) else Hidden
-        )
+    fun showOnAssetDownloadedDialog(assetName: String?, assetData: ByteArray) {
+        conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Displayed(assetName, assetData))
+    }
+
+    fun hideOnAssetDownloadedDialog() {
+        conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Hidden)
     }
 
     private fun isAssetDownloaded(messageId: String): Boolean {
@@ -293,6 +296,10 @@ class ConversationViewModel @Inject constructor(
                 else -> null
             }
         }
+    }
+
+    fun onNoActivityFound() {
+
     }
     // endregion
 

@@ -47,7 +47,10 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onCallStart = audioPermissionCheck::launch
     )
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
-    DownloadedAssetDialog(conversationViewModel = conversationViewModel)
+    DownloadedAssetDialog(
+        conversationViewModel = conversationViewModel,
+        onNoActivityFound = { conversationViewModel.onNoActivityFound() }
+    )
 }
 
 @Composable

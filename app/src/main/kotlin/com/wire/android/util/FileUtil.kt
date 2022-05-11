@@ -39,8 +39,8 @@ suspend fun Uri.toByteArray(context: Context): ByteArray {
 }
 
 fun getWritableImageAttachment(context: Context) = getTempWritableAttachmentUri(context, TEMP_IMG_ATTACHMENT_FILENAME)
-
 fun getWritableVideoAttachment(context: Context) = getTempWritableAttachmentUri(context, TEMP_VIDEO_ATTACHMENT_FILENAME)
+fun getWritableFileAttachment(context: Context, fileName: String) = getTempWritableAttachmentUri(context, fileName)
 
 private fun getTempWritableAttachmentUri(context: Context, fileName: String): Uri {
     val file = File(context.cacheDir, fileName)

@@ -20,5 +20,5 @@ sealed class ConversationAvatar {
 
 sealed class DownloadedAssetDialogVisibilityState {
     object Hidden : DownloadedAssetDialogVisibilityState()
-    class Displayed (val assetName: String?) : DownloadedAssetDialogVisibilityState()
+    class Displayed (val assetName: String?, val assetData: ByteArray) : DownloadedAssetDialogVisibilityState()
 }

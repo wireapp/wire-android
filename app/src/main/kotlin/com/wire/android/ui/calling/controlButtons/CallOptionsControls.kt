@@ -51,17 +51,6 @@ fun CallOptionsControls() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CameraFlipButton(isCameraFlipped = false) { }
-            Text(
-                text = stringResource(id = R.string.calling_label_flip).uppercase(),
-                style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
-            )
-        }
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
             SpeakerButton(isSpeakerOn = true) { }
             Text(
                 text = stringResource(id = R.string.calling_label_speaker).uppercase(),

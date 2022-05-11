@@ -87,6 +87,7 @@ private fun ConversationScreen(
     with(conversationViewState) {
         MenuModalSheetLayout(
             sheetState = conversationScreenState.modalBottomSheetState,
+            coroutineScope = scope,
             menuItems = EditMessageMenuItems(
                 isMyMessage = conversationScreenState.isSelectedMessageMyMessage(),
                 onCopyMessage = conversationScreenState::copyMessage,

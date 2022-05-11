@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -26,7 +27,7 @@ fun GroupButton(groupSize: Int, onNewGroupClicked: () -> Unit) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .padding(all = dimensions().spacing16x)
+            .padding(horizontal = dimensions().spacing16x)
             .height(dimensions().groupButtonHeight)
             .fillMaxWidth()
     ) {
@@ -50,4 +51,10 @@ fun GroupButton(groupSize: Int, onNewGroupClicked: () -> Unit) {
             fillMaxWidth = false
         )
     }
+}
+
+@Preview
+@Composable
+private fun GroupButtonPreview() {
+    GroupButton(groupSize = 0, onNewGroupClicked = {})
 }

@@ -71,7 +71,8 @@ fun LoginSSOScreen(
         //TODO: replace with retrieved ServerConfig from sso login
         onLoginButtonClick = suspend { loginSSOViewModel.login() },
         scope = scope,
-        ssoLoginResult
+        ssoLoginResult,
+        serverTitle = loginSSOViewModel.serverConfig.title
     )
 
     LaunchedEffect(loginSSOViewModel) {
@@ -91,7 +92,9 @@ private fun LoginSSOContent(
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
     scope: CoroutineScope,
-    ssoLoginResult: DeepLinkResult.SSOLogin?
+    ssoLoginResult: DeepLinkResult.SSOLogin?,
+    //todo: temporary to show to pointing server
+    serverTitle: String
 ) {
     Column(
         modifier = Modifier
@@ -109,7 +112,8 @@ private fun LoginSSOContent(
             error = when (loginSSOState.loginSSOError) {
                 LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_sso_code_format)
                 else -> null
-            }
+            },
+            serverTitle = serverTitle
         )
         Spacer(modifier = Modifier.weight(1f))
         LoginButton(
@@ -169,13 +173,15 @@ private fun SSOCodeInput(
     modifier: Modifier,
     ssoCode: TextFieldValue,
     error: String?,
-    onCodeChange: (TextFieldValue) -> Unit
+    onCodeChange: (TextFieldValue) -> Unit,
+    //todo: temporary to show to pointing server
+    serverTitle: String
 ) {
     WireTextField(
         value = ssoCode,
         onValueChange = onCodeChange,
         placeholderText = stringResource(R.string.login_sso_code_placeholder),
-        labelText = stringResource(R.string.login_sso_code_label),
+        labelText = stringResource(R.string.login_sso_code_label) + " on $serverTitle",
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         modifier = modifier.testTag("ssoCodeField")
@@ -205,7 +211,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 private fun LoginSSOScreenPreview() {
     WireTheme(isPreview = true) {
-        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, {}, suspend {}, rememberCoroutineScope(), null)
+        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, {}, suspend {}, rememberCoroutineScope(), null, "Test Server")
     }
 }
 

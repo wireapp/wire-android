@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.kaliumFileWriter
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.startFileShareIntent
@@ -75,9 +76,9 @@ fun SettingsScreen() {
                 }
             }
         )
-//        state = if (checkedState.value) WireButtonState.Default else WireButtonState.Disabled,
 
         WirePrimaryButton(
+            state = if (checkedState.value) WireButtonState.Default else WireButtonState.Disabled,
             text = "Share the log",
             onClick = { context.startFileShareIntent(context.cacheDir.absolutePath + "/logs/" + "wire_logs.log") },
             fillMaxWidth = true,

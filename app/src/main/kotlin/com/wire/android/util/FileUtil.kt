@@ -10,11 +10,9 @@ import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import com.wire.android.BuildConfig
-import com.wire.android.appLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.IOException
 
 /**
  * Gets the uri of any drawable or given resource
@@ -68,25 +66,6 @@ private fun Context.getContentFileName(uri: Uri): String? = runCatching {
         return@use cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME).let(cursor::getString)
     }
 }.getOrNull()
-
-fun Context.logToFile() {
-    this.getExternalFilesDir(null)?.let {
-        val logDirectory = File("${externalCacheDir?.absolutePath}", "logs")
-        if (!logDirectory.exists()) {
-            logDirectory.mkdir()
-        }
-
-        val logFile = File(logDirectory, "log.txt")
-        // clear the previous logcat and then write the new one to the file
-        try {
-            Runtime.getRuntime().exec("logcat -c -v raw")
-            Runtime.getRuntime().exec("logcat -f $logFile")
-        } catch (e: IOException) {
-            appLogger.e("create Log file failed", e)
-        }
-    }
-    this.startFileShareIntent(this.externalCacheDir?.absolutePath + "/logs/" + "log.txt")
-}
 
 fun Context.startFileShareIntent(path: String) {
     val file = File(path)

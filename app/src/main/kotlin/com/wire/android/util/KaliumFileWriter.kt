@@ -78,7 +78,7 @@ class KaliumFileWriter : LogWriter() {
         }
     }
 
-    private fun clearFileContent(file: File) {
+    fun clearFileContent(file: File) {
         val writer = PrintWriter(file)
         writer.print("")
         writer.close()
@@ -104,7 +104,7 @@ class KaliumFileWriter : LogWriter() {
 
     }
 
-    private fun getFile(path: String): File {
+    fun getFile(path: String): File {
         val file = File(path, LOG_FILE_NAME)
 
         if (!file.exists() && !file.createNewFile()) {

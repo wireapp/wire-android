@@ -45,12 +45,16 @@ class WireApplication : Application(), Configuration.Provider {
         if (this.isGoogleServicesAvailable()) {
             FirebaseApp.initializeApp(this)
         }
-        kaliumFileWriter.init(applicationContext.cacheDir.absolutePath)
-
-        if (BuildConfig.DEBUG) {
-            CoreLogger.setLoggingLevel(
-                level = KaliumLogLevel.DEBUG, kaliumFileWriter
-            )
+        if (BuildConfig.DEBUG || coreLogic.getAuthenticationScope().isLoggingEnabled()) {
+            enableLoggingAndInitiateFileLogging()
         }
+    }
+
+    private fun enableLoggingAndInitiateFileLogging() {
+        kaliumFileWriter.init(applicationContext.cacheDir.absolutePath)
+        CoreLogger.setLoggingLevel(
+            level = KaliumLogLevel.DEBUG, kaliumFileWriter
+        )
+        appLogger.i("logged enabled")
     }
 }

@@ -2,7 +2,6 @@ package com.wire.android.notification
 
 import androidx.annotation.StringRes
 import com.wire.android.R
-import com.wire.kalium.logic.data.id.asString
 import com.wire.kalium.logic.data.notification.LocalNotificationCommentType
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
@@ -40,7 +39,7 @@ fun LocalNotificationConversation.intoNotificationConversation() : NotificationC
     val lastMessageTime = this.messages.maxOfOrNull { it.time.toTimeInMillis() } ?: 0
 
     return NotificationConversation(
-        id = id.asString(),
+        id = id.toString(),
         name = conversationName,
         image = null, //TODO
         messages = notificationMessages,

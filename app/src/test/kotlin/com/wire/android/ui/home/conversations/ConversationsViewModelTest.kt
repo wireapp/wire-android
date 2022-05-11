@@ -7,9 +7,9 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
-import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.android.util.ui.UIText
 import com.wire.android.util.getConversationColor
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -34,6 +34,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -273,8 +274,9 @@ class ConversationsViewModelTest {
     private class Arrangement {
         init {
             // Tests setup
+            val dummyConversationId = "some-dummy-value@some.dummy.domain"
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>(any()) } returns ("")
+            every { savedStateHandle.get<String>(any()) } returns dummyConversationId
             every { savedStateHandle.set(any(), any<String>()) } returns Unit
 
             // Default empty values
@@ -317,6 +319,9 @@ class ConversationsViewModelTest {
         lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
         @MockK
+        lateinit var getSelfUserTeam: GetSelfTeamUseCase
+
+        @MockK
         lateinit var context: Context
 
         @MockK
@@ -339,7 +344,8 @@ class ConversationsViewModelTest {
                 getMessageAsset = getMessageAsset,
                 deleteMessage = deleteMessage,
                 dispatchers = TestDispatcherProvider(),
-                markMessagesAsNotified = markMessagesAsNotified
+                markMessagesAsNotified = markMessagesAsNotified,
+                getSelfUserTeam = getSelfUserTeam
             )
         }
 

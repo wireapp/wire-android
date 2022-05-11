@@ -20,6 +20,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -38,10 +39,8 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.EMPTY
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.formatMediumDateTime
-import com.wire.kalium.logic.data.client.ClientType
 import kotlinx.coroutines.android.awaitFrame
 
 @Composable
@@ -64,7 +63,7 @@ private fun RemoveDeviceContent(
     state: RemoveDeviceState,
     onItemClicked: (Client) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
-    onRemoveConfirm: () -> Unit,
+    onRemoveConfirm: (HideKeyboard) -> Unit,
     onDialogDismiss: () -> Unit,
     onErrorDialogDismiss: () -> Unit,
 ) {
@@ -97,12 +96,6 @@ private fun RemoveDeviceContent(
                     )
                 )
             }
-        } else {
-            val keyboardController = LocalSoftwareKeyboardController.current
-            LaunchedEffect(state) {
-                awaitFrame() // for some reason keyboard reappears after dialog is dismissed, it's the only way to prevent that
-                keyboardController?.hide()
-            }
         }
     }
 }
@@ -133,24 +126,33 @@ private fun RemoveDeviceDialog(
     state: RemoveDeviceDialogState.Visible,
     onPasswordChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
-    onRemoveConfirm: () -> Unit,
+    onRemoveConfirm: (HideKeyboard) -> Unit,
 ) {
+    var keyboardController: SoftwareKeyboardController? = null
+    val onDialogDismissHideKeyboard: () -> Unit = {
+        keyboardController?.hide()
+        onDialogDismiss()
+    }
     WireDialog(
         title = stringResource(R.string.remove_device_dialog_title),
         text = state.client.name + "\n" +
-                stringResource(
-                    R.string.remove_device_id_and_time_label,
-                    state.client.id.value,
-                    state.client.registrationTime.formatMediumDateTime() ?: ""
-                ),
-        onDismiss = onDialogDismiss,
+            stringResource(
+                R.string.remove_device_id_and_time_label,
+                state.client.id.value,
+                state.client.registrationTime.formatMediumDateTime() ?: ""
+            ),
+        onDismiss = onDialogDismissHideKeyboard,
         dismissButtonProperties = WireDialogButtonProperties(
-            onClick = onDialogDismiss,
+            onClick = onDialogDismissHideKeyboard,
             text = stringResource(id = R.string.label_cancel),
             state = WireButtonState.Default
         ),
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onRemoveConfirm,
+            onClick = {
+                onRemoveConfirm {
+                    keyboardController?.hide()
+                }
+            },
             text = stringResource(id = if (state.loading) R.string.label_removing else R.string.label_remove),
             type = WireDialogButtonType.Primary,
             loading = state.loading,
@@ -159,7 +161,7 @@ private fun RemoveDeviceDialog(
         content = {
             // keyboard controller from outside the Dialog doesn't work inside its content so we have to pass the state
             // to the dialog's content and use keyboard controller from there
-            val keyboardController = LocalSoftwareKeyboardController.current
+            keyboardController = LocalSoftwareKeyboardController.current
             val focusRequester = remember { FocusRequester() }
             WirePasswordTextField(
                 value = state.password,
@@ -177,8 +179,6 @@ private fun RemoveDeviceDialog(
                     .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
                     .testTag("remove device password field")
             )
-            if (state.hideKeyboard)
-                keyboardController?.hide()
             LaunchedEffect(Unit) { // executed only once when showing the dialog
                 focusRequester.requestFocus()
             }

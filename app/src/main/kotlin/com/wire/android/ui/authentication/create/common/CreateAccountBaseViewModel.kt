@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.create.common
 
-import android.util.Log
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -34,6 +34,7 @@ import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import kotlinx.coroutines.launch
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
 import java.lang.IllegalStateException
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -250,8 +251,11 @@ abstract class CreateAccountBaseViewModel(
 
     private suspend fun registerClient(userId: UserId, password: String) =
         clientScopeProviderFactory.create(userId).clientScope.register(
-            password = password,
-            capabilities = null
+            RegisterClientParam.ClientWithToken(
+                password = password,
+                capabilities = null,
+                senderId = BuildConfig.SENDER_ID
+            )
         )
 
 

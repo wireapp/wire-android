@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations.model
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
@@ -55,24 +58,45 @@ internal fun MessageBody(messageBody: MessageBody) {
 }
 
 @Composable
-fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams) {
-    Box(Modifier
-        .clip(shape = RoundedCornerShape(MaterialTheme.wireDimensions.messageAssetBorderRadius))
-        .clickable {
-            // TODO: Add navigation to preview full screen mode here
-        }) {
-        Image(
-            painter = rememberAsyncImagePainter(
-                rawImgData?.toBitmap() ?: getUriFromDrawable(
-                    LocalContext.current,
-                    R.drawable.ic_gallery
+internal fun DeletedMessage() {
+    Box(
+        modifier = Modifier
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.wireColorScheme.divider,
+                shape = RoundedCornerShape(dimensions().corner4x)
+            )
+    ) {
+        Text(
+            text = stringResource(R.string.deleted_message_text),
+            color = MaterialTheme.wireColorScheme.labelText,
+            style = MaterialTheme.wireTypography.label03,
+            modifier = Modifier
+                .padding(
+                    horizontal = MaterialTheme.wireDimensions.spacing4x,
+                    vertical = MaterialTheme.wireDimensions.spacing2x
                 )
-            ),
+        )
+    }
+
+}
+
+@Composable
+fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageClick: () -> Unit) {
+    Box(
+        Modifier
+            .clip(shape = RoundedCornerShape(MaterialTheme.wireDimensions.messageAssetBorderRadius))
+            .clickable { onImageClick() }
+    ) {
+        val imageData: Bitmap? =
+            if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
+        Image(
+            painter = rememberAsyncImagePainter(imageData ?: getUriFromDrawable(LocalContext.current, R.drawable.ic_gallery)),
             alignment = Alignment.CenterStart,
             contentDescription = stringResource(R.string.content_description_image_message),
             modifier = Modifier
-            .width(imgParams.normalizedWidth)
-            .height(imgParams.normalizedHeight),
+                .width(if (imageData != null) imgParams.normalizedWidth else dimensions().spacing24x)
+                .height(if (imageData != null) imgParams.normalizedHeight else dimensions().spacing24x),
             contentScale = ContentScale.Crop
         )
     }
@@ -105,7 +129,8 @@ internal fun MessageAsset(assetName: String, assetExtension: String, assetSizeIn
             ConstraintLayout(
                 Modifier
                     .fillMaxWidth()
-                    .padding(top = MaterialTheme.wireDimensions.spacing8x)) {
+                    .padding(top = MaterialTheme.wireDimensions.spacing8x)
+            ) {
                 val (icon, description, downloadStatus) = createRefs()
                 Image(
                     modifier = Modifier
@@ -188,11 +213,17 @@ class ImageMessageParams(private val realImgWidth: Int, private val realImgHeigh
 @Preview(showBackground = true)
 @Composable
 fun PreviewMessage() {
-    MessageItem(mockMessageWithText, {}, {})
+    MessageItem(mockMessageWithText, {}, {}, {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDeletedMessage() {
+    DeletedMessage()
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetMessage() {
-    MessageItem(mockAssetMessage, {}, {})
+    MessageItem(mockAssetMessage, {}, {}, {})
 }

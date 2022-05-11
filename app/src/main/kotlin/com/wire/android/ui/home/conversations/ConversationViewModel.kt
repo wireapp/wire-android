@@ -8,18 +8,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.PrivateAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.navigation.parseIntoQualifiedID
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxAssetSize
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxImageSize
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.DeletedMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -29,10 +32,11 @@ import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
-import com.wire.android.util.ui.UIText
 import com.wire.android.util.getConversationColor
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
 import com.wire.kalium.logic.data.message.Message
@@ -40,7 +44,9 @@ import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
@@ -48,6 +54,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
@@ -70,7 +77,8 @@ class ConversationViewModel @Inject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
-    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
+    private val getSelfUserTeam: GetSelfTeamUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -89,39 +97,53 @@ class ConversationViewModel @Inject constructor(
         .parseIntoQualifiedID()
 
     init {
-        viewModelScope.launch {
-            getMessages(conversationId).combine(observeMemberDetails(conversationId)) { messages, members ->
-                messages.toUIMessages(members)
-            }.collect { uiMessages ->
-                conversationViewState = conversationViewState.copy(messages = uiMessages)
-            }
-        }
+        fetchMessages()
+        listenConversationDetails()
+        fetchSelfUserTeam()
+        setMessagesAsNotified()
+    }
 
-        viewModelScope.launch {
-            observeConversationDetails(conversationId).collect { conversationDetails ->
-                val conversationName = when (conversationDetails) {
-                    is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
-                    else -> conversationDetails.conversation.name.orEmpty()
-                }
-                val conversationAvatar = when (conversationDetails) {
-                    is ConversationDetails.OneOne ->
-                        ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) })
-                    is ConversationDetails.Group ->
-                        ConversationAvatar.Group(getConversationColor(conversationDetails.conversation.id))
-                    else -> ConversationAvatar.None
-                }
-                conversationViewState = conversationViewState.copy(
-                    conversationName = conversationName,
-                    conversationAvatar = conversationAvatar
-                )
-            }
-        }
-
-        viewModelScope.launch {
-            markMessagesAsNotified(conversationId!!, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
+    // region ------------------------------ Init Methods -------------------------------------
+    private fun fetchMessages() = viewModelScope.launch {
+        getMessages(conversationId).combine(observeMemberDetails(conversationId)) { messages, members ->
+            messages.toUIMessages(members)
+        }.collect { uiMessages ->
+            conversationViewState = conversationViewState.copy(messages = uiMessages)
         }
     }
 
+    private fun listenConversationDetails() = viewModelScope.launch {
+        observeConversationDetails(conversationId).collect { conversationDetails ->
+            val conversationName = when (conversationDetails) {
+                is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
+                else -> conversationDetails.conversation.name.orEmpty()
+            }
+            val conversationAvatar = when (conversationDetails) {
+                is ConversationDetails.OneOne ->
+                    ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) })
+                is ConversationDetails.Group ->
+                    ConversationAvatar.Group(getConversationColor(conversationDetails.conversation.id))
+                else -> ConversationAvatar.None
+            }
+            conversationViewState = conversationViewState.copy(
+                conversationName = conversationName,
+                conversationAvatar = conversationAvatar
+            )
+        }
+    }
+
+    private fun fetchSelfUserTeam() = viewModelScope.launch {
+        getSelfUserTeam().collect {
+            conversationViewState = conversationViewState.copy(userTeam = it)
+        }
+    }
+
+    private fun setMessagesAsNotified() = viewModelScope.launch {
+        markMessagesAsNotified(conversationId, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
+    }
+    // endregion
+
+    // region ------------------------------ UI triggered actions -----------------------------
     fun onMessageChanged(message: String) {
         conversationViewState = conversationViewState.copy(messageText = message)
     }
@@ -133,33 +155,59 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(messageText = "")
     }
 
+    @Suppress("MagicNumber")
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
                     when (attachmentType) {
                         AttachmentType.IMAGE -> {
-                            val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
-                            sendImageMessage(
-                                conversationId = conversationId,
-                                imageRawData = attachmentBundle.rawContent,
-                                imageName = attachmentBundle.fileName,
-                                imgWidth = imgWidth,
-                                imgHeight = imgHeight
-                            )
+                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onError(ErrorMaxImageSize)
+                            else {
+                                val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
+                                val result = sendImageMessage(
+                                    conversationId = conversationId,
+                                    imageRawData = attachmentBundle.rawContent,
+                                    imageName = attachmentBundle.fileName,
+                                    imgWidth = imgWidth,
+                                    imgHeight = imgHeight
+                                )
+                                if (result is SendImageMessageResult.Failure) {
+                                    onError(ConversationErrors.ErrorSendingImage)
+                                }
+                            }
                         }
                         AttachmentType.GENERIC_FILE -> {
-                            sendAssetMessage(
-                                conversationId = conversationId,
-                                assetRawData = attachmentBundle.rawContent,
-                                assetName = attachmentBundle.fileName,
-                                assetMimeType = attachmentBundle.mimeType
-                            )
+                            val assetLimitInBytes = getAssetLimitInBytes()
+                            if (rawContent.size > assetLimitInBytes) onError(ErrorMaxAssetSize(assetLimitInBytes.div(1024 * 1024)))
+                            else {
+                                val result = sendAssetMessage(
+                                    conversationId = conversationId,
+                                    assetRawData = attachmentBundle.rawContent,
+                                    assetName = attachmentBundle.fileName,
+                                    assetMimeType = attachmentBundle.mimeType
+                                )
+                                if (result is SendAssetMessageResult.Failure) {
+                                    onError(ConversationErrors.ErrorSendingAsset)
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun getAssetLimitInBytes(): Int {
+        // Users with a team attached have larger asset sending limits than default users
+        return conversationViewState.userTeam?.run {
+            ASSET_SIZE_TEAM_USER_LIMIT_BYTES
+        } ?: ASSET_SIZE_DEFAULT_LIMIT_BYTES
+    }
+
+
+    fun onError(errorCode: ConversationErrors) {
+        conversationViewState = conversationViewState.copy(onError = errorCode)
     }
 
     fun downloadAsset(assetId: String) {
@@ -246,6 +294,20 @@ class ConversationViewModel @Inject constructor(
         onDialogDismissed()
     }
 
+    private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
+        getMessageAsset(
+            conversationId = conversationId,
+            messageId = messageId
+        ).run {
+            return when (this) {
+                is MessageAssetResult.Success -> decodedAsset
+                else -> null
+            }
+        }
+    }
+    // endregion
+
+    // region ------------------------------ Navigation ------------------------------
     fun navigateBack() {
         viewModelScope.launch {
             navigationManager.navigateBack()
@@ -262,6 +324,18 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    fun navigateToGallery(messageId: String) {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId)))
+                )
+            )
+        }
+    }
+    // endregion
+
+    // region ------------------------------ Mapper Helpers ------------------------------
     private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
             val sender = members.findSender(message.senderUserId)
@@ -285,11 +359,15 @@ class ConversationViewModel @Inject constructor(
     }
 
     private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent? =
-        when (val content = message.content) {
-            is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
-            is Text -> TextMessage(messageBody = MessageBody(UIText.DynamicString(content.value)))
-            else -> TextMessage(messageBody = MessageBody((content as? Text)?.let { UIText.DynamicString(it.value) }
-                ?: UIText.StringResource(R.string.content_is_not_available)))
+        when (message.visibility) {
+            Message.Visibility.VISIBLE -> when (val content = message.content) {
+                is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
+                is Text -> TextMessage(messageBody = MessageBody(UIText.DynamicString(content.value)))
+                else -> TextMessage(messageBody = MessageBody((content as? Text)?.let { UIText.DynamicString(it.value) }
+                    ?: UIText.StringResource(R.string.content_is_not_available)))
+            }
+            Message.Visibility.DELETED -> DeletedMessage
+            Message.Visibility.HIDDEN -> DeletedMessage
         }
 
     private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent? {
@@ -298,17 +376,19 @@ class ConversationViewModel @Inject constructor(
                 is Image -> md.width to md.height
                 else -> 0 to 0
             }
-            return when {
-                // If it's an image, we download it right away
-                mimeType.contains("image") -> MessageContent.ImageMessage(
-                    getRawAssetData(conversationId, messageId),
-                    width = imgWidth,
-                    height = imgHeight
-                )
 
-                // It's a generic Asset Message so let's not download it yet
-                else -> {
-                    return if (remoteData.assetId.isNotEmpty()) {
+            return if (remoteData.assetId.isNotEmpty()) {
+                when {
+                    // If it's an image, we download it right away
+                    mimeType.contains("image") -> MessageContent.ImageMessage(
+                        assetId = remoteData.assetId,
+                        rawImgData = getRawAssetData(conversationId, messageId),
+                        width = imgWidth,
+                        height = imgHeight
+                    )
+
+                    // It's a generic Asset Message so let's not download it yet
+                    else -> {
                         AssetMessage(
                             assetName = name ?: "",
                             assetExtension = name?.split(".")?.last() ?: "",
@@ -316,21 +396,16 @@ class ConversationViewModel @Inject constructor(
                             assetSizeInBytes = sizeInBytes
                         )
                         // On the first asset message received, the asset ID is null, so we filter it out until the second updates it
-                    } else null
+                    }
                 }
-            }
+            } else null
         }
     }
+    // endregion
 
-    private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
-        getMessageAsset(
-            conversationId = conversationId,
-            messageId = messageId
-        ).run {
-            return when (this) {
-                is MessageAssetResult.Success -> decodedAsset
-                else -> null
-            }
-        }
+    companion object {
+        const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images
+        const val ASSET_SIZE_DEFAULT_LIMIT_BYTES = 25 * 1024 * 1024 // 25 MB asset default user limit size
+        const val ASSET_SIZE_TEAM_USER_LIMIT_BYTES = 100 * 1024 * 1024 // 100 MB asset team user limit size
     }
 }

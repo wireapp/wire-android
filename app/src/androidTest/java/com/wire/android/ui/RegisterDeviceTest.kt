@@ -59,9 +59,9 @@ class RegisterDeviceTest {
     }
 
     val title = composeTestRule.onNodeWithText("Add this Device")
-    val registerText = composeTestRule.onNode(hasTestTag("register text"))
+    val registerText = composeTestRule.onNode(hasTestTag("registerText"))
     val passwordField = composeTestRule.onNode(hasTestTag("password field"))
-    val registerButton = composeTestRule.onNode(hasTestTag("register button"))
+    val registerButton = composeTestRule.onNode(hasTestTag("registerButton"))
     val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"), useUnmergedTree = true)
 
     val text = "Enter your password to use Wire on this device."

@@ -19,7 +19,7 @@ import java.util.Locale
 
 typealias LogElement = Triple<String, Severity, String?>
 
-private const val LOG_FILE_NAME = "wire_logs.log"
+const val LOG_FILE_NAME = "wire_logs.txt"
 private const val LOG_FILE_MAX_SIZE_THRESHOLD = 5 * 1024 * 1024
 
 @Suppress("TooGenericExceptionCaught")
@@ -94,7 +94,6 @@ class KaliumFileWriter : LogWriter() {
             fw.append("${logElement.first}\t${logElement.second.name}\t${logElement.third}\n")
 
 
-            // Write a line indicating the number of log lines proceed
 
             fw.flush()
             // Validate file size

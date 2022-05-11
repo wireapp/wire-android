@@ -9,24 +9,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
@@ -139,54 +133,6 @@ private fun ConversationScreen(
                 )
             }
         )
-    }
-}
-
-@Composable
-private fun EditMessageMenuItems(
-    isMyMessage: Boolean,
-    onCopyMessage: () -> Unit,
-    onDeleteMessage: () -> Unit
-): List<@Composable () -> Unit> {
-    return buildList {
-        add {
-            MenuBottomSheetItem(
-                icon = {
-                    MenuItemIcon(
-                        id = R.drawable.ic_copy,
-                        contentDescription = stringResource(R.string.content_description_block_the_user),
-                    )
-                },
-                title = stringResource(R.string.label_copy),
-                onItemClick = onCopyMessage
-            )
-        }
-        if (isMyMessage)
-            add {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_edit,
-                            contentDescription = stringResource(R.string.content_description_edit_the_message)
-                        )
-                    },
-                    title = stringResource(R.string.label_edit),
-                )
-            }
-        add {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_delete,
-                            contentDescription = stringResource(R.string.content_description_delete_the_message),
-                        )
-                    },
-                    title = stringResource(R.string.label_delete),
-                    onItemClick = onDeleteMessage
-                )
-            }
-        }
     }
 }
 

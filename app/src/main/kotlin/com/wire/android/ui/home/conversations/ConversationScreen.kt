@@ -26,6 +26,10 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxAssetSize
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxImageSize
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingAsset
+import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingImage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
@@ -50,7 +54,8 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onImageFullScreenMode = { conversationViewModel.navigateToGallery(it) },
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = audioPermissionCheck::launch
+        onCallStart = audioPermissionCheck::launch,
+        onError = conversationViewModel::onError
     )
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
 }
@@ -74,7 +79,8 @@ private fun ConversationScreen(
     onImageFullScreenMode: (String) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onCallStart: () -> Unit
+    onCallStart: () -> Unit,
+    onError: (ConversationErrors) -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -129,11 +135,8 @@ private fun ConversationScreen(
                             onDownloadAsset = onDownloadAsset,
                             onImageFullScreenMode = onImageFullScreenMode,
                             conversationState = this,
-                            onError = { errorMessage ->
-                                scope.launch {
-                                    conversationScreenState.snackBarHostState.showSnackbar(errorMessage)
-                                }
-                            }
+                            onMessageComposerError = onError,
+                            conversationScreenState = conversationScreenState
                         )
                     }
                 )
@@ -141,6 +144,15 @@ private fun ConversationScreen(
         )
     }
 }
+
+@Composable
+fun getErrorMessage(errorCode: ConversationErrors) =
+    when (errorCode) {
+        is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, errorCode.maxLimitInMB)
+        ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
+        ErrorSendingImage -> stringResource(R.string.error_conversation_sending_image)
+        else -> stringResource(R.string.error_conversation_generic)
+    }
 
 @Composable
 private fun EditMessageMenuItems(
@@ -200,14 +212,22 @@ private fun ConversationScreenContent(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String) -> Unit,
-    onError: (String) -> Unit,
-    conversationState: ConversationViewState
+    onMessageComposerError: (ConversationErrors) -> Unit,
+    conversationState: ConversationViewState,
+    conversationScreenState: ConversationScreenState
 ) {
     val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(conversationState.messages) {
         lazyListState.animateScrollToItem(0)
+    }
+
+    conversationState.onError?.let { errorCode ->
+        val errorMessage = getErrorMessage(errorCode)
+        LaunchedEffect(conversationState.onError) {
+            conversationScreenState.snackBarHostState.showSnackbar(errorMessage)
+        }
     }
 
     MessageComposer(
@@ -235,7 +255,7 @@ private fun ConversationScreenContent(
         onMessageChanged = onMessageChanged,
         onSendButtonClicked = onSendButtonClicked,
         onSendAttachment = onSendAttachment,
-        onError = onError,
+        onMessageComposerError = onMessageComposerError,
         onMessageComposerInputStateChange = { messageComposerState ->
             if (messageComposerState.to == MessageComposeInputState.Active
                 && messageComposerState.from == MessageComposeInputState.Enabled
@@ -254,6 +274,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, {}, {}, { _: String, _: Boolean -> }
-    ) {}
+        {}, {}, {}, {}, {}, {}, { _: String, _: Boolean -> }, {}, {}
+    )
 }

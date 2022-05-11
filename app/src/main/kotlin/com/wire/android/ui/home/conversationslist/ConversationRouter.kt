@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetC
 import com.wire.android.ui.home.conversationslist.bottomsheet.NotificationsOptionsItem
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.ConversationId
 
 @ExperimentalAnimationApi
@@ -174,7 +175,10 @@ private fun ConversationRouter(
 
         with(uiState) {
             // Change to a AnimatedNavHost and composable from accompanist lib to add transitions animations
-            NavHost(conversationState.navHostController, startDestination = ConversationsNavigationItem.All.route) {
+            NavHost(
+                conversationState.navHostController, startDestination = ConversationsNavigationItem.All.route, modifier = Modifier
+                    .padding(bottom = MaterialTheme.wireDimensions.bottomNavigationHeight)
+            ) {
                 composable(
                     route = ConversationsNavigationItem.All.route,
                     content = {
@@ -222,7 +226,7 @@ private fun ConversationNavigationItems(
 ): List<WireBottomNavigationItemData> {
     return ConversationsNavigationItem.values().map { conversationsNavigationItem ->
         when (conversationsNavigationItem) {
-            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.newActivityCount)
+            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.conversations.size)
             ConversationsNavigationItem.Calls -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.missedCallsCount)
             ConversationsNavigationItem.Mentions -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.unreadMentionsCount)
         }

@@ -2,6 +2,7 @@ package com.wire.android.util
 
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
+import com.wire.android.appLogger
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,11 +22,12 @@ typealias LogElement = Triple<String, Severity, String?>
 private const val LOG_FILE_NAME = "wire_logs.log"
 private const val LOG_FILE_MAX_SIZE_THRESHOLD = 5 * 1024 * 1024
 
+@Suppress("TooGenericExceptionCaught")
 class KaliumFileWriter : LogWriter() {
 
     private var flushCompleted = MutableStateFlow<Long>(0)
 
-    val LOG_LINE_TIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+    val logTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
     private val logBuffer = MutableStateFlow(LogElement("", Severity.Verbose, ""))
     private lateinit var filePath: String
@@ -50,7 +52,7 @@ class KaliumFileWriter : LogWriter() {
                 try {
                     writeToFile(logElement, logFile)
                 } catch (e: Exception) {
-
+                    appLogger.e("Write to file failed :${e}")
                 }
 
 
@@ -73,7 +75,7 @@ class KaliumFileWriter : LogWriter() {
 
     override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
         GlobalScope.launch {
-            logBuffer.emit(LogElement(LOG_LINE_TIME_FORMAT.format(Date()), severity, message))
+            logBuffer.emit(LogElement(logTimeFormat.format(Date()), severity, message))
 
         }
     }

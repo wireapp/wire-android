@@ -280,7 +280,7 @@
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
     <string name="error_conversation_sending_image">There was an error trying to send the image message. Please check your Internet connection and try again</string>
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
-    <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than 100MB</string>
+    <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
     <string name="error_conversation_generic">There was an unknown error when trying to send the message</string>
 
     <!-- Animation label -->

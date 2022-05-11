@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.EXTRA_CONNECTED_STATUS
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
@@ -16,13 +15,11 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
-import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,7 +31,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    private val getKnownUser: GetKnownUserUseCase,
     private val getUserInfo: GetUserInfoUseCase,
     private val sendConnectionRequest: SendConnectionRequestUseCase
 ) : ViewModel() {
@@ -48,29 +44,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     init {
         state = state.copy(isDataLoading = true)
-        val internalStatus = savedStateHandle.get<String>(EXTRA_CONNECTED_STATUS)
-        when (getConnectedStatus(internalStatus)) {
-            is ConnectionStatus.Connected -> getContactInformationDetails()
-            else -> getExternalUserInformationDetails()
-        }
-    }
-
-    private fun getExternalUserInformationDetails() {
         viewModelScope.launch {
             when (val result = getUserInfo(userId)) {
                 is GetUserInfoResult.Failure ->
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
                 is GetUserInfoResult.Success -> loadViewState(result.otherUser)
-            }
-        }
-    }
-
-    private fun getContactInformationDetails() {
-        viewModelScope.launch {
-            getKnownUser(userId).collect { otherUser ->
-                otherUser?.let { loadViewState(it) } ?: run {
-                    appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
-                }
             }
         }
     }
@@ -86,13 +64,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             phone = otherUser.phone ?: String.EMPTY,
             connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus()
         )
-    }
-
-    private fun getConnectedStatus(internalStatus: String?): ConnectionStatus {
-        val status = internalStatus?.let {
-            ConnectionState.values()[it.toInt()]
-        }
-        return status?.toOtherUserProfileConnectionStatus() ?: ConnectionStatus.Unknown
     }
 
     fun openConversation() {

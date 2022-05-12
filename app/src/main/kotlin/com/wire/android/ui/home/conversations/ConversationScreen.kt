@@ -49,7 +49,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
     DownloadedAssetDialog(
         conversationViewModel = conversationViewModel,
-        onNoActivityFound = { conversationViewModel.onNoActivityFound() }
+        onNoActivityFound = { conversationViewModel.onOpenFileError() }
     )
 }
 

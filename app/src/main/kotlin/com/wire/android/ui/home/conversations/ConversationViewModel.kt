@@ -298,7 +298,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onNoActivityFound() {
+    fun onOpenFileError() {
 
     }
     // endregion

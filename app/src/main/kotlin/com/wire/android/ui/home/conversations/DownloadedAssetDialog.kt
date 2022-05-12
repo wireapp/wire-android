@@ -13,10 +13,9 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.util.copyDataToTempAssetFile
 import com.wire.android.util.getMimeType
-import com.wire.android.util.getTempWritableImageUri
 
 @Composable
-fun DownloadedAssetDialog(conversationViewModel: ConversationViewModel, onNoActivityFound: () -> Unit) {
+fun DownloadedAssetDialog(conversationViewModel: ConversationViewModel) {
     val dialogState = conversationViewModel.conversationViewState.downloadedAssetDialogState
     val context = LocalContext.current
     if (dialogState is DownloadedAssetDialogVisibilityState.Displayed) {
@@ -29,12 +28,17 @@ fun DownloadedAssetDialog(conversationViewModel: ConversationViewModel, onNoActi
             optionButton2Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_open_text),
                 type = WireDialogButtonType.Primary,
-                onClick = { openFile(dialogState.assetName, assetData, context, onNoActivityFound) }
+                onClick = {
+                    openFile(dialogState.assetName, assetData, context) { conversationViewModel.onOpenFileError() }
+                    conversationViewModel.hideOnAssetDownloadedDialog()
+                }
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_save_text),
                 type = WireDialogButtonType.Primary,
-                onClick = {}
+                onClick = {
+                    saveFileToDownloadsFolder(dialogState.assetName, assetData, context)
+                }
             ),
             dismissButtonProperties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_cancel),
@@ -51,6 +55,7 @@ private fun openFile(assetName: String?, assetData: ByteArray, context: Context,
     // Set intent and launch
     val intent = Intent()
     intent.action = Intent.ACTION_VIEW
+    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION // This allows the external app access to that temporal uri
     intent.setDataAndType(assetUri, assetUri.getMimeType(context))
 
     try {

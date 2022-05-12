@@ -1,9 +1,11 @@
 package com.wire.android.ui.userprofile.self
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -70,7 +73,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun SelfUserProfileContent(
     state: SelfUserProfileState,
@@ -94,6 +97,7 @@ private fun SelfUserProfileContent(
             onMessageShown()
         }
     }
+    val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
@@ -114,27 +118,44 @@ private fun SelfUserProfileContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
+                    .scrollable(state = scrollState, orientation = Orientation.Vertical)
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                UserProfileInfo(
-                    isLoading = state.isAvatarLoading,
-                    avatarAsset = state.avatarAsset,
-                    fullName = fullName,
-                    userName = userName,
-                    teamName = teamName,
-                    onUserProfileClick = onChangeUserProfilePicture,
-                    editableState = EditableState.IsEditable(onEditClick)
-                )
-                CurrentSelfUserStatus(
-                    userStatus = status,
-                    onStatusClicked = onStatusClicked
-                )
-                if (state.otherAccounts.isNotEmpty()) {
-                    OtherAccountsList(
-                        otherAccounts = otherAccounts,
-                        onAddAccountClick = onAddAccountClick,
-                    )
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1F)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .scrollable(state = scrollState, orientation = Orientation.Vertical)
+                ) {
+                    stickyHeader {
+                        UserProfileInfo(
+                            isLoading = state.isAvatarLoading,
+                            avatarAsset = state.avatarAsset,
+                            fullName = fullName,
+                            userName = userName,
+                            teamName = teamName,
+                            onUserProfileClick = onChangeUserProfilePicture,
+                            editableState = EditableState.IsEditable(onEditClick)
+                        )
+                    }
+                    stickyHeader {
+                        CurrentSelfUserStatus(
+                            userStatus = status,
+                            onStatusClicked = onStatusClicked
+                        )
+                    }
+                    if (state.otherAccounts.isNotEmpty()) {
+                        stickyHeader {
+                            OtherAccountsHeader()
+                        }
+                        items(
+                            items = otherAccounts,
+                            itemContent = { account -> OtherAccountItem(account) }
+                        )
+                    }
                 }
+                NewTeamButton(onAddAccountClick)
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
@@ -183,6 +204,7 @@ private fun CurrentSelfUserStatus(
     userStatus: UserStatus,
     onStatusClicked: (UserStatus) -> Unit
 ) {
+    val minButtonWeight = 4F
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
@@ -191,7 +213,7 @@ private fun CurrentSelfUserStatus(
     ) {
         ProfileStatusButton(
             userStatus = UserStatus.AVAILABLE,
-            modifier = Modifier.weight(weight = 6F),
+            modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_available).length.toFloat()),
             onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_available),
             currentStatus = userStatus,
@@ -202,21 +224,21 @@ private fun CurrentSelfUserStatus(
         )
         ProfileStatusButton(
             userStatus = UserStatus.BUSY,
-            modifier = Modifier.weight(weight = 4F),
+            modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_busy).length.toFloat()),
             onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_busy),
             currentStatus = userStatus,
         )
         ProfileStatusButton(
             userStatus = UserStatus.AWAY,
-            modifier = Modifier.weight(weight = 4F),
+            modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_away).length.toFloat()),
             onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_away),
             currentStatus = userStatus,
         )
         ProfileStatusButton(
             userStatus = UserStatus.NONE,
-            modifier = Modifier.weight(weight = 3F),
+            modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_none).length.toFloat()),
             onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_none),
             currentStatus = userStatus,
@@ -262,10 +284,7 @@ private fun ProfileStatusButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ColumnScope.OtherAccountsList(
-    otherAccounts: List<OtherAccount>,
-    onAddAccountClick: () -> Unit
-) {
+private fun OtherAccountsHeader() {
     Text(
         modifier = Modifier
             .padding(
@@ -278,19 +297,11 @@ private fun ColumnScope.OtherAccountsList(
         color = MaterialTheme.colorScheme.onBackground,
         textAlign = TextAlign.Start
     )
+}
 
-    LazyColumn(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .weight(1f)
-            .fillMaxWidth()
-    ) {
-        items(
-            items = otherAccounts,
-            itemContent = { account -> OtherAccountItem(account) }
-        )
-    }
-
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NewTeamButton(onAddAccountClick: () -> Unit) {
     Surface(shadowElevation = 8.dp) {
         WirePrimaryButton(
             modifier = Modifier
@@ -353,8 +364,8 @@ private fun OtherAccountItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
+@Preview(widthDp = 400, heightDp = 800)
+@Preview(widthDp = 800)
 @Composable
 private fun SelfUserProfileScreenPreview() {
     SelfUserProfileContent(
@@ -375,4 +386,11 @@ private fun SelfUserProfileScreenPreview() {
             statusDialogData = null
         ),
     )
+}
+
+@Preview(widthDp = 800)
+@Preview(widthDp = 400)
+@Composable
+private fun CurrentSelfUserStatusPreview() {
+    CurrentSelfUserStatus(UserStatus.AVAILABLE, onStatusClicked = {})
 }

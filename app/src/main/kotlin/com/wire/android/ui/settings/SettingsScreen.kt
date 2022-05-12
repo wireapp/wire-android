@@ -25,6 +25,7 @@ import com.wire.android.kaliumFileWriter
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.LOG_FILE_NAME
 import com.wire.android.util.startFileShareIntent
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
@@ -68,7 +69,7 @@ fun SettingsScreen() {
                     )
                 } else {
                     kaliumFileWriter.clearFileContent(
-                        File(context.cacheDir.absolutePath + "/logs/" + "wire_logs.log")
+                        File(context.cacheDir.absolutePath + "/logs/" + LOG_FILE_NAME)
                     )
                     CoreLogger.setLoggingLevel(
                         level = KaliumLogLevel.DISABLED, kaliumFileWriter
@@ -80,7 +81,7 @@ fun SettingsScreen() {
         WirePrimaryButton(
             state = if (checkedState.value) WireButtonState.Default else WireButtonState.Disabled,
             text = "Share the log",
-            onClick = { context.startFileShareIntent(context.cacheDir.absolutePath + "/logs/" + "wire_logs.log") },
+            onClick = { context.startFileShareIntent(context.cacheDir.absolutePath + "/logs/" + LOG_FILE_NAME) },
             fillMaxWidth = true,
             modifier = Modifier
                 .fillMaxWidth()

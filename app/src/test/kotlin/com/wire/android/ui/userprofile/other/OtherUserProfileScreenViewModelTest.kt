@@ -137,6 +137,13 @@ class OtherUserProfileScreenViewModelTest {
             }
         }
 
+    @Test
+    fun `given a navigation case, when going back requested, then should delegate call to manager navigateBack`() = runTest {
+        otherUserProfileScreenViewModel.navigateBack()
+
+        coVerify(exactly = 1) { navigationManager.navigateBack() }
+    }
+
     companion object {
         val USER_ID = UserId("some_value", "some_domain")
         val CONVERSATION_ID = ConversationId("some_value", "some_domain")

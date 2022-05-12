@@ -22,8 +22,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
-import com.wire.android.util.getWritableImageAttachment
-import com.wire.android.util.getWritableVideoAttachment
+import com.wire.android.util.getTempWritableImageUri
+import com.wire.android.util.getTempWritableVideoUri
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
@@ -98,7 +98,7 @@ private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
 @Composable
 private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow {
     val context = LocalContext.current
-    val imageAttachmentUri = getWritableImageAttachment(context)
+    val imageAttachmentUri = getTempWritableImageUri(context)
     return rememberTakePictureFlow(
         onPictureTaken = { onPictureTaken(imageAttachmentUri) },
         targetPictureFileUri = imageAttachmentUri,
@@ -109,7 +109,7 @@ private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow
 @Composable
 private fun CaptureVideoFlow(onVideoCaptured: (Uri) -> Unit): UseCameraRequestFlow {
     val context = LocalContext.current
-    val videoAttachmentUri = getWritableVideoAttachment(context)
+    val videoAttachmentUri = getTempWritableVideoUri(context)
     return rememberCaptureVideoFlow(
         onVideoRecorded = { onVideoCaptured(videoAttachmentUri) },
         targetVideoFileUri = videoAttachmentUri,

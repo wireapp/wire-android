@@ -1,17 +1,19 @@
 package com.wire.android.ui.home.conversations
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.util.copyDataToTempAssetFile
 import com.wire.android.util.getMimeType
-import com.wire.android.util.getWritableFileAttachment
-import java.io.File
+import com.wire.android.util.getTempWritableImageUri
 
 @Composable
 fun DownloadedAssetDialog(conversationViewModel: ConversationViewModel, onNoActivityFound: () -> Unit) {
@@ -42,19 +44,19 @@ fun DownloadedAssetDialog(conversationViewModel: ConversationViewModel, onNoActi
     }
 }
 
-fun openFile(assetName: String?, assetData: ByteArray, context: Context, onNoActivityFound: () -> Unit) {
-    val fileName = "${System.currentTimeMillis()}_$assetName"
-    val tempFile = File(context.cacheDir, fileName)
-    tempFile.parentFile?.apply { this.mkdirs() }
-    tempFile.writeBytes(assetData)
-    val uri = getWritableFileAttachment(context, fileName)
+private fun openFile(assetName: String?, assetData: ByteArray, context: Context, onError: () -> Unit) {
+    val fileName = "$assetName"
+    val assetUri = copyDataToTempAssetFile(context, fileName, assetData)
+
+    // Set intent and launch
     val intent = Intent()
     intent.action = Intent.ACTION_VIEW
-    intent.setDataAndType(uri, uri.getMimeType(context))
+    intent.setDataAndType(assetUri, assetUri.getMimeType(context))
 
-    if (intent.resolveActivity(context.packageManager) != null) {
+    try {
         context.startActivity(intent)
-    } else {
-        onNoActivityFound.invoke()
+    } catch (noActivityFoundException: ActivityNotFoundException) {
+        appLogger.e("Couldn't find a proper app to process the asset")
+        onError()
     }
 }

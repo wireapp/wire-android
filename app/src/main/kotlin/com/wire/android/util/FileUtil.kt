@@ -38,13 +38,19 @@ suspend fun Uri.toByteArray(context: Context): ByteArray {
     }
 }
 
-fun getWritableImageAttachment(context: Context) = getTempWritableAttachmentUri(context, TEMP_IMG_ATTACHMENT_FILENAME)
-fun getWritableVideoAttachment(context: Context) = getTempWritableAttachmentUri(context, TEMP_VIDEO_ATTACHMENT_FILENAME)
-fun getWritableFileAttachment(context: Context, fileName: String) = getTempWritableAttachmentUri(context, fileName)
+fun getTempWritableImageUri(context: Context) = getTempWritableAttachmentUri(context, TEMP_IMG_ATTACHMENT_FILENAME)
+fun getTempWritableVideoUri(context: Context) = getTempWritableAttachmentUri(context, TEMP_VIDEO_ATTACHMENT_FILENAME)
 
 private fun getTempWritableAttachmentUri(context: Context, fileName: String): Uri {
     val file = File(context.cacheDir, fileName)
     file.setWritable(true)
+    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+}
+
+fun copyDataToTempAssetFile(context: Context, assetName: String, assetData: ByteArray): Uri {
+    val file = File(context.cacheDir, assetName)
+    file.setWritable(true)
+    file.writeBytes(assetData)
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
 }
 

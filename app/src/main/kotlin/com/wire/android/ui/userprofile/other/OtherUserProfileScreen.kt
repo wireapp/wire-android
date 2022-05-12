@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.RowItemTemplate
@@ -69,11 +70,8 @@ fun OtherProfileScreenContent(
     val snackbarHostState = remember { SnackbarHostState() }
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
 
-    handleScreenMessages(
-        snackbarHostState = snackbarHostState,
-        state = state,
-        errorState = errorState
-    )
+    handleSuccessMessages(snackbarHostState, state)
+    handleErrorMessages(snackbarHostState, errorState)
 
     Scaffold(
         topBar = {
@@ -242,24 +240,21 @@ fun OtherUserProfileTopBar(
 }
 
 @Composable
-private fun handleScreenMessages(
+private fun handleSuccessMessages(
     snackbarHostState: SnackbarHostState,
-    state: OtherUserProfileState,
-    errorState: ErrorState?,
+    state: OtherUserProfileState
 ) {
-    handleErrors(snackbarHostState = snackbarHostState, errorState = errorState)
     val requestSentMessage = stringResource(id = R.string.connection_request_sent)
     LaunchedEffect(state.connectionStatus) {
         when (val status = state.connectionStatus) {
-            is ConnectionStatus.Connected -> {}
             is ConnectionStatus.NotConnected -> if (status.isConnectionRequestPending) snackbarHostState.showSnackbar(requestSentMessage)
-            is ConnectionStatus.Unknown -> {}
+            else -> appLogger.d("Not defined handler for $status")
         }
     }
 }
 
 @Composable
-private fun handleErrors(
+private fun handleErrorMessages(
     snackbarHostState: SnackbarHostState,
     errorState: ErrorState?
 ) {

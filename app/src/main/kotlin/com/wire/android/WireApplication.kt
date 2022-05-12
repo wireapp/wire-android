@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.work.Configuration
 import com.google.firebase.FirebaseApp
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.util.KaliumFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
@@ -14,13 +15,14 @@ import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 private val flavor = BuildConfig.FLAVOR
+val kaliumFileWriter = KaliumFileWriter()
 var appLogger = KaliumLogger(
     config = KaliumLogger.Config(
         severity = if (
             flavor.startsWith("Dev", true) || flavor.startsWith("Internal", true)
         ) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
-    )
+    ), kaliumFileWriter
 )
 
 @HiltAndroidApp
@@ -43,10 +45,16 @@ class WireApplication : Application(), Configuration.Provider {
         if (this.isGoogleServicesAvailable()) {
             FirebaseApp.initializeApp(this)
         }
-        if (BuildConfig.DEBUG) {
-            CoreLogger.setLoggingLevel(
-                level = KaliumLogLevel.DEBUG
-            )
+        if (BuildConfig.DEBUG || coreLogic.getAuthenticationScope().isLoggingEnabled()) {
+            enableLoggingAndInitiateFileLogging()
         }
+    }
+
+    private fun enableLoggingAndInitiateFileLogging() {
+        kaliumFileWriter.init(applicationContext.cacheDir.absolutePath)
+        CoreLogger.setLoggingLevel(
+            level = KaliumLogLevel.DEBUG, kaliumFileWriter
+        )
+        appLogger.i("logged enabled")
     }
 }

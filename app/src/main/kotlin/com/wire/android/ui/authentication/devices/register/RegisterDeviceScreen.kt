@@ -77,19 +77,19 @@ private fun RegisterDeviceContent(
                     .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
-                    ).testTag("register text")
+                    ).testTag("registerText")
             )
             PasswordTextField(state = state, onPasswordChange = onPasswordChange)
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
-                text = stringResource(R.string.label_register),
+                text = stringResource(R.string.label_add_device),
                 onClick = onContinuePressed,
                 fillMaxWidth = true,
                 loading = state.loading,
                 state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(MaterialTheme.wireDimensions.spacing16x).testTag("register button")
+                    .padding(MaterialTheme.wireDimensions.spacing16x).testTag("registerButton")
             )
         }
     }

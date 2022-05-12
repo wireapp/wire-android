@@ -16,8 +16,8 @@ data class CreateAccountDetailsViewState(
     val error: DetailsError = DetailsError.None
 ) {
     fun fieldsNotEmpty(): Boolean =
-        firstName.text.isNotEmpty() && lastName.text.isNotEmpty() && password.text.isNotEmpty() && confirmPassword.text.isNotEmpty()
-                && (type == CreateAccountFlowType.CreatePersonalAccount || teamName.text.isNotEmpty())
+        firstName.text.isNotBlank() && lastName.text.isNotBlank() && password.text.isNotBlank() && confirmPassword.text.isNotBlank()
+                && (type == CreateAccountFlowType.CreatePersonalAccount || teamName.text.isNotBlank())
 
     sealed class DetailsError {
         object None : DetailsError()

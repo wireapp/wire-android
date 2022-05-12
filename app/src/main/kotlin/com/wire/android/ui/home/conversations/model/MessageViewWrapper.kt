@@ -41,6 +41,7 @@ enum class MessageStatus(val stringResourceId: Int) {
 
 sealed class MessageContent {
     data class TextMessage(val messageBody: MessageBody) : MessageContent()
+    object DeletedMessage : MessageContent()
 
     data class AssetMessage(
         val assetName: String,

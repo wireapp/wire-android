@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.newconversation.search
 
-
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -29,9 +28,7 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.model.Contact
 
-
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
-
 
 data class SearchOpenUserProfile(val contact: Contact, val internal: Boolean)
 

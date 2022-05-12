@@ -29,6 +29,7 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.model.DeletedMessage
 import com.wire.android.ui.home.conversations.model.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -148,6 +149,7 @@ private fun MessageContent(messageContent: MessageContent?, onAssetClick: (Strin
             onImageClick = { onImageClick() }
         )
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
+        is MessageContent.DeletedMessage -> DeletedMessage()
         is MessageContent.AssetMessage -> MessageAsset(
             assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
             assetExtension = messageContent.assetExtension,

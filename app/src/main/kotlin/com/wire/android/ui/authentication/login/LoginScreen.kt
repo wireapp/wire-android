@@ -50,8 +50,6 @@ fun LoginScreen(serverConfig: ServerConfig, ssoLoginResult: DeepLinkResult.SSOLo
     loginViewModel.updateServerConfig(ssoLoginResult, serverConfig)
     LoginContent(
         onBackPressed = { loginViewModel.navigateBack() },
-        //todo: temporary to show the remoteConfig
-        serverTitle = loginViewModel.serverConfig.title,
         serverConfig = loginViewModel.serverConfig,
         ssoLoginResult = ssoLoginResult
     )
@@ -61,7 +59,6 @@ fun LoginScreen(serverConfig: ServerConfig, ssoLoginResult: DeepLinkResult.SSOLo
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
-    serverTitle: String,
     serverConfig: ServerConfig,
     ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
@@ -73,7 +70,7 @@ private fun LoginContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.appBarElevation(),
-                title = "${stringResource(R.string.login_title)} $serverTitle",
+                title = stringResource(R.string.login_title),
                 onNavigationPressed = onBackPressed
             ) {
                 WireTabRow(
@@ -126,7 +123,7 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @Composable
 private fun LoginScreenPreview() {
     WireTheme(isPreview = true) {
-        LoginContent(onBackPressed = { }, serverTitle = "", serverConfig = ServerConfig.STAGING, ssoLoginResult = null)
+        LoginContent(onBackPressed = { }, serverConfig = ServerConfig.STAGING, ssoLoginResult = null)
     }
 }
 

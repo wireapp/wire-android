@@ -26,7 +26,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class RemoveDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
@@ -74,16 +73,36 @@ class RemoveDeviceViewModel @Inject constructor(
 
     private fun tryToDeleteOrShowDialog(client: Client) {
         launchOnIO {
-            when(val deleteResult = deleteClientUseCase(DeleteClientParam(null, client.id))) {
-                DeleteClientResult.Success -> registerClientUseCase(null, null).also {
-                    when(it) {
-                        is RegisterClientResult.Failure -> updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(client = client)) }
+            when (val deleteResult = deleteClientUseCase(DeleteClientParam(null, client.id))) {
+                DeleteClientResult.Success -> registerClientUseCase(
+                    RegisterClientUseCase.RegisterClientParam.ClientWithToken(null, null, BuildConfig.SENDER_ID)
+                ).also {
+                    when (it) {
+                        is RegisterClientResult.Failure -> updateStateIfSuccess {
+                            it.copy(
+                                removeDeviceDialogState = RemoveDeviceDialogState.Visible(
+                                    client = client
+                                )
+                            )
+                        }
                         is RegisterClientResult.Success -> it.client
                     }
                 }
                 is DeleteClientResult.Failure.Generic -> state = RemoveDeviceState.Error(deleteResult.genericFailure)
-                DeleteClientResult.Failure.InvalidCredentials -> updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(client = client)) }
-                DeleteClientResult.Failure.PasswordAuthRequired -> updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(client = client)) }
+                DeleteClientResult.Failure.InvalidCredentials -> updateStateIfSuccess {
+                    it.copy(
+                        removeDeviceDialogState = RemoveDeviceDialogState.Visible(
+                            client = client
+                        )
+                    )
+                }
+                DeleteClientResult.Failure.PasswordAuthRequired -> updateStateIfSuccess {
+                    it.copy(
+                        removeDeviceDialogState = RemoveDeviceDialogState.Visible(
+                            client = client
+                        )
+                    )
+                }
             }
         }
     }

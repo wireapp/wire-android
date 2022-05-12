@@ -41,6 +41,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.formatMediumDateTime
+import com.wire.kalium.logic.data.client.ClientType
 import kotlinx.coroutines.android.awaitFrame
 
 @Composable
@@ -57,7 +58,9 @@ fun RemoveDeviceScreen() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+typealias HideKeyboard = () -> Unit
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RemoveDeviceContent(
     state: RemoveDeviceState,

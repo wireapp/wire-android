@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.create.common
 
+import android.util.Log
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -294,7 +295,7 @@ private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     RegisterClientResult.Failure.InvalidCredentials -> CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
     RegisterClientResult.Failure.PasswordAuthRequired -> {
-        Log.wtf("TAG", "wrong password when register client after creating a new account")
+        Log.wtf("RegisterClient", "wrong password when register client after creating a new account")
         CreateAccountCodeViewState.CodeError.DialogError.GenericError(CoreFailure.Unknown(IllegalStateException("wrong password when register client after creating a new account")))
     }
 }

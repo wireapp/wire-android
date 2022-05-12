@@ -296,7 +296,9 @@ private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
     RegisterClientResult.Failure.PasswordAuthRequired -> {
         Log.wtf("RegisterClient", "wrong password when register client after creating a new account")
-        CreateAccountCodeViewState.CodeError.DialogError.GenericError(CoreFailure.Unknown(IllegalStateException("wrong password when register client after creating a new account")))
+        CreateAccountCodeViewState.CodeError.DialogError.GenericError(
+            CoreFailure.Unknown(IllegalStateException("wrong password when register client after creating a new account"))
+        )
     }
 }
 

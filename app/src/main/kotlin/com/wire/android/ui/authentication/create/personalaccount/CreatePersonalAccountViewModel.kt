@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.create.personalaccount
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -20,7 +19,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreatePersonalAccountViewModel @Inject constructor(
     private val navigationManager: NavigationManager,

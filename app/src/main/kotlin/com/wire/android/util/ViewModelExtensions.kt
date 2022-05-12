@@ -28,7 +28,6 @@ inline fun ViewModel.launchOnDefault(crossinline execute: suspend () -> Unit) {
     }
 }
 
-// TODO: add lint warning
 inline fun ViewModel.launchOnMain(crossinline execute: suspend () -> Unit) {
     contract {
         callsInPlace(execute, InvocationKind.EXACTLY_ONCE)

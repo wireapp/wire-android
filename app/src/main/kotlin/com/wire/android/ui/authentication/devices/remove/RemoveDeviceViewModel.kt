@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.devices.remove
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,7 +11,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.util.launchOnIO
+import com.wire.android.util.launchOnMain
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -68,24 +67,29 @@ class RemoveDeviceViewModel @Inject constructor(
     }
 
     fun onItemClicked(client: Client) {
-        tryToDeleteOrShowDialog(client)
+        tryToDeleteOrShowPasswordDialog(client)
     }
 
-    private fun tryToDeleteOrShowDialog(client: Client) {
-        launchOnIO {
+    private fun tryToDeleteOrShowPasswordDialog(client: Client) {
+        launchOnMain {
+            // try delete with no password (will success only for SSO accounts
             when (val deleteResult = deleteClientUseCase(DeleteClientParam(null, client.id))) {
+
                 DeleteClientResult.Success -> registerClientUseCase(
                     RegisterClientUseCase.RegisterClientParam.ClientWithToken(null, null, BuildConfig.SENDER_ID)
-                ).also {
-                    when (it) {
-                        is RegisterClientResult.Failure -> updateStateIfSuccess {
+                ).also { result ->
+                    when (result) {
+                        is RegisterClientResult.Failure.PasswordAuthRequired -> updateStateIfSuccess {
                             it.copy(
                                 removeDeviceDialogState = RemoveDeviceDialogState.Visible(
                                     client = client
                                 )
                             )
                         }
-                        is RegisterClientResult.Success -> it.client
+                        is RegisterClientResult.Failure.Generic -> state = RemoveDeviceState.Error(result.genericFailure)
+                        RegisterClientResult.Failure.InvalidCredentials -> {}
+                        RegisterClientResult.Failure.TooManyClients -> {}
+                        is RegisterClientResult.Success -> navigateToConvScreen()
                     }
                 }
                 is DeleteClientResult.Failure.Generic -> state = RemoveDeviceState.Error(deleteResult.genericFailure)

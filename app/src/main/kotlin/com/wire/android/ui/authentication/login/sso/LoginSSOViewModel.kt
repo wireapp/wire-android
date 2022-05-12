@@ -61,16 +61,15 @@ class LoginSSOViewModel @Inject constructor(
     @VisibleForTesting
     fun establishSSOSession(cookie: String) {
         viewModelScope.launch {
-            val authSession = getSSOLoginSessionUseCase(cookie, serverConfig)
-                .let {
-                    when (it) {
-                        is SSOLoginSessionResult.Failure -> {
-                            updateLoginError(it.toLoginError())
-                            return@launch
-                        }
-                        is SSOLoginSessionResult.Success -> it.userSession
+            val authSession = getSSOLoginSessionUseCase(cookie, serverConfig).let {
+                when (it) {
+                    is SSOLoginSessionResult.Failure -> {
+                        updateLoginError(it.toLoginError())
+                        return@launch
                     }
+                    is SSOLoginSessionResult.Success -> it.userSession
                 }
+            }
             val storedUserId = addAuthenticatedUser(authSession, false).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
@@ -114,10 +113,8 @@ class LoginSSOViewModel @Inject constructor(
             establishSSOSession(ssoLoginResult.cookie)
         }
         is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
-        else -> {}
+        null -> {}
     }
-
-
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {

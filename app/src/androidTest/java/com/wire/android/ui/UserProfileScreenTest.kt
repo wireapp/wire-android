@@ -148,7 +148,10 @@ class UserProfileScreenTest {
         title.assertIsDisplayed()
         awayButton.onSibling().performClick()
         val awayText = composeTestRule.onNodeWithText("Set yourself to Away")
-        awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains("Do not display this information again")
+        composeTestRule.waitForExecution {
+            awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains("Do not " +
+                    "display this information again")
+        }
         cancelButton.performClick()
         awayText.assertDoesNotExist()
         awayButton.onSibling().performClick()

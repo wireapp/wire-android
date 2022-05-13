@@ -19,8 +19,8 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.ConversationErrors
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorPickingAttachment
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 fun AttachmentOptionsComponent(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (ConversationErrors) -> Unit,
+    onError: (ConversationSnackbarMessages) -> Unit,
     modifier : Modifier= Modifier
 ) {
     val scope = rememberCoroutineScope()
@@ -65,7 +65,7 @@ fun AttachmentOptionsComponent(
 private fun configureStateHandling(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (ConversationErrors) -> Unit
+    onError: (ConversationSnackbarMessages) -> Unit
 ) {
     when (val state = attachmentInnerState.attachmentState) {
         is AttachmentState.NotPicked -> appLogger.d("Not picked yet")
@@ -99,7 +99,7 @@ private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
 @Composable
 private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow {
     val context = LocalContext.current
-    val imageAttachmentUri = getTempWritableImageUri(context)
+    val imageAttachmentUri = context.getTempWritableImageUri()
     return rememberTakePictureFlow(
         onPictureTaken = { onPictureTaken(imageAttachmentUri) },
         targetPictureFileUri = imageAttachmentUri,
@@ -110,7 +110,7 @@ private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow
 @Composable
 private fun CaptureVideoFlow(onVideoCaptured: (Uri) -> Unit): UseCameraRequestFlow {
     val context = LocalContext.current
-    val videoAttachmentUri = getTempWritableVideoUri(context)
+    val videoAttachmentUri = context.getTempWritableVideoUri()
     return rememberCaptureVideoFlow(
         onVideoRecorded = { onVideoCaptured(videoAttachmentUri) },
         targetVideoFileUri = videoAttachmentUri,

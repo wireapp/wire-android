@@ -14,8 +14,10 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxAssetSize
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxImageSize
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Displayed
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
@@ -62,6 +64,7 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -163,12 +166,13 @@ class ConversationViewModel @Inject constructor(
 
     @Suppress("MagicNumber")
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
+        val sizeOf1MB = 1024 * 1024
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
                     when (attachmentType) {
                         AttachmentType.IMAGE -> {
-                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onError(ErrorMaxImageSize)
+                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
                                 val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
                                 val result = sendImageMessage(
@@ -179,13 +183,14 @@ class ConversationViewModel @Inject constructor(
                                     imgHeight = imgHeight
                                 )
                                 if (result is SendImageMessageResult.Failure) {
-                                    onError(ConversationErrors.ErrorSendingImage)
+                                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
                                 }
                             }
                         }
                         AttachmentType.GENERIC_FILE -> {
                             val assetLimitInBytes = getAssetLimitInBytes()
-                            if (rawContent.size > assetLimitInBytes) onError(ErrorMaxAssetSize(assetLimitInBytes.div(1024 * 1024)))
+                            if (rawContent.size > assetLimitInBytes)
+                                onSnackbarMessage(ErrorMaxAssetSize(assetLimitInBytes.div(sizeOf1MB)))
                             else {
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,
@@ -194,7 +199,7 @@ class ConversationViewModel @Inject constructor(
                                     assetMimeType = attachmentBundle.mimeType
                                 )
                                 if (result is SendAssetMessageResult.Failure) {
-                                    onError(ConversationErrors.ErrorSendingAsset)
+                                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                                 }
                             }
                         }
@@ -244,9 +249,13 @@ class ConversationViewModel @Inject constructor(
         } ?: ASSET_SIZE_DEFAULT_LIMIT_BYTES
     }
 
-
-    fun onError(errorCode: ConversationErrors) {
-        conversationViewState = conversationViewState.copy(onError = errorCode)
+    fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) {
+        viewModelScope.launch {
+            // We need to reset the onSnackbarMessage state so that it doesn't show up again when going -> background -> resume back
+            conversationViewState = conversationViewState.copy(onSnackbarMessage = msgCode)
+            delay(SNACKBAR_MESSAGE_DELAY)
+            conversationViewState = conversationViewState.copy(onSnackbarMessage = null)
+        }
     }
 
     private fun getAssetName(messageId: String): String? = conversationViewState.messages.firstOrNull {
@@ -345,7 +354,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun onOpenFileError() {
-
+        conversationViewState = conversationViewState.copy(onSnackbarMessage = ErrorOpeningAssetFile)
     }
     // endregion
 
@@ -444,11 +453,16 @@ class ConversationViewModel @Inject constructor(
             } else null
         }
     }
+
+    fun onFileSaved(assetName: String?) {
+        onSnackbarMessage(OnFileDownloaded(assetName))
+    }
     // endregion
 
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images
         const val ASSET_SIZE_DEFAULT_LIMIT_BYTES = 25 * 1024 * 1024 // 25 MB asset default user limit size
         const val ASSET_SIZE_TEAM_USER_LIMIT_BYTES = 100 * 1024 * 1024 // 100 MB asset team user limit size
+        const val SNACKBAR_MESSAGE_DELAY = 3000L
     }
 }

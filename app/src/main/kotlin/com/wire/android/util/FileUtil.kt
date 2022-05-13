@@ -1,9 +1,13 @@
 package com.wire.android.util
 
 import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.os.Environment.DIRECTORY_DOWNLOADS
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
 import androidx.annotation.AnyRes
@@ -12,7 +16,9 @@ import androidx.core.content.FileProvider
 import com.wire.android.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileInputStream
 
 /**
  * Gets the uri of any drawable or given resource
@@ -39,8 +45,9 @@ suspend fun Uri.toByteArray(context: Context): ByteArray {
     }
 }
 
-fun getTempWritableImageUri(context: Context) = getTempWritableAttachmentUri(context, TEMP_IMG_ATTACHMENT_FILENAME)
-fun getTempWritableVideoUri(context: Context) = getTempWritableAttachmentUri(context, TEMP_VIDEO_ATTACHMENT_FILENAME)
+fun Context.getTempWritableImageUri() = getTempWritableAttachmentUri(this, TEMP_IMG_ATTACHMENT_FILENAME)
+fun Context.getTempWritableVideoUri() = getTempWritableAttachmentUri(this, TEMP_VIDEO_ATTACHMENT_FILENAME)
+fun Context.getDownloadsFolderUri(assetName: String) = getTempWritableAttachmentUri(this, assetName)
 
 private fun getTempWritableAttachmentUri(context: Context, fileName: String): Uri {
     val file = File(context.cacheDir, fileName)
@@ -48,7 +55,34 @@ private fun getTempWritableAttachmentUri(context: Context, fileName: String): Ur
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
 }
 
-fun copyDataToTempAssetFile(context: Context, assetName: String, assetData: ByteArray): Uri {
+fun Context.saveFileDataToDownloadsFolder(downloadedFile: File, fileSize: Int): Uri? {
+    val resolver = contentResolver
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, downloadedFile.name)
+            put(MediaStore.MediaColumns.MIME_TYPE, Uri.parse(downloadedFile.path).getMimeType(this@saveFileDataToDownloadsFolder))
+            put(MediaStore.MediaColumns.SIZE, fileSize)
+        }
+        resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+    } else {
+        val authority = "${packageName}.provider"
+        val destinyFile = File(getExternalFilesDir(DIRECTORY_DOWNLOADS), downloadedFile.name)
+        FileProvider.getUriForFile(this, authority, destinyFile)
+    }?.also { downloadedUri ->
+        resolver.openOutputStream(downloadedUri).use { outputStream ->
+            val brr = ByteArray(DATA_COPY_BUFFER_SIZE)
+            var len: Int
+            val bufferedInputStream = BufferedInputStream(FileInputStream(downloadedFile.absoluteFile))
+            while ((bufferedInputStream.read(brr, 0, brr.size).also { len = it }) != -1) {
+                outputStream?.write(brr, 0, len)
+            }
+            outputStream?.flush()
+            bufferedInputStream.close()
+        }
+    }
+}
+
+fun copyDataToTempFile(context: Context, assetName: String, assetData: ByteArray): Uri {
     val file = File(context.cacheDir, assetName)
     file.setWritable(true)
     file.writeBytes(assetData)
@@ -95,3 +129,4 @@ fun Context.startFileShareIntent(path: String) {
 
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"
 private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "temp_video_attachment.mp4"
+private const val DATA_COPY_BUFFER_SIZE = 2048

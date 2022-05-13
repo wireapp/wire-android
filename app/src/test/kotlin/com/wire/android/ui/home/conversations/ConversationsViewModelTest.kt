@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -319,6 +320,9 @@ class ConversationsViewModelTest {
         lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
         @MockK
+        lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
+
+        @MockK
         lateinit var getSelfUserTeam: GetSelfTeamUseCase
 
         @MockK
@@ -345,6 +349,7 @@ class ConversationsViewModelTest {
                 deleteMessage = deleteMessage,
                 dispatchers = TestDispatcherProvider(),
                 markMessagesAsNotified = markMessagesAsNotified,
+                updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
                 getSelfUserTeam = getSelfUserTeam
             )
         }

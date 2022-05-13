@@ -8,9 +8,9 @@ data class ConversationViewState(
     val conversationName: String = "",
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
     val messages: List<MessageViewWrapper> = emptyList(),
-    val onError: ConversationErrors? = null,
+    val onSnackbarMessage: ConversationSnackbarMessages? = null,
     val messageText: String = "",
-    val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden
+    val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
     val userTeam: Team? = null
 )
 

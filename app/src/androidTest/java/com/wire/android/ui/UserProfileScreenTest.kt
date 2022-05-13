@@ -94,10 +94,6 @@ class UserProfileScreenTest {
         title.assertIsDisplayed()
         availableButton.onSibling().performClick()
        val availableText = composeTestRule.onNodeWithText("Set yourself to Available")
-        /*        composeTestRule.waitForExecution {
-                   availableText.assertIsDisplayed()
-               }
-        okButton.performClick()*/
         availableText.assertDoesNotExist()
     }
 
@@ -121,7 +117,9 @@ class UserProfileScreenTest {
         title.assertIsDisplayed()
         noneButton.onSibling().performClick()
         val noneText = composeTestRule.onNodeWithText("No status Set")
-        noneText.assertIsDisplayed()
+        composeTestRule.waitForExecution {
+            noneText.assertIsDisplayed()
+        }
         okButton.performClick()
         noneText.assertDoesNotExist()
         noneButton.onSibling().performClick()  // check status is set
@@ -133,10 +131,14 @@ class UserProfileScreenTest {
         title.assertIsDisplayed()
         awayButton.onSibling().performClick()
         val awayText = composeTestRule.onNodeWithText("Set yourself to Away")
-        awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains("Do not display this " +
-                "information again")
+        composeTestRule.waitForExecution {
+            awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains("Do not display this " +
+                    "information again")
+        }
         okButton.performClick()
         awayText.assertDoesNotExist()
+        availableButton.onSibling().performClick()
+        okButton.performClick()
         awayButton.onSibling().performClick()
         awayText.assertDoesNotExist()
     }

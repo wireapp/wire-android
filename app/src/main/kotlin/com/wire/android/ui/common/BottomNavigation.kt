@@ -46,9 +46,9 @@ fun WireBottomNavigationBar(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp),
+            .height(MaterialTheme.wireDimensions.bottomNavigationHeight),
         color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 8.dp,
+        shadowElevation = MaterialTheme.wireDimensions.bottomNavigationHeight,
     ) {
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             items.forEachIndexed { index, item ->
@@ -60,9 +60,9 @@ fun WireBottomNavigationBar(
                         top = MaterialTheme.wireDimensions.bottomNavigationVerticalPadding,
                         bottom = MaterialTheme.wireDimensions.bottomNavigationVerticalPadding,
                         start = if (index == 0) MaterialTheme.wireDimensions.bottomNavigationHorizontalPadding
-                                else MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding,
+                        else MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding,
                         end = if (index == items.lastIndex) MaterialTheme.wireDimensions.bottomNavigationHorizontalPadding
-                              else MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding
+                        else MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding
                     )
 
                 WireBottomNavigationItem(
@@ -91,7 +91,7 @@ fun RowScope.WireBottomNavigationItem(
     modifier: Modifier = Modifier,
     onItemClick: (WireBottomNavigationItemData) -> Unit
 ) {
-    val backgroundColor = if(selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+    val backgroundColor = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onBackground
     Box(
         modifier

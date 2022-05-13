@@ -12,6 +12,7 @@
     <string name="label_get_started">Get Started</string>
     <string name="label_remove">Remove</string>
     <string name="label_register">Register</string>
+    <string name="label_add_device">Add Device</string>
     <string name="label_learn_more">Learn more</string>
     <string name="label_removing">Removing...</string>
     <string name="label_logging_in">Logging in...</string>
@@ -107,8 +108,8 @@
     <string name="remove_device_invalid_password">Invalid password</string>
 
     <!-- Register Device -->
-    <string name="register_device_title">Register a Device</string>
-    <string name="register_device_text">Register your device by entering your password to start using Wire.</string>
+    <string name="register_device_title">Add this Device</string>
+    <string name="register_device_text">Enter your password to use Wire on this device.</string>
 
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Delete Message?</string>
@@ -118,6 +119,7 @@
 
     <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
+    <string name="deleted_message_text">Deleted message</string>
 
     <!-- Create Account -->
     <string name="create_personal_account_title">Create a Personal Account</string>
@@ -276,6 +278,10 @@
     <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Image could not be uploaded</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
+    <string name="error_conversation_sending_image">There was an error trying to send the image message. Please check your Internet connection and try again</string>
+    <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
+    <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
+    <string name="error_conversation_generic">There was an unknown error when trying to send the message</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>

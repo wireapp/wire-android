@@ -1,5 +1,6 @@
 package com.wire.android.ui.home
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -57,6 +58,12 @@ fun HomeDrawer(
     scope: CoroutineScope,
     viewModel: HomeViewModel
 ) {
+    BackHandler(enabled = drawerState.isOpen) {
+        scope.launch {
+            drawerState.close()
+        }
+    }
+
     Column(
         modifier = Modifier
             .padding(

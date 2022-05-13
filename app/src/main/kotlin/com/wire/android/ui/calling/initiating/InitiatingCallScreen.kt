@@ -27,7 +27,6 @@ import com.wire.android.ui.calling.controlButtons.CallOptionsControls
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -111,7 +110,7 @@ private fun InitiatingCallTopBar(
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
         title = String.EMPTY,
-        navigationIconType = NavigationIconType.Close,
+        navigationIconType = null,
         elevation = 0.dp,
         actions = { }
     )

@@ -1,6 +1,7 @@
 package com.wire.android.notification
 
 import com.wire.android.di.GetIncomingCallsUseCaseProvider
+import com.wire.android.appLogger
 import com.wire.android.di.GetNotificationsUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.extension.intervalFlow
@@ -83,6 +84,9 @@ class WireNotificationManager @Inject constructor(
                         if (sessions.userId.value == userId)
                             return sessions.userId
                     }
+                }
+                is GetAllSessionsResult.Failure.Generic -> {
+                    appLogger.e("get sessions failed ${it.genericFailure} ")
                 }
             }
         }

@@ -94,10 +94,6 @@ class UserProfileScreenTest {
         title.assertIsDisplayed()
         availableButton.onSibling().performClick()
        val availableText = composeTestRule.onNodeWithText("Set yourself to Available")
-        /*        composeTestRule.waitForExecution {
-                   availableText.assertIsDisplayed()
-               }
-        okButton.performClick()*/
         availableText.assertDoesNotExist()
     }
 
@@ -141,6 +137,8 @@ class UserProfileScreenTest {
         }
         okButton.performClick()
         awayText.assertDoesNotExist()
+        availableButton.onSibling().performClick()
+        okButton.performClick()
         awayButton.onSibling().performClick()
         awayText.assertDoesNotExist()
     }

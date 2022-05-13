@@ -6,6 +6,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -96,7 +97,7 @@ class RegisterDeviceTest {
     fun register_state_buttonDisabled() {
         title.assertIsDisplayed()
         registerText.assertTextEquals(text)
-        registerButton.assertIsDisplayed()
+        registerButton.assertIsDisplayed().assertIsNotEnabled()
         passwordField.onChildren()[1].performTextInput(PASSWORD)
         registerButton.assertIsEnabled()
     }

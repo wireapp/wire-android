@@ -7,8 +7,7 @@ enum class ConfigFields(val defaultValue: String) {
     API_BASE_URL(""""https://staging-nginz-https.zinfra.io""""),
     ACCOUNTS_URL(""""https://wire-account-staging.zinfra.io""""),
     WEB_SOCKET_URL(""""https://staging-nginz-ssl.zinfra.io/await?client=""""),
-    SUPPORT_URL(""""https://support.wire.com""""),
-    SENDER_ID(""""782078216207"""")
+    SUPPORT_URL(""""https://support.wire.com"""")
 }
 
 /**
@@ -26,8 +25,6 @@ object ClientConfig {
             ConfigFields.API_BASE_URL to """"https://prod-nginz-https.wire.com"""",
             ConfigFields.ACCOUNTS_URL to """"https://account.wire.com"""",
             ConfigFields.WEB_SOCKET_URL to """"https://prod-nginz-ssl.wire.com/await?client="""",
-            ConfigFields.SUPPORT_URL to """"https://support.wire.com"""",
-            ConfigFields.SENDER_ID to """"782078216207""""
-        )
+            ConfigFields.SUPPORT_URL to """"https://support.wire.com"""")
     )
 }

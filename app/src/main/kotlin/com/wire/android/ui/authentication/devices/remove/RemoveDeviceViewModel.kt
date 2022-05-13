@@ -7,12 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
@@ -91,7 +91,7 @@ class RemoveDeviceViewModel @Inject constructor(
                                 RegisterClientUseCase.RegisterClientParam.ClientWithToken(
                                     password = dialogStateVisible.password.text,
                                     capabilities = null,
-                                    senderId = BuildConfig.SENDER_ID
+                                    senderId = ServerConfig.DEFAULT.androidSenderId
                                 )
                             ).toRemoveDeviceError()
                         else

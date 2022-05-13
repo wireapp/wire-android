@@ -4,7 +4,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -13,14 +12,14 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
-import com.wire.kalium.logic.feature.client.RegisterClientResult
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
+import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @ExperimentalMaterialApi
 @HiltViewModel
@@ -72,7 +71,7 @@ open class LoginViewModel @Inject constructor(
             RegisterClientUseCase.RegisterClientParam.ClientWithToken(
                 password = password,
                 capabilities = capabilities,
-                senderId = BuildConfig.SENDER_ID
+                senderId = ServerConfig.DEFAULT.androidSenderId
             ))
     }
 

@@ -63,7 +63,8 @@ enum class NavigationItem(
     internal val primaryRoute: String,
     private val canonicalRoute: String = primaryRoute,
     open val content: @Composable (ContentParams) -> Unit,
-    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
+    val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation,
+    val screenMode: ScreenMode = ScreenMode.NONE
 ) {
     Welcome(
         primaryRoute = WELCOME,
@@ -195,7 +196,8 @@ enum class NavigationItem(
     OngoingCall(
         primaryRoute = ONGOING_CALL,
         canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
-        content = { OngoingCallScreen() }
+        content = { OngoingCallScreen() },
+        screenMode = ScreenMode.KEEP_ON
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
@@ -206,7 +208,8 @@ enum class NavigationItem(
     InitiatingCall(
         primaryRoute = INITIATING_CALL,
         canonicalRoute = "$INITIATING_CALL/{$EXTRA_CONVERSATION_ID}",
-        content = { InitiatingCallScreen() }
+        content = { InitiatingCallScreen() },
+        screenMode = ScreenMode.KEEP_ON
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
@@ -217,7 +220,8 @@ enum class NavigationItem(
     IncomingCall(
         primaryRoute = INCOMING_CALL,
         canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
-        content = { IncomingCallScreen() }
+        content = { IncomingCallScreen() },
+        screenMode = ScreenMode.WAKE_UP
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
@@ -292,3 +296,9 @@ data class ContentParams(
     val navBackStackEntry: NavBackStackEntry,
     val arguments: List<Any?> = emptyList()
 )
+
+enum class ScreenMode {
+    KEEP_ON,  // keep screen on while that NavigationItem is visible (i.e CallScreen)
+    WAKE_UP,  // wake up the device on navigating to that NavigationItem (i.e IncomingCall)
+    NONE      // do not wake up and allow device to sleep
+}

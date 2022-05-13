@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.GetIncomingCallsUseCaseProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -16,19 +15,13 @@ import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.configuration.GetServerConfigResult
 import com.wire.kalium.logic.configuration.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.ServerConfig
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -39,7 +32,6 @@ import javax.inject.Inject
 class WireActivityViewModel @Inject constructor(
     private val currentSessionUseCase: CurrentSessionUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
-    private val getIncomingCallsProvider: GetIncomingCallsUseCaseProvider.Factory,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager,
@@ -69,13 +61,6 @@ class WireActivityViewModel @Inject constructor(
         else -> NavigationItem.Welcome.getRouteWithArgs()
     }
 
-    private fun loadServerConfig(url: String) = runBlocking {
-        return@runBlocking when (val result = getServerConfigUseCase(url)) {
-            is GetServerConfigResult.Success -> result.serverConfig
-            else -> ServerConfig.DEFAULT
-        }
-    }
-
     fun handleDeepLink(intent: Intent) {
         intent.data?.let {
             with(deepLinkProcessor(it)) {
@@ -91,43 +76,40 @@ class WireActivityViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
-            // checking CurrentSession every minute, to subscribe/unsubscribe from the notifications
-            // according ot UserId changes
-            // TODO this intervalFlow is a temporary solution to have updated UserId,
-            // waiting for refactoring in kalium
-            val getUserIdFlow = intervalFlow(CHECK_USER_ID_FREQUENCY_MS)
-                .map {
-                    println("cyka emited")
-                    when (val result = currentSessionUseCase()) {
-                        is CurrentSessionResult.Success -> result.authSession.userId
-                        else -> null
-                    }
+        // checking CurrentSession every minute, to subscribe/unsubscribe from the notifications
+        // according ot UserId changes
+        // TODO this intervalFlow is a temporary solution to have updated UserId,
+        // waiting for refactoring in kalium
+        val getUserIdFlow = intervalFlow(CHECK_USER_ID_FREQUENCY_MS)
+            .map {
+                when (val result = currentSessionUseCase()) {
+                    is CurrentSessionResult.Success -> result.authSession.userId
+                    else -> null
                 }
-                // do nothing if UserId wasn't changed
-                .distinctUntilChanged()
-                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+            }
+            // do nothing if UserId wasn't changed
+            .distinctUntilChanged()
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
-            launch { notificationManager.observeMessageNotifications(getUserIdFlow) }
-            launch { observeIncomingCalls(getUserIdFlow) }
+        viewModelScope.launch { notificationManager.observeMessageNotifications(getUserIdFlow) }
+        viewModelScope.launch {
+            notificationManager.observeIncomingCalls(getUserIdFlow) { goToIncomingCall(it.conversationId) }
         }
     }
 
-    private suspend fun observeIncomingCalls(userIdFlow: Flow<UserId?>) {
-        userIdFlow
-            .flatMapLatest {
-                if (it == null) flowOf(listOf())
-                else getIncomingCallsProvider.create(it).getCalls()
-            }
-            .collect { calls ->
-                if (calls.isNotEmpty()) {
-                    navigationManager.navigate(
-                        command = NavigationCommand(
-                            destination = NavigationItem.IncomingCall.getRouteWithArgs(listOf(calls.first().conversationId))
-                        )
-                    )
-                }
-            }
+    private fun loadServerConfig(url: String) = runBlocking {
+        return@runBlocking when (val result = getServerConfigUseCase(url)) {
+            is GetServerConfigResult.Success -> result.serverConfig
+            else -> ServerConfig.DEFAULT
+        }
+    }
+
+    private suspend fun goToIncomingCall(conversationId: ConversationId) {
+        navigationManager.navigate(
+            command = NavigationCommand(
+                destination = NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))
+            )
+        )
     }
 
     companion object {

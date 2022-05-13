@@ -32,8 +32,13 @@ class CallRinger @Inject constructor(private val context: Context) {
     }
 
     fun stop() {
-        if(mediaPlayer?.isPlaying == true)
-            mediaPlayer?.stop()
-        mediaPlayer?.release()
+        try {
+            if(mediaPlayer?.isPlaying == true)
+                mediaPlayer?.stop()
+        } catch (e: IllegalStateException) {
+            //ignore for now
+        } finally {
+            mediaPlayer?.release()
+        }
     }
 }

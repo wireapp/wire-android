@@ -3,18 +3,22 @@ package com.wire.android.notification
 import com.wire.android.di.GetIncomingCallsUseCaseProvider
 import com.wire.android.di.GetNotificationsUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.take
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,7 +34,7 @@ class WireNotificationManager @Inject constructor(
     /**
      * Sync all the Pending events, fetch Message notifications from DB once and show it.
      * Can be used in Services (e.g., after receiving FCM)
-     * @param userId QualifiedID of User that need to check Notifications for
+     * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         val userId = getQualifiedIDFromUserId(userId = userIdValue)
@@ -42,11 +46,23 @@ class WireNotificationManager @Inject constructor(
     }
 
     private suspend fun fetchAndShowCallNotificationsOnce(userId: QualifiedID) {
-        val callsList = getIncomingCallsProvider.create(userId)
-            .getCalls()
-            .first()
-
-        callsManager.handleCalls(callsList, userId)
+        //TODO for now GetIncomingCallsUseCase() returns valid data not from the first try.
+        // so it's possible to have scenario, when FCM comes informing us that there is a Call,
+        // but we don't get it from the first GetIncomingCallsUseCase() call.
+        // To cover that case we have this `intervalFlow().take(10)`
+        // to try get incoming calls 10 times, if it returns nothing we assume there is no incoming call
+        intervalFlow(1000L, 0L)
+            .map {
+                getIncomingCallsProvider.create(userId)
+                    .getCalls()
+                    .first()
+            }
+            .take(10)
+            .distinctUntilChanged()
+            .collect { callsList ->
+                println("cyka collecting $callsList")
+                callsManager.handleNotifications(callsList, userId)
+            }
     }
 
     private suspend fun fetchAndShowMessageNotificationsOnce(userId: QualifiedID) {
@@ -57,7 +73,7 @@ class WireNotificationManager @Inject constructor(
         messagesManager.handleNotification(listOf(), notificationsList, userId)
     }
 
-    // todo to be deleted as soon as we get the qualifiedID from the notification payload
+    // todo to be deleted as soon as we get the qualifiedID from the FCM payload
     @Suppress("NestedBlockDepth")
     private fun getQualifiedIDFromUserId(userId: String): QualifiedID {
         coreLogic.getAuthenticationScope().getSessions().let {
@@ -71,6 +87,30 @@ class WireNotificationManager @Inject constructor(
             }
         }
         return QualifiedID(userId, "wire.com")
+    }
+
+    /**
+     * Infinitely listen for the new IncomingCalls, notify about it and do additional actions if needed.
+     * Can be used for listening for the Notifications when the app is running.
+     * @param userIdFlow Flow of QualifiedID of User
+     * @param alsoDoOnCall additional actions that should be done on IncomingCall (i.e. go to IncomingCall Screen)
+     */
+    suspend fun observeIncomingCalls(userIdFlow: Flow<UserId?>, alsoDoOnCall: suspend (Call) -> Unit) {
+        userIdFlow
+            .flatMapLatest { userId ->
+                println("cyka observing $userId")
+                if (userId == null) {
+                    flowOf(listOf())
+                } else {
+                    getIncomingCallsProvider.create(userId).getCalls()
+                }
+                    .map { list -> list to userId }
+            }
+            .collect { (calls, userId) ->
+                println("cyka collected calls $calls")
+                callsManager.handleNotifications(calls, userId)
+                if (calls.isNotEmpty()) alsoDoOnCall(calls.first())
+            }
     }
 
     /**

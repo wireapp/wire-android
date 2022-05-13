@@ -95,7 +95,7 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
     ExperimentalMaterialApi::class,
     ExperimentalComposeUiApi::class
 )
-fun fullScreenCallPendingIntent(context: Context): PendingIntent {
+fun fullScreenCallPendingIntent(context: Context, conversationId: String): PendingIntent {
     //TODO
     val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -105,7 +105,7 @@ fun fullScreenCallPendingIntent(context: Context): PendingIntent {
         context,
         FULL_SCREEN_REQUEST_CODE,
         intent,
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        PendingIntent.FLAG_IMMUTABLE
     )
 }
 

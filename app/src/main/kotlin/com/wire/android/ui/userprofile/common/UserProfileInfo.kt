@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
@@ -146,4 +147,19 @@ fun UserProfileInfo(
 sealed class EditableState {
     object NotEditable : EditableState()
     class IsEditable(val onEditClick: () -> Unit) : EditableState()
+}
+
+
+@Preview
+@Composable
+private fun UserProfileInfoPreview() {
+    UserProfileInfo(
+        isLoading = false,
+        editableState = EditableState.NotEditable,
+        userName = "userName",
+        avatarAsset = null,
+        fullName = "fullName",
+        onUserProfileClick = {},
+        teamName = "Wire",
+    )
 }

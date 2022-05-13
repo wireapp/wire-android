@@ -6,6 +6,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -58,13 +59,13 @@ class RegisterDeviceTest {
         }
     }
 
-    val title = composeTestRule.onNodeWithText("Register a Device")
-    val registerText = composeTestRule.onNode(hasTestTag("register text"))
+    val title = composeTestRule.onNodeWithText("Add this Device")
+    val registerText = composeTestRule.onNode(hasTestTag("registerText"))
     val passwordField = composeTestRule.onNode(hasTestTag("password field"))
-    val registerButton = composeTestRule.onNode(hasTestTag("register button"))
+    val registerButton = composeTestRule.onNode(hasTestTag("registerButton"))
     val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"), useUnmergedTree = true)
 
-    val text = "Register your device by entering your password to start using Wire."
+    val text = "Enter your password to use Wire on this device."
 
     @Test
     fun register_device_success() {
@@ -96,7 +97,7 @@ class RegisterDeviceTest {
     fun register_state_buttonDisabled() {
         title.assertIsDisplayed()
         registerText.assertTextEquals(text)
-        registerButton.assertIsDisplayed()
+        registerButton.assertIsDisplayed().assertIsNotEnabled()
         passwordField.onChildren()[1].performTextInput(PASSWORD)
         registerButton.assertIsEnabled()
     }

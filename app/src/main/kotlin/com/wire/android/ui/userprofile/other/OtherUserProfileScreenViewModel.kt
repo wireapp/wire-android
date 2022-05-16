@@ -23,7 +23,6 @@ import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversatio
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
@@ -37,7 +36,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
-    var errorState: ErrorState? by mutableStateOf(null)
 
     private val userId = UserId(
         value = savedStateHandle.get<String>(EXTRA_USER_ID)!!,
@@ -50,7 +48,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = getUserInfo(userId)) {
                 is GetUserInfoResult.Failure -> {
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
-                    errorState = ErrorState.LoadUserInformationError()
+                    state = state.copy(errorState = ErrorState.LoadUserInformationError())
                 }
                 is GetUserInfoResult.Success -> loadViewState(result.otherUser)
             }
@@ -66,7 +64,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             teamName = otherUser.team ?: String.EMPTY,
             email = otherUser.email ?: String.EMPTY,
             phone = otherUser.phone ?: String.EMPTY,
-            connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus()
+            connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus(),
+            errorState = null
         )
     }
 
@@ -90,7 +89,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> {
                     appLogger.d(("Couldn't send a connect request to user $userId"))
-                    errorState = ErrorState.ConnectionRequestError()
+                    state = state.copy(errorState = ErrorState.ConnectionRequestError())
                 }
                 is SendConnectionRequestResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.NotConnected(true))
@@ -106,12 +105,4 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-}
-
-/**
- * We are adding a [randomEventIdentifier] as [UUID], so the error can be discarded every time after being generated.
- */
-sealed class ErrorState(private val randomEventIdentifier: UUID) {
-    class ConnectionRequestError : ErrorState(UUID.randomUUID())
-    class LoadUserInformationError : ErrorState(UUID.randomUUID())
 }

@@ -31,19 +31,21 @@ class WireNotificationManager @Inject constructor(
      * @param userId QualifiedID of User that need to check Notifications for
      */
     suspend fun fetchAndShowMessageNotificationsOnce(userIdValue: String) {
-        val userId = getQualifiedIDFromUserId(userId = userIdValue)
-        coreLogic.getSessionScope(userId).syncPendingEvents()
-
-        val notificationsList = getNotificationProvider.create(userId)
-            .getNotifications()
-            .first()
-
-        notificationManager.handleNotification(listOf(), notificationsList, userId)
+        checkifUserIsAuthenticated(userId = userIdValue)?.let { userId ->
+            coreLogic.getSessionScope(userId).syncPendingEvents()
+            val notificationsList = getNotificationProvider.create(userId)
+                .getNotifications()
+                .first()
+            notificationManager.handleNotification(listOf(), notificationsList, userId)
+        }
     }
 
     // todo to be deleted as soon as we get the qualifiedID from the notification payload
+    /**
+     * return the userId if the user is authenticated and null otherwise
+     */
     @Suppress("NestedBlockDepth")
-    private fun getQualifiedIDFromUserId(userId: String): QualifiedID {
+    private fun checkifUserIsAuthenticated(userId: String): QualifiedID? {
         coreLogic.getAuthenticationScope().getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
@@ -57,7 +59,7 @@ class WireNotificationManager @Inject constructor(
                 }
             }
         }
-        return QualifiedID(userId, "wire.com")
+        return null
     }
 
     /**

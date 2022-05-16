@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -184,23 +185,27 @@ internal fun MessageAsset(
                         },
                         style = MaterialTheme.wireTypography.subline01
                     )
-
-                    // Extra download status icon
-                    when (assetDownloadStatus) {
-                        IN_PROGRESS -> WireCircularProgressIndicator(
-                            progressColor = MaterialTheme.wireColorScheme.secondaryText,
-                            size = dimensions().spacing16x
-                        )
-                        DOWNLOADED -> Icon(
-                            painter = painterResource(id = R.drawable.ic_check_tick),
-                            contentDescription = stringResource(R.string.content_description_check),
-                            modifier = Modifier.size(dimensions().wireIconButtonSize),
-                            tint = MaterialTheme.wireColorScheme.secondaryText
-                        )
-                    }
+                    addExtraDownloadStatusIcon(assetDownloadStatus)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun addExtraDownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus) {
+    return when (assetDownloadStatus) {
+        IN_PROGRESS -> WireCircularProgressIndicator(
+            progressColor = MaterialTheme.wireColorScheme.secondaryText,
+            size = dimensions().spacing16x
+        )
+        DOWNLOADED -> Icon(
+            painter = painterResource(id = R.drawable.ic_check_tick),
+            contentDescription = stringResource(R.string.content_description_check),
+            modifier = Modifier.size(dimensions().wireIconButtonSize),
+            tint = MaterialTheme.wireColorScheme.secondaryText
+        )
+        else -> {}
     }
 }
 

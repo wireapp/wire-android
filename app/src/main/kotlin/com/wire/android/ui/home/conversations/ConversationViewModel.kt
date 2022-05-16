@@ -166,7 +166,6 @@ class ConversationViewModel @Inject constructor(
 
     @Suppress("MagicNumber")
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
-        val sizeOf1MB = 1024 * 1024
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
@@ -188,10 +187,13 @@ class ConversationViewModel @Inject constructor(
                             }
                         }
                         AttachmentType.GENERIC_FILE -> {
+                            // The max limit for sending assets changes between user types. Currently, is25MB for free users, and 100MB for
+                            // users that belong to a team
                             val assetLimitInBytes = getAssetLimitInBytes()
-                            if (rawContent.size > assetLimitInBytes)
+                            val sizeOf1MB = 1024 * 1024
+                            if (rawContent.size > assetLimitInBytes) {
                                 onSnackbarMessage(ErrorMaxAssetSize(assetLimitInBytes.div(sizeOf1MB)))
-                            else {
+                            } else {
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,
                                     assetRawData = attachmentBundle.rawContent,
@@ -209,16 +211,25 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun downloadAsset(messageId: String) {
+    // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
+    // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
+    fun downloadOrFetchAsset(messageId: String) {
         viewModelScope.launch {
-            if (!isAssetDownloaded(messageId))
+            val assetMessage = conversationViewState.messages.firstOrNull {
+                it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
+            }
+
+            val (isAssetDownloaded, assetName) = (assetMessage?.messageContent as AssetMessage).run {
+                (downloadStatus == DOWNLOADED || downloadStatus == IN_PROGRESS) to assetName
+            }
+
+            if (!isAssetDownloaded)
                 updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
 
             val result = getRawAssetData(conversationId, messageId)
             updateAssetMessageDownloadStatus(if (result != null) DOWNLOADED else FAILED, conversationId, messageId)
 
             if (result != null) {
-                val assetName = getAssetName(messageId)
                 showOnAssetDownloadedDialog(assetName, result)
             }
         }
@@ -232,16 +243,6 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Hidden)
     }
 
-    private fun isAssetDownloaded(messageId: String): Boolean {
-        return conversationViewState.messages.firstOrNull {
-            it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
-        }?.run {
-            (messageContent as AssetMessage).downloadStatus.run {
-                this == DOWNLOADED || this == IN_PROGRESS
-            }
-        } ?: false
-    }
-
     private fun getAssetLimitInBytes(): Int {
         // Users with a team attached have larger asset sending limits than default users
         return conversationViewState.userTeam?.run {
@@ -252,15 +253,12 @@ class ConversationViewModel @Inject constructor(
     fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) {
         viewModelScope.launch {
             // We need to reset the onSnackbarMessage state so that it doesn't show up again when going -> background -> resume back
+            // The delay added, is to ensure the snackbar message will have enough time to be shown before it is reset to null
             conversationViewState = conversationViewState.copy(onSnackbarMessage = msgCode)
             delay(SNACKBAR_MESSAGE_DELAY)
             conversationViewState = conversationViewState.copy(onSnackbarMessage = null)
         }
     }
-
-    private fun getAssetName(messageId: String): String? = conversationViewState.messages.firstOrNull {
-        it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
-    }?.run { (messageContent as AssetMessage).assetName }
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
         if (isMyMessage) {

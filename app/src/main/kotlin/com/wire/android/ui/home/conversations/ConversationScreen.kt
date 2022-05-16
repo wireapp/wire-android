@@ -30,7 +30,6 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingImage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
-import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.SNACKBAR_MESSAGE_DELAY
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
@@ -40,7 +39,6 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -53,7 +51,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onMessageChanged = conversationViewModel::onMessageChanged,
         onSendButtonClicked = conversationViewModel::sendMessage,
         onSendAttachment = conversationViewModel::sendAttachmentMessage,
-        onDownloadAsset = conversationViewModel::downloadAsset,
+        onDownloadAsset = conversationViewModel::downloadOrFetchAsset,
         onImageFullScreenMode = conversationViewModel::navigateToGallery,
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
@@ -61,7 +59,12 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onSnackbarMessage = conversationViewModel::onSnackbarMessage
     )
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
-    DownloadedAssetDialog(conversationViewModel = conversationViewModel)
+    DownloadedAssetDialog(
+        conversationViewState = conversationViewModel.conversationViewState,
+        onFileSaved = conversationViewModel::onFileSaved,
+        hideOnAssetDownloadedDialog = conversationViewModel::hideOnAssetDownloadedDialog,
+        onOpenFileError = conversationViewModel::onOpenFileError
+    )
 }
 
 @Composable
@@ -171,13 +174,13 @@ private fun ConversationScreenContent(
         lazyListState.animateScrollToItem(0)
     }
 
-    conversationState.onSnackbarMessage?.let { msgCode ->
-        val (message, actionLabel) = getSnackbarMessage(msgCode)
+    conversationState.onSnackbarMessage?.let { messageCode ->
+        val (message, actionLabel) = getSnackbarMessage(messageCode)
         LaunchedEffect(conversationState.onSnackbarMessage) {
             val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(message = message, actionLabel = actionLabel)
             when {
                 // Show downloads folder when clicking on Snackbar cta button
-                msgCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
+                messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
                     context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
                 }
             }

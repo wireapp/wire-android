@@ -40,7 +40,7 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    // todo to be deleted as soon as we get the qualifiedID from the notification payload
+    // TODO: to be changed as soon as we get the qualifiedID from the notification payload
     /**
      * return the userId if the user is authenticated and null otherwise
      */

@@ -88,6 +88,9 @@ class RemoveDeviceScreenTest {
         hidePassword.performClick()
         passwordField.onChildren()[1].shouldNotBeEqualTo(PASSWORD)
         removeButton.performClick()
+        composeTestRule.waitForExecution {
+            composeTestRule.onNodeWithText(invalidPasswordText).assertDoesNotExist()
+        }
     }
 
     @Test

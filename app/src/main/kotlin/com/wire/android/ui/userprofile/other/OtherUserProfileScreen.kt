@@ -70,7 +70,7 @@ fun OtherProfileScreenContent(
     val snackbarHostState = remember { SnackbarHostState() }
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
 
-    handleSuccessMessages(snackbarHostState, state)
+    handleConnectionStatus(snackbarHostState, state.connectionStatus)
     handleErrorMessages(snackbarHostState, errorState)
 
     Scaffold(
@@ -240,15 +240,17 @@ fun OtherUserProfileTopBar(
 }
 
 @Composable
-private fun handleSuccessMessages(
+private fun handleConnectionStatus(
     snackbarHostState: SnackbarHostState,
-    state: OtherUserProfileState
+    connectionStatus: ConnectionStatus
 ) {
     val requestSentMessage = stringResource(id = R.string.connection_request_sent)
-    LaunchedEffect(state.connectionStatus) {
-        when (val status = state.connectionStatus) {
-            is ConnectionStatus.NotConnected -> if (status.isConnectionRequestPending) snackbarHostState.showSnackbar(requestSentMessage)
-            else -> appLogger.d("Not defined handler for $status")
+    LaunchedEffect(connectionStatus) {
+        when (connectionStatus) {
+            is ConnectionStatus.NotConnected -> if (connectionStatus.isConnectionRequestPending) {
+                snackbarHostState.showSnackbar(requestSentMessage)
+            }
+            else -> appLogger.d("Not defined handler for $connectionStatus")
         }
     }
 }

@@ -61,7 +61,7 @@ class WireNotificationManager @Inject constructor(
             .take(10)
             .distinctUntilChanged()
             .collect { callsList ->
-                println("cyka collecting $callsList")
+                println("cyka once: collecting $callsList")
                 callsManager.handleNotifications(callsList, userId)
             }
     }
@@ -111,8 +111,8 @@ class WireNotificationManager @Inject constructor(
                     .map { list -> list to userId }
             }
             .collect { (calls, userId) ->
-                println("cyka collected calls $calls")
-                callsManager.handleNotifications(calls, userId)
+//                println("cyka observing calls $calls")
+                callsManager.handleNotifications(calls, userId, false)
                 if (calls.isNotEmpty()) alsoDoOnCall(calls.first())
             }
     }

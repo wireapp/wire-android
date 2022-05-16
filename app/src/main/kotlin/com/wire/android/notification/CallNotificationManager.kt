@@ -28,18 +28,18 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
 
     private val notificationManager = NotificationManagerCompat.from(context)
 
-    fun handleNotifications(calls: List<Call>, userId: QualifiedID?) {
-        println("cyka handleCalls : $calls")
+    fun handleNotifications(calls: List<Call>, userId: QualifiedID?, ongoing: Boolean = true) {
+        println("cyka handleCalls : $ongoing ${calls.size}")
         if (calls.isEmpty() || userId == null) hideCallNotification()
-        else showIncomingCallNotification(calls.first(), userId)
+        else showIncomingCallNotification(calls.first(), userId, ongoing)
     }
 
     fun hideCallNotification() = notificationManager.cancel(NOTIFICATION_ID)
 
-    private fun showIncomingCallNotification(call: Call, userId: QualifiedID) {
+    private fun showIncomingCallNotification(call: Call, userId: QualifiedID, ongoing: Boolean) {
         createNotificationChannelIfNeeded()
 
-        notificationManager.notify(NOTIFICATION_ID, getNotification(call, userId))
+        notificationManager.notify(NOTIFICATION_ID, getNotification(call, userId, ongoing))
     }
 
     private fun createNotificationChannelIfNeeded() {
@@ -53,16 +53,16 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         }
     }
 
-    private fun getNotification(call: Call, userId: QualifiedID): Notification {
+    private fun getNotification(call: Call, userId: QualifiedID, ongoing: Boolean): Notification {
         val conversationIdString = call.conversationId.toString()
         val userIdString = userId.toString()
         val title = getNotificationTitle(call)
         val content = getNotificationBody(call)
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getCompatNotification(title, content, conversationIdString, userIdString)
+            getCompatNotification(title, content, conversationIdString, userIdString, ongoing)
         } else {
-            getOldNotification(title, content, conversationIdString, userIdString)
+            getOldNotification(title, content, conversationIdString, userIdString, ongoing)
         }
     }
 
@@ -89,7 +89,8 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         title: String,
         content: String,
         conversationIdString: String,
-        userIdString: String
+        userIdString: String,
+        ongoing: Boolean
     ) = Notification.Builder(context)
         .setContentTitle(title)
         .setContentText(content)
@@ -97,7 +98,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         .setActions(getDeclineCallAction(conversationIdString, userIdString))
         .setActions(getOpenCallAction(conversationIdString))
         .setPriority(Notification.PRIORITY_MAX)
-        .setOngoing(true)
+        .setOngoing(ongoing)
         .setContentIntent(fullScreenCallPendingIntent(context, conversationIdString))
         .setFullScreenIntent(fullScreenCallPendingIntent(context, conversationIdString), true)
         .setAutoCancel(true)
@@ -107,13 +108,14 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         title: String,
         content: String,
         conversationIdString: String,
-        userIdString: String
+        userIdString: String,
+        ongoing: Boolean
     ) = NotificationCompat.Builder(context, CHANNEL_ID)
         .setContentTitle(title)
         .setContentText(content)
         .addAction(getDeclineCallCompatAction(conversationIdString, userIdString))
         .addAction(getOpenCallCompatAction(conversationIdString))
-        .setOngoing(true)
+        .setOngoing(ongoing)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setSmallIcon(R.drawable.notification_icon_small)
         .setContentIntent(fullScreenCallPendingIntent(context, conversationIdString))

@@ -69,7 +69,9 @@ class IncomingCallViewModel @Inject constructor(
                         else ONO_ON_ONE_RINGING_TIME
 
                         delay(delayTimeMs)
-                        stopRinging()
+
+                        println("cyka incoming stopping by time")
+                        onCallClosed()
                     }
                     .collect()
             }
@@ -80,20 +82,22 @@ class IncomingCallViewModel @Inject constructor(
         allCalls().collect {
             val currentCall = it.firstOrNull { call -> call.conversationId == conversationId }
 
-            println("cyka111 status: ${currentCall?.status}")
+            println("cyka incoming status: ${currentCall?.status}")
             when (currentCall?.status) {
                 CallStatus.CLOSED -> onCallClosed()
-                else -> print("DO NOTHING")
+                else -> println("DO NOTHING")
             }
         }
     }
 
     private fun onCallClosed() {
+        println("cyka incoming onCallClosed")
         stopRinging()
         viewModelScope.launch { navigationManager.navigateBack() }
     }
 
     fun declineCall() {
+        println("cyka incoming decline")
         stopRinging()
         viewModelScope.launch {
             rejectCall(conversationId = conversationId)
@@ -102,6 +106,7 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     fun acceptCall() {
+        println("cyka incoming accept")
         stopRinging()
         viewModelScope.launch {
             acceptCall(conversationId = conversationId)
@@ -116,6 +121,7 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     private fun stopRinging() {
+        println("cyka incoming stop()")
         callRinger.stop()
         notificationManager.hideCallNotification()
     }

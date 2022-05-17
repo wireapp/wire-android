@@ -31,34 +31,38 @@ class WireNotificationManager @Inject constructor(
      * @param userId QualifiedID of User that need to check Notifications for
      */
     suspend fun fetchAndShowMessageNotificationsOnce(userIdValue: String) {
-        val userId = getQualifiedIDFromUserId(userId = userIdValue)
-        coreLogic.getSessionScope(userId).syncPendingEvents()
-
-        val notificationsList = getNotificationProvider.create(userId)
-            .getNotifications()
-            .first()
-
-        notificationManager.handleNotification(listOf(), notificationsList, userId)
+        checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
+            coreLogic.getSessionScope(userId).syncPendingEvents()
+            val notificationsList = getNotificationProvider.create(userId)
+                .getNotifications()
+                .first()
+            notificationManager.handleNotification(listOf(), notificationsList, userId)
+        }
     }
 
-    // todo to be deleted as soon as we get the qualifiedID from the notification payload
+    // TODO: to be changed as soon as we get the qualifiedID from the notification payload
+    /**
+     * return the userId if the user is authenticated and null otherwise
+     */
     @Suppress("NestedBlockDepth")
-    private fun getQualifiedIDFromUserId(userId: String): QualifiedID {
+    private fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
         coreLogic.getAuthenticationScope().getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
                     for (sessions in it.sessions) {
                         if (sessions.userId.value == userId)
-                            return sessions.userId
+                            return@let sessions.userId
                     }
+                    null
                 }
                 is GetAllSessionsResult.Failure.Generic -> {
                     appLogger.e("get sessions failed ${it.genericFailure} ")
+                    null
                 }
+                GetAllSessionsResult.Failure.NoSessionFound -> null
             }
         }
-        return QualifiedID(userId, "wire.com")
-    }
+
 
     /**
      * Infinitely listen for the new Message notifications and show it.

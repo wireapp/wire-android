@@ -71,7 +71,7 @@ fun SearchPeopleRouter(
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = onAddContactToGroup,
                                 onRemoveFromGroup = onRemoveContactFromGroup,
-                                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, true)) },
+                                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it)) },
                                 onNewGroupClicked = openNewGroup
                             )
                         }
@@ -89,7 +89,7 @@ fun SearchPeopleRouter(
                                 onAddToGroup = onAddContactToGroup,
                                 onRemoveFromGroup = onRemoveContactFromGroup,
                                 onOpenUserProfile = { searchContact ->
-                                    onOpenUserProfile(SearchOpenUserProfile(searchContact.contact, searchContact.internal))
+                                    onOpenUserProfile(SearchOpenUserProfile(searchContact.contact))
                                 },
                                 onNewGroupClicked = openNewGroup
                             )

@@ -34,7 +34,7 @@ import com.wire.android.util.ui.UIText
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
-data class SearchOpenUserProfile(val contact: Contact, val internal: Boolean)
+data class SearchOpenUserProfile(val contact: Contact)
 
 @Composable
 fun SearchPeopleScreen(
@@ -53,7 +53,7 @@ fun SearchPeopleScreen(
         EmptySearchQueryScreen()
     } else {
         if (noneSearchSucceed) {
-            //TODO : all failed we want to display a general error
+            // TODO : all failed we want to display a general error
         } else {
             Column {
                 SearchResult(
@@ -102,8 +102,8 @@ private fun SearchResult(
                 contactSearchResult = knownContactSearchResult,
                 showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() },
-                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, true)) },
-                invalidQueryMessage = UIText.StringResource(R.string.label_no_results_found).asString(context)
+                invalidQueryMessage = UIText.StringResource(R.string.label_no_results_found).asString(context),
+                onOpenUserProfile = { contact -> onOpenUserProfile(SearchOpenUserProfile(contact)) },
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_public_wire) },
@@ -111,8 +111,8 @@ private fun SearchResult(
                 contactSearchResult = publicContactSearchResult,
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
-                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, false)) },
-                invalidQueryMessage = UIText.StringResource(R.string.label_no_results_found).asString(context)
+                invalidQueryMessage = UIText.StringResource(R.string.label_no_results_found).asString(context),
+                onOpenUserProfile = { externalUser -> onOpenUserProfile(SearchOpenUserProfile(externalUser)) }
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_federated_backends) },
@@ -120,8 +120,8 @@ private fun SearchResult(
                 contactSearchResult = federatedBackendResultContact,
                 showAllItems = searchPeopleScreenState.federatedBackendResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() },
-                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, false)) },
-                invalidQueryMessage = UIText.StringResource(R.string.label_no_results_found).asString(context)
+                invalidQueryMessage = UIText.StringResource(R.string.label_no_results_found).asString(context),
+                onOpenUserProfile = { federatedUser -> onOpenUserProfile(SearchOpenUserProfile(federatedUser)) }
             )
         }
         Divider()
@@ -287,6 +287,7 @@ private fun LazyListScope.externalSuccessItem(
                     userStatus = userStatus,
                     name = name,
                     label = label,
+                    isConnectedOrPending = contact.isConnectedOrPending,
                     searchQuery = searchQuery,
                     onRowItemClicked = { onOpenUserProfile(contact) },
                     onRowItemLongClicked = { }
@@ -323,7 +324,8 @@ fun LazyListScope.inProgressItem() {
                 .height(224.dp)
         ) {
             WireCircularProgressIndicator(
-                progressColor = Color.Black, modifier = Modifier.align(
+                progressColor = Color.Black,
+                modifier = Modifier.align(
                     Alignment.Center
                 )
             )

@@ -291,9 +291,6 @@
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">e-mail</string>
     <string name="phone_label">phone</string>
-    <string name="label_connect">Connect</string>
-    <string name="label_cancel_request">Cancel Request</string>
-    <string name="label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
 
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>
@@ -324,6 +321,13 @@
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
+
+    <!-- Connections -->
+    <string name="connection_label_connect">Connect</string>
+    <string name="connection_label_cancel_request">Cancel Request</string>
+    <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
+    <string name="connection_request_sent">Connection request sent</string>
+    <string name="connection_request_sent_error">Connection request could not be sent</string>
 
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>

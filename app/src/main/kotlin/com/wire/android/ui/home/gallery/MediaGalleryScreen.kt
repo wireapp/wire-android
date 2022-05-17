@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,7 +48,11 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                             }
                         )
                     },
-                    content = { MediaGalleryContent(mediaGalleryViewModel.imageAssetId) }
+                    content = { internalPadding ->
+                        Box(modifier = Modifier.padding(internalPadding)) {
+                            MediaGalleryContent(mediaGalleryViewModel.imageAssetId)
+                        }
+                    }
                 )
             }
         )
@@ -62,7 +67,8 @@ fun MediaGalleryContent(imageAsset: ImageAsset.PrivateAsset) {
         Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(colorsScheme().surface)) {
+            .background(colorsScheme().surface)
+    ) {
         ZoomableImage(
             imageAsset = imageAsset,
             contentDescription = stringResource(R.string.content_description_user_avatar),

@@ -118,8 +118,8 @@ private fun AvatarPickerContent(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-        ) {
-            Box(Modifier.fillMaxSize()) {
+        ) { internalPadding ->
+            Box(Modifier.fillMaxSize().padding(internalPadding)) {
                 Column(
                     Modifier
                         .fillMaxSize()

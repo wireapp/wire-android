@@ -69,9 +69,8 @@ fun NewGroupScreenContent(
                 elevation = 0.dp,
                 title = stringResource(id = R.string.new_group_title)
             )
-
-        }) {
-            ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+        }) { internalPadding ->
+            ConstraintLayout(modifier = Modifier.fillMaxSize().padding(internalPadding)) {
                 val (textField, text, button) = createRefs()
                 val keyboardController = LocalSoftwareKeyboardController.current
                 Text(

@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.devices.remove
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -68,12 +69,14 @@ private fun RemoveDeviceContent(
     onErrorDialogDismiss: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
-    Scaffold(topBar = { RemoveDeviceTopBar(elevation = lazyListState.appBarElevation()) }) {
-        when (state) {
-            is RemoveDeviceState.Success ->
-                RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
-            RemoveDeviceState.Loading ->
-                RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
+    Scaffold(topBar = { RemoveDeviceTopBar(elevation = lazyListState.appBarElevation()) }) { internalPadding ->
+        Box(modifier = Modifier.padding(internalPadding)) {
+            when (state) {
+                is RemoveDeviceState.Success ->
+                    RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
+                RemoveDeviceState.Loading ->
+                    RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
+            }
         }
         // TODO handle list loading errors
         if (state is RemoveDeviceState.Success && state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
@@ -136,11 +139,11 @@ private fun RemoveDeviceDialog(
     WireDialog(
         title = stringResource(R.string.remove_device_dialog_title),
         text = state.device.name + "\n" +
-            stringResource(
-                R.string.remove_device_id_and_time_label,
-                state.device.clientId.value,
-                state.device.registrationTime.formatMediumDateTime() ?: ""
-            ),
+                stringResource(
+                    R.string.remove_device_id_and_time_label,
+                    state.device.clientId.value,
+                    state.device.registrationTime.formatMediumDateTime() ?: ""
+                ),
         onDismiss = onDialogDismissHideKeyboard,
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDialogDismissHideKeyboard,

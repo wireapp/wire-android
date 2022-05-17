@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,7 +29,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxImageSize
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingAsset
 import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingImage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
@@ -124,20 +124,22 @@ private fun ConversationScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                     },
-                    content = {
-                        ConversationScreenContent(
-                            messages = messages,
-                            onMessageChanged = onMessageChanged,
-                            messageText = conversationViewState.messageText,
-                            onSendButtonClicked = onSendButtonClicked,
-                            onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
-                            onSendAttachment = onSendAttachment,
-                            onDownloadAsset = onDownloadAsset,
-                            onImageFullScreenMode = onImageFullScreenMode,
-                            conversationState = this,
-                            onMessageComposerError = onError,
-                            conversationScreenState = conversationScreenState
-                        )
+                    content = { internalPadding ->
+                        Box(modifier = Modifier.padding(internalPadding)) {
+                            ConversationScreenContent(
+                                messages = messages,
+                                onMessageChanged = onMessageChanged,
+                                messageText = conversationViewState.messageText,
+                                onSendButtonClicked = onSendButtonClicked,
+                                onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
+                                onSendAttachment = onSendAttachment,
+                                onDownloadAsset = onDownloadAsset,
+                                onImageFullScreenMode = onImageFullScreenMode,
+                                conversationState = this@with,
+                                onMessageComposerError = onError,
+                                conversationScreenState = conversationScreenState
+                            )
+                        }
                     }
                 )
             }

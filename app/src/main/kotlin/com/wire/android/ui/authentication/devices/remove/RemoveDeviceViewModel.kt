@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -65,8 +66,6 @@ class RemoveDeviceViewModel @Inject constructor(
     }
 
     fun onDialogDismissed() {
-        // it has to be 2-step process, first we have to hide the keyboard for the dialog's content and then dismiss the dialog
-        updateStateIfDialogVisible { it.copy(hideKeyboard = true) }
         updateStateIfDialogVisible { RemoveDeviceDialogState.Hidden }
     }
 
@@ -78,7 +77,7 @@ class RemoveDeviceViewModel @Inject constructor(
         updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(device = device)) }
     }
 
-    fun onRemoveConfirmed() {
+    fun onRemoveConfirmed(hideKeyboard: () -> Unit) {
         (state as? RemoveDeviceState.Success)?.let {
             (it.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
                 updateStateIfDialogVisible { it.copy(loading = true, removeEnabled = false) }
@@ -87,13 +86,19 @@ class RemoveDeviceViewModel @Inject constructor(
                     val deleteClientResult = deleteClientUseCase(deleteClientParam)
                     val removeDeviceError =
                         if (deleteClientResult is DeleteClientResult.Success)
-                            if(!validatePasswordUseCase(dialogStateVisible.password.text)) RemoveDeviceError.InvalidCredentialsError
-                            else registerClientUseCase(dialogStateVisible.password.text, null).toRemoveDeviceError()
+                            if (!validatePasswordUseCase(dialogStateVisible.password.text)) RemoveDeviceError.InvalidCredentialsError
+                            else registerClientUseCase(
+                                RegisterClientUseCase.RegisterClientParam.ClientWithToken(
+                                    password = dialogStateVisible.password.text,
+                                    capabilities = null,
+                                    senderId = BuildConfig.SENDER_ID
+                                )
+                            ).toRemoveDeviceError()
                         else
                             deleteClientResult.toRemoveDeviceError()
                     updateStateIfDialogVisible { it.copy(loading = false, error = removeDeviceError) }
                     if (removeDeviceError is RemoveDeviceError.None) {
-                        updateStateIfDialogVisible { it.copy(hideKeyboard = true) }
+                        hideKeyboard()
                         navigateToConvScreen()
                     }
                 }

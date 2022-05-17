@@ -13,7 +13,6 @@ import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
@@ -73,7 +72,6 @@ class LoginEmailViewModel @Inject constructor(
             }
         }
     }
-
 
     fun onUserIdentifierChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared

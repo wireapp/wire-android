@@ -1,11 +1,13 @@
 package com.wire.android.notification
 
+import com.wire.android.appLogger
 import com.wire.android.di.GetNotificationsUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -28,15 +30,39 @@ class WireNotificationManager @Inject constructor(
      * Can be used in Services (e.g., after receiving FCM)
      * @param userId QualifiedID of User that need to check Notifications for
      */
-    suspend fun fetchAndShowMessageNotificationsOnce(userId: UserId) {
-        coreLogic.getSessionScope(userId).syncPendingEvents()
-
-        val notificationsList = getNotificationProvider.create(userId)
-            .getNotifications()
-            .first()
-
-        notificationManager.handleNotification(listOf(), notificationsList, userId)
+    suspend fun fetchAndShowMessageNotificationsOnce(userIdValue: String) {
+        checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
+            coreLogic.getSessionScope(userId).syncPendingEvents()
+            val notificationsList = getNotificationProvider.create(userId)
+                .getNotifications()
+                .first()
+            notificationManager.handleNotification(listOf(), notificationsList, userId)
+        }
     }
+
+    // TODO: to be changed as soon as we get the qualifiedID from the notification payload
+    /**
+     * return the userId if the user is authenticated and null otherwise
+     */
+    @Suppress("NestedBlockDepth")
+    private fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
+        coreLogic.getAuthenticationScope().getSessions().let {
+            when (it) {
+                is GetAllSessionsResult.Success -> {
+                    for (sessions in it.sessions) {
+                        if (sessions.userId.value == userId)
+                            return@let sessions.userId
+                    }
+                    null
+                }
+                is GetAllSessionsResult.Failure.Generic -> {
+                    appLogger.e("get sessions failed ${it.genericFailure} ")
+                    null
+                }
+                GetAllSessionsResult.Failure.NoSessionFound -> null
+            }
+        }
+
 
     /**
      * Infinitely listen for the new Message notifications and show it.

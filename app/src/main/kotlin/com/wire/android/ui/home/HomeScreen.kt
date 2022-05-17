@@ -1,6 +1,5 @@
 package com.wire.android.ui.home
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
@@ -10,6 +9,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -65,8 +65,6 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 homeNavigationGraph = { HomeNavigationGraph(homeState = homeState, startScreen = startScreen) }
             )
         }
-
-        BackHandler(enabled = drawerState.isOpen) { closeDrawer() }
     }
 }
 
@@ -106,6 +104,7 @@ fun HomeContent(
         if (homeBottomSheetContent != null) {
             WireModalSheetLayout(
                 sheetState = homeBottomSheetState,
+                coroutineScope = rememberCoroutineScope(),
                 sheetContent = homeBottomSheetContent
             ) {
                 homeContent()

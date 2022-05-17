@@ -34,6 +34,7 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
     with(uiState) {
         MenuModalSheetLayout(
             sheetState = mediaGalleryScreenState.modalBottomSheetState,
+            coroutineScope = scope,
             menuItems = EditGalleryMenuItems(onDeleteMessage = {}),
             content = {
                 Scaffold(
@@ -57,7 +58,11 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
 fun MediaGalleryContent(imageAsset: ImageAsset.PrivateAsset) {
     val imageLoader = hiltViewModel<MediaGalleryViewModel>().wireSessionImageLoader
 
-    Box(Modifier.fillMaxWidth().fillMaxHeight().background(colorsScheme().surface)) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .background(colorsScheme().surface)) {
         ZoomableImage(
             imageAsset = imageAsset,
             contentDescription = stringResource(R.string.content_description_user_avatar),

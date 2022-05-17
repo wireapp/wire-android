@@ -24,7 +24,7 @@ fun NewConversationRouter() {
                     onClose = newConversationViewModel::close,
                     onAddContactToGroup = newConversationViewModel::addContactToGroup,
                     onRemoveContactFromGroup = newConversationViewModel::removeContactFromGroup,
-                    onOpenUserProfile = { newConversationViewModel.openUserProfile(it.contact, it.internal) },
+                    onOpenUserProfile = { newConversationViewModel.openUserProfile(it.contact) },
                     onScrollPositionChanged = newConversationViewModel::updateScrollPosition
                 )
             }

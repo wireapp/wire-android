@@ -30,7 +30,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
-data class SearchOpenUserProfile(val contact: Contact, val internal: Boolean)
+data class SearchOpenUserProfile(val contact: Contact)
 
 @Composable
 fun SearchPeopleScreen(
@@ -49,7 +49,7 @@ fun SearchPeopleScreen(
         EmptySearchQueryScreen()
     } else {
         if (noneSearchSucceed) {
-            //TODO : all failed we want to display a general error
+            // TODO : all failed we want to display a general error
         } else {
             Column {
                 SearchResult(
@@ -98,7 +98,7 @@ private fun SearchResult(
                 contactSearchResult = knownContactSearchResult,
                 showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() },
-                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, true)) },
+                onOpenUserProfile = { contact -> onOpenUserProfile(SearchOpenUserProfile(contact)) },
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_public_wire) },
@@ -106,7 +106,7 @@ private fun SearchResult(
                 contactSearchResult = publicContactSearchResult,
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
-                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, false)) }
+                onOpenUserProfile = { externalUser -> onOpenUserProfile(SearchOpenUserProfile(externalUser)) }
             )
             externalSearchResults(
                 searchTitle = { stringResource(R.string.label_federated_backends) },
@@ -114,7 +114,7 @@ private fun SearchResult(
                 contactSearchResult = federatedBackendResultContact,
                 showAllItems = searchPeopleScreenState.federatedBackendResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() },
-                onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it, false)) }
+                onOpenUserProfile = { federatedUser -> onOpenUserProfile(SearchOpenUserProfile(federatedUser)) }
             )
         }
         Divider()
@@ -270,6 +270,7 @@ private fun LazyListScope.externalSuccessItem(
                     userStatus = userStatus,
                     name = name,
                     label = label,
+                    isConnectedOrPending = contact.isConnectedOrPending,
                     searchQuery = searchQuery,
                     onRowItemClicked = { onOpenUserProfile(contact) },
                     onRowItemLongClicked = { }
@@ -306,7 +307,8 @@ fun LazyListScope.inProgressItem() {
                 .height(224.dp)
         ) {
             WireCircularProgressIndicator(
-                progressColor = Color.Black, modifier = Modifier.align(
+                progressColor = Color.Black,
+                modifier = Modifier.align(
                     Alignment.Center
                 )
             )
@@ -324,7 +326,8 @@ fun LazyListScope.failureItem(searchTitle: @Composable () -> String, failureMess
                 .height(224.dp)
         ) {
             Text(
-                failureMessage ?: "We are sorry, something went wrong", modifier = Modifier.align(
+                failureMessage ?: "We are sorry, something went wrong",
+                modifier = Modifier.align(
                     Alignment.Center
                 )
             )

@@ -5,6 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.getConversationColor
@@ -19,6 +21,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -49,6 +52,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.internal.assertFalse
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -272,6 +276,75 @@ class ConversationsViewModelTest {
         assertEquals(conversationColor, (actualAvatar as ConversationAvatar.Group).groupColorValue)
     }
 
+    @Test
+    fun `given a user sends an image message larger than 15MB, when invoked, then sendImageMessageUseCase isn't called`() = runTest {
+        // Given
+        val (arrangement, viewModel) = Arrangement().withSuccessfulSendAttachmentMessage().arrange()
+        val mockedAttachment = AttachmentBundle(
+            "image/jpeg", ByteArray(IMAGE_SIZE_LIMIT_BYTES + 1), "mocked_image.jpeg", AttachmentType.IMAGE
+        )
+
+        // When
+        viewModel.sendAttachmentMessage(mockedAttachment)
+
+        // Then
+        coVerify(inverse = true) { arrangement.sendImageMessage.invoke(any(), any(), any(), any(), any()) }
+        assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorMaxImageSize)
+    }
+
+    @Test
+    fun `given that a free user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase isn't called`() =
+        runTest {
+            // Given
+            val (arrangement, viewModel) = Arrangement().withSuccessfulSendAttachmentMessage().arrange()
+            val mockedAttachment = AttachmentBundle(
+                "file/x-zip", ByteArray(ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1), "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
+            )
+
+            // When
+            viewModel.sendAttachmentMessage(mockedAttachment)
+
+            // Then
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any()) }
+            assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorMaxAssetSize)
+        }
+
+    @Test
+    fun `given that a team user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase is called`() = runTest {
+        // Given
+        val userTeam = Team("mocked-team-id", "mocked-team-name")
+        val (arrangement, viewModel) = Arrangement()
+            .withSuccessfulSendAttachmentMessage()
+            .withTeamUser(userTeam)
+            .arrange()
+        val mockedAttachment = AttachmentBundle(
+            "file/x-zip", ByteArray(ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1), "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
+        )
+
+        // When
+        viewModel.sendAttachmentMessage(mockedAttachment)
+
+        // Then
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any()) }
+        assertFalse(viewModel.conversationViewState.onSnackbarMessage != null)
+    }
+
+    @Test
+    fun `given that a user tries to download an asset message to an external file, when invoked, then a snackbar message is shown`() =
+        runTest {
+            // Given
+            val assetName = "mocked-asset"
+            val (arrangement, viewModel) = Arrangement()
+                .withSuccessfulSendAttachmentMessage()
+                .arrange()
+
+            // When
+            viewModel.onFileSavedToExternalStorage(assetName)
+
+            // Then
+            assert(viewModel.conversationViewState.onSnackbarMessage != null)
+        }
+
     private class Arrangement {
         init {
             // Tests setup
@@ -370,6 +443,11 @@ class ConversationsViewModelTest {
         fun withSuccessfulSendAttachmentMessage(): Arrangement {
             coEvery { sendAssetMessage(any(), any(), any(), any()) } returns SendAssetMessageResult.Success
             coEvery { sendImageMessage(any(), any(), any(), any(), any()) } returns SendImageMessageResult.Success
+            return this
+        }
+
+        fun withTeamUser(userTeam: Team): Arrangement {
+            coEvery { getSelfUserTeam() } returns flowOf(userTeam)
             return this
         }
 

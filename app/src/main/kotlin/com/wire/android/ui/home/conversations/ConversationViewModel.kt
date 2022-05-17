@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
 import com.wire.android.util.getConversationColor
@@ -87,7 +88,8 @@ class ConversationViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
-    private val getSelfUserTeam: GetSelfTeamUseCase
+    private val getSelfUserTeam: GetSelfTeamUseCase,
+    private val fileManager: FileManager
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -351,11 +353,31 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onOpenFileError() {
+    fun onOpenFileWithExternalApp(assetName: String?, assetData: ByteArray) {
+        viewModelScope.launch {
+            withContext(dispatchers.io()) {
+                fileManager.openWithExternalApp(assetName, assetData) { onOpenFileError() }
+                hideOnAssetDownloadedDialog()
+            }
+        }
+    }
+
+    fun onSaveFile(assetName: String?, assetData: ByteArray) {
+        viewModelScope.launch {
+            withContext(dispatchers.io()) {
+                fileManager.saveToExternalStorage(assetName, assetData) {
+                    onFileSavedToExternalStorage(assetName)
+                    hideOnAssetDownloadedDialog()
+                }
+            }
+        }
+    }
+
+    private fun onOpenFileError() {
         conversationViewState = conversationViewState.copy(onSnackbarMessage = ErrorOpeningAssetFile)
     }
 
-    fun onFileSavedToExternalStorage(assetName: String?) {
+    private fun onFileSavedToExternalStorage(assetName: String?) {
         onSnackbarMessage(OnFileDownloaded(assetName))
     }
     // endregion

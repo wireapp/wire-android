@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.provider.MediaStore
 import android.provider.OpenableColumns
@@ -145,9 +144,9 @@ fun openAssetFileWithExternalApp(assetName: String?, assetData: ByteArray, conte
     intent.action = Intent.ACTION_VIEW
     // These flags allow the external app to access the temporal uri
     intent.flags = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
-        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
+        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
     } else {
-        Intent.FLAG_GRANT_READ_URI_PERMISSION
+        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
     }
     intent.setDataAndType(assetUri, assetUri.getMimeType(context))
 

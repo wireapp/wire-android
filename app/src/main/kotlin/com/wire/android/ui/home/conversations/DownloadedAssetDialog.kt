@@ -3,7 +3,6 @@ package com.wire.android.ui.home.conversations
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -15,29 +14,25 @@ import com.wire.android.util.permission.WriteToExternalStorageRequestFlow
 @Composable
 fun DownloadedAssetDialog(
     conversationViewState: ConversationViewState,
-    onFileSaved: (String?) -> Unit,
-    hideOnAssetDownloadedDialog: () -> Unit,
-    onOpenFileError: () -> Unit
+    onSaveFileToExternalStorage: (String?, ByteArray) -> Unit,
+    onOpenFileWithExternalApp: (String?, ByteArray) -> Unit,
+    hideOnAssetDownloadedDialog: () -> Unit
 ) {
     val dialogState = conversationViewState.downloadedAssetDialogState
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     if (dialogState is DownloadedAssetDialogVisibilityState.Displayed) {
         val assetName = dialogState.assetName
         val assetData = dialogState.assetData
-        val fileManager = FileManagerImpl(context = context, scope = scope) { name ->
-            onFileSaved(name)
-            hideOnAssetDownloadedDialog()
-        }
 
+        // Flow to get write to external storage permission
         val requestWriteToExternalStorageRequestFlow = WriteToExternalStorageRequestFlow(
             context = context,
-            onPermissionGranted = { fileManager.saveToExternalStorage(assetName, assetData) },
+            onPermissionGranted = { onSaveFileToExternalStorage(assetName, assetData) },
             writeToExternalStoragePermissionLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) {
-                    fileManager.saveToExternalStorage(assetName, assetData)
+                    onSaveFileToExternalStorage(assetName, assetData)
                 } else {
                     // TODO: Implement denied permission rationale
                 }
@@ -51,10 +46,7 @@ fun DownloadedAssetDialog(
             optionButton2Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_open_text),
                 type = WireDialogButtonType.Primary,
-                onClick = {
-                    fileManager.openWithExternalApp(assetName, assetData) { onOpenFileError() }
-                    hideOnAssetDownloadedDialog()
-                }
+                onClick = { onOpenFileWithExternalApp(assetName, assetData) }
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_save_text),

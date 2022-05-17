@@ -354,6 +354,10 @@ class ConversationViewModel @Inject constructor(
     fun onOpenFileError() {
         conversationViewState = conversationViewState.copy(onSnackbarMessage = ErrorOpeningAssetFile)
     }
+
+    fun onFileSavedToExternalStorage(assetName: String?) {
+        onSnackbarMessage(OnFileDownloaded(assetName))
+    }
     // endregion
 
     // region ------------------------------ Navigation ------------------------------
@@ -450,10 +454,6 @@ class ConversationViewModel @Inject constructor(
                 }
             } else null
         }
-    }
-
-    fun onFileSaved(assetName: String?) {
-        onSnackbarMessage(OnFileDownloaded(assetName))
     }
     // endregion
 

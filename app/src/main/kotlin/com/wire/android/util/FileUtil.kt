@@ -1,11 +1,13 @@
 package com.wire.android.util
 
+import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.provider.MediaStore
 import android.provider.OpenableColumns
@@ -14,6 +16,7 @@ import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedInputStream
@@ -125,6 +128,35 @@ fun Context.startFileShareIntent(path: String) {
     shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI)
     shareIntent.type = fileURI.getMimeType(context = this)
     startActivity(shareIntent)
+}
+
+fun saveFileToDownloadsFolder(assetName: String?, assetData: ByteArray, context: Context) {
+    val file = File(context.getExternalFilesDir(DIRECTORY_DOWNLOADS), "${System.currentTimeMillis()}_$assetName")
+    file.setWritable(true)
+    file.writeBytes(assetData)
+    context.saveFileDataToDownloadsFolder(file, assetData.size)
+}
+
+fun openAssetFileWithExternalApp(assetName: String?, assetData: ByteArray, context: Context, onError: () -> Unit) {
+    val assetUri = copyDataToTempFile(context, assetName ?: System.currentTimeMillis().toString(), assetData)
+
+    // Set intent and launch
+    val intent = Intent()
+    intent.action = Intent.ACTION_VIEW
+    // These flags allow the external app to access the temporal uri
+    intent.flags = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
+    } else {
+        Intent.FLAG_GRANT_READ_URI_PERMISSION
+    }
+    intent.setDataAndType(assetUri, assetUri.getMimeType(context))
+
+    try {
+        context.startActivity(intent)
+    } catch (noActivityFoundException: ActivityNotFoundException) {
+        appLogger.e("Couldn't find a proper app to process the asset")
+        onError()
+    }
 }
 
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"

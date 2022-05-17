@@ -36,9 +36,9 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -84,6 +84,15 @@ class SessionModule {
             }
         }
     }
+}
+
+@Module
+@InstallIn(ViewModelComponent::class)
+class ConnectionModule {
+    @ViewModelScoped
+    @Provides
+    fun sendConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.sendConnectionRequest
 }
 
 @Module
@@ -384,4 +393,9 @@ class UseCaseModule {
     @Provides
     fun isLoggingUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getAuthenticationScope().isLoggingEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun getUserInfoUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.getUserInfo
 }

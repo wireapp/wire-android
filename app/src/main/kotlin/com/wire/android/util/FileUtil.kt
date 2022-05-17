@@ -1,3 +1,4 @@
+@file:Suppress("TooManyFunctions")
 package com.wire.android.util
 
 import android.content.ActivityNotFoundException

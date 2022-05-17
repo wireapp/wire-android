@@ -49,7 +49,6 @@ private fun getTempWritableAttachmentUri(context: Context, fileName: String): Ur
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
 }
 
-
 fun Uri.getMimeType(context: Context): String? {
     val extension = MimeTypeMap.getFileExtensionFromUrl(path)
     return context.contentResolver.getType(this)

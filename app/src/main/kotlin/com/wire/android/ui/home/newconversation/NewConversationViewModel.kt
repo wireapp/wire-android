@@ -21,6 +21,7 @@ import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
+import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
@@ -46,7 +47,7 @@ class NewConversationViewModel
 
     //TODO: map this value out with the given back-end configuration later on
     private companion object {
-        const val HARDCODED_TEST_DOMAIN = "staging.zinfra.io"
+        const val HARDCODED_TEST_DOMAIN = "wire.com"
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
@@ -135,13 +136,17 @@ class NewConversationViewModel
         }
 
         publicContactsSearchResult = when (result) {
-            is Either.Left -> {
+            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
                 ContactSearchResult.ExternalContact(SearchResultState.Failure())
             }
-            is Either.Right -> {
+            is Result.Failure.InvalidQuery -> {
+                ContactSearchResult.ExternalContact(SearchResultState.Failure(result.message))
+            }
+            is Result.Success -> {
                 ContactSearchResult.ExternalContact(
-                    SearchResultState.Success(result.value.result.map { it.toContact() })
+                    SearchResultState.Success(result.userSearchResult.result.map { it.toContact() })
                 )
+
             }
         }
     }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +28,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
@@ -153,7 +156,6 @@ private fun LazyListScope.internalSearchResults(
         }
         is SearchResultState.Failure -> {
             failureItem(
-                searchTitle = searchTitle,
                 failureMessage = searchResult.failureMessage
             )
         }
@@ -188,7 +190,6 @@ private fun LazyListScope.externalSearchResults(
         }
         is SearchResultState.Failure -> {
             failureItem(
-                searchTitle = searchTitle,
                 failureMessage = searchResult.failureMessage
             )
         }
@@ -314,8 +315,7 @@ fun LazyListScope.inProgressItem() {
     }
 }
 
-fun LazyListScope.failureItem(searchTitle: @Composable () -> String, failureMessage: String?) {
-    item { FolderHeader(searchTitle()) }
+fun LazyListScope.failureItem(failureMessage: String?) {
 
     item {
         Box(
@@ -324,9 +324,9 @@ fun LazyListScope.failureItem(searchTitle: @Composable () -> String, failureMess
                 .height(224.dp)
         ) {
             Text(
-                failureMessage ?: "We are sorry, something went wrong", modifier = Modifier.align(
-                    Alignment.Center
-                )
+                failureMessage ?: "We are sorry, something went wrong",
+                modifier = Modifier.align(Alignment.Center),
+                style = MaterialTheme.wireTypography.label04.copy(color = MaterialTheme.wireColorScheme.secondaryText)
             )
         }
     }

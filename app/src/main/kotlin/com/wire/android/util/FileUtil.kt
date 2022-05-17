@@ -49,7 +49,6 @@ suspend fun Uri.toByteArray(context: Context): ByteArray {
 
 fun Context.getTempWritableImageUri() = getTempWritableAttachmentUri(this, TEMP_IMG_ATTACHMENT_FILENAME)
 fun Context.getTempWritableVideoUri() = getTempWritableAttachmentUri(this, TEMP_VIDEO_ATTACHMENT_FILENAME)
-fun Context.getDownloadsFolderUri(assetName: String) = getTempWritableAttachmentUri(this, assetName)
 
 private fun getTempWritableAttachmentUri(context: Context, fileName: String): Uri {
     val file = File(context.cacheDir, fileName)
@@ -84,11 +83,11 @@ fun Context.saveFileDataToDownloadsFolder(downloadedFile: File, fileSize: Int): 
     }
 }
 
-fun copyDataToTempFile(context: Context, assetName: String, assetData: ByteArray): Uri {
-    val file = File(context.cacheDir, assetName)
+fun Context.copyDataToTempFile(assetName: String, assetData: ByteArray): Uri {
+    val file = File(cacheDir, assetName)
     file.setWritable(true)
     file.writeBytes(assetData)
-    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+    return FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)
 }
 
 fun Uri.getMimeType(context: Context): String? {
@@ -137,7 +136,7 @@ fun saveFileToDownloadsFolder(assetName: String?, assetData: ByteArray, context:
 }
 
 fun openAssetFileWithExternalApp(assetName: String?, assetData: ByteArray, context: Context, onError: () -> Unit) {
-    val assetUri = copyDataToTempFile(context, assetName ?: System.currentTimeMillis().toString(), assetData)
+    val assetUri = context.copyDataToTempFile(assetName ?: System.currentTimeMillis().toString(), assetData)
 
     // Set intent and launch
     val intent = Intent()

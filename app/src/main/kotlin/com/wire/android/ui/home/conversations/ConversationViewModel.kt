@@ -285,7 +285,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onDialogDismissed() {
+    fun onDeleteDialogDismissed() {
         updateDeleteDialogState {
             it.copy(
                 forEveryone = DeleteMessageDialogActiveState.Hidden,
@@ -338,7 +338,7 @@ class ConversationViewModel @Inject constructor(
             }
         }
         deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
-        onDialogDismissed()
+        onDeleteDialogDismissed()
     }
 
     private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {

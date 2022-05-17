@@ -9,6 +9,7 @@ import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.AS
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.util.FileManager
 import com.wire.android.util.getConversationColor
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -46,6 +47,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -112,7 +114,7 @@ class ConversationsViewModelTest {
         val (_, viewModel) = Arrangement().arrange()
 
         // When
-        viewModel.onDialogDismissed()
+        viewModel.onDeleteDialogDismissed()
 
         // Then
         viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
@@ -330,16 +332,51 @@ class ConversationsViewModelTest {
     }
 
     @Test
-    fun `given that a user tries to download an asset message to an external file, when invoked, then a snackbar message is shown`() =
+    fun `given an asset message, when downloading it to external storage, then the file manager downloads the asset`() =
         runTest {
             // Given
             val assetName = "mocked-asset"
+            val assetData = assetName.toByteArray()
             val (arrangement, viewModel) = Arrangement()
+                .withSuccessfulSaveAssetMessage(assetName, assetData)
+                .arrange()
+
+            // When
+            viewModel.onSaveFile(assetName, assetData)
+
+            // Then
+            verify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any()) }
+        }
+
+    @Test
+    fun `given an asset message, when opening it, then the file manager opens the asset`() =
+        runTest {
+            // Given
+            val assetName = "mocked-asset"
+            val assetData = assetName.toByteArray()
+            val (arrangement, viewModel) = Arrangement()
+                .withSuccessfulOpenAssetMessage()
+                .arrange()
+
+            // When
+            viewModel.onOpenFileWithExternalApp(assetName, assetData)
+
+            // Then
+            verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
+        }
+
+    @Test
+    fun `given that a user tries to open an asset message to an external file, when invoked, then a snackbar message is shown`() =
+        runTest {
+            // Given
+            val assetName = "mocked-asset"
+            val assetData = assetName.toByteArray()
+            val (_, viewModel) = Arrangement()
                 .withSuccessfulSendAttachmentMessage()
                 .arrange()
 
             // When
-            viewModel.onFileSavedToExternalStorage(assetName)
+            viewModel.onSaveFile(assetName, assetData)
 
             // Then
             assert(viewModel.conversationViewState.onSnackbarMessage != null)
@@ -399,6 +436,9 @@ class ConversationsViewModelTest {
         lateinit var getSelfUserTeam: GetSelfTeamUseCase
 
         @MockK
+        lateinit var fileManager: FileManager
+
+        @MockK
         lateinit var context: Context
 
         @MockK
@@ -423,7 +463,8 @@ class ConversationsViewModelTest {
                 dispatchers = TestDispatcherProvider(),
                 markMessagesAsNotified = markMessagesAsNotified,
                 updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
-                getSelfUserTeam = getSelfUserTeam
+                getSelfUserTeam = getSelfUserTeam,
+                fileManager = fileManager
             )
         }
 
@@ -443,6 +484,17 @@ class ConversationsViewModelTest {
         fun withSuccessfulSendAttachmentMessage(): Arrangement {
             coEvery { sendAssetMessage(any(), any(), any(), any()) } returns SendAssetMessageResult.Success
             coEvery { sendImageMessage(any(), any(), any(), any(), any()) } returns SendImageMessageResult.Success
+            return this
+        }
+
+        fun withSuccessfulSaveAssetMessage(assetName: String?, assetData: ByteArray): Arrangement {
+            viewModel.showOnAssetDownloadedDialog(assetName, assetData)
+            every { fileManager.saveToExternalStorage(any(), any(), any()) } returns Unit
+            return this
+        }
+
+        fun withSuccessfulOpenAssetMessage(): Arrangement {
+            every { fileManager.openWithExternalApp(any(), any(), any()) } returns Unit
             return this
         }
 

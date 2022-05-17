@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -116,7 +117,7 @@ class NewConversationViewModel
         searchKnownUsers(searchTerm).onStart {
             localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
         }.catch {
-            localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.Failure())
+            localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.Failure.GenericFailure())
 
         }.flowOn(Dispatchers.IO).collect {
             localContactSearchResult = ContactSearchResult.InternalContact(
@@ -137,10 +138,10 @@ class NewConversationViewModel
 
         publicContactsSearchResult = when (result) {
             is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
-                ContactSearchResult.ExternalContact(SearchResultState.Failure())
+                ContactSearchResult.ExternalContact(SearchResultState.Failure.GenericFailure())
             }
             is Result.Failure.InvalidQuery -> {
-                ContactSearchResult.ExternalContact(SearchResultState.Failure(result.message))
+                ContactSearchResult.ExternalContact(SearchResultState.Failure.InvalidQueryFailure)
             }
             is Result.Success -> {
                 ContactSearchResult.ExternalContact(

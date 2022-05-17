@@ -50,7 +50,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = getUserInfo(userId)) {
                 is GetUserInfoResult.Failure -> {
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
-                    ErrorState.LoadUserInformationError()
+                    errorState = ErrorState.LoadUserInformationError()
                 }
                 is GetUserInfoResult.Success -> loadViewState(result.otherUser)
             }

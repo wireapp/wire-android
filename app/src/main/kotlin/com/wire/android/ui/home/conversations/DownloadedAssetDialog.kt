@@ -13,12 +13,12 @@ import com.wire.android.util.permission.WriteToExternalStorageRequestFlow
 
 @Composable
 fun DownloadedAssetDialog(
-    conversationViewState: ConversationViewState,
+    downloadedAssetDialogState: DownloadedAssetDialogVisibilityState,
     onSaveFileToExternalStorage: (String?, ByteArray) -> Unit,
     onOpenFileWithExternalApp: (String?, ByteArray) -> Unit,
     hideOnAssetDownloadedDialog: () -> Unit
 ) {
-    val dialogState = conversationViewState.downloadedAssetDialogState
+    val dialogState = downloadedAssetDialogState
     val context = LocalContext.current
 
     if (dialogState is DownloadedAssetDialogVisibilityState.Displayed) {

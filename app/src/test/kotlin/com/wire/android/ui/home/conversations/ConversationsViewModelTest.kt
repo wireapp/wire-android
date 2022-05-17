@@ -365,23 +365,6 @@ class ConversationsViewModelTest {
             verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
         }
 
-    @Test
-    fun `given that a user tries to open an asset message to an external file, when invoked, then a snackbar message is shown`() =
-        runTest {
-            // Given
-            val assetName = "mocked-asset"
-            val assetData = assetName.toByteArray()
-            val (_, viewModel) = Arrangement()
-                .withSuccessfulSendAttachmentMessage()
-                .arrange()
-
-            // When
-            viewModel.onSaveFile(assetName, assetData)
-
-            // Then
-            assert(viewModel.conversationViewState.onSnackbarMessage != null)
-        }
-
     private class Arrangement {
         init {
             // Tests setup

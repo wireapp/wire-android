@@ -56,7 +56,7 @@ private fun getTempWritableAttachmentUri(context: Context, fileName: String): Ur
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
 }
 
-fun Context.saveFileDataToDownloadsFolder(downloadedFile: File, fileSize: Int): Uri? {
+private fun Context.saveFileDataToDownloadsFolder(downloadedFile: File, fileSize: Int): Uri? {
     val resolver = contentResolver
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
@@ -140,13 +140,7 @@ fun openAssetFileWithExternalApp(assetName: String?, assetData: ByteArray, conte
 
     // Set intent and launch
     val intent = Intent()
-    intent.action = Intent.ACTION_VIEW
-    // These flags allow the external app to access the temporal uri
-    intent.flags = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
-        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-    } else {
-        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-    }
+    intent.setActionViewIntentFlags()
     intent.setDataAndType(assetUri, assetUri.getMimeType(context))
 
     try {
@@ -154,6 +148,16 @@ fun openAssetFileWithExternalApp(assetName: String?, assetData: ByteArray, conte
     } catch (noActivityFoundException: ActivityNotFoundException) {
         appLogger.e("Couldn't find a proper app to process the asset")
         onError()
+    }
+}
+
+private fun Intent.setActionViewIntentFlags() {
+    action = Intent.ACTION_VIEW
+    // These flags allow the external app to access the temporal uri
+    flags = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+    } else {
+        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
     }
 }
 

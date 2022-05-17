@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
@@ -28,7 +29,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxImageSize
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingAsset
 import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingImage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
@@ -51,7 +51,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onSendButtonClicked = conversationViewModel::sendMessage,
         onSendAttachment = conversationViewModel::sendAttachmentMessage,
         onDownloadAsset = conversationViewModel::downloadAsset,
-        onImageFullScreenMode = { conversationViewModel.navigateToGallery(it) },
+        onImageFullScreenMode =  conversationViewModel::navigateToGallery ,
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch,
@@ -130,11 +130,11 @@ private fun ConversationScreen(
                             onMessageChanged = onMessageChanged,
                             messageText = conversationViewState.messageText,
                             onSendButtonClicked = onSendButtonClicked,
-                            onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
+                            onShowContextMenu =  conversationScreenState::showEditContextMenu,
                             onSendAttachment = onSendAttachment,
                             onDownloadAsset = onDownloadAsset,
                             onImageFullScreenMode = onImageFullScreenMode,
-                            conversationState = this,
+                            conversationState = conversationViewState,
                             onMessageComposerError = onError,
                             conversationScreenState = conversationScreenState
                         )
@@ -216,12 +216,7 @@ private fun ConversationScreenContent(
     conversationState: ConversationViewState,
     conversationScreenState: ConversationScreenState
 ) {
-    val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(conversationState.messages) {
-        lazyListState.animateScrollToItem(0)
-    }
 
     conversationState.onError?.let { errorCode ->
         val errorMessage = getErrorMessage(errorCode)
@@ -230,26 +225,21 @@ private fun ConversationScreenContent(
         }
     }
 
+    val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(messages){
+        lazyListState.animateScrollToItem(0)
+    }
+
     MessageComposer(
         content = {
-            LazyColumn(
-                state = lazyListState,
-                reverseLayout = true,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth()
-            ) {
-                items(messages, key = {
-                    it.messageHeader.messageId
-                }) { message ->
-                    MessageItem(
-                        message = message,
-                        onLongClicked = { onShowContextMenu(message) },
-                        onAssetMessageClicked = onDownloadAsset,
-                        onImageMessageClicked = onImageFullScreenMode
-                    )
-                }
-            }
+            MessageList(
+                messages = messages,
+                lazyListState = lazyListState,
+                onShowContextMenu = onShowContextMenu,
+                onDownloadAsset = onDownloadAsset,
+                onImageFullScreenMode = onImageFullScreenMode
+            )
         },
         messageText = messageText,
         onMessageChanged = onMessageChanged,
@@ -264,6 +254,34 @@ private fun ConversationScreenContent(
             }
         }
     )
+}
+
+@Composable
+fun MessageList(
+    messages: List<MessageViewWrapper>,
+    lazyListState: LazyListState,
+    onShowContextMenu: (MessageViewWrapper) -> Unit,
+    onDownloadAsset: (String) -> Unit,
+    onImageFullScreenMode: (String) -> Unit
+) {
+    LazyColumn(
+        state = lazyListState,
+        reverseLayout = true,
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+    ) {
+        items(messages, key = {
+            it.messageHeader.messageId
+        }) { message ->
+            MessageItem(
+                message = message,
+                onLongClicked = onShowContextMenu,
+                onAssetMessageClicked = onDownloadAsset,
+                onImageMessageClicked = onImageFullScreenMode
+            )
+        }
+    }
 }
 
 @Preview

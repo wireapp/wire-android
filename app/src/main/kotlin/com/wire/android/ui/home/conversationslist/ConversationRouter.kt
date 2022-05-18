@@ -164,7 +164,8 @@ private fun ConversationRouter(
                 modifier = Modifier.fillMaxWidth()
             )
         },
-        bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
+        bottomBar = {
+            WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
     ) {
 
         fun editConversation(conversationItem: ConversationItem) {

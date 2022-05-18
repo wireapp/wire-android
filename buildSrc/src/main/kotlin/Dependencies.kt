@@ -32,7 +32,6 @@ object BuildPlugins {
     const val kapt = "kapt"
     const val hilt = "dagger.hilt.android.plugin"
     const val junit5 = "de.mannodermaus.android-junit5"
-    const val gms = "com.google.gms.google-services"
 }
 
 object ScriptPlugins {

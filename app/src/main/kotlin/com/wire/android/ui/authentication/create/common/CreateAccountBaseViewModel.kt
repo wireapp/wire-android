@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.create.common
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,6 +19,7 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewMod
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
+import com.wire.android.util.WireConstants.getSenderId
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -35,7 +35,6 @@ import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@OptIn(ExperimentalMaterialApi::class)
 abstract class CreateAccountBaseViewModel(
     final override val type: CreateAccountFlowType,
     private val navigationManager: NavigationManager,
@@ -251,7 +250,7 @@ abstract class CreateAccountBaseViewModel(
             RegisterClientParam.ClientWithToken(
                 password = password,
                 capabilities = null,
-                senderId = ServerConfig.DEFAULT.androidSenderId
+                senderId = getSenderId()
             )
         )
 

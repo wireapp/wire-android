@@ -9,6 +9,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.WireConstants.getSenderId
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
@@ -71,7 +72,7 @@ open class LoginViewModel @Inject constructor(
             RegisterClientUseCase.RegisterClientParam.ClientWithToken(
                 password = password,
                 capabilities = capabilities,
-                senderId = ServerConfig.DEFAULT.androidSenderId
+                senderId = getSenderId()
             ))
     }
 

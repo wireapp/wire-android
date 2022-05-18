@@ -6,9 +6,18 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.KaliumFileWriter
+import com.wire.android.util.WireConstants.FB_PROD_API_KEY
+import com.wire.android.util.WireConstants.FB_PROD_APPLICATION_ID1
+import com.wire.android.util.WireConstants.FB_PROD_APPLICATION_ID2
+import com.wire.android.util.WireConstants.FB_PROD_APPLICATION_ID3
+import com.wire.android.util.WireConstants.FB_PROD_APPLICATION_ID4
+import com.wire.android.util.WireConstants.FB_PROD_APPLICATION_ID5
+import com.wire.android.util.WireConstants.FB_PROD_PROJECT_ID
+import com.wire.android.util.WireConstants.FB_PROD_SENDER_ID
 import com.wire.android.util.WireConstants.FB_STAGING_API_KEY
 import com.wire.android.util.WireConstants.FB_STAGING_APPLICATION_ID
 import com.wire.android.util.WireConstants.FB_STAGING_PROJECT_ID
+import com.wire.android.util.WireConstants.FB_STAGING_SENDER_ID
 import com.wire.android.util.WireConstants.ServerTitle
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.kalium.logger.KaliumLogLevel
@@ -60,12 +69,23 @@ class WireApplication : Application(), Configuration.Provider {
                             .setProjectId(FB_STAGING_PROJECT_ID)
                             .setApplicationId(FB_STAGING_APPLICATION_ID)
                             .setApiKey(FB_STAGING_API_KEY)
-                            .setGcmSenderId(serverConfig.androidSenderId)
+                            .setGcmSenderId(FB_STAGING_SENDER_ID)
                             .build()
                     )
                 }
                 else -> {
-                    FirebaseApp.initializeApp(this)
+                    FirebaseApp.initializeApp(
+                        this, FirebaseOptions.Builder()
+                            .setProjectId(FB_PROD_PROJECT_ID)
+                            .setApplicationId(FB_PROD_APPLICATION_ID1)
+                            .setApplicationId(FB_PROD_APPLICATION_ID2)
+                            .setApplicationId(FB_PROD_APPLICATION_ID3)
+                            .setApplicationId(FB_PROD_APPLICATION_ID4)
+                            .setApplicationId(FB_PROD_APPLICATION_ID5)
+                            .setApiKey(FB_PROD_API_KEY)
+                            .setGcmSenderId(FB_PROD_SENDER_ID)
+                            .build()
+                    )
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation.search
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
@@ -18,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -30,7 +30,6 @@ import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.UIText
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
@@ -85,7 +84,6 @@ private fun SearchResult(
     onNewGroupClicked: () -> Unit
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
-    val context = LocalContext.current
 
     Column {
         LazyColumn(
@@ -102,7 +100,6 @@ private fun SearchResult(
                 contactSearchResult = knownContactSearchResult,
                 showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() },
-                invalidQueryMessage = UIText.StringResource(R.string.label_no_results_found).asString(context),
                 onOpenUserProfile = { contact -> onOpenUserProfile(SearchOpenUserProfile(contact)) },
             )
             externalSearchResults(
@@ -111,7 +108,6 @@ private fun SearchResult(
                 contactSearchResult = publicContactSearchResult,
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
-                invalidQueryMessage = UIText.StringResource(R.string.label_no_results_found).asString(context),
                 onOpenUserProfile = { externalUser -> onOpenUserProfile(SearchOpenUserProfile(externalUser)) }
             )
             externalSearchResults(
@@ -120,7 +116,6 @@ private fun SearchResult(
                 contactSearchResult = federatedBackendResultContact,
                 showAllItems = searchPeopleScreenState.federatedBackendResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() },
-                invalidQueryMessage = UIText.StringResource(R.string.label_no_results_found).asString(context),
                 onOpenUserProfile = { federatedUser -> onOpenUserProfile(SearchOpenUserProfile(federatedUser)) }
             )
         }
@@ -139,8 +134,7 @@ private fun LazyListScope.internalSearchResults(
     contactSearchResult: ContactSearchResult,
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
-    onOpenUserProfile: (Contact) -> Unit,
-    invalidQueryMessage: String
+    onOpenUserProfile: (Contact) -> Unit
 ) {
     when (val searchResult = contactSearchResult.searchResultState) {
         SearchResultState.InProgress -> {
@@ -159,14 +153,9 @@ private fun LazyListScope.internalSearchResults(
                 onOpenUserProfile = onOpenUserProfile
             )
         }
-        is SearchResultState.Failure.GenericFailure -> {
+        is SearchResultState.Failure -> {
             failureItem(
-                failureMessage = searchResult.failureMessage
-            )
-        }
-        is SearchResultState.Failure.InvalidQueryFailure -> {
-            failureItem(
-                failureMessage = invalidQueryMessage
+                failureMessage = searchResult.failureString
             )
         }
         // We do not display anything on Initial state
@@ -182,8 +171,7 @@ private fun LazyListScope.externalSearchResults(
     contactSearchResult: ContactSearchResult,
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
-    onOpenUserProfile: (Contact) -> Unit,
-    invalidQueryMessage: String
+    onOpenUserProfile: (Contact) -> Unit
 ) {
     when (val searchResult = contactSearchResult.searchResultState) {
         SearchResultState.InProgress -> {
@@ -199,14 +187,9 @@ private fun LazyListScope.externalSearchResults(
                 onOpenUserProfile = onOpenUserProfile
             )
         }
-        is SearchResultState.Failure.GenericFailure -> {
+        is SearchResultState.Failure -> {
             failureItem(
-                failureMessage = searchResult.failureMessage
-            )
-        }
-        is SearchResultState.Failure.InvalidQueryFailure -> {
-            failureItem(
-                failureMessage = invalidQueryMessage
+                failureMessage = searchResult.failureString
             )
         }
         // We do not display anything on Initial state
@@ -333,7 +316,7 @@ fun LazyListScope.inProgressItem() {
     }
 }
 
-fun LazyListScope.failureItem(failureMessage: String?) {
+fun LazyListScope.failureItem(@StringRes failureMessage: Int) {
 
     item {
         Box(
@@ -342,7 +325,7 @@ fun LazyListScope.failureItem(failureMessage: String?) {
                 .height(224.dp)
         ) {
             Text(
-                failureMessage ?: "We are sorry, something went wrong",
+                stringResource(id = failureMessage),
                 modifier = Modifier.align(Alignment.Center),
                 style = MaterialTheme.wireTypography.label04.copy(color = MaterialTheme.wireColorScheme.secondaryText)
             )

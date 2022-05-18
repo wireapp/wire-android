@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation.search
 
+import androidx.annotation.StringRes
 import com.wire.android.ui.home.newconversation.model.Contact
 
 data class SearchPeopleState(
@@ -37,11 +38,7 @@ sealed class ContactSearchResult(val searchResultState: SearchResultState) {
 sealed class SearchResultState {
     object Initial : SearchResultState()
     object InProgress : SearchResultState()
-
-    sealed class Failure : SearchResultState() {
-        data class GenericFailure(val failureMessage: String? = null) : Failure()
-        object InvalidQueryFailure : Failure()
-    }
+    data class Failure(@StringRes val failureString: Int) : SearchResultState()
 
     data class Success(val result: List<Contact>) : SearchResultState()
 }

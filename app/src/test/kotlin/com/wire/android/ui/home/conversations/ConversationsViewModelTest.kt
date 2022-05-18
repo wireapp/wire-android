@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationManager
@@ -332,7 +333,7 @@ class ConversationsViewModelTest {
     }
 
     @Test
-    fun `given an asset message, when downloading it to external storage, then the file manager downloads the asset`() =
+    fun `given an asset message, when downloading to external storage, then the file manager downloads the asset and closes the dialog`() =
         runTest {
             // Given
             val assetName = "mocked-asset"
@@ -342,10 +343,12 @@ class ConversationsViewModelTest {
                 .arrange()
 
             // When
+            assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
             viewModel.onSaveFile(assetName, assetData)
 
             // Then
             verify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any()) }
+            assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
 
     @Test
@@ -355,14 +358,16 @@ class ConversationsViewModelTest {
             val assetName = "mocked-asset"
             val assetData = assetName.toByteArray()
             val (arrangement, viewModel) = Arrangement()
-                .withSuccessfulOpenAssetMessage()
+                .withSuccessfulOpenAssetMessage(assetName, assetData)
                 .arrange()
 
             // When
+            assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
             viewModel.onOpenFileWithExternalApp(assetName, assetData)
 
             // Then
             verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
+            assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
 
     private class Arrangement {
@@ -472,12 +477,17 @@ class ConversationsViewModelTest {
 
         fun withSuccessfulSaveAssetMessage(assetName: String?, assetData: ByteArray): Arrangement {
             viewModel.showOnAssetDownloadedDialog(assetName, assetData)
-            every { fileManager.saveToExternalStorage(any(), any(), any()) } returns Unit
+            every { fileManager.saveToExternalStorage(any(), any(), any()) }.returns(Unit).andThenAnswer {
+                viewModel.hideOnAssetDownloadedDialog()
+            }
             return this
         }
 
-        fun withSuccessfulOpenAssetMessage(): Arrangement {
-            every { fileManager.openWithExternalApp(any(), any(), any()) } returns Unit
+        fun withSuccessfulOpenAssetMessage(assetName: String?, assetData: ByteArray): Arrangement {
+            viewModel.showOnAssetDownloadedDialog(assetName, assetData)
+            every { fileManager.openWithExternalApp(any(), any(), any()) }.returns(Unit).andThenAnswer {
+                viewModel.hideOnAssetDownloadedDialog()
+            }
             return this
         }
 
@@ -487,6 +497,7 @@ class ConversationsViewModelTest {
         }
 
         fun arrange() = this to viewModel
+
     }
 
     private fun withMockConversationDetailsOneOnOne(senderName: String, senderAvatar: UserAssetId? = null) = ConversationDetails.OneOne(

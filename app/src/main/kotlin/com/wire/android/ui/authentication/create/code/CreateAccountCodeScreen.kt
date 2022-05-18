@@ -75,11 +75,11 @@ private fun CodeContent(
             title = stringResource(id = state.type.titleResId),
             onNavigationPressed = onBackPressed
         )
-    }) {
+    }) { internalPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier.fillMaxHeight().padding(internalPadding)
         ) {
             Text(
                 text = stringResource(R.string.create_account_code_text, state.email),

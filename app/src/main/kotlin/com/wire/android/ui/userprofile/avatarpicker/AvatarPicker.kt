@@ -118,8 +118,8 @@ private fun AvatarPickerContent(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-        ) {
-            Box(Modifier.fillMaxSize()) {
+        ) { internalPadding ->
+            Box(Modifier.fillMaxSize().padding(internalPadding)) {
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -193,6 +193,7 @@ private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     return when (errorCode) {

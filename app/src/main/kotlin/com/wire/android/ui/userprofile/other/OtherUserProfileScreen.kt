@@ -86,12 +86,13 @@ fun OtherProfileScreenContent(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    ) {
+    ) { internalPadding ->
         with(state) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
+                    .padding(internalPadding)
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 LazyColumn(modifier = Modifier.weight(1f)) {

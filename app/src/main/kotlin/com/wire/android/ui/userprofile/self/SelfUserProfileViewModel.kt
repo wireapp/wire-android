@@ -15,7 +15,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
-import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
@@ -23,7 +22,6 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.combineLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -55,20 +53,20 @@ class SelfUserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             getSelf().combine(getSelfTeam(), ::Pair)
                 .collect { (selfUser, selfTeam) ->
-                with(selfUser) {
-                    // Load user avatar raw image data
-                    completePicture?.let { updateUserAvatar(it) }
+                    with(selfUser) {
+                        // Load user avatar raw image data
+                        completePicture?.let { updateUserAvatar(it) }
 
-                    // Update user data state
-                    userProfileState = SelfUserProfileState(
-                        status = UserStatus.AVAILABLE,
-                        fullName = name.orEmpty(),
-                        userName = handle.orEmpty(),
-                        teamName = selfTeam?.name,
-                        otherAccounts = listOf() //TODO: implement other accounts functionality
-                    )
+                        // Update user data state
+                        userProfileState = SelfUserProfileState(
+                            status = UserStatus.AVAILABLE,
+                            fullName = name.orEmpty(),
+                            userName = handle.orEmpty(),
+                            teamName = selfTeam?.name,
+                            otherAccounts = listOf() //TODO: implement other accounts functionality
+                        )
+                    }
                 }
-            }
 
         }
     }
@@ -84,9 +82,9 @@ class SelfUserProfileViewModel @Inject constructor(
     private fun updateUserAvatar(avatarAssetId: UserAssetId) {
         // We try to download the user avatar on a separate thread so that we don't block the display of the user's info
         viewModelScope.launch {
+            showLoadingAvatar(true)
             withContext(dispatchers.io()) {
                 try {
-                    showLoadingAvatar(true)
                     userProfileState = userProfileState.copy(
                         avatarAsset = UserAvatarAsset(avatarAssetId)
                     )
@@ -98,10 +96,9 @@ class SelfUserProfileViewModel @Inject constructor(
                     appLogger.e("There was an error while downloading the user avatar", e)
                     // Show error snackbar if avatar download fails
                     showErrorMessage()
-                } finally {
-                    showLoadingAvatar(false)
                 }
             }
+            showLoadingAvatar(false)
         }
     }
 

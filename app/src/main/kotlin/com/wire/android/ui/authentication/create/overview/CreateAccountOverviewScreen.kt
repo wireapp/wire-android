@@ -58,8 +58,8 @@ private fun OverviewContent(onBackPressed: () -> Unit, onContinuePressed: () -> 
                 onNavigationPressed = onBackPressed
             )
         },
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    ) { internalPadding ->
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(internalPadding)) {
             val context = LocalContext.current
             Spacer(modifier = Modifier.weight(1f))
             Image(
@@ -92,7 +92,7 @@ private fun OverviewContent(onBackPressed: () -> Unit, onContinuePressed: () -> 
 @Composable
 private fun OverviewTexts(overviewParams: CreateAccountOverviewParams, modifier: Modifier, onLearnMoreClick: () -> Unit) {
     Column(modifier = modifier) {
-        if(overviewParams.contentTitle.isNotEmpty())
+        if (overviewParams.contentTitle.isNotEmpty())
             Text(
                 text = overviewParams.contentTitle,
                 style = MaterialTheme.wireTypography.title01,
@@ -132,7 +132,7 @@ private fun CreateAccountOverviewScreenPreview() {
         onBackPressed = { },
         onContinuePressed = { },
         overviewParams = CreateAccountOverviewParams(
-            title ="title",
+            title = "title",
             contentTitle = "contentTitle",
             contentText = "contentText",
             contentIconResId = R.drawable.ic_create_personal_account,

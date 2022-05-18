@@ -38,12 +38,12 @@ class WireNotificationManager @Inject constructor(
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
-        val userId = getQualifiedIDFromUserId(userId = userIdValue)
-        coreLogic.getSessionScope(userId).syncPendingEvents()
-
-        println("cyka fetchAndShowNotificationsOnce $userId")
-        fetchAndShowMessageNotificationsOnce(userId)
-        fetchAndShowCallNotificationsOnce(userId)
+        checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
+            coreLogic.getSessionScope(userId).syncPendingEvents()
+            println("cyka fetchAndShowNotificationsOnce $userId")
+            fetchAndShowMessageNotificationsOnce(userId)
+            fetchAndShowCallNotificationsOnce(userId)
+        }
     }
 
     private suspend fun fetchAndShowCallNotificationsOnce(userId: QualifiedID) {
@@ -78,24 +78,29 @@ class WireNotificationManager @Inject constructor(
         messagesManager.handleNotification(listOf(), notificationsList, userId)
     }
 
-    // todo to be deleted as soon as we get the qualifiedID from the FCM payload
+    // TODO : to be changed as soon as we get the qualifiedID from the notification payload
+    /**
+     * return the userId if the user is authenticated and null otherwise
+     */
     @Suppress("NestedBlockDepth")
-    private fun getQualifiedIDFromUserId(userId: String): QualifiedID {
+    private fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
         coreLogic.getAuthenticationScope().getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
                     for (sessions in it.sessions) {
                         if (sessions.userId.value == userId)
-                            return sessions.userId
+                            return@let sessions.userId
                     }
+                    null
                 }
                 is GetAllSessionsResult.Failure.Generic -> {
                     appLogger.e("get sessions failed ${it.genericFailure} ")
+                    null
                 }
+                GetAllSessionsResult.Failure.NoSessionFound -> null
             }
         }
-        return QualifiedID(userId, "wire.com")
-    }
+
 
     /**
      * Infinitely listen for the new IncomingCalls, notify about it and do additional actions if needed.

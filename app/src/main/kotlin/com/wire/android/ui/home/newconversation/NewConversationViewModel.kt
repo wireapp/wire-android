@@ -53,9 +53,9 @@ class NewConversationViewModel
 
     val state: SearchPeopleState by derivedStateOf {
         val noneSearchSucceed: Boolean =
-            localContactSearchResult.searchResultState is SearchResultState.Failure &&
-                    publicContactsSearchResult.searchResultState is SearchResultState.Failure &&
-                    federatedContactSearchResult.searchResultState is SearchResultState.Failure
+            localContactSearchResult.searchResultState is SearchResultState.Failure
+                    && publicContactsSearchResult.searchResultState is SearchResultState.Failure
+                    && federatedContactSearchResult.searchResultState is SearchResultState.Failure
 
         innerSearchPeopleState.copy(
             noneSearchSucceed = noneSearchSucceed,

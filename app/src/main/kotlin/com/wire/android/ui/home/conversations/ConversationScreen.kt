@@ -130,7 +130,7 @@ private fun ConversationScreen(
                             onMessageChanged = onMessageChanged,
                             messageText = conversationViewState.messageText,
                             onSendButtonClicked = onSendButtonClicked,
-                            onShowContextMenu =  conversationScreenState::showEditContextMenu,
+                            onShowContextMenu = conversationScreenState::showEditContextMenu,
                             onSendAttachment = onSendAttachment,
                             onDownloadAsset = onDownloadAsset,
                             onImageFullScreenMode = onImageFullScreenMode,

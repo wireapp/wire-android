@@ -32,8 +32,8 @@ fun MentionConversationItem(
                     title = { ConversationTitle(name = groupName, isLegalHold = conversationType.isLegalHold) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,
-                    onRowItemClicked = {  },
-                    onRowItemLongClicked = {  }
+                    onRowItemClicked = { onMentionItemClick(mention) },
+                    onRowItemLongClicked = { onConversationItemLongClick(mention) }
                 )
             }
         }
@@ -44,8 +44,8 @@ fun MentionConversationItem(
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,
-                    onRowItemClicked = {  },
-                    onRowItemLongClicked = {  }
+                    onRowItemClicked = { onMentionItemClick(mention) },
+                    onRowItemLongClicked = { onConversationItemLongClick(mention) }
                 )
             }
         }

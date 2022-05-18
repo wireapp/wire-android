@@ -10,6 +10,8 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 internal class AssetImageFetcher(
     val data: ImageAsset,
@@ -20,9 +22,8 @@ internal class AssetImageFetcher(
     val imageLoader: ImageLoader
 ) : Fetcher {
 
-    override suspend fun fetch(): FetchResult? {
-
-        return when (data) {
+    override suspend fun fetch() = withContext(Dispatchers.IO) {
+        when (data) {
             is ImageAsset.UserAvatarAsset -> {
                 when (val result = getPublicAsset(data.userAssetId)) {
                     is PublicAssetResult.Failure -> null
@@ -44,7 +45,6 @@ internal class AssetImageFetcher(
                 }
             }
         }
-
     }
 
     class Factory(

@@ -24,6 +24,7 @@ import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.UserInfo
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
@@ -53,7 +54,8 @@ class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
-    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -65,7 +67,7 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             observeConversationDetailsList().map {
                 it.toConversationsFoldersMap()
-            }.flowOn(Dispatchers.Default).collect { detailedList ->
+            }.flowOn(dispatchers.io()).collect { detailedList ->
                 val newActivities = listOf<NewActivity>() // TODO: needs to be implemented
                 val missedCalls = mockMissedCalls // TODO: needs to be implemented
                 val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented

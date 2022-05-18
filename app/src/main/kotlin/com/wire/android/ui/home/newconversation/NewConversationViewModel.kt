@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.util.CoilUtils.result
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -53,8 +54,8 @@ class NewConversationViewModel
     val state: SearchPeopleState by derivedStateOf {
         val noneSearchSucceed: Boolean =
             localContactSearchResult.searchResultState is SearchResultState.Failure &&
-                publicContactsSearchResult.searchResultState is SearchResultState.Failure &&
-                federatedContactSearchResult.searchResultState is SearchResultState.Failure
+                    publicContactsSearchResult.searchResultState is SearchResultState.Failure &&
+                    federatedContactSearchResult.searchResultState is SearchResultState.Failure
 
         innerSearchPeopleState.copy(
             noneSearchSucceed = noneSearchSucceed,
@@ -111,15 +112,18 @@ class NewConversationViewModel
     }
 
     private suspend fun searchKnown(searchTerm: String) {
-        // TODO: this is going to be refactored on the Kalium side so that we do not use Flow
-        searchKnownUsers(searchTerm).onStart {
-            localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
-        }.catch {
-            localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.Failure())
-        }.flowOn(Dispatchers.IO).collect {
-            localContactSearchResult = ContactSearchResult.InternalContact(
-                SearchResultState.Success(it.result.map { otherUser -> otherUser.toContact() })
-            )
+        localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
+
+        viewModelScope.launch {
+            localContactSearchResult = try {
+                val searchResult = searchKnownUsers(searchTerm)
+
+                ContactSearchResult.InternalContact(
+                    SearchResultState.Success(searchResult.result.map { otherUser -> otherUser.toContact() })
+                )
+            } catch (exception: Exception) {
+                ContactSearchResult.InternalContact(SearchResultState.Failure())
+            }
         }
     }
 

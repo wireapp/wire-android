@@ -219,14 +219,17 @@ enum class NavigationItem(
 
     IncomingCall(
         primaryRoute = INCOMING_CALL,
-        canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
-        content = { IncomingCallScreen() },
+        canonicalRoute = INCOMING_CALL,
+        content = { contentParams ->
+            val conversationsId = contentParams.arguments.filterIsInstance<ConversationId>().firstOrNull()
+            IncomingCallScreen(conversationsId!!)
+        },
         screenMode = ScreenMode.WAKE_UP
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
-        }
+//        override fun getRouteWithArgs(arguments: List<Any>): String {
+//            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+//            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
+//        }
     },
 
     Gallery(

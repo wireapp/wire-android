@@ -1,7 +1,7 @@
 package com.wire.android.notification
 
-import com.wire.android.di.GetIncomingCallsUseCaseProvider
 import com.wire.android.appLogger
+import com.wire.android.di.GetIncomingCallsUseCaseProvider
 import com.wire.android.di.GetNotificationsUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.extension.intervalFlow
@@ -59,6 +59,10 @@ class WireNotificationManager @Inject constructor(
                     .first()
             }
             .take(10)
+            .map {
+                println("cyka once: ${it.size}")
+                it
+            }
             .distinctUntilChanged()
             .collect { callsList ->
                 println("cyka once: collecting $callsList")

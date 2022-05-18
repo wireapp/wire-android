@@ -3,6 +3,7 @@ package com.wire.android.notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,6 +12,7 @@ import com.wire.android.notification.broadcastreceivers.CallNotificationDismissR
 import com.wire.android.notification.broadcastreceivers.MessageNotificationDismissReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
 import com.wire.android.ui.WireActivity
+import com.wire.android.util.deeplink.DeepLinkProcessor
 
 //TODO
 fun messagePendingIntent(context: Context, conversationId: String): PendingIntent {
@@ -65,10 +67,7 @@ fun replyMessagePendingIntent(context: Context, conversationId: String): Pending
     ExperimentalComposeUiApi::class
 )
 fun openCallPendingIntent(context: Context, conversationId: String): PendingIntent {
-    //TODO
-    val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-    }
+    val intent = openCallIntent(context, conversationId)
 
     return PendingIntent.getActivity(
         context.applicationContext,
@@ -89,17 +88,8 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
     )
 }
 
-@OptIn(
-    ExperimentalAnimationApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class,
-    ExperimentalComposeUiApi::class
-)
 fun fullScreenCallPendingIntent(context: Context, conversationId: String): PendingIntent {
-    //TODO
-    val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-    }
+    val intent = openCallIntent(context, conversationId)
 
     return PendingIntent.getActivity(
         context,
@@ -107,6 +97,22 @@ fun fullScreenCallPendingIntent(context: Context, conversationId: String): Pendi
         intent,
         PendingIntent.FLAG_IMMUTABLE
     )
+}
+
+@OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalComposeUiApi::class
+)
+private fun openCallIntent(context: Context, conversationId: String) =
+    Intent(context.applicationContext, WireActivity::class.java).apply {
+//        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        data = Uri.Builder()
+            .scheme("wire")
+            .authority(DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST)
+            .appendQueryParameter(DeepLinkProcessor.INCOMING_CALL_CONVERSATION_ID_PARAM, conversationId)
+            .build()
 }
 
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0

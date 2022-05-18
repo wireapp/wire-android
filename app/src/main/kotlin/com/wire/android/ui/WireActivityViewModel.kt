@@ -46,29 +46,41 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private val isUserLoggedIn = currentSession != null
-    var serverConfig: ServerConfig = ServerConfig.DEFAULT
-    private var ssoDeepLinkResult: DeepLinkResult.SSOLogin? = null
+//    var serverConfig: ServerConfig = ServerConfig.DEFAULT
+//    private var ssoDeepLinkResult: DeepLinkResult.SSOLogin? = null
+
+    private val navigationArguments = mutableMapOf<String, Any>()
+        .apply { put(SERVER_CONFIG_ARG, ServerConfig.DEFAULT) }
 
     fun navigationArguments() =
-        if (ssoDeepLinkResult != null) {
-            listOf(serverConfig, ssoDeepLinkResult!!)
-        } else listOf(serverConfig)
+//        if (ssoDeepLinkResult != null) {
+//            listOf(serverConfig, ssoDeepLinkResult!!)
+//        } else listOf(serverConfig)
+        navigationArguments.values.toList()
 
     fun startNavigationRoute() = when {
-        ssoDeepLinkResult is DeepLinkResult.SSOLogin -> NavigationItem.Login.getRouteWithArgs()
-        serverConfig.apiBaseUrl != ServerConfig.DEFAULT.apiBaseUrl -> NavigationItem.Login.getRouteWithArgs()
-        isUserLoggedIn -> NavigationItem.Home.getRouteWithArgs()
+        shouldStartFromLogin() -> NavigationItem.Login.getRouteWithArgs()
+        shouldStartFromIncomingCall() -> NavigationItem.IncomingCall.getRouteWithArgs()
+        shouldStartFromHome() -> NavigationItem.Home.getRouteWithArgs()
+//        ssoDeepLinkResult is DeepLinkResult.SSOLogin -> NavigationItem.Login.getRouteWithArgs()
+//        serverConfig.apiBaseUrl != ServerConfig.DEFAULT.apiBaseUrl -> NavigationItem.Login.getRouteWithArgs()
+//        isUserLoggedIn -> NavigationItem.Home.getRouteWithArgs()
         else -> NavigationItem.Welcome.getRouteWithArgs()
     }
 
     fun handleDeepLink(intent: Intent) {
+        println("cyka deeplink: ${intent.data}")
         intent.data?.let {
             with(deepLinkProcessor(it)) {
                 when (this) {
                     is DeepLinkResult.CustomServerConfig ->
-                        serverConfig = loadServerConfig(url)
+//                        serverConfig = loadServerConfig(url)
+                        navigationArguments.put(SERVER_CONFIG_ARG, loadServerConfig(url))
                     is DeepLinkResult.SSOLogin ->
-                        ssoDeepLinkResult = this
+//                        ssoDeepLinkResult = this
+                        navigationArguments.put(SSO_DEEPLINK_ARG, this)
+                    is DeepLinkResult.IncomingCall ->
+                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, this.conversationsId)
                     DeepLinkResult.Unknown -> TODO()
                 }
             }
@@ -76,6 +88,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     init {
+        println("cyla init ViewModel")
         // checking CurrentSession every minute, to subscribe/unsubscribe from the notifications
         // according ot UserId changes
         // TODO this intervalFlow is a temporary solution to have updated UserId,
@@ -93,7 +106,7 @@ class WireActivityViewModel @Inject constructor(
 
         viewModelScope.launch { notificationManager.observeMessageNotifications(getUserIdFlow) }
         viewModelScope.launch {
-            notificationManager.observeIncomingCalls(getUserIdFlow) { goToIncomingCall(it.conversationId) }
+            notificationManager.observeIncomingCalls(getUserIdFlow) { /*goToIncomingCall(it.conversationId)*/ }
         }
     }
 
@@ -112,7 +125,20 @@ class WireActivityViewModel @Inject constructor(
         )
     }
 
+    private fun shouldStartFromLogin(): Boolean =
+        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig).apiBaseUrl != ServerConfig.DEFAULT.apiBaseUrl ||
+                navigationArguments[SSO_DEEPLINK_ARG] != null
+
+    private fun shouldStartFromHome(): Boolean  = isUserLoggedIn
+
+    private fun shouldStartFromIncomingCall(): Boolean =
+        (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
+
     companion object {
         private const val CHECK_USER_ID_FREQUENCY_MS = 60_000L
+
+        private const val SERVER_CONFIG_ARG = "server_config"
+        private const val SSO_DEEPLINK_ARG = "sso_deeplink"
+        private const val INCOMING_CALL_CONVERSATION_ID_ARG = "incoming_call_conversation_id"
     }
 }

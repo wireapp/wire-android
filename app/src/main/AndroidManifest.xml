@@ -53,6 +53,9 @@
 
                 <data android:host="sso-login"
                         android:scheme="wire"/>
+
+                <data android:host="incoming-call"
+                        android:scheme="wire"/>
             </intent-filter>
         </activity>
 

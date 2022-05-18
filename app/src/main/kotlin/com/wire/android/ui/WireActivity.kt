@@ -43,6 +43,7 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        println("cyka111 create $savedInstanceState")
         handleDeepLink(intent)
         setComposableContent()
     }
@@ -53,9 +54,10 @@ class WireActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         intent?.let {
-            println("cykaIntent $intent")
+            println("cyka111 recreate")
+//            handleDeepLink(intent)
+            this.intent = intent
             recreate()
-            handleDeepLink(intent)
         }
         super.onNewIntent(intent)
     }
@@ -65,10 +67,10 @@ class WireActivity : AppCompatActivity() {
             WireTheme {
                 val scope = rememberCoroutineScope()
                 val navController = rememberAnimatedNavController()
-                setUpNavigation(navController, scope)
                 Scaffold {
                     NavigationGraph(navController = navController, viewModel.startNavigationRoute(), viewModel.navigationArguments())
                 }
+                setUpNavigation(navController, scope)
             }
         }
     }
@@ -78,16 +80,21 @@ class WireActivity : AppCompatActivity() {
         navController: NavHostController,
         scope: CoroutineScope
     ) {
+//        println("cyka setUpNavigation")
         val keyboardController = LocalSoftwareKeyboardController.current
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
         LaunchedEffect("key") {
 
-            navigationManager.navigateState.onEach { command ->
-                if (command == null) return@onEach
-                keyboardController?.hide()
-                navigateToItem(navController, command)
-                updateScreenSettings(navController)
-            }.launchIn(scope)
+//            println("cyka setUpNavigation 1")
+
+            navigationManager.navigateState
+                .onEach { command ->
+                    if (command == null) return@onEach
+                    keyboardController?.hide()
+                    navigateToItem(navController, command)
+                    updateScreenSettings(navController)
+                }
+                .launchIn(scope)
 
             navigationManager.navigateBack
                 .onEach {

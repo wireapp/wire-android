@@ -6,6 +6,7 @@ internal fun navigateToItem(
     navController: NavController,
     command: NavigationCommand
 ) {
+//    println("cyka navigating to ${command.destination}")
     navController.navigate(command.destination) {
         if (command.backStackMode.shouldClear()) {
             navController.run {

@@ -2,7 +2,8 @@ package com.wire.android.util.deeplink
 
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
-import com.wire.android.R
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.toConversationId
 
 sealed class DeepLinkResult {
     object Unknown : DeepLinkResult()
@@ -11,6 +12,8 @@ sealed class DeepLinkResult {
         data class Success(val cookie: String, val serverConfigId: String) : SSOLogin()
         data class Failure(val ssoError: SSOFailureCodes) : SSOLogin()
     }
+
+    data class IncomingCall(val conversationsId: ConversationId) : DeepLinkResult()
 }
 
 class DeepLinkProcessor {
@@ -37,6 +40,11 @@ class DeepLinkProcessor {
                 else -> DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
             }
         }
+        INCOMING_CALL_DEEPLINK_HOST -> {
+            uri.getQueryParameter(INCOMING_CALL_CONVERSATION_ID_PARAM)?.toConversationId()?.let {
+                DeepLinkResult.IncomingCall(it)
+            } ?: DeepLinkResult.Unknown
+        }
         else -> DeepLinkResult.Unknown
     }
 
@@ -50,6 +58,8 @@ class DeepLinkProcessor {
         const val SSO_LOGIN_COOKIE_PARAM = "cookie"
         const val SSO_LOGIN_ERROR_PARAM = "error"
         const val SSO_LOGIN_SERVER_CONFIG_PARAM = "location"
+        const val INCOMING_CALL_DEEPLINK_HOST = "incoming-call"
+        const val INCOMING_CALL_CONVERSATION_ID_PARAM = "conversation_id"
 
     }
 }

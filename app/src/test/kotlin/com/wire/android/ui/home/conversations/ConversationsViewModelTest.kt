@@ -2,7 +2,6 @@ package com.wire.android.ui.home.conversations
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationManager
@@ -39,6 +38,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.feature.message.Result.Success
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import io.mockk.MockKAnnotations
@@ -352,7 +352,7 @@ class ConversationsViewModelTest {
         }
 
     @Test
-    fun `given an asset message, when opening it, then the file manager opens the asset`() =
+    fun `given an asset message, when opening it, then the file manager open function gets invoked and closes the dialog`() =
         runTest {
             // Given
             val assetName = "mocked-asset"
@@ -382,6 +382,8 @@ class ConversationsViewModelTest {
             coEvery { getMessages(any()) } returns flowOf(listOf())
             coEvery { observeMemberDetails(any()) } returns flowOf(listOf())
             coEvery { observeConversationDetails(any()) } returns flowOf()
+            coEvery { markMessagesAsNotified(any(), any()) } returns Success
+            coEvery { getSelfUserTeam() } returns flowOf()
         }
 
         @MockK
@@ -477,7 +479,7 @@ class ConversationsViewModelTest {
 
         fun withSuccessfulSaveAssetMessage(assetName: String?, assetData: ByteArray): Arrangement {
             viewModel.showOnAssetDownloadedDialog(assetName, assetData)
-            every { fileManager.saveToExternalStorage(any(), any(), any()) }.returns(Unit).andThenAnswer {
+            every { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
                 viewModel.hideOnAssetDownloadedDialog()
             }
             return this
@@ -485,7 +487,7 @@ class ConversationsViewModelTest {
 
         fun withSuccessfulOpenAssetMessage(assetName: String?, assetData: ByteArray): Arrangement {
             viewModel.showOnAssetDownloadedDialog(assetName, assetData)
-            every { fileManager.openWithExternalApp(any(), any(), any()) }.returns(Unit).andThenAnswer {
+            every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
                 viewModel.hideOnAssetDownloadedDialog()
             }
             return this

@@ -57,7 +57,9 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -107,7 +109,7 @@ class ConversationViewModel @Inject constructor(
     private fun fetchMessages() = viewModelScope.launch {
         getMessages(conversationId).combine(observeMemberDetails(conversationId)) { messages, members ->
             messages.toUIMessages(members)
-        }.collect { uiMessages ->
+        }.flowOn(Dispatchers.Default).collect { uiMessages ->
             conversationViewState = conversationViewState.copy(messages = uiMessages)
         }
     }

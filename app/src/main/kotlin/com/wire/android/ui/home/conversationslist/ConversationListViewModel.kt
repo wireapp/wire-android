@@ -38,6 +38,9 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -59,13 +62,16 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeConversationDetailsList().collect { detailedList ->
+            observeConversationDetailsList().map {
+                it.toConversationsFoldersMap()
+            }.flowOn(Dispatchers.Default).collect { detailedList ->
                 val newActivities = listOf<NewActivity>() // TODO: needs to be implemented
                 val missedCalls = mockMissedCalls // TODO: needs to be implemented
                 val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
+
                 state = ConversationListState(
                     newActivities = newActivities,
-                    conversations = detailedList.toConversationsFoldersMap(),
+                    conversations = detailedList,
                     missedCalls = missedCalls,
                     callHistory = mockCallHistory, // TODO: needs to be implemented
                     unreadMentions = unreadMentions,

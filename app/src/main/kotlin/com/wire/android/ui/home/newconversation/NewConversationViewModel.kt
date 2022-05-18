@@ -122,7 +122,7 @@ class NewConversationViewModel
                 SearchResultState.Success(searchResult.result.map { otherUser -> otherUser.toContact() })
             )
         } catch (exception: Exception) {
-            ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.search_no_results))
+            ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
         }
     }
 

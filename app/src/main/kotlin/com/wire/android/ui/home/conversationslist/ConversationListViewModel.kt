@@ -18,6 +18,7 @@ import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -91,11 +92,11 @@ class ConversationListViewModel @Inject constructor(
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<GeneralConversation>> =
         mapOf(ConversationFolder.Predefined.Conversations to this.toGeneralConversationList())
 
-    fun openConversation(conversationId: ConversationId) {
+    fun openConversation(conversationItem: ConversationItem) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId))
+                    destination = NavigationItem.Conversation.getRouteWithArgs(listOf(conversationItem.conversationType.conversationId))
                 )
             )
         }

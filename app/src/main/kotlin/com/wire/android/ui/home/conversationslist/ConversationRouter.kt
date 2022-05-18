@@ -31,10 +31,9 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.NotificationsOptionsItem
-import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.id.ConversationId
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -104,8 +103,8 @@ fun ConversationRouterHomeBridge(
         uiState = viewModel.state,
         errorState = viewModel.errorState,
         conversationState = conversationState,
-        openConversation = { viewModel.openConversation(it) },
-        openNewConversation = { viewModel.openNewConversation() },
+        openConversation = viewModel::openConversation,
+        openNewConversation = viewModel::openNewConversation,
         onExpandBottomSheet = {
             conversationState.toggleEditMutedSetting(false)
             onBottomSheetVisibilityToggled()
@@ -123,9 +122,9 @@ private fun ConversationRouter(
     uiState: ConversationListState,
     errorState: ConversationOperationErrorState?,
     conversationState: ConversationState,
-    openConversation: (ConversationId) -> Unit,
+    openConversation: (ConversationItem) -> Unit,
     openNewConversation: () -> Unit,
-    onExpandBottomSheet: (ConversationId) -> Unit,
+    onExpandBottomSheet: (ConversationItem) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
     onError: () -> Unit
 ) {
@@ -168,9 +167,9 @@ private fun ConversationRouter(
         bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
     ) {
 
-        fun editConversation(conversationType: ConversationType) {
-            conversationState.changeModalSheetContentState(conversationType)
-            onExpandBottomSheet(conversationType.conversationId)
+        fun editConversation(conversationItem: ConversationItem) {
+            conversationState.changeModalSheetContentState(conversationItem.conversationType)
+            onExpandBottomSheet(conversationItem)
         }
 
         with(uiState) {

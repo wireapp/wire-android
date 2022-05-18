@@ -47,7 +47,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun MessageItem(
     message: MessageViewWrapper,
-    onLongClicked: () -> Unit,
+    onLongClicked: (MessageViewWrapper) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String) -> Unit
 ) {
@@ -62,7 +62,7 @@ fun MessageItem(
                 .combinedClickable(
                     //TODO: implement some action onClick
                     onClick = { },
-                    onLongClick = onLongClicked
+                    onLongClick = { onLongClicked(message) }
                 )
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing2x))

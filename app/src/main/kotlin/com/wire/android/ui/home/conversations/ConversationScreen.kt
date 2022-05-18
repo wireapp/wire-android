@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
@@ -137,11 +138,11 @@ private fun ConversationScreen(
                             onMessageChanged = onMessageChanged,
                             messageText = conversationViewState.messageText,
                             onSendButtonClicked = onSendButtonClicked,
-                            onShowContextMenu = { message -> conversationScreenState.showEditContextMenu(message) },
+                            onShowContextMenu = conversationScreenState::showEditContextMenu,
                             onSendAttachment = onSendAttachment,
                             onDownloadAsset = onDownloadAsset,
                             onImageFullScreenMode = onImageFullScreenMode,
-                            conversationState = this,
+                            conversationState = conversationViewState,
                             onMessageComposerError = onSnackbarMessage,
                             conversationScreenState = conversationScreenState
                         )
@@ -166,13 +167,8 @@ private fun ConversationScreenContent(
     conversationState: ConversationViewState,
     conversationScreenState: ConversationScreenState
 ) {
-    val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-
-    LaunchedEffect(conversationState.messages) {
-        lazyListState.animateScrollToItem(0)
-    }
 
     conversationState.onSnackbarMessage?.let { messageCode ->
         val (message, actionLabel) = getSnackbarMessage(messageCode)
@@ -187,26 +183,21 @@ private fun ConversationScreenContent(
         }
     }
 
+    val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(messages) {
+        lazyListState.animateScrollToItem(0)
+    }
+
     MessageComposer(
         content = {
-            LazyColumn(
-                state = lazyListState,
-                reverseLayout = true,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth()
-            ) {
-                items(messages, key = {
-                    it.messageHeader.messageId
-                }) { message ->
-                    MessageItem(
-                        message = message,
-                        onLongClicked = { onShowContextMenu(message) },
-                        onAssetMessageClicked = onDownloadAsset,
-                        onImageMessageClicked = onImageFullScreenMode
-                    )
-                }
-            }
+            MessageList(
+                messages = messages,
+                lazyListState = lazyListState,
+                onShowContextMenu = onShowContextMenu,
+                onDownloadAsset = onDownloadAsset,
+                onImageFullScreenMode = onImageFullScreenMode
+            )
         },
         messageText = messageText,
         onMessageChanged = onMessageChanged,
@@ -238,6 +229,34 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
         else -> null
     }
     return msg to actionLabel
+}
+
+@Composable
+fun MessageList(
+    messages: List<MessageViewWrapper>,
+    lazyListState: LazyListState,
+    onShowContextMenu: (MessageViewWrapper) -> Unit,
+    onDownloadAsset: (String) -> Unit,
+    onImageFullScreenMode: (String) -> Unit
+) {
+    LazyColumn(
+        state = lazyListState,
+        reverseLayout = true,
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+    ) {
+        items(messages, key = {
+            it.messageHeader.messageId
+        }) { message ->
+            MessageItem(
+                message = message,
+                onLongClicked = onShowContextMenu,
+                onAssetMessageClicked = onDownloadAsset,
+                onImageMessageClicked = onImageFullScreenMode
+            )
+        }
+    }
 }
 
 @Preview

@@ -111,6 +111,9 @@ class NewConversationViewModel
         searchQueryStateFlow.search(searchTerm)
     }
 
+    //TODO: suppress for now,
+    // we should  map the result to a custom Result class containing Error on Kalium side for this use case
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun searchKnown(searchTerm: String) {
         localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
 

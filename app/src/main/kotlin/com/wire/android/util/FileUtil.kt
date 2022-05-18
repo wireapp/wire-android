@@ -1,11 +1,8 @@
 @file:Suppress("TooManyFunctions")
+
 package com.wire.android.util
 
-import android.content.ActivityNotFoundException
-import android.content.ContentResolver
-import android.content.ContentValues
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.net.Uri
 import android.os.Build
 import android.os.Environment.DIRECTORY_DOWNLOADS
@@ -15,7 +12,6 @@ import android.webkit.MimeTypeMap
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -54,7 +50,7 @@ fun Context.getTempWritableVideoUri() = getTempWritableAttachmentUri(this, TEMP_
 private fun getTempWritableAttachmentUri(context: Context, fileName: String): Uri {
     val file = File(context.cacheDir, fileName)
     file.setWritable(true)
-    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+    return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
 }
 
 private fun Context.saveFileDataToDownloadsFolder(downloadedFile: File, fileSize: Int): Uri? {
@@ -67,7 +63,7 @@ private fun Context.saveFileDataToDownloadsFolder(downloadedFile: File, fileSize
         }
         resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
     } else {
-        val authority = "${packageName}.provider"
+        val authority = getProviderAuthority()
         val destinyFile = File(getExternalFilesDir(DIRECTORY_DOWNLOADS), downloadedFile.name)
         FileProvider.getUriForFile(this, authority, destinyFile)
     }?.also { downloadedUri ->
@@ -88,7 +84,7 @@ fun Context.copyDataToTempFile(assetName: String, assetData: ByteArray): Uri {
     val file = File(cacheDir, assetName)
     file.setWritable(true)
     file.writeBytes(assetData)
-    return FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)
+    return FileProvider.getUriForFile(this, getProviderAuthority(), file)
 }
 
 fun Uri.getMimeType(context: Context): String? {
@@ -112,7 +108,7 @@ private fun Context.getContentFileName(uri: Uri): String? = runCatching {
 fun Context.startFileShareIntent(path: String) {
     val file = File(path)
     val fileURI = FileProvider.getUriForFile(
-        this, this.packageName + ".provider",
+        this, getProviderAuthority(),
         file
     )
     val shareIntent = Intent(Intent.ACTION_SEND)
@@ -161,6 +157,8 @@ private fun Intent.setActionViewIntentFlags() {
         Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
     }
 }
+
+fun Context.getProviderAuthority() = "${packageName}.provider"
 
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"
 private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "temp_video_attachment.mp4"

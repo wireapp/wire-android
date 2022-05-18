@@ -1,8 +1,8 @@
 package com.wire.android.ui.home.newconversation.search
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +28,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
@@ -68,7 +71,6 @@ fun SearchPeopleScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SearchResult(
     searchQuery: String,
@@ -132,7 +134,7 @@ private fun LazyListScope.internalSearchResults(
     contactSearchResult: ContactSearchResult,
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
-    onOpenUserProfile: (Contact) -> Unit,
+    onOpenUserProfile: (Contact) -> Unit
 ) {
     when (val searchResult = contactSearchResult.searchResultState) {
         SearchResultState.InProgress -> {
@@ -153,8 +155,7 @@ private fun LazyListScope.internalSearchResults(
         }
         is SearchResultState.Failure -> {
             failureItem(
-                searchTitle = searchTitle,
-                failureMessage = searchResult.failureMessage
+                failureMessage = searchResult.failureString
             )
         }
         // We do not display anything on Initial state
@@ -170,7 +171,7 @@ private fun LazyListScope.externalSearchResults(
     contactSearchResult: ContactSearchResult,
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
-    onOpenUserProfile: (Contact) -> Unit,
+    onOpenUserProfile: (Contact) -> Unit
 ) {
     when (val searchResult = contactSearchResult.searchResultState) {
         SearchResultState.InProgress -> {
@@ -188,8 +189,7 @@ private fun LazyListScope.externalSearchResults(
         }
         is SearchResultState.Failure -> {
             failureItem(
-                searchTitle = searchTitle,
-                failureMessage = searchResult.failureMessage
+                failureMessage = searchResult.failureString
             )
         }
         // We do not display anything on Initial state
@@ -316,8 +316,7 @@ fun LazyListScope.inProgressItem() {
     }
 }
 
-fun LazyListScope.failureItem(searchTitle: @Composable () -> String, failureMessage: String?) {
-    item { FolderHeader(searchTitle()) }
+fun LazyListScope.failureItem(@StringRes failureMessage: Int) {
 
     item {
         Box(
@@ -326,10 +325,9 @@ fun LazyListScope.failureItem(searchTitle: @Composable () -> String, failureMess
                 .height(224.dp)
         ) {
             Text(
-                failureMessage ?: "We are sorry, something went wrong",
-                modifier = Modifier.align(
-                    Alignment.Center
-                )
+                stringResource(id = failureMessage),
+                modifier = Modifier.align(Alignment.Center),
+                style = MaterialTheme.wireTypography.label04.copy(color = MaterialTheme.wireColorScheme.secondaryText)
             )
         }
     }

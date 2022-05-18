@@ -47,7 +47,7 @@ fun SearchPeopleRouter(
                 searchNavController.navigate(SearchListScreens.SearchPeopleScreen.route)
             },
             onCloseSearchClicked = {
-                searchNavController.navigate(SearchListScreens.KnownContactsScreen.route)
+                searchNavController.popBackStack()
             },
             appTopBar = {
                 WireCenterAlignedTopAppBar(

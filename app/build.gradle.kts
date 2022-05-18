@@ -131,6 +131,7 @@ dependencies {
     implementation(Libraries.composeFoundation)
     implementation(Libraries.composeMaterial3)
     implementation(Libraries.composeMaterial)
+    implementation(Libraries.composeTooling)
     implementation(Libraries.composeIcons)
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
@@ -188,6 +189,4 @@ dependencies {
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)
-    debugImplementation(Libraries.composeTooling)
-
 }

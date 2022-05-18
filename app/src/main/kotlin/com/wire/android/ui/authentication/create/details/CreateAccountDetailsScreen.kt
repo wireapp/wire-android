@@ -86,11 +86,12 @@ private fun DetailsContent(
                 onNavigationPressed = onBackPressed
             )
         },
-    ) {
+    ) { internalPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
             modifier = Modifier
+                .padding(internalPadding)
                 .fillMaxHeight()
                 .verticalScroll(scrollState)
         ) {

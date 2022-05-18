@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -124,20 +125,22 @@ private fun ConversationScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                     },
-                    content = {
-                        ConversationScreenContent(
-                            messages = messages,
-                            onMessageChanged = onMessageChanged,
-                            messageText = conversationViewState.messageText,
-                            onSendButtonClicked = onSendButtonClicked,
-                            onShowContextMenu = conversationScreenState::showEditContextMenu,
-                            onSendAttachment = onSendAttachment,
-                            onDownloadAsset = onDownloadAsset,
-                            onImageFullScreenMode = onImageFullScreenMode,
-                            conversationState = conversationViewState,
-                            onMessageComposerError = onError,
-                            conversationScreenState = conversationScreenState
-                        )
+                    content = { internalPadding ->
+                        Box(modifier = Modifier.padding(internalPadding)) {
+                            ConversationScreenContent(
+                                messages = messages,
+                                onMessageChanged = onMessageChanged,
+                                messageText = conversationViewState.messageText,
+                                onSendButtonClicked = onSendButtonClicked,
+                                onShowContextMenu = conversationScreenState::showEditContextMenu,
+                                onSendAttachment = onSendAttachment,
+                                onDownloadAsset = onDownloadAsset,
+                                onImageFullScreenMode = onImageFullScreenMode,
+                                conversationState = conversationViewState,
+                                onMessageComposerError = onError,
+                                conversationScreenState = conversationScreenState
+                            )
+                        }
                     }
                 )
             }

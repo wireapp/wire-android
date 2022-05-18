@@ -47,7 +47,6 @@ import com.wire.android.ui.theme.wireColorScheme
  * through the list, AppTopBarWithSearchBarLayout also hides/shows the TopBar whenever the SearchBarInput is clicked so that we
  * can transit to the state where we provide the search query to the searchbar.
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppTopBarWithSearchBar(
     scrollPosition: Int,
@@ -99,7 +98,6 @@ fun AppTopBarWithSearchBar(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun AppTopBarWithSearchBar(
     scrollPosition: Int,
@@ -116,7 +114,7 @@ private fun AppTopBarWithSearchBar(
         isSearchActive = searchBarState.isSearchActive,
         isSearchBarCollapsed = searchBarState.isSearchBarCollapsed,
         searchBarHint = searchBarHint,
-        searchQuery = searchQuery,
+        searchQuery = if (searchBarState.isSearchActive) searchQuery else "",
         onSearchQueryChanged = onSearchQueryChanged,
         onInputClicked = {
             searchBarState.startSearch()
@@ -125,7 +123,6 @@ private fun AppTopBarWithSearchBar(
         },
         onCloseSearchClicked = {
             onCloseSearchClicked()
-
             searchBarState.cancelSearch()
         },
         appTopBar = appTopBar

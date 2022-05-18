@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil.util.CoilUtils.result
+import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -22,17 +22,15 @@ import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
+import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @Suppress("TooManyFunctions")
 @HiltViewModel
@@ -53,9 +51,9 @@ class NewConversationViewModel
 
     val state: SearchPeopleState by derivedStateOf {
         val noneSearchSucceed: Boolean =
-            localContactSearchResult.searchResultState is SearchResultState.Failure
-                    && publicContactsSearchResult.searchResultState is SearchResultState.Failure
-                    && federatedContactSearchResult.searchResultState is SearchResultState.Failure
+            localContactSearchResult.searchResultState is SearchResultState.Failure &&
+                    publicContactsSearchResult.searchResultState is SearchResultState.Failure &&
+                    federatedContactSearchResult.searchResultState is SearchResultState.Failure
 
         innerSearchPeopleState.copy(
             noneSearchSucceed = noneSearchSucceed,
@@ -124,7 +122,7 @@ class NewConversationViewModel
                 SearchResultState.Success(searchResult.result.map { otherUser -> otherUser.toContact() })
             )
         } catch (exception: Exception) {
-            ContactSearchResult.InternalContact(SearchResultState.Failure())
+            ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
         }
     }
 
@@ -139,12 +137,15 @@ class NewConversationViewModel
         }
 
         publicContactsSearchResult = when (result) {
-            is Either.Left -> {
-                ContactSearchResult.ExternalContact(SearchResultState.Failure())
+            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
+                ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
             }
-            is Either.Right -> {
+            is Result.Failure.InvalidQuery -> {
+                ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_no_results_found))
+            }
+            is Result.Success -> {
                 ContactSearchResult.ExternalContact(
-                    SearchResultState.Success(result.value.result.map { it.toContact() })
+                    SearchResultState.Success(result.userSearchResult.result.map { it.toContact() })
                 )
             }
         }
@@ -222,6 +223,7 @@ class NewConversationViewModel
                     Log.d("TEST", "error while creating a group ${result.value}")
                 }
                 is Either.Right -> {
+                    close()
                     groupNameState = groupNameState.copy(isLoading = false)
                     navigationManager.navigate(
                         command = NavigationCommand(

@@ -28,9 +28,6 @@ import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -112,16 +109,20 @@ class NewConversationViewModel
         searchQueryStateFlow.search(searchTerm)
     }
 
+    //TODO: suppress for now,
+    // we should  map the result to a custom Result class containing Error on Kalium side for this use case
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun searchKnown(searchTerm: String) {
-        // TODO: this is going to be refactored on the Kalium side so that we do not use Flow
-        searchKnownUsers(searchTerm).onStart {
-            localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
-        }.catch {
-            localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
-        }.flowOn(Dispatchers.IO).collect {
-            localContactSearchResult = ContactSearchResult.InternalContact(
-                SearchResultState.Success(it.result.map { otherUser -> otherUser.toContact() })
+        localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
+
+        localContactSearchResult = try {
+            val searchResult = searchKnownUsers(searchTerm)
+
+            ContactSearchResult.InternalContact(
+                SearchResultState.Success(searchResult.result.map { otherUser -> otherUser.toContact() })
             )
+        } catch (exception: Exception) {
+            ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.search_no_results))
         }
     }
 

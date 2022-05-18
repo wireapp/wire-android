@@ -75,9 +75,13 @@ fun MessageItem(
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(dimensions().spacing6x))
                 if (!isDeleted) {
-                    MessageContent(messageContent, onAssetMessageClicked, onImageClick = {
-                        onImageMessageClicked(message.messageHeader.messageId)
-                    })
+                    MessageContent(messageContent,
+                        onAssetClick = { assetId ->
+                            onAssetMessageClicked(message.messageHeader.messageId)
+                        },
+                        onImageClick = {
+                            onImageMessageClicked(message.messageHeader.messageId)
+                        })
                 }
             }
         }
@@ -150,6 +154,7 @@ private fun MessageContent(messageContent: MessageContent?, onAssetClick: (Strin
             assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
+            assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = { onAssetClick(messageContent.assetId) }
         )
         else -> {}
@@ -161,7 +166,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        if (messageStatus != MessageStatus.Failure) {
+        if (messageStatus != MessageStatus.SendFailure) {
             Box(
                 modifier = Modifier
                     .wrapContentSize()

@@ -2,7 +2,11 @@
 
 package com.wire.android.util
 
-import android.content.*
+import android.content.ActivityNotFoundException
+import android.content.ContentResolver
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment.DIRECTORY_DOWNLOADS

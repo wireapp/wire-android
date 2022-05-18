@@ -114,16 +114,14 @@ class NewConversationViewModel
     private suspend fun searchKnown(searchTerm: String) {
         localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
 
-        viewModelScope.launch {
-            localContactSearchResult = try {
-                val searchResult = searchKnownUsers(searchTerm)
+        localContactSearchResult = try {
+            val searchResult = searchKnownUsers(searchTerm)
 
-                ContactSearchResult.InternalContact(
-                    SearchResultState.Success(searchResult.result.map { otherUser -> otherUser.toContact() })
-                )
-            } catch (exception: Exception) {
-                ContactSearchResult.InternalContact(SearchResultState.Failure())
-            }
+            ContactSearchResult.InternalContact(
+                SearchResultState.Success(searchResult.result.map { otherUser -> otherUser.toContact() })
+            )
+        } catch (exception: Exception) {
+            ContactSearchResult.InternalContact(SearchResultState.Failure())
         }
     }
 

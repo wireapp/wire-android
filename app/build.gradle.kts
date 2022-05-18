@@ -131,7 +131,6 @@ dependencies {
     implementation(Libraries.composeFoundation)
     implementation(Libraries.composeMaterial3)
     implementation(Libraries.composeMaterial)
-    implementation(Libraries.composeTooling)
     implementation(Libraries.composeIcons)
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
@@ -187,9 +186,7 @@ dependencies {
     kaptAndroidTest(Libraries.Hilt.compiler)
     androidTestUtil(TestLibraries.testOrchestrator)
 
-    debugImplementation("androidx.compose.ui:ui-tooling:1.1.1")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.1.1")
-
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)
+    debugImplementation(Libraries.composeTooling)
 }

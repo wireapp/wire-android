@@ -1,7 +1,7 @@
 package com.wire.android.ui.authentication.create.email
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 
 interface CreateAccountEmailViewModel {
     val emailState: CreateAccountEmailViewState

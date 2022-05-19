@@ -3,7 +3,7 @@ package com.wire.android.di
 import com.wire.android.utils.EMAIL
 import com.wire.android.utils.PASSWORD
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult

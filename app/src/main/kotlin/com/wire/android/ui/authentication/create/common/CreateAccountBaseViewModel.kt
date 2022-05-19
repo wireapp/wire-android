@@ -22,7 +22,7 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewSta
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.android.ui.common.textfield.CodeFieldValue
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase

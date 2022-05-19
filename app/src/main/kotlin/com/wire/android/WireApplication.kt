@@ -48,6 +48,8 @@ class WireApplication : Application(), Configuration.Provider {
         if (BuildConfig.DEBUG || coreLogic.getAuthenticationScope().isLoggingEnabled()) {
             enableLoggingAndInitiateFileLogging()
         }
+
+        coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
     }
 
     private fun enableLoggingAndInitiateFileLogging() {

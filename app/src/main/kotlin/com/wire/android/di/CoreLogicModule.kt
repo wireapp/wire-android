@@ -153,13 +153,29 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getServerConfigUserCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+    fun getServerConfigUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getAuthenticationScope().getServerConfig
 
     @ViewModelScoped
     @Provides
+    fun observeServerConfigUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().observeServerConfig
+
+    @ViewModelScoped
+    @Provides
+    fun updateApiVersionsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().updateApiVersions
+
+    @ViewModelScoped
+    @Provides
     // TODO: kind of redundant to CurrentSession - need to rename CurrentSession
-    fun currentSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) = coreLogic.getAuthenticationScope().session.currentSession
+    fun currentSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().session.currentSession
+
+    @ViewModelScoped
+    @Provides
+    fun currentSessionFlowUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().session.currentSessionFlow
 
     @ViewModelScoped
     @Provides

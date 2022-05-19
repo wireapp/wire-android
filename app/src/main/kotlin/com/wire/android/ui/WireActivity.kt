@@ -26,7 +26,10 @@ import com.wire.android.navigation.navigateToItem
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.server.ClientUpdateRequiredDialog
+import com.wire.android.ui.server.ServerVersionNotSupportedDialog
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.deeplink.DeepLinkResult
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -48,10 +51,12 @@ class WireActivity : AppCompatActivity() {
     val viewModel: WireActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         handleDeepLink(intent)
-        setComposableContent()
+        setComposableContent {
+            splashScreen.setKeepOnScreenCondition { it }
+        }
     }
 
     private fun handleDeepLink(intent: Intent) {
@@ -66,14 +71,43 @@ class WireActivity : AppCompatActivity() {
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent() {
+    private fun setComposableContent(keepSplashScreen: (Boolean) -> Unit) {
         setContent {
             WireTheme {
                 val scope = rememberCoroutineScope()
                 val navController = rememberAnimatedNavController()
+                val state: WireActivityState = viewModel.state
                 setUpNavigation(navController, scope)
                 Scaffold {
-                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), viewModel.navigationArguments())
+                    when (state) {
+                        WireActivityState.ServerVersionNotSupported -> {
+                            keepSplashScreen(false)
+                            ServerVersionNotSupportedDialog(
+                                onClose = { this@WireActivity.finish() }
+                            )
+                        }
+                        is WireActivityState.ClientUpdateRequired -> {
+                            keepSplashScreen(false)
+                            ClientUpdateRequiredDialog(
+                                onUpdate = {
+                                    CustomTabsHelper.launchUrl(this@WireActivity, state.clientUpdateUrl)
+                                    this@WireActivity.finish()
+                                },
+                                onClose = { this@WireActivity.finish() }
+                            )
+                        }
+                        is WireActivityState.NavigationGraph -> {
+                            keepSplashScreen(false)
+                            NavigationGraph(
+                                navController = navController,
+                                startDestination = state.startNavigationRoute,
+                                appInitialArgs = state.navigationArguments
+                            )
+                        }
+                        WireActivityState.Loading -> {
+                            keepSplashScreen(true)
+                        }
+                    }
                 }
             }
         }

@@ -7,7 +7,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

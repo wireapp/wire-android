@@ -18,17 +18,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.waz.avs.VideoPreview
+import com.wire.android.R
 import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
 import com.wire.android.ui.calling.controlButtons.SpeakerButton
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.R
-import com.wire.android.ui.common.dimensions
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -56,9 +58,10 @@ private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
         sheetContent = {
             with(ongoingCallViewModel) {
                 CallingControls(
-                    callEstablishedState,
-                    { muteOrUnMuteCall() },
-                    { hangUpCall() }
+                    ongoingCallState = callEstablishedState,
+                    onMuteOrUnMuteCall = { muteOrUnMuteCall() },
+                    onHangUpCall = { hangUpCall() },
+                    onToggleVideo = { toggleVideo() }
                 )
             }
         },
@@ -68,6 +71,14 @@ private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (ongoingCallViewModel.callEstablishedState.isCameraOn) {
+                AndroidView(factory = {
+                    val view = VideoPreview(it)
+                    ongoingCallViewModel.setVideoPreview(null)
+                    ongoingCallViewModel.setVideoPreview(view)
+                    view
+                })
+            }
             UserProfileAvatar(
                 userAvatarAsset = ongoingCallViewModel.callEstablishedState.avatarAssetId,
                 size = dimensions().onGoingCallUserAvatarSize
@@ -95,7 +106,8 @@ private fun OngoingCallTopBar(
 private fun CallingControls(
     ongoingCallState: OngoingCallState,
     onMuteOrUnMuteCall: () -> Unit,
-    onHangUpCall: () -> Unit
+    onHangUpCall: () -> Unit,
+    onToggleVideo: () -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -105,7 +117,13 @@ private fun CallingControls(
             .padding(0.dp, dimensions().spacing16x, 0.dp, 0.dp)
     ) {
         MicrophoneButton(ongoingCallState.isMuted) { onMuteOrUnMuteCall() }
-        CameraButton(onCameraPermissionDenied = { }, onCameraButtonClicked = { })
+        CameraButton(
+            isCameraOn = ongoingCallState.isCameraOn,
+            onCameraPermissionDenied = { },
+            onCameraButtonClicked = {
+                onToggleVideo()
+            }
+        )
         SpeakerButton(onSpeakerButtonClicked = { })
         HangUpButton { onHangUpCall() }
     }

@@ -1,14 +1,15 @@
 package com.wire.android.ui.calling
 
+import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
@@ -16,9 +17,15 @@ import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,7 +38,9 @@ class OngoingCallViewModel @Inject constructor(
     private val allCalls: GetAllCallsUseCase,
     private val endCall: EndCallUseCase,
     private val muteCall: MuteCallUseCase,
-    private val unMuteCall: UnMuteCallUseCase
+    private val unMuteCall: UnMuteCallUseCase,
+    private val setVideoPreview: SetVideoPreviewUseCase,
+    private val updateVideoState: UpdateVideoStateUseCase
 ) : ViewModel() {
 
     var callEstablishedState by mutableStateOf(OngoingCallState())
@@ -40,8 +49,11 @@ class OngoingCallViewModel @Inject constructor(
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
+    private val viewModelJob = SupervisorJob()
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+
     init {
-        viewModelScope.launch {
+        uiScope.launch {
             launch { initializeScreenState() }
             launch { observeOngoingCall() }
         }
@@ -80,20 +92,44 @@ class OngoingCallViewModel @Inject constructor(
     }
 
     fun hangUpCall() {
-        viewModelScope.launch {
+        uiScope.launch {
             endCall(conversationId)
             navigateBack()
         }
     }
 
+    fun setVideoPreview(view: View?) {
+        uiScope.launch {
+            setVideoPreview(conversationId, PlatformView(view))
+        }
+    }
+
+    private suspend fun pauseVideo() {
+        updateVideoState(conversationId, VideoState.PAUSED)
+        setVideoPreview(null)
+        callEstablishedState = callEstablishedState.copy(isCameraOn = false)
+    }
+
+    fun toggleVideo() {
+        uiScope.launch {
+            callEstablishedState = if (callEstablishedState.isCameraOn) {
+                updateVideoState(conversationId, VideoState.STOPPED)
+                callEstablishedState.copy(isCameraOn = false)
+            } else {
+                updateVideoState(conversationId, VideoState.STARTED)
+                callEstablishedState.copy(isCameraOn = true)
+            }
+        }
+    }
+
     private fun navigateBack() {
-        viewModelScope.launch {
+        uiScope.launch {
             navigationManager.navigateBack()
         }
     }
 
     fun muteOrUnMuteCall() {
-        viewModelScope.launch {
+        uiScope.launch {
             callEstablishedState = if (callEstablishedState.isMuted) {
                 unMuteCall()
                 callEstablishedState.copy(isMuted = false)
@@ -103,4 +139,14 @@ class OngoingCallViewModel @Inject constructor(
             }
         }
     }
+
+    override fun onCleared() {
+        uiScope.launch {
+            if (callEstablishedState.isCameraOn)
+                pauseVideo()
+            onCleared()
+            viewModelJob.cancel()
+        }
+    }
+
 }

@@ -21,8 +21,8 @@ import com.wire.android.ui.theme.wireTypography
 fun MentionConversationItem(
     mention: ConversationUnreadMention,
     eventType: EventType? = null,
-    onMentionItemClick: () -> Unit,
-    onConversationItemLongClick: () -> Unit
+    onMentionItemClick: (ConversationUnreadMention) -> Unit,
+    onConversationItemLongClick: (ConversationUnreadMention) -> Unit
 ) {
     when (val conversationType = mention.conversationType) {
         is ConversationType.GroupConversation -> {
@@ -32,8 +32,8 @@ fun MentionConversationItem(
                     title = { ConversationTitle(name = groupName, isLegalHold = conversationType.isLegalHold) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,
-                    onRowItemClicked = onMentionItemClick,
-                    onRowItemLongClicked = onConversationItemLongClick
+                    onRowItemClicked = { onMentionItemClick(mention) },
+                    onRowItemLongClicked = { onConversationItemLongClick(mention) }
                 )
             }
         }
@@ -44,8 +44,8 @@ fun MentionConversationItem(
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,
-                    onRowItemClicked = onMentionItemClick,
-                    onRowItemLongClicked =  onConversationItemLongClick
+                    onRowItemClicked = { onMentionItemClick(mention) },
+                    onRowItemLongClicked = { onConversationItemLongClick(mention) }
                 )
             }
         }

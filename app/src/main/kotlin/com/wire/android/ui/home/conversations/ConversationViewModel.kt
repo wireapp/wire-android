@@ -80,7 +80,7 @@ class ConversationViewModel @Inject constructor(
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
-    private val getSelfUserTeam: GetSelfTeamUseCase
+    private val getSelfUserTeam: GetSelfTeamUseCase,
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -109,7 +109,7 @@ class ConversationViewModel @Inject constructor(
     private fun fetchMessages() = viewModelScope.launch {
         getMessages(conversationId).combine(observeMemberDetails(conversationId)) { messages, members ->
             messages.toUIMessages(members)
-        }.flowOn(Dispatchers.Default).collect { uiMessages ->
+        }.flowOn(dispatchers.default()).collect { uiMessages ->
             conversationViewState = conversationViewState.copy(messages = uiMessages)
         }
     }

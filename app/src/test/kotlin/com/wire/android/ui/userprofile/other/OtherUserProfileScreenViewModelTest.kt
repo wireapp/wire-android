@@ -81,7 +81,6 @@ class OtherUserProfileScreenViewModelTest {
             // then
             coVerify {
                 sendConnectionRequest(eq(USER_ID))
-                navigationManager.navigateBack()
             }
             assertEquals(ConnectionStatus.NotConnected(true), otherUserProfileScreenViewModel.state.connectionStatus)
         }
@@ -100,7 +99,7 @@ class OtherUserProfileScreenViewModelTest {
                 sendConnectionRequest(eq(USER_ID))
                 navigationManager wasNot Called
             }
-            assertNotNull(otherUserProfileScreenViewModel.errorState)
+            assertNotNull(otherUserProfileScreenViewModel.connectionOperationState)
         }
 
     @Test

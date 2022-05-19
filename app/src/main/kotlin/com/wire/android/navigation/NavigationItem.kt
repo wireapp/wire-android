@@ -157,7 +157,7 @@ enum class NavigationItem(
         primaryRoute = OTHER_USER_PROFILE,
         canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}",
         content = { OtherUserProfileScreen() },
-        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+        animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userDomain: String = arguments.filterIsInstance<String>()[0]

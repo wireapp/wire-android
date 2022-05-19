@@ -2,9 +2,11 @@ package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
@@ -49,7 +51,8 @@ class ConversationListViewModelTest {
                 navigationManager,
                 observeConversationDetailsList,
                 updateConversationMutedStatus,
-                markMessagesAsNotified
+                markMessagesAsNotified,
+                TestDispatcherProvider()
             )
 
         coEvery { observeConversationDetailsList.invoke() } returns flowOf(listOf())

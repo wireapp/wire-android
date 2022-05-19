@@ -49,8 +49,8 @@ private fun SummaryContent(
                 navigationIconType = null
             )
         },
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    ) { internalPadding ->
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(internalPadding)) {
             Spacer(modifier = Modifier.weight(1f))
             Image(
                 painter = painterResource(id = state.type.summaryResources.summaryIconResId),

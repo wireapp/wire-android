@@ -112,7 +112,7 @@ private fun SelfUserProfileContent(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    ) {
+    ) { internalPadding ->
         with(state) {
             Column(
                 modifier = Modifier
@@ -120,6 +120,7 @@ private fun SelfUserProfileContent(
                     .fillMaxHeight()
                     .scrollable(state = scrollState, orientation = Orientation.Vertical)
                     .background(MaterialTheme.colorScheme.background)
+                    .padding(internalPadding)
             ) {
                 LazyColumn(
                     modifier = Modifier

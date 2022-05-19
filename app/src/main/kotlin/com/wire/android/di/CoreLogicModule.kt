@@ -381,6 +381,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun updateAssetMessageDownloadStatusUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).messages.updateAssetMessageDownloadStatus
+
+    @ViewModelScoped
+    @Provides
     fun enableLoggingUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getAuthenticationScope().enableLogging
 

@@ -87,8 +87,12 @@ private fun EmailContent(
             title = stringResource(id = state.type.titleResId),
             onNavigationPressed = onBackPressed
         )
-    }) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
+    }) { internalPadding ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier.padding(internalPadding)
+        ) {
             val keyboardController = LocalSoftwareKeyboardController.current
             Text(
                 text = stringResource(id = state.type.emailResources.emailSubtitleResId),
@@ -197,10 +201,10 @@ private fun EmailFooter(state: CreateAccountEmailViewState, onLoginPressed: () -
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
             modifier = Modifier.clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onLoginPressed
-                )
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onLoginPressed
+            )
         )
     }
     WirePrimaryButton(

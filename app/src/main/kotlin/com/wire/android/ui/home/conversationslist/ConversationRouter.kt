@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.NotificationsOptio
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.data.id.ConversationId
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -166,7 +167,7 @@ private fun ConversationRouter(
         },
         bottomBar = {
             WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
-    ) {
+    ) { internalPadding ->
 
         fun editConversation(conversationItem: ConversationItem) {
             conversationState.changeModalSheetContentState(conversationItem.conversationType)
@@ -176,8 +177,9 @@ private fun ConversationRouter(
         with(uiState) {
             // Change to a AnimatedNavHost and composable from accompanist lib to add transitions animations
             NavHost(
-                conversationState.navHostController, startDestination = ConversationsNavigationItem.All.route, modifier = Modifier
-                    .padding(bottom = MaterialTheme.wireDimensions.bottomNavigationHeight)
+                conversationState.navHostController,
+                startDestination = ConversationsNavigationItem.All.route,
+                modifier = Modifier.padding(internalPadding)
             ) {
                 composable(
                     route = ConversationsNavigationItem.All.route,

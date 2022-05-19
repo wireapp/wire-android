@@ -22,7 +22,7 @@ fun ZoomableImage(imageAsset: ImageAsset, contentDescription: String, imageLoade
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var zoom by remember { mutableStateOf(1f) }
-    val minScale = 0.5f
+    val minScale = 1.0f
     val maxScale = 3f
 
     Box {

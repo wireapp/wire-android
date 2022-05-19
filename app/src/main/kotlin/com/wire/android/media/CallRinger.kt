@@ -7,7 +7,6 @@ import android.media.MediaPlayer
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @Singleton
 class CallRinger @Inject constructor(private val context: Context) {
 
@@ -20,8 +19,10 @@ class CallRinger @Inject constructor(private val context: Context) {
     }
 
     private fun createMediaPlayer(resource: Int, isLooping: Boolean) {
-        mediaPlayer = MediaPlayer.create(context, resource,
-            AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(), 0 )
+        mediaPlayer = MediaPlayer.create(
+            context, resource,
+            AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(), 0
+        )
         mediaPlayer?.isLooping = isLooping
     }
 
@@ -32,8 +33,11 @@ class CallRinger @Inject constructor(private val context: Context) {
     }
 
     fun stop() {
-        if(mediaPlayer?.isPlaying == true)
-            mediaPlayer?.stop()
-        mediaPlayer?.release()
+        try {
+            if (mediaPlayer?.isPlaying == true)
+                mediaPlayer?.stop()
+            mediaPlayer?.release()
+        } catch (e: IllegalStateException) {
+        }
     }
 }

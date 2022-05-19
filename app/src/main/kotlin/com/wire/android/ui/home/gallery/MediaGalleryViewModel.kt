@@ -11,6 +11,7 @@ import com.wire.android.model.parseIntoPrivateImageAsset
 import com.wire.android.navigation.EXTRA_IMAGE_DATA
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -36,8 +37,16 @@ class MediaGalleryViewModel @Inject constructor(
     private fun observeConversationDetails() {
         viewModelScope.launch {
             getConversationDetails(imageAssetId.conversationId).collect {
-                updateMediaGalleryTitle(it.conversation.name)
+                updateMediaGalleryTitle(getScreenTitle(it))
             }
+        }
+    }
+
+    private fun getScreenTitle(conversationDetails: ConversationDetails): String? {
+        return when (conversationDetails) {
+            is ConversationDetails.OneOne -> conversationDetails.otherUser.name
+            is ConversationDetails.Group -> conversationDetails.conversation.name
+            else -> null
         }
     }
 

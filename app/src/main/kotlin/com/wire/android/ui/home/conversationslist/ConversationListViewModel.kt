@@ -67,7 +67,7 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            withContext(dispatchers.io()) {
+            withContext(dispatchers.default()) {
                 observeConversationDetailsList().map {
                     it.toConversationsFoldersMap()
                 }.collect { detailedList ->

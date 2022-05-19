@@ -362,12 +362,17 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun setVideoPreviewUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): SetVideoPreviewUseCase =
-        coreLogic.getSessionScope(currentAccount).calls.setVideoPreview
+    fun setVideoPreviewUseCaseProvider(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SetVideoPreviewUseCase = coreLogic.getSessionScope(currentAccount).calls.setVideoPreview
 
     @ViewModelScoped
     @Provides
-    fun updateVideoStateUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): UpdateVideoStateUseCase =
+    fun updateVideoStateUseCaseProvider(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateVideoStateUseCase =
         coreLogic.getSessionScope(currentAccount).calls.updateVideoState
 
     @ViewModelScoped

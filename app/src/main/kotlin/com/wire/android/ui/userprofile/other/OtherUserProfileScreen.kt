@@ -2,7 +2,6 @@ package com.wire.android.ui.userprofile.other
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,15 +21,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,16 +43,12 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
-    val state = viewModel.state
-
     OtherProfileScreenContent(
-        state = state,
+        state = viewModel.state,
+        operationState = viewModel.connectionOperationState,
         onSendConnectionRequest = { viewModel.sendConnectionRequest() },
         onOpenConversation = { viewModel.openConversation() },
         onCancelConnectionRequest = { viewModel.cancelConnectionRequest() },
@@ -64,16 +56,20 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,
+    operationState: ConnectionOperationState?,
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,
     onCancelConnectionRequest: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
+
+    handleOperationMessages(snackbarHostState, operationState)
 
     Scaffold(
         topBar = {
@@ -88,12 +84,13 @@ fun OtherProfileScreenContent(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    ) {
+    ) { internalPadding ->
         with(state) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
+                    .padding(internalPadding)
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 LazyColumn(modifier = Modifier.weight(1f)) {
@@ -119,7 +116,7 @@ fun OtherProfileScreenContent(
                             }
                         }
 
-                        if(state.phone.isNotEmpty()) {
+                        if (state.phone.isNotEmpty()) {
                             item {
                                 UserDetailInformation(
                                     title = stringResource(R.string.phone_label),
@@ -137,7 +134,7 @@ fun OtherProfileScreenContent(
                                     .padding(dimensions().spacing32x)
                             ) {
                                 Text(
-                                    text = stringResource(R.string.label_member_not_belongs_to_team),
+                                    text = stringResource(R.string.connection_label_member_not_belongs_to_team),
                                     textAlign = TextAlign.Center,
                                     color = MaterialTheme.wireColorScheme.labelText,
                                     style = MaterialTheme.wireTypography.body01
@@ -158,12 +155,12 @@ fun OtherProfileScreenContent(
                         AnimatedContent(connectionStatus) {
                             if (connectionStatus.isConnectionRequestPending) {
                                 WireSecondaryButton(
-                                    text = stringResource(R.string.label_cancel_request),
+                                    text = stringResource(R.string.connection_label_cancel_request),
                                     onClick = onCancelConnectionRequest
                                 )
                             } else {
                                 WirePrimaryButton(
-                                    text = stringResource(R.string.label_connect),
+                                    text = stringResource(R.string.connection_label_connect),
                                     onClick = onSendConnectionRequest,
                                     leadingIcon = {
                                         Icon(
@@ -241,32 +238,19 @@ fun OtherUserProfileTopBar(
     )
 }
 
-
 @Composable
-fun rememberOtherUserProfileScreenState(
-    snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
-): OtherUserProfileScreenState {
-    val coroutineScope = rememberCoroutineScope()
-    val clipBoardManager = LocalClipboardManager.current
-
-    return remember {
-        OtherUserProfileScreenState(
-            clipBoardManager = clipBoardManager,
-            snackbarHostState = snackBarHostState,
-            coroutineScope = coroutineScope
-        )
-    }
-}
-
-class OtherUserProfileScreenState(
-    private val clipBoardManager: ClipboardManager,
-    val snackbarHostState: SnackbarHostState,
-    private val coroutineScope: CoroutineScope
+private fun handleOperationMessages(
+    snackbarHostState: SnackbarHostState,
+    operationState: ConnectionOperationState?
 ) {
-
-    fun copy(text: String) {
-        clipBoardManager.setText(AnnotatedString(text))
-        coroutineScope.launch { snackbarHostState.showSnackbar(text) }
+    operationState?.let { errorType ->
+        val message = when (errorType) {
+            is ConnectionOperationState.ConnectionRequestError -> stringResource(id = R.string.connection_request_sent_error)
+            is ConnectionOperationState.SuccessConnectionRequest -> stringResource(id = R.string.connection_request_sent)
+            is ConnectionOperationState.LoadUserInformationError -> stringResource(id = R.string.error_unknown_message)
+        }
+        LaunchedEffect(errorType) {
+            snackbarHostState.showSnackbar(message)
+        }
     }
-
 }

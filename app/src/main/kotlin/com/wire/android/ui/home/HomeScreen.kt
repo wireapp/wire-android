@@ -1,7 +1,9 @@
 package com.wire.android.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalDrawer
@@ -10,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -58,7 +61,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                         viewModel.userAvatar,
                         currentNavigationItem = homeState.currentNavigationItem,
                         onOpenDrawerClicked = { openDrawer() },
-                        onNavigateToUserProfile = { viewModel.navigateToUserProfile() },
+                        onNavigateToUserProfile =  viewModel::navigateToUserProfile ,
                     )
                 },
                 currentNavigationItem = homeState.currentNavigationItem,
@@ -96,7 +99,9 @@ fun HomeContent(
                 )
             } else {
                 Scaffold(topBar = homeTopBar) {
-                    homeNavigationGraph()
+                    Box(modifier = Modifier.padding(it)) {
+                        homeNavigationGraph()
+                    }
                 }
             }
         }

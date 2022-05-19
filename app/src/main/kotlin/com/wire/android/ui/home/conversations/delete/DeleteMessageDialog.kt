@@ -23,7 +23,7 @@ internal fun DeleteMessageDialog(conversationViewModel: ConversationViewModel) {
             deleteMessageDialogsState.forEveryone is DeleteMessageDialogActiveState.Visible -> {
                 DeleteMessageDialog(
                     state = deleteMessageDialogsState.forEveryone,
-                    onDialogDismiss = conversationViewModel::onDialogDismissed,
+                    onDialogDismiss = conversationViewModel::onDeleteDialogDismissed,
                     onDeleteForMe = conversationViewModel::showDeleteMessageForYourselfDialog,
                     onDeleteForEveryone = conversationViewModel::deleteMessage,
                 )
@@ -38,7 +38,7 @@ internal fun DeleteMessageDialog(conversationViewModel: ConversationViewModel) {
                 } else {
                     DeleteMessageForYourselfDialog(
                         state = deleteMessageDialogsState.forYourself,
-                        onDialogDismiss = conversationViewModel::onDialogDismissed,
+                        onDialogDismiss = conversationViewModel::onDeleteDialogDismissed,
                         onDeleteForMe = conversationViewModel::deleteMessage
                     )
                 }

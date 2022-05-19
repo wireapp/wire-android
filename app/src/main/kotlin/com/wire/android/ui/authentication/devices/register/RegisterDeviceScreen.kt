@@ -64,10 +64,11 @@ private fun RegisterDeviceContent(
                 navigationIconType = null
             )
         },
-    ) {
+    ) { internalPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier.padding(internalPadding)
         ) {
             Text(
                 text = stringResource(id = R.string.register_device_text),

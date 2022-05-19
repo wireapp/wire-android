@@ -14,8 +14,8 @@ import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 fun ConversationItemFactory(
     conversation: ConversationItem,
     eventType: EventType? = null,
-    onConversationItemClick: () -> Unit,
-    onConversationItemLongClick: () -> Unit,
+    onConversationItemClick: (ConversationItem) -> Unit,
+    onConversationItemLongClick: (ConversationItem) -> Unit,
 ) {
     when (conversation) {
         is ConversationMissedCall -> CallConversationItem(

@@ -7,30 +7,37 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.navigation.EXTRA_CONNECTED_STATUS
+import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
+import com.wire.kalium.logic.feature.user.GetUserInfoResult
+import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    private val getKnownUserUseCase: GetKnownUserUseCase
+    private val getUserInfo: GetUserInfoUseCase,
+    private val sendConnectionRequest: SendConnectionRequestUseCase
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
+    var connectionOperationState: ConnectionOperationState? by mutableStateOf(null)
 
     private val userId = UserId(
         value = savedStateHandle.get<String>(EXTRA_USER_ID)!!,
@@ -38,52 +45,35 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     )
 
     init {
-        //TODO: internal is here untill we can get the ConnectionStatus from the user
-        // for now it is just to be able to proceed forward
-        val internalStatus = savedStateHandle.get<String>(EXTRA_CONNECTED_STATUS)
-
-        val isAKnownUser = internalStatus == "true"
-
-        if (isAKnownUser) {
-            state = state.copy(isDataLoading = true)
-
-            viewModelScope.launch {
-                getKnownUserUseCase(userId).collect { otherUser ->
-                    otherUser?.let {
-                        state = state.copy(
-                            isDataLoading = false,
-                            fullName = it.name ?: String.EMPTY,
-                            userName = it.handle ?: String.EMPTY,
-                            teamName = it.team ?: String.EMPTY,
-                            email = it.email ?: String.EMPTY,
-                            phone = it.phone ?: String.EMPTY,
-                            connectionStatus = ConnectionStatus.Connected
-                        )
-                    } ?: run {
-                        appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
-                    }
+        state = state.copy(isDataLoading = true)
+        viewModelScope.launch {
+            when (val result = getUserInfo(userId)) {
+                is GetUserInfoResult.Failure -> {
+                    appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
+                    connectionOperationState = ConnectionOperationState.LoadUserInformationError()
                 }
+                is GetUserInfoResult.Success -> loadViewState(result.otherUser)
             }
-        } else {
-            //TODO: for now this is a mock data when we open a screen for a not connected user
-            // we need to retrieve it from the back-end ? and not the local source ?
-            state = state.copy(
-                isAvatarLoading = false,
-                fullName = "Kim",
-                userName = "Dawson",
-                teamName = "AWESOME TEAM NAME",
-                email = "kim.dawson@gmail.com",
-                phone = "+49 123 456 000",
-                connectionStatus = if (isAKnownUser) ConnectionStatus.Connected else ConnectionStatus.NotConnected(false)
-            )
         }
+    }
+
+    private fun loadViewState(otherUser: OtherUser) {
+        state = state.copy(
+            isDataLoading = false,
+            userAvatarAsset = otherUser.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(pic) },
+            fullName = otherUser.name ?: String.EMPTY,
+            userName = otherUser.handle ?: String.EMPTY,
+            teamName = otherUser.team ?: String.EMPTY,
+            email = otherUser.email ?: String.EMPTY,
+            phone = otherUser.phone ?: String.EMPTY,
+            connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus()
+        )
     }
 
     fun openConversation() {
         viewModelScope.launch {
             when (val result = getOrCreateOneToOneConversation(userId)) {
                 is CreateConversationResult.Failure -> appLogger.d(("Couldn't retrieve or create the conversation"))
-
                 is CreateConversationResult.Success -> viewModelScope.launch {
                     navigationManager.navigate(
                         command = NavigationCommand(
@@ -96,15 +86,33 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     fun sendConnectionRequest() {
-        //TODO: fire a use case
-        state = state.copy(connectionStatus = ConnectionStatus.NotConnected(true))
+        viewModelScope.launch {
+            when (sendConnectionRequest(userId)) {
+                is SendConnectionRequestResult.Failure -> {
+                    appLogger.d(("Couldn't send a connect request to user $userId"))
+                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                }
+                is SendConnectionRequestResult.Success -> {
+                    state = state.copy(connectionStatus = ConnectionStatus.NotConnected(true))
+                    connectionOperationState = ConnectionOperationState.SuccessConnectionRequest()
+                }
+            }
+        }
     }
 
     fun cancelConnectionRequest() {
-        //TODO: fire a use case
+        // TODO: fire a use case
         state = state.copy(connectionStatus = ConnectionStatus.NotConnected(false))
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
+}
 
+/**
+ * We are adding a [randomEventIdentifier] as [UUID], so the msg can be discarded every time after being generated.
+ */
+sealed class ConnectionOperationState(private val randomEventIdentifier: UUID) {
+    class SuccessConnectionRequest : ConnectionOperationState(UUID.randomUUID())
+    class ConnectionRequestError : ConnectionOperationState(UUID.randomUUID())
+    class LoadUserInformationError : ConnectionOperationState(UUID.randomUUID())
 }

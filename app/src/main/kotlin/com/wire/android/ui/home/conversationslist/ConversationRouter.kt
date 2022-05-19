@@ -110,7 +110,7 @@ fun ConversationRouterHomeBridge(
             conversationState.toggleEditMutedSetting(false)
             onBottomSheetVisibilityToggled()
         },
-        onScrollPositionChanged = onScrollPositionChanged,
+        onScrollPositionChanged = { } ,
         onError = onBottomSheetVisibilityToggled
     )
 }

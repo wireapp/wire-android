@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist
 
+import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -65,24 +67,26 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeConversationDetailsList().map {
-                it.toConversationsFoldersMap()
-            }.flowOn(dispatchers.io()).collect { detailedList ->
-                val newActivities = listOf<NewActivity>() // TODO: needs to be implemented
-                val missedCalls = mockMissedCalls // TODO: needs to be implemented
-                val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
+            withContext(dispatchers.io()) {
+                observeConversationDetailsList().map {
+                    it.toConversationsFoldersMap()
+                }.collect { detailedList ->
+                    val newActivities = listOf<NewActivity>() // TODO: needs to be implemented
+                    val missedCalls = mockMissedCalls // TODO: needs to be implemented
+                    val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
 
-                state = ConversationListState(
-                    newActivities = newActivities,
-                    conversations = detailedList,
-                    missedCalls = missedCalls,
-                    callHistory = mockCallHistory, // TODO: needs to be implemented
-                    unreadMentions = unreadMentions,
-                    allMentions = mockAllMentionList, // TODO: needs to be implemented
-                    unreadMentionsCount = unreadMentions.size,
-                    missedCallsCount = missedCalls.size,
-                    newActivityCount = newActivities.size
-                )
+                    state = ConversationListState(
+                        newActivities = newActivities,
+                        conversations = detailedList,
+                        missedCalls = missedCalls,
+                        callHistory = mockCallHistory, // TODO: needs to be implemented
+                        unreadMentions = unreadMentions,
+                        allMentions = mockAllMentionList, // TODO: needs to be implemented
+                        unreadMentionsCount = unreadMentions.size,
+                        missedCallsCount = missedCalls.size,
+                        newActivityCount = newActivities.size
+                    )
+                }
             }
         }
 

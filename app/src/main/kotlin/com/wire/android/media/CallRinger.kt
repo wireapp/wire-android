@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
+import com.wire.android.appLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,6 +39,7 @@ class CallRinger @Inject constructor(private val context: Context) {
                 mediaPlayer?.stop()
             mediaPlayer?.release()
         } catch (e: IllegalStateException) {
+            appLogger.e("There was an error while stopping ringing", e)
         }
     }
 }

@@ -15,13 +15,13 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
+import com.wire.android.ui.home.conversationslist.mock.mockNewActivities
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -41,6 +41,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
+import com.wire.kalium.logic.data.user.UserId
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -60,7 +61,7 @@ class ConversationListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             observeConversationDetailsList().collect { detailedList ->
-                val newActivities = listOf<NewActivity>() // TODO: needs to be implemented
+                val newActivities = mockNewActivities // TODO: connect to connection requests use case
                 val missedCalls = mockMissedCalls // TODO: needs to be implemented
                 val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
                 state = ConversationListState(
@@ -100,6 +101,18 @@ class ConversationListViewModel @Inject constructor(
             navigationManager.navigate(
                 command = NavigationCommand(
                     destination = NavigationItem.NewConversation.getRouteWithArgs()
+                )
+            )
+        }
+    }
+
+    fun openUserProfile(profileId: UserId) {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
+                        listOf(profileId.domain, profileId.value)
+                    )
                 )
             )
         }

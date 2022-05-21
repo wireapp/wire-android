@@ -15,14 +15,17 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onOpenConversationClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit = {}
+    onOpenConversation: (ConversationId) -> Unit,
+    onEditConversation: (ConversationType) -> Unit,
+    onOpenUserProfile: (UserId) -> Unit,
+    onScrollPositionChanged: (Int) -> Unit = {},
+    openConversationNotificationsSettings: (ConversationType) -> Unit,
 ) {
     val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -32,8 +35,10 @@ fun AllConversationScreen(
         lazyListState = lazyListState,
         newActivities = newActivities,
         conversations = conversations,
-        onConversationItemClick = onOpenConversationClick,
-        onEditConversationItem = onEditConversationItem
+        onOpenConversation = onOpenConversation,
+        onEditConversation = onEditConversation,
+        onOpenUserProfile = onOpenUserProfile,
+        openConversationNotificationsSettings = openConversationNotificationsSettings,
     )
 }
 
@@ -42,8 +47,10 @@ private fun AllConversationContent(
     lazyListState: LazyListState,
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onConversationItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
+    onOpenConversation: (ConversationId) -> Unit,
+    onEditConversation: (ConversationType) -> Unit,
+    onOpenUserProfile: (UserId) -> Unit,
+    openConversationNotificationsSettings: (ConversationType) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -57,31 +64,38 @@ private fun AllConversationContent(
                 ConversationItemFactory(
                     conversation = conversationItem,
                     eventType = eventType,
-                    onConversationItemClick = { onConversationItemClick(conversationItem.id) },
-                    onConversationItemLongClick = { onEditConversationItem(conversationItem.conversationType) }
+                    openConversation = { onOpenConversation(conversationItem.id) },
+                    onConversationItemLongClick = { onEditConversation(conversationItem.conversationType) },
+                    openUserProfile = onOpenUserProfile,
+                    onMutedIconClick = { openConversationNotificationsSettings(conversationItem.conversationType) },
                 )
             }
         }
 
         conversations.forEach { (conversationFolder, conversationList) ->
             folderWithElements(
-                header = { when(conversationFolder) {
-                    is ConversationFolder.Predefined -> stringResource(id = conversationFolder.folderNameResId)
-                    is ConversationFolder.Custom -> conversationFolder.folderName
-                } },
+                header = {
+                    when (conversationFolder) {
+                        is ConversationFolder.Predefined -> stringResource(id = conversationFolder.folderNameResId)
+                        is ConversationFolder.Custom -> conversationFolder.folderName
+                    }
+                },
                 items = conversationList
             ) { generalConversation ->
-                GeneralConversationItem(
-                    generalConversation = generalConversation,
-                    onConversationItemClick = { onConversationItemClick(generalConversation.id) },
-                    onConversationItemLongClick = { onEditConversationItem(generalConversation.conversationType) }
+                ConversationItemFactory(
+                    conversation = generalConversation,
+                    openConversation = { onOpenConversation(generalConversation.id) },
+                    onConversationItemLongClick = { onEditConversation(generalConversation.conversationType) },
+                    openUserProfile = onOpenUserProfile,
+                    onMutedIconClick = { openConversationNotificationsSettings(generalConversation.conversationType) },
                 )
             }
         }
     }
 }
+
 @Preview
 @Composable
 fun ComposablePreview() {
-    AllConversationScreen(listOf(), mapOf(), {}, {})
+    AllConversationScreen(listOf(), mapOf(), {}, {}, {}, {}, {})
 }

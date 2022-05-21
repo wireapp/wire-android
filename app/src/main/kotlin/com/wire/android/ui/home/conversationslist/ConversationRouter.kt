@@ -35,6 +35,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -111,7 +112,8 @@ fun ConversationRouterHomeBridge(
             onBottomSheetVisibilityToggled()
         },
         onScrollPositionChanged = onScrollPositionChanged,
-        onError = onBottomSheetVisibilityToggled
+        onError = onBottomSheetVisibilityToggled,
+        openProfile = { viewModel.openUserProfile(it) }
     )
 }
 
@@ -127,7 +129,8 @@ private fun ConversationRouter(
     openNewConversation: () -> Unit,
     onExpandBottomSheet: (ConversationId) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
-    onError: () -> Unit
+    onError: () -> Unit,
+    openProfile: (UserId) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -173,6 +176,12 @@ private fun ConversationRouter(
             onExpandBottomSheet(conversationType.conversationId)
         }
 
+        fun editNotifications(conversationType: ConversationType) {
+            conversationState.changeModalSheetContentState(conversationType)
+            onExpandBottomSheet(conversationType.conversationId)
+            conversationState.toggleEditMutedSetting(true)
+        }
+
         with(uiState) {
             // Change to a AnimatedNavHost and composable from accompanist lib to add transitions animations
             NavHost(
@@ -185,9 +194,11 @@ private fun ConversationRouter(
                         AllConversationScreen(
                             newActivities = newActivities,
                             conversations = conversations,
-                            onOpenConversationClick = openConversation,
-                            onEditConversationItem = ::editConversation,
-                            onScrollPositionChanged = onScrollPositionChanged
+                            onOpenConversation = openConversation,
+                            onEditConversation = ::editConversation,
+                            onScrollPositionChanged = onScrollPositionChanged,
+                            onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = ::editNotifications
                         )
                     }
                 )
@@ -199,7 +210,9 @@ private fun ConversationRouter(
                             callHistory = callHistory,
                             onCallItemClick = openConversation,
                             onEditConversationItem = ::editConversation,
-                            onScrollPositionChanged = onScrollPositionChanged
+                            onScrollPositionChanged = onScrollPositionChanged,
+                            onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = ::editNotifications
                         )
                     }
                 )
@@ -211,7 +224,9 @@ private fun ConversationRouter(
                             allMentions = allMentions,
                             onMentionItemClick = openConversation,
                             onEditConversationItem = ::editConversation,
-                            onScrollPositionChanged = onScrollPositionChanged
+                            onScrollPositionChanged = onScrollPositionChanged,
+                            onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = ::editNotifications
                         )
                     }
                 )

@@ -29,6 +29,7 @@ fun EventBadgeFactory(eventType: EventType, modifier: Modifier = Modifier) {
         EventType.UnreadMention -> UnreadMentionBadge(modifier)
         is EventType.UnreadMessage -> UnreadMessageEventBadge(unreadMessageCount = eventType.unreadMessageCount, modifier)
         EventType.UnreadReply -> UnreadReplyBadge(modifier)
+        EventType.ConnectRequest -> ConnectRequestBadge(modifier)
     }
 }
 
@@ -65,6 +66,19 @@ private fun UnreadReplyBadge(modifier: Modifier = Modifier) {
         notificationIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_unread_reply),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                modifier = modifier
+            )
+        })
+}
+
+@Composable
+private fun ConnectRequestBadge(modifier: Modifier = Modifier) {
+    NotificationBadgeContainer(
+        notificationIcon = {
+            Image(
+                painter = painterResource(id = R.drawable.ic_event_badge_connect_request),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
                 modifier = modifier

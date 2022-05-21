@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversationslist.mock
 import com.wire.android.ui.home.conversationslist.model.CallEvent
 import com.wire.android.ui.home.conversationslist.model.CallInfo
 import com.wire.android.ui.home.conversationslist.model.CallTime
+import com.wire.android.ui.home.conversationslist.model.ConnectionInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
@@ -14,6 +15,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.MentionInfo
 import com.wire.android.ui.home.conversationslist.model.MentionMessage
 import com.wire.android.ui.home.conversationslist.model.NewActivity
+import com.wire.android.ui.home.conversationslist.model.PendingConnectionItem
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -28,7 +30,7 @@ val mockConversations1 = listOf(
             ),
             conversationId = ConversationId("someId", "someDomain"),
             mutedStatus = MutedConversationStatus.AllAllowed,
-            isLegalHold = true
+            isLegalHold = true,
         )
     ),
     GeneralConversation(
@@ -98,32 +100,46 @@ val mockConversations2 = listOf(
 val mockConversation = ConversationType.PrivateConversation(
     userInfo = UserInfo(),
     conversationInfo = ConversationInfo(
-        name = "some test value",
+        name = "some test valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         membership = Membership.Guest
     ),
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
-    isLegalHold = true
-)
+    isLegalHold = true,
+    )
 
 val mockGroupConversation = ConversationType.GroupConversation(
     groupColorValue = 0xFFFF0000,
     groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
-    isLegalHold = true
+    isLegalHold = true,
 )
 
 val mockGeneralConversation = GeneralConversation(
     ConversationType.PrivateConversation(
         userInfo = UserInfo(),
         conversationInfo = ConversationInfo(
-            name = "some test value",
+            name = "some very long naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame",
             membership = Membership.Guest
         ),
         conversationId = ConversationId("someId", "someDomain"),
         mutedStatus = MutedConversationStatus.AllAllowed,
-        isLegalHold = true
+        isLegalHold = true,
+        )
+)
+
+val mockGeneralConversationPending = PendingConnectionItem(
+    ConnectionInfo("Wants to connect", "someId"),
+    ConversationType.PrivateConversation(
+        conversationId = ConversationId("someId", "someDomain"),
+        mutedStatus = MutedConversationStatus.AllAllowed,
+        isLegalHold = true,
+        userInfo = UserInfo(),
+        conversationInfo = ConversationInfo(
+            name = "some very long teeeeeeeeeeeeeeeeeeeeeeeeest value",
+            membership = Membership.Guest
+        ),
     )
 )
 
@@ -194,6 +210,10 @@ val mockCallInfo2 = CallInfo(CallTime("Yesterday", "1:00 PM"), CallEvent.Outgoin
 val mockCallInfo3 = CallInfo(CallTime("Today", "2:34 PM"), CallEvent.MissedCall)
 val mockCallInfo4 = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
 val mockCallInfo5 = CallInfo(CallTime("Today", "6:59 PM"), CallEvent.NoAnswerCall)
+
+val mockNewActivities = listOf(
+    (NewActivity(EventType.ConnectRequest, mockGeneralConversationPending))
+)
 
 val mockMissedCalls = listOf(
     ConversationMissedCall(mockCallInfo1, mockConversation),

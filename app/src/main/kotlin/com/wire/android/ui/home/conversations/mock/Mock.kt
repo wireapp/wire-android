@@ -11,6 +11,7 @@ import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.message.Message
 
 val mockMessageWithText = MessageViewWrapper(
     user = User(null, UserStatus.AVAILABLE),
@@ -49,7 +50,8 @@ val mockAssetMessage = MessageViewWrapper(
         assetName = "This is some test asset message",
         assetExtension = "ZIP",
         assetId = "asset-id",
-        assetSizeInBytes = 21957335
+        assetSizeInBytes = 21957335,
+        downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
     ),
     messageSource = MessageSource.Self
 )

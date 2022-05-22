@@ -131,7 +131,7 @@ dependencies {
     implementation(Libraries.composeFoundation)
     implementation(Libraries.composeMaterial3)
     implementation(Libraries.composeMaterial)
-    implementation(Libraries.composeTooling)
+    implementation(Libraries.composePreview)
     implementation(Libraries.composeIcons)
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
@@ -141,6 +141,9 @@ dependencies {
     implementation(Libraries.accompanistPlaceholder)
     implementation(Libraries.accompanistNavAnimation)
     implementation(Libraries.composeRuntimeLiveData)
+
+    // Compose iterative code, layout inspector, etc.
+    debugImplementation(Libraries.composeTooling)
 
     // dagger/hilt
     implementation(Libraries.Hilt.android)

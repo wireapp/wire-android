@@ -7,8 +7,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -19,13 +19,13 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.ConversationErrors
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorPickingAttachment
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
-import com.wire.android.util.getWritableImageAttachment
-import com.wire.android.util.getWritableVideoAttachment
+import com.wire.android.util.getTempWritableImageUri
+import com.wire.android.util.getTempWritableVideoUri
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 fun AttachmentOptionsComponent(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (ConversationErrors) -> Unit,
+    onError: (ConversationSnackbarMessages) -> Unit,
     modifier : Modifier= Modifier
 ) {
     val scope = rememberCoroutineScope()
@@ -49,11 +49,11 @@ fun AttachmentOptionsComponent(
     configureStateHandling(attachmentInnerState, onSendAttachment, onError)
 
     LazyVerticalGrid(
-        cells = GridCells.Adaptive(dimensions().spacing80x),
-        contentPadding = PaddingValues(dimensions().spacing8x),
+        columns = GridCells.Adaptive(dimensions().spacing80x),
         modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(dimensions().spacing8x),
         verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         attachmentOptions.forEach { option ->
             item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
@@ -65,7 +65,7 @@ fun AttachmentOptionsComponent(
 private fun configureStateHandling(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (ConversationErrors) -> Unit
+    onError: (ConversationSnackbarMessages) -> Unit
 ) {
     when (val state = attachmentInnerState.attachmentState) {
         is AttachmentState.NotPicked -> appLogger.d("Not picked yet")
@@ -99,7 +99,7 @@ private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
 @Composable
 private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow {
     val context = LocalContext.current
-    val imageAttachmentUri = getWritableImageAttachment(context)
+    val imageAttachmentUri = context.getTempWritableImageUri()
     return rememberTakePictureFlow(
         onPictureTaken = { onPictureTaken(imageAttachmentUri) },
         targetPictureFileUri = imageAttachmentUri,
@@ -110,7 +110,7 @@ private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow
 @Composable
 private fun CaptureVideoFlow(onVideoCaptured: (Uri) -> Unit): UseCameraRequestFlow {
     val context = LocalContext.current
-    val videoAttachmentUri = getWritableVideoAttachment(context)
+    val videoAttachmentUri = context.getTempWritableVideoUri()
     return rememberCaptureVideoFlow(
         onVideoRecorded = { onVideoCaptured(videoAttachmentUri) },
         targetVideoFileUri = videoAttachmentUri,

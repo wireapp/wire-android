@@ -51,8 +51,8 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.6.10"
-        const val coroutines = "1.6.0-native-mt"
+        const val kotlin = "1.6.21"
+        const val coroutines = "1.6.1-native-mt"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
         const val ktx = "1.6.0"
@@ -62,13 +62,13 @@ object Libraries {
         const val desugaring = "1.1.5"
         const val workManager = "2.7.1"
         const val fragment = "1.2.5"
-        const val compose = "1.2.0-alpha03"
+        const val compose = "1.2.0-beta01"
         const val composeMaterial = compose
-        const val composeMaterial3 = "1.0.0-alpha09"
+        const val composeMaterial3 = "1.0.0-alpha11"
         const val composeActivity = "1.4.0"
-        const val composeNavigation = "2.4.0-beta02"
-        const val accompanist = "0.24.2-alpha"
-        const val composeConstraint = "1.0.0-rc02"
+        const val composeNavigation = "2.4.2"
+        const val accompanist = "0.24.8-beta"
+        const val composeConstraint = "1.0.0"
         const val hilt = "2.38.1"
         const val lifecycle = "2.4.0"
         const val visibilityModifiers = "1.1.0"
@@ -92,6 +92,7 @@ object Libraries {
     const val composeMaterial           = "androidx.compose.material:material:${Versions.composeMaterial}"
     const val composeMaterial3          = "androidx.compose.material3:material3:${Versions.composeMaterial3}"
     const val composeTooling            = "androidx.compose.ui:ui-tooling:${Versions.compose}"
+    const val composePreview            = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
     const val composeActivity           = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeIcons              = "androidx.compose.material:material-icons-extended:${Versions.compose}"
     const val composeNavigation         = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"

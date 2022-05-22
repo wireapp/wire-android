@@ -87,7 +87,7 @@ private fun LoginContent(
             }
         },
         modifier = Modifier.fillMaxHeight(),
-    ) {
+    ) { internalPadding ->
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
@@ -95,7 +95,7 @@ private fun LoginContent(
             HorizontalPager(
                 state = pagerState,
                 count = LoginTabItem.values().size,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(internalPadding)
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
                     LoginTabItem.EMAIL -> LoginEmailScreen(serverConfig, scrollState)
@@ -104,7 +104,7 @@ private fun LoginContent(
                     LoginTabItem.SSO -> LoginSSOScreen(ServerConfig.STAGING, ssoLoginResult)
                 }
             }
-            if(!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)
+            if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)
                 LaunchedEffect(Unit) {
                     keyboardController?.hide()
                     focusManager.clearFocus()

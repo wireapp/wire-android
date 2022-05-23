@@ -81,7 +81,7 @@ private fun configureStateHandling(
 @Composable
 private fun FileBrowserFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
     return rememberOpenFileBrowserFlow(
-        onFileBrowserItemPicked = { pickedFileUri -> onFilePicked(pickedFileUri) },
+        onFileBrowserItemPicked = onFilePicked,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
@@ -89,7 +89,7 @@ private fun FileBrowserFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow 
 @Composable
 private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
     return rememberOpenGalleryFlow(
-        onGalleryItemPicked = { pickedPictureUri -> onFilePicked(pickedPictureUri) },
+        onGalleryItemPicked = onFilePicked,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }

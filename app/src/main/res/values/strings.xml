@@ -288,6 +288,8 @@
     <string name="error_uploading_user_avatar">Image could not be uploaded</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
     <string name="error_conversation_sending_image">There was an error trying to send the image message. Please check your Internet connection and try again</string>
+    <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check the file you chose is not too big and try again</string>
+    <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
     <string name="error_conversation_opening_asset_file">No app was found to open the selected file</string>
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>

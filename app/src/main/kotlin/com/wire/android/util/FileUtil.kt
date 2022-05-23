@@ -130,7 +130,7 @@ fun Context.startFileShareIntent(path: String) {
 }
 
 fun saveFileToDownloadsFolder(assetName: String?, assetData: ByteArray, context: Context) {
-    val file = File(context.getExternalFilesDir(DIRECTORY_DOWNLOADS), "${System.currentTimeMillis()}_$assetName")
+    val file = File(context.getExternalFilesDir(DIRECTORY_DOWNLOADS), "${assetName}")
     file.setWritable(true)
     file.writeBytes(assetData)
     context.saveFileDataToDownloadsFolder(file, assetData.size)

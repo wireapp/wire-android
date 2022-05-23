@@ -3,7 +3,6 @@ package com.wire.android.ui.home.messagecomposer.attachment
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,13 +35,12 @@ import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AttachmentOptionsComponent(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit,
-    modifier : Modifier= Modifier
+    modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
     val attachmentOptions = buildAttachmentOptionItems { pickedUri -> scope.launch { attachmentInnerState.pickAttachment(pickedUri) } }
@@ -83,7 +81,7 @@ private fun configureStateHandling(
 @Composable
 private fun FileBrowserFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
     return rememberOpenFileBrowserFlow(
-        onFileBrowserItemPicked = { pickedFileUri -> onFilePicked(pickedFileUri) },
+        onFileBrowserItemPicked = onFilePicked,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
@@ -91,7 +89,7 @@ private fun FileBrowserFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow 
 @Composable
 private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
     return rememberOpenGalleryFlow(
-        onGalleryItemPicked = { pickedPictureUri -> onFilePicked(pickedPictureUri) },
+        onGalleryItemPicked = onFilePicked,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
 }
@@ -101,7 +99,10 @@ private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow
     val context = LocalContext.current
     val imageAttachmentUri = context.getTempWritableImageUri()
     return rememberTakePictureFlow(
-        onPictureTaken = { onPictureTaken(imageAttachmentUri) },
+        onPictureTaken = { hasTakenPicture ->
+            if (hasTakenPicture)
+                onPictureTaken(imageAttachmentUri)
+        },
         targetPictureFileUri = imageAttachmentUri,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )
@@ -112,7 +113,10 @@ private fun CaptureVideoFlow(onVideoCaptured: (Uri) -> Unit): UseCameraRequestFl
     val context = LocalContext.current
     val videoAttachmentUri = context.getTempWritableVideoUri()
     return rememberCaptureVideoFlow(
-        onVideoRecorded = { onVideoCaptured(videoAttachmentUri) },
+        onVideoRecorded = { hasCapturedVideo ->
+            if (hasCapturedVideo)
+                onVideoCaptured(videoAttachmentUri)
+        },
         targetVideoFileUri = videoAttachmentUri,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )

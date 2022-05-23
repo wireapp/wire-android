@@ -61,7 +61,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                         viewModel.userAvatar,
                         currentNavigationItem = homeState.currentNavigationItem,
                         onOpenDrawerClicked = { openDrawer() },
-                        onNavigateToUserProfile = { viewModel.navigateToUserProfile() },
+                        onNavigateToUserProfile =  viewModel::navigateToUserProfile ,
                     )
                 },
                 currentNavigationItem = homeState.currentNavigationItem,

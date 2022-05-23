@@ -8,12 +8,10 @@ import androidx.compose.runtime.setValue
 import com.wire.android.ui.common.effects.ScrollingDownEffect
 
 @Composable
-fun rememberSearchbarState(scrollPosition: Int): SearchBarState {
+fun rememberSearchbarState(): SearchBarState {
     val searchBarState = remember {
         SearchBarState()
     }
-
-    ScrollingDownEffect(scrollPosition) { shouldCollapse -> searchBarState.isSearchBarCollapsed = shouldCollapse }
 
     return searchBarState
 }

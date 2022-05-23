@@ -48,7 +48,7 @@ class ConversationState(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberConversationState(
     navHostController: NavHostController = rememberNavController(),

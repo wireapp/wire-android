@@ -1,24 +1,27 @@
 package com.wire.android.ui
 
+import android.content.Intent
+import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.getViewModel
-import com.wire.android.utils.waitForExecution
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -44,16 +47,21 @@ class MainScreenTest {
 
     // Third, we create the compose rule using an AndroidComposeRule, as we are depending on instrumented environment ie: Hilt, WorkManager
     @get:Rule(order = 2)
-    val composeTestRule = createAndroidComposeRule<WireActivity>()
+    val composeTestRule = createEmptyComposeRule()
+
+    private lateinit var scenario: ActivityScenario<WireActivity>
 
     @Before
     fun setUp() {
         hiltRule.inject()
 
         // Start the app
-        composeTestRule.setContent {
-            WireTheme {
-                WelcomeScreen(composeTestRule.getViewModel(WelcomeViewModel::class))
+        scenario = ActivityScenario.launch(Intent(ApplicationProvider.getApplicationContext(), WireActivity::class.java))
+        scenario.onActivity { activity ->
+            activity.setContent {
+                WireTheme {
+                    WelcomeScreen(getViewModel(activity, WelcomeViewModel::class))
+                }
             }
         }
     }

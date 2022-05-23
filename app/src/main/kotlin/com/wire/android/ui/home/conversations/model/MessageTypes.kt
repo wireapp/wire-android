@@ -49,10 +49,10 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOADED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.NOT_DOWNLOADED
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import kotlin.math.roundToInt
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
@@ -199,6 +199,12 @@ private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus) {
             size = dimensions().spacing16x
         )
         DOWNLOADED -> Icon(
+            painter = painterResource(id = R.drawable.ic_download),
+            contentDescription = stringResource(R.string.content_description_download_icon),
+            modifier = Modifier.size(dimensions().wireIconButtonSize),
+            tint = MaterialTheme.wireColorScheme.secondaryText
+        )
+        SAVED_EXTERNALLY -> Icon(
             painter = painterResource(id = R.drawable.ic_check_tick),
             contentDescription = stringResource(R.string.content_description_check),
             modifier = Modifier.size(dimensions().wireIconButtonSize),
@@ -212,8 +218,9 @@ private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus) {
 fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus): String =
     when (assetDownloadStatus) {
         NOT_DOWNLOADED -> stringResource(R.string.asset_message_tap_to_download_text)
+        DOWNLOADED -> stringResource(R.string.asset_message_downloaded_internally_text)
         IN_PROGRESS -> stringResource(R.string.asset_message_download_in_progress_text)
-        DOWNLOADED -> stringResource(R.string.asset_message_downloaded_text)
+        SAVED_EXTERNALLY -> stringResource(R.string.asset_message_saved_externally_text)
         FAILED -> stringResource(R.string.asset_message_failed_download_text)
     }
 

@@ -336,15 +336,16 @@ class ConversationsViewModelTest {
     fun `given an asset message, when downloading to external storage, then the file manager downloads the asset and closes the dialog`() =
         runTest {
             // Given
+            val messageId = "mocked-msg-id"
             val assetName = "mocked-asset"
             val assetData = assetName.toByteArray()
             val (arrangement, viewModel) = Arrangement()
-                .withSuccessfulSaveAssetMessage(assetName, assetData)
+                .withSuccessfulSaveAssetMessage(assetName, assetData, messageId)
                 .arrange()
 
             // When
             assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
-            viewModel.onSaveFile(assetName, assetData)
+            viewModel.onSaveFile(assetName, assetData, messageId)
 
             // Then
             verify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any()) }
@@ -355,10 +356,11 @@ class ConversationsViewModelTest {
     fun `given an asset message, when opening it, then the file manager open function gets invoked and closes the dialog`() =
         runTest {
             // Given
+            val messageId = "mocked-msg-id"
             val assetName = "mocked-asset"
             val assetData = assetName.toByteArray()
             val (arrangement, viewModel) = Arrangement()
-                .withSuccessfulOpenAssetMessage(assetName, assetData)
+                .withSuccessfulOpenAssetMessage(assetName, assetData, messageId)
                 .arrange()
 
             // When
@@ -477,16 +479,16 @@ class ConversationsViewModelTest {
             return this
         }
 
-        fun withSuccessfulSaveAssetMessage(assetName: String?, assetData: ByteArray): Arrangement {
-            viewModel.showOnAssetDownloadedDialog(assetName, assetData)
+        fun withSuccessfulSaveAssetMessage(assetName: String?, assetData: ByteArray, messageId: String): Arrangement {
+            viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
             every { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
                 viewModel.hideOnAssetDownloadedDialog()
             }
             return this
         }
 
-        fun withSuccessfulOpenAssetMessage(assetName: String?, assetData: ByteArray): Arrangement {
-            viewModel.showOnAssetDownloadedDialog(assetName, assetData)
+        fun withSuccessfulOpenAssetMessage(assetName: String?, assetData: ByteArray, messageId: String): Arrangement {
+            viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
             every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
                 viewModel.hideOnAssetDownloadedDialog()
             }

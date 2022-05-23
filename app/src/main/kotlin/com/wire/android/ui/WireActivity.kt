@@ -53,22 +53,17 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        handleDeepLink(intent)
+        viewModel.handleDeepLink(intent)
         setComposableContent {
             splashScreen.setKeepOnScreenCondition { it }
         }
     }
 
-    private fun handleDeepLink(intent: Intent) {
-        viewModel.handleDeepLink(intent)
-    }
-
     override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
         intent?.let {
-            recreate()
             viewModel.handleDeepLink(intent)
         }
-        super.onNewIntent(intent)
     }
 
     private fun setComposableContent(keepSplashScreen: (Boolean) -> Unit) {

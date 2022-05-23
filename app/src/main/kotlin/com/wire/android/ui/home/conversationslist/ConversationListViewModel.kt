@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist
 
+import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,11 +19,13 @@ import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.UserInfo
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
@@ -38,7 +41,11 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -49,7 +56,8 @@ class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
-    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -59,21 +67,26 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeConversationDetailsList().collect { detailedList ->
-                val newActivities = listOf<NewActivity>() // TODO: needs to be implemented
-                val missedCalls = mockMissedCalls // TODO: needs to be implemented
-                val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
-                state = ConversationListState(
-                    newActivities = newActivities,
-                    conversations = detailedList.toConversationsFoldersMap(),
-                    missedCalls = missedCalls,
-                    callHistory = mockCallHistory, // TODO: needs to be implemented
-                    unreadMentions = unreadMentions,
-                    allMentions = mockAllMentionList, // TODO: needs to be implemented
-                    unreadMentionsCount = unreadMentions.size,
-                    missedCallsCount = missedCalls.size,
-                    newActivityCount = newActivities.size
-                )
+            withContext(dispatchers.io()) {
+                observeConversationDetailsList().map {
+                    it.toConversationsFoldersMap()
+                }.collect { detailedList ->
+                    val newActivities = listOf<NewActivity>() // TODO: needs to be implemented
+                    val missedCalls = mockMissedCalls // TODO: needs to be implemented
+                    val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
+
+                    state = ConversationListState(
+                        newActivities = newActivities,
+                        conversations = detailedList,
+                        missedCalls = missedCalls,
+                        callHistory = mockCallHistory, // TODO: needs to be implemented
+                        unreadMentions = unreadMentions,
+                        allMentions = mockAllMentionList, // TODO: needs to be implemented
+                        unreadMentionsCount = unreadMentions.size,
+                        missedCallsCount = missedCalls.size,
+                        newActivityCount = newActivities.size
+                    )
+                }
             }
         }
 
@@ -85,11 +98,11 @@ class ConversationListViewModel @Inject constructor(
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<GeneralConversation>> =
         mapOf(ConversationFolder.Predefined.Conversations to this.toGeneralConversationList())
 
-    fun openConversation(conversationId: ConversationId) {
+    fun openConversation(conversationItem: ConversationItem) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId))
+                    destination = NavigationItem.Conversation.getRouteWithArgs(listOf(conversationItem.conversationType.conversationId))
                 )
             )
         }

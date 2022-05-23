@@ -22,28 +22,27 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun GeneralConversationItem(
     generalConversation: GeneralConversation,
     eventType: EventType? = null,
-    onConversationItemClick: () -> Unit,
-    onConversationItemLongClick: () -> Unit
+    onConversationItemClick: (GeneralConversation) -> Unit,
+    onConversationItemLongClick: (GeneralConversation) -> Unit
 ) {
     when (val conversationType = generalConversation.conversationType) {
         is ConversationType.GroupConversation -> {
             with(conversationType) {
                 RowItemTemplate(
-                    leadingIcon = {
-                        GroupConversationAvatar(colorValue = groupColorValue)
-                    },
+                    leadingIcon = { GroupConversationAvatar(colorValue = groupColorValue) },
                     title = { ConversationTitle(name = groupName, isLegalHold = conversationType.isLegalHold) },
                     eventType = eventType,
-                    onRowItemClicked = onConversationItemClick,
-                    onRowItemLongClicked = onConversationItemLongClick,
+                    onRowItemClicked = { onConversationItemClick(generalConversation) },
+                    onRowItemLongClicked = { onConversationItemLongClick(generalConversation) },
                     trailingIcon = {
                         if (this.mutedStatus != MutedConversationStatus.AllAllowed) {
-                            MutedConversationIconBadge(onConversationItemClick)
+                            MutedConversationIconBadge { onConversationItemClick(generalConversation) }
                         }
                     }
                 )
@@ -54,8 +53,8 @@ fun GeneralConversationItem(
                 leadingIcon = { with(conversationType.userInfo) { ConversationUserAvatar(avatarAsset, availabilityStatus) } },
                 title = { UserLabel(userInfoLabel = conversationType.toUserInfoLabel()) },
                 eventType = eventType,
-                onRowItemClicked = onConversationItemClick,
-                onRowItemLongClicked = onConversationItemLongClick
+                onRowItemClicked = { onConversationItemClick(generalConversation) },
+                onRowItemLongClicked = { onConversationItemLongClick(generalConversation) }
             )
         }
     }

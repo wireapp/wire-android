@@ -21,7 +21,6 @@ internal class AssetImageFetcher(
 ) : Fetcher {
 
     override suspend fun fetch(): FetchResult? {
-
         return when (data) {
             is ImageAsset.UserAvatarAsset -> {
                 when (val result = getPublicAsset(data.userAssetId)) {
@@ -44,7 +43,6 @@ internal class AssetImageFetcher(
                 }
             }
         }
-
     }
 
     class Factory(

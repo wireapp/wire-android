@@ -379,14 +379,10 @@ class ConversationViewModel @Inject constructor(
 
     fun onSaveFile(assetName: String?, assetData: ByteArray, messageId: String) {
         viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                fileManager.saveToExternalStorage(assetName, assetData) {
-                    viewModelScope.launch {
-                        updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
-                        onFileSavedToExternalStorage(assetName)
-                        hideOnAssetDownloadedDialog()
-                    }
-                }
+            fileManager.saveToExternalStorage(assetName, assetData) {
+                updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
+                onFileSavedToExternalStorage(assetName)
+                hideOnAssetDownloadedDialog()
             }
         }
     }

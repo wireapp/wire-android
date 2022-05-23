@@ -1,6 +1,7 @@
 package com.wire.android.di
 
 import android.content.Context
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -23,7 +24,13 @@ class ImageLoadingModule {
         @ApplicationContext context: Context,
         getAvatarAsset: GetAvatarAssetUseCase,
         getMessageAsset: GetMessageAssetUseCase,
-    ): WireSessionImageLoader.Factory = WireSessionImageLoader.Factory(context, getAvatarAsset, getMessageAsset)
+        dispatcherProvider: DispatcherProvider,
+    ): WireSessionImageLoader.Factory = WireSessionImageLoader.Factory(
+        context = context,
+        getAvatarAsset = getAvatarAsset,
+        getPrivateAsset = getMessageAsset,
+        dispatcherProvider = dispatcherProvider
+    )
 
     // For better performance/caching. We shouldn't create many of these ImageLoaders.
     @Provides

@@ -27,7 +27,7 @@ fun ZoomableImage(imageAsset: ImageAsset, contentDescription: String, imageLoade
 
     Box {
         Image(
-            painter = imageLoader.paint(imageAsset, null),
+            painter = imageLoader.paint(imageAsset),
             contentDescription = contentDescription,
             modifier = Modifier.align(Alignment.Center)
                 .graphicsLayer(

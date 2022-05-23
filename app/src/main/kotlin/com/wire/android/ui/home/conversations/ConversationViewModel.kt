@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
@@ -65,7 +66,6 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
@@ -198,13 +198,18 @@ class ConversationViewModel @Inject constructor(
                             if (rawContent.size > assetLimitInBytes) {
                                 onSnackbarMessage(ErrorMaxAssetSize(assetLimitInBytes.div(sizeOf1MB)))
                             } else {
-                                val result = sendAssetMessage(
-                                    conversationId = conversationId,
-                                    assetRawData = attachmentBundle.rawContent,
-                                    assetName = attachmentBundle.fileName,
-                                    assetMimeType = attachmentBundle.mimeType
-                                )
-                                if (result is SendAssetMessageResult.Failure) {
+                                try {
+                                    val result = sendAssetMessage(
+                                        conversationId = conversationId,
+                                        assetRawData = attachmentBundle.rawContent,
+                                        assetName = attachmentBundle.fileName,
+                                        assetMimeType = attachmentBundle.mimeType
+                                    )
+                                    if (result is SendAssetMessageResult.Failure) {
+                                        onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                                    }
+                                } catch (e: OutOfMemoryError) {
+                                    appLogger.e("There was an OutOfMemory error while uploading the asset")
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                                 }
                             }
@@ -219,22 +224,29 @@ class ConversationViewModel @Inject constructor(
     // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
     fun downloadOrFetchAsset(messageId: String) {
         viewModelScope.launch {
-            val assetMessage = conversationViewState.messages.firstOrNull {
-                it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
-            }
+            withContext(dispatchers.io()) {
+                try {
+                    val assetMessage = conversationViewState.messages.firstOrNull {
+                        it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
+                    }
 
-            val (isAssetDownloaded, assetName) = (assetMessage?.messageContent as AssetMessage).run {
-                (downloadStatus == DOWNLOADED || downloadStatus == IN_PROGRESS) to assetName
-            }
+                    val (isAssetDownloaded, assetName) = (assetMessage?.messageContent as AssetMessage).run {
+                        (downloadStatus == DOWNLOADED || downloadStatus == IN_PROGRESS) to assetName
+                    }
 
-            if (!isAssetDownloaded)
-                updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
+                    if (!isAssetDownloaded)
+                        updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
 
-            val result = getRawAssetData(conversationId, messageId)
-            updateAssetMessageDownloadStatus(if (result != null) DOWNLOADED else FAILED, conversationId, messageId)
+                    val result = getRawAssetData(conversationId, messageId)
+                    updateAssetMessageDownloadStatus(if (result != null) DOWNLOADED else FAILED, conversationId, messageId)
 
-            if (result != null) {
-                showOnAssetDownloadedDialog(assetName, result)
+                    if (result != null) {
+                        showOnAssetDownloadedDialog(assetName, result)
+                    }
+                } catch (e: OutOfMemoryError) {
+                    appLogger.e("There was an OutOfMemory error while downloading the asset")
+                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                }
             }
         }
     }

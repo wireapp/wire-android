@@ -76,9 +76,7 @@ fun MessageItem(
                 Spacer(modifier = Modifier.height(dimensions().spacing6x))
                 if (!isDeleted) {
                     MessageContent(messageContent,
-                        onAssetClick = { assetId ->
-                            onAssetMessageClicked(message.messageHeader.messageId)
-                        },
+                        onAssetClick = { onAssetMessageClicked(message.messageHeader.messageId) },
                         onImageClick = {
                             onImageMessageClicked(message.messageHeader.messageId)
                         })
@@ -141,7 +139,7 @@ private fun Username(username: String) {
 }
 
 @Composable
-private fun MessageContent(messageContent: MessageContent?, onAssetClick: (String) -> Unit, onImageClick: () -> Unit = {}) {
+private fun MessageContent(messageContent: MessageContent?, onAssetClick: () -> Unit, onImageClick: () -> Unit = {}) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
@@ -155,7 +153,7 @@ private fun MessageContent(messageContent: MessageContent?, onAssetClick: (Strin
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,
-            onAssetClick = { onAssetClick(messageContent.assetId) }
+            onAssetClick = { onAssetClick() }
         )
         else -> {}
     }

@@ -36,13 +36,12 @@ import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AttachmentOptionsComponent(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit,
-    modifier : Modifier= Modifier
+    modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
     val attachmentOptions = buildAttachmentOptionItems { pickedUri -> scope.launch { attachmentInnerState.pickAttachment(pickedUri) } }
@@ -112,7 +111,10 @@ private fun CaptureVideoFlow(onVideoCaptured: (Uri) -> Unit): UseCameraRequestFl
     val context = LocalContext.current
     val videoAttachmentUri = context.getTempWritableVideoUri()
     return rememberCaptureVideoFlow(
-        onVideoRecorded = { onVideoCaptured(videoAttachmentUri) },
+        onVideoRecorded = { hasCapturedVideo ->
+            if (hasCapturedVideo)
+                onVideoCaptured(videoAttachmentUri)
+        },
         targetVideoFileUri = videoAttachmentUri,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )

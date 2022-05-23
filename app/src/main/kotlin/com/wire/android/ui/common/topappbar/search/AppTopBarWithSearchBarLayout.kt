@@ -23,6 +23,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -36,6 +37,7 @@ import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.effects.ScrollingDownEffect
 import com.wire.android.ui.theme.wireColorScheme
 
 /**
@@ -49,6 +51,7 @@ import com.wire.android.ui.theme.wireColorScheme
  */
 @Composable
 fun AppTopBarWithSearchBar(
+    searchBarState: SearchBarState = rememberSearchbarState(),
     scrollPosition: Int,
     searchBarHint: String,
     searchQuery: String,
@@ -86,7 +89,7 @@ fun AppTopBarWithSearchBar(
                 }
         ) {
             AppTopBarWithSearchBar(
-                scrollPosition = scrollPosition,
+                searchBarState = searchBarState,
                 searchBarHint = searchBarHint,
                 searchQuery = searchQuery,
                 onSearchQueryChanged = onSearchQueryChanged,
@@ -96,11 +99,13 @@ fun AppTopBarWithSearchBar(
             )
         }
     }
+
+    ScrollingDownEffect(scrollPosition) { shouldCollapse -> searchBarState.isSearchBarCollapsed = shouldCollapse }
 }
 
 @Composable
 private fun AppTopBarWithSearchBar(
-    scrollPosition: Int,
+    searchBarState: SearchBarState,
     searchBarHint: String,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
@@ -108,8 +113,6 @@ private fun AppTopBarWithSearchBar(
     onCloseSearchClicked: () -> Unit = {},
     appTopBar: @Composable () -> Unit,
 ) {
-    val searchBarState = rememberSearchbarState(scrollPosition)
-
     AppTopBarWithSearchBarContent(
         isSearchActive = searchBarState.isSearchActive,
         isSearchBarCollapsed = searchBarState.isSearchBarCollapsed,
@@ -178,6 +181,10 @@ private fun AppTopBarWithSearchBarContent(
 
                     val focusManager = LocalFocusManager.current
 
+                    LaunchedEffect(isSearchActive){
+                        if(!isSearchActive)focusManager.clearFocus()
+                    }
+
                     SearchBarInput(
                         placeholderText = searchBarHint,
                         text = searchQuery,
@@ -186,8 +193,6 @@ private fun AppTopBarWithSearchBarContent(
                             AnimatedContent(!isSearchActive) { isVisible ->
                                 IconButton(onClick = {
                                     if (!isVisible) {
-                                        focusManager.clearFocus()
-
                                         onCloseSearchClicked()
                                     }
                                 }) {

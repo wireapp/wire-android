@@ -3,7 +3,6 @@ package com.wire.android.ui.home.messagecomposer.attachment
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -100,7 +99,10 @@ private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow
     val context = LocalContext.current
     val imageAttachmentUri = context.getTempWritableImageUri()
     return rememberTakePictureFlow(
-        onPictureTaken = { onPictureTaken(imageAttachmentUri) },
+        onPictureTaken = { hasTakenPicture ->
+            if (hasTakenPicture)
+                onPictureTaken(imageAttachmentUri)
+        },
         targetPictureFileUri = imageAttachmentUri,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
     )

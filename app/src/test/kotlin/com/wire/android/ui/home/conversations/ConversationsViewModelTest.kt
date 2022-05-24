@@ -348,7 +348,7 @@ class ConversationsViewModelTest {
             viewModel.onSaveFile(assetName, assetData, messageId)
 
             // Then
-            verify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any()) }
+            coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
 
@@ -481,7 +481,7 @@ class ConversationsViewModelTest {
 
         fun withSuccessfulSaveAssetMessage(assetName: String?, assetData: ByteArray, messageId: String): Arrangement {
             viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
-            every { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
+            coEvery { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
                 viewModel.hideOnAssetDownloadedDialog()
             }
             return this

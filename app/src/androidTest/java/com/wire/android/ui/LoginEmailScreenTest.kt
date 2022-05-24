@@ -26,6 +26,7 @@ import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.EMAIL
 import com.wire.android.utils.PASSWORD
+import com.wire.android.utils.USER_NAME
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.waitForExecution
 import com.wire.kalium.logic.configuration.ServerConfig
@@ -93,10 +94,30 @@ class LoginEmailScreenTest {
     val loginErrorText = "This email or username is invalid. Please verify and try again."
 
     @Test
-    fun login_success_case() {
+    fun login_email_success() {
         emailField.assertIsDisplayed()
         emailField.onChildren()[1].performTextClearance()
         emailField.onChildren()[1].performTextInput(EMAIL)
+
+        passwordField.assertIsDisplayed()
+        passwordField.onChildren()[1].performTextClearance()
+        passwordField.onChildren()[1].performTextInput(PASSWORD)
+
+        loginButton.assertHasClickAction()
+        loginButton.performClick()
+
+        composeTestRule.onNodeWithText("Logging in...").assertIsDisplayed()
+
+        composeTestRule.waitForExecution {
+            composeTestRule.onNodeWithText("Invalid information").assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun login_username_success() {
+        emailField.assertIsDisplayed()
+        emailField.onChildren()[1].performTextClearance()
+        emailField.onChildren()[1].performTextInput(USER_NAME)
 
         passwordField.assertIsDisplayed()
         passwordField.onChildren()[1].performTextClearance()

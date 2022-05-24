@@ -21,6 +21,7 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.setScreenSettingsOnStart
 import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -43,23 +44,31 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        println("cyka111 create $savedInstanceState")
-        handleDeepLink(intent)
+        println("cyka111 create ${intent.data}")
+        viewModel.handleDeepLink(intent)
         setComposableContent()
     }
 
-    private fun handleDeepLink(intent: Intent) {
-        viewModel.handleDeepLink(intent)
-    }
-
     override fun onNewIntent(intent: Intent?) {
-        intent?.let {
-            println("cyka111 recreate")
-//            handleDeepLink(intent)
-            this.intent = intent
+        if (viewModel.handleDeepLinkOnNewIntent(intent)) {
             recreate()
         }
+//        intent?.let {
+//            println("cyka111 recreate")
+//            recreate()
+//            handleDeepLink(intent)
+//        }
         super.onNewIntent(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.activityOnResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.activityOnPause()
     }
 
     private fun setComposableContent() {
@@ -67,10 +76,12 @@ class WireActivity : AppCompatActivity() {
             WireTheme {
                 val scope = rememberCoroutineScope()
                 val navController = rememberAnimatedNavController()
+                val startDestination = viewModel.startNavigationRoute()
                 Scaffold {
-                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), viewModel.navigationArguments())
+                    NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
                 }
                 setUpNavigation(navController, scope)
+                setScreenSettingsOnStart(startDestination)
             }
         }
     }
@@ -80,12 +91,10 @@ class WireActivity : AppCompatActivity() {
         navController: NavHostController,
         scope: CoroutineScope
     ) {
-//        println("cyka setUpNavigation")
+        println("cyka start rout: ${viewModel.startNavigationRoute()}")
         val keyboardController = LocalSoftwareKeyboardController.current
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
         LaunchedEffect("key") {
-
-//            println("cyka setUpNavigation 1")
 
             navigationManager.navigateState
                 .onEach { command ->
@@ -99,7 +108,7 @@ class WireActivity : AppCompatActivity() {
             navigationManager.navigateBack
                 .onEach {
                     keyboardController?.hide()
-                    navController.popBackStack()
+                    if (!navController.popBackStack()) finish()
                     updateScreenSettings(navController)
                 }
                 .launchIn(scope)

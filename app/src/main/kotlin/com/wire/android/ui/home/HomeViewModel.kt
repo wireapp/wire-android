@@ -23,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val listenToEvents: ListenToEventsUseCase,
+//    private val listenToEvents: ListenToEventsUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {
@@ -33,7 +33,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            launch { listenToEvents() } // listen for the WebSockets updates and update DB accordingly
+//            launch { listenToEvents() } // listen for the WebSockets updates and update DB accordingly
             launch { loadUserAvatar() }
         }
     }

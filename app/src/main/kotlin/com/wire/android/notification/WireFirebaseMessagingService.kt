@@ -39,6 +39,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         appLogger.i("notification received ")
         var userIdValue = ""
+        println("cyka FCM: ${message.data}")
         for (items in message.data) {
             if (items.key == "user") {
                 userIdValue = items.value

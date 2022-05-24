@@ -3,8 +3,6 @@ package com.wire.android.ui.calling.incoming
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
@@ -21,7 +19,6 @@ import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -57,7 +54,6 @@ class IncomingCallViewModel @Inject constructor(
     fun setConversationId(id: ConversationId) {
         conversationIdFlow.value = id
     }
-//    val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
 
     init {
         viewModelScope.launch {
@@ -66,6 +62,7 @@ class IncomingCallViewModel @Inject constructor(
                 .filterNotNull()
                 .flatMapLatest { conversationDetails(conversationId = it) }
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+
             launch {
                 conversationDetailsFlow.collect { initializeScreenState(conversationDetails = it) }
             }
@@ -76,14 +73,14 @@ class IncomingCallViewModel @Inject constructor(
                 conversationDetailsFlow
                     .take(1)
                     .onEach { details ->
-                        // if user does nothing on incoming call for some amount of time, app stops calling
+                        // if user does nothing on incoming call for some time, app stops calling
                         val delayTimeMs = if (details is ConversationDetails.Group) GROUP_RINGING_TIME
                         else ONO_ON_ONE_RINGING_TIME
 
                         delay(delayTimeMs)
 
                         println("cyka incoming stopping by time")
-                        onCallClosed()
+                        declineCall()
                     }
                     .collect()
             }
@@ -117,7 +114,6 @@ class IncomingCallViewModel @Inject constructor(
             conversationIdFlow.value?.let {
                 rejectCall(conversationId = it)
             }
-            navigationManager.navigateBack()
         }
     }
 

@@ -49,6 +49,7 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.toConversationId
 import io.github.esentsov.PackagePrivate
 
 @OptIn(
@@ -216,18 +217,32 @@ enum class NavigationItem(
 
     IncomingCall(
         primaryRoute = INCOMING_CALL,
+        canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
+        content = { contentParams ->
+            val conversationsId = contentParams.navBackStackEntry
+                .arguments
+                ?.getString(EXTRA_CONVERSATION_ID)
+                ?.toConversationId()
+
+            IncomingCallScreen(conversationsId!!)
+        },
+        screenMode = ScreenMode.WAKE_UP
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
+        }
+    },
+
+    IncomingCallFromDeepLink(
+        primaryRoute = INCOMING_CALL,
         canonicalRoute = INCOMING_CALL,
         content = { contentParams ->
             val conversationsId = contentParams.arguments.filterIsInstance<ConversationId>().firstOrNull()
             IncomingCallScreen(conversationsId!!)
         },
         screenMode = ScreenMode.WAKE_UP
-    ) {
-//        override fun getRouteWithArgs(arguments: List<Any>): String {
-//            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-//            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
-//        }
-    },
+    ),
 
     Gallery(
         primaryRoute = MEDIA_GALLERY,

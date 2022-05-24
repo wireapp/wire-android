@@ -13,6 +13,7 @@ import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -106,9 +107,14 @@ class WireNotificationManager @Inject constructor(
      * Infinitely listen for the new IncomingCalls, notify about it and do additional actions if needed.
      * Can be used for listening for the Notifications when the app is running.
      * @param userIdFlow Flow of QualifiedID of User
-     * @param alsoDoOnCall additional actions that should be done on IncomingCall (i.e. go to IncomingCall Screen)
+     * @param isAppVisibleFlow StateFlow that informs if app is currently visible,
+     * so we can decide: should we show notification, or just open the IncomingCall screen
      */
-    suspend fun observeIncomingCalls(userIdFlow: Flow<UserId?>, alsoDoOnCall: suspend (Call) -> Unit) {
+    suspend fun observeIncomingCalls(
+        isAppVisibleFlow: StateFlow<Boolean>,
+        userIdFlow: Flow<UserId?>,
+        doIfCallCameAndAppVisible: (Call) -> Unit
+    ) {
         userIdFlow
             .flatMapLatest { userId ->
                 println("cyka observing $userId")
@@ -121,8 +127,11 @@ class WireNotificationManager @Inject constructor(
             }
             .collect { (calls, userId) ->
 //                println("cyka observing calls $calls")
-                callsManager.handleNotifications(calls, userId, false)
-                if (calls.isNotEmpty()) alsoDoOnCall(calls.first())
+                if (isAppVisibleFlow.value) {
+                    calls.firstOrNull()?.run { doIfCallCameAndAppVisible(this) }
+                } else {
+                    callsManager.handleNotifications(calls, userId)
+                }
             }
     }
 

@@ -15,7 +15,6 @@ import com.google.accompanist.navigation.animation.composable
 )
 @Composable
 fun NavigationGraph(navController: NavHostController, startDestination: String, appInitialArgs: List<Any> = emptyList()) {
-    println("cyka NavigationGraph")
     AnimatedNavHost(navController, startDestination) {
         NavigationItem.values().onEach { item ->
             composable(
@@ -26,5 +25,4 @@ fun NavigationGraph(navController: NavHostController, startDestination: String, 
             )
         }
     }
-    println("cyka NavigationGraph 1")
 }

@@ -1,8 +1,11 @@
 package com.wire.android.ui.home.conversations
 
+import android.app.DownloadManager
+import android.content.Intent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -10,27 +13,29 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxAssetSize
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxImageSize
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorSendingImage
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingAsset
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingImage
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
@@ -50,14 +55,20 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onMessageChanged = conversationViewModel::onMessageChanged,
         onSendButtonClicked = conversationViewModel::sendMessage,
         onSendAttachment = conversationViewModel::sendAttachmentMessage,
-        onDownloadAsset = conversationViewModel::downloadAsset,
+        onDownloadAsset = conversationViewModel::downloadOrFetchAssetToInternalStorage,
         onImageFullScreenMode = conversationViewModel::navigateToGallery,
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch,
-        onError = conversationViewModel::onError
+        onSnackbarMessage = conversationViewModel::onSnackbarMessage
     )
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
+    DownloadedAssetDialog(
+        downloadedAssetDialogState = conversationViewModel.conversationViewState.downloadedAssetDialogState,
+        onSaveFileToExternalStorage = conversationViewModel::onSaveFile,
+        onOpenFileWithExternalApp = conversationViewModel::onOpenFileWithExternalApp,
+        hideOnAssetDownloadedDialog = conversationViewModel::hideOnAssetDownloadedDialog
+    )
 }
 
 @Composable
@@ -80,7 +91,7 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit,
-    onError: (ConversationErrors) -> Unit
+    onSnackbarMessage: (ConversationSnackbarMessages) -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -124,81 +135,26 @@ private fun ConversationScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                     },
-                    content = {
-                        ConversationScreenContent(
-                            messages = messages,
-                            onMessageChanged = onMessageChanged,
-                            messageText = conversationViewState.messageText,
-                            onSendButtonClicked = onSendButtonClicked,
-                            onShowContextMenu = conversationScreenState::showEditContextMenu,
-                            onSendAttachment = onSendAttachment,
-                            onDownloadAsset = onDownloadAsset,
-                            onImageFullScreenMode = onImageFullScreenMode,
-                            conversationState = conversationViewState,
-                            onMessageComposerError = onError,
-                            conversationScreenState = conversationScreenState
-                        )
+                    content = { internalPadding ->
+                        Box(modifier = Modifier.padding(internalPadding)) {
+                            ConversationScreenContent(
+                                messages = messages,
+                                onMessageChanged = onMessageChanged,
+                                messageText = conversationViewState.messageText,
+                                onSendButtonClicked = onSendButtonClicked,
+                                onShowContextMenu = conversationScreenState::showEditContextMenu,
+                                onSendAttachment = onSendAttachment,
+                                onDownloadAsset = onDownloadAsset,
+                                onImageFullScreenMode = onImageFullScreenMode,
+                                conversationState = conversationViewState,
+                                onMessageComposerError = onSnackbarMessage,
+                                conversationScreenState = conversationScreenState
+                            )
+                        }
                     }
                 )
             }
         )
-    }
-}
-
-@Composable
-fun getErrorMessage(errorCode: ConversationErrors) =
-    when (errorCode) {
-        is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, errorCode.maxLimitInMB)
-        ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
-        ErrorSendingImage -> stringResource(R.string.error_conversation_sending_image)
-        else -> stringResource(R.string.error_conversation_generic)
-    }
-
-@Composable
-private fun EditMessageMenuItems(
-    isMyMessage: Boolean,
-    onCopyMessage: () -> Unit,
-    onDeleteMessage: () -> Unit
-): List<@Composable () -> Unit> {
-    return buildList {
-        add {
-            MenuBottomSheetItem(
-                icon = {
-                    MenuItemIcon(
-                        id = R.drawable.ic_copy,
-                        contentDescription = stringResource(R.string.content_description_block_the_user),
-                    )
-                },
-                title = stringResource(R.string.label_copy),
-                onItemClick = onCopyMessage
-            )
-        }
-        if (isMyMessage)
-            add {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_edit,
-                            contentDescription = stringResource(R.string.content_description_edit_the_message)
-                        )
-                    },
-                    title = stringResource(R.string.label_edit),
-                )
-            }
-        add {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_delete,
-                            contentDescription = stringResource(R.string.content_description_delete_the_message),
-                        )
-                    },
-                    title = stringResource(R.string.label_delete),
-                    onItemClick = onDeleteMessage
-                )
-            }
-        }
     }
 }
 
@@ -212,22 +168,29 @@ private fun ConversationScreenContent(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String) -> Unit,
-    onMessageComposerError: (ConversationErrors) -> Unit,
+    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
     conversationScreenState: ConversationScreenState
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-    conversationState.onError?.let { errorCode ->
-        val errorMessage = getErrorMessage(errorCode)
-        LaunchedEffect(conversationState.onError) {
-            conversationScreenState.snackBarHostState.showSnackbar(errorMessage)
+    conversationState.onSnackbarMessage?.let { messageCode ->
+        val (message, actionLabel) = getSnackbarMessage(messageCode)
+        LaunchedEffect(conversationState.onSnackbarMessage) {
+            val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(message = message, actionLabel = actionLabel)
+            when {
+                // Show downloads folder when clicking on Snackbar cta button
+                messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
+                    context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                }
+            }
         }
     }
 
     val lazyListState = rememberLazyListState()
 
-    LaunchedEffect(messages){
+    LaunchedEffect(messages) {
         lazyListState.animateScrollToItem(0)
     }
 
@@ -254,6 +217,25 @@ private fun ConversationScreenContent(
             }
         }
     )
+}
+
+@Composable
+private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<String, String?> {
+    val msg = when (messageCode) {
+        is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, messageCode.maxLimitInMB)
+        is ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
+        is ErrorSendingImage -> stringResource(R.string.error_conversation_sending_image)
+        is ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
+        is ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
+        is ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
+        is OnFileDownloaded -> stringResource(R.string.conversation_on_file_downloaded, messageCode.assetName ?: "")
+        else -> stringResource(R.string.error_conversation_generic)
+    }
+    val actionLabel = when (messageCode) {
+        is OnFileDownloaded -> stringResource(R.string.conversation_on_file_downloaded_action_label)
+        else -> null
+    }
+    return msg to actionLabel
 }
 
 @Composable

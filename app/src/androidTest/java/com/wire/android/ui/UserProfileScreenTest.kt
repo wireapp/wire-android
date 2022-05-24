@@ -1,5 +1,7 @@
 package com.wire.android.ui
 
+import android.content.Intent
+import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -9,12 +11,13 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onSibling
 import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel
@@ -45,16 +48,21 @@ class UserProfileScreenTest {
 
     // Third, we create the compose rule using an AndroidComposeRule, as we are depending on instrumented environment ie: Hilt, WorkManager
     @get:Rule(order = 2)
-    val composeTestRule = createAndroidComposeRule<WireActivity>()
+    val composeTestRule = createEmptyComposeRule()
+
+    private lateinit var scenario: ActivityScenario<WireActivity>
 
     @Before
     fun setUp() {
         hiltRule.inject()
 
         // Start the app
-        composeTestRule.setContent {
-            WireTheme {
-                SelfUserProfileScreen(composeTestRule.getViewModel(SelfUserProfileViewModel::class))
+        scenario = ActivityScenario.launch(Intent(ApplicationProvider.getApplicationContext(), WireActivity::class.java))
+        scenario.onActivity { activity ->
+            activity.setContent {
+                WireTheme {
+                    SelfUserProfileScreen(getViewModel(activity, SelfUserProfileViewModel::class))
+                }
             }
         }
     }
@@ -81,8 +89,10 @@ class UserProfileScreenTest {
         composeTestRule.waitForExecution {
             busyText.assertIsDisplayed()
         }
-        busyText.onSiblings()[0].assertTextContains("You will appear as Busy to other people. You will only receive notifications " +
-                "for mentions, replies, and calls in conversations that are not muted.")
+        busyText.onSiblings()[0].assertTextContains(
+            "You will appear as Busy to other people. You will only receive notifications " +
+                "for mentions, replies, and calls in conversations that are not muted."
+        )
         busyText.onSiblings()[1].performClick().assertIsOn()
         busyText.onSiblings()[1].performClick().assertIsOff().assertTextContains("Do not display this information again")
         okButton.performClick()
@@ -93,7 +103,7 @@ class UserProfileScreenTest {
     fun userProfile_change_status_available() {
         title.assertIsDisplayed()
         availableButton.onSibling().performClick()
-       val availableText = composeTestRule.onNodeWithText("Set yourself to Available")
+        val availableText = composeTestRule.onNodeWithText("Set yourself to Available")
         availableText.assertDoesNotExist()
     }
 
@@ -105,8 +115,10 @@ class UserProfileScreenTest {
         composeTestRule.waitForExecution {
             awayText.assertIsDisplayed()
         }
-        awayText.onSiblings()[1].performClick().assertIsOn().performClick().assertIsOff().assertTextContains("Do not display this" +
-                " information again")
+        awayText.onSiblings()[1].performClick().assertIsOn().performClick().assertIsOff().assertTextContains(
+            "Do not display this" +
+                " information again"
+        )
         okButton.performClick()
         awayText.assertDoesNotExist()
     }
@@ -122,7 +134,7 @@ class UserProfileScreenTest {
         }
         okButton.performClick()
         noneText.assertDoesNotExist()
-        noneButton.onSibling().performClick()  // check status is set
+        noneButton.onSibling().performClick() // check status is set
         noneText.assertDoesNotExist()
     }
 
@@ -132,8 +144,10 @@ class UserProfileScreenTest {
         awayButton.onSibling().performClick()
         val awayText = composeTestRule.onNodeWithText("Set yourself to Away")
         composeTestRule.waitForExecution {
-            awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains("Do not display this " +
-                    "information again")
+            awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains(
+                "Do not display this " +
+                    "information again"
+            )
         }
         okButton.performClick()
         awayText.assertDoesNotExist()
@@ -149,8 +163,10 @@ class UserProfileScreenTest {
         awayButton.onSibling().performClick()
         val awayText = composeTestRule.onNodeWithText("Set yourself to Away")
         composeTestRule.waitForExecution {
-            awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains("Do not " +
-                    "display this information again")
+            awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains(
+                "Do not " +
+                    "display this information again"
+            )
         }
         cancelButton.performClick()
         awayText.assertDoesNotExist()

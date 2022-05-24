@@ -26,7 +26,6 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ConversationSheetContent(
     modalBottomSheetContentState: ModalSheetContent,

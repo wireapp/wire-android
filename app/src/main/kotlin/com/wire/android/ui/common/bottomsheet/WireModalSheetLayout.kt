@@ -35,9 +35,11 @@ fun WireModalSheetLayout(
     fun hide() {
         coroutineScope.launch { sheetState.animateTo(ModalBottomSheetValue.Hidden) }
     }
+
     BackHandler(enabled = sheetState.isVisible) {
         hide()
     }
+
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetShape = sheetShape,

@@ -147,7 +147,6 @@ class NewConversationViewModel
                 ContactSearchResult.ExternalContact(
                     SearchResultState.Success(result.userSearchResult.result.map { it.toContact() })
                 )
-
             }
         }
     }

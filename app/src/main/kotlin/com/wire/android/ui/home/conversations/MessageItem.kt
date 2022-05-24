@@ -75,9 +75,10 @@ fun MessageItem(
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(dimensions().spacing6x))
                 if (!isDeleted) {
-                    MessageContent(messageContent, onAssetMessageClicked, onImageClick = {
-                        onImageMessageClicked(message.messageHeader.messageId)
-                    })
+                    MessageContent(messageContent,
+                        onAssetClick = { onAssetMessageClicked(message.messageHeader.messageId) },
+                        onImageClick = { onImageMessageClicked(message.messageHeader.messageId) }
+                    )
                 }
             }
         }
@@ -137,7 +138,7 @@ private fun Username(username: String) {
 }
 
 @Composable
-private fun MessageContent(messageContent: MessageContent?, onAssetClick: (String) -> Unit, onImageClick: () -> Unit = {}) {
+private fun MessageContent(messageContent: MessageContent?, onAssetClick: () -> Unit, onImageClick: () -> Unit = {}) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
@@ -150,7 +151,8 @@ private fun MessageContent(messageContent: MessageContent?, onAssetClick: (Strin
             assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
-            onAssetClick = { onAssetClick(messageContent.assetId) }
+            assetDownloadStatus = messageContent.downloadStatus,
+            onAssetClick = { onAssetClick() }
         )
         else -> {}
     }
@@ -161,7 +163,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        if (messageStatus != MessageStatus.Failure) {
+        if (messageStatus != MessageStatus.SendFailure) {
             Box(
                 modifier = Modifier
                     .wrapContentSize()

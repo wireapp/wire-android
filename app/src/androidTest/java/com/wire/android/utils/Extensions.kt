@@ -17,6 +17,11 @@ AndroidComposeTestRule<R, A>.getViewModel(viewModel: KClass<VM>): VM {
     return this.activity.viewModels<VM>().value
 }
 
+inline fun <reified VM : ViewModel> getViewModel(activity: ComponentActivity, viewModel: KClass<VM>): VM {
+    println("Getting test instance of ViewModel: $viewModel")
+    return activity.viewModels<VM>().value
+}
+
 fun ComposeTestRule.waitForExecution(timeoutMillis: Long = WAIT_TIMEOUT, block: () -> Unit) {
     waitUntil(timeoutMillis) {
         try {
@@ -31,3 +36,4 @@ fun ComposeTestRule.waitForExecution(timeoutMillis: Long = WAIT_TIMEOUT, block: 
 const val WAIT_TIMEOUT = 5000L
 const val PASSWORD = "Mustafastaging1!"
 const val EMAIL = "mustafa+4@wire.com"
+const val USER_NAME = "doga4"

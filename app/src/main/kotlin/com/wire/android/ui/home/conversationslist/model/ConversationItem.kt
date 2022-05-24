@@ -35,6 +35,7 @@ sealed class ConversationType {
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false
     ) : ConversationType()
+
 }
 
 data class ConversationInfo(

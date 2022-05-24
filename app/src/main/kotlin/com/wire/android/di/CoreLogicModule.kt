@@ -162,6 +162,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveConnectionListUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeConnectionList
+
+    @ViewModelScoped
+    @Provides
     fun getServerConfigUserCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getAuthenticationScope().getServerConfig
 

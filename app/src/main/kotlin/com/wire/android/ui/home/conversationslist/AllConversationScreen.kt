@@ -11,8 +11,8 @@ import com.wire.android.R
 import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationType
-import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -20,7 +20,7 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<GeneralConversation>>,
+    conversations: Map<ConversationFolder, List<ConversationItem>>,
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationType) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
@@ -46,7 +46,7 @@ fun AllConversationScreen(
 private fun AllConversationContent(
     lazyListState: LazyListState,
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<GeneralConversation>>,
+    conversations: Map<ConversationFolder, List<ConversationItem>>,
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationType) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,

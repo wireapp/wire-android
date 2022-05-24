@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversationslist
 
-import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,15 +17,20 @@ import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
 import com.wire.android.ui.home.conversationslist.mock.mockNewActivities
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
+import com.wire.android.ui.home.conversationslist.model.ConnectionInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.NewActivity
+import com.wire.android.ui.home.conversationslist.model.PendingConnectionItem
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getConversationColor
+import com.wire.kalium.logic.data.connection.ConnectionDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
@@ -35,20 +39,21 @@ import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.connection.ObserveConnectionListUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
-import com.wire.kalium.logic.data.user.UserId
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -58,6 +63,7 @@ class ConversationListViewModel @Inject constructor(
     private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
+    private val observeConnectionList: ObserveConnectionListUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
@@ -69,25 +75,30 @@ class ConversationListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                observeConversationDetailsList().map {
-                    it.toConversationsFoldersMap()
-                }.collect { detailedList ->
-                    val newActivities = mockNewActivities // TODO: needs to be implemented
-                    val missedCalls = mockMissedCalls // TODO: needs to be implemented
-                    val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
+                combine(
+                    observeConversationDetailsList(), //TODO AR-1736
+                    observeConnectionList().onStart { emit(listOf()) },
+                    ::Pair
+                )
+                    .collect { (conversations, connections) ->
+                        val detailedList = conversations.toConversationsFoldersMap()
+                        val newActivities = mockNewActivities
+//                            prepareActivities(connections) TODO AR-1733
+                        val missedCalls = mockMissedCalls // TODO: needs to be implemented
+                        val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
 
-                    state = ConversationListState(
-                        newActivities = newActivities,
-                        conversations = detailedList,
-                        missedCalls = missedCalls,
-                        callHistory = mockCallHistory, // TODO: needs to be implemented
-                        unreadMentions = unreadMentions,
-                        allMentions = mockAllMentionList, // TODO: needs to be implemented
-                        unreadMentionsCount = unreadMentions.size,
-                        missedCallsCount = missedCalls.size,
-                        newActivityCount = newActivities.size
-                    )
-                }
+                        state = ConversationListState(
+                            newActivities = newActivities,
+                            conversations = detailedList,
+                            missedCalls = missedCalls,
+                            callHistory = mockCallHistory, // TODO: needs to be implemented
+                            unreadMentions = unreadMentions,
+                            allMentions = mockAllMentionList, // TODO: needs to be implemented
+                            unreadMentionsCount = unreadMentions.size,
+                            missedCallsCount = missedCalls.size,
+                            newActivityCount = newActivities.size
+                        )
+                    }
             }
         }
 
@@ -96,7 +107,30 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<GeneralConversation>> =
+    // TODO AR-1733
+    private fun prepareActivities(connections: List<ConnectionDetails>) =
+        connections.map {
+            NewActivity(eventType = EventType.ConnectRequest, it.conversation.toItem(
+                private = { privateConversation ->
+                    PendingConnectionItem(
+                        connectionInfo = ConnectionInfo(
+                            it.connection.status.toString(), //TODO pass also user
+                            it.connection.from
+                        ), privateConversation
+                    )
+                },
+                group = { groupConversation ->
+                    PendingConnectionItem(
+                        connectionInfo = ConnectionInfo(
+                            it.connection.status.toString(),
+                            it.connection.from
+                        ), groupConversation
+                    )
+                }
+            ))
+        }
+
+    private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> =
         mapOf(ConversationFolder.Predefined.Conversations to this.toGeneralConversationList())
 
     fun openConversation(conversationId: ConversationId) {
@@ -172,59 +206,64 @@ class ConversationListViewModel @Inject constructor(
     fun leaveGroup(id: String) {
     }
 
-    private fun List<ConversationDetails>.toGeneralConversationList(): List<GeneralConversation> = filter {
-        it is Group || it is OneOne
-    }.map { details ->
-        val conversation = details.conversation
-
-        when (details) {
-            is Group -> {
-                GeneralConversation(
-                    ConversationType.GroupConversation(
-                        groupColorValue = getConversationColor(conversation.id),
-                        groupName = conversation.name.orEmpty(),
-                        conversationId = conversation.id,
-                        mutedStatus = conversation.mutedStatus,
-                        isLegalHold = details.legalHoldStatus.showLegalHoldIndicator()
-                    )
+    private fun List<ConversationDetails>.toGeneralConversationList(): List<ConversationItem> =
+        filter { it is Group || it is OneOne }
+            .map {
+                it.toItem(
+                    private = { privateConversation -> GeneralConversation(privateConversation) },
+                    group = { groupConversation -> GeneralConversation(groupConversation) },
                 )
             }
-            is OneOne -> {
-                val otherUser = details.otherUser
 
-                GeneralConversation(
-                    ConversationType.PrivateConversation(
-                        userInfo = UserInfo(
-                            otherUser.previewPicture?.let { UserAvatarAsset(it) },
-                            UserStatus.NONE // TODO Get actual status
-                        ),
-                        conversationInfo = ConversationInfo(
-                            name = otherUser.name.orEmpty(),
-                            membership = mapUserType(details.userType)
-                        ),
-                        conversationId = conversation.id,
-                        mutedStatus = conversation.mutedStatus,
-                        isLegalHold = details.legalHoldStatus.showLegalHoldIndicator()
-                    )
-                )
-            }
-            is Self -> {
-                throw IllegalArgumentException("Self conversations should not be visible to the user.")
-            }
-        }
-    }
-
-    private fun mapUserType(userType: UserType): Membership {
-        return when (userType) {
-            UserType.GUEST -> Membership.Guest
-            UserType.FEDERATED -> Membership.Federated
-            UserType.EXTERNAL -> Membership.External
-            UserType.INTERNAL -> Membership.None
-            else -> {
-                throw IllegalStateException("Unknown UserType")
-            }
-        }
-    }
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
+
+private fun ConversationDetails.toItem(
+    private: (ConversationType.PrivateConversation) -> ConversationItem,
+    group: (ConversationType.GroupConversation) -> ConversationItem,
+): ConversationItem = when (this) {
+    is Group -> {
+        group(
+            ConversationType.GroupConversation(
+                groupColorValue = getConversationColor(conversation.id),
+                groupName = conversation.name.orEmpty(),
+                conversationId = conversation.id,
+                mutedStatus = conversation.mutedStatus,
+                isLegalHold = legalHoldStatus.showLegalHoldIndicator()
+            )
+        )
+    }
+    is OneOne -> {
+        private(
+            ConversationType.PrivateConversation(
+                userInfo = UserInfo(
+                    otherUser.previewPicture?.let { UserAvatarAsset(it) },
+                    UserStatus.NONE // TODO Get actual status
+                ),
+                conversationInfo = ConversationInfo(
+                    name = otherUser.name.orEmpty(),
+                    membership = userType.toMembership()
+                ),
+                conversationId = conversation.id,
+                mutedStatus = conversation.mutedStatus,
+                isLegalHold = legalHoldStatus.showLegalHoldIndicator()
+            )
+        )
+    }
+    is Self -> {
+        throw IllegalArgumentException("Self conversations should not be visible to the user.")
+    }
+}
+
+private fun UserType.toMembership(): Membership {
+    return when (this) {
+        UserType.GUEST -> Membership.Guest
+        UserType.FEDERATED -> Membership.Federated
+        UserType.EXTERNAL -> Membership.External
+        UserType.INTERNAL -> Membership.None
+        else -> {
+            throw IllegalStateException("Unknown UserType")
+        }
+    }
+}

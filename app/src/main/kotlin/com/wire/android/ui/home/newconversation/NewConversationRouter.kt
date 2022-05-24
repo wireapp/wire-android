@@ -13,9 +13,11 @@ import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 fun NewConversationRouter() {
     val newConversationViewModel: NewConversationViewModel = hiltViewModel()
     val newConversationNavController = rememberNavController()
-    BackHandler { newConversationViewModel.close() }
 
-    NavHost(navController = newConversationNavController, startDestination = Screen.SearchListNavHostScreens.route) {
+    NavHost(
+        navController = newConversationNavController,
+        startDestination = Screen.SearchListNavHostScreens.route
+    ) {
         composable(
             route = Screen.SearchListNavHostScreens.route,
             content = {
@@ -31,7 +33,6 @@ fun NewConversationRouter() {
                 )
             }
         )
-
         composable(
             route = Screen.NewGroupNameScreen.route,
             content = {

@@ -5,11 +5,8 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.user.UserAssetId
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOADED
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.NOT_DOWNLOADED
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.user.UserAssetId
 
 data class MessageViewWrapper(
     val user: User,

@@ -27,9 +27,11 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingImage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
@@ -53,7 +55,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onMessageChanged = conversationViewModel::onMessageChanged,
         onSendButtonClicked = conversationViewModel::sendMessage,
         onSendAttachment = conversationViewModel::sendAttachmentMessage,
-        onDownloadAsset = conversationViewModel::downloadOrFetchAsset,
+        onDownloadAsset = conversationViewModel::downloadOrFetchAssetToInternalStorage,
         onImageFullScreenMode = conversationViewModel::navigateToGallery,
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
@@ -223,6 +225,8 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
         is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, messageCode.maxLimitInMB)
         is ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
         is ErrorSendingImage -> stringResource(R.string.error_conversation_sending_image)
+        is ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
+        is ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
         is ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
         is OnFileDownloaded -> stringResource(R.string.conversation_on_file_downloaded, messageCode.assetName ?: "")
         else -> stringResource(R.string.error_conversation_generic)

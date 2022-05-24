@@ -29,6 +29,7 @@
     <string name="content_description_user_avatar">User avatar</string>
     <string name="content_description_mute">Mute</string>
     <string name="content_description_check">Check mark</string>
+    <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_add_to_favourite">Add to favourite</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
@@ -197,7 +198,8 @@
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
     <string name="asset_message_tap_to_download_text">Tap to download</string>
     <string name="asset_message_download_in_progress_text">Downloading...</string>
-    <string name="asset_message_downloaded_text">Downloaded</string>
+    <string name="asset_message_downloaded_internally_text">Downloaded</string>
+    <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">File not available</string>
     <string name="asset_download_dialog_text">Do you want to open the file, or save it to your devices downloads folder?</string>
     <string name="asset_download_dialog_open_text">Open</string>
@@ -288,6 +290,8 @@
     <string name="error_uploading_user_avatar">Image could not be uploaded</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
     <string name="error_conversation_sending_image">There was an error trying to send the image message. Please check your Internet connection and try again</string>
+    <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
+    <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
     <string name="error_conversation_opening_asset_file">No app was found to open the selected file</string>
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>

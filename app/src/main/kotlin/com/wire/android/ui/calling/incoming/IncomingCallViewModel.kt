@@ -74,7 +74,6 @@ class IncomingCallViewModel @Inject constructor(
         callRinger.stop()
         viewModelScope.launch {
             rejectCall(conversationId = conversationId)
-            navigationManager.navigateBack()
         }
     }
 

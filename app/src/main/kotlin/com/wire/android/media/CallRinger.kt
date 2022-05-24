@@ -4,9 +4,9 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
+import com.wire.android.appLogger
 import javax.inject.Inject
 import javax.inject.Singleton
-
 
 @Singleton
 class CallRinger @Inject constructor(private val context: Context) {
@@ -20,8 +20,10 @@ class CallRinger @Inject constructor(private val context: Context) {
     }
 
     private fun createMediaPlayer(resource: Int, isLooping: Boolean) {
-        mediaPlayer = MediaPlayer.create(context, resource,
-            AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(), 0 )
+        mediaPlayer = MediaPlayer.create(
+            context, resource,
+            AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(), 0
+        )
         mediaPlayer?.isLooping = isLooping
     }
 
@@ -32,8 +34,12 @@ class CallRinger @Inject constructor(private val context: Context) {
     }
 
     fun stop() {
-        if(mediaPlayer?.isPlaying == true)
-            mediaPlayer?.stop()
-        mediaPlayer?.release()
+        try {
+            if (mediaPlayer?.isPlaying == true)
+                mediaPlayer?.stop()
+            mediaPlayer?.release()
+        } catch (e: IllegalStateException) {
+            appLogger.e("There was an error while stopping ringing", e)
+        }
     }
 }

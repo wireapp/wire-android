@@ -77,9 +77,8 @@ fun MessageItem(
                 if (!isDeleted) {
                     MessageContent(messageContent,
                         onAssetClick = { onAssetMessageClicked(message.messageHeader.messageId) },
-                        onImageClick = {
-                            onImageMessageClicked(message.messageHeader.messageId)
-                        })
+                        onImageClick = { onImageMessageClicked(message.messageHeader.messageId) }
+                    )
                 }
             }
         }

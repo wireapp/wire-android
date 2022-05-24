@@ -55,7 +55,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onMessageChanged = conversationViewModel::onMessageChanged,
         onSendButtonClicked = conversationViewModel::sendMessage,
         onSendAttachment = conversationViewModel::sendAttachmentMessage,
-        onDownloadAsset = conversationViewModel::downloadOrFetchAsset,
+        onDownloadAsset = conversationViewModel::downloadOrFetchAssetToInternalStorage,
         onImageFullScreenMode = conversationViewModel::navigateToGallery,
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,

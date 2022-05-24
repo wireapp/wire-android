@@ -34,6 +34,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExperimentalMaterial3Api
 @HiltViewModel

@@ -41,6 +41,7 @@ import com.wire.android.util.getConversationColor
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
@@ -427,23 +428,60 @@ class ConversationViewModel @Inject constructor(
     // region ------------------------------ Mapper Helpers ------------------------------
     private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
-            val sender = members.findSender(message.senderUserId)
-            MessageViewWrapper(
-                messageContent = fromMessageModelToMessageContent(message),
-                messageSource = if (sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
-                messageHeader = MessageHeader(
-                    // TODO: Designs for deleted users?
-                    username = sender.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
-                    membership = Membership.None,
-                    isLegalHold = false,
-                    time = message.date,
-                    messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
-                    messageId = message.id
-                ),
-                user = User(
-                    avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
-                )
-            )
+            when (val sender = members.findSender(message.senderUserId)) {
+                is MemberDetails.Other -> {
+                    MessageViewWrapper(
+                        messageContent = fromMessageModelToMessageContent(message),
+                        messageSource = MessageSource.Self,
+                        messageHeader = MessageHeader(
+                            // TODO: Designs for deleted users?
+                            username = sender.name?.let { UIText.DynamicString(it) }
+                                ?: UIText.StringResource(R.string.member_name_deleted_label),
+                            membership = mapUserType(sender.userType),
+                            isLegalHold = false,
+                            time = message.date,
+                            messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
+                            messageId = message.id
+                        ),
+                        user = User(
+                            avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
+                        )
+                    )
+                }
+                is MemberDetails.Self -> {
+                    MessageViewWrapper(
+                        messageContent = fromMessageModelToMessageContent(message),
+                        messageSource = MessageSource.OtherUser,
+                        messageHeader = MessageHeader(
+                            // TODO: Designs for deleted users?
+                            username = sender.name?.let { UIText.DynamicString(it) }
+                                ?: UIText.StringResource(R.string.member_name_deleted_label),
+                            membership = Membership.None,
+                            isLegalHold = false,
+                            time = message.date,
+                            messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
+                            messageId = message.id
+                        ),
+                        user = User(
+                            avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
+                        )
+                    )
+                }
+                else -> throw IllegalStateException("The sender has a illegal state different than Self or Other")
+            }
+
+        }
+    }
+
+    private fun mapUserType(userType: UserType): Membership {
+        return when (userType) {
+            UserType.GUEST -> Membership.Guest
+            UserType.FEDERATED -> Membership.Federated
+            UserType.EXTERNAL -> Membership.External
+            UserType.INTERNAL -> Membership.None
+            else -> {
+                throw IllegalStateException("Unknown UserType")
+            }
         }
     }
 

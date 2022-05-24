@@ -86,14 +86,14 @@ class InitiatingCallViewModel @Inject constructor(
                     is ConversationDetails.Group -> {
                         callInitiatedState.copy(
                             conversationName = it.conversation.name,
-                            conversationType = ConversationType.OneOnOne
+                            conversationType = ConversationType.Conference
                         )
                     }
                     is ConversationDetails.OneOne -> {
                         callInitiatedState.copy(
                             conversationName = it.otherUser.name,
                             avatarAssetId = UserAvatarAsset(it.otherUser.completePicture ?: ""),
-                            conversationType = ConversationType.Conference
+                            conversationType = ConversationType.OneOnOne
                         )
                     }
                     is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")

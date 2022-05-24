@@ -1,26 +1,26 @@
 package com.wire.android.ui
 
+import android.content.Intent
+import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertAll
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasAnyChild
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onChildren
-import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.PASSWORD
@@ -50,15 +50,20 @@ class RemoveDeviceScreenTest {
 
     // Third, we create the compose rule using an AndroidComposeRule, as we are depending on instrumented environment ie: Hilt, WorkManager
     @get:Rule(order = 2)
-    val composeTestRule = createAndroidComposeRule<WireActivity>()
+    val composeTestRule = createEmptyComposeRule()
+
+    private lateinit var scenario: ActivityScenario<WireActivity>
 
     @Before
     fun setUp() {
         hiltRule.inject()
 
-        composeTestRule.setContent {
-            WireTheme {
-                RemoveDeviceScreen()
+        scenario = ActivityScenario.launch(Intent(ApplicationProvider.getApplicationContext(), WireActivity::class.java))
+        scenario.onActivity { activity ->
+            activity.setContent {
+                WireTheme {
+                    RemoveDeviceScreen()
+                }
             }
         }
     }

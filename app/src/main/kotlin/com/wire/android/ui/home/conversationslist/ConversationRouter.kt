@@ -31,7 +31,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.NotificationsOptionsItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 
@@ -77,17 +76,19 @@ fun ConversationRouterHomeBridge(
 //                false -> {
                     ConversationSheetContent(
                         conversationSheetContent = conversationState.modalBottomSheetContentState.value,
-                        notificationsOptionsItem = NotificationsOptionsItem(
-                            muteConversationAction = {
-                                mutingConversationState.openMutedStatusSheetContent(
-                                    conversationState.modalBottomSheetContentState.value.conversationId,
-                                    conversationState.modalBottomSheetContentState.value.mutedStatus
-                                )
-                                // here we trigger a sheet content change, enabling muted settings toggle
-                                conversationState.toggleEditMutedSetting(true)
-                            },
-                            mutedStatus = mutingConversationState.mutedStatus
-                        ),
+                        mutedStatus = mutingConversationState.mutedStatus,
+                        muteConversation = { },
+//                        notificationsOptionsItem = NotificationsOptionsItem(
+//                            muteConversationAction = {
+//                                mutingConversationState.openMutedStatusSheetContent(
+//                                    conversationState.modalBottomSheetContentState.value.conversationId,
+//                                    conversationState.modalBottomSheetContentState.value.mutedStatus
+//                                )
+//                                // here we trigger a sheet content change, enabling muted settings toggle
+//                                conversationState.toggleEditMutedSetting(true)
+//                            },
+//
+//                        ),
                         addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
                         moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
                         moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },

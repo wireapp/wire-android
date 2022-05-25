@@ -27,6 +27,8 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
@@ -386,6 +388,7 @@ class ConversationsViewModelTest {
             coEvery { observeConversationDetails(any()) } returns flowOf()
             coEvery { markMessagesAsNotified(any(), any()) } returns Success
             coEvery { getSelfUserTeam() } returns flowOf()
+            coEvery { userTypeMapper.toMembership(any()) } returns Membership.None
         }
 
         @MockK
@@ -431,6 +434,9 @@ class ConversationsViewModelTest {
         lateinit var fileManager: FileManager
 
         @MockK
+        lateinit var userTypeMapper: UserTypeMapper
+
+        @MockK
         lateinit var context: Context
 
         @MockK
@@ -456,7 +462,8 @@ class ConversationsViewModelTest {
                 markMessagesAsNotified = markMessagesAsNotified,
                 updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
                 getSelfUserTeam = getSelfUserTeam,
-                fileManager = fileManager
+                fileManager = fileManager,
+                userTypeMapper = userTypeMapper
             )
         }
 
@@ -533,13 +540,15 @@ class ConversationsViewModelTest {
 
     private fun mockOtherUserDetails(
         name: String,
-        id: UserId = UserId("other", "user")
+        id: UserId = UserId("other", "user"),
+        userType : UserType = UserType.INTERNAL
     ): MemberDetails.Other = mockk<MemberDetails.Other>().also {
         every { it.otherUser } returns mockk<OtherUser>().also { user ->
             every { user.id } returns id
             every { user.name } returns name
             every { user.previewPicture } returns null
         }
+        every{ it.userType } returns userType
     }
 
     private fun mockedMessage(senderId: UserId) = Message(

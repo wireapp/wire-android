@@ -55,25 +55,6 @@ fun ConversationRouterHomeBridge(
     // to pass the new Composable
     LaunchedEffect(conversationState.modalBottomSheetContentState) {
         onHomeBottomSheetContentChange {
-//            when (conversationState.isEditingMutedSetting.value) {
-//                true -> {
-//                    MutingOptionsSheetContent(
-//                        mutingConversationState = mutingConversationState,
-//                        onItemClick = { conversationId, mutedStatus ->
-//                            viewModel.muteConversation(conversationId, mutedStatus)
-//                            conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutedStatus)
-//                            conversationState.toggleEditMutedSetting(false)
-//                        },
-//                        onBackClick = {
-//                            mutingConversationState.closeMutedStatusSheetContent()
-//                            conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(
-//                                mutingConversationState.mutedStatus
-//                            )
-//                            conversationState.toggleEditMutedSetting(false)
-//                        }
-//                    )
-//                }
-//                false -> {
                     ConversationSheetContent(
                         conversationSheetContent = conversationState.modalBottomSheetContentState.value,
                         mutedStatus = mutingConversationState.mutedStatus,
@@ -96,8 +77,6 @@ fun ConversationRouterHomeBridge(
                         blockUser = { viewModel.blockUser("someId") },
                         leaveGroup = { viewModel.leaveGroup("someId") }
                     )
-//                }
-//            }
         }
     }
 
@@ -114,14 +93,6 @@ fun ConversationRouterHomeBridge(
         onScrollPositionChanged = onScrollPositionChanged,
         onError = onBottomSheetVisibilityToggled
     )
-}
-
-// bottom sshet menu with:
-//level 1: edit
-//level 2: mute
-@Composable
-private fun ConversationOptions(){
-
 }
 
 @ExperimentalAnimationApi

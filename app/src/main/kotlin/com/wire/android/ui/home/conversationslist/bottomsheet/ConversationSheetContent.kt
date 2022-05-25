@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import MutingOptionsSheetContent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -56,6 +57,10 @@ fun ConversationSheetContent(
                 onBackClick = { conversationOptionSheetState.toHome() },
             )
         }
+    }
+
+    BackHandler(conversationOptionSheetState.currentNavigation is ConversationOptionNavigation.MutingNotificationOption) {
+        conversationOptionSheetState.toHome()
     }
 }
 

@@ -317,7 +317,6 @@ fun LazyListScope.inProgressItem() {
 }
 
 fun LazyListScope.failureItem(@StringRes failureMessage: Int) {
-
     item {
         Box(
             Modifier

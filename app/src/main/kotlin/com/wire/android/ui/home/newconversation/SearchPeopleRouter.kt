@@ -2,6 +2,8 @@ package com.wire.android.ui.home.newconversation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -11,6 +13,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
+import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.newconversation.common.SearchListScreens
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
@@ -51,7 +54,7 @@ fun SearchPeopleRouter(
                 searchNavController.navigate(SearchListScreens.SearchPeopleScreen.route)
             },
             onCloseSearchClicked = {
-                searchBarState.cancelSearch()
+                searchBarState.closeSearch()
                 searchNavController.popBackStack()
             },
             appTopBar = {
@@ -106,7 +109,7 @@ fun SearchPeopleRouter(
     }
 
     BackHandler(searchBarState.isSearchActive) {
-        searchBarState.cancelSearch()
+        searchBarState.closeSearch()
         searchNavController.popBackStack()
     }
 }

@@ -25,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -120,7 +121,7 @@ private fun AppTopBarWithSearchBar(
         searchQuery = if (searchBarState.isSearchActive) searchQuery else "",
         onSearchQueryChanged = onSearchQueryChanged,
         onInputClicked = {
-            searchBarState.startSearch()
+            searchBarState.openSearch()
 
             onSearchClicked()
         },
@@ -182,8 +183,8 @@ private fun AppTopBarWithSearchBarContent(
 
                     LaunchedEffect(isSearchActive) {
                         if (!isSearchActive) {
-                            onSearchQueryChanged("")
                             focusManager.clearFocus()
+                            onSearchQueryChanged("")
                         }
                     }
 

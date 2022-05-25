@@ -12,7 +12,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
-fun ConversationSheetContent(
+    fun ConversationSheetContent(
     conversationSheetContent: ConversationSheetContent,
     onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
     addConversationToFavourites: () -> Unit,

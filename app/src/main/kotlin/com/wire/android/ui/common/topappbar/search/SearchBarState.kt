@@ -9,7 +9,7 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun rememberSearchbarState(): SearchBarState {
-    val searchBarState = rememberSaveable(saver = SearchBarState.Saver()) {
+    val searchBarState = rememberSaveable(saver = SearchBarState.saver()) {
         SearchBarState(
             isSearchActive = false,
             isSearchBarCollapsed = false
@@ -35,7 +35,7 @@ class SearchBarState(isSearchActive: Boolean, isSearchBarCollapsed: Boolean) {
     }
 
     companion object {
-        fun Saver(): Saver<SearchBarState, *> = Saver(
+        fun saver(): Saver<SearchBarState, *> = Saver(
             save = { Pair(it.isSearchActive, it.isSearchBarCollapsed) },
             restore = { (isSearchActive, isSearchBarCollapsed) ->
                 SearchBarState(isSearchActive, isSearchBarCollapsed)

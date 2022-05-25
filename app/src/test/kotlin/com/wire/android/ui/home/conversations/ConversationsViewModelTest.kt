@@ -533,13 +533,15 @@ class ConversationsViewModelTest {
 
     private fun mockOtherUserDetails(
         name: String,
-        id: UserId = UserId("other", "user")
+        id: UserId = UserId("other", "user"),
+        userType : UserType = UserType.INTERNAL
     ): MemberDetails.Other = mockk<MemberDetails.Other>().also {
         every { it.otherUser } returns mockk<OtherUser>().also { user ->
             every { user.id } returns id
             every { user.name } returns name
             every { user.previewPicture } returns null
         }
+        every{ it.userType} returns userType
     }
 
     private fun mockedMessage(senderId: UserId) = Message(

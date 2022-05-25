@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
@@ -93,7 +94,8 @@ class ConversationViewModel @Inject constructor(
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
-    private val fileManager: FileManager
+    private val fileManager: FileManager,
+    private val userTypeMapper: UserTypeMapper
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -436,7 +438,7 @@ class ConversationViewModel @Inject constructor(
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
                     username = sender.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
-                    membership = if (sender is MemberDetails.Other) mapUserType(sender.userType) else Membership.None,
+                    membership = if (sender is MemberDetails.Other) userTypeMapper.toMembership(sender.userType) else Membership.None,
                     isLegalHold = false,
                     time = message.date,
                     messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
@@ -446,15 +448,6 @@ class ConversationViewModel @Inject constructor(
                     avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
                 )
             )
-        }
-    }
-
-    private fun mapUserType(userType: UserType): Membership {
-        return when (userType) {
-            UserType.GUEST -> Membership.Guest
-            UserType.FEDERATED -> Membership.Federated
-            UserType.EXTERNAL -> Membership.External
-            UserType.INTERNAL -> Membership.None
         }
     }
 

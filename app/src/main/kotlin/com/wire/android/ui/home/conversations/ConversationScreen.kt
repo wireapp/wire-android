@@ -222,17 +222,17 @@ private fun ConversationScreenContent(
 @Composable
 private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<String, String?> {
     val msg = when (messageCode) {
-        is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, messageCode.maxLimitInMB)
-        is ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
-        is ErrorSendingImage -> stringResource(R.string.error_conversation_sending_image)
-        is ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
-        is ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
-        is ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
         is OnFileDownloaded -> stringResource(R.string.conversation_on_file_downloaded, messageCode.assetName ?: "")
-        else -> stringResource(R.string.error_conversation_generic)
+        is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, messageCode.maxLimitInMB)
+        ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
+        ErrorSendingImage -> stringResource(R.string.error_conversation_sending_image)
+        ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
+        ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
+        ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
+        ConversationSnackbarMessages.ErrorPickingAttachment -> stringResource(R.string.error_conversation_generic)
     }
     val actionLabel = when (messageCode) {
-        is OnFileDownloaded -> stringResource(R.string.conversation_on_file_downloaded_action_label)
+        is OnFileDownloaded -> stringResource(R.string.label_show)
         else -> null
     }
     return msg to actionLabel

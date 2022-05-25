@@ -252,7 +252,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun showOnAssetDownloadedDialog(assetName: String?, assetData: ByteArray, messageId: String) {
+    fun showOnAssetDownloadedDialog(assetName: String, assetData: ByteArray, messageId: String) {
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Displayed(assetName, assetData, messageId))
     }
 
@@ -368,7 +368,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onOpenFileWithExternalApp(assetName: String?, assetData: ByteArray) {
+    fun onOpenFileWithExternalApp(assetName: String, assetData: ByteArray) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 fileManager.openWithExternalApp(assetName, assetData) { onOpenFileError() }
@@ -377,12 +377,14 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onSaveFile(assetName: String?, assetData: ByteArray, messageId: String) {
+    fun onSaveFile(assetName: String, assetData: ByteArray, messageId: String) {
         viewModelScope.launch {
-            fileManager.saveToExternalStorage(assetName, assetData) {
-                updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
-                onFileSavedToExternalStorage(assetName)
-                hideOnAssetDownloadedDialog()
+            withContext(dispatchers.io()) {
+                fileManager.saveToExternalStorage(assetName, assetData) {
+                    updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
+                    onFileSavedToExternalStorage(assetName)
+                    hideOnAssetDownloadedDialog()
+                }
             }
         }
     }

@@ -9,19 +9,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.extension.rememberLazyListState
-import com.wire.android.ui.home.conversations.common.ConversationItemFactory
+import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
-import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.NewActivity
-import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onOpenConversationClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
+    onOpenConversationClick: (ConversationItem) -> Unit,
+    onEditConversationItem: (ConversationItem) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {}
 ) {
     val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
@@ -42,8 +41,8 @@ private fun AllConversationContent(
     lazyListState: LazyListState,
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onConversationItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
+    onConversationItemClick: (ConversationItem) -> Unit,
+    onEditConversationItem: (ConversationItem) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -57,26 +56,33 @@ private fun AllConversationContent(
                 ConversationItemFactory(
                     conversation = conversationItem,
                     eventType = eventType,
-                    onConversationItemClick = { onConversationItemClick(conversationItem.id) },
-                    onConversationItemLongClick = { onEditConversationItem(conversationItem.conversationType) }
+                    onConversationItemClick = onConversationItemClick,
+                    onConversationItemLongClick = onEditConversationItem
                 )
             }
         }
 
         conversations.forEach { (conversationFolder, conversationList) ->
             folderWithElements(
-                header = { conversationFolder.folderName },
+                header = {
+                    when (conversationFolder) {
+                        is ConversationFolder.Predefined -> stringResource(id = conversationFolder.folderNameResId)
+                        is ConversationFolder.Custom -> conversationFolder.folderName
+                    }
+                },
                 items = conversationList
             ) { generalConversation ->
                 GeneralConversationItem(
                     generalConversation = generalConversation,
-                    onConversationItemClick = { onConversationItemClick(generalConversation.id) },
-                    onConversationItemLongClick = { onEditConversationItem(generalConversation.conversationType) }
+                    onConversationItemClick = onConversationItemClick,
+                    onConversationItemLongClick = onEditConversationItem
                 )
             }
         }
     }
 }
+
+
 @Preview
 @Composable
 fun ComposablePreview() {

@@ -8,19 +8,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
-import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,6 +35,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
+    private val getSelfTeam: GetSelfTeamUseCase,
     private val logout: LogoutUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
@@ -49,26 +51,23 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private suspend fun fetchSelfUser() {
         viewModelScope.launch {
-            getSelf().collect { selfUser ->
-                with(selfUser) {
-                    // Load user avatar raw image data
-                    completePicture?.let { updateUserAvatar(it) }
+            getSelf().combine(getSelfTeam(), ::Pair)
+                .collect { (selfUser, selfTeam) ->
+                    with(selfUser) {
+                        // Load user avatar raw image data
+                        completePicture?.let { updateUserAvatar(it) }
 
-                    // Update user data state
-                    userProfileState = SelfUserProfileState(
-                        status = UserStatus.AVAILABLE,
-                        fullName = name.orEmpty(),
-                        userName = handle.orEmpty(),
-                        teamName = team,
-
-                        // TODO: remove mocked team when other accounts functionality is ready
-                        otherAccounts = listOf(
-                            OtherAccount("someId", "", name.orEmpty(), "Wire Swiss GmbH"),
-                            OtherAccount("someId", "", "B. A. Baracus", "The A-Team"),
+                        // Update user data state
+                        userProfileState = SelfUserProfileState(
+                            status = UserStatus.AVAILABLE,
+                            fullName = name.orEmpty(),
+                            userName = handle.orEmpty(),
+                            teamName = selfTeam?.name,
+                            otherAccounts = listOf() //TODO: implement other accounts functionality
                         )
-                    )
+                    }
                 }
-            }
+
         }
     }
 
@@ -83,9 +82,9 @@ class SelfUserProfileViewModel @Inject constructor(
     private fun updateUserAvatar(avatarAssetId: UserAssetId) {
         // We try to download the user avatar on a separate thread so that we don't block the display of the user's info
         viewModelScope.launch {
+            showLoadingAvatar(true)
             withContext(dispatchers.io()) {
                 try {
-                    showLoadingAvatar(true)
                     userProfileState = userProfileState.copy(
                         avatarAsset = UserAvatarAsset(avatarAssetId)
                     )
@@ -97,10 +96,9 @@ class SelfUserProfileViewModel @Inject constructor(
                     appLogger.e("There was an error while downloading the user avatar", e)
                     // Show error snackbar if avatar download fails
                     showErrorMessage()
-                } finally {
-                    showLoadingAvatar(false)
                 }
             }
+            showLoadingAvatar(false)
         }
     }
 

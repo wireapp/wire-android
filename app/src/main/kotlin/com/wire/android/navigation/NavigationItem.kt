@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import com.wire.android.BuildConfig
+import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_SUMMARY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_USERNAME
@@ -13,9 +14,10 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSO
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CALL
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
@@ -34,18 +36,19 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.calling.OngoingCallScreen
+import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
-import com.wire.android.ui.calling.incoming.IncomingCallScreen
+import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
 
 @OptIn(
@@ -72,7 +75,8 @@ enum class NavigationItem(
         primaryRoute = LOGIN,
         content = { contentParams ->
             val serverConfig = contentParams.arguments.filterIsInstance<ServerConfig>().firstOrNull()
-            LoginScreen(serverConfig ?: ServerConfig.DEFAULT)
+            val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
+            LoginScreen(serverConfig ?: ServerConfig.DEFAULT, ssoLoginResult)
         },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
@@ -149,20 +153,17 @@ enum class NavigationItem(
         }
     },
 
-    //TODO: internal is here until we can get the ConnectionStatus from the user
-    // for now it is just to be able to proceed forward
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}/{$EXTRA_CONNECTED_STATUS}",
+        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}",
         content = { OtherUserProfileScreen() },
-        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+        animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userDomain: String = arguments.filterIsInstance<String>()[0]
             val userProfileId: String = arguments.filterIsInstance<String>()[1]
-            val internal = arguments.filterIsInstance<Boolean>().first()
 
-            return "$primaryRoute/${userDomain}/${userProfileId}/${internal}"
+            return "$primaryRoute/$userDomain/$userProfileId"
         }
     },
 
@@ -178,7 +179,7 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
         }
     },
 
@@ -195,7 +196,7 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
         }
     },
 
@@ -206,7 +207,7 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
         }
     },
 
@@ -217,7 +218,19 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${mapIntoArgumentString()}" } ?: primaryRoute
+            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
+        }
+    },
+
+    Gallery(
+        primaryRoute = MEDIA_GALLERY,
+        canonicalRoute = "$MEDIA_GALLERY/{$EXTRA_IMAGE_DATA}",
+        content = { MediaGalleryScreen() }
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val imageAssetId: ImageAsset.PrivateAsset? = arguments.filterIsInstance<ImageAsset.PrivateAsset>().firstOrNull()
+            val mappedArgs = imageAssetId?.toString() ?: ""
+            return imageAssetId?.run { "$primaryRoute/$mappedArgs" } ?: primaryRoute
         }
     };
 
@@ -231,7 +244,6 @@ enum class NavigationItem(
     open fun getRouteWithArgs(arguments: List<Any> = emptyList()): String = primaryRoute
 
     companion object {
-        @OptIn(ExperimentalMaterialApi::class)
         private val map: Map<String, NavigationItem> = values().associateBy { it.canonicalRoute }
 
         fun fromRoute(route: String?): NavigationItem? = map[route]
@@ -257,28 +269,20 @@ object NavigationItemDestinationsRoutes {
     const val ONGOING_CALL = "ongoing_call_screen"
     const val INITIATING_CALL = "initiating_call_screen"
     const val INCOMING_CALL = "incoming_call_screen"
+    const val MEDIA_GALLERY = "media_gallery"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_USER_DOMAIN = "extra_user_domain"
 
-//TODO: internal is here untill we can get the ConnectionStatus from the user
-// for now it is just to be able to proceed forward
-const val EXTRA_CONNECTED_STATUS = "extra_connected_status"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
+const val EXTRA_IMAGE_DATA = "extra_image_data"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 
-private fun QualifiedID.mapIntoArgumentString(): String = "$domain@$value"
-
-fun String.parseIntoQualifiedID(): QualifiedID {
-    val components = split("@")
-    return QualifiedID(components.last(), components.first())
-}
-
 data class ContentParams(
     val navBackStackEntry: NavBackStackEntry,
-    val arguments: List<Any> = emptyList()
+    val arguments: List<Any?> = emptyList()
 )

@@ -3,6 +3,8 @@ package com.wire.android.di
 import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.FileManager
+import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.Module
@@ -23,9 +25,17 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun providesFileManager(@ApplicationContext appContext: Context, dispatchers: DispatcherProvider): FileManager =
+        FileManager(appContext, dispatchers)
+
+    @Singleton
+    @Provides
     fun providesApplicationContext(@ApplicationContext appContext: Context) = appContext
 
     @Singleton
     @Provides
     fun providesDefaultDispatchers(): DispatcherProvider = DefaultDispatcherProvider()
+
+    @Provides
+    fun provideDeepLinkProcessor(): DeepLinkProcessor = DeepLinkProcessor()
 }

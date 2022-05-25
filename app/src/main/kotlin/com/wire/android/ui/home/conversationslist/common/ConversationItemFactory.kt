@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations.common
+package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.home.conversationslist.CallConversationItem
@@ -14,8 +14,8 @@ import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 fun ConversationItemFactory(
     conversation: ConversationItem,
     eventType: EventType? = null,
-    onConversationItemClick: () -> Unit,
-    onConversationItemLongClick: () -> Unit,
+    onConversationItemClick: (ConversationItem) -> Unit,
+    onConversationItemLongClick: (ConversationItem) -> Unit,
 ) {
     when (conversation) {
         is ConversationMissedCall -> CallConversationItem(

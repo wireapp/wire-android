@@ -62,6 +62,7 @@ import com.wire.android.ui.common.button.WireIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.theme.wireColorScheme
@@ -77,7 +78,7 @@ fun MessageComposer(
     onMessageChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (String) -> Unit,
+    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
 ) {
     BoxWithConstraints {
@@ -108,7 +109,7 @@ fun MessageComposer(
                 onSendAttachment(it)
                 messageComposerState.toggleAttachmentOptionsVisibility()
             },
-            onError = onError
+            onMessageComposerError = onMessageComposerError
         )
     }
 }
@@ -129,7 +130,7 @@ private fun MessageComposer(
     onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (String) -> Unit
+    onMessageComposerError: (ConversationSnackbarMessages) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     // when MessageComposer is composed for the first time we do not know the height
@@ -370,7 +371,7 @@ private fun MessageComposer(
                     AttachmentOptionsComponent(
                         messageComposerState.attachmentInnerState,
                         onSendAttachment,
-                        onError,
+                        onMessageComposerError,
                         Modifier.align(Alignment.Center)
                     )
                 }

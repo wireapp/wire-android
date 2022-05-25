@@ -29,6 +29,7 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.model.DeletedMessage
 import com.wire.android.ui.home.conversations.model.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -46,8 +47,9 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun MessageItem(
     message: MessageViewWrapper,
-    onLongClicked: () -> Unit,
-    onAssetMessageClicked: (String) -> Unit
+    onLongClicked: (MessageViewWrapper) -> Unit,
+    onAssetMessageClicked: (String) -> Unit,
+    onImageMessageClicked: (String) -> Unit
 ) {
     with(message) {
         Row(
@@ -60,7 +62,7 @@ fun MessageItem(
                 .combinedClickable(
                     //TODO: implement some action onClick
                     onClick = { },
-                    onLongClick = onLongClicked
+                    onLongClick = { onLongClicked(message) }
                 )
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing2x))
@@ -73,7 +75,10 @@ fun MessageItem(
                 MessageHeader(messageHeader)
                 Spacer(modifier = Modifier.height(dimensions().spacing6x))
                 if (!isDeleted) {
-                    MessageContent(messageContent, onAssetMessageClicked)
+                    MessageContent(messageContent,
+                        onAssetClick = { onAssetMessageClicked(message.messageHeader.messageId) },
+                        onImageClick = { onImageMessageClicked(message.messageHeader.messageId) }
+                    )
                 }
             }
         }
@@ -133,18 +138,21 @@ private fun Username(username: String) {
 }
 
 @Composable
-private fun MessageContent(messageContent: MessageContent?, onAssetClick: (String) -> Unit) {
+private fun MessageContent(messageContent: MessageContent?, onAssetClick: () -> Unit, onImageClick: () -> Unit = {}) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
-            imgParams = ImageMessageParams(messageContent.width, messageContent.height)
+            imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+            onImageClick = { onImageClick() }
         )
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
+        is MessageContent.DeletedMessage -> DeletedMessage()
         is MessageContent.AssetMessage -> MessageAsset(
             assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
-            onAssetClick = { onAssetClick(messageContent.assetId) }
+            assetDownloadStatus = messageContent.downloadStatus,
+            onAssetClick = { onAssetClick() }
         )
         else -> {}
     }
@@ -155,7 +163,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        if (messageStatus != MessageStatus.Failure) {
+        if (messageStatus != MessageStatus.SendFailure) {
             Box(
                 modifier = Modifier
                     .wrapContentSize()

@@ -38,10 +38,13 @@ class RegisterDeviceViewModelTest {
 
     @MockK
     private lateinit var navigationManager: NavigationManager
+
     @MockK
     private lateinit var validatePasswordUseCase: ValidatePasswordUseCase
+
     @MockK
     private lateinit var registerClientUseCase: RegisterClientUseCase
+
     @MockK
     private lateinit var client: Client
 
@@ -72,7 +75,9 @@ class RegisterDeviceViewModelTest {
     @Test
     fun `given button is clicked, when registering the client, then show loading`() {
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
+        coEvery {
+            registerClientUseCase.invoke(any())
+        } returns RegisterClientResult.Success(client)
 
         registerDeviceViewModel.onPasswordChange(TextFieldValue("abc"))
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
@@ -88,14 +93,20 @@ class RegisterDeviceViewModelTest {
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
+        coEvery {
+            registerClientUseCase.invoke(
+                any()
+            )
+        } returns RegisterClientResult.Success(client)
         coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { registerDeviceViewModel.onContinue() }
 
         coVerify(exactly = 1) { validatePasswordUseCase.invoke(password) }
-        coVerify(exactly = 1) { registerClientUseCase.invoke(password, any(), any()) }
+        coVerify(exactly = 1) {
+            registerClientUseCase.invoke(any())
+        }
         coVerify(exactly = 1) {
             navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.HOME, BackStackMode.CLEAR_WHOLE))
         }
@@ -107,14 +118,18 @@ class RegisterDeviceViewModelTest {
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Failure.TooManyClients
+        coEvery {
+            registerClientUseCase.invoke(any())
+        } returns RegisterClientResult.Failure.TooManyClients
         coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { registerDeviceViewModel.onContinue() }
 
         coVerify(exactly = 1) { validatePasswordUseCase.invoke(password) }
-        coVerify(exactly = 1) { registerClientUseCase.invoke(password, any(), any()) }
+        coVerify(exactly = 1) {
+            registerClientUseCase.invoke(any())
+        }
         coVerify(exactly = 1) {
             navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
@@ -123,7 +138,9 @@ class RegisterDeviceViewModelTest {
     @Test
     fun `given button is clicked, when password is invalid, then UsernameInvalidError is passed`() {
         coEvery { validatePasswordUseCase.invoke(any()) } returns false
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Failure.InvalidCredentials
+        coEvery {
+            registerClientUseCase.invoke(any())
+        } returns RegisterClientResult.Failure.InvalidCredentials
 
         runTest { registerDeviceViewModel.onContinue() }
 
@@ -134,7 +151,7 @@ class RegisterDeviceViewModelTest {
     fun `given button is clicked, when request returns Generic error, then GenericError is passed`() {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns
+        coEvery { registerClientUseCase.invoke(any()) } returns
                 RegisterClientResult.Failure.Generic(networkFailure)
 
         runTest { registerDeviceViewModel.onContinue() }
@@ -148,7 +165,7 @@ class RegisterDeviceViewModelTest {
     fun `given dialog is dismissed, when state error is DialogError, then hide error`() {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns
+        coEvery { registerClientUseCase.invoke(any()) } returns
                 RegisterClientResult.Failure.Generic(networkFailure)
 
         runTest { registerDeviceViewModel.onContinue() }

@@ -2,8 +2,10 @@ package com.wire.android.notification
 
 import androidx.annotation.StringRes
 import com.wire.android.R
-
-data class NotificationData(val conversations: List<NotificationConversation>)
+import com.wire.kalium.logic.data.notification.LocalNotificationCommentType
+import com.wire.kalium.logic.data.notification.LocalNotificationConversation
+import com.wire.kalium.logic.data.notification.LocalNotificationMessage
+import com.wire.kalium.logic.util.toTimeInMillis
 
 data class NotificationConversation(
     val id: String,
@@ -30,3 +32,40 @@ enum class CommentResId(@StringRes val value: Int) {
     FILE(R.string.notification_shared_file),
     REACTION(R.string.notification_reacted)
 }
+
+fun LocalNotificationConversation.intoNotificationConversation() : NotificationConversation{
+
+    val notificationMessages = this.messages.map { it.intoNotificationMessage() }.sortedBy { it.time }
+    val lastMessageTime = this.messages.maxOfOrNull { it.time.toTimeInMillis() } ?: 0
+
+    return NotificationConversation(
+        id = id.toString(),
+        name = conversationName,
+        image = null, //TODO
+        messages = notificationMessages,
+        isOneToOneConversation = isOneToOneConversation,
+        lastMessageTime = lastMessageTime
+    )
+}
+
+fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
+
+    val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) //TODO image
+    val notificationMessageTime = time.toTimeInMillis()
+
+    return when (this) {
+        is LocalNotificationMessage.Text -> NotificationMessage.Text(notificationMessageAuthor, notificationMessageTime, text)
+        is LocalNotificationMessage.Comment -> NotificationMessage.Comment(
+            notificationMessageAuthor,
+            notificationMessageTime,
+            type.intoCommentResId()
+        )
+    }
+}
+
+fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
+    when (this) {
+        LocalNotificationCommentType.PICTURE -> CommentResId.PICTURE
+        LocalNotificationCommentType.FILE -> CommentResId.FILE
+        LocalNotificationCommentType.REACTION -> CommentResId.REACTION
+    }

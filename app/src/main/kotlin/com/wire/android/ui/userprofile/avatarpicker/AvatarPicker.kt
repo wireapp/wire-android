@@ -18,6 +18,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,6 +28,7 @@ import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
@@ -78,6 +80,7 @@ private fun AvatarPickerContent(
 
     MenuModalSheetLayout(
         sheetState = state.modalBottomSheetState,
+        coroutineScope = rememberCoroutineScope(),
         headerTitle = stringResource(R.string.profile_image_modal_sheet_header_title),
         menuItems = listOf(
             {
@@ -115,8 +118,8 @@ private fun AvatarPickerContent(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-        ) {
-            Box(Modifier.fillMaxSize()) {
+        ) { internalPadding ->
+            Box(Modifier.fillMaxSize().padding(internalPadding)) {
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -136,7 +139,8 @@ private fun AvatarPickerContent(
                         hasPickedImage = hasPickedImage(viewModel.pictureState),
                         onSaveClick = onSaveClick,
                         onCancelClick = { viewModel.loadInitialAvatarState() },
-                        onChangeImage = { state.showModalBottomSheet() }
+                        onChangeImage = { state.showModalBottomSheet() },
+                        isUploadingImage = isUploadingImage(viewModel.pictureState)
                     )
                 }
             }
@@ -144,14 +148,16 @@ private fun AvatarPickerContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AvatarPickerActionButtons(
+    isUploadingImage: Boolean,
     hasPickedImage: Boolean,
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit,
     onChangeImage: () -> Unit
 ) {
-    if (hasPickedImage) {
+    if (hasPickedImage || isUploadingImage) {
         Row(Modifier.fillMaxWidth()) {
             WireSecondaryButton(
                 modifier = Modifier
@@ -165,7 +171,9 @@ private fun AvatarPickerActionButtons(
                     .padding(dimensions().spacing16x)
                     .weight(1f),
                 text = stringResource(R.string.label_confirm),
-                onClick = { onSaveClick() }
+                onClick = { onSaveClick() },
+                loading = isUploadingImage,
+                state = if (isUploadingImage) WireButtonState.Disabled else WireButtonState.Default
             )
         }
     } else {
@@ -185,6 +193,7 @@ private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     return when (errorCode) {
@@ -197,3 +206,6 @@ private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 private fun hasPickedImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Picked
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun isUploadingImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Uploading

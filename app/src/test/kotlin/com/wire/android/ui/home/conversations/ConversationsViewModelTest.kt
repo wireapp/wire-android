@@ -5,10 +5,14 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
-import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.android.util.FileManager
+import com.wire.android.util.getConversationColor
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -18,31 +22,40 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.feature.message.Result.Success
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.internal.assertFalse
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -102,7 +115,7 @@ class ConversationsViewModelTest {
         val (_, viewModel) = Arrangement().arrange()
 
         // When
-        viewModel.onDialogDismissed()
+        viewModel.onDeleteDialogDismissed()
 
         // Then
         viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
@@ -240,17 +253,139 @@ class ConversationsViewModelTest {
         coVerify(inverse = true) { arrangement.sendImageMessage.invoke(any(), any(), any(), any(), any()) }
     }
 
+    @Test
+    fun `given a 1 on 1 conversation, when solving the conversation avatar, then the avatar of the other user is used`() = runTest {
+        // Given
+        val conversationDetails = withMockConversationDetailsOneOnOne("", "userAssetId")
+        val otherUserAvatar = conversationDetails.otherUser.previewPicture
+        val (_, viewModel) = Arrangement().withChannelUpdates(conversationDetails = conversationDetails).arrange()
+        val actualAvatar = viewModel.conversationViewState.conversationAvatar
+        // When - Then
+        assert(actualAvatar is ConversationAvatar.OneOne)
+        assertEquals(otherUserAvatar, (actualAvatar as ConversationAvatar.OneOne).avatarAsset?.userAssetId)
+    }
+
+    @Test
+    fun `given a group conversation, when solving the conversation avatar, then the color of the conversation is used`() = runTest {
+        // Given
+        val conversationDetails = mockConversationDetailsGroup("")
+        val conversationColor = 0xFF00FF00
+        mockkStatic("com.wire.android.util.ColorUtilKt")
+        every { getConversationColor(any()) } returns conversationColor
+        val (_, viewModel) = Arrangement().withChannelUpdates(conversationDetails = conversationDetails).arrange()
+        val actualAvatar = viewModel.conversationViewState.conversationAvatar
+        // When - Then
+        assert(actualAvatar is ConversationAvatar.Group)
+        assertEquals(conversationColor, (actualAvatar as ConversationAvatar.Group).groupColorValue)
+    }
+
+    @Test
+    fun `given a user sends an image message larger than 15MB, when invoked, then sendImageMessageUseCase isn't called`() = runTest {
+        // Given
+        val (arrangement, viewModel) = Arrangement().withSuccessfulSendAttachmentMessage().arrange()
+        val mockedAttachment = AttachmentBundle(
+            "image/jpeg", ByteArray(IMAGE_SIZE_LIMIT_BYTES + 1), "mocked_image.jpeg", AttachmentType.IMAGE
+        )
+
+        // When
+        viewModel.sendAttachmentMessage(mockedAttachment)
+
+        // Then
+        coVerify(inverse = true) { arrangement.sendImageMessage.invoke(any(), any(), any(), any(), any()) }
+        assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorMaxImageSize)
+    }
+
+    @Test
+    fun `given that a free user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase isn't called`() =
+        runTest {
+            // Given
+            val (arrangement, viewModel) = Arrangement().withSuccessfulSendAttachmentMessage().arrange()
+            val mockedAttachment = AttachmentBundle(
+                "file/x-zip", ByteArray(ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1), "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
+            )
+
+            // When
+            viewModel.sendAttachmentMessage(mockedAttachment)
+
+            // Then
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any()) }
+            assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorMaxAssetSize)
+        }
+
+    @Test
+    fun `given that a team user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase is called`() = runTest {
+        // Given
+        val userTeam = Team("mocked-team-id", "mocked-team-name")
+        val (arrangement, viewModel) = Arrangement()
+            .withSuccessfulSendAttachmentMessage()
+            .withTeamUser(userTeam)
+            .arrange()
+        val mockedAttachment = AttachmentBundle(
+            "file/x-zip", ByteArray(ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1), "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
+        )
+
+        // When
+        viewModel.sendAttachmentMessage(mockedAttachment)
+
+        // Then
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any()) }
+        assertFalse(viewModel.conversationViewState.onSnackbarMessage != null)
+    }
+
+    @Test
+    fun `given an asset message, when downloading to external storage, then the file manager downloads the asset and closes the dialog`() =
+        runTest {
+            // Given
+            val messageId = "mocked-msg-id"
+            val assetName = "mocked-asset"
+            val assetData = assetName.toByteArray()
+            val (arrangement, viewModel) = Arrangement()
+                .withSuccessfulSaveAssetMessage(assetName, assetData, messageId)
+                .arrange()
+
+            // When
+            assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
+            viewModel.onSaveFile(assetName, assetData, messageId)
+
+            // Then
+            coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any()) }
+            assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
+        }
+
+    @Test
+    fun `given an asset message, when opening it, then the file manager open function gets invoked and closes the dialog`() =
+        runTest {
+            // Given
+            val messageId = "mocked-msg-id"
+            val assetName = "mocked-asset"
+            val assetData = assetName.toByteArray()
+            val (arrangement, viewModel) = Arrangement()
+                .withSuccessfulOpenAssetMessage(assetName, assetData, messageId)
+                .arrange()
+
+            // When
+            assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
+            viewModel.onOpenFileWithExternalApp(assetName, assetData)
+
+            // Then
+            verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
+            assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
+        }
+
     private class Arrangement {
         init {
             // Tests setup
+            val dummyConversationId = "some-dummy-value@some.dummy.domain"
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>(any()) } returns ("")
+            every { savedStateHandle.get<String>(any()) } returns dummyConversationId
             every { savedStateHandle.set(any(), any<String>()) } returns Unit
 
             // Default empty values
             coEvery { getMessages(any()) } returns flowOf(listOf())
             coEvery { observeMemberDetails(any()) } returns flowOf(listOf())
             coEvery { observeConversationDetails(any()) } returns flowOf()
+            coEvery { markMessagesAsNotified(any(), any()) } returns Success
+            coEvery { getSelfUserTeam() } returns flowOf()
         }
 
         @MockK
@@ -284,6 +419,18 @@ class ConversationsViewModelTest {
         lateinit var observeMemberDetails: ObserveConversationMembersUseCase
 
         @MockK
+        lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+
+        @MockK
+        lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
+
+        @MockK
+        lateinit var getSelfUserTeam: GetSelfTeamUseCase
+
+        @MockK
+        lateinit var fileManager: FileManager
+
+        @MockK
         lateinit var context: Context
 
         @MockK
@@ -305,7 +452,11 @@ class ConversationsViewModelTest {
                 sendImageMessage = sendImageMessage,
                 getMessageAsset = getMessageAsset,
                 deleteMessage = deleteMessage,
-                dispatchers = TestDispatcherProvider()
+                dispatchers = TestDispatcherProvider(),
+                markMessagesAsNotified = markMessagesAsNotified,
+                updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
+                getSelfUserTeam = getSelfUserTeam,
+                fileManager = fileManager
             )
         }
 
@@ -328,13 +479,36 @@ class ConversationsViewModelTest {
             return this
         }
 
+        fun withSuccessfulSaveAssetMessage(assetName: String?, assetData: ByteArray, messageId: String): Arrangement {
+            viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
+            coEvery { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
+                viewModel.hideOnAssetDownloadedDialog()
+            }
+            return this
+        }
+
+        fun withSuccessfulOpenAssetMessage(assetName: String?, assetData: ByteArray, messageId: String): Arrangement {
+            viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
+            every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
+                viewModel.hideOnAssetDownloadedDialog()
+            }
+            return this
+        }
+
+        fun withTeamUser(userTeam: Team): Arrangement {
+            coEvery { getSelfUserTeam() } returns flowOf(userTeam)
+            return this
+        }
+
         fun arrange() = this to viewModel
+
     }
 
-    private fun withMockConversationDetailsOneOnOne(senderName: String) = ConversationDetails.OneOne(
+    private fun withMockConversationDetailsOneOnOne(senderName: String, senderAvatar: UserAssetId? = null) = ConversationDetails.OneOne(
         mockk(),
         mockk<OtherUser>().apply {
             every { name } returns senderName
+            every { previewPicture } returns senderAvatar
         },
         ConnectionState.PENDING,
         LegalHoldStatus.DISABLED,
@@ -343,6 +517,7 @@ class ConversationsViewModelTest {
 
     private fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {
         every { name } returns conversationName
+        every { id } returns ConversationId("someId", "someDomain")
     }, mockk())
 
     private fun mockSelfUserDetails(

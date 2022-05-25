@@ -8,14 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.wire.android.model.UserAvatarAsset
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
-
 
 @Composable
 fun InternalContactSearchResultItem(
@@ -79,6 +78,7 @@ fun ExternalContactSearchResultItem(
     name: String,
     label: String,
     searchQuery: String,
+    isConnectedOrPending: Boolean,
     onRowItemClicked: () -> Unit,
     onRowItemLongClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -105,11 +105,10 @@ fun ExternalContactSearchResultItem(
             )
         },
         actions = {
-            AddContactButton({ })
+            if (!isConnectedOrPending) AddContactButton({ })
         },
         onRowItemClicked = onRowItemClicked,
         onRowItemLongClicked = onRowItemLongClicked,
         modifier = modifier
     )
 }
-

@@ -3,6 +3,7 @@ package com.wire.android.ui.calling
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import io.mockk.MockKAnnotations
@@ -21,6 +22,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.After
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OngoingCallViewModelTest {
@@ -32,6 +34,9 @@ class OngoingCallViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
+    private lateinit var allCalls: GetAllCallsUseCase
+
+    @MockK
     private lateinit var endCall: EndCallUseCase
 
     @MockK
@@ -40,20 +45,25 @@ class OngoingCallViewModelTest {
     @MockK
     private lateinit var unMuteCall: UnMuteCallUseCase
 
+    @MockK
+    private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
     @BeforeEach
     fun setup() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-
+        val dummyConversationId = "some-dummy-value@some.dummy.domain"
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>(any()) } returns ""
+        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
 
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
+            conversationDetails = observeConversationDetails,
+            allCalls = allCalls,
             endCall = endCall,
             muteCall = muteCall,
             unMuteCall = unMuteCall

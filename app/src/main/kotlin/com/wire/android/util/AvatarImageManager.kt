@@ -92,7 +92,6 @@ class AvatarImageManager @Inject constructor(val context: Context) {
     companion object {
         private const val TEMP_AVATAR_FILENAME = "temp_avatar_path.jpg"
         private const val AVATAR_FILENAME = "user_avatar_path.jpg"
-        private const val AUTHORITY_PROVIDER = BuildConfig.APPLICATION_ID + ".provider"
 
         fun getTempAvatarFile(context: Context): File {
             val file = File(context.cacheDir, TEMP_AVATAR_FILENAME)
@@ -107,11 +106,11 @@ class AvatarImageManager @Inject constructor(val context: Context) {
         }
 
         fun getShareableAvatarUri(context: Context): Uri {
-            return FileProvider.getUriForFile(context, AUTHORITY_PROVIDER, getAvatarFile(context))
+            return FileProvider.getUriForFile(context, context.getProviderAuthority(), getAvatarFile(context))
         }
 
         fun getShareableTempAvatarUri(context: Context): Uri {
-            return FileProvider.getUriForFile(context, AUTHORITY_PROVIDER, getTempAvatarFile(context))
+            return FileProvider.getUriForFile(context, context.getProviderAuthority(), getTempAvatarFile(context))
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -13,7 +14,10 @@ fun NewConversationRouter() {
     val newConversationViewModel: NewConversationViewModel = hiltViewModel()
     val newConversationNavController = rememberNavController()
 
-    NavHost(navController = newConversationNavController, startDestination = Screen.SearchListNavHostScreens.route) {
+    NavHost(
+        navController = newConversationNavController,
+        startDestination = Screen.SearchListNavHostScreens.route
+    ) {
         composable(
             route = Screen.SearchListNavHostScreens.route,
             content = {
@@ -24,12 +28,11 @@ fun NewConversationRouter() {
                     onClose = newConversationViewModel::close,
                     onAddContactToGroup = newConversationViewModel::addContactToGroup,
                     onRemoveContactFromGroup = newConversationViewModel::removeContactFromGroup,
-                    onOpenUserProfile = { newConversationViewModel.openUserProfile(it.contact, it.internal) },
+                    onOpenUserProfile = { newConversationViewModel.openUserProfile(it.contact) },
                     onScrollPositionChanged = newConversationViewModel::updateScrollPosition
                 )
             }
         )
-
         composable(
             route = Screen.NewGroupNameScreen.route,
             content = {

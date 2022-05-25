@@ -2,6 +2,7 @@
 <resources>
     <string name="app_version">App version: %s</string>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
+    <string name="app_logo_description">App Logo</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -11,12 +12,16 @@
     <string name="label_get_started">Get Started</string>
     <string name="label_remove">Remove</string>
     <string name="label_register">Register</string>
+    <string name="label_add_device">Add Device</string>
     <string name="label_learn_more">Learn more</string>
     <string name="label_removing">Removing...</string>
     <string name="label_logging_in">Logging in...</string>
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
-    <string name="app_logo_description">App Logo</string>
+    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_receive_failure">Download Error</string>
+    <string name="label_try_again">Try again</string>
+    <string name="label_federated_membership">Federated</string>
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
@@ -24,6 +29,7 @@
     <string name="content_description_user_avatar">User avatar</string>
     <string name="content_description_mute">Mute</string>
     <string name="content_description_check">Check mark</string>
+    <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_add_to_favourite">Add to favourite</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
@@ -55,6 +61,7 @@
     <string name="content_description_add_contact">Add contact</string>
     <string name="content_description_image_message">Image message</string>
     <string name="content_description_file_message">File message</string>
+    <string name="content_description_ping_everyone">Ping everyone</string>
 
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -81,13 +88,18 @@
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please verify your details and try again.</string>
     <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
+    <string name="login_error_user_already_logged_in_title">User Already LoggedIn</string>
+    <string name="login_error_user_already_logged_in_message">These account already logged in in the app!</string>
+    <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
+    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try to login again.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO LOGIN</string>
-    <string name="login_sso_code_placeholder">wire://</string>
+    <string name="login_sso_code_placeholder">wire-</string>
     <string name="login_sso_code_label">SSO CODE</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
+    <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
 
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
@@ -98,8 +110,8 @@
     <string name="remove_device_invalid_password">Invalid password</string>
 
     <!-- Register Device -->
-    <string name="register_device_title">Register a Device</string>
-    <string name="register_device_text">Register your device by entering your password to start using Wire.</string>
+    <string name="register_device_title">Add this Device</string>
+    <string name="register_device_text">Enter your password to use Wire on this device.</string>
 
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Delete Message?</string>
@@ -109,6 +121,7 @@
 
     <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
+    <string name="deleted_message_text">Deleted message</string>
 
     <!-- Create Account -->
     <string name="create_personal_account_title">Create a Personal Account</string>
@@ -128,7 +141,7 @@
     <string name="create_account_email_placeholder">jane@example.com</string>
     <string name="create_account_email_label">EMAIL</string>
     <string name="create_account_email_footer_text">Already have an account? </string>
-    <string name="create_account_email_terms_dialog_title">Terms &amp; Conditions</string>
+    <string name="create_account_email_terms_dialog_title">Terms of Use</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
     <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
@@ -166,6 +179,8 @@
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALLS HISTORY</string>
     <string name="conversation_label_new_activity">NEW ACTIVITY</string>
+    <string name="conversation_label_favorites">FAVORITES</string>
+    <string name="conversation_label_conversations">CONVERSATIONS</string>
     <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
     <string name="label_message_status_deleted">Deleted</string>
@@ -181,7 +196,14 @@
     <string name="group_name">Group name</string>
     <string name="empty_group_name_error">Group name should not be empty</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
-    <string name="asset_message_download_text">Tap to download</string>
+    <string name="asset_message_tap_to_download_text">Tap to download</string>
+    <string name="asset_message_download_in_progress_text">Downloading...</string>
+    <string name="asset_message_downloaded_internally_text">Downloaded</string>
+    <string name="asset_message_saved_externally_text">Saved</string>
+    <string name="asset_message_failed_download_text">File not available</string>
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your devices downloads folder?</string>
+    <string name="asset_download_dialog_open_text">Open</string>
+    <string name="asset_download_dialog_save_text">Save</string>
     <string name="member_name_deleted_label">Deleted User</string>
 
     <!-- Attachment options -->
@@ -252,10 +274,12 @@
     <string name="label_search_people">Search people</string>
     <string name="label_federated_backends">FEDERATED BACKENDS</string>
     <string name="label_public_wire">PUBLIC WIRE</string>
-    <string name="label_search_people_instruction">Search for user with their display name of their @username</string>
-    <string name="label_learn_more_searching_user">Learn more about search for users</string>
+    <string name="label_search_people_instruction">Search for users with their display name or their @username</string>
+    <string name="label_learn_more_searching_user">Learn more</string>
+    <string name="label_no_results_found">No results could be found. Please try again.</string>
+    <string name="label_general_error">We are sorry, something went wrong</string>
 
-    <!-- errors -->
+    <!-- Snackbar messages -->
     <string name="error_unknown_title">Unknown error</string>
     <string name="error_unknown_message">Please try again in a moment</string>
     <string name="error_server_miscommunication_title">Server error</string>
@@ -264,6 +288,16 @@
     <string name="error_no_network_message">Please check your Internet connection</string>
     <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Image could not be uploaded</string>
+    <string name="error_updating_muting_setting">Notifications could not be updated</string>
+    <string name="error_conversation_sending_image">There was an error trying to send the image message. Please check your Internet connection and try again</string>
+    <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
+    <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
+    <string name="error_conversation_opening_asset_file">No app was found to open the selected file</string>
+    <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
+    <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
+    <string name="error_conversation_generic">There was an unknown error when trying to send the message</string>
+    <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
+    <string name="conversation_on_file_downloaded_action_label">Show</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
@@ -271,9 +305,6 @@
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">e-mail</string>
     <string name="phone_label">phone</string>
-    <string name="label_connect">Connect</string>
-    <string name="label_cancel_request">Cancel Request</string>
-    <string name="label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
 
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>
@@ -304,9 +335,20 @@
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
-    <string name="calling_label_unknown_caller_name">Default</string>
 
-    <string name="content_description_ping_everyone">Ping everyone</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
-    <string name="label_try_again">Try again</string>
+    <!-- Connections -->
+    <string name="connection_label_connect">Connect</string>
+    <string name="connection_label_cancel_request">Cancel Request</string>
+    <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
+    <string name="connection_request_sent">Connection request sent</string>
+    <string name="connection_request_sent_error">Connection request could not be sent</string>
+
+    <!-- Gallery -->
+    <string name="media_gallery_default_title_name">Media Gallery</string>
+
+    <!--sso dialog-->
+    <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
+    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
+    <string name="asset_download_dialog_default_title">Download file</string>
+
 </resources>

@@ -3,14 +3,17 @@ package com.wire.android.ui.home.conversationslist
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -24,10 +27,13 @@ import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.NotificationsOptionsItem
-import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.ConversationId
 
 @ExperimentalAnimationApi
@@ -57,6 +63,7 @@ fun ConversationRouterHomeBridge(
                         onItemClick = { conversationId, mutedStatus ->
                             viewModel.muteConversation(conversationId, mutedStatus)
                             conversationState.modalBottomSheetContentState.value.updateCurrentEditingMutedStatus(mutedStatus)
+                            conversationState.toggleEditMutedSetting(false)
                         },
                         onBackClick = {
                             mutingConversationState.closeMutedStatusSheetContent()
@@ -95,11 +102,16 @@ fun ConversationRouterHomeBridge(
 
     ConversationRouter(
         uiState = viewModel.state,
+        errorState = viewModel.errorState,
         conversationState = conversationState,
-        openConversation = { viewModel.openConversation(it) },
-        openNewConversation = { viewModel.openNewConversation() },
-        onExpandBottomSheet = { onBottomSheetVisibilityToggled() },
-        onScrollPositionChanged = onScrollPositionChanged
+        openConversation = viewModel::openConversation,
+        openNewConversation = viewModel::openNewConversation,
+        onExpandBottomSheet = {
+            conversationState.toggleEditMutedSetting(false)
+            onBottomSheetVisibilityToggled()
+        },
+        onScrollPositionChanged = onScrollPositionChanged,
+        onError = onBottomSheetVisibilityToggled
     )
 }
 
@@ -109,12 +121,26 @@ fun ConversationRouterHomeBridge(
 @Composable
 private fun ConversationRouter(
     uiState: ConversationListState,
+    errorState: ConversationOperationErrorState?,
     conversationState: ConversationState,
-    openConversation: (ConversationId) -> Unit,
+    openConversation: (ConversationItem) -> Unit,
     openNewConversation: () -> Unit,
-    onExpandBottomSheet: (ConversationId) -> Unit,
+    onExpandBottomSheet: (ConversationItem) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
+    onError: () -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    errorState?.let { errorType ->
+        val message = when (errorType) {
+            is MutingOperationErrorState -> stringResource(id = R.string.error_updating_muting_setting)
+        }
+        LaunchedEffect(errorType) {
+            onError()
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -133,17 +159,28 @@ private fun ConversationRouter(
                 onClick = openNewConversation
             )
         },
-        bottomBar = { WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
-    ) {
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        bottomBar = {
+            WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
+    ) { internalPadding ->
 
-        fun editConversation(conversationType: ConversationType) {
-            conversationState.changeModalSheetContentState(conversationType)
-            onExpandBottomSheet(conversationType.conversationId)
+        fun editConversation(conversationItem: ConversationItem) {
+            conversationState.changeModalSheetContentState(conversationItem.conversationType)
+            onExpandBottomSheet(conversationItem)
         }
 
         with(uiState) {
             // Change to a AnimatedNavHost and composable from accompanist lib to add transitions animations
-            NavHost(conversationState.navHostController, startDestination = ConversationsNavigationItem.All.route) {
+            NavHost(
+                conversationState.navHostController,
+                startDestination = ConversationsNavigationItem.All.route,
+                modifier = Modifier.padding(internalPadding)
+            ) {
                 composable(
                     route = ConversationsNavigationItem.All.route,
                     content = {
@@ -191,7 +228,7 @@ private fun ConversationNavigationItems(
 ): List<WireBottomNavigationItemData> {
     return ConversationsNavigationItem.values().map { conversationsNavigationItem ->
         when (conversationsNavigationItem) {
-            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.newActivityCount)
+            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.conversations.size)
             ConversationsNavigationItem.Calls -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.missedCallsCount)
             ConversationsNavigationItem.Mentions -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.unreadMentionsCount)
         }

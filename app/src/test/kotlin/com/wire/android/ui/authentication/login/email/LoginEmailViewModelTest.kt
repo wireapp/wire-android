@@ -9,6 +9,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.ServerConfig
@@ -46,22 +47,31 @@ class LoginEmailViewModelTest {
 
     @MockK
     private lateinit var loginUseCase: LoginUseCase
+
     @MockK
     private lateinit var addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase
+
     @MockK
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
+
     @MockK
     private lateinit var clientScope: ClientScope
+
     @MockK
     private lateinit var registerClientUseCase: RegisterClientUseCase
+
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
+
     @MockK
     private lateinit var navigationManager: NavigationManager
+
     @MockK
     private lateinit var authSession: AuthSession
+
     @MockK
     private lateinit var serverConfig: ServerConfig
+
     @MockK
     private lateinit var client: Client
 
@@ -115,7 +125,7 @@ class LoginEmailViewModelTest {
         loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
         loginViewModel.loginState.loginEnabled shouldBeEqualTo true
         loginViewModel.loginState.loading shouldBeEqualTo false
-        loginViewModel.login(serverConfig)
+        loginViewModel.login()
         loginViewModel.loginState.loginEnabled shouldBeEqualTo false
         loginViewModel.loginState.loading shouldBeEqualTo true
         scheduler.advanceUntilIdle()
@@ -131,12 +141,16 @@ class LoginEmailViewModelTest {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
-        coEvery { registerClientUseCase.invoke(any(), any(), any()) } returns RegisterClientResult.Success(client)
+        coEvery {
+            registerClientUseCase.invoke(any())
+        } returns RegisterClientResult.Success(client)
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
-        coVerify(exactly = 1) { registerClientUseCase.invoke(password, null) }
+        coVerify(exactly = 1) {
+            registerClientUseCase.invoke(any())
+        }
         coVerify(exactly = 1) {
             navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.HOME, BackStackMode.CLEAR_WHOLE))
         }
@@ -146,18 +160,18 @@ class LoginEmailViewModelTest {
     fun `given button is clicked, when login returns InvalidUserIdentifier error, then InvalidUserIdentifierError is passed`() {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidUserIdentifier
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginEmailError.TextFieldError.InvalidUserIdentifierError::class
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
     }
 
     @Test
     fun `given button is clicked, when login returns InvalidCredentials error, then InvalidCredentialsError is passed`() {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginEmailError.DialogError.InvalidCredentialsError::class
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
     }
 
     @Test
@@ -166,21 +180,21 @@ class LoginEmailViewModelTest {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns
                 AuthenticationResult.Failure.Generic(networkFailure)
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginEmailError.DialogError.GenericError::class
-        (loginViewModel.loginState.loginEmailError as LoginEmailError.DialogError.GenericError).coreFailure shouldBe networkFailure
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.GenericError::class
+        (loginViewModel.loginState.loginEmailError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
     }
 
     @Test
     fun `given dialog is dismissed, when login returns DialogError, then hide error`() {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginEmailError.DialogError.InvalidCredentialsError::class
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
         loginViewModel.onDialogDismiss()
-        loginViewModel.loginState.loginEmailError shouldBe LoginEmailError.None
+        loginViewModel.loginState.loginEmailError shouldBe LoginError.None
     }
 
     @Test
@@ -188,9 +202,9 @@ class LoginEmailViewModelTest {
         coEvery { loginUseCase.invoke(any(), any(), any(), any()) } returns AuthenticationResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
-        runTest { loginViewModel.login(serverConfig) }
+        runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginEmailError.DialogError.UserAlreadyExists::class
+        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
     }
 }
 

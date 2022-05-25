@@ -1,18 +1,23 @@
 package com.wire.android.ui
 
+import android.content.Intent
+import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.PASSWORD
@@ -44,27 +49,32 @@ class RegisterDeviceTest {
 
     // Third, we create the compose rule using an AndroidComposeRule, as we are depending on instrumented environment ie: Hilt, WorkManager
     @get:Rule(order = 2)
-    val composeTestRule = createAndroidComposeRule<WireActivity>()
+    val composeTestRule = createEmptyComposeRule()
+
+    private lateinit var scenario: ActivityScenario<WireActivity>
 
     @Before
     fun setUp() {
         hiltRule.inject()
 
         // Start the app
-        composeTestRule.setContent {
-            WireTheme {
-                RegisterDeviceScreen()
+        scenario = ActivityScenario.launch(Intent(ApplicationProvider.getApplicationContext(), WireActivity::class.java))
+        scenario.onActivity { activity ->
+            activity.setContent {
+                WireTheme {
+                    RegisterDeviceScreen()
+                }
             }
         }
     }
 
-    val title = composeTestRule.onNodeWithText("Register a Device")
-    val registerText = composeTestRule.onNode(hasTestTag("register text"))
+    val title = composeTestRule.onNodeWithText("Add this Device")
+    val registerText = composeTestRule.onNode(hasTestTag("registerText"))
     val passwordField = composeTestRule.onNode(hasTestTag("password field"))
-    val registerButton = composeTestRule.onNode(hasTestTag("register button"))
+    val registerButton = composeTestRule.onNode(hasTestTag("registerButton"))
     val hidePassword = composeTestRule.onNode(hasTestTag("hidePassword"), useUnmergedTree = true)
 
-    val text = "Register your device by entering your password to start using Wire."
+    val text = "Enter your password to use Wire on this device."
 
     @Test
     fun register_device_success() {
@@ -96,7 +106,7 @@ class RegisterDeviceTest {
     fun register_state_buttonDisabled() {
         title.assertIsDisplayed()
         registerText.assertTextEquals(text)
-        registerButton.assertIsDisplayed()
+        registerButton.assertIsDisplayed().assertIsNotEnabled()
         passwordField.onChildren()[1].performTextInput(PASSWORD)
         registerButton.assertIsEnabled()
     }

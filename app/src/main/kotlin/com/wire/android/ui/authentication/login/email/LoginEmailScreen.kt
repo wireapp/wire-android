@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -62,6 +63,7 @@ fun LoginEmailScreen(
 ) {
     val scope = rememberCoroutineScope()
     val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+    loginEmailViewModel.updateServerConfig(ssoLoginResult = null, serverConfig)
     val loginEmailState: LoginEmailState = loginEmailViewModel.loginState
     LoginEmailContent(
         scrollState = scrollState,
@@ -70,9 +72,10 @@ fun LoginEmailScreen(
         onPasswordChange = { loginEmailViewModel.onPasswordChange(it) },
         onDialogDismiss = { loginEmailViewModel.onDialogDismiss() },
         onRemoveDeviceOpen = { loginEmailViewModel.onTooManyDevicesError() },
-        onLoginButtonClick = suspend { loginEmailViewModel.login(serverConfig) },
-        accountsBaseUrl = serverConfig.accountsBaseUrl,
-        scope = scope
+        onLoginButtonClick = suspend { loginEmailViewModel.login() },
+        accountsBaseUrl = loginEmailViewModel.serverConfig.accountsBaseUrl,
+        scope = scope,
+        serverTitle = loginEmailViewModel.serverConfig.title
     )
 }
 
@@ -87,7 +90,9 @@ private fun LoginEmailContent(
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
     accountsBaseUrl: String,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    //todo: temporary to show to pointing server
+    serverTitle: String
 ) {
     Column(
         modifier = Modifier
@@ -103,9 +108,10 @@ private fun LoginEmailContent(
             userIdentifier = loginEmailState.userIdentifier,
             onUserIdentifierChange = onUserIdentifierChange,
             error = when (loginEmailState.loginEmailError) {
-                LoginEmailError.TextFieldError.InvalidUserIdentifierError -> stringResource(R.string.login_error_invalid_user_identifier)
+                LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                 else -> null
-            }
+            },
+            serverTitle = serverTitle
         )
         PasswordInput(
             modifier = Modifier
@@ -133,17 +139,24 @@ private fun LoginEmailContent(
         }
     }
 
-    if (loginEmailState.loginEmailError is LoginEmailError.DialogError) {
+    if (loginEmailState.loginEmailError is LoginError.DialogError) {
         val (title, message) = when (loginEmailState.loginEmailError) {
-            LoginEmailError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
+            is LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
                 stringResource(id = R.string.login_error_invalid_credentials_title),
                 stringResource(id = R.string.login_error_invalid_credentials_message)
             )
             // TODO: sync with design about the error message
-            LoginEmailError.DialogError.UserAlreadyExists -> DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
-            is LoginEmailError.DialogError.GenericError -> {
+            is LoginError.DialogError.UserAlreadyExists -> DialogErrorStrings(
+                stringResource(id = R.string.login_error_user_already_logged_in_title),
+                stringResource(id = R.string.login_error_user_already_logged_in_message)
+            )
+            is LoginError.DialogError.GenericError -> {
                 loginEmailState.loginEmailError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
             }
+            else -> DialogErrorStrings(
+                stringResource(R.string.error_unknown_title),
+                stringResource(R.string.error_unknown_message)
+            )
         }
         WireDialog(
             title = title,
@@ -155,7 +168,7 @@ private fun LoginEmailContent(
                 type = WireDialogButtonType.Primary,
             )
         )
-    } else if (loginEmailState.loginEmailError is LoginEmailError.TooManyDevicesError) {
+    } else if (loginEmailState.loginEmailError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }
 }
@@ -165,13 +178,15 @@ private fun UserIdentifierInput(
     modifier: Modifier,
     userIdentifier: TextFieldValue,
     error: String?,
-    onUserIdentifierChange: (TextFieldValue) -> Unit
+    onUserIdentifierChange: (TextFieldValue) -> Unit,
+    //todo: temporary to show to pointing server
+    serverTitle: String
 ) {
     WireTextField(
         value = userIdentifier,
         onValueChange = onUserIdentifierChange,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
-        labelText = stringResource(R.string.login_user_identifier_label),
+        labelText = stringResource(R.string.login_user_identifier_label) + " on $serverTitle",
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
         modifier = modifier.testTag("emailField")
@@ -214,7 +229,7 @@ private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
 }
 
 private fun openForgotPasswordPage(context: Context, accountsBaseUrl: String) {
-    val url = "https://${accountsBaseUrl}/forgot"
+    val url = "$accountsBaseUrl/forgot"
     CustomTabsHelper.launchUrl(context, url)
 }
 
@@ -251,7 +266,8 @@ private fun LoginEmailScreenPreview() {
             onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
             accountsBaseUrl = "",
-            scope = scope
+            scope = scope,
+            serverTitle = "Test Server"
         )
     }
 }

@@ -126,7 +126,6 @@ private fun AppTopBarWithSearchBar(
         },
         onCloseSearchClicked = {
             onCloseSearchClicked()
-            searchBarState.cancelSearch()
         },
         appTopBar = appTopBar
     )
@@ -181,8 +180,11 @@ private fun AppTopBarWithSearchBarContent(
 
                     val focusManager = LocalFocusManager.current
 
-                    LaunchedEffect(isSearchActive){
-                        if(!isSearchActive)focusManager.clearFocus()
+                    LaunchedEffect(isSearchActive) {
+                        if (!isSearchActive) {
+                            onSearchQueryChanged("")
+                            focusManager.clearFocus()
+                        }
                     }
 
                     SearchBarInput(

@@ -51,6 +51,7 @@ fun SearchPeopleRouter(
                 searchNavController.navigate(SearchListScreens.SearchPeopleScreen.route)
             },
             onCloseSearchClicked = {
+                searchBarState.cancelSearch()
                 searchNavController.popBackStack()
             },
             appTopBar = {

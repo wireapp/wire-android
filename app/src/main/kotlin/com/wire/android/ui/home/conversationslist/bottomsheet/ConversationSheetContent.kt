@@ -162,16 +162,14 @@ sealed class ModalSheetContent(val title: String, val conversationId: Conversati
         val avatarAsset: UserAvatarAsset?,
         conversationId: ConversationId,
         mutedStatus: MutedConversationStatus
-    ) :
-        ModalSheetContent(title, conversationId, mutedStatus)
+    ) : ModalSheetContent(title, conversationId, mutedStatus)
 
     class GroupConversationEdit(
         title: String,
         val groupColorValue: Long,
         conversationId: ConversationId,
         mutedStatus: MutedConversationStatus
-    ) :
-        ModalSheetContent(title, conversationId, mutedStatus)
+    ) : ModalSheetContent(title, conversationId, mutedStatus)
 
     fun updateCurrentEditingMutedStatus(mutedStatus: MutedConversationStatus) {
         this.mutedStatus = mutedStatus

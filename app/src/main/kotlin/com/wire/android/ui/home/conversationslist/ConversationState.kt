@@ -13,7 +13,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 
 @ExperimentalMaterialApi
 class ConversationState(
-    val navHostController: NavHostController,
     val modalBottomSheetContentState: MutableState<ModalSheetContent>,
     val isEditingMutedSetting: MutableState<Boolean>
 ) {
@@ -51,14 +50,12 @@ class ConversationState(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberConversationState(
-    navHostController: NavHostController = rememberNavController(),
     modalBottomSheetContentState: MutableState<ModalSheetContent> = remember {
         mutableStateOf(ModalSheetContent.Initial)
     },
     isEditingMutedSetting: MutableState<Boolean> = remember { mutableStateOf(false) },
-) = remember(navHostController, modalBottomSheetContentState) {
+) = remember(modalBottomSheetContentState) {
     ConversationState(
-        navHostController,
         modalBottomSheetContentState,
         isEditingMutedSetting
     )

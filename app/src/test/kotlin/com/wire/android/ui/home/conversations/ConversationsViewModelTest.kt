@@ -28,6 +28,7 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
@@ -387,6 +388,7 @@ class ConversationsViewModelTest {
             coEvery { observeConversationDetails(any()) } returns flowOf()
             coEvery { markMessagesAsNotified(any(), any()) } returns Success
             coEvery { getSelfUserTeam() } returns flowOf()
+            coEvery { userTypeMapper.toMembership(any()) } returns Membership.None
         }
 
         @MockK
@@ -546,7 +548,7 @@ class ConversationsViewModelTest {
             every { user.name } returns name
             every { user.previewPicture } returns null
         }
-        every{ it.userType} returns userType
+        every{ it.userType } returns userType
     }
 
     private fun mockedMessage(senderId: UserId) = Message(

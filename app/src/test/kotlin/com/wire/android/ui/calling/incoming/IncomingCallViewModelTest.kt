@@ -78,7 +78,6 @@ class IncomingCallViewModelTest {
         viewModel.declineCall()
 
         coVerify(exactly = 1) { rejectCall(conversationId = any()) }
-        coVerify(exactly = 1) { navigationManager.navigateBack() }
         verify(exactly = 1) { callRinger.stop() }
     }
 

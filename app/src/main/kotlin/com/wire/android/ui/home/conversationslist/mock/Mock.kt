@@ -19,6 +19,8 @@ import com.wire.android.ui.home.conversationslist.model.PendingConnectionItem
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserId
 
 val mockConversations1 = listOf(
     GeneralConversation(
@@ -106,7 +108,7 @@ val mockConversation = ConversationType.PrivateConversation(
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
-    )
+)
 
 val mockGroupConversation = ConversationType.GroupConversation(
     groupColorValue = 0xFFFF0000,
@@ -126,11 +128,11 @@ val mockGeneralConversation = GeneralConversation(
         conversationId = ConversationId("someId", "someDomain"),
         mutedStatus = MutedConversationStatus.AllAllowed,
         isLegalHold = true,
-        )
+    )
 )
 
 val mockGeneralConversationPending = PendingConnectionItem(
-    ConnectionInfo("Wants to connect", "someId"),
+    ConnectionInfo(ConnectionState.PENDING, UserId("someId", "someDomain")),
     ConversationType.PrivateConversation(
         conversationId = ConversationId("someId", "someDomain"),
         mutedStatus = MutedConversationStatus.AllAllowed,
@@ -212,7 +214,7 @@ val mockCallInfo4 = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCal
 val mockCallInfo5 = CallInfo(CallTime("Today", "6:59 PM"), CallEvent.NoAnswerCall)
 
 val mockNewActivities = listOf(
-    (NewActivity(EventType.ConnectRequest, mockGeneralConversationPending))
+    (NewActivity(EventType.ReceivedConnectionRequest, mockGeneralConversationPending))
 )
 
 val mockMissedCalls = listOf(

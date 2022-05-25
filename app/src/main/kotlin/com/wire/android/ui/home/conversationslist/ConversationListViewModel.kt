@@ -15,7 +15,6 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
-import com.wire.android.ui.home.conversationslist.mock.mockNewActivities
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
 import com.wire.android.ui.home.conversationslist.model.ConnectionInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
@@ -39,6 +38,7 @@ import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.ObserveConnectionListUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
@@ -47,13 +47,11 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber")
@@ -75,15 +73,17 @@ class ConversationListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                combine(
-                    observeConversationDetailsList(), //TODO AR-1736
-                    observeConnectionList().onStart { emit(listOf()) },
-                    ::Pair
-                )
+                combine(observeConversationDetailsList(), observeConnectionList(), ::Pair) // TODO AR-1736
                     .collect { (conversations, connections) ->
                         val detailedList = conversations.toConversationsFoldersMap()
-                        val newActivities = mockNewActivities
-//                            prepareActivities(connections) TODO AR-1733
+                        val newActivities = prepareActivities(
+                            connections.map { connection ->
+                                ConnectionDetails(
+                                    connection,
+                                    conversations.first { it.conversation.id == connection.qualifiedConversationId }
+                                )
+                            }
+                        )
                         val missedCalls = mockMissedCalls // TODO: needs to be implemented
                         val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
 
@@ -107,28 +107,35 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    // TODO AR-1733
     private fun prepareActivities(connections: List<ConnectionDetails>) =
         connections.map {
-            NewActivity(eventType = EventType.ConnectRequest, it.conversation.toItem(
-                private = { privateConversation ->
-                    PendingConnectionItem(
-                        connectionInfo = ConnectionInfo(
-                            it.connection.status.toString(), //TODO pass also user
-                            it.connection.from
-                        ), privateConversation
-                    )
-                },
-                group = { groupConversation ->
-                    PendingConnectionItem(
-                        connectionInfo = ConnectionInfo(
-                            it.connection.status.toString(),
-                            it.connection.from
-                        ), groupConversation
-                    )
-                }
-            ))
+            NewActivity(
+                eventType = getEventTypeForConnectionState(it.connection.status),
+                it.conversation.toItem(
+                    private = { privateConversation ->
+                        PendingConnectionItem(
+                            connectionInfo = ConnectionInfo(
+                                it.connection.status,
+                                it.connection.qualifiedToId
+                            ),
+                            privateConversation
+                        )
+                    },
+                    group = { groupConversation ->
+                        PendingConnectionItem(
+                            connectionInfo = ConnectionInfo(
+                                it.connection.status,
+                                it.connection.qualifiedToId
+                            ),
+                            groupConversation
+                        )
+                    }
+                )
+            )
         }
+
+    private fun getEventTypeForConnectionState(connectionState: ConnectionState) =
+        if (connectionState == ConnectionState.SENT) EventType.SentConnectRequest else EventType.ReceivedConnectionRequest
 
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> =
         mapOf(ConversationFolder.Predefined.Conversations to this.toGeneralConversationList())
@@ -214,7 +221,6 @@ class ConversationListViewModel @Inject constructor(
                     group = { groupConversation -> GeneralConversation(groupConversation) },
                 )
             }
-
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED

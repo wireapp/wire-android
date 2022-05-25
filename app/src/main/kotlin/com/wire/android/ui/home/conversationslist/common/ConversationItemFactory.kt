@@ -16,7 +16,6 @@ import com.wire.android.ui.home.conversationslist.model.PendingConnectionItem
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.toUserId
 
 @Composable
 fun ConversationItemFactory(
@@ -34,13 +33,13 @@ fun ConversationItemFactory(
             when (conversation) {
                 is ConversationMissedCall -> CallLabel(callInfo = conversation.callInfo)
                 is ConversationUnreadMention -> MentionLabel(mentionMessage = conversation.mentionInfo.mentionMessage)
-                is GeneralConversation -> null //TODO implement last conversation message
+                is GeneralConversation -> null // TODO implement last conversation message
                 is PendingConnectionItem -> ConnectionLabel(conversation.connectionInfo)
             }
         },
         onConversationItemClick = {
             when (conversation) {
-                is PendingConnectionItem -> openUserProfile(conversation.connectionInfo.userId.toUserId())
+                is PendingConnectionItem -> openUserProfile(conversation.connectionInfo.userId)
                 else -> openConversation()
             }
         },
@@ -52,7 +51,6 @@ fun ConversationItemFactory(
         },
         onMutedIconClick = onMutedIconClick,
     )
-
 }
 
 @Composable

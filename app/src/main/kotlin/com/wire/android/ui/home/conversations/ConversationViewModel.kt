@@ -455,9 +455,6 @@ class ConversationViewModel @Inject constructor(
             UserType.FEDERATED -> Membership.Federated
             UserType.EXTERNAL -> Membership.External
             UserType.INTERNAL -> Membership.None
-            else -> {
-                throw IllegalStateException("Unknown UserType")
-            }
         }
     }
 

@@ -53,8 +53,8 @@ fun ConversationRouterHomeBridge(
 
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
-    LaunchedEffect(conversationState.modalBottomSheetContentState) {
-        conversationState.modalBottomSheetContentState?.let { conversationSheetContent ->
+    LaunchedEffect(conversationState.conversationSheetContent) {
+        conversationState.conversationSheetContent?.let { conversationSheetContent ->
             onHomeBottomSheetContentChange {
                 ConversationSheetContent(
                     conversationSheetContent = conversationSheetContent,

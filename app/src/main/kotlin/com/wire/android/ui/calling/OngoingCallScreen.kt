@@ -83,7 +83,8 @@ private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
             if (ongoingCallViewModel.callEstablishedState.isCameraOn) {
                 //TODO fix memory leak when the app goes to background with video turned on
                 // https://issuetracker.google.com/issues/198012639
-                // The issue is marked as fixed in the issue tracker, but I am still getting it with our current compose version 1.2.0-beta01
+                // The issue is marked as fixed in the issue tracker,
+                // but we are still getting it with our current compose version 1.2.0-beta01
                 AndroidView(factory = {
                     val videoPreview = VideoPreview(it)
                     ongoingCallViewModel.setVideoPreview(null)

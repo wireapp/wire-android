@@ -43,55 +43,44 @@ import com.wire.android.ui.home.conversationslist.navigation.ConversationsNaviga
 @Composable
 fun ConversationRouterHomeBridge(
     onHomeBottomSheetContentChange: (@Composable ColumnScope.() -> Unit) -> Unit,
-    onBottomSheetVisibilityToggled: () -> Unit,
+    onBottomSheetVisibilityChange: () -> Unit,
     onScrollPositionChanged: (Int) -> Unit
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
-
-    val conversationState = rememberConversationState()
-    val mutingConversationState = rememberMutingConversationState(conversationState.modalBottomSheetContentState.value.mutedStatus)
+    val conversationState: ConversationState = remember {
+        ConversationState()
+    }
 
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
     LaunchedEffect(conversationState.modalBottomSheetContentState) {
-        onHomeBottomSheetContentChange {
-                    ConversationSheetContent(
-                        conversationSheetContent = conversationState.modalBottomSheetContentState.value,
-                        mutedStatus = mutingConversationState.mutedStatus,
-                        muteConversation = { },
-//                        notificationsOptionsItem = NotificationsOptionsItem(
-//                            muteConversationAction = {
-//                                mutingConversationState.openMutedStatusSheetContent(
-//                                    conversationState.modalBottomSheetContentState.value.conversationId,
-//                                    conversationState.modalBottomSheetContentState.value.mutedStatus
-//                                )
-//                                // here we trigger a sheet content change, enabling muted settings toggle
-//                                conversationState.toggleEditMutedSetting(true)
-//                            },
-//
-//                        ),
-                        addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
-                        moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
-                        moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
-                        clearConversationContent = { viewModel.clearConversationContent("someId") },
-                        blockUser = { viewModel.blockUser("someId") },
-                        leaveGroup = { viewModel.leaveGroup("someId") }
-                    )
+        conversationState.modalBottomSheetContentState?.let { conversationSheetContent ->
+            onHomeBottomSheetContentChange {
+                ConversationSheetContent(
+                    conversationSheetContent = conversationSheetContent,
+                    onMutingConversationStatusChange = conversationState::muteConversation,
+                    addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
+                    moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
+                    moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
+                    clearConversationContent = { viewModel.clearConversationContent("someId") },
+                    blockUser = { viewModel.blockUser("someId") },
+                    leaveGroup = { viewModel.leaveGroup("someId") }
+                )
+            }
         }
     }
 
     ConversationRouter(
         uiState = viewModel.state,
         errorState = viewModel.errorState,
-        conversationState = conversationState,
         openConversation = viewModel::openConversation,
         openNewConversation = viewModel::openNewConversation,
-        onExpandBottomSheet = {
-            conversationState.toggleEditMutedSetting(false)
-            onBottomSheetVisibilityToggled()
+        onEditConversationItem = { conversationItem ->
+            conversationState.changeModalSheetContentState(conversationItem.conversationType)
+            onBottomSheetVisibilityChange()
         },
         onScrollPositionChanged = onScrollPositionChanged,
-        onError = onBottomSheetVisibilityToggled
+        onError = onBottomSheetVisibilityChange
     )
 }
 
@@ -102,10 +91,9 @@ fun ConversationRouterHomeBridge(
 private fun ConversationRouter(
     uiState: ConversationListState,
     errorState: ConversationOperationErrorState?,
-    conversationState: ConversationState,
     openConversation: (ConversationItem) -> Unit,
     openNewConversation: () -> Unit,
-    onExpandBottomSheet: (ConversationItem) -> Unit,
+    onEditConversationItem: (ConversationItem) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
     onError: () -> Unit
 ) {
@@ -147,13 +135,9 @@ private fun ConversationRouter(
             )
         },
         bottomBar = {
-            WireBottomNavigationBar(ConversationNavigationItems(uiState), navHostController) }
-    ) { internalPadding ->
-
-        fun editConversation(conversationItem: ConversationItem) {
-            conversationState.changeModalSheetContentState(conversationItem.conversationType)
-            onExpandBottomSheet(conversationItem)
+            WireBottomNavigationBar(ConversationNavigationItems(uiState), navHostController)
         }
+    ) { internalPadding ->
 
         with(uiState) {
             // Change to a AnimatedNavHost and composable from accompanist lib to add transitions animations
@@ -169,7 +153,7 @@ private fun ConversationRouter(
                             newActivities = newActivities,
                             conversations = conversations,
                             onOpenConversationClick = openConversation,
-                            onEditConversationItem = ::editConversation,
+                            onEditConversationItem = onEditConversationItem,
                             onScrollPositionChanged = onScrollPositionChanged
                         )
                     }
@@ -181,7 +165,7 @@ private fun ConversationRouter(
                             missedCalls = missedCalls,
                             callHistory = callHistory,
                             onCallItemClick = openConversation,
-                            onEditConversationItem = ::editConversation,
+                            onEditConversationItem = onEditConversationItem,
                             onScrollPositionChanged = onScrollPositionChanged
                         )
                     }
@@ -193,7 +177,7 @@ private fun ConversationRouter(
                             unreadMentions = unreadMentions,
                             allMentions = allMentions,
                             onMentionItemClick = openConversation,
-                            onEditConversationItem = ::editConversation,
+                            onEditConversationItem = onEditConversationItem,
                             onScrollPositionChanged = onScrollPositionChanged
                         )
                     }

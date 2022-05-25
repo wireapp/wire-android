@@ -1,10 +1,8 @@
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -20,11 +18,12 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 internal fun MutingOptionsSheetContent(
-    onBackClick: () -> Unit
+    mutingConversationState: MutedConversationStatus,
+    onMuteConversation: (MutedConversationStatus) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     MenuModalSheetContent(
         headerTitle = stringResource(R.string.label_notifications),
@@ -34,13 +33,9 @@ internal fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_all_allowed_title),
                     subLine = stringResource(id = R.string.muting_option_all_allowed_text),
                     action = { CheckIcon() },
-                    onItemClick = {
-//                        onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllAllowed)
-//                        mutingConversationState.updateMutedStatus(MutedConversationStatus.AllAllowed)
-                    },
-                    state = RichMenuItemState.DEFAULT,
-//                    state = if (mutingConversationState.mutedStatus == MutedConversationStatus.AllAllowed) RichMenuItemState.SELECTED
-//                    else RichMenuItemState.DEFAULT
+                    onItemClick = { onMuteConversation(MutedConversationStatus.AllAllowed) },
+                    state = if (mutingConversationState == MutedConversationStatus.AllAllowed) RichMenuItemState.SELECTED
+                    else RichMenuItemState.DEFAULT
                 )
             },
             {
@@ -48,13 +43,9 @@ internal fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_only_mentions_title),
                     subLine = stringResource(id = R.string.muting_option_only_mentions_text),
                     action = { CheckIcon() },
-                    onItemClick = {
-//                        onItemClick(mutingConversationState.conversationId, MutedConversationStatus.OnlyMentionsAllowed)
-//                        mutingConversationState.updateMutedStatus(MutedConversationStatus.OnlyMentionsAllowed)
-                    },
-                    state = RichMenuItemState.DEFAULT
-//                    state = if (mutingConversationState.mutedStatus == MutedConversationStatus.OnlyMentionsAllowed)
-//                        RichMenuItemState.SELECTED else RichMenuItemState.DEFAULT
+                    onItemClick = { onMuteConversation(MutedConversationStatus.OnlyMentionsAllowed) },
+                    state = if (mutingConversationState == MutedConversationStatus.OnlyMentionsAllowed)
+                        RichMenuItemState.SELECTED else RichMenuItemState.DEFAULT
                 )
             },
             {
@@ -62,12 +53,9 @@ internal fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_all_muted_title),
                     subLine = stringResource(id = R.string.muting_option_all_muted_text),
                     action = { CheckIcon() },
-                    onItemClick = {
-//                        onItemClick(mutingConversationState.conversationId, MutedConversationStatus.AllMuted)
-//                        mutingConversationState.updateMutedStatus(MutedConversationStatus.AllMuted)
-                    },
-//                    state = if (mutingConversationState.mutedStatus == MutedConversationStatus.AllMuted) RichMenuItemState.SELECTED
-                    /*else RichMenuItemState.DEFAULT*/
+                    onItemClick = { onMuteConversation(MutedConversationStatus.AllMuted) },
+                    state = if (mutingConversationState == MutedConversationStatus.AllMuted) RichMenuItemState.SELECTED
+                    else RichMenuItemState.DEFAULT
                 )
             }
         ),

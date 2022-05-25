@@ -58,10 +58,10 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 homeBottomSheetState = homeState.bottomSheetState,
                 homeTopBar = {
                     HomeTopBar(
-                        viewModel.userAvatar,
+                        avatarAsset = viewModel.userAvatar,
                         currentNavigationItem = homeState.currentNavigationItem,
                         onOpenDrawerClicked = { openDrawer() },
-                        onNavigateToUserProfile =  viewModel::navigateToUserProfile ,
+                        onNavigateToUserProfile = viewModel::navigateToUserProfile,
                     )
                 },
                 currentNavigationItem = homeState.currentNavigationItem,
@@ -105,16 +105,15 @@ fun HomeContent(
                 }
             }
         }
-
-        if (homeBottomSheetContent != null) {
-            WireModalSheetLayout(
-                sheetState = homeBottomSheetState,
-                coroutineScope = rememberCoroutineScope(),
-                sheetContent = homeBottomSheetContent
-            ) {
-                homeContent()
-            }
-        } else {
+        WireModalSheetLayout(
+            sheetState = homeBottomSheetState,
+            coroutineScope = rememberCoroutineScope(),
+            // we want to render "nothing" instead of doing a if/else check
+            // on homeBottomSheetContent and wrap homeContent() to avoid
+            // recomposing the homeContent() when homeBottomSheetContent
+            // changes from null to "something"
+            sheetContent = homeBottomSheetContent ?: {}
+        ) {
             homeContent()
         }
     }

@@ -78,7 +78,7 @@ enum class HomeNavigationItem(
                     onHomeBottomSheetContentChange = { bottomSheetContent ->
                         homeState.changeBottomSheetContent(bottomSheetContent)
                     },
-                    onBottomSheetVisibilityToggled = { homeState.toggleBottomSheetVisibility() },
+                    onBottomSheetVisibilityChange = { homeState.toggleBottomSheetVisibility() },
                     onScrollPositionChanged = { newScrollPosition -> homeState.updateScrollPosition(newScrollPosition) }
                 )
             }
@@ -99,17 +99,6 @@ enum class HomeNavigationItem(
 
     companion object {
         val all = listOf(Conversations, Archive, Vault)
-
-        @Composable
-        fun getCurrentNavigationItem(controller: NavController): HomeNavigationItem {
-            val navBackStackEntry by controller.currentBackStackEntryAsState()
-
-            return when (navBackStackEntry?.destination?.route) {
-                Archive.route -> Archive
-                Vault.route -> Vault
-                else -> Conversations
-            }
-        }
     }
 }
 

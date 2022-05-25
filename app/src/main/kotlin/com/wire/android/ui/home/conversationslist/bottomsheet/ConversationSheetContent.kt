@@ -2,31 +2,19 @@ package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
-import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun ConversationSheetContent(
     conversationSheetContent: ConversationSheetContent,
-    mutedStatus: MutedConversationStatus,
-    muteConversation: () -> Unit,
+    onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
@@ -42,7 +30,7 @@ fun ConversationSheetContent(
         ConversationOptionNavigation.Home -> {
             HomeSheetContent(
                 conversationSheetContent = conversationSheetContent,
-                mutedStatus = mutedStatus,
+                mutedStatus = conversationSheetContent.mutedStatus,
                 addConversationToFavourites = addConversationToFavourites,
                 moveConversationToFolder = moveConversationToFolder,
                 moveConversationToArchive = moveConversationToArchive,
@@ -54,7 +42,9 @@ fun ConversationSheetContent(
         }
         ConversationOptionNavigation.MutingNotificationOption -> {
             MutingOptionsSheetContent(
-                onBackClick = { conversationOptionSheetState.toHome() },
+                mutingConversationState = conversationSheetContent.mutedStatus,
+                onMuteConversation = onMutingConversationStatusChange,
+                onBackClick = { conversationOptionSheetState.toHome() }
             )
         }
     }
@@ -78,48 +68,66 @@ internal class ConversationOptionSheetState {
     }
 }
 
-sealed class ConversationSheetContent(val title: String, val conversationId: ConversationId?, var mutedStatus: MutedConversationStatus) {
+sealed class ConversationSheetContent(
+    open val title: String,
+    open val conversationId: ConversationId?,
+    open val mutedStatus: MutedConversationStatus
+) {
+    abstract fun copy(
+        title: String? = null,
+        conversationId: ConversationId? = null,
+        mutedStatus: MutedConversationStatus? = MutedConversationStatus.AllMuted
+    ): ConversationSheetContent
 
-    object Initial : ConversationSheetContent(
-        title = "",
-        conversationId = null,
-        mutedStatus = MutedConversationStatus.AllAllowed
-    )
-
-    class PrivateConversation(
-        title: String,
+    data class PrivateConversation(
+        override var title: String,
         val avatarAsset: UserAvatarAsset?,
-        conversationId: ConversationId,
-        mutedStatus: MutedConversationStatus
+        override val conversationId: ConversationId,
+        override val mutedStatus: MutedConversationStatus
     ) : ConversationSheetContent(
         title = title,
         conversationId = conversationId,
         mutedStatus = mutedStatus
-    )
+    ) {
+        override fun copy(
+            title: String?,
+            conversationId: ConversationId?,
+            mutedStatus: MutedConversationStatus?
+        ): ConversationSheetContent {
+            return copy(
+                title = title ?: this.title,
+                conversationId = conversationId ?: this.conversationId,
+                mutedStatus = mutedStatus ?: this.mutedStatus
+            )
+        }
+    }
 
-    class GroupConversation(
-        title: String,
+    data class GroupConversation(
+        override val title: String,
         val groupColorValue: Long,
-        conversationId: ConversationId,
-        mutedStatus: MutedConversationStatus
+        override val conversationId: ConversationId,
+        override val mutedStatus: MutedConversationStatus
     ) : ConversationSheetContent(
         title = title,
         conversationId = conversationId,
         mutedStatus = mutedStatus
-    )
-//
-//    fun updateCurrentEditingMutedStatus(mutedStatus: MutedConversationStatus) {
-//        this.mutedStatus = mutedStatus
-//    }
+    ) {
+        override fun copy(
+            title: String?,
+            conversationId: ConversationId?,
+            mutedStatus: MutedConversationStatus?
+        ): ConversationSheetContent {
+            return copy(
+                title = title ?: this.title,
+                conversationId = conversationId ?: this.conversationId,
+                mutedStatus = mutedStatus ?: this.mutedStatus
+            )
+        }
+    }
+
 }
 
 internal sealed class ConversationOptionNavigation {
     object Home : ConversationOptionNavigation()
     object MutingNotificationOption : ConversationOptionNavigation()
 }
-
-
-//data class NotificationsOptionsItem(
-//    val muteConversationAction: () -> Unit,
-//    val mutedStatus: MutedConversationStatus
-//)

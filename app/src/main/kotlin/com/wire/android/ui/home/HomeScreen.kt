@@ -109,7 +109,8 @@ fun HomeContent(
             sheetState = homeBottomSheetState,
             coroutineScope = rememberCoroutineScope(),
             // we want to render "nothing" instead of doing a if/else check
-            // on homeBottomSheetContent and wrap homeContent() to avoid
+            // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
+            // or render it without WireModalSheetLayout to avoid
             // recomposing the homeContent() when homeBottomSheetContent
             // changes from null to "something"
             sheetContent = homeBottomSheetContent ?: {}

@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
@@ -23,9 +24,6 @@ import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -49,11 +47,8 @@ class OngoingCallViewModel @Inject constructor(
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
-    private val viewModelJob = SupervisorJob()
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-
     init {
-        uiScope.launch {
+        viewModelScope.launch {
             launch { initializeScreenState() }
             launch { observeOngoingCall() }
         }
@@ -92,26 +87,28 @@ class OngoingCallViewModel @Inject constructor(
     }
 
     fun hangUpCall() {
-        uiScope.launch {
+        viewModelScope.launch {
             endCall(conversationId)
             navigateBack()
         }
     }
 
     fun setVideoPreview(view: View?) {
-        uiScope.launch {
+        viewModelScope.launch {
             setVideoPreview(conversationId, PlatformView(view))
         }
     }
 
-    private suspend fun pauseVideo() {
-        updateVideoState(conversationId, VideoState.PAUSED)
-        setVideoPreview(null)
-        callEstablishedState = callEstablishedState.copy(isCameraOn = false)
+    fun pauseVideo() {
+        viewModelScope.launch {
+            updateVideoState(conversationId, VideoState.PAUSED)
+            setVideoPreview(null)
+            callEstablishedState = callEstablishedState.copy(isCameraOn = false)
+        }
     }
 
     fun toggleVideo() {
-        uiScope.launch {
+        viewModelScope.launch {
             callEstablishedState = if (callEstablishedState.isCameraOn) {
                 updateVideoState(conversationId, VideoState.STOPPED)
                 callEstablishedState.copy(isCameraOn = false)
@@ -122,14 +119,12 @@ class OngoingCallViewModel @Inject constructor(
         }
     }
 
-    private fun navigateBack() {
-        uiScope.launch {
-            navigationManager.navigateBack()
-        }
+    private suspend fun navigateBack() {
+        navigationManager.navigateBack()
     }
 
     fun muteOrUnMuteCall() {
-        uiScope.launch {
+        viewModelScope.launch {
             callEstablishedState = if (callEstablishedState.isMuted) {
                 unMuteCall()
                 callEstablishedState.copy(isMuted = false)
@@ -140,13 +135,5 @@ class OngoingCallViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
-        uiScope.launch {
-            if (callEstablishedState.isCameraOn)
-                pauseVideo()
-            onCleared()
-            viewModelJob.cancel()
-        }
-    }
 
 }

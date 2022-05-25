@@ -13,13 +13,18 @@ import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.waz.avs.VideoPreview
 import com.wire.android.R
 import com.wire.android.ui.calling.controlButtons.CameraButton
@@ -34,8 +39,12 @@ import com.wire.android.ui.theme.wireColorScheme
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun OngoingCallScreen(ongoingCallViewModel: OngoingCallViewModel = hiltViewModel()) {
+fun OngoingCallScreen(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    ongoingCallViewModel: OngoingCallViewModel = hiltViewModel()
+) {
     OngoingCallContent(ongoingCallViewModel)
+    observeScreenLifecycleChanges(lifecycleOwner, ongoingCallViewModel)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -72,11 +81,14 @@ private fun OngoingCallContent(ongoingCallViewModel: OngoingCallViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (ongoingCallViewModel.callEstablishedState.isCameraOn) {
+                //TODO fix memory leak when the app goes to background with video turned on
+                // https://issuetracker.google.com/issues/198012639
+                // The issue is marked as fixed in the issue tracker, but I am still getting it with our current compose version 1.2.0-beta01
                 AndroidView(factory = {
-                    val view = VideoPreview(it)
+                    val videoPreview = VideoPreview(it)
                     ongoingCallViewModel.setVideoPreview(null)
-                    ongoingCallViewModel.setVideoPreview(view)
-                    view
+                    ongoingCallViewModel.setVideoPreview(videoPreview)
+                    videoPreview
                 })
             }
             UserProfileAvatar(
@@ -126,6 +138,29 @@ private fun CallingControls(
         )
         SpeakerButton(onSpeakerButtonClicked = { })
         HangUpButton { onHangUpCall() }
+    }
+}
+
+@Composable
+private fun observeScreenLifecycleChanges(
+    lifecycleOwner: LifecycleOwner,
+    ongoingCallViewModel: OngoingCallViewModel
+) {
+    // If `lifecycleOwner` changes, dispose and reset the effect
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                ongoingCallViewModel.pauseVideo()
+            }
+        }
+
+        // Add the observer to the lifecycle
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // When the effect leaves the Composition, remove the observer
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 }
 

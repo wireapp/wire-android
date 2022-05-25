@@ -37,14 +37,14 @@ import com.wire.kalium.logic.data.id.ConversationId
                 clearConversationContent = clearConversationContent,
                 blockUser = blockUser,
                 leaveGroup = leaveGroup,
-                navigateToNotification = { conversationOptionSheetState.toMutingNotificationOption() }
+                navigateToNotification = conversationOptionSheetState::toMutingNotificationOption
             )
         }
         ConversationOptionNavigation.MutingNotificationOption -> {
             MutingOptionsSheetContent(
                 mutingConversationState = conversationSheetContent.mutedStatus,
                 onMuteConversation = onMutingConversationStatusChange,
-                onBackClick = { conversationOptionSheetState.toHome() }
+                onBackClick = conversationOptionSheetState::toHome
             )
         }
     }

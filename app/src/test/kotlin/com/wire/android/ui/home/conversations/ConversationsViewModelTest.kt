@@ -27,6 +27,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
@@ -431,6 +432,9 @@ class ConversationsViewModelTest {
         lateinit var fileManager: FileManager
 
         @MockK
+        lateinit var userTypeMapper: UserTypeMapper
+
+        @MockK
         lateinit var context: Context
 
         @MockK
@@ -456,7 +460,8 @@ class ConversationsViewModelTest {
                 markMessagesAsNotified = markMessagesAsNotified,
                 updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
                 getSelfUserTeam = getSelfUserTeam,
-                fileManager = fileManager
+                fileManager = fileManager,
+                userTypeMapper = userTypeMapper
             )
         }
 

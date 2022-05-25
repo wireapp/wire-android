@@ -428,48 +428,24 @@ class ConversationViewModel @Inject constructor(
     // region ------------------------------ Mapper Helpers ------------------------------
     private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
-            when (val sender = members.findSender(message.senderUserId)) {
-                is MemberDetails.Other -> {
-                    MessageViewWrapper(
-                        messageContent = fromMessageModelToMessageContent(message),
-                        messageSource = MessageSource.Self,
-                        messageHeader = MessageHeader(
-                            // TODO: Designs for deleted users?
-                            username = sender.name?.let { UIText.DynamicString(it) }
-                                ?: UIText.StringResource(R.string.member_name_deleted_label),
-                            membership = mapUserType(sender.userType),
-                            isLegalHold = false,
-                            time = message.date,
-                            messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
-                            messageId = message.id
-                        ),
-                        user = User(
-                            avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
-                        )
-                    )
-                }
-                is MemberDetails.Self -> {
-                    MessageViewWrapper(
-                        messageContent = fromMessageModelToMessageContent(message),
-                        messageSource = MessageSource.OtherUser,
-                        messageHeader = MessageHeader(
-                            // TODO: Designs for deleted users?
-                            username = sender.name?.let { UIText.DynamicString(it) }
-                                ?: UIText.StringResource(R.string.member_name_deleted_label),
-                            membership = Membership.None,
-                            isLegalHold = false,
-                            time = message.date,
-                            messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
-                            messageId = message.id
-                        ),
-                        user = User(
-                            avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
-                        )
-                    )
-                }
-                else -> throw IllegalStateException("The sender has a illegal state different than Self or Other")
-            }
+            val sender = members.findSender(message.senderUserId)
 
+            MessageViewWrapper(
+                messageContent = fromMessageModelToMessageContent(message),
+                messageSource = if (sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
+                messageHeader = MessageHeader(
+                    // TODO: Designs for deleted users?
+                    username = sender.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
+                    membership = if (sender is MemberDetails.Other) mapUserType(sender.userType) else Membership.None,
+                    isLegalHold = false,
+                    time = message.date,
+                    messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
+                    messageId = message.id
+                ),
+                user = User(
+                    avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
+                )
+            )
         }
     }
 

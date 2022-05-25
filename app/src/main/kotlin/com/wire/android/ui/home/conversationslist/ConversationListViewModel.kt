@@ -54,7 +54,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @ExperimentalMaterial3Api
-@Suppress("MagicNumber")
+@Suppress("MagicNumber", "TooManyFunctions")
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,

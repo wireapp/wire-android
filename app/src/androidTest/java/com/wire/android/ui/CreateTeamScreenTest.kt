@@ -90,6 +90,10 @@ class CreateTeamScreenTest {
     val cancelButton = composeTestRule.onNode(hasTestTag("cancelButton"))
     val tcButton = composeTestRule.onNode(hasTestTag("viewTC"))
     val firstName = composeTestRule.onNode(hasTestTag("firstName"))
+    val lastName = composeTestRule.onNode(hasTestTag("lastName"))
+    val teamName = composeTestRule.onNode(hasTestTag("teamName"))
+    val password = composeTestRule.onNode(hasTestTag("password"))
+    val confirmPassword = composeTestRule.onNode(hasTestTag("confirmPassword"))
 
     val invalidEmailError = "Please enter a valid format for your email."
     val createATeamText = "Enter your email to create your team:"
@@ -149,12 +153,14 @@ class CreateTeamScreenTest {
         emailField.onChildren()[1].performTextInput(EMAIL)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
-        tcButton.onSiblings()[1].performClick()
-        firstName.onChildren()[1].performTextInput("name")
-        firstName.onChildren()[2].performTextInput("surName")
-        firstName.onChildren()[3].performTextInput("teamName")
-        firstName.onChildren()[4].performTextInput("password")
-        firstName.onChildren()[5].performTextInput("password")
+        tcButton.onSiblings()[3].performClick()
+        composeTestRule.waitForExecution {
+            firstName.onChildren()[2].performTextInput("name")
+        }
+        lastName.onChildren()[2].performTextInput("surName")
+        teamName.onChildren()[2].performTextInput("teamName")
+        password.onChildren()[2].performTextInput("password")
+        confirmPassword.onChildren()[2].performTextInput("password")
         continueButton.performClick()
         composeTestRule.waitForExecution {
             composeTestRule.onNodeWithText(invalidPassword).assertDoesNotExist()
@@ -169,12 +175,14 @@ class CreateTeamScreenTest {
         emailField.onChildren()[1].performTextInput(EMAIL)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
-        tcButton.onSiblings()[1].performClick()
-        firstName.onChildren()[1].performTextInput("name")
-        firstName.onChildren()[2].performTextInput("surName")
-        firstName.onChildren()[3].performTextInput("teamName")
-        firstName.onChildren()[4].performTextInput("Abcd1234!")
-        firstName.onChildren()[5].performTextInput("Abcd1234.")
+        tcButton.onSiblings()[3].performClick()
+        composeTestRule.waitForExecution {
+            firstName.onChildren()[2].performTextInput("name")
+        }
+        lastName.onChildren()[2].performTextInput("surName")
+        teamName.onChildren()[2].performTextInput("teamName")
+        password.onChildren()[2].performTextInput("Abcd1234!")
+        confirmPassword.onChildren()[2].performTextInput("Abcd1234.")
         continueButton.performClick()
         composeTestRule.waitForExecution {
             composeTestRule.onNodeWithText(passwordsNotMatch).assertDoesNotExist()
@@ -189,16 +197,18 @@ class CreateTeamScreenTest {
         emailField.onChildren()[1].performTextInput(EMAIL)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
-        tcButton.onSiblings()[1].performClick()
-        firstName.onChildren()[1].performTextInput("name")
+        tcButton.onSiblings()[3].performClick()
+        composeTestRule.waitForExecution {
+            firstName.onChildren()[2].performTextInput("name")
+        }
         continueButton.assertIsNotEnabled()
-        firstName.onChildren()[2].performTextInput("surName")
+        lastName.onChildren()[2].performTextInput("surName")
         continueButton.assertIsNotEnabled()
-        firstName.onChildren()[3].performTextInput("teamName")
+        teamName.onChildren()[2].performTextInput("teamName")
         continueButton.assertIsNotEnabled()
-        firstName.onChildren()[4].performTextInput("Abcd1234!")
+        password.onChildren()[2].performTextInput("Abcd1234!")
         continueButton.assertIsNotEnabled()
-        firstName.onChildren()[5].performTextInput("Abcd1234.")
+        confirmPassword.onChildren()[2].performTextInput("Abcd1234.")
         continueButton.assertIsEnabled()
     }
 }

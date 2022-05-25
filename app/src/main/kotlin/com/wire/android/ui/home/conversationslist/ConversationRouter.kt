@@ -34,8 +34,6 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetC
 import com.wire.android.ui.home.conversationslist.bottomsheet.NotificationsOptionsItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
-import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.id.ConversationId
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -78,7 +76,7 @@ fun ConversationRouterHomeBridge(
 //                }
 //                false -> {
                     ConversationSheetContent(
-                        modalBottomSheetContentState = conversationState.modalBottomSheetContentState.value,
+                        conversationSheetContent = conversationState.modalBottomSheetContentState.value,
                         notificationsOptionsItem = NotificationsOptionsItem(
                             muteConversationAction = {
                                 mutingConversationState.openMutedStatusSheetContent(

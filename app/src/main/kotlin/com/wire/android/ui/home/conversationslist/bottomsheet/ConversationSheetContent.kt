@@ -3,7 +3,6 @@ package com.wire.android.ui.home.conversationslist.bottomsheet
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -28,22 +27,23 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 
 @Composable
 fun ConversationSheetContent(
-    modalBottomSheetContentState: ModalSheetContent,
-    notificationsOptionsItem: NotificationsOptionsItem,
+    conversationSheetContent: ConversationSheetContent,
+    mutedStatus: MutedConversationStatus,
+    muteConversation:() -> Unit,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
     blockUser: () -> Unit,
-    leaveGroup: () -> Unit,
+    leaveGroup: () -> Unit
 ) {
     MenuModalSheetContent(
-        headerTitle = modalBottomSheetContentState.title,
+        headerTitle = conversationSheetContent.title,
         headerIcon = {
-            if (modalBottomSheetContentState is ModalSheetContent.GroupConversationEdit) {
-                GroupConversationAvatar(colorValue = modalBottomSheetContentState.groupColorValue)
-            } else if(modalBottomSheetContentState is ModalSheetContent.PrivateConversationEdit) {
-                UserProfileAvatar(userAvatarAsset = modalBottomSheetContentState.avatarAsset)
+            if (conversationSheetContent is ConversationSheetContent.GroupConversation) {
+                GroupConversationAvatar(colorValue = conversationSheetContent.groupColorValue)
+            } else if(conversationSheetContent is ConversationSheetContent.PrivateConversation) {
+                UserProfileAvatar(userAvatarAsset = conversationSheetContent.avatarAsset)
             }
         },
         menuItems = listOf(
@@ -56,8 +56,8 @@ fun ConversationSheetContent(
                             contentDescription = stringResource(R.string.content_description_mute),
                         )
                     },
-                    action = { NotificationsOptionsItemAction(notificationsOptionsItem.mutedStatus) },
-                    onItemClick = notificationsOptionsItem.muteConversationAction
+                    action = { NotificationsOptionsItemAction(mutedStatus) },
+                    onItemClick = muteConversation
                 )
             },
             {
@@ -109,7 +109,7 @@ fun ConversationSheetContent(
                 )
             },
             {
-                if (modalBottomSheetContentState is ModalSheetContent.PrivateConversationEdit) {
+                if (conversationSheetContent is ConversationSheetContent.PrivateConversation) {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
                             icon = {
@@ -155,21 +155,21 @@ fun NotificationsOptionsItemAction(
     }
 }
 
-sealed class ModalSheetContent(val title: String, val conversationId: ConversationId?, var mutedStatus: MutedConversationStatus) {
-    object Initial : ModalSheetContent("", null, MutedConversationStatus.AllAllowed)
-    class PrivateConversationEdit(
+sealed class ConversationSheetContent(val title: String, val conversationId: ConversationId?, var mutedStatus: MutedConversationStatus) {
+    object Initial : ConversationSheetContent("", null, MutedConversationStatus.AllAllowed)
+    class PrivateConversation(
         title: String,
         val avatarAsset: UserAvatarAsset?,
         conversationId: ConversationId,
         mutedStatus: MutedConversationStatus
-    ) : ModalSheetContent(title, conversationId, mutedStatus)
+    ) : ConversationSheetContent(title, conversationId, mutedStatus)
 
-    class GroupConversationEdit(
+    class GroupConversation(
         title: String,
         val groupColorValue: Long,
         conversationId: ConversationId,
         mutedStatus: MutedConversationStatus
-    ) : ModalSheetContent(title, conversationId, mutedStatus)
+    ) : ConversationSheetContent(title, conversationId, mutedStatus)
 
     fun updateCurrentEditingMutedStatus(mutedStatus: MutedConversationStatus) {
         this.mutedStatus = mutedStatus

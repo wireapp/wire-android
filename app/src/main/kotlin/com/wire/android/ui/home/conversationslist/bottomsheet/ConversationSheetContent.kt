@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import MutingOptionsSheetContent
-import android.os.Parcelable
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -11,7 +10,6 @@ import androidx.compose.runtime.setValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.parcelize.Parcelize
 
 @Composable
 fun ConversationSheetContent(
@@ -25,14 +23,13 @@ fun ConversationSheetContent(
     leaveGroup: () -> Unit
 ) {
     val conversationOptionSheetState = remember(conversationSheetContent) {
-        ConversationOptionSheetState()
+        ConversationOptionSheetState(initialNavigation = ConversationOptionNavigation.Home)
     }
 
     when (conversationOptionSheetState.currentNavigation) {
         ConversationOptionNavigation.Home -> {
             HomeSheetContent(
                 conversationSheetContent = conversationSheetContent,
-                mutedStatus = conversationSheetContent.mutedStatus,
                 addConversationToFavourites = addConversationToFavourites,
                 moveConversationToFolder = moveConversationToFolder,
                 moveConversationToArchive = moveConversationToArchive,
@@ -44,7 +41,7 @@ fun ConversationSheetContent(
         }
         ConversationOptionNavigation.MutingNotificationOption -> {
             MutingOptionsSheetContent(
-                mutingConversationState = conversationSheetContent.mutedStatus,
+                mutingConversationState = conversationSheetContent.mutingConversationState,
                 onMuteConversation = onMutingConversationStatusChange,
                 onBackClick = conversationOptionSheetState::toHome
             )
@@ -56,9 +53,9 @@ fun ConversationSheetContent(
     }
 }
 
-internal class ConversationOptionSheetState {
+internal class ConversationOptionSheetState(initialNavigation: ConversationOptionNavigation) {
 
-    var currentNavigation: ConversationOptionNavigation by mutableStateOf(ConversationOptionNavigation.Home)
+    var currentNavigation: ConversationOptionNavigation by mutableStateOf(initialNavigation)
         private set
 
     fun toMutingNotificationOption() {
@@ -79,7 +76,7 @@ sealed class ConversationTypeDetail {
 data class ConversationSheetContent(
     val title: String,
     val conversationId: ConversationId?,
-    val mutedStatus: MutedConversationStatus,
+    val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
 )
 

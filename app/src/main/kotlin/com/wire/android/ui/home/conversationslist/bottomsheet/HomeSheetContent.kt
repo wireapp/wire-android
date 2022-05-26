@@ -26,7 +26,6 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 @Composable
 internal fun HomeSheetContent(
     conversationSheetContent: ConversationSheetContent,
-    mutedStatus: MutedConversationStatus,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
@@ -54,7 +53,7 @@ internal fun HomeSheetContent(
                             contentDescription = stringResource(R.string.content_description_mute),
                         )
                     },
-                    action = { NotificationsOptionsItemAction(mutedStatus) },
+                    action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
                     onItemClick = navigateToNotification
                 )
             },

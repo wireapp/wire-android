@@ -20,7 +20,7 @@ class ConversationState(conversationSheetContent : ConversationSheetContent? = n
                     conversationSheetContent = ConversationSheetContent(
                         conversationId = conversationId,
                         title = groupName,
-                        mutedStatus = mutedStatus,
+                        mutingConversationState = mutedStatus,
                         conversationTypeDetail = ConversationTypeDetail.Group(groupColorValue)
                     )
                 }
@@ -30,7 +30,7 @@ class ConversationState(conversationSheetContent : ConversationSheetContent? = n
                     conversationSheetContent = ConversationSheetContent(
                         conversationId = conversationId,
                         title = conversationInfo.name,
-                        mutedStatus = mutedStatus,
+                        mutingConversationState = mutedStatus,
                         conversationTypeDetail = ConversationTypeDetail.Private(userInfo.avatarAsset)
                     )
                 }
@@ -39,6 +39,6 @@ class ConversationState(conversationSheetContent : ConversationSheetContent? = n
     }
 
     fun muteConversation(mutedConversationStatus: MutedConversationStatus){
-        conversationSheetContent = conversationSheetContent?.copy(mutedStatus = mutedConversationStatus)
+        conversationSheetContent = conversationSheetContent?.copy(mutingConversationState = mutedConversationStatus)
     }
 }

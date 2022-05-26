@@ -13,7 +13,7 @@ sealed class ConversationItem(val conversationType: ConversationType) {
 class GeneralConversation(conversationType: ConversationType) : ConversationItem(conversationType)
 class ConversationMissedCall(val callInfo: CallInfo, conversationType: ConversationType) : ConversationItem(conversationType)
 class ConversationUnreadMention(val mentionInfo: MentionInfo, conversationType: ConversationType) : ConversationItem(conversationType)
-class PendingConnectionItem(val connectionInfo: ConnectionInfo, pendingConversation: ConversationType) : ConversationItem(pendingConversation)
+class PendingConnectionItem(val connectionInfo: ConnectionInfo, conversationType: ConversationType) : ConversationItem(conversationType)
 
 sealed class ConversationType {
     abstract val conversationId: ConversationId

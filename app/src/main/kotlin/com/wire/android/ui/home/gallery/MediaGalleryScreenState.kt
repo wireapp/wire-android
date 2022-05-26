@@ -18,7 +18,9 @@ data class MediaGalleryScreenState(
     val coroutineScope: CoroutineScope
 ) {
     fun showContextualMenu(show: Boolean) {
-        coroutineScope.launch { modalBottomSheetState.animateTo(if (show) ModalBottomSheetValue.Expanded else ModalBottomSheetValue.Hidden) }
+        coroutineScope.launch {
+            modalBottomSheetState.animateTo(if (show) ModalBottomSheetValue.Expanded else ModalBottomSheetValue.Hidden)
+        }
     }
 }
 

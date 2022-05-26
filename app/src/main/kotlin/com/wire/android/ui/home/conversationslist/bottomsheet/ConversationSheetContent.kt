@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import MutingOptionsSheetContent
+import android.os.Parcelable
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -10,6 +11,7 @@ import androidx.compose.runtime.setValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.parcelize.Parcelize
 
 @Composable
 fun ConversationSheetContent(

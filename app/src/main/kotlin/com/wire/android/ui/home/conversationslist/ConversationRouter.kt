@@ -60,12 +60,12 @@ fun ConversationRouterHomeBridge(
                 ConversationSheetContent(
                     conversationSheetContent = conversationSheetContent,
                     onMutingConversationStatusChange = conversationState::muteConversation,
-                    addConversationToFavourites = { viewModel.addConversationToFavourites("someId") },
-                    moveConversationToFolder = { viewModel.moveConversationToFolder("someId") },
-                    moveConversationToArchive = { viewModel.moveConversationToArchive("someId") },
-                    clearConversationContent = { viewModel.clearConversationContent("someId") },
-                    blockUser = { viewModel.blockUser("someId") },
-                    leaveGroup = { viewModel.leaveGroup("someId") }
+                    addConversationToFavourites = viewModel::addConversationToFavourites,
+                    moveConversationToFolder = viewModel::moveConversationToFolder,
+                    moveConversationToArchive = viewModel::moveConversationToArchive,
+                    clearConversationContent = viewModel::clearConversationContent,
+                    blockUser = viewModel::blockUser,
+                    leaveGroup = viewModel::leaveGroup
                 )
             }
         }

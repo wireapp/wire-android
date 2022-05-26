@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.CallNotificationManager
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
@@ -25,9 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class IncomingCallViewModelTest {
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     lateinit var navigationManager: NavigationManager
 
     @MockK
@@ -45,36 +44,40 @@ class IncomingCallViewModelTest {
     @MockK
     private lateinit var callRinger: CallRinger
 
+    @MockK
+    private lateinit var notificationManager: CallNotificationManager
+
     private lateinit var viewModel: IncomingCallViewModel
 
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
-        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
 
         // Default empty values
         coEvery { navigationManager.navigateBack() } returns Unit
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { conversationDetails(any()) } returns flowOf()
+        coEvery { allCalls() } returns flowOf(listOf())
         coEvery { rejectCall(any()) } returns Unit
         coEvery { acceptCall(any()) } returns Unit
+        coEvery { callRinger.ring(any()) } returns Unit
+        coEvery { callRinger.stop() } returns Unit
+        coEvery { notificationManager.hideCallNotification() } returns Unit
 
         viewModel = IncomingCallViewModel(
-            savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
             conversationDetails = conversationDetails,
             allCalls = allCalls,
             rejectCall = rejectCall,
             acceptCall = acceptCall,
-            callRinger = callRinger
+            callRinger = callRinger,
+            notificationManager = notificationManager
         )
     }
 
     @Test
     fun `given an incoming call, when the user decline the call, then the reject call use case is called`() {
-        every { callRinger.stop() } returns Unit
-
+        viewModel.setConversationId(ConversationId("some-dummy-value", "some.dummy.domain"))
         viewModel.declineCall()
 
         coVerify(exactly = 1) { rejectCall(conversationId = any()) }
@@ -83,8 +86,7 @@ class IncomingCallViewModelTest {
 
     @Test
     fun `given an incoming call, when the user accepts the call, then the accept call use case is called`() {
-        every { callRinger.stop() } returns Unit
-
+        viewModel.setConversationId(ConversationId("some-dummy-value", "some.dummy.domain"))
         viewModel.acceptCall()
 
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }

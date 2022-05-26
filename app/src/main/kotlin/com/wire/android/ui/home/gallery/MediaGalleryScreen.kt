@@ -73,12 +73,10 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenState: MediaGalleryScreenState) {
     val imageLoader = hiltViewModel<MediaGalleryViewModel>().wireSessionImageLoader
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
     val uiState = viewModel.mediaGalleryViewState
 
     suspend fun showSnackbarMessage(message: String, actionLabel: String?, messageCode: MediaGallerySnackbarMessages) {

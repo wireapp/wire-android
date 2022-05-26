@@ -116,6 +116,7 @@ class ConversationViewModel @Inject constructor(
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
+    // This value will not be null if we come from another composable screen that requires this message to be deleted
     val messageToDeleteId: MessageDeletion? = savedStateHandle
         .get<String>(EXTRA_MESSAGE_TO_DELETE)
         ?.parseIntoMessageDeletion()
@@ -432,11 +433,11 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun navigateToGallery(messageId: String) {
+    fun navigateToGallery(messageId: String, isSelfMessage: Boolean) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId)))
+                    destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId, isSelfMessage)))
                 )
             )
         }

@@ -87,7 +87,7 @@ private fun ConversationScreen(
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String) -> Unit,
+    onImageFullScreenMode: (String, Boolean) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit,
@@ -167,7 +167,7 @@ private fun ConversationScreenContent(
     onShowContextMenu: (MessageViewWrapper) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String) -> Unit,
+    onImageFullScreenMode: (String, Boolean) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
     conversationScreenState: ConversationScreenState
@@ -244,7 +244,7 @@ fun MessageList(
     lazyListState: LazyListState,
     onShowContextMenu: (MessageViewWrapper) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String) -> Unit
+    onImageFullScreenMode: (String, Boolean) -> Unit
 ) {
     LazyColumn(
         state = lazyListState,
@@ -274,6 +274,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, {}, {}, { _: String, _: Boolean -> }, {}, {}
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}
     )
 }

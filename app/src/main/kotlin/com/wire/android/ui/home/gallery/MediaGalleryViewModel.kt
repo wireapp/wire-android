@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_IMAGE_DATA
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -103,17 +104,17 @@ class MediaGalleryViewModel @Inject constructor(
         }
     }
 
-    fun deleteCurrentImageMessage(isSelfMessage: Boolean = false) {
+    fun deleteCurrentImageMessage() {
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
                     NavigationItem.Conversation.getRouteWithArgs(
                         listOf(
                             imageAssetId.conversationId,
-                            MessageDeletion(imageAssetId.messageId, isSelfMessage)
+                            MessageDeletion(imageAssetId.messageId, imageAssetId.isSelfAsset)
                         )
                     ),
-//                    BackStackMode.CLEAR_WHOLE
+                    BackStackMode.CLEAR_TILL_START
                 )
             )
         }

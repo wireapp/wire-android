@@ -10,8 +10,8 @@ import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @ExperimentalMaterialApi
-class ConversationState(conversationSheetContent : ConversationSheetContent? = null) {
-    var conversationSheetContent: ConversationSheetContent? by mutableStateOf(conversationSheetContent)
+class ConversationState {
+    var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
 
     fun changeModalSheetContentState(conversationType: ConversationType) {
         when (conversationType) {
@@ -38,7 +38,7 @@ class ConversationState(conversationSheetContent : ConversationSheetContent? = n
         }
     }
 
-    fun muteConversation(mutedConversationStatus: MutedConversationStatus){
+    fun muteConversation(mutedConversationStatus: MutedConversationStatus) {
         conversationSheetContent = conversationSheetContent?.copy(mutingConversationState = mutedConversationStatus)
     }
 }

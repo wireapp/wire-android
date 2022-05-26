@@ -57,6 +57,7 @@ data class WireDimensions(
     val messageComposerActiveInputMaxHeight: Dp,
     val attachmentButtonSize: Dp,
     val messageComposerPaddingEnd: Dp,
+    val systemMessageIconSize: Dp,
     // TextFields
     val textFieldMinHeight: Dp,
     val textFieldCornerSize: Dp,
@@ -248,6 +249,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     defaultSearchLazyColumnHeight = 320.dp,
     showAllCollapseButtonMinHeight = 32.dp,
     messageComposerPaddingEnd = 82.dp,
+    systemMessageIconSize = 12.dp,
     groupButtonHeight = 82.dp,
     defaultCallingControlsSize = 66.dp,
     defaultSheetPeekHeight = 95.dp,

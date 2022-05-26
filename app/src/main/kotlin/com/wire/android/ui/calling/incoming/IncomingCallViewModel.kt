@@ -13,6 +13,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.CallNotificationManager
+import com.wire.android.ui.calling.getConversationName
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
@@ -141,10 +142,12 @@ class IncomingCallViewModel @Inject constructor(
 
     private fun initializeScreenState(conversationDetails: ConversationDetails) {
         callState = when (conversationDetails) {
-            is ConversationDetails.Group -> callState.copy(conversationName = conversationDetails.conversation.name)
+            is ConversationDetails.Group -> callState.copy(
+                conversationName = getConversationName(conversationDetails.conversation.name)
+            )
             is ConversationDetails.OneOne -> {
                 callState.copy(
-                    conversationName = conversationDetails.otherUser.name,
+                    conversationName = getConversationName(conversationDetails.otherUser.name),
                     avatarAssetId = conversationDetails.otherUser.completePicture?.let { UserAvatarAsset(it) }
                 )
             }

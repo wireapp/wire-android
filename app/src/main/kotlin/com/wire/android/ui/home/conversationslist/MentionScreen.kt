@@ -63,10 +63,10 @@ private fun MentionContent(
             ConversationItemFactory(
                 conversation = unreadMention,
                 eventType = EventType.UnreadMention,
-                openConversation = { onMentionItemClick(unreadMention.id) },
-                onConversationItemLongClick = { onEditConversationItem(unreadMention.conversationType) },
+                openConversation = onMentionItemClick,
+                openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                onMutedIconClick = { openConversationNotificationsSettings(unreadMention.conversationType) },
+                openNotificationsOptions = openConversationNotificationsSettings,
             )
         }
 
@@ -76,10 +76,10 @@ private fun MentionContent(
         ) { mention ->
             ConversationItemFactory(
                 conversation = mention,
-                openConversation = { onMentionItemClick(mention.id) },
-                onConversationItemLongClick = { onEditConversationItem(mention.conversationType) },
+                openConversation = onMentionItemClick,
+                openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                onMutedIconClick = { openConversationNotificationsSettings(mention.conversationType) },
+                openNotificationsOptions = openConversationNotificationsSettings,
             )
         }
     }

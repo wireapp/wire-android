@@ -64,10 +64,10 @@ private fun AllConversationContent(
                 ConversationItemFactory(
                     conversation = conversationItem,
                     eventType = eventType,
-                    openConversation = { onOpenConversation(conversationItem.id) },
-                    onConversationItemLongClick = { onEditConversation(conversationItem.conversationType) },
+                    openConversation = onOpenConversation,
+                    openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
-                    onMutedIconClick = { openConversationNotificationsSettings(conversationItem.conversationType) },
+                    openNotificationsOptions = openConversationNotificationsSettings,
                 )
             }
         }
@@ -84,10 +84,10 @@ private fun AllConversationContent(
             ) { generalConversation ->
                 ConversationItemFactory(
                     conversation = generalConversation,
-                    openConversation = { onOpenConversation(generalConversation.id) },
-                    onConversationItemLongClick = { onEditConversation(generalConversation.conversationType) },
+                    openConversation = onOpenConversation,
+                    openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
-                    onMutedIconClick = { openConversationNotificationsSettings(generalConversation.conversationType) },
+                    openNotificationsOptions = openConversationNotificationsSettings,
                 )
             }
         }

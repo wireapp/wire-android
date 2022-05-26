@@ -111,25 +111,12 @@ class ConversationListViewModel @Inject constructor(
         connections.map {
             NewActivity(
                 eventType = getEventTypeForConnectionState(it.connection.status),
-                it.conversation.toItem(
-                    private = { privateConversation ->
-                        PendingConnectionItem(
-                            connectionInfo = ConnectionInfo(
-                                it.connection.status,
-                                it.connection.qualifiedToId
-                            ),
-                            privateConversation
-                        )
-                    },
-                    group = { groupConversation ->
-                        PendingConnectionItem(
-                            connectionInfo = ConnectionInfo(
-                                it.connection.status,
-                                it.connection.qualifiedToId
-                            ),
-                            groupConversation
-                        )
-                    }
+                PendingConnectionItem(
+                    connectionInfo = ConnectionInfo(
+                        it.connection.status,
+                        it.connection.qualifiedToId
+                    ),
+                    it.conversation.toType(),
                 )
             )
         }
@@ -215,46 +202,35 @@ class ConversationListViewModel @Inject constructor(
 
     private fun List<ConversationDetails>.toGeneralConversationList(): List<ConversationItem> =
         filter { it is Group || it is OneOne }
-            .map {
-                it.toItem(
-                    private = { privateConversation -> GeneralConversation(privateConversation) },
-                    group = { groupConversation -> GeneralConversation(groupConversation) },
-                )
-            }
+            .map { GeneralConversation(it.toType()) }
+
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-private fun ConversationDetails.toItem(
-    private: (ConversationType.PrivateConversation) -> ConversationItem,
-    group: (ConversationType.GroupConversation) -> ConversationItem,
-): ConversationItem = when (this) {
+private fun ConversationDetails.toType(): ConversationType = when (this) {
     is Group -> {
-        group(
-            ConversationType.GroupConversation(
-                groupColorValue = getConversationColor(conversation.id),
-                groupName = conversation.name.orEmpty(),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator()
-            )
+        ConversationType.GroupConversation(
+            groupColorValue = getConversationColor(conversation.id),
+            groupName = conversation.name.orEmpty(),
+            conversationId = conversation.id,
+            mutedStatus = conversation.mutedStatus,
+            isLegalHold = legalHoldStatus.showLegalHoldIndicator()
         )
     }
     is OneOne -> {
-        private(
-            ConversationType.PrivateConversation(
-                userInfo = UserInfo(
-                    otherUser.previewPicture?.let { UserAvatarAsset(it) },
-                    UserStatus.NONE // TODO Get actual status
-                ),
-                conversationInfo = ConversationInfo(
-                    name = otherUser.name.orEmpty(),
-                    membership = userType.toMembership()
-                ),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator()
-            )
+        ConversationType.PrivateConversation(
+            userInfo = UserInfo(
+                otherUser.previewPicture?.let { UserAvatarAsset(it) },
+                UserStatus.NONE // TODO Get actual status
+            ),
+            conversationInfo = ConversationInfo(
+                name = otherUser.name.orEmpty(),
+                membership = userType.toMembership()
+            ),
+            conversationId = conversation.id,
+            mutedStatus = conversation.mutedStatus,
+            isLegalHold = legalHoldStatus.showLegalHoldIndicator()
         )
     }
     is Self -> {

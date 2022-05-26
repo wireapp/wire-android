@@ -62,10 +62,10 @@ fun CallContent(
             ConversationItemFactory(
                 conversation = missedCall,
                 eventType = EventType.MissedCall,
-                openConversation = { onCallItemClick(missedCall.id) },
-                onConversationItemLongClick = { onEditConversationItem(missedCall.conversationType) },
+                openConversation = onCallItemClick,
+                openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                onMutedIconClick = { openConversationNotificationsSettings(missedCall.conversationType) },
+                openNotificationsOptions = openConversationNotificationsSettings,
             )
         }
 
@@ -75,10 +75,10 @@ fun CallContent(
         ) { callHistory ->
             ConversationItemFactory(
                 conversation = callHistory,
-                openConversation = { onCallItemClick(callHistory.id) },
-                onConversationItemLongClick = { onEditConversationItem(callHistory.conversationType) },
+                openConversation = onCallItemClick,
+                openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                onMutedIconClick = { openConversationNotificationsSettings(callHistory.conversationType) },
+                openNotificationsOptions = openConversationNotificationsSettings,
             )
         }
     }

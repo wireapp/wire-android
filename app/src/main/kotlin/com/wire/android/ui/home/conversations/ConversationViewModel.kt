@@ -12,6 +12,7 @@ import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -21,6 +22,8 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Displayed
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
+import com.wire.android.ui.home.conversations.delete.MessageDeletion
+import com.wire.android.ui.home.conversations.delete.parseIntoMessageDeletion
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -110,11 +113,16 @@ class ConversationViewModel @Inject constructor(
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
+    val messageToDeleteId: MessageDeletion? = savedStateHandle
+        .get<String>(EXTRA_MESSAGE_TO_DELETE)
+        ?.parseIntoMessageDeletion()
+
     init {
         fetchMessages()
         listenConversationDetails()
         fetchSelfUserTeam()
         setMessagesAsNotified()
+        checkPendingActions()
     }
 
     // region ------------------------------ Init Methods -------------------------------------
@@ -154,6 +162,12 @@ class ConversationViewModel @Inject constructor(
 
     private fun setMessagesAsNotified() = viewModelScope.launch {
         markMessagesAsNotified(conversationId, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
+    }
+
+    private fun checkPendingActions() {
+        messageToDeleteId?.run {
+            showDeleteMessageDialog(messageToDeleteId, isSelfMessage)
+        }
     }
     // endregion
 

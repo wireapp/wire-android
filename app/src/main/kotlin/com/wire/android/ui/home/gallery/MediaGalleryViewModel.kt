@@ -9,9 +9,12 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
 import com.wire.android.navigation.EXTRA_IMAGE_DATA
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
+import com.wire.android.ui.home.conversations.delete.MessageDeletion
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getCurrentParsedDateTime
@@ -100,7 +103,19 @@ class MediaGalleryViewModel @Inject constructor(
         }
     }
 
-    fun deleteCurrentImageMessage() {
-
+    fun deleteCurrentImageMessage(isSelfMessage: Boolean = false) {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Conversation.getRouteWithArgs(
+                        listOf(
+                            imageAssetId.conversationId,
+                            MessageDeletion(imageAssetId.messageId, isSelfMessage)
+                        )
+                    ),
+//                    BackStackMode.CLEAR_WHOLE
+                )
+            )
+        }
     }
 }

@@ -40,6 +40,7 @@ import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.conversations.delete.MessageDeletion
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
@@ -174,12 +175,16 @@ enum class NavigationItem(
 
     Conversation(
         primaryRoute = CONVERSATION,
-        canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
+        canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}/{$EXTRA_MESSAGE_TO_DELETE}",
         content = { ConversationScreen(hiltViewModel()) }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
+            val messageToDeleteId: MessageDeletion? = arguments.filterIsInstance<MessageDeletion>().firstOrNull()
+            return conversationId?.run {
+                val normalRoute = "$primaryRoute/${toString()}"
+                messageToDeleteId?.let { messageId -> "$normalRoute/$messageId" } ?: "$normalRoute/null"
+            } ?: primaryRoute
         }
     },
 
@@ -279,6 +284,7 @@ const val EXTRA_USER_DOMAIN = "extra_user_domain"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 const val EXTRA_IMAGE_DATA = "extra_image_data"
+const val EXTRA_MESSAGE_TO_DELETE = "extra_message_to_delete"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

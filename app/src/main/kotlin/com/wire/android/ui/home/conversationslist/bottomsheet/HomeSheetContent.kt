@@ -38,10 +38,10 @@ internal fun HomeSheetContent(
     MenuModalSheetContent(
         headerTitle = conversationSheetContent.title,
         headerIcon = {
-            if (conversationSheetContent is ConversationSheetContent.GroupConversation) {
-                GroupConversationAvatar(colorValue = conversationSheetContent.groupColorValue)
-            } else if (conversationSheetContent is ConversationSheetContent.PrivateConversation) {
-                UserProfileAvatar(userAvatarAsset = conversationSheetContent.avatarAsset)
+            if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
+                GroupConversationAvatar(colorValue = conversationSheetContent.conversationTypeDetail.groupColorValue)
+            } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
+                UserProfileAvatar(userAvatarAsset = conversationSheetContent.conversationTypeDetail.avatarAsset)
             }
         },
         menuItems = listOf(
@@ -107,7 +107,7 @@ internal fun HomeSheetContent(
                 )
             },
             {
-                if (conversationSheetContent is ConversationSheetContent.PrivateConversation) {
+                if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
                             icon = {

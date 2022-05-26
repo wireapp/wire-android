@@ -1,14 +1,11 @@
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.material.DrawerState
-import androidx.compose.material.DrawerValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.HeaderAvatar
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
@@ -21,20 +18,20 @@ class ConversationState(conversationSheetContent : ConversationSheetContent? = n
             is ConversationType.GroupConversation -> {
                 with(conversationType) {
                     conversationSheetContent = ConversationSheetContent(
-                        title = groupName,
-                        headerAvatar = HeaderAvatar.Group(groupColorValue),
                         conversationId = conversationId,
-                        mutedStatus = mutedStatus
+                        title = groupName,
+                        mutedStatus = mutedStatus,
+                        conversationTypeDetail = ConversationTypeDetail.Group(groupColorValue)
                     )
                 }
             }
             is ConversationType.PrivateConversation -> {
                 with(conversationType) {
                     conversationSheetContent = ConversationSheetContent(
-                        title = conversationInfo.name,
-                        headerAvatar = HeaderAvatar.Private(userInfo.avatarAsset),
                         conversationId = conversationId,
-                        mutedStatus = mutedStatus
+                        title = conversationInfo.name,
+                        mutedStatus = mutedStatus,
+                        conversationTypeDetail = ConversationTypeDetail.Private(userInfo.avatarAsset)
                     )
                 }
             }

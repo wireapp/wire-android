@@ -69,16 +69,16 @@ internal class ConversationOptionSheetState {
 
 }
 
-sealed class HeaderAvatar {
-    data class Group(val groupColorValue: Long) : HeaderAvatar()
-    data class Private(val avatarAsset: UserAvatarAsset?) : HeaderAvatar()
+sealed class ConversationTypeDetail {
+    data class Group(val groupColorValue: Long) : ConversationTypeDetail()
+    data class Private(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
 }
 
 data class ConversationSheetContent(
     val title: String,
-    val headerAvatar: HeaderAvatar,
     val conversationId: ConversationId?,
     val mutedStatus: MutedConversationStatus,
+    val conversationTypeDetail: ConversationTypeDetail,
 )
 
 internal sealed class ConversationOptionNavigation {

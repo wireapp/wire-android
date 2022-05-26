@@ -12,7 +12,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
-    fun ConversationSheetContent(
+fun ConversationSheetContent(
     conversationSheetContent: ConversationSheetContent,
     onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
     addConversationToFavourites: () -> Unit,
@@ -66,66 +66,20 @@ internal class ConversationOptionSheetState {
     fun toHome() {
         currentNavigation = ConversationOptionNavigation.Home
     }
-}
-
-sealed class ConversationSheetContent(
-    open val title: String,
-    open val conversationId: ConversationId?,
-    open val mutedStatus: MutedConversationStatus
-) {
-    abstract fun copy(
-        title: String? = null,
-        conversationId: ConversationId? = null,
-        mutedStatus: MutedConversationStatus? = MutedConversationStatus.AllMuted
-    ): ConversationSheetContent
-
-    data class PrivateConversation(
-        override var title: String,
-        val avatarAsset: UserAvatarAsset?,
-        override val conversationId: ConversationId,
-        override val mutedStatus: MutedConversationStatus
-    ) : ConversationSheetContent(
-        title = title,
-        conversationId = conversationId,
-        mutedStatus = mutedStatus
-    ) {
-        override fun copy(
-            title: String?,
-            conversationId: ConversationId?,
-            mutedStatus: MutedConversationStatus?
-        ): ConversationSheetContent {
-            return copy(
-                title = title ?: this.title,
-                conversationId = conversationId ?: this.conversationId,
-                mutedStatus = mutedStatus ?: this.mutedStatus
-            )
-        }
-    }
-
-    data class GroupConversation(
-        override val title: String,
-        val groupColorValue: Long,
-        override val conversationId: ConversationId,
-        override val mutedStatus: MutedConversationStatus
-    ) : ConversationSheetContent(
-        title = title,
-        conversationId = conversationId,
-        mutedStatus = mutedStatus
-    ) {
-        override fun copy(
-            title: String?,
-            conversationId: ConversationId?,
-            mutedStatus: MutedConversationStatus?
-        ): ConversationSheetContent {
-            return copy(
-                title = title ?: this.title,
-                conversationId = conversationId ?: this.conversationId,
-                mutedStatus = mutedStatus ?: this.mutedStatus
-            )
-        }
-    }
 
 }
+
+sealed class HeaderAvatar {
+    data class Group(val groupColorValue: Long) : HeaderAvatar()
+    data class Private(val avatarAsset: UserAvatarAsset?) : HeaderAvatar()
+}
+
+data class ConversationSheetContent(
+    val title: String,
+    val headerAvatar: HeaderAvatar,
+    val conversationId: ConversationId?,
+    val mutedStatus: MutedConversationStatus,
+)
 
 internal sealed class ConversationOptionNavigation {
     object Home : ConversationOptionNavigation()

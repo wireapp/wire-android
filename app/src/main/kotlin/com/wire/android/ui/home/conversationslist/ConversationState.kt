@@ -1,25 +1,28 @@
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.material.DrawerState
+import androidx.compose.material.DrawerValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.HeaderAvatar
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @ExperimentalMaterialApi
-class ConversationState
- {
-    var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
+class ConversationState(conversationSheetContent : ConversationSheetContent? = null) {
+    var conversationSheetContent: ConversationSheetContent? by mutableStateOf(conversationSheetContent)
 
     fun changeModalSheetContentState(conversationType: ConversationType) {
         when (conversationType) {
             is ConversationType.GroupConversation -> {
                 with(conversationType) {
-                    conversationSheetContent = ConversationSheetContent.GroupConversation(
+                    conversationSheetContent = ConversationSheetContent(
                         title = groupName,
-                        groupColorValue = groupColorValue,
+                        headerAvatar = HeaderAvatar.Group(groupColorValue),
                         conversationId = conversationId,
                         mutedStatus = mutedStatus
                     )
@@ -27,9 +30,9 @@ class ConversationState
             }
             is ConversationType.PrivateConversation -> {
                 with(conversationType) {
-                    conversationSheetContent = ConversationSheetContent.PrivateConversation(
+                    conversationSheetContent = ConversationSheetContent(
                         title = conversationInfo.name,
-                        avatarAsset = userInfo.avatarAsset,
+                        headerAvatar = HeaderAvatar.Private(userInfo.avatarAsset),
                         conversationId = conversationId,
                         mutedStatus = mutedStatus
                     )

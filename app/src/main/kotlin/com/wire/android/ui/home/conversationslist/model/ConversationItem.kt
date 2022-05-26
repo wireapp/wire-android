@@ -15,6 +15,7 @@ class ConversationMissedCall(val callInfo: CallInfo, conversationType: Conversat
 class ConversationUnreadMention(val mentionInfo: MentionInfo, conversationType: ConversationType) : ConversationItem(conversationType)
 
 sealed class ConversationType {
+
     abstract val conversationId: ConversationId
     abstract val mutedStatus: MutedConversationStatus
     abstract val isLegalHold: Boolean
@@ -46,9 +47,8 @@ data class UserInfo(
     val availabilityStatus: UserStatus = UserStatus.NONE
 )
 
-fun ConversationType.PrivateConversation.toUserInfoLabel() =
-    UserInfoLabel(
-        labelName = conversationInfo.name,
-        isLegalHold = isLegalHold,
-        membership = conversationInfo.membership,
-    )
+fun ConversationType.PrivateConversation.toUserInfoLabel() = UserInfoLabel(
+    labelName = conversationInfo.name,
+    isLegalHold = isLegalHold,
+    membership = conversationInfo.membership,
+)

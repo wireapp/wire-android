@@ -18,7 +18,10 @@ internal fun navigateToItem(
                     val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
                     val startId = entry.destination.id
 
-                    popBackStack(startId, inclusive)
+                    if (command.backStackMode == BackStackMode.CLEAR_CURRENT)
+                        popBackStack()
+                    else
+                        popBackStack(startId, inclusive)
                 }
             }
         }

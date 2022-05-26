@@ -1,9 +1,7 @@
 package com.wire.android.navigation
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-@OptIn(ExperimentalMaterial3Api::class)
 class NavigationManager {
 
     var navigateState = MutableSharedFlow<NavigationCommand?>()
@@ -37,7 +35,8 @@ data class NavigationCommand(
 enum class BackStackMode {
     CLEAR_TILL_START, // clear the whole backstack excluding "start screen"
     CLEAR_WHOLE, // clear the whole backstack including "start screen" (use when you navigate to a new "start screen" )
+    CLEAR_CURRENT, // navigate to next destination and clear only the current screen
     NONE; // screen will be added to the existing backstack.
 
-    fun shouldClear(): Boolean = this == CLEAR_WHOLE || this == CLEAR_TILL_START
+    fun shouldClear(): Boolean = this == CLEAR_WHOLE || this == CLEAR_TILL_START || this == CLEAR_CURRENT
 }

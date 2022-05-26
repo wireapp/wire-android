@@ -53,6 +53,11 @@ fun ConversationSheetContent(
     }
 }
 
+internal sealed class ConversationOptionNavigation {
+    object Home : ConversationOptionNavigation()
+    object MutingNotificationOption : ConversationOptionNavigation()
+}
+
 internal class ConversationOptionSheetState(initialNavigation: ConversationOptionNavigation) {
 
     var currentNavigation: ConversationOptionNavigation by mutableStateOf(initialNavigation)
@@ -80,7 +85,3 @@ data class ConversationSheetContent(
     val conversationTypeDetail: ConversationTypeDetail,
 )
 
-internal sealed class ConversationOptionNavigation {
-    object Home : ConversationOptionNavigation()
-    object MutingNotificationOption : ConversationOptionNavigation()
-}

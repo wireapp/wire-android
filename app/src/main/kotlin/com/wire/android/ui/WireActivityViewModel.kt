@@ -20,13 +20,21 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
-@ExperimentalMaterial3Api
+@Suppress("LongParameterList")
+@OptIn(
+    ExperimentalCoroutinesApi::class,
+    ExperimentalMaterial3Api::class
+)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
     private val currentSessionUseCase: CurrentSessionUseCase,

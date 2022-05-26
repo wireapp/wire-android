@@ -18,34 +18,36 @@ sealed class DeepLinkResult {
 
 class DeepLinkProcessor {
     operator fun invoke(uri: Uri): DeepLinkResult = when (uri.host) {
-        ACCESS_DEEPLINK_HOST ->
-            uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
-                DeepLinkResult.CustomServerConfig(it)
-            } ?: DeepLinkResult.Unknown
-        SSO_LOGIN_DEEPLINK_HOST -> {
-            when (uri.lastPathSegment) {
-                SSO_LOGIN_FAILURE -> {
-                    uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)?.let { value ->
-                        DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(value))
-                    } ?: DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-                }
-                SSO_LOGIN_SUCCESS -> {
-                    val cookie = uri.getQueryParameter(SSO_LOGIN_COOKIE_PARAM)
-                    val location = uri.getQueryParameter(SSO_LOGIN_SERVER_CONFIG_PARAM)
-                    if (cookie == null || location == null)
-                        DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-                    else
-                        DeepLinkResult.SSOLogin.Success(cookie, location)
-                }
-                else -> DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-            }
-        }
-        INCOMING_CALL_DEEPLINK_HOST -> {
-            uri.getQueryParameter(INCOMING_CALL_CONVERSATION_ID_PARAM)?.toConversationId()?.let {
-                DeepLinkResult.IncomingCall(it)
-            } ?: DeepLinkResult.Unknown
-        }
+        ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
+        SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
+        INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
         else -> DeepLinkResult.Unknown
+    }
+
+    private fun getCustomServerConfigDeepLinkResult(uri: Uri) = uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
+        DeepLinkResult.CustomServerConfig(it)
+    } ?: DeepLinkResult.Unknown
+
+    private fun getIncomingCallDeepLinkResult(uri: Uri) =
+        uri.getQueryParameter(INCOMING_CALL_CONVERSATION_ID_PARAM)?.toConversationId()?.let {
+            DeepLinkResult.IncomingCall(it)
+        } ?: DeepLinkResult.Unknown
+
+    private fun getSSOLoginDeepLinkResult(uri: Uri) = when (uri.lastPathSegment) {
+        SSO_LOGIN_FAILURE -> {
+            uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)?.let { value ->
+                DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(value))
+            } ?: DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
+        }
+        SSO_LOGIN_SUCCESS -> {
+            val cookie = uri.getQueryParameter(SSO_LOGIN_COOKIE_PARAM)
+            val location = uri.getQueryParameter(SSO_LOGIN_SERVER_CONFIG_PARAM)
+            if (cookie == null || location == null)
+                DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
+            else
+                DeepLinkResult.SSOLogin.Success(cookie, location)
+        }
+        else -> DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
     }
 
     companion object {

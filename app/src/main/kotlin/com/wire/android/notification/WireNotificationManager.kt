@@ -50,15 +50,15 @@ class WireNotificationManager @Inject constructor(
         //TODO for now GetIncomingCallsUseCase() returns valid data not from the first try.
         // so it's possible to have scenario, when FCM comes informing us that there is a Call,
         // but we don't get it from the first GetIncomingCallsUseCase() call.
-        // To cover that case we have this `intervalFlow().take(10)`
-        // to try get incoming calls 10 times, if it returns nothing we assume there is no incoming call
-        intervalFlow(1000L, 0L)
+        // To cover that case we have this `intervalFlow().take(6)`
+        // to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
+        intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
             .map {
                 getIncomingCallsProvider.create(userId)
                     .getCalls()
                     .first()
             }
-            .take(6)
+            .take(CHECK_INCOMING_CALLS_TRIES)
             .distinctUntilChanged()
             .collect { callsList ->
                 callsManager.handleNotifications(callsList, userId)
@@ -166,4 +166,9 @@ class WireNotificationManager @Inject constructor(
         val newNotifications: List<LocalNotificationConversation>,
         val userId: QualifiedID?
     )
+
+    companion object {
+        private const val CHECK_INCOMING_CALLS_PERIOD_MS = 1000L
+        private const val CHECK_INCOMING_CALLS_TRIES = 6
+    }
 }

@@ -17,17 +17,18 @@ import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.toUserId
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun ConversationItemFactory(
     conversation: ConversationItem,
     eventType: EventType? = null,
-    openConversation: () -> Unit,
-    onConversationItemLongClick: () -> Unit,
+    openConversation: (ConversationId) -> Unit,
+    openMenu: (ConversationType) -> Unit,
     openUserProfile: (UserId) -> Unit,
-    onMutedIconClick: () -> Unit,
+    openNotificationsOptions: (ConversationType) -> Unit,
 ) {
-    MainConversationItem(
+    GeneralConversationItem(
         conversation = conversation,
         eventType = eventType,
         subTitle = {
@@ -41,22 +42,24 @@ fun ConversationItemFactory(
         onConversationItemClick = {
             when (conversation) {
                 is PendingConnectionItem -> openUserProfile(conversation.connectionInfo.userId.toUserId())
-                else -> openConversation()
+                else -> openConversation(conversation.conversationType.conversationId)
             }
         },
         onConversationItemLongClick = {
             when (conversation) {
                 is PendingConnectionItem -> {}
-                else -> onConversationItemLongClick()
+                else -> openMenu(conversation.conversationType)
             }
         },
-        onMutedIconClick = onMutedIconClick,
+        onMutedIconClick = {
+            openNotificationsOptions(conversation.conversationType)
+        },
     )
 
 }
 
 @Composable
-private fun MainConversationItem(
+private fun GeneralConversationItem(
     conversation: ConversationItem,
     eventType: EventType? = null,
     subTitle: @Composable () -> Unit = {},

@@ -36,11 +36,14 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
     private val notificationManager = NotificationManagerCompat.from(context)
 
+    private var prevNotificationsData: List<LocalNotificationConversation> = listOf()
+
     fun handleNotification(
-        oldData: List<LocalNotificationConversation>,
+        oldDataDeprecated: List<LocalNotificationConversation>,
         newData: List<LocalNotificationConversation>,
         userId: QualifiedID?
     ) {
+        val oldData = prevNotificationsData
         val oldConversationIds = oldData.map { it.id }
         val newConversationIds = newData.map { it.id }
 
@@ -59,6 +62,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         showSummaryIfNeeded(oldData, newData, userIdString)
         conversationIdsToRemove.forEach { hideNotification(it) }
         conversationsToAdd.forEach { showConversationNotification(it, userIdString) }
+
+        prevNotificationsData = newData
     }
 
     private fun createNotificationChannelIfNeeded() {
@@ -79,7 +84,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     ) {
         if (oldData.size > 1 || newData.size <= 1) return
 
-        notificationManager.notify(SUMMARY_ID, getSummaryNotification(userId))
+        if (newData.isEmpty()) notificationManager.cancel(SUMMARY_ID)
+        else notificationManager.notify(SUMMARY_ID, getSummaryNotification(userId))
     }
 
     private fun showConversationNotification(conversation: NotificationConversation, userId: String?) {

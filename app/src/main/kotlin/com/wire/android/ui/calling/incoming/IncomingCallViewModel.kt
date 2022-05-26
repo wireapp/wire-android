@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -36,8 +37,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class IncomingCallViewModel @Inject constructor(
-//    savedStateHandle: SavedStateHandle,
-//    @Assisted private val conversationId: ConversationId,
     private val navigationManager: NavigationManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsUseCase,
@@ -79,7 +78,6 @@ class IncomingCallViewModel @Inject constructor(
 
                         delay(delayTimeMs)
 
-                        println("cyka incoming stopping by time")
                         declineCall()
                     }
                     .collect()
@@ -92,7 +90,6 @@ class IncomingCallViewModel @Inject constructor(
             .combine(conversationIdFlow.filterNotNull()) { calls, conversationId ->
                 val currentCall = calls.firstOrNull { call -> call.conversationId == conversationId }
 
-                println("cyka incoming status: ${currentCall?.status}")
                 when (currentCall?.status) {
                     CallStatus.CLOSED -> onCallClosed()
                     else -> println("DO NOTHING")
@@ -102,13 +99,18 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     private fun onCallClosed() {
-        println("cyka incoming onCallClosed")
         stopRinging()
-        viewModelScope.launch { navigationManager.navigateBack() }
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.Home.getRouteWithArgs(),
+                    backStackMode = BackStackMode.CLEAR_TILL_START
+                )
+            )
+        }
     }
 
     fun declineCall() {
-        println("cyka incoming decline")
         stopRinging()
         viewModelScope.launch {
             conversationIdFlow.value?.let {
@@ -118,7 +120,6 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     fun acceptCall() {
-        println("cyka incoming accept")
         stopRinging()
         viewModelScope.launch {
             navigationManager.navigateBack()
@@ -134,7 +135,6 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     private fun stopRinging() {
-        println("cyka incoming stop()")
         callRinger.stop()
         notificationManager.hideCallNotification()
     }

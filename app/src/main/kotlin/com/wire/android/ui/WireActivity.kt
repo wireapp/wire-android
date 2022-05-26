@@ -21,7 +21,6 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.setScreenSettingsOnStart
 import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +43,6 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        println("cyka111 create ${intent.data}")
         viewModel.handleDeepLink(intent)
         setComposableContent()
     }
@@ -53,11 +51,6 @@ class WireActivity : AppCompatActivity() {
         if (viewModel.handleDeepLinkOnNewIntent(intent)) {
             recreate()
         }
-//        intent?.let {
-//            println("cyka111 recreate")
-//            recreate()
-//            handleDeepLink(intent)
-//        }
         super.onNewIntent(intent)
     }
 
@@ -81,7 +74,6 @@ class WireActivity : AppCompatActivity() {
                     NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
                 }
                 setUpNavigation(navController, scope)
-                setScreenSettingsOnStart(startDestination)
             }
         }
     }
@@ -91,7 +83,6 @@ class WireActivity : AppCompatActivity() {
         navController: NavHostController,
         scope: CoroutineScope
     ) {
-        println("cyka start rout: ${viewModel.startNavigationRoute()}")
         val keyboardController = LocalSoftwareKeyboardController.current
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
         LaunchedEffect("key") {
@@ -99,19 +90,18 @@ class WireActivity : AppCompatActivity() {
             navigationManager.navigateState
                 .onEach { command ->
                     if (command == null) return@onEach
-                    keyboardController?.hide()
                     navigateToItem(navController, command)
-                    updateScreenSettings(navController)
                 }
                 .launchIn(scope)
 
             navigationManager.navigateBack
-                .onEach {
-                    keyboardController?.hide()
-                    if (!navController.popBackStack()) finish()
-                    updateScreenSettings(navController)
-                }
+                .onEach { navController.popBackStack() }
                 .launchIn(scope)
+
+            navController.addOnDestinationChangedListener { controller, _, _ ->
+                keyboardController?.hide()
+                updateScreenSettings(controller)
+            }
         }
     }
 }

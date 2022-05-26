@@ -219,10 +219,18 @@ enum class NavigationItem(
         primaryRoute = INCOMING_CALL,
         canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { contentParams ->
-            val conversationsId = contentParams.navBackStackEntry
+            //parameter was passed by getRouteWithArgs() via regular navigation
+            val conversationsIdFromRout = contentParams.navBackStackEntry
                 .arguments
                 ?.getString(EXTRA_CONVERSATION_ID)
                 ?.toConversationId()
+
+            //parameter was passed by appInitialArgs from the deepLink
+            val conversationsIdFromDeepLink = contentParams.arguments
+                .filterIsInstance<ConversationId>()
+                .firstOrNull()
+
+            val conversationsId = conversationsIdFromRout ?: conversationsIdFromDeepLink
 
             IncomingCallScreen(conversationsId!!)
         },
@@ -230,19 +238,9 @@ enum class NavigationItem(
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
+            return conversationId?.run { "$primaryRoute/${toString()}" } ?: "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}"
         }
     },
-
-    IncomingCallFromDeepLink(
-        primaryRoute = INCOMING_CALL,
-        canonicalRoute = INCOMING_CALL,
-        content = { contentParams ->
-            val conversationsId = contentParams.arguments.filterIsInstance<ConversationId>().firstOrNull()
-            IncomingCallScreen(conversationsId!!)
-        },
-        screenMode = ScreenMode.WAKE_UP
-    ),
 
     Gallery(
         primaryRoute = MEDIA_GALLERY,

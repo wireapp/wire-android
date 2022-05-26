@@ -43,7 +43,6 @@ class WireActivityViewModel @Inject constructor(
     private val isUserLoggedIn = currentSessionUseCase() is CurrentSessionResult.Success
 
     init {
-        println("cyka init ViewModel")
         val userIdFlow = currentSessionFlow()
             .map { result ->
                 if (result is CurrentSessionResult.Success) result.authSession.userId
@@ -63,13 +62,9 @@ class WireActivityViewModel @Inject constructor(
             launch {
                 userIdFlow
                     .filterNotNull()
-                    .onCompletion {
-                        println("cyka onCompletion")
-                    }
                     .collect { userId ->
                         // listen for the WebSockets updates and update DB accordingly
-                        println("cyka listening")
-                        listenToEventsProvider.create(userId).listenToEvents
+                        launch { listenToEventsProvider.create(userId).listenToEvents() }
                     }
             }
         }
@@ -79,13 +74,12 @@ class WireActivityViewModel @Inject constructor(
 
     fun startNavigationRoute() = when {
         shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
-        shouldGoToIncomingCall() -> NavigationItem.IncomingCallFromDeepLink.getRouteWithArgs()
+        shouldGoToIncomingCall() -> NavigationItem.IncomingCall.getRouteWithArgs()
         shouldGoToHome() -> NavigationItem.Home.getRouteWithArgs()
         else -> NavigationItem.Welcome.getRouteWithArgs()
     }
 
     fun handleDeepLink(intent: Intent?) {
-        println("cyka deeplink: ${intent?.data}")
         intent?.data?.let {
             val result = deepLinkProcessor(it)
             with(result) {

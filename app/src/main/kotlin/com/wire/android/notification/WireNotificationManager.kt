@@ -41,7 +41,6 @@ class WireNotificationManager @Inject constructor(
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
             coreLogic.getSessionScope(userId).syncPendingEvents()
-            println("cyka fetchAndShowNotificationsOnce $userId")
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
         }
@@ -59,14 +58,9 @@ class WireNotificationManager @Inject constructor(
                     .getCalls()
                     .first()
             }
-            .take(10)
-            .map {
-                println("cyka once: ${it.size}")
-                it
-            }
+            .take(6)
             .distinctUntilChanged()
             .collect { callsList ->
-                println("cyka once: collecting $callsList")
                 callsManager.handleNotifications(callsList, userId)
             }
     }
@@ -117,7 +111,6 @@ class WireNotificationManager @Inject constructor(
     ) {
         userIdFlow
             .flatMapLatest { userId ->
-                println("cyka observing $userId")
                 if (userId == null) {
                     flowOf(listOf())
                 } else {
@@ -126,7 +119,6 @@ class WireNotificationManager @Inject constructor(
                     .map { list -> list to userId }
             }
             .collect { (calls, userId) ->
-//                println("cyka observing calls $calls")
                 if (isAppVisibleFlow.value) {
                     calls.firstOrNull()?.run { doIfCallCameAndAppVisible(this) }
                 } else {

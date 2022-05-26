@@ -29,7 +29,6 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     private val notificationManager = NotificationManagerCompat.from(context)
 
     fun handleNotifications(calls: List<Call>, userId: QualifiedID?) {
-        println("cyka handleCalls : ${calls.size}")
         if (calls.isEmpty() || userId == null) hideCallNotification()
         else showIncomingCallNotification(calls.first(), userId)
     }

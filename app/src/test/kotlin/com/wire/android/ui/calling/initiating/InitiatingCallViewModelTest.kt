@@ -37,13 +37,7 @@ class InitiatingCallViewModelTest {
     private lateinit var startCall: StartCallUseCase
 
     @MockK
-    private lateinit var endCall: EndCallUseCase
-
-    @MockK
     private lateinit var callRinger: CallRinger
-
-    @MockK
-    private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     private lateinit var initiatingCallViewModel: InitiatingCallViewModel
 
@@ -62,23 +56,9 @@ class InitiatingCallViewModelTest {
             navigationManager = navigationManager,
             allCalls = allCalls,
             startCall = startCall,
-            endCall = endCall,
-            conversationDetails = observeConversationDetails,
             callRinger = callRinger
         )
     }
 
-    @Test
-    fun `given active call, when user end call, then invoke endCall useCase`() {
-        coEvery { navigationManager.navigateBack() } returns Unit
-        coEvery { endCall.invoke(any()) } returns Unit
-        every { callRinger.stop() } returns Unit
-
-        runTest { initiatingCallViewModel.hangUpCall() }
-
-        coVerify(exactly = 1) { endCall.invoke(any()) }
-        coVerify(exactly = 1) { callRinger.stop() }
-        coVerify(exactly = 1) { navigationManager.navigateBack() }
-    }
 
 }

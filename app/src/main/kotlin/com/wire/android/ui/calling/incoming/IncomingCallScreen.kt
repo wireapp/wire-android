@@ -3,7 +3,6 @@ package com.wire.android.ui.calling.incoming
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,12 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.ConversationName
+import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlButtons.AcceptButton
-import com.wire.android.ui.calling.controlButtons.CameraButton
+import com.wire.android.ui.calling.controlButtons.CallOptionsControls
 import com.wire.android.ui.calling.controlButtons.DeclineButton
-import com.wire.android.ui.calling.controlButtons.MicrophoneButton
-import com.wire.android.ui.calling.controlButtons.SpeakerButton
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -38,11 +37,14 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 
 @Composable
-fun IncomingCallScreen(incomingCallViewModel: IncomingCallViewModel = hiltViewModel()) {
+fun IncomingCallScreen(
+    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
+    incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
+) {
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(incomingCallViewModel = incomingCallViewModel)
 
     IncomingCallContent(
-        state = incomingCallViewModel.callState,
+        state = sharedCallingViewModel.callState,
         declineCall = {
             incomingCallViewModel.declineCall()
         },
@@ -55,7 +57,7 @@ fun IncomingCallScreen(incomingCallViewModel: IncomingCallViewModel = hiltViewMo
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun IncomingCallContent(
-    state: IncomingCallState,
+    state: CallState,
     declineCall: () -> Unit,
     acceptCall: () -> Unit
 ) {
@@ -70,7 +72,6 @@ private fun IncomingCallContent(
         sheetPeekHeight = dimensions().defaultIncomingCallSheetPeekHeight,
         sheetContent = {
             CallingControls(
-                state = state,
                 declineCall = declineCall,
                 acceptCall = acceptCall
             )
@@ -121,55 +122,10 @@ private fun IncomingCallTopBar(
 
 @Composable
 private fun CallingControls(
-    state: IncomingCallState,
     declineCall: () -> Unit,
     acceptCall: () -> Unit
 ) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = dimensions().spacing32x)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            MicrophoneButton(isMuted = state.isMicrophoneMuted) {
-                // do nothing for now
-            }
-            Text(
-                text = stringResource(id = R.string.calling_label_microphone),
-                style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(top = dimensions().spacing8x)
-            )
-        }
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CameraButton(
-                isCameraOn = state.isCameraOn,
-                onCameraPermissionDenied = { },
-                onCameraButtonClicked = { }
-            )
-            Text(
-                text = stringResource(id = R.string.calling_label_camera),
-                style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(top = dimensions().spacing8x)
-            )
-        }
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            SpeakerButton(isSpeakerOn = state.isSpeakerOn) { }
-            Text(
-                text = stringResource(id = R.string.calling_label_speaker),
-                style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(top = dimensions().spacing8x)
-            )
-        }
-    }
-
+    CallOptionsControls()
     Box(
         modifier = Modifier
             .fillMaxWidth()

@@ -80,8 +80,8 @@
                     android:resource="@xml/provider_paths"/>
         </provider>
 
-        <receiver android:name=".notification.NotificationReplyReceiver"/>
-        <receiver android:name=".notification.NotificationDismissReceiver"/>
+        <receiver android:name=".notification.broadcastreceivers.NotificationReplyReceiver"/>
+        <receiver android:name=".notification.broadcastreceivers.MessageNotificationDismissReceiver"/>
 
         <service
                 android:name=".notification.WireFirebaseMessagingService"

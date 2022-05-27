@@ -102,7 +102,7 @@ class WireActivityViewModel @Inject constructor(
                 // do nothing if UserId wasn't changed
                 .distinctUntilChanged()
 
-            notificationManager.listenForMessageNotifications(getUserIdFlow)
+            notificationManager.observeMessageNotifications(getUserIdFlow)
         }
     }
 

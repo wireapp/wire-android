@@ -168,5 +168,5 @@ private fun observeScreenLifecycleChanges(
 @Preview
 @Composable
 fun ComposablePreview() {
-    OngoingCallTopBar("Default") {}
+    OngoingCallTopBar("Default") { }
 }

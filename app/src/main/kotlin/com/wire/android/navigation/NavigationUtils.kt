@@ -23,9 +23,6 @@ internal fun navigateToItem(
                     }
                 }
             }
-            BackStackMode.CLEAR_CURRENT -> {
-                popWithArguments(navController, command.previousBackStackPassedArgs)
-            }
             BackStackMode.NONE -> {}
         }
         launchSingleTop = true
@@ -33,16 +30,14 @@ internal fun navigateToItem(
     }
 }
 
-internal fun popWithArguments(navController: NavController, arguments: List<Pair<String, Any>>?) {
-    with(navController) {
-        previousBackStackEntry?.let {
-            arguments?.forEach { (key, value) ->
-                appLogger.d("Destination is ${it.destination}")
-                it.savedStateHandle[key] = value
-            }
+internal fun NavController.popWithArguments(arguments: Map<String, Any>?) {
+    previousBackStackEntry?.let {
+        arguments?.forEach { (key, value) ->
+            appLogger.d("Destination is ${it.destination}")
+            it.savedStateHandle[key] = value
         }
-        popBackStack()
     }
+    popBackStack()
 }
 
 @ExperimentalMaterial3Api

@@ -8,7 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
-import com.wire.android.navigation.*
+import com.wire.android.navigation.EXTRA_IMAGE_DATA
+import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
+import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.util.FileManager
@@ -108,19 +111,10 @@ class MediaGalleryViewModel @Inject constructor(
 
     fun deleteCurrentImageMessage() {
         viewModelScope.launch {
-            navigationManager.navigateBack
-            navigationManager.navigate(
-                NavigationCommand(
-                    NavigationItem.Conversation.getRouteWithArgs(
-                        listOf(
-                            imageAssetId.conversationId
-                        )
-                    ),
-                    BackStackMode.CLEAR_CURRENT,
-                    listOf(
-                        EXTRA_MESSAGE_TO_DELETE_ID to imageAssetId.messageId,
-                        EXTRA_MESSAGE_TO_DELETE_IS_SELF to imageAssetId.isSelfAsset
-                    )
+            navigationManager.navigateBack(
+                mapOf(
+                    EXTRA_MESSAGE_TO_DELETE_ID to imageAssetId.messageId,
+                    EXTRA_MESSAGE_TO_DELETE_IS_SELF to imageAssetId.isSelfAsset
                 )
             )
         }

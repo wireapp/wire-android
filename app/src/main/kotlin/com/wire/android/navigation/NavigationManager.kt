@@ -5,14 +5,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 class NavigationManager {
 
     var navigateState = MutableSharedFlow<NavigationCommand?>()
-    var navigateBack = MutableSharedFlow<Unit>()
+    var navigateBack = MutableSharedFlow<Map<String, Any>>()
 
     suspend fun navigate(command: NavigationCommand) {
         navigateState.emit(command)
     }
 
-    suspend fun navigateBack() {
-        navigateBack.emit(Unit)
+    suspend fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
+        navigateBack.emit(previousBackStackPassedArgs)
     }
 }
 
@@ -41,7 +41,6 @@ data class NavigationCommand(
 enum class BackStackMode {
     CLEAR_TILL_START, // clear the whole backstack excluding "start screen"
     CLEAR_WHOLE, // clear the whole backstack including "start screen" (use when you navigate to a new "start screen" )
-    CLEAR_CURRENT, // navigate to next destination and clear only the current screen
     NONE; // screen will be added to the existing backstack.
 
     fun shouldClear(): Boolean = this == CLEAR_WHOLE || this == CLEAR_TILL_START

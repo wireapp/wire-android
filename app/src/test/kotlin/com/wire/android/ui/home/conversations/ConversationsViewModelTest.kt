@@ -556,7 +556,7 @@ class ConversationsViewModelTest {
         content = Text("Some Text Message"),
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
-        sendeUserId = senderId,
+        senderUserId = senderId,
         senderClientId = ClientId("client-id"),
         status = Message.Status.SENT
     )

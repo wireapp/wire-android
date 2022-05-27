@@ -24,6 +24,8 @@
     <string name="label_federated_membership">Federated</string>
     <string name="label_download">Download</string>
     <string name="label_show">Show</string>
+    <string name="label_show_all">Show All</string>
+    <string name="label_show_less">Show Less</string>
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
@@ -64,6 +66,7 @@
     <string name="content_description_image_message">Image message</string>
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping everyone</string>
+    <string name="content_description_system_message_icon">System message icon</string>
 
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -268,6 +271,15 @@
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
 
+    <!-- System messages -->
+    <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
+    <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>
+    <string name="label_system_message_left_the_conversation">%1$s left the conversation</string>
+    <string name="label_system_message_and">%1$s and %2$s</string>
+    <plurals name="label_system_message_x_more">
+        <item quantity="other">%1$d more</item>
+    </plurals>
+
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -353,5 +365,6 @@
     <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
     <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
     <string name="asset_download_dialog_default_title">Download file</string>
+    <string name="empty_group_label">Unnamed conversation</string>
 
 </resources>

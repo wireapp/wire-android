@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 
@@ -26,4 +27,10 @@ fun DeclineButton(buttonClicked: () -> Unit) {
             contentDescription = stringResource(id = R.string.calling_decline_call)
         )
     }
+}
+
+@Preview
+@Composable
+fun ComposableDeclineButtonPreview() {
+    DeclineButton(buttonClicked = { })
 }

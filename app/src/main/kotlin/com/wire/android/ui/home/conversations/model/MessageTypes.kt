@@ -122,6 +122,7 @@ internal fun MessageAsset(
     val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
     Box(
         modifier = Modifier
+            .padding(top = dimensions().spacing4x)
             .background(
                 color = MaterialTheme.wireColorScheme.onPrimary,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)

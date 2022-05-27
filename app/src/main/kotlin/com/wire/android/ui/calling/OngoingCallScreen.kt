@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
@@ -29,6 +31,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -107,7 +110,12 @@ private fun CallingControls(
         MicrophoneButton(ongoingCallState.isMuted) { onMuteOrUnMuteCall() }
         CameraButton(onCameraPermissionDenied = { }, onCameraButtonClicked = { })
         SpeakerButton(onSpeakerButtonClicked = { })
-        HangUpButton { onHangUpCall() }
+        HangUpButton(
+            modifier = Modifier
+                .width(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize)
+                .height(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
+            onHangUpButtonClicked = onHangUpCall
+        )
     }
 }
 

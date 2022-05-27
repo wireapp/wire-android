@@ -28,7 +28,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.waz.avs.VideoPreview
-import com.wire.android.R
 import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
@@ -75,10 +74,10 @@ private fun OngoingCallContent(
         sheetContent = {
             with(sharedCallingViewModel) {
                 CallingControls(
-                    ongoingCallState = callState,
-                    onMuteOrUnMuteCall = { muteOrUnMuteCall() },
-                    onHangUpCall = { hangUpCall() },
-                    onToggleVideo = { toggleVideo() }
+                    callState = callState,
+                    toggleMute = ::toggleMute,
+                    onHangUpCall = ::hangUpCall,
+                    onToggleVideo = ::toggleVideo
                 )
             }
         },

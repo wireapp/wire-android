@@ -99,7 +99,7 @@ class CreateTeamScreenTest {
     val createATeamText = "Enter your email to create your team:"
     val invalidPassword = "Use at least 8 characters, with one lowercase letter, one capital letter, and a special character."
     val passwordsNotMatch = "Passwords do not match"
-    val validEmail = "a@b.com"
+    val validEmail = "a@wire.com"
 
     @Ignore
     @Test

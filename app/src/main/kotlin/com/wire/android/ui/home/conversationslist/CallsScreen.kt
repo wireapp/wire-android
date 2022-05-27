@@ -9,21 +9,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
-import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
-import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun CallsScreen(
-    missedCalls: List<ConversationMissedCall> = emptyList(),
-    callHistory: List<ConversationMissedCall> = emptyList(),
+    missedCalls: List<ConversationItem> = emptyList(),
+    callHistory: List<ConversationItem> = emptyList(),
     onCallItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
+    onEditConversationItem: (ConversationItem) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationType) -> Unit,
+    openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     val lazyListState = com.wire.android.ui.common.extension.rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -44,12 +43,12 @@ fun CallsScreen(
 @Composable
 fun CallContent(
     lazyListState: LazyListState,
-    missedCalls: List<ConversationMissedCall>,
-    callHistory: List<ConversationMissedCall>,
+    missedCalls: List<ConversationItem>,
+    callHistory: List<ConversationItem>,
     onCallItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
+    onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationType) -> Unit,
+    openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,

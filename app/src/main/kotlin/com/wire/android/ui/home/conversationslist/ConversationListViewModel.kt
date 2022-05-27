@@ -16,20 +16,16 @@ import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
-import com.wire.android.ui.home.conversationslist.model.ConnectionInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.EventType
-import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
-import com.wire.android.ui.home.conversationslist.model.PendingConnectionItem
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getConversationColor
-import com.wire.kalium.logic.data.connection.ConnectionDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
@@ -78,9 +74,12 @@ class ConversationListViewModel @Inject constructor(
                         val detailedList = conversations.toConversationsFoldersMap()
                         val newActivities = prepareActivities(
                             connections.map { connection ->
-                                ConnectionDetails(
-                                    connection,
-                                    conversations.first { it.conversation.id == connection.qualifiedConversationId }
+                                    ConversationDetails.Connection(
+                                        conversationId = connection.qualifiedConversationId,
+                                        otherUser = connection.fromUser,
+                                        userType = UserType.GUEST, // TODO how to get user type
+                                        lastModifiedDate = connection.lastUpdate,
+                                        connection = connection,
                                 )
                             }
                         )
@@ -107,17 +106,11 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    private fun prepareActivities(connections: List<ConnectionDetails>) =
+    private fun prepareActivities(connections: List<ConversationDetails.Connection>) =
         connections.map {
             NewActivity(
                 eventType = getEventTypeForConnectionState(it.connection.status),
-                PendingConnectionItem(
-                    connectionInfo = ConnectionInfo(
-                        it.connection.status,
-                        it.connection.qualifiedToId
-                    ),
-                    it.conversation.toType(),
-                )
+                it.toType()
             )
         }
 
@@ -125,7 +118,7 @@ class ConversationListViewModel @Inject constructor(
         if (connectionState == ConnectionState.SENT) EventType.SentConnectRequest else EventType.ReceivedConnectionRequest
 
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> =
-        mapOf(ConversationFolder.Predefined.Conversations to this.toGeneralConversationList())
+        mapOf(ConversationFolder.Predefined.Conversations to this.toConversationItemList())
 
     fun openConversation(conversationId: ConversationId) {
         viewModelScope.launch {
@@ -200,26 +193,27 @@ class ConversationListViewModel @Inject constructor(
     fun leaveGroup(id: String) {
     }
 
-    private fun List<ConversationDetails>.toGeneralConversationList(): List<ConversationItem> =
+    private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
         filter { it is Group || it is OneOne }
-            .map { GeneralConversation(it.toType()) }
+            .map { it.toType() }
 
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-private fun ConversationDetails.toType(): ConversationType = when (this) {
+private fun ConversationDetails.toType(): ConversationItem = when (this) {
     is Group -> {
-        ConversationType.GroupConversation(
+        ConversationItem.GroupConversation(
             groupColorValue = getConversationColor(conversation.id),
             groupName = conversation.name.orEmpty(),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator()
+            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            lastEvent = ConversationLastEvent.None //TODO implement unread events
         )
     }
     is OneOne -> {
-        ConversationType.PrivateConversation(
+        ConversationItem.PrivateConversation(
             userInfo = UserInfo(
                 otherUser.previewPicture?.let { UserAvatarAsset(it) },
                 UserStatus.NONE // TODO Get actual status
@@ -230,7 +224,26 @@ private fun ConversationDetails.toType(): ConversationType = when (this) {
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator()
+            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            lastEvent = ConversationLastEvent.None //TODO implement unread events
+        )
+    }
+    is ConversationDetails.Connection -> {
+        ConversationItem.ConnectionConversation(
+            userInfo = UserInfo(
+                otherUser?.previewPicture?.let { UserAvatarAsset(it) },
+                UserStatus.NONE // TODO Get actual status
+            ),
+            conversationInfo = ConversationInfo(
+                name = otherUser?.name.orEmpty(),
+                membership = userType.toMembership()
+            ),
+            lastEvent = ConversationLastEvent.Connection(
+                connection.status,
+                connection.qualifiedToId
+            ),
+            conversationId = conversation.id,
+            mutedStatus = conversation.mutedStatus,
         )
     }
     is Self -> {

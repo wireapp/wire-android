@@ -10,21 +10,20 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
-import com.wire.android.ui.home.conversationslist.model.ConversationType
-import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun MentionScreen(
-    unreadMentions: List<ConversationUnreadMention> = emptyList(),
-    allMentions: List<ConversationUnreadMention> = emptyList(),
+    unreadMentions: List<ConversationItem> = emptyList(),
+    allMentions: List<ConversationItem> = emptyList(),
     onMentionItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
+    onEditConversationItem: (ConversationItem) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationType) -> Unit,
+    openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -45,12 +44,12 @@ fun MentionScreen(
 @Composable
 private fun MentionContent(
     lazyListState: LazyListState,
-    unreadMentions: List<ConversationUnreadMention>,
-    allMentions: List<ConversationUnreadMention>,
+    unreadMentions: List<ConversationItem>,
+    allMentions: List<ConversationItem>,
     onMentionItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
+    onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationType) -> Unit,
+    openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,

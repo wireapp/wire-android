@@ -1,0 +1,11 @@
+name: autoassign-author-to-pr-without-assignee
+on: [ pull_request ]
+
+jobs:
+    assignAuthor:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: samspills/assign-pr-to-author@v1.0.1
+                if: github.event_name == 'pull_request' && github.event.action == 'opened'
+                with:
+                    repo-token: '${{ secrets.GITHUB_TOKEN }}'

@@ -62,7 +62,9 @@ private fun OngoingCallContent(
             OngoingCallTopBar(
                 conversationName = when (sharedCallingViewModel.callState.conversationName) {
                     is ConversationName.Known -> (sharedCallingViewModel.callState.conversationName as ConversationName.Known).name
-                    is ConversationName.Unknown -> stringResource(id = (sharedCallingViewModel.callState.conversationName as ConversationName.Unknown).resourceId)
+                    is ConversationName.Unknown -> stringResource(
+                        id = (sharedCallingViewModel.callState.conversationName as ConversationName.Unknown).resourceId
+                    )
                     else -> ""
                 }
             ) { }

@@ -28,6 +28,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class SharedCallingViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

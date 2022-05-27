@@ -32,7 +32,6 @@ import com.wire.android.ui.home.conversationslist.ConversationOperationErrorStat
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.NotificationsOptionsItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.ConversationId
@@ -173,12 +172,12 @@ private fun ConversationRouter(
             WireBottomNavigationBar(ConversationNavigationItems(uiState), conversationState.navHostController) }
     ) { internalPadding ->
 
-        fun editConversation(conversationType: ConversationType) {
+        fun editConversation(conversationType: ConversationItem) {
             conversationState.changeModalSheetContentState(conversationType)
             onExpandBottomSheet(conversationType.conversationId)
         }
 
-        fun editNotifications(conversationType: ConversationType) {
+        fun editNotifications(conversationType: ConversationItem) {
             conversationState.changeModalSheetContentState(conversationType)
             onExpandBottomSheet(conversationType.conversationId)
             conversationState.toggleEditMutedSetting(true)

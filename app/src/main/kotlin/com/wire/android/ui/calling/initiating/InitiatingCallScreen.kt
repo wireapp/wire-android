@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
@@ -24,11 +25,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.controlButtons.CallOptionsControls
-import com.wire.android.ui.calling.controlButtons.DeclineButton
+import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 
@@ -69,7 +71,12 @@ fun InitiatingCallContent(
                         .fillMaxWidth()
                         .height(45.dp)
                 )
-                DeclineButton { onHangUpCall() }
+                HangUpButton(
+                    modifier = Modifier
+                        .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
+                        .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize),
+                    onHangUpButtonClicked = onHangUpCall
+                )
             }
         }
     ) {

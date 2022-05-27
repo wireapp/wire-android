@@ -16,7 +16,6 @@ import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
@@ -82,11 +81,12 @@ class LoginSSOViewModel @Inject constructor(
             }
             registerClient(storedUserId).let {
                 when (it) {
+                    //TODO: PushTokenRegister need to be handled in the settings page to register the Push Token
+                    is RegisterClientResult.Success, RegisterClientResult.Failure.PushTokenRegister -> navigateToConvScreen()
                     is RegisterClientResult.Failure -> {
                         updateLoginError(it.toLoginError())
                         return@launch
                     }
-                    is RegisterClientResult.Success -> navigateToConvScreen()
                 }
             }
         }
@@ -116,7 +116,6 @@ class LoginSSOViewModel @Inject constructor(
         is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
         else -> {}
     }
-
 
 
     private fun openWebUrl(url: String) {

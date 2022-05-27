@@ -290,6 +290,8 @@ private fun RequestActivationCodeResult.toCodeError() = when (this) {
 private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeViewState.CodeError.TooManyDevicesError
     RegisterClientResult.Failure.InvalidCredentials -> CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
+    //TODO: PushTokenRegister need to be handled in the settings page to register the Push Token
+    RegisterClientResult.Failure.PushTokenRegister -> CreateAccountCodeViewState.CodeError.None
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
 }
 

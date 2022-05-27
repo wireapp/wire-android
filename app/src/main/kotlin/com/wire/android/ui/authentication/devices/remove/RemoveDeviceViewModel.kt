@@ -118,6 +118,8 @@ class RemoveDeviceViewModel @Inject constructor(
             is RegisterClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
+            //TODO: PushTokenRegister need to be handled in the settings page to register the Push Token
+            is RegisterClientResult.Failure.PushTokenRegister -> RemoveDeviceError.None
             is RegisterClientResult.Success -> RemoveDeviceError.None
         }
 

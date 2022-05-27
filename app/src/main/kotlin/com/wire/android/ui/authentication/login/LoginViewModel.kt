@@ -15,12 +15,12 @@ import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @HiltViewModel
@@ -44,15 +44,7 @@ open class LoginViewModel @Inject constructor(
 
     fun onTooManyDevicesError() {
         clearLoginError()
-        viewModelScope.launch {
-            navigateToRemoveDevicesScreen()
-        }
-    }
-
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
+        navigateToRemoveDevicesScreen()
     }
 
     fun updateServerConfig(ssoLoginResult: DeepLinkResult.SSOLogin?, serverConfig: ServerConfig) {
@@ -73,16 +65,22 @@ open class LoginViewModel @Inject constructor(
                 password = password,
                 capabilities = capabilities,
                 senderId = BuildConfig.SENDER_ID
-            ))
+            )
+        )
+    }
+
+    fun navigateBack() = viewModelScope.launch {
+        navigationManager.navigateBack()
     }
 
     @VisibleForTesting
-    suspend fun navigateToConvScreen() =
+    fun navigateToConvScreen() = viewModelScope.launch {
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+    }
 
-    private suspend fun navigateToRemoveDevicesScreen() =
+    private fun navigateToRemoveDevicesScreen() = viewModelScope.launch {
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-
+    }
 }
 
 fun AuthenticationResult.Failure.toLoginError() = when (this) {
@@ -94,6 +92,8 @@ fun AuthenticationResult.Failure.toLoginError() = when (this) {
 fun RegisterClientResult.Failure.toLoginError() = when (this) {
     is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+    //TODO: PushTokenRegister need to be handled in the settings page to register the Push Token
+    RegisterClientResult.Failure.PushTokenRegister -> LoginError.None
     RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
 }
 

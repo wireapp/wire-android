@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.login
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.CoreFailure
 
@@ -16,7 +15,7 @@ sealed class LoginError {
         object InvalidSSOCookie : DialogError()
         object InvalidCodeError: DialogError()
         object UserAlreadyExists : DialogError()
-        data class SSOResultError @OptIn(ExperimentalMaterial3Api::class) constructor(val result: SSOFailureCodes) :
+        data class SSOResultError constructor(val result: SSOFailureCodes) :
             LoginError.DialogError()
     }
 

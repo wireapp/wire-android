@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,8 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -29,7 +33,8 @@ fun EventBadgeFactory(eventType: EventType, modifier: Modifier = Modifier) {
         EventType.UnreadMention -> UnreadMentionBadge(modifier)
         is EventType.UnreadMessage -> UnreadMessageEventBadge(unreadMessageCount = eventType.unreadMessageCount, modifier)
         EventType.UnreadReply -> UnreadReplyBadge(modifier)
-        EventType.ConnectRequest -> ConnectRequestBadge(modifier)
+        EventType.ReceivedConnectionRequest -> ConnectRequestBadge(modifier)
+        EventType.SentConnectRequest -> ConnectPendingRequestBadge(modifier)
     }
 }
 
@@ -57,7 +62,8 @@ private fun UnreadMentionBadge(modifier: Modifier = Modifier) {
                 colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
                 modifier = modifier
             )
-        })
+        }
+    )
 }
 
 @Composable
@@ -70,7 +76,8 @@ private fun UnreadReplyBadge(modifier: Modifier = Modifier) {
                 colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
                 modifier = modifier
             )
-        })
+        }
+    )
 }
 
 @Composable
@@ -83,7 +90,24 @@ private fun ConnectRequestBadge(modifier: Modifier = Modifier) {
                 colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
                 modifier = modifier
             )
-        })
+        }
+    )
+}
+
+@Composable
+private fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
+    WireSecondaryButton(
+        onClick = { },
+        leadingIcon = {
+            Text(text = stringResource(id = R.string.connection_pending_label))
+        },
+        fillMaxWidth = false,
+        minHeight = dimensions().badgeSmallMinSize.height,
+        minWidth = dimensions().badgeSmallMinSize.width,
+        shape = RoundedCornerShape(size = dimensions().spacing6x),
+        contentPadding = PaddingValues(horizontal = dimensions().spacing6x),
+        textStyle = MaterialTheme.wireTypography.label01
+    )
 }
 
 @Composable
@@ -104,7 +128,8 @@ private fun UnreadMessageEventBadge(unreadMessageCount: Int, modifier: Modifier 
                     color = MaterialTheme.wireColorScheme.onBadge,
                     style = MaterialTheme.wireTypography.label02,
                 )
-            })
+            }
+        )
     }
 }
 

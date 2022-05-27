@@ -1,103 +1,100 @@
 package com.wire.android.ui.home.conversationslist.mock
 
 import com.wire.android.ui.home.conversationslist.model.CallEvent
-import com.wire.android.ui.home.conversationslist.model.CallInfo
 import com.wire.android.ui.home.conversationslist.model.CallTime
-import com.wire.android.ui.home.conversationslist.model.ConnectionInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
-import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
-import com.wire.android.ui.home.conversationslist.model.ConversationType
-import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.EventType
-import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.conversationslist.model.MentionInfo
 import com.wire.android.ui.home.conversationslist.model.MentionMessage
 import com.wire.android.ui.home.conversationslist.model.NewActivity
-import com.wire.android.ui.home.conversationslist.model.PendingConnectionItem
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserId
 
-val mockConversations1 = listOf(
-    GeneralConversation(
-        ConversationType.PrivateConversation(
-            userInfo = UserInfo(),
-            conversationInfo = ConversationInfo(
-                name = "some test value",
-                membership = Membership.Guest
-            ),
-            conversationId = ConversationId("someId", "someDomain"),
-            mutedStatus = MutedConversationStatus.AllAllowed,
-            isLegalHold = true,
-        )
-    ),
-    GeneralConversation(
-        ConversationType.PrivateConversation(
-            userInfo = UserInfo(),
-            conversationInfo = ConversationInfo(
-                name = "some test value",
-                membership = Membership.Guest
-            ),
-            conversationId = ConversationId("someId", "someDomain"),
-            mutedStatus = MutedConversationStatus.AllAllowed,
-            isLegalHold = true
-        )
-    ),
-    GeneralConversation(
-        ConversationType.PrivateConversation(
-            userInfo = UserInfo(),
-            conversationInfo = ConversationInfo(
-                name = "some test value",
-                membership = Membership.Guest
-            ),
-            conversationId = ConversationId("someId", "someDomain"),
-            mutedStatus = MutedConversationStatus.AllAllowed,
-            isLegalHold = true
-        )
-    ),
-)
+val mockShortMentionInfo = ConversationLastEvent.Mention(mentionMessage = MentionMessage("Short message"))
 
-val mockConversations2 = listOf(
-    GeneralConversation(
-        ConversationType.PrivateConversation(
-            userInfo = UserInfo(),
-            conversationInfo = ConversationInfo(
-                name = "some test value",
-                membership = Membership.External
-            ),
-            conversationId = ConversationId("someId", "someDomain"),
-            mutedStatus = MutedConversationStatus.AllAllowed,
-            isLegalHold = true
-        )
-    ),
-    ConversationMissedCall(
-        callInfo = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall),
-        conversationType = ConversationType.PrivateConversation(
-            userInfo = UserInfo(),
-            conversationInfo = ConversationInfo(
-                name = "some test value",
-                membership = Membership.None
-            ),
-            conversationId = ConversationId("someId", "someDomain"),
-            mutedStatus = MutedConversationStatus.AllAllowed,
-            isLegalHold = true
-        )
-    ),
-    ConversationUnreadMention(
-        mentionInfo = MentionInfo(MentionMessage("Some mention message")),
-        conversationType = ConversationType.GroupConversation(
-            groupColorValue = 0xFF00FF00,
-            groupName = "Some group name",
-            conversationId = ConversationId("someId", "someDomain"),
-            mutedStatus = MutedConversationStatus.AllAllowed,
-            isLegalHold = true
-        ),
+val mockLongMentionInfo = ConversationLastEvent.Mention(
+    mentionMessage = MentionMessage(
+        "THis is a very very very very very very very " +
+                "very very very very very very very" +
+                " very very very very very very very " +
+                "very very very very very very very mention message"
     )
 )
 
-val mockConversation = ConversationType.PrivateConversation(
+val mockConversations1 = listOf(
+    ConversationItem.PrivateConversation(
+        userInfo = UserInfo(),
+        conversationInfo = ConversationInfo(
+            name = "some test value",
+            membership = Membership.Guest
+        ),
+        conversationId = ConversationId("someId", "someDomain"),
+        mutedStatus = MutedConversationStatus.AllAllowed,
+        isLegalHold = true,
+        lastEvent = ConversationLastEvent.None
+    ),
+    ConversationItem.PrivateConversation(
+        userInfo = UserInfo(),
+        conversationInfo = ConversationInfo(
+            name = "some test value",
+            membership = Membership.Guest
+        ),
+        conversationId = ConversationId("someId", "someDomain"),
+        mutedStatus = MutedConversationStatus.AllAllowed,
+        isLegalHold = true,
+        lastEvent = ConversationLastEvent.None
+    ),
+    ConversationItem.PrivateConversation(
+        userInfo = UserInfo(),
+        conversationInfo = ConversationInfo(
+            name = "some test value",
+            membership = Membership.Guest
+        ),
+        conversationId = ConversationId("someId", "someDomain"),
+        mutedStatus = MutedConversationStatus.AllAllowed,
+        isLegalHold = true,
+        lastEvent = ConversationLastEvent.None
+    ),
+)
+
+fun mockCallConversation(
+    lastEvent: ConversationLastEvent = ConversationLastEvent.Call(
+        CallTime("Today", "5:34 PM"),
+        CallEvent.NoAnswerCall
+    )
+): ConversationItem.PrivateConversation = ConversationItem.PrivateConversation(
+    userInfo = UserInfo(),
+    conversationInfo = ConversationInfo(
+        name = "some test value",
+        membership = Membership.None
+    ),
+    conversationId = ConversationId("someId", "someDomain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    isLegalHold = true,
+    lastEvent = lastEvent,
+)
+
+fun mockCallGroupConversation(
+    lastEvent: ConversationLastEvent = ConversationLastEvent.Call(
+        CallTime("Today", "5:34 PM"),
+        CallEvent.NoAnswerCall
+    )
+): ConversationItem.GroupConversation = ConversationItem.GroupConversation(
+    groupColorValue = 0xFFFF0000,
+    groupName = "Some group name",
+    conversationId = ConversationId("someId", "someDomain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    isLegalHold = true,
+    lastEvent = lastEvent,
+)
+
+val mockConversation = ConversationItem.PrivateConversation(
     userInfo = UserInfo(),
     conversationInfo = ConversationInfo(
         name = "some test valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
@@ -106,41 +103,52 @@ val mockConversation = ConversationType.PrivateConversation(
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
-    )
+    lastEvent = ConversationLastEvent.None
+)
 
-val mockGroupConversation = ConversationType.GroupConversation(
+val mockGroupConversation = ConversationItem.GroupConversation(
     groupColorValue = 0xFFFF0000,
     groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
+    lastEvent = ConversationLastEvent.None
 )
 
-val mockGeneralConversation = GeneralConversation(
-    ConversationType.PrivateConversation(
-        userInfo = UserInfo(),
-        conversationInfo = ConversationInfo(
-            name = "some very long naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame",
-            membership = Membership.Guest
-        ),
-        conversationId = ConversationId("someId", "someDomain"),
-        mutedStatus = MutedConversationStatus.AllAllowed,
-        isLegalHold = true,
-        )
+val mockMentionPrivateConversation = ConversationItem.PrivateConversation(
+    userInfo = UserInfo(),
+    conversationInfo = ConversationInfo(
+        name = "some very long naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame",
+        membership = Membership.Guest
+    ),
+    conversationId = ConversationId("someId", "someDomain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    isLegalHold = true,
+    lastEvent = mockShortMentionInfo,
 )
 
-val mockGeneralConversationPending = PendingConnectionItem(
-    ConnectionInfo("Wants to connect", "someId"),
-    ConversationType.PrivateConversation(
-        conversationId = ConversationId("someId", "someDomain"),
-        mutedStatus = MutedConversationStatus.AllAllowed,
-        isLegalHold = true,
-        userInfo = UserInfo(),
-        conversationInfo = ConversationInfo(
-            name = "some very long teeeeeeeeeeeeeeeeeeeeeeeeest value",
-            membership = Membership.Guest
-        ),
-    )
+val mockGeneralConversation = ConversationItem.PrivateConversation(
+    userInfo = UserInfo(),
+    conversationInfo = ConversationInfo(
+        name = "some very long naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame",
+        membership = Membership.Guest
+    ),
+    conversationId = ConversationId("someId", "someDomain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    isLegalHold = true,
+    lastEvent = ConversationLastEvent.None
+)
+
+val mockGeneralConversationPending = ConversationItem.ConnectionConversation(
+    conversationId = ConversationId("someId", "someDomain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    isLegalHold = true,
+    userInfo = UserInfo(),
+    conversationInfo = ConversationInfo(
+        name = "some very long teeeeeeeeeeeeeeeeeeeeeeeeest value",
+        membership = Membership.Guest
+    ),
+    lastEvent = ConversationLastEvent.Connection(ConnectionState.PENDING, UserId("someId", "someDomain")),
 )
 
 val conversationMockData = mapOf(
@@ -151,8 +159,8 @@ val conversationMockData = mapOf(
     ConversationFolder.Custom("THIS IS A TEST FOLDER") to mockConversations1,
     ConversationFolder.Custom(
         "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +
-            " VERY VERY VERY VERY VERY VERY VERY " +
-            "VERY VERY VERY VERY VERY LONG NAME"
+                " VERY VERY VERY VERY VERY VERY VERY " +
+                "VERY VERY VERY VERY VERY LONG NAME"
     ) to mockConversations1
 )
 
@@ -170,74 +178,72 @@ val newActivitiesMockData = listOf(
     NewActivity(EventType.UnreadReply, mockGeneralConversation)
 )
 
-val mockShortMentionInfo = MentionInfo(mentionMessage = MentionMessage("Short message"))
 
-val mockLongMentionInfo = MentionInfo(
-    mentionMessage = MentionMessage(
-        "THis is a very very very very very very very " +
-            "very very very very very very very" +
-            " very very very very very very very " +
-            "very very very very very very very mention message"
-    )
+val mockMentionShortGroupConversation = ConversationItem.GroupConversation(
+    groupColorValue = 0xFF00FF00,
+    groupName = "Some group name",
+    conversationId = ConversationId("someId", "someDomain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    isLegalHold = true,
+    lastEvent = mockShortMentionInfo,
+)
+
+val mockMentionGroupLongConversation = ConversationItem.GroupConversation(
+    groupColorValue = 0xFF00FF00,
+    groupName = "Some group name",
+    conversationId = ConversationId("someId", "someDomain"),
+    mutedStatus = MutedConversationStatus.AllAllowed,
+    isLegalHold = true,
+    lastEvent = mockShortMentionInfo,
 )
 
 val mockUnreadMentionList = listOf(
-    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
-    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockConversation),
+    mockMentionPrivateConversation,
+    mockGroupConversation,
 )
 
 val mockAllMentionList = listOf(
-    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
-    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockConversation),
-    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
-    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockConversation),
-    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
-    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
-    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
-    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockConversation),
-    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockGroupConversation),
-    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
-    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockGroupConversation),
-    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
-    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockGroupConversation),
-    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockConversation),
-    ConversationUnreadMention(mentionInfo = mockShortMentionInfo, mockConversation),
-    ConversationUnreadMention(mentionInfo = mockLongMentionInfo, mockGroupConversation),
+    mockMentionGroupLongConversation,
+    mockMentionShortGroupConversation,
+    mockMentionPrivateConversation,
+    mockMentionGroupLongConversation,
+    mockMentionShortGroupConversation,
+    mockMentionPrivateConversation,
+    mockMentionGroupLongConversation,
+    mockMentionShortGroupConversation,
+    mockMentionPrivateConversation,
+    mockMentionGroupLongConversation,
+    mockMentionShortGroupConversation,
+    mockMentionPrivateConversation,
+    mockMentionGroupLongConversation,
+    mockMentionShortGroupConversation,
+    mockMentionPrivateConversation,
+    mockMentionGroupLongConversation,
+    mockMentionShortGroupConversation,
+    mockMentionPrivateConversation,
 )
 
-val mockCallInfo1 = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
-val mockCallInfo2 = CallInfo(CallTime("Yesterday", "1:00 PM"), CallEvent.OutgoingCall)
-val mockCallInfo3 = CallInfo(CallTime("Today", "2:34 PM"), CallEvent.MissedCall)
-val mockCallInfo4 = CallInfo(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
-val mockCallInfo5 = CallInfo(CallTime("Today", "6:59 PM"), CallEvent.NoAnswerCall)
-
-val mockNewActivities = listOf(
-    (NewActivity(EventType.ConnectRequest, mockGeneralConversationPending))
-)
+val mockCallInfo1 = ConversationLastEvent.Call(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
+val mockCallInfo2 = ConversationLastEvent.Call(CallTime("Yesterday", "1:00 PM"), CallEvent.OutgoingCall)
+val mockCallInfo3 = ConversationLastEvent.Call(CallTime("Today", "2:34 PM"), CallEvent.MissedCall)
+val mockCallInfo4 = ConversationLastEvent.Call(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
+val mockCallInfo5 = ConversationLastEvent.Call(CallTime("Today", "6:59 PM"), CallEvent.NoAnswerCall)
 
 val mockMissedCalls = listOf(
-    ConversationMissedCall(mockCallInfo1, mockConversation),
-    ConversationMissedCall(mockCallInfo2, mockConversation),
-    ConversationMissedCall(mockCallInfo3, mockConversation),
+    mockCallConversation(),
+    mockCallConversation(),
+    mockCallConversation(),
 )
 
 val mockCallHistory = listOf(
-    ConversationMissedCall(mockCallInfo1, mockGroupConversation),
-    ConversationMissedCall(mockCallInfo2, mockConversation),
-    ConversationMissedCall(mockCallInfo3, mockConversation),
-    ConversationMissedCall(mockCallInfo1, mockGroupConversation),
-    ConversationMissedCall(mockCallInfo2, mockGroupConversation),
-    ConversationMissedCall(mockCallInfo3, mockConversation),
-    ConversationMissedCall(mockCallInfo4, mockGroupConversation),
-    ConversationMissedCall(mockCallInfo2, mockConversation),
-    ConversationMissedCall(mockCallInfo3, mockGroupConversation),
-    ConversationMissedCall(mockCallInfo1, mockGroupConversation),
-    ConversationMissedCall(mockCallInfo5, mockConversation),
-    ConversationMissedCall(mockCallInfo3, mockGroupConversation),
-    ConversationMissedCall(mockCallInfo1, mockConversation),
-    ConversationMissedCall(mockCallInfo2, mockConversation),
-    ConversationMissedCall(mockCallInfo3, mockConversation),
-    ConversationMissedCall(mockCallInfo4, mockConversation),
-    ConversationMissedCall(mockCallInfo2, mockConversation),
-    ConversationMissedCall(mockCallInfo5, mockConversation),
+    mockCallConversation(mockCallInfo1),
+    mockCallGroupConversation(mockCallInfo1),
+    mockCallConversation(mockCallInfo2),
+    mockCallGroupConversation(mockCallInfo2),
+    mockCallConversation(mockCallInfo3),
+    mockCallGroupConversation(mockCallInfo3),
+    mockCallConversation(mockCallInfo4),
+    mockCallGroupConversation(mockCallInfo4),
+    mockCallConversation(mockCallInfo5),
+    mockCallGroupConversation(mockCallInfo5),
 )

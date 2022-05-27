@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.home.conversationslist.bottomsheet.ModalSheetContent
-import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 
 @ExperimentalMaterialApi
 class ConversationState(
@@ -22,9 +22,9 @@ class ConversationState(
         isEditingMutedSetting.value = enable
     }
 
-    fun changeModalSheetContentState(conversationType: ConversationType) {
+    fun changeModalSheetContentState(conversationType: ConversationItem) {
         when (conversationType) {
-            is ConversationType.GroupConversation -> {
+            is ConversationItem.GroupConversation -> {
                 with(conversationType) {
                     modalBottomSheetContentState.value = ModalSheetContent.GroupConversationEdit(
                         title = groupName,
@@ -34,7 +34,7 @@ class ConversationState(
                     )
                 }
             }
-            is ConversationType.PrivateConversation -> {
+            is ConversationItem.PrivateConversation -> {
                 with(conversationType) {
                     modalBottomSheetContentState.value = ModalSheetContent.PrivateConversationEdit(
                         title = conversationInfo.name,
@@ -43,6 +43,9 @@ class ConversationState(
                         mutedStatus = this.mutedStatus
                     )
                 }
+            }
+            is ConversationItem.ConnectionConversation -> {
+                // TODO should we have some options for connection requests?
             }
         }
     }

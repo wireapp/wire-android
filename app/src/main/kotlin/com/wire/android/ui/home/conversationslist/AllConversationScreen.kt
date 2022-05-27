@@ -12,7 +12,6 @@ import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -22,10 +21,10 @@ fun AllConversationScreen(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<ConversationItem>>,
     onOpenConversation: (ConversationId) -> Unit,
-    onEditConversation: (ConversationType) -> Unit,
+    onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {},
-    openConversationNotificationsSettings: (ConversationType) -> Unit,
+    openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -48,9 +47,9 @@ private fun AllConversationContent(
     newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<ConversationItem>>,
     onOpenConversation: (ConversationId) -> Unit,
-    onEditConversation: (ConversationType) -> Unit,
+    onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationType) -> Unit,
+    openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,

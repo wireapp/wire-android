@@ -132,7 +132,7 @@ private fun CallingControls(
             .fillMaxWidth()
             .padding(0.dp, dimensions().spacing16x, 0.dp, 0.dp)
     ) {
-        MicrophoneButton(ongoingCallState.isMuted) { onMuteOrUnMuteCall() }
+        MicrophoneButton(ongoingCallState.isMuted, onMuteOrUnMuteCall)
         CameraButton(
             isCameraOn = ongoingCallState.isCameraOn,
             onCameraPermissionDenied = { },

@@ -8,15 +8,13 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
-import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationType
 import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.UserInfo
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.feature.connection.ObserveConnectionListUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -48,6 +46,9 @@ class ConversationListViewModelTest {
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
+    lateinit var observeConnectionList: ObserveConnectionListUseCase
+
+    @MockK
     lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
     @BeforeEach
@@ -60,6 +61,7 @@ class ConversationListViewModelTest {
                 observeConversationDetailsList,
                 updateConversationMutedStatus,
                 markMessagesAsNotified,
+                observeConnectionList,
                 TestDispatcherProvider()
             )
 
@@ -84,7 +86,7 @@ class ConversationListViewModelTest {
     @Test
     fun `given a conversations list, when opening a conversation, then should delegate call to manager to Conversation with args`() =
         runTest {
-            conversationListViewModel.openConversation(conversationItem)
+            conversationListViewModel.openConversation(conversationItem.id)
 
             coVerify(exactly = 1) {
                 navigationManager.navigate(
@@ -107,10 +109,12 @@ class ConversationListViewModelTest {
                 userInfo = UserInfo(
                     avatarAsset = null,
                     availabilityStatus = UserStatus.NONE
-                ), conversationInfo = ConversationInfo(
+                ),
+                conversationInfo = ConversationInfo(
                     name = "",
                     membership = Membership.None
-                ), conversationId = conversationId, mutedStatus = MutedConversationStatus.AllAllowed, isLegalHold = false
+                ),
+                conversationId = conversationId, mutedStatus = MutedConversationStatus.AllAllowed, isLegalHold = false
             )
         )
     }

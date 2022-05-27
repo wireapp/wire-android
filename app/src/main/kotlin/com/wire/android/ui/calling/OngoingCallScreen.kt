@@ -38,8 +38,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.R
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)

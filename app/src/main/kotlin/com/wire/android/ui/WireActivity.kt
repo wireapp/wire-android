@@ -43,6 +43,7 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        lifecycle.addObserver(viewModel)
         viewModel.handleDeepLink(intent)
         setComposableContent()
     }
@@ -52,16 +53,6 @@ class WireActivity : AppCompatActivity() {
             recreate()
         }
         super.onNewIntent(intent)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.activityOnResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        viewModel.activityOnPause()
     }
 
     private fun setComposableContent() {

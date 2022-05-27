@@ -46,8 +46,8 @@ class CallNotificationDismissReceiver : BroadcastReceiver() {
 
             sessionScope?.let {
                 it.calls.rejectCall(conversationId.toConversationId())
-                CallNotificationManager.cancelNotification(context)
             }
+            CallNotificationManager.cancelNotification(context)
         }
     }
 

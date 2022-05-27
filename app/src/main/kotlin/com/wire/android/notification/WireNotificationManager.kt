@@ -1,9 +1,8 @@
 package com.wire.android.notification
 
 import com.wire.android.appLogger
-import com.wire.android.di.GetIncomingCallsUseCaseProvider
-import com.wire.android.di.GetNotificationsUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.UserSessionScopeProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -27,8 +26,7 @@ import javax.inject.Singleton
 @Singleton
 class WireNotificationManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val getNotificationProvider: GetNotificationsUseCaseProvider.Factory,
-    private val getIncomingCallsProvider: GetIncomingCallsUseCaseProvider.Factory,
+    private val userSessionScopeProvider: UserSessionScopeProvider.Factory,
     private val messagesManager: MessageNotificationManager,
     private val callsManager: CallNotificationManager,
 ) {
@@ -54,8 +52,10 @@ class WireNotificationManager @Inject constructor(
         // to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
         intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
             .map {
-                getIncomingCallsProvider.create(userId)
-                    .getCalls()
+                userSessionScopeProvider.create(userId)
+                    .userSessionScope
+                    .calls
+                    .getIncomingCalls()
                     .first()
             }
             .take(CHECK_INCOMING_CALLS_TRIES)
@@ -66,7 +66,9 @@ class WireNotificationManager @Inject constructor(
     }
 
     private suspend fun fetchAndShowMessageNotificationsOnce(userId: QualifiedID) {
-        val notificationsList = getNotificationProvider.create(userId)
+        val notificationsList = userSessionScopeProvider.create(userId)
+            .userSessionScope
+            .messages
             .getNotifications()
             .first()
 
@@ -114,7 +116,10 @@ class WireNotificationManager @Inject constructor(
                 if (userId == null) {
                     flowOf(listOf())
                 } else {
-                    getIncomingCallsProvider.create(userId).getCalls()
+                    userSessionScopeProvider.create(userId)
+                        .userSessionScope
+                        .calls
+                        .getIncomingCalls()
                 }
                     .map { list -> list to userId }
             }
@@ -137,7 +142,10 @@ class WireNotificationManager @Inject constructor(
         userIdFlow
             .flatMapLatest { userId ->
                 if (userId != null) {
-                    getNotificationProvider.create(userId).getNotifications()
+                    userSessionScopeProvider.create(userId)
+                        .userSessionScope
+                        .messages
+                        .getNotifications()
                 } else {
                     // if userId == null means there is no current user (e.g., logged out)
                     // so we need to unsubscribe from the notification changes (it's done by `flatMapLatest`)

@@ -58,17 +58,13 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         val title = getNotificationTitle(call)
         val content = getNotificationBody(call)
 
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getCompatNotification(title, content, conversationIdString, userIdString)
-        } else {
-            getOldNotification(title, content, conversationIdString, userIdString)
-        }
+        return getCompatNotification(title, content, conversationIdString, userIdString)
     }
 
     private fun getNotificationBody(call: Call) =
         when (call.conversationType) {
             Conversation.Type.GROUP -> {
-                val name = call.callerName ?: "Someone"
+                val name = call.callerName ?: context.getString(R.string.notification_call_default_caller_name)
                 (call.callerTeamName?.let { "$name @$it" } ?: name)
                     .let { context.getString(R.string.notification_group_call_content, it) }
             }
@@ -77,30 +73,12 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
 
     private fun getNotificationTitle(call: Call): String =
         when (call.conversationType) {
-            Conversation.Type.GROUP -> call.conversationName ?: "Somewhere"
+            Conversation.Type.GROUP -> call.conversationName ?: context.getString(R.string.notification_call_default_group_name)
             else -> {
-                val name = call.callerName ?: "Someone"
+                val name = call.callerName ?: context.getString(R.string.notification_call_default_caller_name)
                 call.callerTeamName?.let { "$name @$it" } ?: name
             }
         }
-
-    private fun getOldNotification(
-        title: String,
-        content: String,
-        conversationIdString: String,
-        userIdString: String
-    ) = Notification.Builder(context)
-        .setContentTitle(title)
-        .setContentText(content)
-        .setSmallIcon(R.drawable.notification_icon_small)
-        .setActions(getDeclineCallAction(conversationIdString, userIdString))
-        .setActions(getOpenCallAction(conversationIdString))
-        .setPriority(Notification.PRIORITY_MAX)
-        .setOngoing(true)
-        .setContentIntent(fullScreenCallPendingIntent(context, conversationIdString))
-        .setFullScreenIntent(fullScreenCallPendingIntent(context, conversationIdString), true)
-        .setAutoCancel(true)
-        .build()
 
     private fun getCompatNotification(
         title: String,

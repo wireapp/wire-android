@@ -2,9 +2,11 @@ package com.wire.android.ui
 
 import android.content.Intent
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.ListenToEventsUseCaseProvider
+import com.wire.android.di.UserSessionScopeProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -37,14 +39,14 @@ import javax.inject.Inject
 )
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
-    private val currentSessionUseCase: CurrentSessionUseCase,
-    private val currentSessionFlow: CurrentSessionFlowUseCase,
-    private val listenToEventsProvider: ListenToEventsUseCaseProvider.Factory,
+    currentSessionUseCase: CurrentSessionUseCase,
+    currentSessionFlow: CurrentSessionFlowUseCase,
+    private val userSessionScopeProvider: UserSessionScopeProvider.Factory,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager
-) : ViewModel() {
+) : ViewModel(), DefaultLifecycleObserver {
 
     private val isAppVisibleFlow = MutableStateFlow(true)
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -72,7 +74,11 @@ class WireActivityViewModel @Inject constructor(
                     .filterNotNull()
                     .collect { userId ->
                         // listen for the WebSockets updates and update DB accordingly
-                        launch { listenToEventsProvider.create(userId).listenToEvents() }
+                        launch {
+                            userSessionScopeProvider.create(userId)
+                                .userSessionScope
+                                .listenToEvents()
+                        }
                     }
             }
         }
@@ -135,11 +141,13 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun activityOnResume() {
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
         isAppVisibleFlow.value = true
     }
 
-    fun activityOnPause() {
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
         isAppVisibleFlow.value = false
     }
 

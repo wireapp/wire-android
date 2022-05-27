@@ -43,8 +43,9 @@ class InitiatingCallViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            launch { observeStartedCall() }
-            launch { initiateCall() }
+            val job = launch { initiateCall() }
+            job.join()
+            observeStartedCall()
         }
     }
 
@@ -68,18 +69,21 @@ class InitiatingCallViewModel @Inject constructor(
 
     private suspend fun observeStartedCall() {
         allCalls().collect { calls ->
-            if (calls.isNotEmpty() && calls.first().conversationId == conversationId)
-                when (calls.first().status) {
-                    CallStatus.CLOSED -> onCallClosed()
-                    CallStatus.ESTABLISHED -> onCallEstablished()
-                    else -> print("DO NOTHING")
+            calls.find { call -> call.conversationId == conversationId }.also {
+                it?.let {
+                    if (it.status == CallStatus.ESTABLISHED) {
+                        onCallEstablished()
+                    }
+                } ?: run {
+                    onCallClosed()
                 }
+            }
         }
     }
 
     private fun onCallClosed() {
-        callRinger.stop()
         navigateBack()
+        callRinger.stop()
     }
 
     private suspend fun onCallEstablished() {
@@ -92,14 +96,12 @@ class InitiatingCallViewModel @Inject constructor(
         )
     }
 
-    private fun initiateCall() {
-        viewModelScope.launch {
-            startCall(
-                conversationId = conversationId,
-                conversationType = conversationType.await()
-            )
-            callRinger.ring(R.raw.ringing_from_me)
-        }
+    private suspend fun initiateCall() {
+        startCall(
+            conversationId = conversationId,
+            conversationType = conversationType.await()
+        )
+        callRinger.ring(R.raw.ringing_from_me)
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

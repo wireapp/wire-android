@@ -12,8 +12,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
-import com.wire.kalium.logic.feature.call.CallStatus
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -24,7 +23,7 @@ import javax.inject.Inject
 class IncomingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    private val allCalls: GetAllCallsUseCase,
+    private val incomingCalls: GetIncomingCallsUseCase,
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
     private val callRinger: CallRinger
@@ -42,24 +41,25 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     private suspend fun observeIncomingCall() {
-        allCalls().collect {
-            if (it.first().conversationId == conversationId)
-                when (it.first().status) {
-                    CallStatus.CLOSED -> onCallClosed()
-                    else -> print("DO NOTHING")
-                }
+        incomingCalls().collect { calls ->
+            calls.find { call -> call.conversationId == conversationId }.also {
+                if (it == null)
+                    onCallClosed()
+            }
         }
     }
 
     private fun onCallClosed() {
-        callRinger.stop()
-        viewModelScope.launch { navigationManager.navigateBack() }
+        viewModelScope.launch {
+            navigationManager.navigateBack()
+            callRinger.stop()
+        }
     }
 
     fun declineCall() {
-        callRinger.stop()
         viewModelScope.launch {
             rejectCall(conversationId = conversationId)
+            callRinger.stop()
         }
     }
 

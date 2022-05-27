@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
@@ -26,6 +28,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.waz.avs.VideoPreview
+import com.wire.android.R
 import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
@@ -35,6 +38,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -71,10 +75,10 @@ private fun OngoingCallContent(
         sheetContent = {
             with(sharedCallingViewModel) {
                 CallingControls(
-                    callState = callState,
-                    toggleMute = ::toggleMute,
-                    onHangUpCall = ::hangUpCall,
-                    onToggleVideo = ::toggleVideo
+                    ongoingCallState = callState,
+                    onMuteOrUnMuteCall = { muteOrUnMuteCall() },
+                    onHangUpCall = { hangUpCall() },
+                    onToggleVideo = { toggleVideo() }
                 )
             }
         },
@@ -142,7 +146,12 @@ private fun CallingControls(
             }
         )
         SpeakerButton(onSpeakerButtonClicked = { })
-        HangUpButton { onHangUpCall() }
+        HangUpButton(
+            modifier = Modifier
+                .width(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize)
+                .height(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
+            onHangUpButtonClicked = onHangUpCall
+        )
     }
 }
 

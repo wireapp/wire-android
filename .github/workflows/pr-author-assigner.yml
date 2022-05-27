@@ -1,0 +1,12 @@
+name: Auto assign author to PR
+on:
+    pull_request:
+        types: [ opened ]
+
+jobs:
+    assignAuthor:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: samspills/assign-pr-to-author@v1.0.1
+                with:
+                    repo-token: '${{ secrets.GITHUB_TOKEN }}'

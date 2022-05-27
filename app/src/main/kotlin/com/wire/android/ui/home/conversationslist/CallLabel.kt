@@ -1,10 +1,8 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.conversationslist.model.CallEvent
-import com.wire.android.ui.home.conversationslist.model.CallInfo
 import com.wire.android.ui.home.conversationslist.model.CallTime
+import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun CallLabel(callInfo: CallInfo) {
+fun CallLabel(callInfo: ConversationLastEvent.Call) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         TimeLabel(callTime = callInfo.callTime)
         Spacer(modifier = Modifier.width(6.dp))

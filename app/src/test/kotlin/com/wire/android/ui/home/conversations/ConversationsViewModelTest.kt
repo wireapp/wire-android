@@ -27,6 +27,8 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
@@ -336,18 +338,19 @@ class ConversationsViewModelTest {
     fun `given an asset message, when downloading to external storage, then the file manager downloads the asset and closes the dialog`() =
         runTest {
             // Given
+            val messageId = "mocked-msg-id"
             val assetName = "mocked-asset"
             val assetData = assetName.toByteArray()
             val (arrangement, viewModel) = Arrangement()
-                .withSuccessfulSaveAssetMessage(assetName, assetData)
+                .withSuccessfulSaveAssetMessage(assetName, assetData, messageId)
                 .arrange()
 
             // When
             assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
-            viewModel.onSaveFile(assetName, assetData)
+            viewModel.onSaveFile(assetName, assetData, messageId)
 
             // Then
-            verify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any()) }
+            coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
 
@@ -355,10 +358,11 @@ class ConversationsViewModelTest {
     fun `given an asset message, when opening it, then the file manager open function gets invoked and closes the dialog`() =
         runTest {
             // Given
+            val messageId = "mocked-msg-id"
             val assetName = "mocked-asset"
             val assetData = assetName.toByteArray()
             val (arrangement, viewModel) = Arrangement()
-                .withSuccessfulOpenAssetMessage(assetName, assetData)
+                .withSuccessfulOpenAssetMessage(assetName, assetData, messageId)
                 .arrange()
 
             // When
@@ -384,6 +388,7 @@ class ConversationsViewModelTest {
             coEvery { observeConversationDetails(any()) } returns flowOf()
             coEvery { markMessagesAsNotified(any(), any()) } returns Success
             coEvery { getSelfUserTeam() } returns flowOf()
+            coEvery { userTypeMapper.toMembership(any()) } returns Membership.None
         }
 
         @MockK
@@ -429,6 +434,9 @@ class ConversationsViewModelTest {
         lateinit var fileManager: FileManager
 
         @MockK
+        lateinit var userTypeMapper: UserTypeMapper
+
+        @MockK
         lateinit var context: Context
 
         @MockK
@@ -454,7 +462,8 @@ class ConversationsViewModelTest {
                 markMessagesAsNotified = markMessagesAsNotified,
                 updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
                 getSelfUserTeam = getSelfUserTeam,
-                fileManager = fileManager
+                fileManager = fileManager,
+                userTypeMapper = userTypeMapper
             )
         }
 
@@ -477,16 +486,16 @@ class ConversationsViewModelTest {
             return this
         }
 
-        fun withSuccessfulSaveAssetMessage(assetName: String?, assetData: ByteArray): Arrangement {
-            viewModel.showOnAssetDownloadedDialog(assetName, assetData)
-            every { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
+        fun withSuccessfulSaveAssetMessage(assetName: String?, assetData: ByteArray, messageId: String): Arrangement {
+            viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
+            coEvery { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
                 viewModel.hideOnAssetDownloadedDialog()
             }
             return this
         }
 
-        fun withSuccessfulOpenAssetMessage(assetName: String?, assetData: ByteArray): Arrangement {
-            viewModel.showOnAssetDownloadedDialog(assetName, assetData)
+        fun withSuccessfulOpenAssetMessage(assetName: String?, assetData: ByteArray, messageId: String): Arrangement {
+            viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
             every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
                 viewModel.hideOnAssetDownloadedDialog()
             }
@@ -531,13 +540,15 @@ class ConversationsViewModelTest {
 
     private fun mockOtherUserDetails(
         name: String,
-        id: UserId = UserId("other", "user")
+        id: UserId = UserId("other", "user"),
+        userType : UserType = UserType.INTERNAL
     ): MemberDetails.Other = mockk<MemberDetails.Other>().also {
         every { it.otherUser } returns mockk<OtherUser>().also { user ->
             every { user.id } returns id
             every { user.name } returns name
             every { user.previewPicture } returns null
         }
+        every{ it.userType } returns userType
     }
 
     private fun mockedMessage(senderId: UserId) = Message(

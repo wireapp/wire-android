@@ -5,4 +5,5 @@ sealed class EventType {
     object UnreadMention : EventType()
     object UnreadReply : EventType()
     object MissedCall : EventType()
+    object ConnectRequest: EventType()
 }

@@ -99,6 +99,7 @@ class CreateTeamScreenTest {
     val createATeamText = "Enter your email to create your team:"
     val invalidPassword = "Use at least 8 characters, with one lowercase letter, one capital letter, and a special character."
     val passwordsNotMatch = "Passwords do not match"
+    val validEmail = "a@b.com"
 
     @Ignore
     @Test
@@ -126,7 +127,7 @@ class CreateTeamScreenTest {
     fun create_team_tc_cancel() {
         title.assertIsDisplayed()
         continueButton.performClick()
-        emailField.onChildren()[1].performTextInput(EMAIL)
+        emailField.onChildren()[1].performTextInput(validEmail)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
         cancelButton.performClick()
@@ -138,7 +139,7 @@ class CreateTeamScreenTest {
     fun create_team_tc_view() {
         title.assertIsDisplayed()
         continueButton.performClick()
-        emailField.onChildren()[1].performTextInput(EMAIL)
+        emailField.onChildren()[1].performTextInput(validEmail)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
         tcButton.performClick()
@@ -150,7 +151,7 @@ class CreateTeamScreenTest {
         title.assertIsDisplayed()
         continueButton.performClick()
         createTeamText.assertTextEquals(createATeamText)
-        emailField.onChildren()[1].performTextInput(EMAIL)
+        emailField.onChildren()[1].performTextInput(validEmail)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
         tcButton.onSiblings()[3].performClick()
@@ -172,7 +173,7 @@ class CreateTeamScreenTest {
         title.assertIsDisplayed()
         continueButton.performClick()
         createTeamText.assertTextEquals(createATeamText)
-        emailField.onChildren()[1].performTextInput(EMAIL)
+        emailField.onChildren()[1].performTextInput(validEmail)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
         tcButton.onSiblings()[3].performClick()
@@ -194,7 +195,7 @@ class CreateTeamScreenTest {
         title.assertIsDisplayed()
         continueButton.performClick()
         createTeamText.assertTextEquals(createATeamText)
-        emailField.onChildren()[1].performTextInput(EMAIL)
+        emailField.onChildren()[1].performTextInput(validEmail)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
         tcButton.onSiblings()[3].performClick()

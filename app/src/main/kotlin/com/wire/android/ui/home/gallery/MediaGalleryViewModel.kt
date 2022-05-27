@@ -8,14 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_IMAGE_DATA
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.*
 import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
-import com.wire.android.ui.home.conversations.delete.MessageDeletion
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getCurrentParsedDateTime
@@ -34,12 +29,12 @@ import javax.inject.Inject
 @HiltViewModel
 class MediaGalleryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    val navigationManager: NavigationManager,
     val wireSessionImageLoader: WireSessionImageLoader,
-    val getConversationDetails: ObserveConversationDetailsUseCase,
-    val dispatchers: DispatcherProvider,
-    val getImageData: GetMessageAssetUseCase,
-    val fileManager: FileManager
+    private val navigationManager: NavigationManager,
+    private val getConversationDetails: ObserveConversationDetailsUseCase,
+    private val dispatchers: DispatcherProvider,
+    private val getImageData: GetMessageAssetUseCase,
+    private val fileManager: FileManager
 ) : ViewModel() {
 
     var mediaGalleryViewState by mutableStateOf(MediaGalleryViewState())
@@ -80,6 +75,8 @@ class MediaGalleryViewModel @Inject constructor(
                     fileManager.saveToExternalStorage(defaultImageName, imageData.decodedAsset) {
                         onFileSavedToExternalStorage()
                     }
+                } else {
+                    onSaveError()
                 }
             }
         }
@@ -99,6 +96,10 @@ class MediaGalleryViewModel @Inject constructor(
         onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloaded())
     }
 
+    private fun onSaveError() {
+        onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloadError)
+    }
+
     fun navigateBack() {
         viewModelScope.launch {
             navigationManager.navigateBack()
@@ -107,15 +108,19 @@ class MediaGalleryViewModel @Inject constructor(
 
     fun deleteCurrentImageMessage() {
         viewModelScope.launch {
+            navigationManager.navigateBack
             navigationManager.navigate(
                 NavigationCommand(
                     NavigationItem.Conversation.getRouteWithArgs(
                         listOf(
-                            imageAssetId.conversationId,
-                            MessageDeletion(imageAssetId.messageId, imageAssetId.isSelfAsset)
+                            imageAssetId.conversationId
                         )
                     ),
-                    BackStackMode.CLEAR_TILL_START
+                    BackStackMode.CLEAR_CURRENT,
+                    listOf(
+                        EXTRA_MESSAGE_TO_DELETE_ID to imageAssetId.messageId,
+                        EXTRA_MESSAGE_TO_DELETE_IS_SELF to imageAssetId.isSelfAsset
+                    )
                 )
             )
         }

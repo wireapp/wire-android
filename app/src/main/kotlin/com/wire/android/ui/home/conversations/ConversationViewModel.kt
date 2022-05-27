@@ -13,7 +13,8 @@ import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE
+import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
+import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -23,8 +24,6 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Displayed
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
-import com.wire.android.ui.home.conversations.delete.MessageDeletion
-import com.wire.android.ui.home.conversations.delete.parseIntoMessageDeletion
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -45,7 +44,6 @@ import com.wire.android.util.getConversationColor
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
-import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
@@ -83,7 +81,7 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -116,17 +114,11 @@ class ConversationViewModel @Inject constructor(
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
-    // This value will not be null if we come from another composable screen that requires this message to be deleted
-    val messageToDeleteId: MessageDeletion? = savedStateHandle
-        .get<String>(EXTRA_MESSAGE_TO_DELETE)
-        ?.parseIntoMessageDeletion()
-
     init {
         fetchMessages()
         listenConversationDetails()
         fetchSelfUserTeam()
         setMessagesAsNotified()
-        checkPendingActions()
     }
 
     // region ------------------------------ Init Methods -------------------------------------
@@ -168,9 +160,15 @@ class ConversationViewModel @Inject constructor(
         markMessagesAsNotified(conversationId, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
     }
 
-    private fun checkPendingActions() {
-        messageToDeleteId?.run {
-            showDeleteMessageDialog(messageToDeleteId, isSelfMessage)
+    internal fun checkPendingActions() {
+        // Check if there are messages to delete
+        val messageToDeleteId = savedStateHandle
+            .get<String>(EXTRA_MESSAGE_TO_DELETE_ID)
+        val messageToDeleteIsSelf = savedStateHandle
+            .get<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
+
+        if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
+            showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
         }
     }
     // endregion

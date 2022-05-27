@@ -28,7 +28,13 @@ data class NavigationCommand(
     /**
      * Whether we want to clear the previously added screens on the backstack, only until the current one, or none of them.
      */
-    val backStackMode: BackStackMode = BackStackMode.NONE
+    val backStackMode: BackStackMode = BackStackMode.NONE,
+
+    /**
+     * A list of arguments to be stored in the savedStateHandle in case we want to pass information to the previous screen
+     */
+    val previousBackStackPassedArgs: List<Pair<String, Any>>? = null
+
     //TODO add in/out animations here
 )
 
@@ -38,5 +44,5 @@ enum class BackStackMode {
     CLEAR_CURRENT, // navigate to next destination and clear only the current screen
     NONE; // screen will be added to the existing backstack.
 
-    fun shouldClear(): Boolean = this == CLEAR_WHOLE || this == CLEAR_TILL_START || this == CLEAR_CURRENT
+    fun shouldClear(): Boolean = this == CLEAR_WHOLE || this == CLEAR_TILL_START
 }

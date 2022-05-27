@@ -40,7 +40,7 @@ import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.conversations.delete.MessageDeletion
+import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
@@ -175,15 +175,19 @@ enum class NavigationItem(
 
     Conversation(
         primaryRoute = CONVERSATION,
-        canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}/{$EXTRA_MESSAGE_TO_DELETE}",
-        content = { ConversationScreen(hiltViewModel()) }
+        canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
+        content = {
+            ConversationScreen(hiltViewModel<ConversationViewModel>().apply {
+                it.navBackStackEntry.savedStateHandle.keys().forEach { key ->
+                    savedStateHandle[key] = it.navBackStackEntry.savedStateHandle.get<Any?>(key)
+                }
+            })
+        },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            val messageToDeleteId: MessageDeletion? = arguments.filterIsInstance<MessageDeletion>().firstOrNull()
-            return conversationId?.run {
-                val normalRoute = "$primaryRoute/${toString()}"
-                messageToDeleteId?.let { messageId -> "$normalRoute/$messageId" } ?: "$normalRoute/null"
+            return conversationId?.let {
+                "$primaryRoute/$it"
             } ?: primaryRoute
         }
     },
@@ -284,7 +288,8 @@ const val EXTRA_USER_DOMAIN = "extra_user_domain"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 const val EXTRA_IMAGE_DATA = "extra_image_data"
-const val EXTRA_MESSAGE_TO_DELETE = "extra_message_to_delete"
+const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
+const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

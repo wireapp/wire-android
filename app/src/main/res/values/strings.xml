@@ -347,6 +347,7 @@
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
+    <string name="media_gallery_on_image_download_error">There was an error when saving the image to Downloads folder. Please check your Internet connection and try again</string>
 
     <!--sso dialog-->
     <string name="sso_erro_dialog_title">Unable to log in with SSO</string>

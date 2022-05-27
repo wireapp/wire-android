@@ -50,6 +50,10 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
 
+    LaunchedEffect(conversationViewModel.savedStateHandle) {
+        conversationViewModel.checkPendingActions()
+    }
+
     ConversationScreen(
         conversationViewState = uiState,
         onMessageChanged = conversationViewModel::onMessageChanged,

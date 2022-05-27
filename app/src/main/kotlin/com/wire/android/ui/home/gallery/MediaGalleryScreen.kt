@@ -2,6 +2,7 @@ package com.wire.android.ui.home.gallery
 
 import android.app.DownloadManager
 import android.content.Intent
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -85,7 +86,6 @@ fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenStat
 
     suspend fun showSnackbarMessage(message: String, actionLabel: String?, messageCode: MediaGallerySnackbarMessages) {
         val snackbarResult = mediaGalleryScreenState.snackbarHostState.showSnackbar(message = message, actionLabel = actionLabel)
-        appLogger.d("Snackbar result is -> $snackbarResult")
         when {
             // Show downloads folder when clicking on Snackbar cta button
             messageCode is MediaGallerySnackbarMessages.OnImageDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
@@ -96,7 +96,7 @@ fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenStat
 
     // Snackbar logic
     uiState.onSnackbarMessage?.let { messageCode ->
-        val (message, actionLabel) = getSnackbarMessage(messageCode)
+        val (message, actionLabel) = getSnackbarMessage(messageCode, context.resources)
         LaunchedEffect(message) {
             showSnackbarMessage(message, actionLabel, messageCode)
         }
@@ -116,17 +116,19 @@ fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenStat
     }
 }
 
-@Composable
-private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages): Pair<String, String?> {
+private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resources: Resources): Pair<String, String?> {
     val msg = when (messageCode) {
-        is MediaGallerySnackbarMessages.OnImageDownloaded -> stringResource(R.string.media_gallery_on_image_downloaded)
+        is MediaGallerySnackbarMessages.OnImageDownloaded -> resources.getString(R.string.media_gallery_on_image_downloaded)
+        is MediaGallerySnackbarMessages.OnImageDownloadError -> resources.getString(R.string.media_gallery_on_image_downloaded)
     }
     val actionLabel = when (messageCode) {
-        is MediaGallerySnackbarMessages.OnImageDownloaded -> stringResource(R.string.label_show)
+        is MediaGallerySnackbarMessages.OnImageDownloaded -> resources.getString(R.string.label_show)
         else -> null
     }
     return msg to actionLabel
 }
+
+
 
 @Composable
 fun EditGalleryMenuItems(

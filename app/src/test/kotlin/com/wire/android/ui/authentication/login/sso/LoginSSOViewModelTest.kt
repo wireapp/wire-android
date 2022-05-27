@@ -288,5 +288,25 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
     }
+
+    @Test
+    fun `given establishSSOSession is called, when registerClientUseCase returns PushTokenFailure error, then LoginError is None`() {
+        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery {
+            registerClientUseCase.invoke(any())
+        } returns RegisterClientResult.Failure.PushTokenRegister
+
+        runTest { loginViewModel.establishSSOSession("") }
+
+        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.None::class
+
+        coVerify(exactly = 1) { navigationManager.navigate(any()) }
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) {
+            registerClientUseCase.invoke(any())
+        }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
+    }
 }
 

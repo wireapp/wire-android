@@ -71,7 +71,6 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     )
 }
 
-
 @Composable
 private fun AudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
     rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {

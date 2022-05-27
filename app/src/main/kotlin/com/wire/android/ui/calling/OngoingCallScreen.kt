@@ -112,9 +112,10 @@ private fun CallingControls(
         SpeakerButton(onSpeakerButtonClicked = { })
         HangUpButton(
             modifier = Modifier
-                .width(MaterialTheme.wireDimensions.defaultCallingControlsSize)
-                .height(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-        ) { onHangUpCall() }
+                .width(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize)
+                .height(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
+            onHangUpButtonClicked = onHangUpCall
+        )
     }
 }
 

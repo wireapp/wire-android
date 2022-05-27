@@ -47,10 +47,10 @@ class ConversationListViewModelTest {
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
-    lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+    lateinit var observeConnectionList: ObserveConnectionListUseCase
 
     @MockK
-    lateinit var observeConnectionListUseCase: ObserveConnectionListUseCase
+    lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
     @BeforeEach
     fun setUp() {
@@ -62,7 +62,7 @@ class ConversationListViewModelTest {
                 observeConversationDetailsList,
                 updateConversationMutedStatus,
                 markMessagesAsNotified,
-                observeConnectionListUseCase,
+                observeConnectionList,
                 TestDispatcherProvider()
             )
 
@@ -87,7 +87,7 @@ class ConversationListViewModelTest {
     @Test
     fun `given a conversations list, when opening a conversation, then should delegate call to manager to Conversation with args`() =
         runTest {
-            conversationListViewModel.openConversation(conversationId)
+            conversationListViewModel.openConversation(conversationItem.conversationId)
 
             coVerify(exactly = 1) {
                 navigationManager.navigate(
@@ -114,7 +114,9 @@ class ConversationListViewModelTest {
                 name = "",
                 membership = Membership.None
             ),
-            conversationId = conversationId, mutedStatus = MutedConversationStatus.AllAllowed, isLegalHold = false,
+            conversationId = conversationId,
+            mutedStatus = MutedConversationStatus.AllAllowed,
+            isLegalHold = false,
             lastEvent = ConversationLastEvent.None,
         )
     }

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.BeforeEach
-
+import com.wire.kalium.logic.data.id.ConversationId
 
 class DeepLinkProcessorTest {
 
@@ -80,6 +80,17 @@ class DeepLinkProcessorTest {
     }
 
     @Test
+    fun `given a incoming call deeplink, returns IncomingCall with conversationId`() {
+        generateIncomingCallDeepLink()
+        val incomingCallResult = deepLinkProcessor(uri)
+        assertInstanceOf(DeepLinkResult.IncomingCall::class.java, incomingCallResult)
+        assertEquals(
+            DeepLinkResult.IncomingCall(ConversationId("some_value", "some_domain")),
+            incomingCallResult
+        )
+    }
+
+    @Test
     fun `given a invalid deeplink, returns Unknown object`() {
         generateInvalidDeeplink()
         val result = deepLinkProcessor(uri)
@@ -109,6 +120,11 @@ class DeepLinkProcessorTest {
         coEvery { uri.host } returns INVALID_DEEPLINK_HOST
     }
 
+    private fun generateIncomingCallDeepLink() {
+        coEvery { uri.host } returns INCOMING_CALL_HOST
+        coEvery { uri.getQueryParameter(INCOMING_CALL_CONVERSATION_ID_PARAM) } returns "some_value@some_domain"
+    }
+
     private companion object {
         const val INVALID_DEEPLINK_HOST = "random_host"
         const val REMOTE_CONFIG_HOST = "access"
@@ -119,6 +135,8 @@ class DeepLinkProcessorTest {
         const val COOKIE_PARAM = "cookie"
         const val CONFIG_PARAM = "config"
         const val ERROR_PARAM = "error"
+        const val INCOMING_CALL_HOST = "incoming-call"
+        const val INCOMING_CALL_CONVERSATION_ID_PARAM = "conversation_id"
 
         const val FAKE_COOKIE = "SOME_COOKIE"
         const val FAKE_REMOTE_SERVER_ID = "SOME_LOCATION_UUID"

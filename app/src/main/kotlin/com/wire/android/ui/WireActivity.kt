@@ -1,7 +1,6 @@
 package com.wire.android.ui
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -15,19 +14,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.wire.android.R
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.deeplink.DeepLinkResult
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
@@ -50,18 +43,13 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        handleDeepLink(intent)
+        viewModel.handleDeepLink(intent)
         setComposableContent()
     }
 
-    private fun handleDeepLink(intent: Intent) {
-        viewModel.handleDeepLink(intent)
-    }
-
     override fun onNewIntent(intent: Intent?) {
-        intent?.let {
+        if (viewModel.handleDeepLinkOnNewIntent(intent)) {
             recreate()
-            viewModel.handleDeepLink(intent)
         }
         super.onNewIntent(intent)
     }
@@ -71,9 +59,10 @@ class WireActivity : AppCompatActivity() {
             WireTheme {
                 val scope = rememberCoroutineScope()
                 val navController = rememberAnimatedNavController()
+                val startDestination = viewModel.startNavigationRoute()
                 setUpNavigation(navController, scope)
                 Scaffold {
-                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), viewModel.navigationArguments())
+                    NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
                 }
             }
         }

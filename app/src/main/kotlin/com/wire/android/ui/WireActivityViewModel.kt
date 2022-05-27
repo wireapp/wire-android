@@ -4,59 +4,127 @@ import android.content.Intent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.configuration.GetServerConfigResult
 import com.wire.kalium.logic.configuration.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.ServerConfig
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExperimentalMaterial3Api
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
-    private val currentSessionUseCase: CurrentSessionUseCase,
+    currentSessionUseCase: CurrentSessionUseCase,
+    currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val notificationManager: WireNotificationManager,
-    private val dispatchers: DispatcherProvider
+    private val navigationManager: NavigationManager
 ) : ViewModel() {
 
-    private val currentSession: AuthSession? = runBlocking {
-        return@runBlocking when (val result = currentSessionUseCase()) {
-            is CurrentSessionResult.Success -> result.authSession
-            else -> null
+    private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
+    private val isUserLoggedIn = currentSessionUseCase() is CurrentSessionResult.Success
+
+    init {
+        val userIdFlow = currentSessionFlow()
+            .map { result ->
+                if (result is CurrentSessionResult.Success) result.authSession.userId
+                else null
+            }
+            .distinctUntilChanged()
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+
+        viewModelScope.launch {
+            launch { notificationManager.listenForMessageNotifications(userIdFlow) }
         }
     }
 
-    private val isUserLoggedIn = currentSession != null
-    var serverConfig: ServerConfig = ServerConfig.DEFAULT
-    private var ssoDeepLinkResult: DeepLinkResult.SSOLogin? = null
-
-    fun navigationArguments() =
-        if (ssoDeepLinkResult != null) {
-            listOf(serverConfig, ssoDeepLinkResult!!)
-        } else listOf(serverConfig)
+    fun navigationArguments() = navigationArguments.values.toList()
 
     fun startNavigationRoute() = when {
-        ssoDeepLinkResult is DeepLinkResult.SSOLogin -> NavigationItem.Login.getRouteWithArgs()
-        serverConfig.apiBaseUrl != ServerConfig.DEFAULT.apiBaseUrl -> NavigationItem.Login.getRouteWithArgs()
-        isUserLoggedIn -> NavigationItem.Home.getRouteWithArgs()
+        shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
+        shouldGoToIncomingCall() -> NavigationItem.IncomingCall.getRouteWithArgs()
+        shouldGoToHome() -> NavigationItem.Home.getRouteWithArgs()
         else -> NavigationItem.Welcome.getRouteWithArgs()
+    }
+
+    fun handleDeepLink(intent: Intent?) {
+        intent?.data?.let {
+            val result = deepLinkProcessor(it)
+            with(result) {
+                when (this) {
+                    is DeepLinkResult.CustomServerConfig ->
+                        navigationArguments.put(SERVER_CONFIG_ARG, loadServerConfig(url))
+                    is DeepLinkResult.SSOLogin ->
+                        navigationArguments.put(SSO_DEEPLINK_ARG, this)
+                    is DeepLinkResult.IncomingCall ->
+                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, this.conversationsId)
+                    DeepLinkResult.Unknown -> TODO()
+                }
+            }
+        }
+    }
+
+    /**
+     * Some of the deepLinks require to recreate Activity (Login, Welcome, etc.)
+     * Others needs just open some screen, without recreating (Conversation, IncomingCall, etc.)
+     *
+     * @return true if Activity need be to recreate, false - otherwise
+     */
+    fun handleDeepLinkOnNewIntent(intent: Intent?): Boolean {
+
+        //removing arguments that could be there from prev deeplink handling
+        navigationArguments.apply {
+            remove(INCOMING_CALL_CONVERSATION_ID_ARG)
+            remove(SSO_DEEPLINK_ARG)
+        }
+
+        handleDeepLink(intent)
+
+        return when {
+            shouldGoToLogin() -> true
+            shouldGoToIncomingCall() -> {
+                openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
+                false
+            }
+            shouldGoToHome() -> {
+                openHome()
+                false
+            }
+            intent == null -> false
+            else -> true
+        }
+    }
+
+    private fun openHome() {
+        navigateTo(NavigationCommand(NavigationItem.Home.getRouteWithArgs()))
+    }
+
+    private fun openIncomingCall(conversationId: ConversationId) {
+        navigateTo(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
+    }
+
+    private fun navigateTo(command: NavigationCommand) {
+        viewModelScope.launch {
+            navigationManager.navigate(command)
+        }
     }
 
     private fun loadServerConfig(url: String) = runBlocking {
@@ -66,47 +134,18 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun handleDeepLink(intent: Intent) {
-        intent.data?.let {
-            with(deepLinkProcessor(it)) {
-                when (this) {
-                    is DeepLinkResult.CustomServerConfig ->
-                        serverConfig = loadServerConfig(url)
-                    is DeepLinkResult.SSOLogin ->
-                        ssoDeepLinkResult = this
-                    DeepLinkResult.Unknown -> TODO()
-                }
-            }
-        }
-    }
+    private fun shouldGoToLogin(): Boolean =
+        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig).apiBaseUrl != ServerConfig.DEFAULT.apiBaseUrl ||
+                navigationArguments[SSO_DEEPLINK_ARG] != null
 
-    init {
-        viewModelScope.launch {
-            listenForNotificationsIfPossible()
-        }
-    }
+    private fun shouldGoToHome(): Boolean = isUserLoggedIn
 
-    private suspend fun listenForNotificationsIfPossible() {
-        withContext(dispatchers.io()) {
-            // checking CurrentSession every minute, to subscribe/unsubscribe from the notifications
-            // according ot UserId changes
-            // TODO this intervalFlow is a temporary solution to have updated UserId,
-            // waiting for refactoring in kalium
-            val getUserIdFlow = intervalFlow(CHECK_USER_ID_FREQUENCY_MS)
-                .map {
-                    when (val result = currentSessionUseCase()) {
-                        is CurrentSessionResult.Success -> result.authSession.userId
-                        else -> null
-                    }
-                }
-                // do nothing if UserId wasn't changed
-                .distinctUntilChanged()
-
-            notificationManager.listenForMessageNotifications(getUserIdFlow)
-        }
-    }
+    private fun shouldGoToIncomingCall(): Boolean =
+        (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
     companion object {
-        private const val CHECK_USER_ID_FREQUENCY_MS = 60_000L
+        private const val SERVER_CONFIG_ARG = "server_config"
+        private const val SSO_DEEPLINK_ARG = "sso_deeplink"
+        private const val INCOMING_CALL_CONVERSATION_ID_ARG = "incoming_call_conversation_id"
     }
 }

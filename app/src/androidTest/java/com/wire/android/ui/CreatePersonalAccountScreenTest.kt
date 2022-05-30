@@ -127,7 +127,7 @@ class CreatePersonalAccountScreenTest {
     fun create_account_tc_cancel() {
         title.assertIsDisplayed()
         continueButton.performClick()
-        emailField.onChildren()[1].performTextInput("a@b.com")
+        emailField.onChildren()[1].performTextInput(validEmail)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
         cancelButton.performClick()

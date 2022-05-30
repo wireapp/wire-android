@@ -20,6 +20,7 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
+import com.wire.android.navigation.popWithArguments
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
@@ -77,7 +78,6 @@ class WireActivity : AppCompatActivity() {
         val keyboardController = LocalSoftwareKeyboardController.current
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
         LaunchedEffect("key") {
-
             navigationManager.navigateState
                 .onEach { command ->
                     if (command == null) return@onEach
@@ -86,7 +86,7 @@ class WireActivity : AppCompatActivity() {
                 .launchIn(scope)
 
             navigationManager.navigateBack
-                .onEach { navController.popBackStack() }
+                .onEach { navController.popWithArguments(it) }
                 .launchIn(scope)
 
             navController.addOnDestinationChangedListener { controller, _, _ ->

@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.ConversationTitle
 import com.wire.android.ui.home.conversationslist.common.ConversationUserAvatar
@@ -37,7 +39,7 @@ fun CallConversationItem(
             is ConversationType.GroupConversation -> {
                 RowItemTemplate(
                     leadingIcon = {
-                        GroupConversationAvatar(colorValue = conversationType.groupColorValue)
+                        GroupConversationAvatar(color = colorsScheme().conversationColor(id = conversationType.conversationId))
                     },
                     title = { ConversationTitle(name = conversationType.groupName, isLegalHold = conversationType.isLegalHold) },
                     subTitle = {

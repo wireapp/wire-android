@@ -36,6 +36,7 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -48,7 +49,7 @@ fun MessageItem(
     message: MessageViewWrapper,
     onLongClicked: (MessageViewWrapper) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
-    onImageMessageClicked: (String) -> Unit
+    onImageMessageClicked: (String, Boolean) -> Unit
 ) {
     with(message) {
         Row(
@@ -76,7 +77,12 @@ fun MessageItem(
                 if (!isDeleted) {
                     MessageContent(messageContent,
                         onAssetClick = { onAssetMessageClicked(message.messageHeader.messageId) },
-                        onImageClick = { onImageMessageClicked(message.messageHeader.messageId) }
+                        onImageClick = {
+                            onImageMessageClicked(
+                                message.messageHeader.messageId,
+                                message.messageSource == MessageSource.Self
+                            )
+                        }
                     )
                 }
             }

@@ -251,7 +251,6 @@ private fun CurrentSelfUserStatus(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProfileStatusButton(
     onClick: (UserStatus) -> Unit,
@@ -283,7 +282,6 @@ private fun ProfileStatusButton(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OtherAccountsHeader() {
     Text(
@@ -300,7 +298,6 @@ private fun OtherAccountsHeader() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NewTeamButton(onAddAccountClick: () -> Unit) {
     Surface(shadowElevation = 8.dp) {

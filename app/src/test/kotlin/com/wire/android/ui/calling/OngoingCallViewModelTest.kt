@@ -5,7 +5,9 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -48,6 +50,12 @@ class OngoingCallViewModelTest {
     @MockK
     private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
+    @MockK
+    private lateinit var setVideoPreview: SetVideoPreviewUseCase
+
+    @MockK
+    private lateinit var updateVideoState: UpdateVideoStateUseCase
+
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
     @BeforeEach
@@ -66,7 +74,9 @@ class OngoingCallViewModelTest {
             allCalls = allCalls,
             endCall = endCall,
             muteCall = muteCall,
-            unMuteCall = unMuteCall
+            unMuteCall = unMuteCall,
+            setVideoPreview = setVideoPreview,
+            updateVideoState = updateVideoState
         )
     }
 
@@ -91,6 +101,28 @@ class OngoingCallViewModelTest {
         coVerify(exactly = 1) { unMuteCall.invoke() }
         ongoingCallViewModel.callEstablishedState.isMuted shouldBeEqualTo false
 
+    }
+
+    @Test
+    fun `given camera is turned on, when toggling video, then turn off video`() {
+        ongoingCallViewModel.callEstablishedState = ongoingCallViewModel.callEstablishedState.copy(isCameraOn = true)
+        coEvery { updateVideoState(any(), any()) } returns Unit
+
+        runTest { ongoingCallViewModel.toggleVideo() }
+
+        coVerify(exactly = 1) { updateVideoState(any(), any()) }
+        ongoingCallViewModel.callEstablishedState.isCameraOn shouldBeEqualTo false
+    }
+
+    @Test
+    fun `given camera is turned off, when toggling video, then turn on video`() {
+        ongoingCallViewModel.callEstablishedState = ongoingCallViewModel.callEstablishedState.copy(isCameraOn = false)
+        coEvery { updateVideoState(any(), any()) } returns Unit
+
+        runTest { ongoingCallViewModel.toggleVideo() }
+
+        coVerify(exactly = 1) { updateVideoState(any(), any()) }
+        ongoingCallViewModel.callEstablishedState.isCameraOn shouldBeEqualTo true
     }
 
     @After

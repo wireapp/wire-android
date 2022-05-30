@@ -23,12 +23,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.controlButtons.CallOptionsControls
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 
@@ -71,9 +73,10 @@ fun InitiatingCallContent(
                 )
                 HangUpButton(
                     modifier = Modifier
-                        .height(dimensions().initiatingCallHangUpButtonSize)
-                        .width(dimensions().initiatingCallHangUpButtonSize)
-                ) { onHangUpCall() }
+                        .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
+                        .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize),
+                    onHangUpButtonClicked = onHangUpCall
+                )
             }
         }
     ) {
@@ -83,8 +86,11 @@ fun InitiatingCallContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                //TODO handle it in a different way
-                text = initiatingCallState.conversationName ?: stringResource(id = R.string.calling_label_default_caller_name),
+                text = when (initiatingCallState.conversationName) {
+                    is ConversationName.Known -> initiatingCallState.conversationName.name
+                    is ConversationName.Unknown -> stringResource(id = initiatingCallState.conversationName.resourceId)
+                    else -> ""
+                },
                 style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = dimensions().spacing24x)
             )

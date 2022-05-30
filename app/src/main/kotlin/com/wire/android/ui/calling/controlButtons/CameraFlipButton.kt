@@ -1,6 +1,7 @@
 package com.wire.android.ui.calling.controlButtons
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +25,9 @@ fun CameraFlipButton(
     var isCameraFlipped by remember { mutableStateOf(isCameraFlipped) }
 
     IconButton(
-        modifier = Modifier.width(MaterialTheme.wireDimensions.defaultCallingControlsSize),
+        modifier = Modifier
+            .width(MaterialTheme.wireDimensions.defaultCallingControlsSize)
+            .height(MaterialTheme.wireDimensions.defaultCallingControlsSize),
         onClick = onCameraFlipButtonClicked
     ) {
         Image(

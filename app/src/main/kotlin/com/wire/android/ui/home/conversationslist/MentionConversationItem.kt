@@ -5,6 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.ConversationTitle
 import com.wire.android.ui.home.conversationslist.common.ConversationUserAvatar
@@ -28,7 +30,7 @@ fun MentionConversationItem(
         is ConversationType.GroupConversation -> {
             with(conversationType) {
                 RowItemTemplate(
-                    leadingIcon = { GroupConversationAvatar(colorValue = groupColorValue) },
+                    leadingIcon = { GroupConversationAvatar(color = colorsScheme().conversationColor(id = conversationId)) },
                     title = { ConversationTitle(name = groupName, isLegalHold = conversationType.isLegalHold) },
                     subTitle = { MentionLabel(mentionMessage = mention.mentionInfo.mentionMessage) },
                     eventType = eventType,

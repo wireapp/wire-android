@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import MutingOptionsSheetContent
-import android.os.Parcelable
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -11,7 +10,6 @@ import androidx.compose.runtime.setValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.parcelize.Parcelize
 
 @Composable
 fun ConversationSheetContent(
@@ -72,17 +70,16 @@ internal class ConversationOptionSheetState(initialNavigation: ConversationOptio
     fun toHome() {
         currentNavigation = ConversationOptionNavigation.Home
     }
-
 }
 
 sealed class ConversationTypeDetail {
-    data class Group(val groupColorValue: Long) : ConversationTypeDetail()
+    data class Group(val conversationId: ConversationId) : ConversationTypeDetail()
     data class Private(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
 }
 
 data class ConversationSheetContent(
     val title: String,
-    val conversationId: ConversationId?,
+    val conversationId: ConversationId,
     val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
 )

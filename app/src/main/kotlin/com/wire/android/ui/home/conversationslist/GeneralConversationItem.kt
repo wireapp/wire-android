@@ -36,7 +36,12 @@ fun GeneralConversationItem(
             with(conversationType) {
                 RowItemTemplate(
                     leadingIcon = { GroupConversationAvatar(colorValue = groupColorValue) },
-                    title = { ConversationTitle(name = groupName, isLegalHold = conversationType.isLegalHold) },
+                    title = {
+                        ConversationTitle(
+                            name = groupName.ifEmpty { stringResource(id = R.string.empty_group_label) },
+                            isLegalHold = conversationType.isLegalHold
+                        )
+                    },
                     eventType = eventType,
                     onRowItemClicked = { onConversationItemClick(generalConversation) },
                     onRowItemLongClicked = { onConversationItemLongClick(generalConversation) },

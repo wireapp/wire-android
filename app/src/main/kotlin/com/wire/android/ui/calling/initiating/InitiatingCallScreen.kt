@@ -30,6 +30,7 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 
@@ -72,9 +73,10 @@ fun InitiatingCallContent(
                 )
                 HangUpButton(
                     modifier = Modifier
-                        .height(dimensions().initiatingCallHangUpButtonSize)
-                        .width(dimensions().initiatingCallHangUpButtonSize)
-                ) { onHangUpCall() }
+                        .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
+                        .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize),
+                    onHangUpButtonClicked = onHangUpCall
+                )
             }
         }
     ) {

@@ -49,6 +49,7 @@ import com.wire.android.ui.settings.SettingsScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
+import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
@@ -229,7 +230,11 @@ enum class NavigationItem(
     IncomingCall(
         primaryRoute = INCOMING_CALL,
         canonicalRoute = "$INCOMING_CALL?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(navDeepLink { uriPattern = "wire://incoming-call/{$EXTRA_CONVERSATION_ID}" }),
+        deepLinks = listOf(navDeepLink {
+            uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+                    "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
+                    "{$EXTRA_CONVERSATION_ID}"
+        }),
         content = { IncomingCallScreen() },
         screenMode = ScreenMode.WAKE_UP
     ) {

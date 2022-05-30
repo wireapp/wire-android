@@ -107,13 +107,12 @@ fun fullScreenCallPendingIntent(context: Context, conversationId: String): Pendi
 )
 private fun openCallIntent(context: Context, conversationId: String) =
     Intent(context.applicationContext, WireActivity::class.java).apply {
-//        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         data = Uri.Builder()
-            .scheme("wire")
+            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST)
-            .appendQueryParameter(DeepLinkProcessor.INCOMING_CALL_CONVERSATION_ID_PARAM, conversationId)
+            .appendPath(conversationId)
             .build()
-}
+    }
 
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0
 private const val DISMISS_MESSAGE_NOTIFICATION_DEFAULT_REQUEST_CODE = 1

@@ -36,12 +36,9 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
-import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
-fun IncomingCallScreen(conversationId: ConversationId, incomingCallViewModel: IncomingCallViewModel = hiltViewModel()) {
-    incomingCallViewModel.setConversationId(conversationId)
-
+fun IncomingCallScreen(incomingCallViewModel: IncomingCallViewModel = hiltViewModel()) {
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(incomingCallViewModel = incomingCallViewModel)
 
     IncomingCallContent(
@@ -223,5 +220,5 @@ private fun AudioBluetoothPermissionCheckFlow(incomingCallViewModel: IncomingCal
 @Preview
 @Composable
 fun ComposablePreview() {
-    IncomingCallScreen(ConversationId("some", "some"))
+    IncomingCallScreen()
 }

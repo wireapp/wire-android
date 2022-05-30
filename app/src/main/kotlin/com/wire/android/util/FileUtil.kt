@@ -129,8 +129,8 @@ fun Context.startFileShareIntent(path: String) {
     startActivity(shareIntent)
 }
 
-fun saveFileToDownloadsFolder(assetName: String?, assetData: ByteArray, context: Context) {
-    val file = File(context.getExternalFilesDir(DIRECTORY_DOWNLOADS), "${assetName}")
+fun saveFileToDownloadsFolder(assetName: String, assetData: ByteArray, context: Context) {
+    val file = File(context.getExternalFilesDir(DIRECTORY_DOWNLOADS), assetName)
     file.setWritable(true)
     file.writeBytes(assetData)
     context.saveFileDataToDownloadsFolder(file, assetData.size)

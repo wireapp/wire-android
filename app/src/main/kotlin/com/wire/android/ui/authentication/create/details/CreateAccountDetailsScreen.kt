@@ -147,8 +147,8 @@ private fun NameTextFields(
                 start = MaterialTheme.wireDimensions.spacing16x,
                 end = MaterialTheme.wireDimensions.spacing16x,
                 bottom = MaterialTheme.wireDimensions.spacing16x
-            )
-            .bringIntoViewOnFocus(coroutineScope).testTag("firstName")
+            ).testTag("firstName")
+            .bringIntoViewOnFocus(coroutineScope)
     )
     WireTextField(
         value = state.lastName,

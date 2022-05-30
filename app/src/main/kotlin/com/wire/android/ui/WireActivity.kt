@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 import com.wire.android.navigation.popWithArguments
 
-
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi

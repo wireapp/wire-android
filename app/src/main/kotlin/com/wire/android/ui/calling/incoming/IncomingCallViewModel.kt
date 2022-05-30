@@ -3,29 +3,27 @@ package com.wire.android.ui.calling.incoming
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.getConversationName
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,6 +31,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class IncomingCallViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsUseCase,
@@ -43,19 +42,14 @@ class IncomingCallViewModel @Inject constructor(
     var callState by mutableStateOf(IncomingCallState())
         private set
 
-    private val conversationIdFlow = MutableStateFlow<ConversationId?>(null)
-
-    fun setConversationId(id: ConversationId) {
-        conversationIdFlow.value = id
-    }
+    private val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
 
     init {
         viewModelScope.launch {
             callRinger.ring(R.raw.ringing_from_them)
-            val conversationDetailsFlow = conversationIdFlow
-                .filterNotNull()
-                .flatMapLatest { conversationDetails(conversationId = it) }
+            val conversationDetailsFlow = conversationDetails(conversationId)
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+
             launch {
                 conversationDetailsFlow.collect { initializeScreenState(conversationDetails = it) }
             }
@@ -67,7 +61,7 @@ class IncomingCallViewModel @Inject constructor(
 
     private suspend fun observeIncomingCall() {
         allCalls()
-            .combine(conversationIdFlow.filterNotNull()) { calls, conversationId ->
+            .collect { calls ->
                 val currentCall = calls.firstOrNull { call -> call.conversationId == conversationId }
 
                 when (currentCall?.status) {
@@ -75,7 +69,6 @@ class IncomingCallViewModel @Inject constructor(
                     else -> println("DO NOTHING")
                 }
             }
-            .collect()
     }
 
     private fun onCallClosed() {
@@ -86,9 +79,7 @@ class IncomingCallViewModel @Inject constructor(
     fun declineCall() {
         callRinger.stop()
         viewModelScope.launch {
-            conversationIdFlow.value?.let {
-                rejectCall(conversationId = it)
-            }
+            rejectCall(conversationId = conversationId)
         }
     }
 
@@ -96,14 +87,12 @@ class IncomingCallViewModel @Inject constructor(
         callRinger.stop()
         viewModelScope.launch {
             navigationManager.navigateBack()
-            conversationIdFlow.value?.let {
-                acceptCall(conversationId = it)
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(it))
-                    )
+            acceptCall(conversationId = conversationId)
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(it))
                 )
-            }
+            )
         }
     }
 

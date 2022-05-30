@@ -27,7 +27,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LongParameterList")
+@OptIn(
+    ExperimentalCoroutinesApi::class,
+    ExperimentalMaterial3Api::class
+)
 @ExperimentalMaterial3Api
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
@@ -60,7 +64,6 @@ class WireActivityViewModel @Inject constructor(
 
     fun startNavigationRoute() = when {
         shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
-        shouldGoToIncomingCall() -> NavigationItem.IncomingCall.getRouteWithArgs()
         shouldGoToHome() -> NavigationItem.Home.getRouteWithArgs()
         else -> NavigationItem.Welcome.getRouteWithArgs()
     }

@@ -28,7 +28,7 @@ class DeepLinkProcessor {
     } ?: DeepLinkResult.Unknown
 
     private fun getIncomingCallDeepLinkResult(uri: Uri) =
-        uri.getQueryParameter(INCOMING_CALL_CONVERSATION_ID_PARAM)?.toConversationId()?.let {
+        uri.lastPathSegment?.toConversationId()?.let {
             DeepLinkResult.IncomingCall(it)
         } ?: DeepLinkResult.Unknown
 
@@ -50,6 +50,7 @@ class DeepLinkProcessor {
     }
 
     companion object {
+        const val DEEP_LINK_SCHEME = "wire"
         const val ACCESS_DEEPLINK_HOST = "access"
         const val SERVER_CONFIG_PARAM = "config"
         const val SSO_LOGIN_DEEPLINK_HOST = "sso-login"
@@ -60,7 +61,6 @@ class DeepLinkProcessor {
         const val SSO_LOGIN_ERROR_PARAM = "error"
         const val SSO_LOGIN_SERVER_CONFIG_PARAM = "location"
         const val INCOMING_CALL_DEEPLINK_HOST = "incoming-call"
-        const val INCOMING_CALL_CONVERSATION_ID_PARAM = "conversation_id"
 
     }
 }

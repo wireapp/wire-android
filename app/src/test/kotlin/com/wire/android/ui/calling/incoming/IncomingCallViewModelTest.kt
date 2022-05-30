@@ -1,5 +1,6 @@
 package com.wire.android.ui.calling.incoming
 
+import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
@@ -11,6 +12,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,6 +24,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class IncomingCallViewModelTest {
+
+    @MockK
+    private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     lateinit var navigationManager: NavigationManager
@@ -46,6 +51,8 @@ class IncomingCallViewModelTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
+        val dummyConversationId = "some-dummy-value@some.dummy.domain"
+        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         // Default empty values
         coEvery { navigationManager.navigateBack() } returns Unit
         coEvery { navigationManager.navigate(any()) } returns Unit
@@ -57,6 +64,7 @@ class IncomingCallViewModelTest {
         coEvery { callRinger.stop() } returns Unit
 
         viewModel = IncomingCallViewModel(
+            savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
             conversationDetails = conversationDetails,
             allCalls = allCalls,
@@ -68,8 +76,6 @@ class IncomingCallViewModelTest {
 
     @Test
     fun `given an incoming call, when the user decline the call, then the reject call use case is called`() {
-        viewModel.setConversationId(ConversationId("some-dummy-value", "some.dummy.domain"))
-
         viewModel.declineCall()
 
         coVerify(exactly = 1) { rejectCall(conversationId = any()) }
@@ -78,8 +84,6 @@ class IncomingCallViewModelTest {
 
     @Test
     fun `given an incoming call, when the user accepts the call, then the accept call use case is called`() {
-        viewModel.setConversationId(ConversationId("some-dummy-value", "some.dummy.domain"))
-
         viewModel.acceptCall()
 
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }

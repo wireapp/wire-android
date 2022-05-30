@@ -9,3 +9,5 @@ private val mediumDateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.MED
 
 fun String.formatMediumDateTime(): String? =
     try { serverDateTimeFormat.parse(this)?.let { mediumDateTimeFormat.format(it) } } catch (e: ParseException) { null }
+
+fun getCurrentParsedDateTime(): String = mediumDateTimeFormat.format(System.currentTimeMillis())

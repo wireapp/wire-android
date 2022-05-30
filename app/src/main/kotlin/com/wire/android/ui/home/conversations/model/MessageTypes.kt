@@ -269,7 +269,7 @@ class ImageMessageParams(private val realImgWidth: Int, private val realImgHeigh
 @Preview(showBackground = true)
 @Composable
 fun PreviewMessage() {
-    MessageItem(mockMessageWithText, {}, {}, {})
+    MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
 }
 
 @Preview(showBackground = true)
@@ -281,5 +281,5 @@ fun PreviewDeletedMessage() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetMessage() {
-    MessageItem(mockAssetMessage, {}, {}, {})
+    MessageItem(mockAssetMessage, {}, {}, { _, _ -> })
 }

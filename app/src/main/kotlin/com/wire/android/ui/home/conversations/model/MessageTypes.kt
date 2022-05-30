@@ -62,7 +62,7 @@ import kotlin.math.roundToInt
 // waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(messageBody: MessageBody) {
-    LinkifyText(text = messageBody.message.asString(), Linkify.WEB_URLS)
+    LinkifyText(text = messageBody.message.asString(), mask = Linkify.WEB_URLS)
 }
 
 @Composable

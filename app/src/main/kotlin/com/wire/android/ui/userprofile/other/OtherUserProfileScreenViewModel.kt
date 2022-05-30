@@ -16,6 +16,8 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
@@ -33,7 +35,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     private val getUserInfo: GetUserInfoUseCase,
-    private val sendConnectionRequest: SendConnectionRequestUseCase
+    private val sendConnectionRequest: SendConnectionRequestUseCase,
+    private val cancelConnectionRequest: CancelConnectionRequestUseCase
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
@@ -101,8 +104,18 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     fun cancelConnectionRequest() {
-        // TODO: fire a use case
-        state = state.copy(connectionStatus = ConnectionStatus.NotConnected(false))
+        viewModelScope.launch {
+            when (cancelConnectionRequest(userId)) {
+                is CancelConnectionRequestUseCaseResult.Failure -> {
+                    appLogger.d(("Couldn't cancel a connect request to user $userId"))
+                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                }
+                is CancelConnectionRequestUseCaseResult.Success -> {
+                    state = state.copy(connectionStatus = ConnectionStatus.NotConnected(false))
+                    connectionOperationState = ConnectionOperationState.SuccessConnectionRequest()
+                }
+            }
+        }
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

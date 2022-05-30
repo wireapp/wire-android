@@ -93,6 +93,11 @@ class ConnectionModule {
     @Provides
     fun sendConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.sendConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun cancelConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.cancelConnectionRequest
 }
 
 @Module

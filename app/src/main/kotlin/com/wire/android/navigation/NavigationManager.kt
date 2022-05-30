@@ -1,20 +1,18 @@
 package com.wire.android.navigation
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-@OptIn(ExperimentalMaterial3Api::class)
 class NavigationManager {
 
     var navigateState = MutableSharedFlow<NavigationCommand?>()
-    var navigateBack = MutableSharedFlow<Unit>()
+    var navigateBack = MutableSharedFlow<Map<String, Any>>()
 
     suspend fun navigate(command: NavigationCommand) {
         navigateState.emit(command)
     }
 
-    suspend fun navigateBack() {
-        navigateBack.emit(Unit)
+    suspend fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
+        navigateBack.emit(previousBackStackPassedArgs)
     }
 }
 
@@ -30,7 +28,13 @@ data class NavigationCommand(
     /**
      * Whether we want to clear the previously added screens on the backstack, only until the current one, or none of them.
      */
-    val backStackMode: BackStackMode = BackStackMode.NONE
+    val backStackMode: BackStackMode = BackStackMode.NONE,
+
+    /**
+     * A list of arguments to be stored in the savedStateHandle in case we want to pass information to the previous screen
+     */
+    val previousBackStackPassedArgs: List<Pair<String, Any>>? = null
+
     //TODO add in/out animations here
 )
 

@@ -39,7 +39,7 @@ internal class AssetImageFetcherTest {
         // Given
         val someConversationId = ConversationId("some-value", "some-domain")
         val someMessageId = "some-message-id"
-        val data = ImageAsset.PrivateAsset(someConversationId, someMessageId)
+        val data = ImageAsset.PrivateAsset(someConversationId, someMessageId, true)
         val (arrangement, assetImageFetcher) = Arrangement().withSuccessfulImageData(data).arrange()
 
         // When
@@ -69,7 +69,7 @@ internal class AssetImageFetcherTest {
         // Given
         val someConversationId = ConversationId("some-value", "some-domain")
         val someMessageId = "some-message-id"
-        val data = ImageAsset.PrivateAsset(someConversationId, someMessageId)
+        val data = ImageAsset.PrivateAsset(someConversationId, someMessageId, true)
         val (arrangement, assetImageFetcher) = Arrangement().withErrorResponse(data).arrange()
 
         // When

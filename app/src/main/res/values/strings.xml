@@ -22,6 +22,8 @@
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_try_again">Try again</string>
     <string name="label_federated_membership">Federated</string>
+    <string name="label_download">Download</string>
+    <string name="label_show">Show</string>
     <string name="label_show_all">Show All</string>
     <string name="label_show_less">Show Less</string>
 
@@ -309,7 +311,6 @@
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
     <string name="error_conversation_generic">There was an unknown error when trying to send the message</string>
     <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
-    <string name="conversation_on_file_downloaded_action_label">Show</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
@@ -359,6 +360,8 @@
 
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
+    <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
+    <string name="media_gallery_on_image_download_error">There was an error when saving the image to Downloads folder. Please check your Internet connection and try again</string>
 
     <!--sso dialog-->
     <string name="sso_erro_dialog_title">Unable to log in with SSO</string>

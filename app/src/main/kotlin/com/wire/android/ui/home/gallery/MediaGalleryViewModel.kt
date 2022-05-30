@@ -99,7 +99,7 @@ class MediaGalleryViewModel @Inject constructor(
         onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloaded())
     }
 
-    private fun onSaveError() {
+    internal fun onSaveError() {
         onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloadError)
     }
 

@@ -50,6 +50,10 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
 
+    LaunchedEffect(conversationViewModel.savedStateHandle) {
+        conversationViewModel.checkPendingActions()
+    }
+
     ConversationScreen(
         conversationViewState = uiState,
         onMessageChanged = conversationViewModel::onMessageChanged,
@@ -87,7 +91,7 @@ private fun ConversationScreen(
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String) -> Unit,
+    onImageFullScreenMode: (String, Boolean) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit,
@@ -167,7 +171,7 @@ private fun ConversationScreenContent(
     onShowContextMenu: (MessageViewWrapper) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String) -> Unit,
+    onImageFullScreenMode: (String, Boolean) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
     conversationScreenState: ConversationScreenState
@@ -222,17 +226,17 @@ private fun ConversationScreenContent(
 @Composable
 private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<String, String?> {
     val msg = when (messageCode) {
-        is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, messageCode.maxLimitInMB)
-        is ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
-        is ErrorSendingImage -> stringResource(R.string.error_conversation_sending_image)
-        is ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
-        is ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
-        is ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
         is OnFileDownloaded -> stringResource(R.string.conversation_on_file_downloaded, messageCode.assetName ?: "")
-        else -> stringResource(R.string.error_conversation_generic)
+        is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, messageCode.maxLimitInMB)
+        ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
+        ErrorSendingImage -> stringResource(R.string.error_conversation_sending_image)
+        ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
+        ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
+        ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
+        ConversationSnackbarMessages.ErrorPickingAttachment -> stringResource(R.string.error_conversation_generic)
     }
     val actionLabel = when (messageCode) {
-        is OnFileDownloaded -> stringResource(R.string.conversation_on_file_downloaded_action_label)
+        is OnFileDownloaded -> stringResource(R.string.label_show)
         else -> null
     }
     return msg to actionLabel
@@ -244,7 +248,7 @@ fun MessageList(
     lazyListState: LazyListState,
     onShowContextMenu: (MessageViewWrapper) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String) -> Unit
+    onImageFullScreenMode: (String, Boolean) -> Unit
 ) {
     LazyColumn(
         state = lazyListState,
@@ -274,6 +278,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, {}, {}, { _: String, _: Boolean -> }, {}, {}
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}
     )
 }

@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
+import com.wire.android.navigation.popWithArguments
 
 
 @ExperimentalMaterial3Api
@@ -76,7 +77,6 @@ class WireActivity : AppCompatActivity() {
         val keyboardController = LocalSoftwareKeyboardController.current
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
         LaunchedEffect("key") {
-
             navigationManager.navigateState.onEach { command ->
                 if (command == null) return@onEach
                 keyboardController?.hide()
@@ -86,9 +86,8 @@ class WireActivity : AppCompatActivity() {
             navigationManager.navigateBack
                 .onEach {
                     keyboardController?.hide()
-                    navController.popBackStack()
-                }
-                .launchIn(scope)
+                    navController.popWithArguments(it)
+                }.launchIn(scope)
         }
     }
 }

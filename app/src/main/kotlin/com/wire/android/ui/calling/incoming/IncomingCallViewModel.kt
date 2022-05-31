@@ -15,6 +15,7 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,11 +31,12 @@ class IncomingCallViewModel @Inject constructor(
 ) : ViewModel() {
 
     val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
+    lateinit var observeIncomingCallJob: Job
 
     init {
         viewModelScope.launch {
             callRinger.ring(R.raw.ringing_from_them)
-            launch {
+            observeIncomingCallJob = launch {
                 observeIncomingCall()
             }
         }
@@ -58,6 +60,7 @@ class IncomingCallViewModel @Inject constructor(
 
     fun declineCall() {
         viewModelScope.launch {
+            observeIncomingCallJob.cancel()
             rejectCall(conversationId = conversationId)
             callRinger.stop()
         }
@@ -66,6 +69,7 @@ class IncomingCallViewModel @Inject constructor(
     fun acceptCall() {
         callRinger.stop()
         viewModelScope.launch {
+            observeIncomingCallJob.cancel()
             acceptCall(conversationId = conversationId)
 
             navigationManager.navigateBack()

@@ -28,6 +28,7 @@ class CallRinger @Inject constructor(private val context: Context) {
     }
 
     fun ring(resource: Int, isLooping: Boolean = true) {
+        mediaPlayer?.reset()
         mediaPlayer?.release()
         createMediaPlayer(resource, isLooping)
         mediaPlayer?.start()
@@ -35,9 +36,13 @@ class CallRinger @Inject constructor(private val context: Context) {
 
     fun stop() {
         try {
-            if (mediaPlayer?.isPlaying == true)
-                mediaPlayer?.stop()
-            mediaPlayer?.release()
+            mediaPlayer?.apply {
+                if (isPlaying) stop()
+                reset()
+                release()
+            }
+
+            mediaPlayer = null
         } catch (e: IllegalStateException) {
             appLogger.e("There was an error while stopping ringing", e)
         }

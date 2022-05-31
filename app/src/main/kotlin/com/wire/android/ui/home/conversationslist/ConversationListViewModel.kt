@@ -40,8 +40,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -130,32 +128,32 @@ class ConversationListViewModel @Inject constructor(
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun addConversationToFavourites(id: String) {
+    fun addConversationToFavourites(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun moveConversationToFolder(id: String) {
+    fun moveConversationToFolder(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun moveConversationToArchive(id: String) {
+    fun moveConversationToArchive(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun clearConversationContent(id: String) {
+    fun clearConversationContent(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun blockUser(id: String) {
+    fun blockUser(id: String= "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun leaveGroup(id: String) {
+    fun leaveGroup(id: String = "") {
     }
 
     private fun List<ConversationDetails>.toGeneralConversationList(): List<GeneralConversation> = filter {

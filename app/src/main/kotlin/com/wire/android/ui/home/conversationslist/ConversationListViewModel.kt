@@ -25,7 +25,6 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
@@ -40,8 +39,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -130,32 +127,32 @@ class ConversationListViewModel @Inject constructor(
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun addConversationToFavourites(id: String) {
+    fun addConversationToFavourites(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun moveConversationToFolder(id: String) {
+    fun moveConversationToFolder(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun moveConversationToArchive(id: String) {
+    fun moveConversationToArchive(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun clearConversationContent(id: String) {
+    fun clearConversationContent(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun blockUser(id: String) {
+    fun blockUser(id: String= "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun leaveGroup(id: String) {
+    fun leaveGroup(id: String = "") {
     }
 
     private fun List<ConversationDetails>.toGeneralConversationList(): List<GeneralConversation> = filter {
@@ -167,7 +164,6 @@ class ConversationListViewModel @Inject constructor(
             is Group -> {
                 GeneralConversation(
                     ConversationType.GroupConversation(
-                        groupColorValue = getConversationColor(conversation.id),
                         groupName = conversation.name.orEmpty(),
                         conversationId = conversation.id,
                         mutedStatus = conversation.mutedStatus,

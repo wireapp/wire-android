@@ -24,6 +24,7 @@ import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -48,7 +49,6 @@ class InitiatingCallViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            launch { initiateCall() }
             launch { initializeScreenState() }
             launch { observeStartedCall() }
         }
@@ -81,25 +81,25 @@ class InitiatingCallViewModel @Inject constructor(
     }
 
     private suspend fun initializeScreenState() {
-        conversationDetails(conversationId = conversationId)
-            .collect {
-                callInitiatedState = when (it) {
-                    is ConversationDetails.Group -> {
-                        callInitiatedState.copy(
-                            conversationName = getConversationName(it.conversation.name),
-                            conversationType = ConversationType.Conference
-                        )
-                    }
-                    is ConversationDetails.OneOne -> {
-                        callInitiatedState.copy(
-                            conversationName = getConversationName(it.otherUser.name),
-                            avatarAssetId = UserAvatarAsset(it.otherUser.completePicture ?: ""),
-                            conversationType = ConversationType.OneOnOne
-                        )
-                    }
-                    is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
-                }
+        val conversationDetails = conversationDetails(conversationId = conversationId).first()
+        callInitiatedState = when (conversationDetails) {
+            is ConversationDetails.Group -> {
+                callInitiatedState.copy(
+                    conversationName = getConversationName(conversationDetails.conversation.name),
+                    conversationType = ConversationType.Conference
+                )
             }
+            is ConversationDetails.OneOne -> {
+                callInitiatedState.copy(
+                    conversationName = getConversationName(conversationDetails.otherUser.name),
+                    avatarAssetId = UserAvatarAsset(conversationDetails.otherUser.completePicture ?: ""),
+                    conversationType = ConversationType.OneOnOne
+                )
+            }
+            is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
+        }
+
+        initiateCall()
     }
 
     private suspend fun initiateCall() {

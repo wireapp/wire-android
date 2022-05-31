@@ -21,7 +21,7 @@ class ConversationState {
                         conversationId = conversationId,
                         title = groupName,
                         mutingConversationState = mutedStatus,
-                        conversationTypeDetail = ConversationTypeDetail.Group(groupColorValue)
+                        conversationTypeDetail = ConversationTypeDetail.Group(conversationId = conversationId)
                     )
                 }
             }

@@ -21,7 +21,6 @@ sealed class ConversationType {
     abstract val isLegalHold: Boolean
 
     data class GroupConversation(
-        val groupColorValue: Long,
         val groupName: String,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,

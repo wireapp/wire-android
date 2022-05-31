@@ -25,7 +25,6 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
@@ -165,7 +164,6 @@ class ConversationListViewModel @Inject constructor(
             is Group -> {
                 GeneralConversation(
                     ConversationType.GroupConversation(
-                        groupColorValue = getConversationColor(conversation.id),
                         groupName = conversation.name.orEmpty(),
                         conversationId = conversation.id,
                         mutedStatus = conversation.mutedStatus,

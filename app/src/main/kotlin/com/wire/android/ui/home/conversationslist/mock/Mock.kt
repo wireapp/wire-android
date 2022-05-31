@@ -86,7 +86,6 @@ fun mockCallGroupConversation(
         CallEvent.NoAnswerCall
     )
 ): ConversationItem.GroupConversation = ConversationItem.GroupConversation(
-    groupColorValue = 0xFFFF0000,
     groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
@@ -107,7 +106,6 @@ val mockConversation = ConversationItem.PrivateConversation(
 )
 
 val mockGroupConversation = ConversationItem.GroupConversation(
-    groupColorValue = 0xFFFF0000,
     groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
@@ -180,7 +178,6 @@ val newActivitiesMockData = listOf(
 
 
 val mockMentionShortGroupConversation = ConversationItem.GroupConversation(
-    groupColorValue = 0xFF00FF00,
     groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
@@ -189,7 +186,6 @@ val mockMentionShortGroupConversation = ConversationItem.GroupConversation(
 )
 
 val mockMentionGroupLongConversation = ConversationItem.GroupConversation(
-    groupColorValue = 0xFF00FF00,
     groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,

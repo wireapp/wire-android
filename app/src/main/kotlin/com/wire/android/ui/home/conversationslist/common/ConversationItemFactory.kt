@@ -2,6 +2,8 @@ package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.home.conversationslist.CallLabel
 import com.wire.android.ui.home.conversationslist.ConnectionLabel
 import com.wire.android.ui.home.conversationslist.MentionLabel
@@ -11,8 +13,8 @@ import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun ConversationItemFactory(
@@ -21,7 +23,6 @@ fun ConversationItemFactory(
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
-    openNotificationsOptions: (ConversationItem) -> Unit,
 ) {
     GeneralConversationItem(
         conversation = conversation,
@@ -47,7 +48,7 @@ fun ConversationItemFactory(
             }
         },
         onMutedIconClick = {
-            openNotificationsOptions(conversation)
+           // openNotificationsOptions(conversation)
         },
     )
 }
@@ -65,7 +66,7 @@ private fun GeneralConversationItem(
         is ConversationItem.GroupConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    leadingIcon = { GroupConversationAvatar(colorValue = groupColorValue) },
+                    leadingIcon = { GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId)) },
                     title = { ConversationTitle(name = groupName, isLegalHold = conversation.isLegalHold) },
                     subTitle = subTitle,
                     eventType = eventType,

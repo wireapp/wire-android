@@ -13,7 +13,6 @@ sealed class ConversationItem {
     abstract val lastEvent: ConversationLastEvent
 
     data class GroupConversation(
-        val groupColorValue: Long,
         val groupName: String,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
@@ -28,7 +27,7 @@ sealed class ConversationItem {
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
         override val lastEvent: ConversationLastEvent,
-        ) : ConversationItem()
+    ) : ConversationItem()
 
     data class ConnectionConversation(
         val userInfo: UserInfo,
@@ -37,7 +36,7 @@ sealed class ConversationItem {
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
         override val lastEvent: ConversationLastEvent,
-        ) : ConversationItem()
+    ) : ConversationItem()
 }
 
 data class ConversationInfo(

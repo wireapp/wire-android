@@ -25,7 +25,6 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getConversationColor
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
@@ -74,12 +73,12 @@ class ConversationListViewModel @Inject constructor(
                         val detailedList = conversations.toConversationsFoldersMap()
                         val newActivities = prepareActivities(
                             connections.map { connection ->
-                                    ConversationDetails.Connection(
-                                        conversationId = connection.qualifiedConversationId,
-                                        otherUser = connection.fromUser,
-                                        userType = UserType.GUEST, // TODO how to get user type
-                                        lastModifiedDate = connection.lastUpdate,
-                                        connection = connection,
+                                ConversationDetails.Connection(
+                                    conversationId = connection.qualifiedConversationId,
+                                    otherUser = connection.fromUser,
+                                    userType = UserType.GUEST, // TODO how to get user type
+                                    lastModifiedDate = connection.lastUpdate,
+                                    connection = connection,
                                 )
                             }
                         )
@@ -165,38 +164,37 @@ class ConversationListViewModel @Inject constructor(
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun addConversationToFavourites(id: String) {
+    fun addConversationToFavourites(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun moveConversationToFolder(id: String) {
+    fun moveConversationToFolder(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun moveConversationToArchive(id: String) {
+    fun moveConversationToArchive(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun clearConversationContent(id: String) {
+    fun clearConversationContent(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun blockUser(id: String) {
+    fun blockUser(id: String = "") {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun leaveGroup(id: String) {
+    fun leaveGroup(id: String = "") {
     }
 
     private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
         filter { it is Group || it is OneOne }
             .map { it.toType() }
-
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
@@ -204,12 +202,11 @@ private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.E
 private fun ConversationDetails.toType(): ConversationItem = when (this) {
     is Group -> {
         ConversationItem.GroupConversation(
-            groupColorValue = getConversationColor(conversation.id),
             groupName = conversation.name.orEmpty(),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None //TODO implement unread events
+            lastEvent = ConversationLastEvent.None // TODO implement unread events
         )
     }
     is OneOne -> {
@@ -225,7 +222,7 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None //TODO implement unread events
+            lastEvent = ConversationLastEvent.None // TODO implement unread events
         )
     }
     is ConversationDetails.Connection -> {
@@ -247,6 +244,9 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
         )
     }
     is Self -> {
+        throw IllegalArgumentException("Self conversations should not be visible to the user.")
+    }
+    else -> {
         throw IllegalArgumentException("Self conversations should not be visible to the user.")
     }
 }

@@ -87,12 +87,7 @@ class SharedCallingViewModel @Inject constructor(
             calls.find { call ->
                 call.conversationId == conversationId
             }?.let {
-                callState = callState.copy(
-                    isMuted = it.isMuted,
-                    isCameraOn = it.isCameraOn,
-                    isSpeakerOn = it.isSpeakerOn,
-                    isCameraFlipped = it.isCameraFlipped,
-                )
+                // TODO update screen state
             }
         }
     }

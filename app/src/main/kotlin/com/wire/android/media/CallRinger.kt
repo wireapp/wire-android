@@ -28,8 +28,7 @@ class CallRinger @Inject constructor(private val context: Context) {
     }
 
     fun ring(resource: Int, isLooping: Boolean = true) {
-        mediaPlayer?.reset()
-        mediaPlayer?.release()
+        stop()
         createMediaPlayer(resource, isLooping)
         mediaPlayer?.start()
     }

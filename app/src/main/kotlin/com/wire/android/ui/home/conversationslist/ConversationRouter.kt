@@ -43,7 +43,7 @@ import com.wire.android.ui.home.conversationslist.navigation.ConversationsNaviga
 @Composable
 fun ConversationRouterHomeBridge(
     onHomeBottomSheetContentChange: (@Composable ColumnScope.() -> Unit) -> Unit,
-    onBottomSheetVisibilityChange: () -> Unit,
+    onBottomSheetVisibilityChanged: () -> Unit,
     onScrollPositionChanged: (Int) -> Unit
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
@@ -77,10 +77,10 @@ fun ConversationRouterHomeBridge(
         openNewConversation = viewModel::openNewConversation,
         onEditConversationItem = { conversationItem ->
             conversationState.changeModalSheetContentState(conversationItem.conversationType)
-            onBottomSheetVisibilityChange()
+            onBottomSheetVisibilityChanged()
         },
         onScrollPositionChanged = onScrollPositionChanged,
-        onError = onBottomSheetVisibilityChange
+        onError = onBottomSheetVisibilityChanged
     )
 }
 

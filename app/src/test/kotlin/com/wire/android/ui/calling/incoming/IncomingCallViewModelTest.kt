@@ -5,7 +5,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -29,10 +29,10 @@ class IncomingCallViewModelTest {
     lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var allCalls: GetAllCallsUseCase
+    lateinit var rejectCall: RejectCallUseCase
 
     @MockK
-    lateinit var rejectCall: RejectCallUseCase
+    lateinit var incomingCalls: GetIncomingCallsUseCase
 
     @MockK
     lateinit var acceptCall: AnswerCallUseCase
@@ -53,11 +53,12 @@ class IncomingCallViewModelTest {
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { rejectCall(any()) } returns Unit
         coEvery { acceptCall(any()) } returns Unit
+        coEvery { callRinger.ring(any(), any()) } returns Unit
 
         viewModel = IncomingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
-            allCalls = allCalls,
+            incomingCalls = incomingCalls,
             rejectCall = rejectCall,
             acceptCall = acceptCall,
             callRinger = callRinger

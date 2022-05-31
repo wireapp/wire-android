@@ -37,6 +37,9 @@ class InitiatingCallViewModelTest {
     private lateinit var startCall: StartCallUseCase
 
     @MockK
+    private lateinit var observeConversationDetailsUseCase: ObserveConversationDetailsUseCase
+
+    @MockK
     private lateinit var callRinger: CallRinger
 
     private lateinit var initiatingCallViewModel: InitiatingCallViewModel
@@ -54,11 +57,11 @@ class InitiatingCallViewModelTest {
         initiatingCallViewModel = InitiatingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
+            conversationDetails = observeConversationDetailsUseCase,
             allCalls = allCalls,
             startCall = startCall,
             callRinger = callRinger
         )
     }
-
 
 }

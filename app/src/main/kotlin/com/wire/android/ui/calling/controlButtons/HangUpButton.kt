@@ -2,6 +2,7 @@ package com.wire.android.ui.calling.controlButtons
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -14,7 +15,7 @@ import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun HangUpButton(
-    modifier: Modifier = Modifier.height(MaterialTheme.wireDimensions.defaultCallingControlsSize),
+    modifier: Modifier,
     onHangUpButtonClicked: () -> Unit
 ) {
     IconButton(
@@ -32,5 +33,10 @@ fun HangUpButton(
 @Preview
 @Composable
 fun ComposableHangUpButtonPreview() {
-    HangUpButton(onHangUpButtonClicked = { })
+    HangUpButton(
+        modifier = Modifier
+            .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
+            .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize),
+        onHangUpButtonClicked = { }
+    )
 }

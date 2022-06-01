@@ -72,6 +72,3 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     USER_ID("userId", ConfigType.STRING);
 
 }
-
-
-

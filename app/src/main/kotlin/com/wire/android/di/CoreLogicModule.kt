@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
+import com.wire.kalium.logic.featureFlags.BuildTimeConfigs
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -57,14 +58,15 @@ class CoreLogicModule {
     @KaliumCoreLogic
     @Singleton
     @Provides
-    fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
+    fun coreLogicProvider(@ApplicationContext context: Context, buildTimeConfigs: BuildTimeConfigs): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
 
         return CoreLogic(
             appContext = context,
             rootPath = rootPath,
-            clientLabel = deviceLabel
+            clientLabel = deviceLabel,
+            buildTimeConfigs = buildTimeConfigs
         )
     }
 }
@@ -415,4 +417,9 @@ class UseCaseModule {
     @Provides
     fun getUserInfoUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).users.getUserInfo
+
+    @ViewModelScoped
+    @Provides
+    fun getBuildConfigUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().buildConfigs
 }

@@ -165,7 +165,7 @@ private fun observeScreenLifecycleChanges(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) {
-                if(sharedCallingViewModel.callState.isCameraOn)
+                if (sharedCallingViewModel.callState.isCameraOn)
                     sharedCallingViewModel.pauseVideo()
             }
         }

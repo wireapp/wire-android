@@ -87,8 +87,8 @@ class IncomingCallViewModel @Inject constructor(
     fun acceptCall() {
         callRinger.stop()
         viewModelScope.launch {
-            navigationManager.navigateBack()
             acceptCall(conversationId = conversationId)
+            navigationManager.navigateBack()
             navigationManager.navigate(
                 command = NavigationCommand(
                     destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))

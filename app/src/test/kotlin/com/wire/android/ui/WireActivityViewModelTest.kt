@@ -72,7 +72,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with CustomServerConfig, then startNavigation is Login and no SSOLogin in navArguments`() {
+    fun `given Intent with ServerConfig, when currentSession is present, then startNavigation is Login and no SSOLogin in navArguments`() {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
@@ -86,7 +86,21 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with IncomingCall, then startNavigation is IncomingCall`() {
+    fun `given Intent with ServerConfig, when currentSession is absent, then startNavigation is Login and no SSOLogin in navArguments`() {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isEmpty())
+        assert(viewModel.navigationArguments().filterIsInstance<ServerConfig>().isNotEmpty())
+    }
+
+    @Test
+    fun `given Intent with IncomingCall, when currentSession is present, then startNavigation is IncomingCall`() {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.IncomingCall(ConversationId("val", "dom")))
@@ -99,7 +113,19 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given newIntent with IncomingCall, then no recreation and navigate to IncomingCall is called`() {
+    fun `given Intent with IncomingCall, when currentSession is absent, then startNavigation is IncomingCall`() {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.IncomingCall(ConversationId("val", "dom")))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+    }
+
+    @Test
+    fun `given newIntent with IncomingCall, when currentSession is present, then no recreation and navigate to IncomingCall is called`() {
         val conversationId = ConversationId("val", "dom")
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
@@ -117,7 +143,21 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given newIntent with SSOLogin, then should recreate and no any navigation`() {
+    fun `given newIntent with IncomingCall, when currentSession is absent, then should recreate and navigate no any navigation`() {
+        val conversationId = ConversationId("val", "dom")
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.IncomingCall(conversationId))
+            .arrange()
+
+        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(mockedIntent())
+
+        assert(shouldReCreate)
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given newIntent with SSOLogin, when currentSession is present, then should recreate and no any navigation`() {
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.SSOLogin.Success("cookie", "config"))
@@ -130,7 +170,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given newIntent with null, then should not recreate and no any navigation`() {
+    fun `given newIntent with null, when currentSession is present, then should not recreate and no any navigation`() {
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .arrange()
@@ -138,6 +178,18 @@ class WireActivityViewModelTest {
         val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(null)
 
         assert(!shouldReCreate)
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given newIntent with null, when currentSession is absent, then should recreate and no any navigation`() {
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .arrange()
+
+        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(null)
+
+        assert(shouldReCreate)
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
     }
 

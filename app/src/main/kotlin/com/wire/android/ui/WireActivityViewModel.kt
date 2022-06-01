@@ -19,12 +19,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -63,15 +58,13 @@ class WireActivityViewModel @Inject constructor(
 
     fun navigationArguments() = navigationArguments.values.toList()
 
-    fun startNavigationRoute(): String {
-        val userId = runBlocking { userIdFlow.first() }
-        return when {
+    fun startNavigationRoute(): String =
+        when {
             shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
+            shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
             shouldGoToIncomingCall() -> NavigationItem.IncomingCall.getRouteWithArgs()
-            userId != null -> NavigationItem.Home.getRouteWithArgs()
-            else -> NavigationItem.Welcome.getRouteWithArgs()
+            else -> NavigationItem.Home.getRouteWithArgs()
         }
-    }
 
     fun handleDeepLink(intent: Intent?) {
         intent?.data?.let {
@@ -107,7 +100,7 @@ class WireActivityViewModel @Inject constructor(
         handleDeepLink(intent)
 
         return when {
-            shouldGoToLogin() -> true
+            shouldGoToLogin() || shouldGoToWelcome() -> true
             shouldGoToIncomingCall() -> {
                 openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
                 false
@@ -140,6 +133,8 @@ class WireActivityViewModel @Inject constructor(
 
     private fun shouldGoToIncomingCall(): Boolean =
         (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
+
+    private fun shouldGoToWelcome(): Boolean = runBlocking { userIdFlow.first() } == null
 
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"

@@ -67,8 +67,8 @@ enum class NavigationItem(
     @PackagePrivate
     internal val primaryRoute: String,
     private val canonicalRoute: String = primaryRoute,
-    open val deepLinks: List<NavDeepLink> = listOf(),
-    open val content: @Composable (ContentParams) -> Unit,
+    val deepLinks: List<NavDeepLink> = listOf(),
+    val content: @Composable (ContentParams) -> Unit,
     val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
 ) {
     Welcome(

@@ -12,7 +12,6 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.FileManager
-import com.wire.android.util.getConversationColor
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -49,7 +48,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -265,20 +263,6 @@ class ConversationsViewModelTest {
         // When - Then
         assert(actualAvatar is ConversationAvatar.OneOne)
         assertEquals(otherUserAvatar, (actualAvatar as ConversationAvatar.OneOne).avatarAsset?.userAssetId)
-    }
-
-    @Test
-    fun `given a group conversation, when solving the conversation avatar, then the color of the conversation is used`() = runTest {
-        // Given
-        val conversationDetails = mockConversationDetailsGroup("")
-        val conversationColor = 0xFF00FF00
-        mockkStatic("com.wire.android.util.ColorUtilKt")
-        every { getConversationColor(any()) } returns conversationColor
-        val (_, viewModel) = Arrangement().withChannelUpdates(conversationDetails = conversationDetails).arrange()
-        val actualAvatar = viewModel.conversationViewState.conversationAvatar
-        // When - Then
-        assert(actualAvatar is ConversationAvatar.Group)
-        assertEquals(conversationColor, (actualAvatar as ConversationAvatar.Group).groupColorValue)
     }
 
     @Test

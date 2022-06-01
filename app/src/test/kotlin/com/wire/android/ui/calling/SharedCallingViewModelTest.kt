@@ -23,6 +23,7 @@ import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import com.wire.kalium.logic.data.id.ConversationId
 
 class SharedCallingViewModelTest {
 
@@ -85,22 +86,22 @@ class SharedCallingViewModelTest {
     @Test
     fun `given muteOrUnMuteCall is called, when active call is muted, then un-mute the call`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = false)
-        coEvery { muteCall.invoke() } returns Unit
+        coEvery { muteCall(conversationId) } returns Unit
 
         runTest { sharedCallingViewModel.toggleMute() }
 
-        coVerify(exactly = 1) { muteCall.invoke() }
+        coVerify(exactly = 1) { muteCall(conversationId) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo true
     }
 
     @Test
     fun `given muteOrUnMuteCall is called, when active call is un-muted, then mute the call`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = true)
-        coEvery { unMuteCall.invoke() } returns Unit
+        coEvery { unMuteCall(conversationId) } returns Unit
 
         runTest { sharedCallingViewModel.toggleMute() }
 
-        coVerify(exactly = 1) { unMuteCall.invoke() }
+        coVerify(exactly = 1) { unMuteCall(conversationId) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
 
     }
@@ -130,14 +131,18 @@ class SharedCallingViewModelTest {
     @Test
     fun `given active call, when user end call, then invoke endCall useCase`() {
         coEvery { navigationManager.navigateBack() } returns Unit
-        coEvery { endCall.invoke(any()) } returns Unit
+        coEvery { endCall(any()) } returns Unit
         every { callRinger.stop() } returns Unit
 
         runTest { sharedCallingViewModel.hangUpCall() }
 
-        coVerify(exactly = 1) { endCall.invoke(any()) }
+        coVerify(exactly = 1) { endCall(any()) }
         coVerify(exactly = 1) { callRinger.stop() }
         coVerify(exactly = 1) { navigationManager.navigateBack() }
+    }
+
+    companion object {
+        private val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
     }
 
 }

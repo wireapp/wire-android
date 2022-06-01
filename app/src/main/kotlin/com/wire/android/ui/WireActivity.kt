@@ -1,5 +1,6 @@
 package com.wire.android.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -20,18 +21,21 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
+import com.wire.android.navigation.popWithArguments
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
-import com.wire.android.navigation.popWithArguments
 
-@ExperimentalMaterial3Api
-@ExperimentalAnimationApi
-@ExperimentalComposeUiApi
-@ExperimentalMaterialApi
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterialApi::class,
+)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AndroidEntryPoint
 class WireActivity : AppCompatActivity() {
 
@@ -60,10 +64,10 @@ class WireActivity : AppCompatActivity() {
                 val scope = rememberCoroutineScope()
                 val navController = rememberAnimatedNavController()
                 val startDestination = viewModel.startNavigationRoute()
-                setUpNavigation(navController, scope)
                 Scaffold {
                     NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
                 }
+                setUpNavigation(navController, scope)
             }
         }
     }
@@ -76,11 +80,13 @@ class WireActivity : AppCompatActivity() {
         val keyboardController = LocalSoftwareKeyboardController.current
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
         LaunchedEffect("key") {
-            navigationManager.navigateState.onEach { command ->
-                if (command == null) return@onEach
-                keyboardController?.hide()
-                navigateToItem(navController, command)
-            }.launchIn(scope)
+            navigationManager.navigateState
+                .onEach { command ->
+                    if (command == null) return@onEach
+                    keyboardController?.hide()
+                    navigateToItem(navController, command)
+                }
+                .launchIn(scope)
 
             navigationManager.navigateBack
                 .onEach {

@@ -10,17 +10,19 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.GetServerConfigResult
 import com.wire.kalium.logic.configuration.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
@@ -32,10 +34,9 @@ import javax.inject.Inject
     ExperimentalCoroutinesApi::class,
     ExperimentalMaterial3Api::class
 )
-@ExperimentalMaterial3Api
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
-    currentSessionUseCase: CurrentSessionUseCase,
+    dispatchers: DispatcherProvider,
     currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
@@ -44,17 +45,17 @@ class WireActivityViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
-    private val isUserLoggedIn = currentSessionUseCase() is CurrentSessionResult.Success
+
+    private val userIdFlow = currentSessionFlow()
+        .map { result ->
+            if (result is CurrentSessionResult.Success) result.authSession.userId
+            else null
+        }
+        .distinctUntilChanged()
+        .flowOn(dispatchers.io())
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     init {
-        val userIdFlow = currentSessionFlow()
-            .map { result ->
-                if (result is CurrentSessionResult.Success) result.authSession.userId
-                else null
-            }
-            .distinctUntilChanged()
-            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
-
         viewModelScope.launch {
             launch { notificationManager.listenForMessageNotifications(userIdFlow) }
         }
@@ -62,10 +63,14 @@ class WireActivityViewModel @Inject constructor(
 
     fun navigationArguments() = navigationArguments.values.toList()
 
-    fun startNavigationRoute() = when {
-        shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
-        shouldGoToHome() -> NavigationItem.Home.getRouteWithArgs()
-        else -> NavigationItem.Welcome.getRouteWithArgs()
+    fun startNavigationRoute(): String {
+        val userId = runBlocking { userIdFlow.first() }
+        return when {
+            shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
+            shouldGoToIncomingCall() -> NavigationItem.IncomingCall.getRouteWithArgs()
+            userId != null -> NavigationItem.Home.getRouteWithArgs()
+            else -> NavigationItem.Welcome.getRouteWithArgs()
+        }
     }
 
     fun handleDeepLink(intent: Intent?) {
@@ -87,9 +92,9 @@ class WireActivityViewModel @Inject constructor(
 
     /**
      * Some of the deepLinks require to recreate Activity (Login, Welcome, etc.)
-     * Others needs just open some screen, without recreating (Conversation, IncomingCall, etc.)
+     * Others need to just open some screen, without recreating (Conversation, IncomingCall, etc.)
      *
-     * @return true if Activity need be to recreate, false - otherwise
+     * @return true if Activity needs to be recreated, false - otherwise
      */
     fun handleDeepLinkOnNewIntent(intent: Intent?): Boolean {
 
@@ -107,17 +112,9 @@ class WireActivityViewModel @Inject constructor(
                 openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
                 false
             }
-            shouldGoToHome() -> {
-                openHome()
-                false
-            }
             intent == null -> false
             else -> true
         }
-    }
-
-    private fun openHome() {
-        navigateTo(NavigationCommand(NavigationItem.Home.getRouteWithArgs()))
     }
 
     private fun openIncomingCall(conversationId: ConversationId) {
@@ -140,8 +137,6 @@ class WireActivityViewModel @Inject constructor(
     private fun shouldGoToLogin(): Boolean =
         (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig).apiBaseUrl != ServerConfig.DEFAULT.apiBaseUrl ||
                 navigationArguments[SSO_DEEPLINK_ARG] != null
-
-    private fun shouldGoToHome(): Boolean = isUserLoggedIn
 
     private fun shouldGoToIncomingCall(): Boolean =
         (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null

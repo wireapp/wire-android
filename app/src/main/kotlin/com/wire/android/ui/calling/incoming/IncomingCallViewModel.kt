@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -66,7 +67,7 @@ class IncomingCallViewModel @Inject constructor(
 
                 when (currentCall?.status) {
                     CallStatus.CLOSED -> onCallClosed()
-                    else -> println("DO NOTHING")
+                    else -> appLogger.i("Incoming call: call status was changed to ${currentCall?.status}, DO NOTHING")
                 }
             }
     }
@@ -90,7 +91,7 @@ class IncomingCallViewModel @Inject constructor(
             acceptCall(conversationId = conversationId)
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(it))
+                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
                 )
             )
         }

@@ -3,6 +3,7 @@ package com.wire.android.ui.authentication.create.username
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.mockUri
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
@@ -44,6 +45,7 @@ class CreateAccountUsernameViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
+        mockUri()
         createAccountUsernameViewModel = CreateAccountUsernameViewModel(navigationManager, validateUserHandleUseCase, setUserHandleUseCase)
     }
 

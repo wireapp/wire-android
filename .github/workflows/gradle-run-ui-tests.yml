@@ -11,6 +11,8 @@ jobs:
     strategy:
       matrix:
         api-level: [31]
+        target: [google_apis]
+        arch: [x86_64]
 
     steps:
       - name: Checkout

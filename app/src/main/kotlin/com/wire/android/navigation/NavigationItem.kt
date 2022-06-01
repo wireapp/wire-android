@@ -5,6 +5,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
+import com.wire.android.util.deeplink.DeepLinkProcessor
+import androidx.navigation.NavDeepLink
+import androidx.navigation.navDeepLink
 import com.wire.android.BuildConfig
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
@@ -50,6 +53,7 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.toConversationId
 import io.github.esentsov.PackagePrivate
 
 @OptIn(
@@ -63,7 +67,8 @@ enum class NavigationItem(
     @PackagePrivate
     internal val primaryRoute: String,
     private val canonicalRoute: String = primaryRoute,
-    open val content: @Composable (ContentParams) -> Unit,
+    val deepLinks: List<NavDeepLink> = listOf(),
+    val content: @Composable (ContentParams) -> Unit,
     val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
 ) {
     Welcome(
@@ -222,12 +227,18 @@ enum class NavigationItem(
 
     IncomingCall(
         primaryRoute = INCOMING_CALL,
-        canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
-        content = { IncomingCallScreen() }
+        canonicalRoute = "$INCOMING_CALL?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        deepLinks = listOf(navDeepLink {
+            uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+                    "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
+                    "{$EXTRA_CONVERSATION_ID}"
+        }),
+        content = { IncomingCallScreen() },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
+            return "$INCOMING_CALL?$EXTRA_CONVERSATION_ID=$conversationIdString"
         }
     },
 

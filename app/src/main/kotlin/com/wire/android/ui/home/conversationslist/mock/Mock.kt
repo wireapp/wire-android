@@ -86,7 +86,6 @@ val mockConversations2 = listOf(
     ConversationUnreadMention(
         mentionInfo = MentionInfo(MentionMessage("Some mention message")),
         conversationType = ConversationType.GroupConversation(
-            groupColorValue = 0xFF00FF00,
             groupName = "Some group name",
             conversationId = ConversationId("someId", "someDomain"),
             mutedStatus = MutedConversationStatus.AllAllowed,
@@ -107,7 +106,6 @@ val mockConversation = ConversationType.PrivateConversation(
 )
 
 val mockGroupConversation = ConversationType.GroupConversation(
-    groupColorValue = 0xFFFF0000,
     groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,

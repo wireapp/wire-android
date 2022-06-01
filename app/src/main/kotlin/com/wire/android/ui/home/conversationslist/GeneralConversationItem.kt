@@ -12,6 +12,8 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.ConversationTitle
@@ -35,7 +37,7 @@ fun GeneralConversationItem(
         is ConversationType.GroupConversation -> {
             with(conversationType) {
                 RowItemTemplate(
-                    leadingIcon = { GroupConversationAvatar(colorValue = groupColorValue) },
+                    leadingIcon = { GroupConversationAvatar(color = colorsScheme().conversationColor(id = conversationId)) },
                     title = {
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.empty_group_label) },

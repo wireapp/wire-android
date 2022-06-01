@@ -9,7 +9,6 @@ sealed class ImageAsset {
     data class PrivateAsset(val conversationId: ConversationId, val messageId: String, val isSelfAsset: Boolean) : ImageAsset() {
         override fun toString(): String = "$conversationId:$messageId:$isSelfAsset"
     }
-
 }
 
 fun String.parseIntoPrivateImageAsset(): ImageAsset.PrivateAsset {

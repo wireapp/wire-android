@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
@@ -49,12 +50,12 @@ class IncomingCallViewModel @Inject constructor(
     var callState by mutableStateOf(IncomingCallState())
         private set
 
-    val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
+    private val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
 
     init {
         viewModelScope.launch {
             callRinger.ring(R.raw.ringing_from_them)
-            val conversationDetailsFlow = conversationDetails(conversationId = conversationId)
+            val conversationDetailsFlow = conversationDetails(conversationId)
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
             launch {
@@ -87,7 +88,7 @@ class IncomingCallViewModel @Inject constructor(
 
                 when (currentCall?.status) {
                     CallStatus.CLOSED -> onCallClosed()
-                    else -> println("DO NOTHING")
+                    else -> appLogger.i("Incoming call: call status was changed to ${currentCall?.status}, DO NOTHING")
                 }
             }
     }
@@ -114,8 +115,8 @@ class IncomingCallViewModel @Inject constructor(
     fun acceptCall() {
         stopRinging()
         viewModelScope.launch {
-            navigationManager.navigateBack()
             acceptCall(conversationId = conversationId)
+            navigationManager.navigateBack()
             navigationManager.navigate(
                 command = NavigationCommand(
                     destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))

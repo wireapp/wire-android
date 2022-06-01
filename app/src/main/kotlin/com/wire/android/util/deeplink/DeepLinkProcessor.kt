@@ -62,7 +62,6 @@ class DeepLinkProcessor {
         const val SSO_LOGIN_ERROR_PARAM = "error"
         const val SSO_LOGIN_SERVER_CONFIG_PARAM = "location"
         const val INCOMING_CALL_DEEPLINK_HOST = "incoming-call"
-        const val INCOMING_CALL_CONVERSATION_ID_PARAM = "conversation_id"
 
     }
 }

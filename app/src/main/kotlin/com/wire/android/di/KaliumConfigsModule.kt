@@ -39,8 +39,6 @@ class KaliumConfigsModule {
             isSafeLoggingEnabled = BuildConfig.SAFE_LOGGING,
             enableBlacklist = BuildConfig.ENABLE_BLACK_LIST,
             certificate = BuildConfig.CERTIFICATE,
-            countlyAppKey = BuildConfig.COUNTLY_APP_KEY,
-            countlyServerUrl = BuildConfig.COUNTLY_SERVER_URL,
             customUrlScheme = BuildConfig.CUSTOM_URL_SCHEME,
             httpProxyPort = BuildConfig.HTTP_PROXY_PORT,
             httpProxyUrl = BuildConfig.HTTP_PROXY_URL,

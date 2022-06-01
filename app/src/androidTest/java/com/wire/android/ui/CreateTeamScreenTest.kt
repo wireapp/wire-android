@@ -170,7 +170,7 @@ class CreateTeamScreenTest {
     }
 
     @Test
-    fun create_team_missmatch_password() {
+    fun create_team_mismatch_password() {
         title.assertIsDisplayed()
         continueButton.performClick()
         createTeamText.assertTextEquals(createATeamText)

@@ -168,7 +168,7 @@ class CreatePersonalAccountScreenTest {
     }
 
     @Test
-    fun create_account_missmatch_password() {
+    fun create_account_mismatch_password() {
         title.assertIsDisplayed()
         continueButton.performClick()
         createTeamText.assertTextEquals(createATeamText)

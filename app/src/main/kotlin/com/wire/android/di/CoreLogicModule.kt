@@ -31,7 +31,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import com.wire.kalium.logic.featureFlags.BuildTimeConfigs
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -58,7 +58,7 @@ class CoreLogicModule {
     @KaliumCoreLogic
     @Singleton
     @Provides
-    fun coreLogicProvider(@ApplicationContext context: Context, buildTimeConfigs: BuildTimeConfigs): CoreLogic {
+    fun coreLogicProvider(@ApplicationContext context: Context, kaliumConfigs: KaliumConfigs): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
 
@@ -66,7 +66,7 @@ class CoreLogicModule {
             appContext = context,
             rootPath = rootPath,
             clientLabel = deviceLabel,
-            buildTimeConfigs = buildTimeConfigs
+            kaliumConfigs = kaliumConfigs
         )
     }
 }

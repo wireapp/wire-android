@@ -72,7 +72,7 @@ internal fun MutingOptionsSheetContent(
 }
 
 @Composable
-private fun CheckIcon() {
+internal fun CheckIcon() {
     Icon(
         painter = painterResource(id = R.drawable.ic_check_circle),
         contentDescription = stringResource(R.string.content_description_check),

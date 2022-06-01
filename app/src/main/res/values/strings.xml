@@ -199,6 +199,7 @@
     <string name="new_group_title">New Group</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name">Group name</string>
+    <string name="protocol">Protocol</string>
     <string name="empty_group_name_error">Group name should not be empty</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
     <string name="asset_message_tap_to_download_text">Tap to download</string>

@@ -121,7 +121,7 @@ internal fun WireTextField(
 }
 
 @Composable
-private fun Label(
+fun Label(
     labelText: String,
     labelMandatoryIcon: Boolean,
     state: WireTextFieldState,

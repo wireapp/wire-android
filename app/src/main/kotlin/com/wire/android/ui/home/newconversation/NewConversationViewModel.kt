@@ -214,7 +214,7 @@ class NewConversationViewModel
                 val result = createGroupConversation(
                     name = groupNameState.groupName.text,
                     members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
-                    options = ConversationOptions()
+                    options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
                 )
             ) {
                 // TODO: handle the error state

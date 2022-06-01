@@ -1,7 +1,6 @@
 package com.wire.android.ui
 
 import android.content.Intent
-import android.net.Uri
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -25,7 +24,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.internal.assertEquals
@@ -74,7 +72,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with CustomServerConfig, when currentSession is present, then startNavigation is Login and navArguments do not contains SSOLogin`() {
+    fun `given Intent with CustomServerConfig, then startNavigation is Login and no SSOLogin in navArguments`() {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
@@ -111,7 +109,11 @@ class WireActivityViewModelTest {
         val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(mockedIntent())
 
         assert(!shouldReCreate)
-        coVerify(exactly = 1) { arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId)))) }
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId)))
+            )
+        }
     }
 
     @Test

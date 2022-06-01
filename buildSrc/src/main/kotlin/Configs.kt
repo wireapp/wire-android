@@ -47,9 +47,9 @@ enum class Configs(val value: String, val configType: ConfigType) {
     CERTIFICATE_PIN("certificatePin", ConfigType.CERTIFICATE_PIN),
 
 
-//    CANDIDATE("candidate", ConfigType.FLAVOUR_CONFIG),
-//    EXPERIMENTAL("experimental", ConfigType.FLAVOUR_CONFIG),
-//    FDROID("fdroid", ConfigType.FLAVOUR_CONFIG),
+    CANDIDATE("candidate", ConfigType.FLAVOUR_CONFIG),
+    EXPERIMENTAL("experimental", ConfigType.FLAVOUR_CONFIG),
+    FDROID("fdroid", ConfigType.FLAVOUR_CONFIG),
     DEV("dev", ConfigType.FLAVOUR_CONFIG),
     INTERNAL("internal", ConfigType.FLAVOUR_CONFIG),
     PROD("prod", ConfigType.FLAVOUR_CONFIG);

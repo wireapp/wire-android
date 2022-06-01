@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -23,6 +24,8 @@ import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,14 +43,16 @@ class IncomingCallViewModel @Inject constructor(
     var callState by mutableStateOf(IncomingCallState())
         private set
 
-    val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
+    private val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
 
     init {
         viewModelScope.launch {
             callRinger.ring(R.raw.ringing_from_them)
+            val conversationDetailsFlow = conversationDetails(conversationId)
+                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+
             launch {
-                conversationDetails(conversationId = conversationId)
-                    .collect { initializeScreenState(conversationDetails = it) }
+                conversationDetailsFlow.collect { initializeScreenState(conversationDetails = it) }
             }
             launch {
                 observeIncomingCall()
@@ -56,13 +61,15 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     private suspend fun observeIncomingCall() {
-        allCalls().collect {
-            if (it.first().conversationId == conversationId)
-                when (it.first().status) {
+        allCalls()
+            .collect { calls ->
+                val currentCall = calls.firstOrNull { call -> call.conversationId == conversationId }
+
+                when (currentCall?.status) {
                     CallStatus.CLOSED -> onCallClosed()
-                    else -> print("DO NOTHING")
+                    else -> appLogger.i("Incoming call: call status was changed to ${currentCall?.status}, DO NOTHING")
                 }
-        }
+            }
     }
 
     private fun onCallClosed() {
@@ -81,7 +88,6 @@ class IncomingCallViewModel @Inject constructor(
         callRinger.stop()
         viewModelScope.launch {
             acceptCall(conversationId = conversationId)
-
             navigationManager.navigateBack()
             navigationManager.navigate(
                 command = NavigationCommand(

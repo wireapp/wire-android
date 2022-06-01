@@ -13,6 +13,8 @@ import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
+import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -38,11 +40,9 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
-import com.wire.android.util.getConversationColor
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
-import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
@@ -80,7 +80,7 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -139,7 +139,7 @@ class ConversationViewModel @Inject constructor(
                 is ConversationDetails.OneOne ->
                     ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) })
                 is ConversationDetails.Group ->
-                    ConversationAvatar.Group(getConversationColor(conversationDetails.conversation.id))
+                    ConversationAvatar.Group(conversationDetails.conversation.id)
                 else -> ConversationAvatar.None
             }
             conversationViewState = conversationViewState.copy(
@@ -157,6 +157,18 @@ class ConversationViewModel @Inject constructor(
 
     private fun setMessagesAsNotified() = viewModelScope.launch {
         markMessagesAsNotified(conversationId, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
+    }
+
+    internal fun checkPendingActions() {
+        // Check if there are messages to delete
+        val messageToDeleteId = savedStateHandle
+            .get<String>(EXTRA_MESSAGE_TO_DELETE_ID)
+        val messageToDeleteIsSelf = savedStateHandle
+            .get<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
+
+        if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
+            showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
+        }
     }
     // endregion
 
@@ -255,7 +267,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun showOnAssetDownloadedDialog(assetName: String?, assetData: ByteArray, messageId: String) {
+    fun showOnAssetDownloadedDialog(assetName: String, assetData: ByteArray, messageId: String) {
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Displayed(assetName, assetData, messageId))
     }
 
@@ -371,7 +383,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onOpenFileWithExternalApp(assetName: String?, assetData: ByteArray) {
+    fun onOpenFileWithExternalApp(assetName: String, assetData: ByteArray) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 fileManager.openWithExternalApp(assetName, assetData) { onOpenFileError() }
@@ -380,12 +392,14 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onSaveFile(assetName: String?, assetData: ByteArray, messageId: String) {
+    fun onSaveFile(assetName: String, assetData: ByteArray, messageId: String) {
         viewModelScope.launch {
-            fileManager.saveToExternalStorage(assetName, assetData) {
-                updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
-                onFileSavedToExternalStorage(assetName)
-                hideOnAssetDownloadedDialog()
+            withContext(dispatchers.io()) {
+                fileManager.saveToExternalStorage(assetName, assetData) {
+                    updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
+                    onFileSavedToExternalStorage(assetName)
+                    hideOnAssetDownloadedDialog()
+                }
             }
         }
     }
@@ -416,11 +430,11 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun navigateToGallery(messageId: String) {
+    fun navigateToGallery(messageId: String, isSelfMessage: Boolean) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId)))
+                    destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId, isSelfMessage)))
                 )
             )
         }

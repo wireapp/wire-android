@@ -4,13 +4,14 @@ import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.FileManager
-import com.wire.android.util.getConversationColor
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -27,8 +28,6 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.android.mapper.UserTypeMapper
-import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
@@ -49,7 +48,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -268,20 +266,6 @@ class ConversationsViewModelTest {
     }
 
     @Test
-    fun `given a group conversation, when solving the conversation avatar, then the color of the conversation is used`() = runTest {
-        // Given
-        val conversationDetails = mockConversationDetailsGroup("")
-        val conversationColor = 0xFF00FF00
-        mockkStatic("com.wire.android.util.ColorUtilKt")
-        every { getConversationColor(any()) } returns conversationColor
-        val (_, viewModel) = Arrangement().withChannelUpdates(conversationDetails = conversationDetails).arrange()
-        val actualAvatar = viewModel.conversationViewState.conversationAvatar
-        // When - Then
-        assert(actualAvatar is ConversationAvatar.Group)
-        assertEquals(conversationColor, (actualAvatar as ConversationAvatar.Group).groupColorValue)
-    }
-
-    @Test
     fun `given a user sends an image message larger than 15MB, when invoked, then sendImageMessageUseCase isn't called`() = runTest {
         // Given
         val (arrangement, viewModel) = Arrangement().withSuccessfulSendAttachmentMessage().arrange()
@@ -486,7 +470,7 @@ class ConversationsViewModelTest {
             return this
         }
 
-        fun withSuccessfulSaveAssetMessage(assetName: String?, assetData: ByteArray, messageId: String): Arrangement {
+        fun withSuccessfulSaveAssetMessage(assetName: String, assetData: ByteArray, messageId: String): Arrangement {
             viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
             coEvery { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
                 viewModel.hideOnAssetDownloadedDialog()
@@ -494,7 +478,7 @@ class ConversationsViewModelTest {
             return this
         }
 
-        fun withSuccessfulOpenAssetMessage(assetName: String?, assetData: ByteArray, messageId: String): Arrangement {
+        fun withSuccessfulOpenAssetMessage(assetName: String, assetData: ByteArray, messageId: String): Arrangement {
             viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
             every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
                 viewModel.hideOnAssetDownloadedDialog()
@@ -541,14 +525,14 @@ class ConversationsViewModelTest {
     private fun mockOtherUserDetails(
         name: String,
         id: UserId = UserId("other", "user"),
-        userType : UserType = UserType.INTERNAL
+        userType: UserType = UserType.INTERNAL
     ): MemberDetails.Other = mockk<MemberDetails.Other>().also {
         every { it.otherUser } returns mockk<OtherUser>().also { user ->
             every { user.id } returns id
             every { user.name } returns name
             every { user.previewPicture } returns null
         }
-        every{ it.userType } returns userType
+        every { it.userType } returns userType
     }
 
     private fun mockedMessage(senderId: UserId) = Message(

@@ -25,8 +25,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesFileManager(@ApplicationContext appContext: Context, dispatchers: DispatcherProvider): FileManager =
-        FileManager(appContext, dispatchers)
+    fun providesFileManager(@ApplicationContext appContext: Context): FileManager = FileManager(appContext)
 
     @Singleton
     @Provides

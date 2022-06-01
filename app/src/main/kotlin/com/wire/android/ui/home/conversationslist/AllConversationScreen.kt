@@ -24,7 +24,6 @@ fun AllConversationScreen(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {},
-    //openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -37,7 +36,6 @@ fun AllConversationScreen(
         onOpenConversation = onOpenConversation,
         onEditConversation = onEditConversation,
         onOpenUserProfile = onOpenUserProfile,
-        //openConversationNotificationsSettings = openConversationNotificationsSettings,
     )
 }
 
@@ -49,7 +47,6 @@ private fun AllConversationContent(
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    //openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -66,7 +63,6 @@ private fun AllConversationContent(
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
-                    //openNotificationsOptions = openConversationNotificationsSettings,
                 )
             }
         }
@@ -86,7 +82,6 @@ private fun AllConversationContent(
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
-                    //openNotificationsOptions = openConversationNotificationsSettings,
                 )
             }
         }

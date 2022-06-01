@@ -22,7 +22,6 @@ fun CallsScreen(
     onEditConversationItem: (ConversationItem) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit,
-    // openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     val lazyListState = com.wire.android.ui.common.extension.rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -35,7 +34,6 @@ fun CallsScreen(
         onCallItemClick = onCallItemClick,
         onEditConversationItem = onEditConversationItem,
         onOpenUserProfile = onOpenUserProfile,
-        // openConversationNotificationsSettings = openConversationNotificationsSettings
     )
 }
 
@@ -48,7 +46,6 @@ fun CallContent(
     onCallItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    // openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -64,7 +61,6 @@ fun CallContent(
                 openConversation = onCallItemClick,
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                // openNotificationsOptions = openConversationNotificationsSettings,
             )
         }
 
@@ -77,7 +73,6 @@ fun CallContent(
                 openConversation = onCallItemClick,
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                // openNotificationsOptions = openConversationNotificationsSettings,
             )
         }
     }

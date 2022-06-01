@@ -60,7 +60,10 @@ fun ConversationRouterHomeBridge(
             onHomeBottomSheetContentChange {
                 ConversationSheetContent(
                     conversationSheetContent = conversationSheetContent,
-                    onMutingConversationStatusChange = conversationState::muteConversation,
+                    onMutingConversationStatusChange = {
+                        conversationState.muteConversation(it)
+                        viewModel.muteConversation(conversationSheetContent.conversationId, it)
+                    },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,
                     moveConversationToArchive = viewModel::moveConversationToArchive,

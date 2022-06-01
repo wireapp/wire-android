@@ -45,6 +45,7 @@ fun IncomingCallScreen(
 
     IncomingCallContent(
         state = sharedCallingViewModel.callState,
+        toggleMute = { sharedCallingViewModel.toggleMute() },
         declineCall = {
             incomingCallViewModel.declineCall()
         },
@@ -58,6 +59,7 @@ fun IncomingCallScreen(
 @Composable
 private fun IncomingCallContent(
     state: CallState,
+    toggleMute: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit
 ) {
@@ -72,6 +74,8 @@ private fun IncomingCallContent(
         sheetPeekHeight = dimensions().defaultIncomingCallSheetPeekHeight,
         sheetContent = {
             CallingControls(
+                callState =  state,
+                toggleMute = toggleMute,
                 declineCall = declineCall,
                 acceptCall = acceptCall
             )
@@ -122,10 +126,12 @@ private fun IncomingCallTopBar(
 
 @Composable
 private fun CallingControls(
+    callState: CallState,
+    toggleMute: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit
 ) {
-    CallOptionsControls()
+    CallOptionsControls(callState, toggleMute)
     Box(
         modifier = Modifier
             .fillMaxWidth()

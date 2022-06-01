@@ -13,11 +13,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun CallOptionsControls() {
+fun CallOptionsControls(
+    callState: CallState,
+    toggleMute: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -29,7 +33,7 @@ fun CallOptionsControls() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MicrophoneButton(isMuted = true) { }
+            MicrophoneButton(isMuted = callState.isMuted, toggleMute)
             Text(
                 text = stringResource(id = R.string.calling_label_microphone).uppercase(),
                 style = MaterialTheme.wireTypography.label01,
@@ -68,5 +72,5 @@ fun CallOptionsControls() {
 @Preview
 @Composable
 fun ComposablePreview() {
-    CallOptionsControls()
+    CallOptionsControls(CallState()) { }
 }

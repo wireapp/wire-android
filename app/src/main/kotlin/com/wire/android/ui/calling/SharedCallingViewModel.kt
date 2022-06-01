@@ -87,7 +87,9 @@ class SharedCallingViewModel @Inject constructor(
             calls.find { call ->
                 call.conversationId == conversationId
             }?.let {
-                // TODO update screen state
+                callState = callState.copy(
+                    isMuted = it.isMuted
+                )
             }
         }
     }
@@ -109,10 +111,10 @@ class SharedCallingViewModel @Inject constructor(
     fun toggleMute() {
         viewModelScope.launch {
             callState = if (callState.isMuted) {
-                unMuteCall()
+                unMuteCall(conversationId)
                 callState.copy(isMuted = false)
             } else {
-                muteCall()
+                muteCall(conversationId)
                 callState.copy(isMuted = true)
             }
         }

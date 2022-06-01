@@ -43,6 +43,7 @@ fun InitiatingCallScreen(
 ) {
     InitiatingCallContent(
         callState = sharedCallingViewModel.callState,
+        toggleMute = { sharedCallingViewModel.toggleMute() },
         onNavigateBack = { sharedCallingViewModel.navigateBack() },
         onHangUpCall = { sharedCallingViewModel.hangUpCall() }
     )
@@ -52,6 +53,7 @@ fun InitiatingCallScreen(
 @Composable
 fun InitiatingCallContent(
     callState: CallState,
+    toggleMute: () -> Unit,
     onNavigateBack: () -> Unit,
     onHangUpCall: () -> Unit
 ) {
@@ -70,7 +72,7 @@ fun InitiatingCallContent(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CallOptionsControls()
+                CallOptionsControls(callState, toggleMute)
                 Spacer(
                     modifier = Modifier
                         .fillMaxWidth()

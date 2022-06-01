@@ -50,7 +50,8 @@ data class WireColorScheme(
     val checkedCheckmarkColor: Color,
     val ongoingCallBackground: Color,
     val initiatingCallBackground: Color,
-    val callingIncomingBackground: Color
+    val callingIncomingBackground: Color,
+    val groupAvatarColors: List<Color>
 
     ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
@@ -118,6 +119,36 @@ private val LightWireColorScheme = WireColorScheme(
     ongoingCallBackground = WireColorPalette.Gray90,
     initiatingCallBackground = WireColorPalette.Gray20,
     callingIncomingBackground = WireColorPalette.Gray20,
+    groupAvatarColors = listOf(
+        // Red
+        WireColorPalette.LightRed300,
+        WireColorPalette.LightRed500,
+        WireColorPalette.LightRed700,
+        // Green
+        WireColorPalette.LightGreen300,
+        WireColorPalette.LightGreen500,
+        WireColorPalette.LightGreen700,
+        // Blue
+        WireColorPalette.LightBlue300,
+        WireColorPalette.LightBlue500,
+        WireColorPalette.LightBlue700,
+        // Purple
+        WireColorPalette.LightPurple300,
+        WireColorPalette.LightPurple500,
+        WireColorPalette.LightPurple700,
+        // Yellow - Amber
+        WireColorPalette.LightYellow300,
+        WireColorPalette.LightYellow500,
+        WireColorPalette.LightYellow700,
+        // Petrol
+        WireColorPalette.LightPetrol300,
+        WireColorPalette.LightPetrol500,
+        WireColorPalette.LightPetrol700,
+        // Gray
+        WireColorPalette.Gray30,
+        WireColorPalette.Gray50,
+        WireColorPalette.Gray70,
+    )
 )
 
 
@@ -166,7 +197,37 @@ private val DarkWireColorScheme = WireColorScheme(
     checkedCheckmarkColor = Color.White,
     ongoingCallBackground = WireColorPalette.Gray90,
     initiatingCallBackground = WireColorPalette.Gray20,
-    callingIncomingBackground = WireColorPalette.Gray20
+    callingIncomingBackground = WireColorPalette.Gray20,
+    groupAvatarColors = listOf(
+        // Red
+        WireColorPalette.DarkRed300,
+        WireColorPalette.DarkRed500,
+        WireColorPalette.DarkRed700,
+        // Green
+        WireColorPalette.DarkGreen300,
+        WireColorPalette.DarkGreen500,
+        WireColorPalette.DarkGreen700,
+        // Blue
+        WireColorPalette.DarkBlue300,
+        WireColorPalette.DarkBlue500,
+        WireColorPalette.DarkBlue700,
+        // Purple
+        WireColorPalette.DarkPurple300,
+        WireColorPalette.DarkPurple500,
+        WireColorPalette.DarkPurple700,
+        // Yellow - Amber
+        WireColorPalette.DarkYellow300,
+        WireColorPalette.DarkYellow500,
+        WireColorPalette.DarkYellow700,
+        // Petrol
+        WireColorPalette.DarkPetrol300,
+        WireColorPalette.DarkPetrol500,
+        WireColorPalette.DarkPetrol700,
+        // Gray
+        WireColorPalette.Gray50,
+        WireColorPalette.Gray70,
+        WireColorPalette.Gray90,
+        )
 )
 
 @PackagePrivate

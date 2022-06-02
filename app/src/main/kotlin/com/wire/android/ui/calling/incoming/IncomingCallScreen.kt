@@ -1,9 +1,7 @@
 package com.wire.android.ui.calling.incoming
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,20 +20,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.ui.calling.CallPreview
 import com.wire.android.ui.calling.CallState
-import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlButtons.AcceptButton
 import com.wire.android.ui.calling.controlButtons.CallOptionsControls
 import com.wire.android.ui.calling.controlButtons.DeclineButton
-import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
-import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun IncomingCallScreen(
@@ -45,22 +41,20 @@ fun IncomingCallScreen(
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(incomingCallViewModel = incomingCallViewModel)
 
     IncomingCallContent(
-        state = sharedCallingViewModel.callState,
-        toggleMute = { sharedCallingViewModel.toggleMute() },
-        declineCall = {
-            incomingCallViewModel.declineCall()
-        },
-        acceptCall = {
-            audioPermissionCheck.launch()
-        }
+        sharedCallingViewModel = sharedCallingViewModel,
+        toggleMute = sharedCallingViewModel::toggleMute,
+        toggleVideo = sharedCallingViewModel::toggleVideo,
+        declineCall = incomingCallViewModel::declineCall,
+        acceptCall = audioPermissionCheck::launch
     )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun IncomingCallContent(
-    state: CallState,
+    sharedCallingViewModel: SharedCallingViewModel,
     toggleMute: () -> Unit,
+    toggleVideo: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit
 ) {
@@ -75,38 +69,20 @@ private fun IncomingCallContent(
         sheetPeekHeight = dimensions().defaultIncomingCallSheetPeekHeight,
         sheetContent = {
             CallingControls(
-                callState =  state,
+                callState = sharedCallingViewModel.callState,
                 toggleMute = toggleMute,
+                toggleVideo = toggleVideo,
                 declineCall = declineCall,
                 acceptCall = acceptCall
             )
         },
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = when (state.conversationName) {
-                    is ConversationName.Known -> state.conversationName.name
-                    is ConversationName.Unknown -> stringResource(id = state.conversationName.resourceId)
-                    else -> ""
-                },
-                style = MaterialTheme.wireTypography.title01,
-                modifier = Modifier.padding(top = dimensions().spacing24x)
-            )
-            Text(
-                text = stringResource(id = R.string.calling_label_incoming_call),
-                style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.padding(top = dimensions().spacing8x)
-            )
-            UserProfileAvatar(
-                userAvatarAsset = state.avatarAssetId,
-                size = dimensions().callingIncomingUserAvatarSize,
-                modifier = Modifier.padding(top = dimensions().spacing56x)
-            )
-        }
+        CallPreview(
+            callState = sharedCallingViewModel.callState,
+            onVideoPreviewCreated = {
+                sharedCallingViewModel.setVideoPreview(it)
+            }
+        )
     }
 }
 
@@ -129,10 +105,11 @@ private fun IncomingCallTopBar(
 private fun CallingControls(
     callState: CallState,
     toggleMute: () -> Unit,
+    toggleVideo: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit
 ) {
-    CallOptionsControls(callState, toggleMute)
+    CallOptionsControls(callState, toggleMute, toggleVideo)
     Box(
         modifier = Modifier
             .fillMaxWidth()

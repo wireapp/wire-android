@@ -96,11 +96,10 @@ private fun OngoingCallContent(
                 // but we are still getting it with our current compose version 1.2.0-beta01
                 AndroidView(factory = {
                     val videoPreview = VideoPreview(it)
-                    sharedCallingViewModel.setVideoPreview(null)
                     sharedCallingViewModel.setVideoPreview(videoPreview)
                     videoPreview
                 })
-            }
+            } else sharedCallingViewModel.clearVideoPreview()
             UserProfileAvatar(
                 userAvatarAsset = sharedCallingViewModel.callState.avatarAssetId,
                 size = dimensions().onGoingCallUserAvatarSize
@@ -165,7 +164,7 @@ private fun observeScreenLifecycleChanges(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) {
-                if(sharedCallingViewModel.callState.isCameraOn)
+                if (sharedCallingViewModel.callState.isCameraOn)
                     sharedCallingViewModel.pauseVideo()
             }
         }

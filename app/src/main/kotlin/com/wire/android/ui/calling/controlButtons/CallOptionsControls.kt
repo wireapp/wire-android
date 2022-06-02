@@ -20,7 +20,8 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun CallOptionsControls(
     callState: CallState,
-    toggleMute: () -> Unit
+    toggleMute: () -> Unit,
+    toggleVideo: () -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -45,9 +46,9 @@ fun CallOptionsControls(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CameraButton(
-                isCameraOn = false,
+                isCameraOn = callState.isCameraOn,
                 onCameraPermissionDenied = { },
-                onCameraButtonClicked = { }
+                onCameraButtonClicked = toggleVideo
             )
             Text(
                 text = stringResource(id = R.string.calling_label_camera).uppercase(),
@@ -72,5 +73,5 @@ fun CallOptionsControls(
 @Preview
 @Composable
 fun ComposablePreview() {
-    CallOptionsControls(CallState()) { }
+    CallOptionsControls(CallState(), { }, { })
 }

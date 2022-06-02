@@ -1,8 +1,10 @@
 package com.wire.android.ui.calling
 
+import android.view.View
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
@@ -56,6 +58,9 @@ class SharedCallingViewModelTest {
 
     @MockK
     private lateinit var callRinger: CallRinger
+
+    @MockK
+    private lateinit var view: View
 
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
 
@@ -113,7 +118,6 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.toggleVideo() }
 
-        coVerify(exactly = 1) { updateVideoState(any(), any()) }
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
     }
 
@@ -124,12 +128,11 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.toggleVideo() }
 
-        coVerify(exactly = 1) { updateVideoState(any(), any()) }
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo true
     }
 
     @Test
-    fun `given active call, when user end call, then invoke endCall useCase`() {
+    fun `given an active call, when the user ends call, then invoke endCall useCase`() {
         coEvery { navigationManager.navigateBack() } returns Unit
         coEvery { endCall(any()) } returns Unit
         every { callRinger.stop() } returns Unit
@@ -139,6 +142,40 @@ class SharedCallingViewModelTest {
         coVerify(exactly = 1) { endCall(any()) }
         coVerify(exactly = 1) { callRinger.stop() }
         coVerify(exactly = 1) { navigationManager.navigateBack() }
+    }
+
+    @Test
+    fun `given an active call, when setVideoPreview is called, then set the video preview and update video state to STARTED`() {
+        coEvery { setVideoPreview(any(), any()) } returns Unit
+        coEvery { updateVideoState(any(), any()) } returns Unit
+
+        runTest {sharedCallingViewModel.setVideoPreview(view) }
+
+        coVerify(exactly = 2) { setVideoPreview(any(), any()) }
+        coVerify(exactly = 1) { updateVideoState(any(), VideoState.STARTED) }
+    }
+
+    @Test
+    fun `given an active call, when clearVideoPreview is called, then clear the video preview and update video state to STOPPED`() {
+        coEvery { setVideoPreview(any(), any()) } returns Unit
+        coEvery { updateVideoState(any(), any()) } returns Unit
+
+        runTest {sharedCallingViewModel.clearVideoPreview() }
+
+        coVerify(exactly = 1) { setVideoPreview(any(), any()) }
+        coVerify(exactly = 1) { updateVideoState(any(), VideoState.STOPPED) }
+    }
+
+    @Test
+    fun `given an active call, when pauseVideo is called, then clear the video preview and update video state to PAUSED`() {
+        coEvery { setVideoPreview(any(), any()) } returns Unit
+        coEvery { updateVideoState(any(), any()) } returns Unit
+
+        runTest {sharedCallingViewModel.pauseVideo() }
+
+        coVerify(exactly = 1) { setVideoPreview(any(), any()) }
+        coVerify(exactly = 1) { updateVideoState(any(), VideoState.PAUSED) }
+        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
     }
 
     companion object {

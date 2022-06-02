@@ -6,7 +6,7 @@ enum class ConfigType(val type: String) {
     FLAVOUR_CONFIG("flavourConfigs")
 }
 
-enum class Configs(val value: String, val configType: ConfigType) {
+enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ACCOUNT_URL("accountsUrl", ConfigType.STRING),
     ALLOW_CHANGE_OF_EMAIL("allowChangeOfEmail", ConfigType.BOOLEAN),
     ALLOW_MARKETING_COMMUNICATION("allowMarketingCommunication", ConfigType.BOOLEAN),

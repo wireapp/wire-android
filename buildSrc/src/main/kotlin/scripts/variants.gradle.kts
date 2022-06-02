@@ -4,9 +4,9 @@ import CertificatePin
 import ClientConfig
 import ConfigFields
 import ConfigType
-import Configs
 import Customization
 import Customization.defaultBuildtimeConfiguration
+import FeatureConfigs
 import FeatureFlags
 import Features
 import FlavourConfigs
@@ -122,7 +122,7 @@ android {
             flavor.buildConfigField("Boolean", feature.name, activated.toString())
         }
 
-        Configs.values().forEach { configs ->
+        FeatureConfigs.values().forEach { configs ->
             when (configs.configType) {
                 ConfigType.STRING -> {
                     buildStringConfig(
@@ -153,7 +153,7 @@ android {
 
 }
 
-fun buildFlavorConfig(productFlavour: ProductFlavor, configs: Configs, buildTimeConfiguration: Customization.BuildTimeConfiguration?) {
+fun buildFlavorConfig(productFlavour: ProductFlavor, configs: FeatureConfigs, buildTimeConfiguration: Customization.BuildTimeConfiguration?) {
     if (configs.value == productFlavour.name.toLowerCase()) {
         val falvourMap = buildTimeConfiguration?.configuration?.get(productFlavour.name.toLowerCase()) as Map<*, *>
 
@@ -181,7 +181,7 @@ fun buildFlavorConfig(productFlavour: ProductFlavor, configs: Configs, buildTime
 
 
 fun buildCertificatePinConfig(productFlavour: ProductFlavor, buildTimeConfiguration: Customization.BuildTimeConfiguration?) {
-    val certificatePinMap = buildTimeConfiguration?.configuration?.get(Configs.CERTIFICATE_PIN.value) as Map<*, *>
+    val certificatePinMap = buildTimeConfiguration?.configuration?.get(FeatureConfigs.CERTIFICATE_PIN.value) as Map<*, *>
     CertificatePin.values().forEach { certificatePin ->
         when (certificatePin.configType) {
             ConfigType.STRING -> {

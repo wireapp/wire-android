@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.take
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,7 +29,6 @@ class WireNotificationManager @Inject constructor(
     private val messagesManager: MessageNotificationManager,
     private val callsManager: CallNotificationManager,
 ) {
-
     /**
      * Sync all the Pending events, fetch Message notifications from DB once and show it.
      * Can be used in Services (e.g., after receiving FCM)
@@ -72,7 +70,7 @@ class WireNotificationManager @Inject constructor(
             .getNotifications()
             .first()
 
-        messagesManager.handleNotification(listOf(), notificationsList, userId)
+        messagesManager.handleNotification(notificationsList, userId)
     }
 
     // TODO : to be changed as soon as we get the qualifiedID from the notification payload
@@ -153,24 +151,19 @@ class WireNotificationManager @Inject constructor(
                     // (empty list in here makes all the pre. notifications be removed)
                     flowOf(listOf())
                 }
-                    // we need to remember prev. displayed Notifications,
-                    // so we can remove notifications that were displayed previously but are not in the new list
-                    .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
-                    { old, newList -> old.second to newList }
                     // combining all the data that is necessary for Notifications into small data class,
                     // just to make it more readable than
-                    // Triple<List<LocalNotificationConversation>, List<LocalNotificationConversation>, QualifiedID?>
-                    .map { (oldNotifications, newNotifications) ->
-                        MessagesNotificationsData(oldNotifications, newNotifications, userId)
+                    // Pair<List<LocalNotificationConversation>, QualifiedID?>
+                    .map { newNotifications ->
+                        MessagesNotificationsData(newNotifications, userId)
                     }
             }
-            .collect { (oldNotifications, newNotifications, userId) ->
-                messagesManager.handleNotification(oldNotifications, newNotifications, userId)
+            .collect { (newNotifications, userId) ->
+                messagesManager.handleNotification(newNotifications, userId)
             }
     }
 
     private data class MessagesNotificationsData(
-        val oldNotifications: List<LocalNotificationConversation>,
         val newNotifications: List<LocalNotificationConversation>,
         val userId: QualifiedID?
     )

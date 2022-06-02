@@ -39,7 +39,6 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     private var prevNotificationsData: List<LocalNotificationConversation> = listOf()
 
     fun handleNotification(
-        oldDataDeprecated: List<LocalNotificationConversation>,
         newData: List<LocalNotificationConversation>,
         userId: QualifiedID?
     ) {

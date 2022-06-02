@@ -56,7 +56,7 @@
                       android:scheme="wire"/>
 
                 <data android:host="sso-login"
-                        android:scheme="wire"/>
+                      android:scheme="wire"/>
 
                 <data android:host="incoming-call"
                         android:scheme="wire"/>

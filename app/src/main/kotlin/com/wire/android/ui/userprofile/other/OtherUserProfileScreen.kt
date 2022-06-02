@@ -1,12 +1,10 @@
 package com.wire.android.ui.userprofile.other
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +32,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -52,6 +51,8 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         onSendConnectionRequest = { viewModel.sendConnectionRequest() },
         onOpenConversation = { viewModel.openConversation() },
         onCancelConnectionRequest = { viewModel.cancelConnectionRequest() },
+        ignoreConnectionRequest = { viewModel.ignoreConnectionRequest() },
+        acceptConnectionRequest = { viewModel.acceptConnectionRequest() },
         onNavigateBack = { viewModel.navigateBack() }
     )
 }
@@ -64,6 +65,8 @@ fun OtherProfileScreenContent(
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,
     onCancelConnectionRequest: () -> Unit,
+    acceptConnectionRequest: () -> Unit,
+    ignoreConnectionRequest: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -127,69 +130,116 @@ fun OtherProfileScreenContent(
                         }
                     } else {
                         item {
-                            Box(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentHeight()
-                                    .padding(dimensions().spacing32x)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.connection_label_member_not_belongs_to_team),
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.wireColorScheme.labelText,
-                                    style = MaterialTheme.wireTypography.body01
-                                )
-                            }
+                            ConnectionStatusInformation(state.connectionStatus)
                         }
                     }
                 }
-                if (connectionStatus is ConnectionStatus.NotConnected) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .height(dimensions().groupButtonHeight)
-                            .fillMaxWidth()
-                            .padding(all = dimensions().spacing16x)
-                    ) {
-                        AnimatedContent(connectionStatus) {
-                            if (connectionStatus.isConnectionRequestPending) {
-                                WireSecondaryButton(
-                                    text = stringResource(R.string.connection_label_cancel_request),
-                                    onClick = onCancelConnectionRequest
-                                )
-                            } else {
-                                WirePrimaryButton(
-                                    text = stringResource(R.string.connection_label_connect),
-                                    onClick = onSendConnectionRequest,
-                                    leadingIcon = {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_add_contact),
-                                            contentDescription = stringResource(R.string.content_description_right_arrow),
-                                            modifier = Modifier.padding(dimensions().spacing8x)
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    }
-                } else {
-                    Divider()
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .height(dimensions().groupButtonHeight)
-                            .fillMaxWidth()
-                            .padding(all = dimensions().spacing16x)
-                    ) {
-                        WirePrimaryButton(
-                            text = stringResource(R.string.label_open_conversation),
-                            onClick = onOpenConversation,
-                        )
-                    }
+                Divider()
+                Box(
+                    modifier = Modifier
+                        .padding(all = dimensions().spacing16x)
+                ) {
+                    ConnectionActionButton(
+                        connectionStatus,
+                        onSendConnectionRequest,
+                        onOpenConversation,
+                        onCancelConnectionRequest,
+                        acceptConnectionRequest,
+                        ignoreConnectionRequest
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ConnectionActionButton(
+    connectionStatus: ConnectionStatus,
+    onSendConnectionRequest: () -> Unit,
+    onOpenConversation: () -> Unit,
+    onCancelConnectionRequest: () -> Unit,
+    acceptConnectionRequest: () -> Unit,
+    ignoreConnectionRequest: () -> Unit,
+) {
+    when (connectionStatus) {
+        is ConnectionStatus.Sent -> WireSecondaryButton(
+            text = stringResource(R.string.connection_label_cancel_request),
+            onClick = onCancelConnectionRequest
+        )
+        is ConnectionStatus.Connected -> WirePrimaryButton(
+            text = stringResource(R.string.label_open_conversation),
+            onClick = onOpenConversation,
+        )
+        is ConnectionStatus.Pending -> Column {
+            WirePrimaryButton(
+                text = stringResource(R.string.connection_label_accept),
+                onClick = acceptConnectionRequest,
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_check_tick),
+                        contentDescription = stringResource(R.string.content_description_right_arrow),
+                        modifier = Modifier.padding(dimensions().spacing8x)
+                    )
+                }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            WirePrimaryButton(
+                text = stringResource(R.string.connection_label_ignore),
+                state = WireButtonState.Error,
+                onClick = ignoreConnectionRequest,
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_close),
+                        contentDescription = stringResource(R.string.content_description_right_arrow),
+                    )
+                }
+            )
+        }
+        else -> WirePrimaryButton(
+            text = stringResource(R.string.connection_label_connect),
+            onClick = onSendConnectionRequest,
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_add_contact),
+                    contentDescription = stringResource(R.string.content_description_right_arrow),
+                    modifier = Modifier.padding(dimensions().spacing8x)
+                )
+            }
+        )
+
+    }
+
+}
+
+@Composable
+private fun ConnectionStatusInformation(connectionStatus: ConnectionStatus) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(dimensions().spacing32x)
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            if (connectionStatus is ConnectionStatus.Pending)
+                Text(
+                    text = stringResource(R.string.connection_label_user_wants_to_conect),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.wireColorScheme.onSurface,
+                    style = MaterialTheme.wireTypography.title02
+                )
+            Spacer(modifier = Modifier.height(24.dp))
+            val descriptionResource = when (connectionStatus) {
+                ConnectionStatus.Pending -> R.string.connection_label_accepting_request_description
+                ConnectionStatus.Connected -> throw IllegalStateException("Unhandled Connected ConnectionStatus")
+                else -> R.string.connection_label_member_not_belongs_to_team
+            }
+            Text(
+                text = stringResource(descriptionResource),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.wireColorScheme.labelText,
+                style = MaterialTheme.wireTypography.body01
+            )
         }
     }
 }
@@ -246,8 +296,11 @@ private fun handleOperationMessages(
     operationState?.let { errorType ->
         val message = when (errorType) {
             is ConnectionOperationState.ConnectionRequestError -> stringResource(id = R.string.connection_request_sent_error)
-            is ConnectionOperationState.SuccessConnectionRequest -> stringResource(id = R.string.connection_request_sent)
+            is ConnectionOperationState.SuccessConnectionSentRequest -> stringResource(id = R.string.connection_request_sent)
             is ConnectionOperationState.LoadUserInformationError -> stringResource(id = R.string.error_unknown_message)
+            is ConnectionOperationState.SuccessConnectionAcceptRequest -> stringResource(id = R.string.connection_request_accepted)
+            is ConnectionOperationState.SuccessConnectionCancelRequest -> stringResource(id = R.string.connection_request_canceled)
+            is ConnectionOperationState.SuccessConnectionIgnoreRequest -> stringResource(id = R.string.connection_request_ignored)
         }
         LaunchedEffect(errorType) {
             snackbarHostState.showSnackbar(message)

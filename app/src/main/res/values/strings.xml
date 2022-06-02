@@ -22,6 +22,10 @@
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_try_again">Try again</string>
     <string name="label_federated_membership">Federated</string>
+    <string name="label_download">Download</string>
+    <string name="label_show">Show</string>
+    <string name="label_show_all">Show All</string>
+    <string name="label_show_less">Show Less</string>
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
@@ -29,6 +33,7 @@
     <string name="content_description_user_avatar">User avatar</string>
     <string name="content_description_mute">Mute</string>
     <string name="content_description_check">Check mark</string>
+    <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_add_to_favourite">Add to favourite</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
@@ -61,6 +66,7 @@
     <string name="content_description_image_message">Image message</string>
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping everyone</string>
+    <string name="content_description_system_message_icon">System message icon</string>
 
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -197,7 +203,8 @@
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
     <string name="asset_message_tap_to_download_text">Tap to download</string>
     <string name="asset_message_download_in_progress_text">Downloading...</string>
-    <string name="asset_message_downloaded_text">Downloaded</string>
+    <string name="asset_message_downloaded_internally_text">Downloaded</string>
+    <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">File not available</string>
     <string name="asset_download_dialog_text">Do you want to open the file, or save it to your devices downloads folder?</string>
     <string name="asset_download_dialog_open_text">Open</string>
@@ -264,6 +271,15 @@
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
 
+    <!-- System messages -->
+    <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
+    <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>
+    <string name="label_system_message_left_the_conversation">%1$s left the conversation</string>
+    <string name="label_system_message_and">%1$s and %2$s</string>
+    <plurals name="label_system_message_x_more">
+        <item quantity="other">%1$d more</item>
+    </plurals>
+
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -288,14 +304,13 @@
     <string name="error_uploading_user_avatar">Image could not be uploaded</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
     <string name="error_conversation_sending_image">There was an error trying to send the image message. Please check your Internet connection and try again</string>
-    <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check the file you chose is not too big and try again</string>
+    <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
     <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
     <string name="error_conversation_opening_asset_file">No app was found to open the selected file</string>
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
     <string name="error_conversation_generic">There was an unknown error when trying to send the message</string>
     <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
-    <string name="conversation_on_file_downloaded_action_label">Show</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
@@ -340,13 +355,18 @@
     <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
     <string name="connection_request_sent">Connection request sent</string>
     <string name="connection_request_sent_error">Connection request could not be sent</string>
+    <string name="connection_pending_message">Wants to connect</string>
+    <string name="connection_pending_label">pending</string>
 
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
+    <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
+    <string name="media_gallery_on_image_download_error">There was an error when saving the image to Downloads folder. Please check your Internet connection and try again</string>
 
     <!--sso dialog-->
     <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
     <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
     <string name="asset_download_dialog_default_title">Download file</string>
+    <string name="empty_group_label">Unnamed conversation</string>
 
 </resources>

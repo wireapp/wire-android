@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.controlButtons.AcceptButton
 import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.DeclineButton
@@ -35,6 +36,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun IncomingCallScreen(incomingCallViewModel: IncomingCallViewModel = hiltViewModel()) {
@@ -81,7 +83,11 @@ private fun IncomingCallContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = state.conversationName ?: stringResource(id = R.string.calling_label_default_caller_name),
+                text = when (state.conversationName) {
+                    is ConversationName.Known -> state.conversationName.name
+                    is ConversationName.Unknown -> stringResource(id = state.conversationName.resourceId)
+                    else -> ""
+                },
                 style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = dimensions().spacing24x)
             )
@@ -142,7 +148,11 @@ private fun CallingControls(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CameraButton(isCameraOn = state.isCameraOn, onCameraPermissionDenied = { }) { }
+            CameraButton(
+                isCameraOn = state.isCameraOn,
+                onCameraPermissionDenied = { },
+                onCameraButtonClicked = { }
+            )
             Text(
                 text = stringResource(id = R.string.calling_label_camera),
                 style = MaterialTheme.wireTypography.label01,

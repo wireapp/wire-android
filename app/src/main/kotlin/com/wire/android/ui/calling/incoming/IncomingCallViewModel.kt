@@ -6,24 +6,27 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.media.CallRinger
+import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
-import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
-import com.wire.kalium.logic.feature.call.AnswerCallUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.android.ui.calling.getConversationName
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import java.lang.IllegalStateException
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
@@ -40,14 +43,16 @@ class IncomingCallViewModel @Inject constructor(
     var callState by mutableStateOf(IncomingCallState())
         private set
 
-    val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
+    private val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
 
     init {
         viewModelScope.launch {
             callRinger.ring(R.raw.ringing_from_them)
+            val conversationDetailsFlow = conversationDetails(conversationId)
+                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+
             launch {
-                conversationDetails(conversationId = conversationId)
-                    .collect { initializeScreenState(conversationDetails = it) }
+                conversationDetailsFlow.collect { initializeScreenState(conversationDetails = it) }
             }
             launch {
                 observeIncomingCall()
@@ -56,13 +61,15 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     private suspend fun observeIncomingCall() {
-        allCalls().collect {
-            if (it.first().conversationId == conversationId)
-                when (it.first().status) {
+        allCalls()
+            .collect { calls ->
+                val currentCall = calls.firstOrNull { call -> call.conversationId == conversationId }
+
+                when (currentCall?.status) {
                     CallStatus.CLOSED -> onCallClosed()
-                    else -> print("DO NOTHING")
+                    else -> appLogger.i("Incoming call: call status was changed to ${currentCall?.status}, DO NOTHING")
                 }
-        }
+            }
     }
 
     private fun onCallClosed() {
@@ -74,7 +81,6 @@ class IncomingCallViewModel @Inject constructor(
         callRinger.stop()
         viewModelScope.launch {
             rejectCall(conversationId = conversationId)
-            navigationManager.navigateBack()
         }
     }
 
@@ -82,7 +88,6 @@ class IncomingCallViewModel @Inject constructor(
         callRinger.stop()
         viewModelScope.launch {
             acceptCall(conversationId = conversationId)
-
             navigationManager.navigateBack()
             navigationManager.navigate(
                 command = NavigationCommand(
@@ -94,14 +99,17 @@ class IncomingCallViewModel @Inject constructor(
 
     private fun initializeScreenState(conversationDetails: ConversationDetails) {
         callState = when (conversationDetails) {
-            is ConversationDetails.Group -> callState.copy(conversationName = conversationDetails.conversation.name)
+            is ConversationDetails.Group -> callState.copy(
+                conversationName = getConversationName(conversationDetails.conversation.name)
+            )
             is ConversationDetails.OneOne -> {
                 callState.copy(
-                    conversationName = conversationDetails.otherUser.name,
+                    conversationName = getConversationName(conversationDetails.otherUser.name),
                     avatarAssetId = conversationDetails.otherUser.completePicture?.let { UserAvatarAsset(it) }
                 )
             }
             is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
+            is ConversationDetails.Connection -> throw IllegalStateException("Invalid conversation type")
         }
     }
 }

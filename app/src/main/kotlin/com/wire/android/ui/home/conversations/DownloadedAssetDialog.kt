@@ -14,25 +14,25 @@ import com.wire.android.util.permission.WriteToExternalStorageRequestFlow
 @Composable
 fun DownloadedAssetDialog(
     downloadedAssetDialogState: DownloadedAssetDialogVisibilityState,
-    onSaveFileToExternalStorage: (String?, ByteArray) -> Unit,
-    onOpenFileWithExternalApp: (String?, ByteArray) -> Unit,
+    onSaveFileToExternalStorage: (String, ByteArray, String) -> Unit,
+    onOpenFileWithExternalApp: (String, ByteArray) -> Unit,
     hideOnAssetDownloadedDialog: () -> Unit
 ) {
-    val dialogState = downloadedAssetDialogState
     val context = LocalContext.current
 
-    if (dialogState is DownloadedAssetDialogVisibilityState.Displayed) {
-        val assetName = dialogState.assetName
-        val assetData = dialogState.assetData
+    if (downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed) {
+        val assetName = downloadedAssetDialogState.assetName
+        val assetData = downloadedAssetDialogState.assetData
+        val messageId = downloadedAssetDialogState.messageId
 
         // Flow to get write to external storage permission
         val requestWriteToExternalStorageRequestFlow = WriteToExternalStorageRequestFlow(
             context = context,
-            onPermissionGranted = { onSaveFileToExternalStorage(assetName, assetData) },
+            onPermissionGranted = { onSaveFileToExternalStorage(assetName, assetData, messageId) },
             writeToExternalStoragePermissionLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) {
-                    onSaveFileToExternalStorage(assetName, assetData)
+                    onSaveFileToExternalStorage(assetName, assetData, messageId)
                 } else {
                     // TODO: Implement denied permission rationale
                 }

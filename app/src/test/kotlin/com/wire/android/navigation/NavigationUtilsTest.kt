@@ -31,7 +31,8 @@ internal class NavigationUtilsTest {
         val mockConversationIdValue = "mocked-conversation-id-value"
         val mockConversationIdDomain = "mocked.domain"
         val mockMessageId = "mocked-message-id"
-        val correctImagePrivateAssetString = "$mockConversationIdValue@$mockConversationIdDomain:$mockMessageId"
+        val mockIsSelfAsset = "true"
+        val correctImagePrivateAssetString = "$mockConversationIdValue@$mockConversationIdDomain:$mockMessageId:$mockIsSelfAsset"
 
         // When
         val privateImgAsset = correctImagePrivateAssetString.parseIntoPrivateImageAsset()
@@ -40,6 +41,7 @@ internal class NavigationUtilsTest {
         assertEquals(privateImgAsset.conversationId.value, mockConversationIdValue)
         assertEquals(privateImgAsset.conversationId.domain, mockConversationIdDomain)
         assertEquals(privateImgAsset.messageId, mockMessageId)
+        assertEquals(privateImgAsset.isSelfAsset, mockIsSelfAsset.toBoolean())
     }
 
     @Test
@@ -85,9 +87,9 @@ internal class NavigationUtilsTest {
             QualifiedID(
                 value = mockQualifiedIdValue,
                 domain = mockQualifiedIdDomain
-            ), mockMessageId
+            ), mockMessageId, true
         )
-        val expectedPrivateAssetImage = "$mockQualifiedIdValue@$mockQualifiedIdDomain:$mockMessageId"
+        val expectedPrivateAssetImage = "$mockQualifiedIdValue@$mockQualifiedIdDomain:$mockMessageId:true"
 
         // When
         val mappedImagePrivateAsset = actualPrivateAssetImage.toString()

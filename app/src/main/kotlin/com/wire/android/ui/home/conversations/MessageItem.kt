@@ -30,6 +30,7 @@ import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.DeletedMessage
+import com.wire.android.ui.home.conversations.model.EditedMessage
 import com.wire.android.ui.home.conversations.model.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -143,7 +144,11 @@ private fun Username(username: String) {
 }
 
 @Composable
-private fun MessageContent(messageContent: MessageContent?, onAssetClick: () -> Unit, onImageClick: () -> Unit = {}) {
+private fun MessageContent(
+    messageContent: MessageContent?,
+    onAssetClick: () -> Unit,
+    onImageClick: () -> Unit = {}
+) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
@@ -158,6 +163,10 @@ private fun MessageContent(messageContent: MessageContent?, onAssetClick: () -> 
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = { onAssetClick() }
+        )
+        is MessageContent.EditedMessage -> EditedMessage(
+            messageBody = messageContent.messageBody,
+            editTime = messageContent.editTimeStamp
         )
         else -> {}
     }

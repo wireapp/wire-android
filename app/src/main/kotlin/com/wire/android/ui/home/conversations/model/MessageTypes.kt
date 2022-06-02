@@ -92,10 +92,41 @@ internal fun DeletedMessage() {
 }
 
 @Composable
+internal fun EditedMessage(messageBody: MessageBody, editTime: String) {
+    Column {
+        Text(
+            buildAnnotatedString {
+                appendBody(messageBody = messageBody)
+            }
+        )
+        Box(
+            modifier = Modifier
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.wireColorScheme.divider,
+                    shape = RoundedCornerShape(dimensions().corner4x)
+                )
+        ) {
+            Text(
+                text = stringResource(R.string.label_message_status_edited),
+                color = MaterialTheme.wireColorScheme.labelText,
+                style = MaterialTheme.wireTypography.label03,
+                modifier = Modifier
+                    .padding(
+                        horizontal = dimensions().spacing4x,
+                        vertical = dimensions().spacing2x
+                    )
+            )
+        }
+    }
+}
+
+@Composable
 fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageClick: () -> Unit) {
-    Box(Modifier
-        .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
-        .clickable { onImageClick() }
+    Box(
+        Modifier
+            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+            .clickable { onImageClick() }
     ) {
         val imageData: Bitmap? =
             if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
@@ -172,11 +203,13 @@ internal fun MessageAsset(
                     style = MaterialTheme.wireTypography.subline01
                 )
                 Row(
-                    modifier = Modifier.wrapContentWidth().constrainAs(downloadStatus) {
-                        top.linkTo(parent.top)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom)
-                    },
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .constrainAs(downloadStatus) {
+                            top.linkTo(parent.top)
+                            end.linkTo(parent.end)
+                            bottom.linkTo(parent.bottom)
+                        },
                 ) {
                     Text(
                         modifier = Modifier.padding(end = dimensions().spacing4x),

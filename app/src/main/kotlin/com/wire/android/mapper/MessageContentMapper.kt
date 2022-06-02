@@ -22,17 +22,41 @@ class MessageContentMapper @Inject constructor(
             Message.Visibility.VISIBLE ->
                 when (val content = message.content) {
                     is Asset -> toAsset(message.conversationId, message.id, content.value)
-                    is Text -> MessageContent.TextMessage(
+                    is Text -> toText(content.value, message.editStatus)
+                    else -> MessageContent.TextMessage(
                         messageBody = MessageBody(
-                            UIText.DynamicString(
-                                content.value
+                            UIText.StringResource(
+                                R.string.content_is_not_available
                             )
                         )
                     )
-                    else -> MessageContent.TextMessage(messageBody = MessageBody(UIText.StringResource(R.string.content_is_not_available)))
                 }
             Message.Visibility.DELETED -> MessageContent.DeletedMessage
             Message.Visibility.HIDDEN -> MessageContent.DeletedMessage
+        }
+    }
+
+    private fun toText(content: String, editStatus: Message.EditStatus): MessageContent? {
+        return when (editStatus) {
+            is Message.EditStatus.Edited -> {
+                MessageContent.EditedMessage(
+                    messageBody = MessageBody(
+                        UIText.DynamicString(
+                            content
+                        )
+                    ),
+                    editTimeStamp = editStatus.lastTimeStamp
+                )
+            }
+            Message.EditStatus.NotEdited -> {
+                MessageContent.TextMessage(
+                    messageBody = MessageBody(
+                        UIText.DynamicString(
+                            content
+                        )
+                    )
+                )
+            }
         }
     }
 

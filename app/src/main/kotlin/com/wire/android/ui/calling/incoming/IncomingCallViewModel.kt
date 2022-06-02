@@ -41,9 +41,6 @@ class IncomingCallViewModel @Inject constructor(
             observeIncomingCallJob = launch {
                 observeIncomingCall()
             }
-            launch {
-                observeIncomingCall()
-            }
         }
     }
 

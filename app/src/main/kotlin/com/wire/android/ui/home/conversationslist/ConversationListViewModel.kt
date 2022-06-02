@@ -73,12 +73,12 @@ class ConversationListViewModel @Inject constructor(
                         val detailedList = conversations.toConversationsFoldersMap()
                         val newActivities = prepareActivities(
                             connections.map { connection ->
-                                    ConversationDetails.Connection(
-                                        conversationId = connection.qualifiedConversationId,
-                                        otherUser = connection.fromUser,
-                                        userType = UserType.GUEST, // TODO how to get user type
-                                        lastModifiedDate = connection.lastUpdate,
-                                        connection = connection,
+                                ConversationDetails.Connection(
+                                    conversationId = connection.qualifiedConversationId,
+                                    otherUser = connection.fromUser,
+                                    userType = UserType.GUEST, // TODO how to get user type
+                                    lastModifiedDate = connection.lastUpdate,
+                                    connection = connection,
                                 )
                             }
                         )

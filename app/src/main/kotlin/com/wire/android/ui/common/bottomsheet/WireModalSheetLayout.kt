@@ -32,14 +32,6 @@ fun WireModalSheetLayout(
     sheetContent: @Composable ColumnScope.() -> Unit,
     content: @Composable () -> Unit
 ) {
-    fun hide() {
-        coroutineScope.launch { sheetState.animateTo(ModalBottomSheetValue.Hidden) }
-    }
-
-    BackHandler(enabled = sheetState.isVisible) {
-        hide()
-    }
-
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetShape = sheetShape,
@@ -55,6 +47,10 @@ fun WireModalSheetLayout(
         }
     ) {
         content()
+    }
+
+    BackHandler(enabled = sheetState.isVisible) {
+        coroutineScope.launch { sheetState.animateTo(ModalBottomSheetValue.Hidden) }
     }
 }
 

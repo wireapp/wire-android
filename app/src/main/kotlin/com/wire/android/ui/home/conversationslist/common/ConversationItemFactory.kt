@@ -2,6 +2,8 @@ package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.home.conversationslist.CallLabel
 import com.wire.android.ui.home.conversationslist.ConnectionLabel
 import com.wire.android.ui.home.conversationslist.MentionLabel
@@ -65,7 +67,7 @@ private fun GeneralConversationItem(
         is ConversationItem.GroupConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    leadingIcon = { GroupConversationAvatar(colorValue = groupColorValue) },
+                    leadingIcon = { GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId)) },
                     title = { ConversationTitle(name = groupName, isLegalHold = conversation.isLegalHold) },
                     subTitle = subTitle,
                     eventType = eventType,

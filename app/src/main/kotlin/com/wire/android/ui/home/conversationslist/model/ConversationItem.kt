@@ -13,7 +13,6 @@ sealed class ConversationItem {
     abstract val lastEvent: ConversationLastEvent
 
     data class GroupConversation(
-        val groupColorValue: Long,
         val groupName: String,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,

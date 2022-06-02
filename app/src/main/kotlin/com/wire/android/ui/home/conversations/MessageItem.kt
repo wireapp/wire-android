@@ -38,7 +38,7 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -46,8 +46,8 @@ import com.wire.android.ui.theme.wireTypography
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
-    message: MessageViewWrapper,
-    onLongClicked: (MessageViewWrapper) -> Unit,
+    message: UIMessage,
+    onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit
 ) {

@@ -8,7 +8,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserAssetId
 
-data class MessageViewWrapper(
+data class UIMessage(
     val user: User,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
@@ -39,6 +39,7 @@ enum class MessageStatus(val stringResourceId: Int) {
 sealed class MessageContent {
     data class TextMessage(val messageBody: MessageBody) : MessageContent()
     object DeletedMessage : MessageContent()
+    data class EditedMessage(val messageBody: MessageBody, val editTimeStamp: String) : MessageContent()
 
     data class AssetMessage(
         val assetName: String,

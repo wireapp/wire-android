@@ -167,7 +167,8 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given an active call, when pauseVideo is called, then clear the video preview and update video state to PAUSED`() {
+    fun `given an video call, when pauseVideo is called, then clear the video preview and update video state to PAUSED`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = true)
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 
@@ -175,6 +176,19 @@ class SharedCallingViewModelTest {
 
         coVerify(exactly = 1) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.PAUSED) }
+        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
+    }
+
+    @Test
+    fun `given an audio call, when pauseVideo is called, then do not pause the video`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = false)
+        coEvery { setVideoPreview(any(), any()) } returns Unit
+        coEvery { updateVideoState(any(), any()) } returns Unit
+
+        runTest {sharedCallingViewModel.pauseVideo() }
+
+        coVerify(exactly = 0) { setVideoPreview(any(), any()) }
+        coVerify(exactly = 0) { updateVideoState(any(), VideoState.PAUSED) }
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
     }
 

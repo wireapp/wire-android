@@ -16,6 +16,7 @@ import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -161,6 +162,7 @@ class CreateTeamScreenTest {
         }
         lastName.onChildren()[2].performTextInput("surName")
         teamName.onChildren()[2].performTextInput("teamName")
+        continueButton.performScrollTo()
         password.onChildren()[2].performTextInput("password")
         confirmPassword.onChildren()[2].performTextInput("password")
         continueButton.performClick()
@@ -183,6 +185,7 @@ class CreateTeamScreenTest {
         }
         lastName.onChildren()[2].performTextInput("surName")
         teamName.onChildren()[2].performTextInput("teamName")
+        continueButton.performScrollTo()
         password.onChildren()[2].performTextInput("Abcd1234!")
         confirmPassword.onChildren()[2].performTextInput("Abcd1234.")
         Espresso.pressBack()
@@ -207,6 +210,7 @@ class CreateTeamScreenTest {
         continueButton.assertIsNotEnabled()
         lastName.onChildren()[2].performTextInput("surName")
         continueButton.assertIsNotEnabled()
+        continueButton.performScrollTo()
         teamName.onChildren()[2].performTextInput("teamName")
         continueButton.assertIsNotEnabled()
         password.onChildren()[2].performTextInput("Abcd1234!")

@@ -16,6 +16,8 @@ import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -120,7 +122,9 @@ class CreatePersonalAccountScreenTest {
         continueButton.performClick()
         emailField.onChildren()[1].performTextInput("EMAIL")
         continueButton.performClick()
+        composeTestRule.waitForExecution {
         composeTestRule.onNodeWithText(invalidEmailError).assertIsDisplayed()
+        }
     }
 
     @Test
@@ -180,6 +184,7 @@ class CreatePersonalAccountScreenTest {
             firstName.onChildren()[2].performTextInput("name")
         }
         lastName.onChildren()[2].performTextInput("surName")
+        continueButton.performScrollTo()
         password.onChildren()[2].performTextInput("Abcd1234!")
         confirmPassword.onChildren()[2].performTextInput("Abcd1234.")
         continueButton.performClick()
@@ -203,6 +208,7 @@ class CreatePersonalAccountScreenTest {
         continueButton.assertIsNotEnabled()
         lastName.onChildren()[2].performTextInput("surName")
         continueButton.assertIsNotEnabled()
+        continueButton.performScrollTo()
         password.onChildren()[2].performTextInput("Abcd1234!")
         continueButton.assertIsNotEnabled()
         confirmPassword.onChildren()[2].performTextInput("Abcd1234.")

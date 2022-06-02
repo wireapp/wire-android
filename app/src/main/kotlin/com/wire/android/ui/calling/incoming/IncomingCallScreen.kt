@@ -46,7 +46,7 @@ fun IncomingCallScreen(
 
     IncomingCallContent(
         state = sharedCallingViewModel.callState,
-        toggleMute = { sharedCallingViewModel.toggleMute() },
+        toggleMute = sharedCallingViewModel::toggleMute,
         declineCall = {
             incomingCallViewModel.declineCall()
         },

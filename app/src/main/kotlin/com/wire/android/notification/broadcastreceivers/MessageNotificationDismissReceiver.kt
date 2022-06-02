@@ -1,4 +1,4 @@
-package com.wire.android.notification
+package com.wire.android.notification.broadcastreceivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NotificationDismissReceiver : BroadcastReceiver() {
+class MessageNotificationDismissReceiver : BroadcastReceiver() {
 
     @Inject
     @KaliumCoreLogic
@@ -56,7 +56,7 @@ class NotificationDismissReceiver : BroadcastReceiver() {
         private const val EXTRA_RECEIVER_USER_ID = "user_id_extra"
 
         fun newIntent(context: Context, conversationId: String?, userId: String?): Intent =
-            Intent(context, NotificationDismissReceiver::class.java).apply {
+            Intent(context, MessageNotificationDismissReceiver::class.java).apply {
                 putExtra(EXTRA_CONVERSATION_ID, conversationId)
                 putExtra(EXTRA_RECEIVER_USER_ID, userId)
             }

@@ -6,16 +6,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
-import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @ExperimentalMaterialApi
 class ConversationState {
     var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
 
-    fun changeModalSheetContentState(conversationType: ConversationType) {
+    fun changeModalSheetContentState(conversationType: ConversationItem) {
         when (conversationType) {
-            is ConversationType.GroupConversation -> {
+            is ConversationItem.GroupConversation -> {
                 with(conversationType) {
                     conversationSheetContent = ConversationSheetContent(
                         conversationId = conversationId,
@@ -25,7 +25,7 @@ class ConversationState {
                     )
                 }
             }
-            is ConversationType.PrivateConversation -> {
+            is ConversationItem.PrivateConversation -> {
                 with(conversationType) {
                     conversationSheetContent = ConversationSheetContent(
                         conversationId = conversationId,
@@ -34,6 +34,9 @@ class ConversationState {
                         conversationTypeDetail = ConversationTypeDetail.Private(userInfo.avatarAsset)
                     )
                 }
+            }
+            is ConversationItem.ConnectionConversation -> {
+                // TODO should we have some options for connection requests?
             }
         }
     }

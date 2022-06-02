@@ -62,7 +62,7 @@ class InitiatingCallViewModel @Inject constructor(
             is ConversationDetails.OneOne -> {
                 return@async ConversationType.OneOnOne
             }
-            is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
+            else -> throw IllegalStateException("Invalid conversation type")
         }
     }
 

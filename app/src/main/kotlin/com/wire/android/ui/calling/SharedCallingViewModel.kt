@@ -77,7 +77,7 @@ class SharedCallingViewModel @Inject constructor(
                             conversationType = ConversationType.OneOnOne
                         )
                     }
-                    is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
+                    else -> throw IllegalStateException("Invalid conversation type")
                 }
             }
     }

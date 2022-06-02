@@ -20,6 +20,7 @@ class MessageMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
 ) {
+
     suspend fun toUIMessages(
         memberDetails: List<MemberDetails>,
         messages: List<Message>
@@ -45,4 +46,5 @@ class MessageMapper @Inject constructor(
             )
         }
     }
+
 }

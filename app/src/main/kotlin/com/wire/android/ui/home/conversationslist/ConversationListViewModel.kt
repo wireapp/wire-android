@@ -195,6 +195,8 @@ class ConversationListViewModel @Inject constructor(
             is Self -> {
                 throw IllegalArgumentException("Self conversations should not be visible to the user.")
             }
+            is ConversationDetails.Connection -> throw IllegalArgumentException("Self conversations should not be visible to the user.")
+
         }
     }
 

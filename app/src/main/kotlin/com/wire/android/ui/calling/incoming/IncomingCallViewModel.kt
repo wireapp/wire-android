@@ -103,6 +103,7 @@ class IncomingCallViewModel @Inject constructor(
                 )
             }
             is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
+            is ConversationDetails.Connection ->  throw IllegalStateException("Invalid conversation type")
         }
     }
 }

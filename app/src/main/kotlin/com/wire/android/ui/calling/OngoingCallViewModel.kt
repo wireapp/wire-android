@@ -1,5 +1,6 @@
 package com.wire.android.ui.calling
 
+import android.util.Log
 import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,6 +71,7 @@ class OngoingCallViewModel @Inject constructor(
                         )
                     }
                     is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
+                    else -> throw IllegalStateException("Invalid conversation type")
                 }
             }
     }

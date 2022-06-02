@@ -33,6 +33,8 @@ import com.wire.android.ui.home.conversationslist.ConversationOperationErrorStat
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -58,7 +60,10 @@ fun ConversationRouterHomeBridge(
             onHomeBottomSheetContentChange {
                 ConversationSheetContent(
                     conversationSheetContent = conversationSheetContent,
-                    onMutingConversationStatusChange = conversationState::muteConversation,
+                    onMutingConversationStatusChange = {
+                        conversationState.muteConversation(it)
+                        viewModel.muteConversation(conversationSheetContent.conversationId, it)
+                    },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,
                     moveConversationToArchive = viewModel::moveConversationToArchive,
@@ -76,14 +81,14 @@ fun ConversationRouterHomeBridge(
         openConversation = viewModel::openConversation,
         openNewConversation = viewModel::openNewConversation,
         onEditConversationItem = { conversationItem ->
-            conversationState.changeModalSheetContentState(conversationItem.conversationType)
+            conversationState.changeModalSheetContentState(conversationItem)
             onBottomSheetVisibilityChanged()
         },
         onScrollPositionChanged = onScrollPositionChanged,
-        onError = onBottomSheetVisibilityChanged
+        onError = onBottomSheetVisibilityChanged,
+        openProfile = viewModel::openUserProfile
     )
 }
-
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -92,11 +97,12 @@ fun ConversationRouterHomeBridge(
 private fun ConversationRouter(
     uiState: ConversationListState,
     errorState: ConversationOperationErrorState?,
-    openConversation: (ConversationItem) -> Unit,
+    openConversation: (ConversationId) -> Unit,
     openNewConversation: () -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
-    onError: () -> Unit
+    onError: () -> Unit,
+    openProfile: (UserId) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val navHostController = rememberNavController()
@@ -153,9 +159,10 @@ private fun ConversationRouter(
                         AllConversationScreen(
                             newActivities = newActivities,
                             conversations = conversations,
-                            onOpenConversationClick = openConversation,
-                            onEditConversationItem = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged
+                            onOpenConversation = openConversation,
+                            onEditConversation = onEditConversationItem,
+                            onScrollPositionChanged = onScrollPositionChanged,
+                            onOpenUserProfile = openProfile,
                         )
                     }
                 )
@@ -167,7 +174,8 @@ private fun ConversationRouter(
                             callHistory = callHistory,
                             onCallItemClick = openConversation,
                             onEditConversationItem = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged
+                            onScrollPositionChanged = onScrollPositionChanged,
+                            onOpenUserProfile = openProfile,
                         )
                     }
                 )
@@ -179,7 +187,8 @@ private fun ConversationRouter(
                             allMentions = allMentions,
                             onMentionItemClick = openConversation,
                             onEditConversationItem = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged
+                            onScrollPositionChanged = onScrollPositionChanged,
+                            onOpenUserProfile = openProfile
                         )
                     }
                 )

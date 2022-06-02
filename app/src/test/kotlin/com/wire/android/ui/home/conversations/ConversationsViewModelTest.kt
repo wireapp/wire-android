@@ -542,6 +542,7 @@ class ConversationsViewModelTest {
         date = "some-date",
         senderUserId = senderId,
         senderClientId = ClientId("client-id"),
-        status = Message.Status.SENT
+        status = Message.Status.SENT,
+        editStatus = Message.EditStatus.NotEdited
     )
 }

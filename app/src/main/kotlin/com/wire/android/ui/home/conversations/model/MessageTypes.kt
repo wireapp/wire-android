@@ -108,7 +108,7 @@ internal fun EditedMessage(messageBody: MessageBody, editTime: String) {
                 )
         ) {
             Text(
-                text = stringResource(R.string.label_message_status_edited),
+                text = stringResource(R.string.label_message_status_edited, editTime),
                 color = MaterialTheme.wireColorScheme.labelText,
                 style = MaterialTheme.wireTypography.label03,
                 modifier = Modifier

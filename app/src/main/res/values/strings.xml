@@ -189,7 +189,7 @@
     <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
     <string name="label_message_status_deleted">Deleted</string>
-    <string name="label_message_status_edited">Edited</string>
+    <string name="label_message_status_edited">Edited on %s</string>
     <string name="conetnt_description_conversation_search_icon">Conversation search icon</string>
     <string name="conversations_screen_title">Conversations</string>
     <string name="conversations_all_tab_title">All</string>

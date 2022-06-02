@@ -78,9 +78,9 @@ class WireNotificationManager @Inject constructor(
         coreLogic.getAuthenticationScope().getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
-                    for (sessions in it.sessions) {
-                        if (sessions.userId.value == userId)
-                            return@let sessions.userId
+                    for (session in it.sessions) {
+                        if (session.userId.value == userId)
+                            return@let session.userId
                     }
                     null
                 }
@@ -164,6 +164,6 @@ class WireNotificationManager @Inject constructor(
 
     companion object {
         private const val CHECK_INCOMING_CALLS_PERIOD_MS = 1000L
-        private const val CHECK_INCOMING_CALLS_TRIES = 6
+        private const val CHECK_INCOMING_CALLS_TRIES = 10
     }
 }

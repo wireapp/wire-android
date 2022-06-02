@@ -4,10 +4,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.ui.ExperimentalComposeUiApi
 import com.wire.android.notification.broadcastreceivers.CallNotificationDismissReceiver
 import com.wire.android.notification.broadcastreceivers.MessageNotificationDismissReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
@@ -34,12 +30,6 @@ fun dismissMessagePendingIntent(context: Context, conversationId: String?, userI
 //TODO
 fun callMessagePendingIntent(context: Context, conversationId: String): PendingIntent = summaryMessagePendingIntent(context)
 
-@OptIn(
-    ExperimentalAnimationApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class,
-    ExperimentalComposeUiApi::class
-)
 fun summaryMessagePendingIntent(context: Context): PendingIntent {
     val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -60,12 +50,6 @@ fun replyMessagePendingIntent(context: Context, conversationId: String): Pending
     PendingIntent.FLAG_MUTABLE
 )
 
-@OptIn(
-    ExperimentalAnimationApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class,
-    ExperimentalComposeUiApi::class
-)
 fun openCallPendingIntent(context: Context, conversationId: String): PendingIntent {
     val intent = openCallIntent(context, conversationId)
 
@@ -99,12 +83,6 @@ fun fullScreenCallPendingIntent(context: Context, conversationId: String): Pendi
     )
 }
 
-@OptIn(
-    ExperimentalAnimationApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class,
-    ExperimentalComposeUiApi::class
-)
 private fun openCallIntent(context: Context, conversationId: String) =
     Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()

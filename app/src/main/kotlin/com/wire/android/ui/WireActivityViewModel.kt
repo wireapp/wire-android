@@ -6,7 +6,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.UserSessionScopeProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -14,6 +14,7 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.GetServerConfigResult
 import com.wire.kalium.logic.configuration.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.ServerConfig
@@ -41,9 +42,9 @@ import javax.inject.Inject
 )
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     dispatchers: DispatcherProvider,
     currentSessionFlow: CurrentSessionFlowUseCase,
-    private val userSessionScopeProvider: UserSessionScopeProvider.Factory,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val notificationManager: WireNotificationManager,
@@ -76,11 +77,7 @@ class WireActivityViewModel @Inject constructor(
                     .filterNotNull()
                     .collect { userId ->
                         // listen for the WebSockets updates and update DB accordingly
-                        launch {
-                            userSessionScopeProvider.create(userId)
-                                .userSessionScope
-                                .listenToEvents()
-                        }
+                        launch { coreLogic.getSessionScope(userId).listenToEvents() }
                     }
             }
         }

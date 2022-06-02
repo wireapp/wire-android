@@ -1,12 +1,9 @@
 package com.wire.android.notification
 
 import android.app.Notification
+import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -17,12 +14,6 @@ import com.wire.kalium.logic.feature.call.Call
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@OptIn(
-    ExperimentalAnimationApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class,
-    ExperimentalComposeUiApi::class
-)
 @Singleton
 class CallNotificationManager @Inject constructor(private val context: Context) {
 
@@ -58,7 +49,18 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         val title = getNotificationTitle(call)
         val content = getNotificationBody(call)
 
-        return getCompatNotification(title, content, conversationIdString, userIdString)
+        return NotificationCompat.Builder(context, CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(content)
+            .addAction(getDeclineCallAction(conversationIdString, userIdString))
+            .addAction(getOpenCallAction(conversationIdString))
+            .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setSmallIcon(R.drawable.notification_icon_small)
+            .setContentIntent(fullScreenCallPendingIntent(context, conversationIdString))
+            .setFullScreenIntent(fullScreenCallPendingIntent(context, conversationIdString), true)
+            .setAutoCancel(true)
+            .build()
     }
 
     private fun getNotificationBody(call: Call) =
@@ -80,50 +82,18 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             }
         }
 
-    private fun getCompatNotification(
-        title: String,
-        content: String,
-        conversationIdString: String,
-        userIdString: String
-    ) = NotificationCompat.Builder(context, CHANNEL_ID)
-        .setContentTitle(title)
-        .setContentText(content)
-        .addAction(getDeclineCallCompatAction(conversationIdString, userIdString))
-        .addAction(getOpenCallCompatAction(conversationIdString))
-        .setOngoing(true)
-        .setPriority(NotificationCompat.PRIORITY_MAX)
-        .setSmallIcon(R.drawable.notification_icon_small)
-        .setContentIntent(fullScreenCallPendingIntent(context, conversationIdString))
-        .setFullScreenIntent(fullScreenCallPendingIntent(context, conversationIdString), true)
-        .setAutoCancel(true)
-        .build()
-
-    private fun getOpenCallAction(conversationId: String) = Notification.Action.Builder(
-        null,
+    private fun getOpenCallAction(conversationId: String) = getAction(
         context.getString(R.string.notification_action_open_call),
         openCallPendingIntent(context, conversationId)
     )
-        .build()
 
-    private fun getDeclineCallAction(conversationId: String, userId: String) = Notification.Action.Builder(
-        null,
+    private fun getDeclineCallAction(conversationId: String, userId: String) = getAction(
         context.getString(R.string.notification_action_decline_call),
         declineCallPendingIntent(context, conversationId, userId)
     )
-        .build()
 
-    private fun getOpenCallCompatAction(conversationId: String) = NotificationCompat.Action.Builder(
-        null,
-        context.getString(R.string.notification_action_open_call),
-        openCallPendingIntent(context, conversationId)
-    )
-        .build()
-
-    private fun getDeclineCallCompatAction(conversationId: String, userId: String) = NotificationCompat.Action.Builder(
-        null,
-        context.getString(R.string.notification_action_decline_call),
-        declineCallPendingIntent(context, conversationId, userId)
-    )
+    private fun getAction(title: String, intent: PendingIntent) = NotificationCompat.Action
+        .Builder(null, title, intent)
         .build()
 
     companion object {

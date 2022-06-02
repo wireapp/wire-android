@@ -13,13 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun CallOptionsControls(
-    callState: CallState,
+    isMuted: Boolean,
+    isCameraOn: Boolean,
     toggleMute: () -> Unit,
     toggleVideo: () -> Unit
 ) {
@@ -34,7 +34,7 @@ fun CallOptionsControls(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MicrophoneButton(isMuted = callState.isMuted, toggleMute)
+            MicrophoneButton(isMuted = isMuted, toggleMute)
             Text(
                 text = stringResource(id = R.string.calling_label_microphone).uppercase(),
                 style = MaterialTheme.wireTypography.label01,
@@ -46,7 +46,7 @@ fun CallOptionsControls(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CameraButton(
-                isCameraOn = callState.isCameraOn,
+                isCameraOn = isCameraOn,
                 onCameraPermissionDenied = { },
                 onCameraButtonClicked = toggleVideo
             )
@@ -73,5 +73,10 @@ fun CallOptionsControls(
 @Preview
 @Composable
 fun ComposablePreview() {
-    CallOptionsControls(CallState(), { }, { })
+    CallOptionsControls(
+        isMuted = true,
+        isCameraOn = false,
+        toggleMute = { },
+        toggleVideo = { }
+    )
 }

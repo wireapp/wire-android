@@ -1,7 +1,6 @@
 package com.wire.android.notification
 
 import com.wire.android.appLogger
-import com.wire.android.di.GetNotificationsUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -14,30 +13,38 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.scan
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class WireNotificationManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val getNotificationProvider: GetNotificationsUseCaseProvider.Factory,
-    private val notificationManager: MessageNotificationManager,
+    private val messagesManager: MessageNotificationManager,
 ) {
-
     /**
      * Sync all the Pending events, fetch Message notifications from DB once and show it.
      * Can be used in Services (e.g., after receiving FCM)
-     * @param userId QualifiedID of User that need to check Notifications for
+     * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
-    suspend fun fetchAndShowMessageNotificationsOnce(userIdValue: String) {
+    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
             coreLogic.getSessionScope(userId).syncPendingEvents()
-            val notificationsList = getNotificationProvider.create(userId)
-                .getNotifications()
-                .first()
-            notificationManager.handleNotification(listOf(), notificationsList, userId)
+            fetchAndShowMessageNotificationsOnce(userId)
+            fetchAndShowCallNotificationsOnce(userId)
         }
+    }
+
+    private suspend fun fetchAndShowCallNotificationsOnce(userId: QualifiedID) {
+        //TODO
+    }
+
+    private suspend fun fetchAndShowMessageNotificationsOnce(userId: QualifiedID) {
+        val notificationsList = coreLogic.getSessionScope(userId)
+            .messages
+            .getNotifications()
+            .first()
+
+        messagesManager.handleNotification(notificationsList, userId)
     }
 
     // TODO: to be changed as soon as we get the qualifiedID from the notification payload
@@ -70,11 +77,13 @@ class WireNotificationManager @Inject constructor(
      * @param userIdFlow Flow of QualifiedID of User
      */
     @ExperimentalCoroutinesApi
-    suspend fun listenForMessageNotifications(userIdFlow: Flow<UserId?>) {
+    suspend fun observeMessageNotifications(userIdFlow: Flow<UserId?>) {
         userIdFlow
             .flatMapLatest { userId ->
                 if (userId != null) {
-                    getNotificationProvider.create(userId).getNotifications()
+                    coreLogic.getSessionScope(userId)
+                        .messages
+                        .getNotifications()
                 } else {
                     // if userId == null means there is no current user (e.g., logged out)
                     // so we need to unsubscribe from the notification changes (it's done by `flatMapLatest`)
@@ -82,24 +91,19 @@ class WireNotificationManager @Inject constructor(
                     // (empty list in here makes all the pre. notifications be removed)
                     flowOf(listOf())
                 }
-                    // we need to remember prev. displayed Notifications,
-                    // so we can remove notifications that were displayed previously but are not in the new list
-                    .scan((listOf<LocalNotificationConversation>() to listOf<LocalNotificationConversation>()))
-                    { old, newList -> old.second to newList }
                     // combining all the data that is necessary for Notifications into small data class,
                     // just to make it more readable than
-                    // Triple<List<LocalNotificationConversation>, List<LocalNotificationConversation>, QualifiedID?>
-                    .map { (oldNotifications, newNotifications) ->
-                        MessagesNotificationsData(oldNotifications, newNotifications, userId)
+                    // Pair<List<LocalNotificationConversation>, QualifiedID?>
+                    .map { newNotifications ->
+                        MessagesNotificationsData(newNotifications, userId)
                     }
             }
-            .collect { (oldNotifications, newNotifications, userId) ->
-                notificationManager.handleNotification(oldNotifications, newNotifications, userId)
+            .collect { (newNotifications, userId) ->
+                messagesManager.handleNotification(newNotifications, userId)
             }
     }
 
     private data class MessagesNotificationsData(
-        val oldNotifications: List<LocalNotificationConversation>,
         val newNotifications: List<LocalNotificationConversation>,
         val userId: QualifiedID?
     )

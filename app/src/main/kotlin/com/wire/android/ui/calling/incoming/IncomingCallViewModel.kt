@@ -30,7 +30,7 @@ class IncomingCallViewModel @Inject constructor(
     private val callRinger: CallRinger
 ) : ViewModel() {
 
-    val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
+    private val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
     lateinit var observeIncomingCallJob: Job
 
     init {

@@ -41,7 +41,7 @@ fun IncomingCallScreen(
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(incomingCallViewModel = incomingCallViewModel)
 
     IncomingCallContent(
-        sharedCallingViewModel = sharedCallingViewModel,
+        state = sharedCallingViewModel.callState,
         toggleMute = sharedCallingViewModel::toggleMute,
         toggleVideo = sharedCallingViewModel::toggleVideo,
         declineCall = incomingCallViewModel::declineCall,
@@ -52,7 +52,7 @@ fun IncomingCallScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun IncomingCallContent(
-    sharedCallingViewModel: SharedCallingViewModel,
+    state: CallState,
     toggleMute: () -> Unit,
     toggleVideo: () -> Unit,
     declineCall: () -> Unit,
@@ -69,7 +69,7 @@ private fun IncomingCallContent(
         sheetPeekHeight = dimensions().defaultIncomingCallSheetPeekHeight,
         sheetContent = {
             CallingControls(
-                callState = sharedCallingViewModel.callState,
+                callState = state,
                 toggleMute = toggleMute,
                 toggleVideo = toggleVideo,
                 declineCall = declineCall,
@@ -109,7 +109,13 @@ private fun CallingControls(
     declineCall: () -> Unit,
     acceptCall: () -> Unit
 ) {
-    CallOptionsControls(callState, toggleMute, toggleVideo)
+    CallOptionsControls(
+        isMuted = callState.isMuted,
+        isCameraOn = callState.isCameraOn,
+        toggleMute = toggleMute,
+        toggleVideo = toggleVideo
+    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()

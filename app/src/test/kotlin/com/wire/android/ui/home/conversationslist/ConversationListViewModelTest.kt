@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversationslist
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.config.mockUri
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -56,6 +57,7 @@ class ConversationListViewModelTest {
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
+        mockUri()
         conversationListViewModel =
             ConversationListViewModel(
                 navigationManager,

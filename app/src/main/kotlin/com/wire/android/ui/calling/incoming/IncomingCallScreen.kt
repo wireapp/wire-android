@@ -1,5 +1,6 @@
 package com.wire.android.ui.calling.incoming
 
+import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,22 +42,24 @@ fun IncomingCallScreen(
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(incomingCallViewModel = incomingCallViewModel)
 
     IncomingCallContent(
-        state = sharedCallingViewModel.callState,
+        callState = sharedCallingViewModel.callState,
         toggleMute = sharedCallingViewModel::toggleMute,
         toggleVideo = sharedCallingViewModel::toggleVideo,
         declineCall = incomingCallViewModel::declineCall,
-        acceptCall = audioPermissionCheck::launch
+        acceptCall = audioPermissionCheck::launch,
+        onVideoPreviewCreated = { sharedCallingViewModel.setVideoPreview(it) }
     )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun IncomingCallContent(
-    state: CallState,
+    callState: CallState,
     toggleMute: () -> Unit,
     toggleVideo: () -> Unit,
     declineCall: () -> Unit,
-    acceptCall: () -> Unit
+    acceptCall: () -> Unit,
+    onVideoPreviewCreated: (view: View) -> Unit
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -69,7 +72,8 @@ private fun IncomingCallContent(
         sheetPeekHeight = dimensions().defaultIncomingCallSheetPeekHeight,
         sheetContent = {
             CallingControls(
-                callState = state,
+                isMuted = callState.isMuted,
+                isCameraOn = callState.isCameraOn,
                 toggleMute = toggleMute,
                 toggleVideo = toggleVideo,
                 declineCall = declineCall,
@@ -78,10 +82,10 @@ private fun IncomingCallContent(
         },
     ) {
         CallPreview(
-            callState = sharedCallingViewModel.callState,
-            onVideoPreviewCreated = {
-                sharedCallingViewModel.setVideoPreview(it)
-            }
+            conversationName = callState.conversationName,
+            isCameraOn = callState.isCameraOn,
+            avatarAssetId = callState.avatarAssetId,
+            onVideoPreviewCreated = { onVideoPreviewCreated(it) }
         )
     }
 }
@@ -103,15 +107,16 @@ private fun IncomingCallTopBar(
 
 @Composable
 private fun CallingControls(
-    callState: CallState,
+    isMuted: Boolean,
+    isCameraOn: Boolean,
     toggleMute: () -> Unit,
     toggleVideo: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit
 ) {
     CallOptionsControls(
-        isMuted = callState.isMuted,
-        isCameraOn = callState.isCameraOn,
+        isMuted = isMuted,
+        isCameraOn = isCameraOn,
         toggleMute = toggleMute,
         toggleVideo = toggleVideo
     )

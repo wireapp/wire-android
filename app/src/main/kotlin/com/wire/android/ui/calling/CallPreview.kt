@@ -15,14 +15,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.waz.avs.VideoPreview
+import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun CallPreview(callState: CallState, onVideoPreviewCreated: (view: View) -> Unit) {
+fun CallPreview(
+    conversationName: ConversationName?,
+    isCameraOn: Boolean,
+    avatarAssetId: ImageAsset.UserAvatarAsset?,
+    onVideoPreviewCreated: (view: View) -> Unit
+) {
     Box {
-        if (callState.isCameraOn) {
+        if (isCameraOn) {
             AndroidView(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -40,9 +46,9 @@ fun CallPreview(callState: CallState, onVideoPreviewCreated: (view: View) -> Uni
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = when (callState.conversationName) {
-                    is ConversationName.Known -> callState.conversationName.name
-                    is ConversationName.Unknown -> stringResource(id = callState.conversationName.resourceId)
+                text = when (conversationName) {
+                    is ConversationName.Known -> conversationName.name
+                    is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
                     else -> ""
                 },
                 style = androidx.compose.material3.MaterialTheme.wireTypography.title01,
@@ -53,9 +59,9 @@ fun CallPreview(callState: CallState, onVideoPreviewCreated: (view: View) -> Uni
                 style = androidx.compose.material3.MaterialTheme.wireTypography.body01,
                 modifier = Modifier.padding(top = dimensions().spacing8x)
             )
-            if(!callState.isCameraOn)
+            if (!isCameraOn)
                 UserProfileAvatar(
-                    userAvatarAsset = callState.avatarAssetId,
+                    userAvatarAsset = avatarAssetId,
                     size = dimensions().initiatingCallUserAvatarSize,
                     modifier = Modifier.padding(top = dimensions().spacing16x)
                 )

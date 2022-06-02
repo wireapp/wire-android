@@ -1,5 +1,6 @@
 package com.wire.android.ui.calling.initiating
 
+import android.view.View
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.calling.CallPreview
+import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlButtons.CallOptionsControls
 import com.wire.android.ui.calling.controlButtons.HangUpButton
@@ -35,10 +37,11 @@ fun InitiatingCallScreen(
 ) {
     InitiatingCallContent(
         callState = sharedCallingViewModel.callState,
-        toggleMute = { sharedCallingViewModel.toggleMute() },
+        toggleMute = sharedCallingViewModel::toggleMute,
         toggleVideo = sharedCallingViewModel::toggleVideo,
-        onNavigateBack = { sharedCallingViewModel.navigateBack() },
-        onHangUpCall = { sharedCallingViewModel.hangUpCall() }
+        onNavigateBack = sharedCallingViewModel::navigateBack,
+        onHangUpCall = sharedCallingViewModel::hangUpCall,
+        onVideoPreviewCreated = { sharedCallingViewModel.setVideoPreview(it) }
     )
 }
 
@@ -49,7 +52,8 @@ fun InitiatingCallContent(
     toggleMute: () -> Unit,
     toggleVideo: () -> Unit,
     onNavigateBack: () -> Unit,
-    onHangUpCall: () -> Unit
+    onHangUpCall: () -> Unit,
+    onVideoPreviewCreated: (view: View) -> Unit
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -87,10 +91,10 @@ fun InitiatingCallContent(
         }
     ) {
         CallPreview(
-            callState = sharedCallingViewModel.callState,
-            onVideoPreviewCreated = {
-                sharedCallingViewModel.setVideoPreview(it)
-            }
+            conversationName = callState.conversationName,
+            isCameraOn = callState.isCameraOn,
+            avatarAssetId = callState.avatarAssetId,
+            onVideoPreviewCreated = { onVideoPreviewCreated(it) }
         )
     }
 }

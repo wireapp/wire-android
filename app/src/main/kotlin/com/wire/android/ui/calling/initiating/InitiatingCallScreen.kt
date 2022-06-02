@@ -72,7 +72,10 @@ fun InitiatingCallContent(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CallOptionsControls(callState, toggleMute)
+                CallOptionsControls(
+                    isMuted = callState.isMuted,
+                    toggleMute = toggleMute
+                )
                 Spacer(
                     modifier = Modifier
                         .fillMaxWidth()

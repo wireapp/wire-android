@@ -75,7 +75,7 @@ private fun IncomingCallContent(
         sheetPeekHeight = dimensions().defaultIncomingCallSheetPeekHeight,
         sheetContent = {
             CallingControls(
-                callState =  state,
+                callState = state,
                 toggleMute = toggleMute,
                 declineCall = declineCall,
                 acceptCall = acceptCall
@@ -132,7 +132,11 @@ private fun CallingControls(
     declineCall: () -> Unit,
     acceptCall: () -> Unit
 ) {
-    CallOptionsControls(callState, toggleMute)
+    CallOptionsControls(
+        isMuted = callState.isMuted,
+        toggleMute = toggleMute
+    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()

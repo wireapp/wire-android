@@ -23,7 +23,6 @@ class DeepLinkProcessor {
         INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
         else -> DeepLinkResult.Unknown
     }
-
     private fun getCustomServerConfigDeepLinkResult(uri: Uri) = uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
         DeepLinkResult.CustomServerConfig(it)
     } ?: DeepLinkResult.Unknown

@@ -2,7 +2,6 @@ package com.wire.android.notification
 
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.di.UserSessionScopeProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -25,7 +24,6 @@ import javax.inject.Singleton
 @Singleton
 class WireNotificationManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val userSessionScopeProvider: UserSessionScopeProvider.Factory,
     private val messagesManager: MessageNotificationManager,
     private val callsManager: CallNotificationManager,
 ) {
@@ -50,8 +48,7 @@ class WireNotificationManager @Inject constructor(
         // to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
         intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
             .map {
-                userSessionScopeProvider.create(userId)
-                    .userSessionScope
+                coreLogic.getSessionScope(userId)
                     .calls
                     .getIncomingCalls()
                     .first()
@@ -64,8 +61,7 @@ class WireNotificationManager @Inject constructor(
     }
 
     private suspend fun fetchAndShowMessageNotificationsOnce(userId: QualifiedID) {
-        val notificationsList = userSessionScopeProvider.create(userId)
-            .userSessionScope
+        val notificationsList = coreLogic.getSessionScope(userId)
             .messages
             .getNotifications()
             .first()
@@ -114,8 +110,7 @@ class WireNotificationManager @Inject constructor(
                 if (userId == null) {
                     flowOf(listOf())
                 } else {
-                    userSessionScopeProvider.create(userId)
-                        .userSessionScope
+                    coreLogic.getSessionScope(userId)
                         .calls
                         .getIncomingCalls()
                 }
@@ -140,8 +135,7 @@ class WireNotificationManager @Inject constructor(
         userIdFlow
             .flatMapLatest { userId ->
                 if (userId != null) {
-                    userSessionScopeProvider.create(userId)
-                        .userSessionScope
+                    coreLogic.getSessionScope(userId)
                         .messages
                         .getNotifications()
                 } else {

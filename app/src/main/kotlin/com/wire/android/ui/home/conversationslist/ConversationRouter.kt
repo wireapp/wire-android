@@ -37,6 +37,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -66,10 +67,10 @@ fun ConversationRouterHomeBridge(
             onHomeBottomSheetContentChange {
                 ConversationSheetContent(
                     conversationSheetContent = conversationSheetContent,
-                    conversationOptionSheetState = conversationOptionSheetState,
-                    onMutingConversationStatusChange = {
-                        conversationState.muteConversation(it)
-                        viewModel.muteConversation(conversationSheetContent.conversationId, it)
+                    // FIXME: Compose - Find a way to not recreate this lambda
+                    onMutingConversationStatusChange = { mutedStatus ->
+                        conversationState.muteConversation(mutedStatus)
+                        viewModel.muteConversation(conversationId = conversationSheetContent.conversationId)
                     },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,

@@ -12,7 +12,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase

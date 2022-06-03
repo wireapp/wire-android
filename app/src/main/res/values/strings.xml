@@ -22,6 +22,8 @@
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_try_again">Try again</string>
     <string name="label_federated_membership">Federated</string>
+    <string name="label_update">Update</string>
+    <string name="label_close">Close</string>
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
@@ -78,6 +80,12 @@
     <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
     <string name="welcome_button_create_personal_account">Create a Personal Account</string>
     <string name="welcome_button_create_team">Create a Team</string>
+
+    <!-- API Versioning Dialogs -->
+    <string name="api_versioning_client_update_required_title">Update required</string>
+    <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
+    <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
+    <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
 
     <!-- Login -->
     <string name="login_title">Login</string>

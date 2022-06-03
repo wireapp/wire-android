@@ -67,7 +67,7 @@ object Libraries {
         const val composeMaterial3 = "1.0.0-alpha11"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.2"
-        const val accompanist = "0.24.8-beta"
+        const val accompanist = "0.24.7-alpha" // https://github.com/google/accompanist/issues/1162
         const val composeConstraint = "1.0.0"
         const val hilt = "2.38.1"
         const val lifecycle = "2.4.0"

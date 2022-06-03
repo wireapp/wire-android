@@ -39,10 +39,9 @@ class LoginSSOViewModel @Inject constructor(
     private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase,
     private val getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
-    pushTokenUseCase: RegisterTokenUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     navigationManager: NavigationManager,
-) : LoginViewModel(navigationManager, clientScopeProviderFactory, pushTokenUseCase) {
+) : LoginViewModel(navigationManager, clientScopeProviderFactory) {
 
     var loginState by mutableStateOf(
         LoginSSOState(ssoCode = TextFieldValue(savedStateHandle.get(SSO_CODE_SAVED_STATE_KEY) ?: String.EMPTY))
@@ -88,7 +87,7 @@ class LoginSSOViewModel @Inject constructor(
             registerClient(storedUserId).let {
                 when (it) {
                     is RegisterClientResult.Success -> {
-                        registerPushToken(it.client.clientId.value)
+                        registerPushToken(storedUserId)
                         navigateToConvScreen()
                     }
                     is RegisterClientResult.Failure -> {

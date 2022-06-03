@@ -237,7 +237,7 @@ abstract class CreateAccountBaseViewModel(
                         return@launch
                     }
                     is RegisterClientResult.Success -> {
-                        registerPushToken(it.client.clientId.value)
+                        registerPushToken(storedUserId)
                         onCodeSuccess()
                     }
                 }
@@ -258,19 +258,21 @@ abstract class CreateAccountBaseViewModel(
         clientScopeProviderFactory.create(userId).clientScope.register(
             RegisterClientParam(
                 password = password,
-                capabilities = null)
+                capabilities = null
+            )
         )
 
-    suspend fun registerPushToken(clientId: String){
-        pushTokenUseCase(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
-            when (registerTokenResult) {
-                is RegisterTokenResult.Success ->
-                    appLogger.i("PushToken Registered Successfully")
-                is RegisterTokenResult.Failure ->
-                    //TODO: handle failure in settings to allow the user to retry tokenRegistration
-                    appLogger.i("PushToken Registration Failed: $registerTokenResult")
+    private suspend fun registerPushToken(userId: UserId) {
+        clientScopeProviderFactory.create(userId).clientScope.registerPushToken(BuildConfig.SENDER_ID, userId.value)
+            .let { registerTokenResult ->
+                when (registerTokenResult) {
+                    is RegisterTokenResult.Success ->
+                        appLogger.i("PushToken Registered Successfully")
+                    is RegisterTokenResult.Failure ->
+                        //TODO: handle failure in settings to allow the user to retry tokenRegistration
+                        appLogger.i("PushToken Registration Failed: $registerTokenResult")
+                }
             }
-        }
     }
 
 

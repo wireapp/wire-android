@@ -8,11 +8,7 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalMaterial3Api::class
-)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationGraph(navController: NavHostController, startDestination: String, appInitialArgs: List<Any> = emptyList()) {
     AnimatedNavHost(navController, startDestination) {

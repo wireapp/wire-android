@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.data.client.DeleteClientParam
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase

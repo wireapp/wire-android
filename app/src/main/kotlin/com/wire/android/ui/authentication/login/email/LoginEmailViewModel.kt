@@ -33,13 +33,12 @@ class LoginEmailViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
-    pushTokenUseCase: RegisterTokenUseCase,
     navigationManager: NavigationManager
-) : LoginViewModel(navigationManager, clientScopeProviderFactory, pushTokenUseCase) {
+) : LoginViewModel(navigationManager, clientScopeProviderFactory) {
 
     var loginState by mutableStateOf(
         LoginEmailState(
-            userIdentifier = TextFieldValue(savedStateHandle.get(USER_IDENTIFIER_SAVED_STATE_KEY) ?: String.EMPTY),
+            userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
             password = TextFieldValue(String.EMPTY)
         )
     )
@@ -74,7 +73,7 @@ class LoginEmailViewModel @Inject constructor(
                         return@launch
                     }
                     is RegisterClientResult.Success -> {
-                        registerPushToken(it.client.clientId.value)
+                        registerPushToken(storedUserId)
                         navigateToConvScreen()
                     }
                 }

@@ -13,7 +13,6 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
-import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,15 +22,13 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @HiltViewModel
 open class LoginViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val pushTokenUseCase: RegisterTokenUseCase
+    private val clientScopeProviderFactory: ClientScopeProvider.Factory
     ) : ViewModel() {
 
     //todo: will inject it later
@@ -68,12 +65,14 @@ open class LoginViewModel @Inject constructor(
         return clientScope.register(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
-                capabilities = capabilities)
+                capabilities = capabilities
+            )
         )
     }
 
-    suspend fun registerPushToken(clientId: String){
-        pushTokenUseCase(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
+    suspend fun registerPushToken(userId: UserId) {
+        val clientScope = clientScopeProviderFactory.create(userId).clientScope
+        clientScope.registerPushToken(BuildConfig.SENDER_ID, userId.value).let { registerTokenResult ->
             when (registerTokenResult) {
                 is RegisterTokenResult.Success ->
                     appLogger.i("PushToken Registered Successfully")

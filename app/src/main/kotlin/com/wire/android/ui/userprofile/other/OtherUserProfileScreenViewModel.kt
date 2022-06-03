@@ -33,6 +33,7 @@ import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -43,7 +44,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
     private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
-    ) : ViewModel() {
+) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
     var connectionOperationState: ConnectionOperationState? by mutableStateOf(null)

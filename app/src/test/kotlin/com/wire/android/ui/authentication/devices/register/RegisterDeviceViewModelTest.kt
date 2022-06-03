@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.devices.register
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
@@ -15,6 +14,7 @@ import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class RegisterDeviceViewModelTest {
 
@@ -47,6 +47,9 @@ class RegisterDeviceViewModelTest {
     private lateinit var registerClientUseCase: RegisterClientUseCase
 
     @MockK
+    private lateinit var registerTokenUseCase: RegisterTokenUseCase
+
+    @MockK
     private lateinit var client: Client
 
     private lateinit var registerDeviceViewModel: RegisterDeviceViewModel
@@ -55,7 +58,8 @@ class RegisterDeviceViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         mockUri()
-        registerDeviceViewModel = RegisterDeviceViewModel(navigationManager, validatePasswordUseCase, registerClientUseCase)
+        registerDeviceViewModel =
+            RegisterDeviceViewModel(navigationManager, validatePasswordUseCase, registerClientUseCase, registerTokenUseCase)
     }
 
     @Test

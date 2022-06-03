@@ -15,6 +15,8 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.data.client.ClientType
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
@@ -25,6 +27,8 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -70,13 +74,13 @@ class LoginSSOViewModelTest {
     private lateinit var registerClientUseCase: RegisterClientUseCase
 
     @MockK
+    private lateinit var registerTokenUseCase: RegisterTokenUseCase
+
+    @MockK
     private lateinit var getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase
 
     @MockK
     private lateinit var authSession: AuthSession
-
-    @MockK
-    private lateinit var client: Client
 
     @MockK
     private lateinit var navigationManager: NavigationManager
@@ -94,6 +98,7 @@ class LoginSSOViewModelTest {
         every { serverConfig.apiBaseUrl } returns apiBaseUrl
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.register } returns registerClientUseCase
+        every { clientScope.registerPushToken } returns registerTokenUseCase
         every { serverConfig.id } returns "0"
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
@@ -204,7 +209,10 @@ class LoginSSOViewModelTest {
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
             registerClientUseCase.invoke(any())
-        } returns RegisterClientResult.Success(client)
+        } returns RegisterClientResult.Success(CLIENT)
+        coEvery {
+            registerTokenUseCase.invoke(any(), any())
+        } returns RegisterTokenResult.Failure.PushTokenRegister
 
         runTest { loginViewModel.establishSSOSession("") }
 
@@ -214,6 +222,7 @@ class LoginSSOViewModelTest {
             registerClientUseCase.invoke(any())
         }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { registerTokenUseCase.invoke(any(), any()) }
     }
 
     @Test
@@ -222,7 +231,7 @@ class LoginSSOViewModelTest {
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
             registerClientUseCase.invoke(any())
-        } returns RegisterClientResult.Success(client)
+        } returns RegisterClientResult.Success(CLIENT)
 
         runTest { loginViewModel.establishSSOSession("") }
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
@@ -230,6 +239,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
         coVerify(exactly = 0) { addAuthenticatedUserUseCase.invoke(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
+        coVerify(exactly = 0) { registerTokenUseCase.invoke(any(), any()) }
     }
 
     @Test
@@ -250,7 +260,11 @@ class LoginSSOViewModelTest {
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
             registerClientUseCase.invoke(any())
-        } returns RegisterClientResult.Success(client)
+        } returns RegisterClientResult.Success(CLIENT)
+        coEvery {
+            registerTokenUseCase.invoke(any(), any())
+        } returns RegisterTokenResult.Success
+
 
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", "")) }
         coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
@@ -269,6 +283,8 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
+        coVerify(exactly = 0) { registerTokenUseCase.invoke(any(), any()) }
+
     }
 
     @Test
@@ -292,12 +308,15 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given establishSSOSession is called, when registerClientUseCase returns PushTokenFailure error, then LoginError is None`() {
+    fun `given establishSSOSession is called, when registerTokenUseCase returns PushTokenFailure error, then LoginError is None`() {
         coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
             registerClientUseCase.invoke(any())
-        } returns RegisterClientResult.Failure.PushTokenRegister
+        } returns RegisterClientResult.Success(CLIENT)
+        coEvery {
+            registerTokenUseCase.invoke(any(), any())
+        } returns RegisterTokenResult.Failure.PushTokenRegister
 
         runTest { loginViewModel.establishSSOSession("") }
 
@@ -309,6 +328,15 @@ class LoginSSOViewModelTest {
             registerClientUseCase.invoke(any())
         }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { registerTokenUseCase.invoke(any(), any()) }
+    }
+
+    companion object {
+        val CLIENT_ID = ClientId("test")
+        val CLIENT = Client(
+            CLIENT_ID, ClientType.Permanent, "time", null,
+            null, "label", "cookie", null, "model"
+        )
     }
 }
 

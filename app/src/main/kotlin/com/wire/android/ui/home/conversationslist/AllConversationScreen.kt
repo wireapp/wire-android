@@ -24,7 +24,7 @@ fun AllConversationScreen(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onScrollPositionChanged: (Int) -> Unit = {},
-    openConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -37,7 +37,7 @@ fun AllConversationScreen(
         onOpenConversation = onOpenConversation,
         onEditConversation = onEditConversation,
         onOpenUserProfile = onOpenUserProfile,
-        openConversationNotificationsSettings = openConversationNotificationsSettings,
+        onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
     )
 }
 
@@ -49,7 +49,7 @@ private fun AllConversationContent(
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -66,7 +66,7 @@ private fun AllConversationContent(
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
-                    openNotificationsOptions = openConversationNotificationsSettings,
+                    openNotificationsOptions = onOpenConversationNotificationsSettings,
                 )
             }
         }
@@ -86,7 +86,7 @@ private fun AllConversationContent(
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
-                    openNotificationsOptions = openConversationNotificationsSettings,
+                    openNotificationsOptions = onOpenConversationNotificationsSettings,
                 )
             }
         }

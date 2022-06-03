@@ -176,7 +176,7 @@ private fun ConversationRouter(
                             onEditConversation = onEditConversationItem,
                             onScrollPositionChanged = onScrollPositionChanged,
                             onOpenUserProfile = openProfile,
-                            openConversationNotificationsSettings = onEditNotifications
+                            onOpenConversationNotificationsSettings = onEditNotifications
                         )
                     }
                 )

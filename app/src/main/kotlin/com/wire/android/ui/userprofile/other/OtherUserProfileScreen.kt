@@ -48,12 +48,12 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     OtherProfileScreenContent(
         state = viewModel.state,
         operationState = viewModel.connectionOperationState,
-        onSendConnectionRequest = { viewModel.sendConnectionRequest() },
-        onOpenConversation = { viewModel.openConversation() },
-        onCancelConnectionRequest = { viewModel.cancelConnectionRequest() },
-        ignoreConnectionRequest = { viewModel.ignoreConnectionRequest() },
-        acceptConnectionRequest = { viewModel.acceptConnectionRequest() },
-        onNavigateBack = { viewModel.navigateBack() }
+        onSendConnectionRequest = viewModel::sendConnectionRequest,
+        onOpenConversation = viewModel::openConversation,
+        onCancelConnectionRequest = viewModel::cancelConnectionRequest,
+        ignoreConnectionRequest = viewModel::ignoreConnectionRequest,
+        acceptConnectionRequest = viewModel::acceptConnectionRequest,
+        onNavigateBack = viewModel::navigateBack
     )
 }
 

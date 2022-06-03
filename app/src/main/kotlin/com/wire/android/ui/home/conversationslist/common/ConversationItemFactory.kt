@@ -13,8 +13,8 @@ import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun ConversationItemFactory(
@@ -23,6 +23,7 @@ fun ConversationItemFactory(
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
+    openNotificationsOptions: (ConversationItem) -> Unit,
 ) {
     GeneralConversationItem(
         conversation = conversation,
@@ -48,7 +49,7 @@ fun ConversationItemFactory(
             }
         },
         onMutedIconClick = {
-           // openNotificationsOptions(conversation)
+            openNotificationsOptions(conversation)
         },
     )
 }

@@ -13,8 +13,11 @@ import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
@@ -116,6 +119,54 @@ class OtherUserProfileScreenViewModelTest {
                 navigationManager wasNot Called
             }
             assertNotNull(otherUserProfileScreenViewModel.connectionOperationState)
+        }
+
+    @Test
+    fun `given a userId, when ignoring a connection request, then returns a Success result and update view state`() =
+        runTest {
+            // given
+            coEvery { ignoreConnectionRequest(any()) } returns IgnoreConnectionRequestUseCaseResult.Success
+
+            // when
+            otherUserProfileScreenViewModel.ignoreConnectionRequest()
+
+            // then
+            coVerify {
+                ignoreConnectionRequest(eq(USER_ID))
+            }
+            assertEquals(ConnectionStatus.NotConnected, otherUserProfileScreenViewModel.state.connectionStatus)
+        }
+
+    @Test
+    fun `given a userId, when canceling a connection request, then returns a Success result and update view state`() =
+        runTest {
+            // given
+            coEvery { cancelConnectionRequest(any()) } returns CancelConnectionRequestUseCaseResult.Success
+
+            // when
+            otherUserProfileScreenViewModel.cancelConnectionRequest()
+
+            // then
+            coVerify {
+                cancelConnectionRequest(eq(USER_ID))
+            }
+            assertEquals(ConnectionStatus.NotConnected, otherUserProfileScreenViewModel.state.connectionStatus)
+        }
+
+    @Test
+    fun `given a userId, when accepting a connection request, then returns a Success result and update view state`() =
+        runTest {
+            // given
+            coEvery { acceptConnectionRequest(any()) } returns AcceptConnectionRequestUseCaseResult.Success
+
+            // when
+            otherUserProfileScreenViewModel.acceptConnectionRequest()
+
+            // then
+            coVerify {
+                acceptConnectionRequest(eq(USER_ID))
+            }
+            assertEquals(ConnectionStatus.Connected, otherUserProfileScreenViewModel.state.connectionStatus)
         }
 
     @Test

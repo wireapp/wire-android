@@ -83,13 +83,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = getOrCreateOneToOneConversation(userId)) {
                 is CreateConversationResult.Failure -> appLogger.d(("Couldn't retrieve or create the conversation"))
-                is CreateConversationResult.Success -> viewModelScope.launch {
+                is CreateConversationResult.Success ->
                     navigationManager.navigate(
                         command = NavigationCommand(
                             destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversationId.id))
                         )
                     )
-                }
             }
         }
     }

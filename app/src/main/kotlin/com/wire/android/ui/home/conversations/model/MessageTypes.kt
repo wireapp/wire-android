@@ -94,11 +94,6 @@ internal fun DeletedMessage() {
 @Composable
 internal fun EditedMessage(messageBody: MessageBody, editTime: String) {
     Column {
-        Text(
-            buildAnnotatedString {
-                appendBody(messageBody = messageBody)
-            }
-        )
         Box(
             modifier = Modifier
                 .border(
@@ -118,6 +113,11 @@ internal fun EditedMessage(messageBody: MessageBody, editTime: String) {
                     )
             )
         }
+        Text(
+            buildAnnotatedString {
+                appendBody(messageBody = messageBody)
+            }
+        )
     }
 }
 

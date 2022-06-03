@@ -7,11 +7,17 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
+import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
@@ -24,7 +30,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -57,6 +62,12 @@ class OtherUserProfileScreenViewModelTest {
     @MockK
     private lateinit var cancelConnectionRequest: CancelConnectionRequestUseCase
 
+    @MockK
+    private lateinit var acceptConnectionRequest: AcceptConnectionRequestUseCase
+
+    @MockK
+    private lateinit var ignoreConnectionRequest: IgnoreConnectionRequestUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -70,7 +81,9 @@ class OtherUserProfileScreenViewModelTest {
             getOrCreateOneToOneConversation,
             getUserInfo,
             sendConnectionRequest,
-            cancelConnectionRequest
+            cancelConnectionRequest,
+            acceptConnectionRequest,
+            ignoreConnectionRequest,
         )
     }
 
@@ -87,7 +100,7 @@ class OtherUserProfileScreenViewModelTest {
             coVerify {
                 sendConnectionRequest(eq(USER_ID))
             }
-            assertEquals(ConnectionStatus.NotConnected(true), otherUserProfileScreenViewModel.state.connectionStatus)
+            assertEquals(ConnectionStatus.Sent, otherUserProfileScreenViewModel.state.connectionStatus)
         }
 
     @Test
@@ -108,11 +121,59 @@ class OtherUserProfileScreenViewModelTest {
         }
 
     @Test
+    fun `given a userId, when ignoring a connection request, then returns a Success result and update view state`() =
+        runTest {
+            // given
+            coEvery { ignoreConnectionRequest(any()) } returns IgnoreConnectionRequestUseCaseResult.Success
+
+            // when
+            otherUserProfileScreenViewModel.ignoreConnectionRequest()
+
+            // then
+            coVerify {
+                ignoreConnectionRequest(eq(USER_ID))
+            }
+            assertEquals(ConnectionStatus.NotConnected, otherUserProfileScreenViewModel.state.connectionStatus)
+        }
+
+    @Test
+    fun `given a userId, when canceling a connection request, then returns a Success result and update view state`() =
+        runTest {
+            // given
+            coEvery { cancelConnectionRequest(any()) } returns CancelConnectionRequestUseCaseResult.Success
+
+            // when
+            otherUserProfileScreenViewModel.cancelConnectionRequest()
+
+            // then
+            coVerify {
+                cancelConnectionRequest(eq(USER_ID))
+            }
+            assertEquals(ConnectionStatus.NotConnected, otherUserProfileScreenViewModel.state.connectionStatus)
+        }
+
+    @Test
+    fun `given a userId, when accepting a connection request, then returns a Success result and update view state`() =
+        runTest {
+            // given
+            coEvery { acceptConnectionRequest(any()) } returns AcceptConnectionRequestUseCaseResult.Success
+
+            // when
+            otherUserProfileScreenViewModel.acceptConnectionRequest()
+
+            // then
+            coVerify {
+                acceptConnectionRequest(eq(USER_ID))
+            }
+            assertEquals(ConnectionStatus.Connected, otherUserProfileScreenViewModel.state.connectionStatus)
+        }
+
+    @Test
     fun `given a conversationId, when trying to open the conversation, then returns a Success result with the conversation`() =
         runTest {
             // given
-            val conversation = mockk<Conversation>(relaxed = true)
-            coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(conversation)
+            coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(CONVERSATION)
+            coEvery { navigationManager.navigate(command = any()) } returns Unit
 
             // when
             otherUserProfileScreenViewModel.openConversation()
@@ -129,7 +190,7 @@ class OtherUserProfileScreenViewModelTest {
         runTest {
             // given
             coEvery { getOrCreateOneToOneConversation(USER_ID) } returns
-                CreateConversationResult.Failure(Unknown(RuntimeException("some error")))
+                    CreateConversationResult.Failure(Unknown(RuntimeException("some error")))
 
             // when
             otherUserProfileScreenViewModel.openConversation()
@@ -162,6 +223,15 @@ class OtherUserProfileScreenViewModelTest {
             1,
             "some_team",
             ConnectionState.NOT_CONNECTED,
+            null,
+            null
+        )
+        val CONVERSATION = Conversation(
+            CONVERSATION_ID,
+            "some_name",
+            Conversation.Type.ONE_ON_ONE,
+            null,
+            MutedConversationStatus.AllAllowed,
             null,
             null
         )

@@ -39,8 +39,11 @@ enum class MessageStatus(val stringResourceId: Int) {
 }
 
 sealed class MessageContent {
-    data class TextMessage(val messageBody: MessageBody) : MessageContent()
-    object DeletedMessage : MessageContent()
+
+    sealed class ClientMessage : MessageContent()
+
+    data class TextMessage(val messageBody: MessageBody) : ClientMessage()
+    object DeletedMessage : ClientMessage()
 
     data class AssetMessage(
         val assetName: String,
@@ -48,9 +51,9 @@ sealed class MessageContent {
         val assetId: String,
         val assetSizeInBytes: Long,
         val downloadStatus: Message.DownloadStatus
-    ) : MessageContent()
+    ) : ClientMessage()
 
-    data class ImageMessage(val assetId: UserAssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
+    data class ImageMessage(val assetId: UserAssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : ClientMessage() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -64,18 +67,18 @@ sealed class MessageContent {
             return rawImgData.contentHashCode()
         }
     }
-    sealed class MemberChangeMessage(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) : MessageContent() {
-        data class Added(
+    sealed class ServerMessage(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) : MessageContent() {
+        data class MemberAdded(
             val author: UIText,
             val memberNames: List<UIText>
-            ) : MemberChangeMessage(R.drawable.ic_add, R.string.label_system_message_added)
-        data class Removed(
+            ) : ServerMessage(R.drawable.ic_add, R.string.label_system_message_added)
+        data class MemberRemoved(
             val author: UIText,
             val memberNames: List<UIText>
-            ) : MemberChangeMessage(R.drawable.ic_minus, R.string.label_system_message_removed)
-        data class Left(
+            ) : ServerMessage(R.drawable.ic_minus, R.string.label_system_message_removed)
+        data class MemberLeft(
             val author: UIText
-            ) : MemberChangeMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
+            ) : ServerMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
     }
 
 }

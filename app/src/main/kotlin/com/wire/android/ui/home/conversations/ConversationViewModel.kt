@@ -30,7 +30,7 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.DeletedMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.MemberChangeMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.ServerMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -71,12 +71,9 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -456,7 +453,7 @@ class ConversationViewModel @Inject constructor(
                 messageSource = if (sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
-                    username = sender?.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
+                    username = sender.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
                     membership = if (sender is MemberDetails.Other) userTypeMapper.toMembership(sender.userType) else Membership.None,
                     isLegalHold = false,
                     time = message.date,
@@ -489,10 +486,10 @@ class ConversationViewModel @Inject constructor(
                     val authorName = sender.toSystemMessageName()
                     val memberNameList = content.members.map { members.findUser(it.id).toSystemMessageName(true) }
                     when (content) {
-                        is MemberChange.Join -> MemberChangeMessage.Added(authorName, memberNameList)
+                        is MemberChange.Join -> ServerMessage.MemberAdded(authorName, memberNameList)
                         is MemberChange.Leave ->
-                            if(isAuthorSelfAction) MemberChangeMessage.Left(authorName)
-                            else MemberChangeMessage.Removed(authorName, memberNameList)
+                            if(isAuthorSelfAction) ServerMessage.MemberLeft(authorName)
+                            else ServerMessage.MemberRemoved(authorName, memberNameList)
                     }
                 }
                 else -> TextMessage(messageBody = MessageBody((content as? Text)?.let { UIText.DynamicString(it.value) }

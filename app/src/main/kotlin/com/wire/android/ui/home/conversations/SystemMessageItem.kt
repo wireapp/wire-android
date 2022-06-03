@@ -35,14 +35,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.MessageContent.MemberChangeMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.ServerMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 
 @Composable
-fun SystemMessageItem(message: MemberChangeMessage) {
+fun SystemMessageItem(message: ServerMessage) {
     Row(
         Modifier
             .padding(
@@ -113,7 +113,7 @@ fun SystemMessageItem(message: MemberChangeMessage) {
 @Composable
 fun SystemMessageAdded7UsersPreview() {
     SystemMessageItem(
-        message = MemberChangeMessage.Added(
+        message = ServerMessage.MemberAdded(
             "Barbara Cotolina".toUIText(),
             listOf(
                 "Albert Lewis".toUIText(), "Bert Strunk".toUIText(), "Claudia Schiffer".toUIText(), "Dorothee Friedrich".toUIText(),
@@ -127,7 +127,7 @@ fun SystemMessageAdded7UsersPreview() {
 @Composable
 fun SystemMessageAdded4UsersPreview() {
     SystemMessageItem(
-        message = MemberChangeMessage.Added(
+        message = ServerMessage.MemberAdded(
             "Barbara Cotolina".toUIText(),
             listOf("Albert Lewis".toUIText(), "Bert Strunk".toUIText(), "Claudia Schiffer".toUIText(), "Dorothee Friedrich".toUIText())
         )
@@ -138,7 +138,7 @@ fun SystemMessageAdded4UsersPreview() {
 @Composable
 fun SystemMessageRemoved4UsersPreview() {
     SystemMessageItem(
-        message = MemberChangeMessage.Removed(
+        message = ServerMessage.MemberRemoved(
             "Barbara Cotolina".toUIText(),
             listOf("Albert Lewis".toUIText(), "Bert Strunk".toUIText(), "Claudia Schiffer".toUIText(), "Dorothee Friedrich".toUIText())
         )
@@ -148,14 +148,14 @@ fun SystemMessageRemoved4UsersPreview() {
 @Preview
 @Composable
 fun SystemMessageLeftPreview() {
-    SystemMessageItem(message = MemberChangeMessage.Left(UIText.DynamicString("Barbara Cotolina")))
+    SystemMessageItem(message = ServerMessage.MemberLeft(UIText.DynamicString("Barbara Cotolina")))
 }
 
-private val MemberChangeMessage.expandable
+private val ServerMessage.expandable
     get() = when (this) {
-        is MemberChangeMessage.Added -> this.memberNames.size > EXPANDABLE_THRESHOLD
-        is MemberChangeMessage.Removed -> this.memberNames.size > EXPANDABLE_THRESHOLD
-        is MemberChangeMessage.Left -> false
+        is ServerMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD
+        is ServerMessage.MemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
+        is ServerMessage.MemberLeft -> false
     }
 
 private fun String.bold() = STYLE_SEPARATOR + this + STYLE_SEPARATOR
@@ -175,24 +175,24 @@ private fun List<UIText>.limitUserNamesList(res: Resources, threshold: Int): Lis
             .plus(res.getQuantityString(R.plurals.label_system_message_x_more, moreCount, moreCount))
     }
 
-fun MemberChangeMessage.getAnnotatedString(
+fun ServerMessage.getAnnotatedString(
     res: Resources,
     expanded: Boolean,
     normalStyle: SpanStyle,
     boldStyle: SpanStyle
 ): AnnotatedString {
     val string = when (this) {
-        is MemberChangeMessage.Added -> res.getString(
+        is ServerMessage.MemberAdded -> res.getString(
             stringResId,
             author.asString(res).bold(),
             memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
         )
-        is MemberChangeMessage.Removed -> res.getString(
+        is ServerMessage.MemberRemoved -> res.getString(
             stringResId,
             author.asString(res).bold(),
             memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
         )
-        is MemberChangeMessage.Left -> res.getString(stringResId, author.asString(res).bold())
+        is ServerMessage.MemberLeft -> res.getString(stringResId, author.asString(res).bold())
     }
     return buildAnnotatedString {
         string.split(STYLE_SEPARATOR).forEachIndexed { index, text ->

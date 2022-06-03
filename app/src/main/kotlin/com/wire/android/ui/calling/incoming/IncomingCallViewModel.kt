@@ -59,7 +59,7 @@ class IncomingCallViewModel @Inject constructor(
         allCalls().collect {
             if (it.first().conversationId == conversationId)
                 when (it.first().status) {
-                    CallStatus.CLOSED -> onCallClosed()
+//                    CallStatus.CLOSED -> onCallClosed()
                     else -> print("DO NOTHING")
                 }
         }

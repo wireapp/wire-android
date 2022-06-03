@@ -58,7 +58,7 @@ class InitiatingCallViewModel @Inject constructor(
         allCalls().collect {
             if (it.isNotEmpty() && it.first().conversationId == conversationId)
                 when (it.first().status) {
-                    CallStatus.CLOSED -> onCallClosed()
+//                    CallStatus.CLOSED -> onCallClosed()
                     CallStatus.ESTABLISHED -> onCallEstablished()
                     else -> print("DO NOTHING")
                 }

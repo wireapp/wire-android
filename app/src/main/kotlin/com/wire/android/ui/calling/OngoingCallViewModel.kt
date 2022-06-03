@@ -80,7 +80,7 @@ class OngoingCallViewModel @Inject constructor(
         allCalls().collect {
             if (it.first().conversationId == conversationId)
                 when (it.first().status) {
-                    CallStatus.CLOSED -> navigateBack()
+//                    CallStatus.CLOSED -> navigateBack()
                     else -> {
                         print("DO NOTHING")
                     }

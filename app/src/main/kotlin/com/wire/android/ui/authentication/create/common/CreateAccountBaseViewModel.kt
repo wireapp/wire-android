@@ -21,22 +21,22 @@ import com.wire.android.ui.authentication.create.details.CreateAccountDetailsVie
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
-import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
-import kotlinx.coroutines.launch
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
+import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @OptIn(ExperimentalMaterialApi::class)
@@ -237,7 +237,7 @@ abstract class CreateAccountBaseViewModel(
                         return@launch
                     }
                     is RegisterClientResult.Success -> {
-                        registerPushToken(storedUserId)
+                        registerPushToken(storedUserId, it.client.clientId.value)
                         onCodeSuccess()
                     }
                 }
@@ -262,8 +262,8 @@ abstract class CreateAccountBaseViewModel(
             )
         )
 
-    private suspend fun registerPushToken(userId: UserId) {
-        clientScopeProviderFactory.create(userId).clientScope.registerPushToken(BuildConfig.SENDER_ID, userId.value)
+    private suspend fun registerPushToken(userId: UserId, clientId: String) {
+        clientScopeProviderFactory.create(userId).clientScope.registerPushToken(BuildConfig.SENDER_ID, clientId)
             .let { registerTokenResult ->
                 when (registerTokenResult) {
                     is RegisterTokenResult.Success ->

@@ -8,8 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
-import com.wire.android.appLogger
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
@@ -19,18 +17,15 @@ import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
+import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
+import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCaseImpl
 
 @ExperimentalMaterialApi
 @HiltViewModel
@@ -87,7 +82,7 @@ class LoginSSOViewModel @Inject constructor(
             registerClient(storedUserId).let {
                 when (it) {
                     is RegisterClientResult.Success -> {
-                        registerPushToken(storedUserId)
+                        registerPushToken(storedUserId, it.client.clientId.value)
                         navigateToConvScreen()
                     }
                     is RegisterClientResult.Failure -> {

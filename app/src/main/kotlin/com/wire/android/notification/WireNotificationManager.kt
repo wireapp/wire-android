@@ -1,6 +1,5 @@
 package com.wire.android.notification
 
-import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.CoreLogic
@@ -8,7 +7,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
-import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +43,7 @@ class WireNotificationManager @Inject constructor(
         //TODO for now GetIncomingCallsUseCase() returns valid data not from the first try.
         // so it's possible to have scenario, when FCM comes informing us that there is a Call,
         // but we don't get it from the first GetIncomingCallsUseCase() call.
-        // To cover that case we have this `intervalFlow().take(6)`
+        // To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
         // to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
         intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
             .map {
@@ -69,29 +68,18 @@ class WireNotificationManager @Inject constructor(
         messagesManager.handleNotification(notificationsList, userId)
     }
 
-    // TODO : to be changed as soon as we get the qualifiedID from the notification payload
     /**
+     * Showing notifications for some other user then Current one requires to change user on opening Notification,
+     * which is not implemented yet.
+     * So for now we show notifications only for Current User
+     *
      * return the userId if the user is authenticated and null otherwise
      */
-    @Suppress("NestedBlockDepth")
     private fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
-        coreLogic.getAuthenticationScope().getSessions().let {
-            when (it) {
-                is GetAllSessionsResult.Success -> {
-                    for (session in it.sessions) {
-                        if (session.userId.value == userId)
-                            return@let session.userId
-                    }
-                    null
-                }
-                is GetAllSessionsResult.Failure.Generic -> {
-                    appLogger.e("get sessions failed ${it.genericFailure} ")
-                    null
-                }
-                GetAllSessionsResult.Failure.NoSessionFound -> null
-            }
+        when (val currentSession = coreLogic.getAuthenticationScope().session.currentSession()) {
+            is CurrentSessionResult.Success -> currentSession.authSession.userId
+            else -> null
         }
-
 
     /**
      * Infinitely listen for the new IncomingCalls, notify about it and do additional actions if needed.
@@ -164,6 +152,6 @@ class WireNotificationManager @Inject constructor(
 
     companion object {
         private const val CHECK_INCOMING_CALLS_PERIOD_MS = 1000L
-        private const val CHECK_INCOMING_CALLS_TRIES = 10
+        private const val CHECK_INCOMING_CALLS_TRIES = 6
     }
 }

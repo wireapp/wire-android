@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.DeletedMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.MemberChangeMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -53,6 +54,7 @@ import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
 import com.wire.kalium.logic.data.message.MessageContent.Asset
+import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -70,9 +72,12 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -445,14 +450,14 @@ class ConversationViewModel @Inject constructor(
     // region ------------------------------ Mapper Helpers ------------------------------
     private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
-            val sender = members.findSender(message.senderUserId)
+            val sender = members.findUser(message.senderUserId)
 
             MessageViewWrapper(
-                messageContent = fromMessageModelToMessageContent(message),
+                messageContent = fromMessageModelToMessageContent(message, members),
                 messageSource = if (sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
-                    username = sender.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
+                    username = sender?.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
                     membership = if (sender is MemberDetails.Other) userTypeMapper.toMembership(sender.userType) else Membership.None,
                     isLegalHold = false,
                     time = message.date,
@@ -466,11 +471,31 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent? =
+    private fun MemberDetails.toSystemMessageName(lowerCaseSelfLabel: Boolean = false) = when (this) {
+        is MemberDetails.Other -> this.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label)
+        is MemberDetails.Self -> UIText.StringResource(
+            if (lowerCaseSelfLabel) R.string.member_name_you_label_lowercase
+            else R.string.member_name_you_label_titlecase
+        )
+    }
+
+    private suspend fun fromMessageModelToMessageContent(message: Message, members: List<MemberDetails>): MessageContent? =
         when (message.visibility) {
             Message.Visibility.VISIBLE -> when (val content = message.content) {
                 is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
                 is Text -> TextMessage(messageBody = MessageBody(UIText.DynamicString(content.value)))
+                is MemberChange -> {
+                    val sender = members.findUser(message.senderUserId)
+                    val isAuthorSelfAction = content.members.size == 1 && message.senderUserId == content.members.first().id
+                    val authorName = sender.toSystemMessageName()
+                    val memberNameList = content.members.map { members.findUser(it.id).toSystemMessageName(true) }
+                    when (content) {
+                        is MemberChange.Join -> MemberChangeMessage.Added(authorName, memberNameList)
+                        is MemberChange.Leave ->
+                            if(isAuthorSelfAction) MemberChangeMessage.Left(authorName)
+                            else MemberChangeMessage.Removed(authorName, memberNameList)
+                    }
+                }
                 else -> TextMessage(messageBody = MessageBody((content as? Text)?.let { UIText.DynamicString(it.value) }
                     ?: UIText.StringResource(R.string.content_is_not_available)))
             }
@@ -510,7 +535,7 @@ class ConversationViewModel @Inject constructor(
             } else null
         }
     }
-    // endregion
+// endregion
 
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images

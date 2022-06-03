@@ -36,7 +36,7 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
@@ -173,7 +173,7 @@ class ConversationsViewModelTest {
 
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (selfUserName)
-        assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
+        assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context.resources))
     }
 
     @Test
@@ -189,7 +189,7 @@ class ConversationsViewModelTest {
 
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (otherUserName)
-        assertEquals(otherUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
+        assertEquals(otherUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context.resources))
     }
 
     @Test
@@ -204,12 +204,12 @@ class ConversationsViewModelTest {
 
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (firstUserName)
-        assertEquals(firstUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
+        assertEquals(firstUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context.resources))
 
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (secondUserName)
         arrangement.withChannelUpdates(messages, listOf(mockOtherUserDetails(secondUserName, senderId)))
-        assertEquals(secondUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
+        assertEquals(secondUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context.resources))
     }
 
     @Test
@@ -419,7 +419,7 @@ class ConversationsViewModelTest {
         lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
         @MockK
-        lateinit var observeMemberDetails: ObserveConversationMembersUseCase
+        lateinit var observeMemberDetails: ObserveMemberDetailsByIdsUseCase
 
         @MockK
         lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase

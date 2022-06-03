@@ -1,8 +1,6 @@
 package com.wire.android.ui.home.conversations
 
 import android.content.res.Resources
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -37,11 +35,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.model.MessageContent.MemberChangeMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.toUIText
 
 @Composable
-fun SystemMessageItem(type: SystemMessageType) {
+fun SystemMessageItem(message: MemberChangeMessage) {
     Row(
         Modifier
             .padding(
@@ -56,9 +57,9 @@ fun SystemMessageItem(type: SystemMessageType) {
             modifier = Modifier.width(dimensions().userAvatarDefaultSize),
             contentAlignment = Alignment.TopEnd
         ) {
-            if (type.iconResId != null)
+            if (message.iconResId != null)
                 Image(
-                    painter = painterResource(id = type.iconResId),
+                    painter = painterResource(id = message.iconResId),
                     contentDescription = stringResource(R.string.content_description_system_message_icon),
                     modifier = Modifier
                         .padding(
@@ -88,9 +89,9 @@ fun SystemMessageItem(type: SystemMessageType) {
             )
             var expanded: Boolean by remember { mutableStateOf(false) }
             Crossfade(targetState = expanded) {
-                Text(type.getAnnotatedString(context.resources, it, normalStyle, boldStyle))
+                Text(message.getAnnotatedString(context.resources, it, normalStyle, boldStyle))
             }
-            if (type.expandable) {
+            if (message.expandable) {
                 WireSecondaryButton(
                     onClick = { expanded = !expanded },
                     text = stringResource(if (expanded) R.string.label_show_less else R.string.label_show_all),
@@ -110,64 +111,51 @@ fun SystemMessageItem(type: SystemMessageType) {
 
 @Preview
 @Composable
-fun SystemMessageItemAdded7UsersPreview() {
+fun SystemMessageAdded7UsersPreview() {
     SystemMessageItem(
-        type = SystemMessageType.Added(
-            "Barbara Cotolina",
-            listOf("Albert Lewis", "Bert Strunk", "Claudia Schiffer", "Dorothee Friedrich", "Erich Weinert", "Frieda Kahlo", "Gudrun Gut")
+        message = MemberChangeMessage.Added(
+            "Barbara Cotolina".toUIText(),
+            listOf(
+                "Albert Lewis".toUIText(), "Bert Strunk".toUIText(), "Claudia Schiffer".toUIText(), "Dorothee Friedrich".toUIText(),
+                "Erich Weinert".toUIText(), "Frieda Kahlo".toUIText(), "Gudrun Gut".toUIText()
+            )
         )
     )
 }
 
 @Preview
 @Composable
-fun SystemMessageItemAdded4UsersPreview() {
+fun SystemMessageAdded4UsersPreview() {
     SystemMessageItem(
-        type = SystemMessageType.Added(
-            "Barbara Cotolina",
-            listOf("Albert Lewis", "Bert Strunk", "Claudia Schiffer", "Dorothee Friedrich")
+        message = MemberChangeMessage.Added(
+            "Barbara Cotolina".toUIText(),
+            listOf("Albert Lewis".toUIText(), "Bert Strunk".toUIText(), "Claudia Schiffer".toUIText(), "Dorothee Friedrich".toUIText())
         )
     )
 }
 
 @Preview
 @Composable
-fun SystemMessageItemRemoved4UsersPreview() {
+fun SystemMessageRemoved4UsersPreview() {
     SystemMessageItem(
-        type = SystemMessageType.Removed(
-            "Barbara Cotolina",
-            listOf("Albert Lewis", "Bert Strunk", "Claudia Schiffer", "Dorothee Friedrich")
+        message = MemberChangeMessage.Removed(
+            "Barbara Cotolina".toUIText(),
+            listOf("Albert Lewis".toUIText(), "Bert Strunk".toUIText(), "Claudia Schiffer".toUIText(), "Dorothee Friedrich".toUIText())
         )
     )
 }
 
 @Preview
 @Composable
-fun SystemMessageItemLeftPreview() {
-    SystemMessageItem(type = SystemMessageType.Left("Barbara Cotolina"))
+fun SystemMessageLeftPreview() {
+    SystemMessageItem(message = MemberChangeMessage.Left(UIText.DynamicString("Barbara Cotolina")))
 }
 
-sealed class SystemMessageType(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) {
-    data class Added(
-        val author: String,
-        val userNames: List<String>
-    ) : SystemMessageType(R.drawable.ic_add, R.string.label_system_message_added)
-
-    data class Removed(
-        val author: String,
-        val userNames: List<String>
-    ) : SystemMessageType(R.drawable.ic_minus, R.string.label_system_message_removed)
-
-    data class Left(
-        val author: String
-    ) : SystemMessageType(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
-}
-
-val SystemMessageType.expandable
+private val MemberChangeMessage.expandable
     get() = when (this) {
-        is SystemMessageType.Added -> this.userNames.size > EXPANDABLE_THRESHOLD
-        is SystemMessageType.Removed -> this.userNames.size > EXPANDABLE_THRESHOLD
-        is SystemMessageType.Left -> false
+        is MemberChangeMessage.Added -> this.memberNames.size > EXPANDABLE_THRESHOLD
+        is MemberChangeMessage.Removed -> this.memberNames.size > EXPANDABLE_THRESHOLD
+        is MemberChangeMessage.Left -> false
     }
 
 private fun String.bold() = STYLE_SEPARATOR + this + STYLE_SEPARATOR
@@ -178,27 +166,33 @@ private fun List<String>.toUserNamesListString(res: Resources) = when {
     else -> res.getString(R.string.label_system_message_and, this.dropLast(1).joinToString(", ").bold(), this.last().bold())
 }
 
-private fun List<String>.limitUserNamesList(res: Resources, threshold: Int) =
-    if (this.size <= threshold) this
+private fun List<UIText>.limitUserNamesList(res: Resources, threshold: Int): List<String> =
+    if (this.size <= threshold) this.map { it.asString(res) }
     else {
         val moreCount = this.size - (threshold - 1) // the last visible place is taken by "and X more"
         this.take(threshold - 1)
+            .map { it.asString(res) }
             .plus(res.getQuantityString(R.plurals.label_system_message_x_more, moreCount, moreCount))
     }
 
-fun SystemMessageType.getAnnotatedString(res: Resources, expanded: Boolean, normalStyle: SpanStyle, boldStyle: SpanStyle): AnnotatedString {
+fun MemberChangeMessage.getAnnotatedString(
+    res: Resources,
+    expanded: Boolean,
+    normalStyle: SpanStyle,
+    boldStyle: SpanStyle
+): AnnotatedString {
     val string = when (this) {
-        is SystemMessageType.Added -> res.getString(
+        is MemberChangeMessage.Added -> res.getString(
             stringResId,
-            author.bold(),
-            userNames.limitUserNamesList(res, if (expanded) userNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
+            author.asString(res).bold(),
+            memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
         )
-        is SystemMessageType.Removed -> res.getString(
+        is MemberChangeMessage.Removed -> res.getString(
             stringResId,
-            author.bold(),
-            userNames.limitUserNamesList(res, if (expanded) userNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
+            author.asString(res).bold(),
+            memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
         )
-        is SystemMessageType.Left -> res.getString(stringResId, author.bold())
+        is MemberChangeMessage.Left -> res.getString(stringResId, author.asString(res).bold())
     }
     return buildAnnotatedString {
         string.split(STYLE_SEPARATOR).forEachIndexed { index, text ->

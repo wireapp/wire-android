@@ -1,5 +1,7 @@
 package com.wire.android.ui.home.conversations.model
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
@@ -62,6 +64,20 @@ sealed class MessageContent {
             return rawImgData.contentHashCode()
         }
     }
+    sealed class MemberChangeMessage(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) : MessageContent() {
+        data class Added(
+            val author: UIText,
+            val memberNames: List<UIText>
+            ) : MemberChangeMessage(R.drawable.ic_add, R.string.label_system_message_added)
+        data class Removed(
+            val author: UIText,
+            val memberNames: List<UIText>
+            ) : MemberChangeMessage(R.drawable.ic_minus, R.string.label_system_message_removed)
+        data class Left(
+            val author: UIText
+            ) : MemberChangeMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
+    }
+
 }
 
 data class MessageBody(

@@ -67,10 +67,11 @@ fun ConversationRouterHomeBridge(
             onHomeBottomSheetContentChange {
                 ConversationSheetContent(
                     conversationSheetContent = conversationSheetContent,
+                    conversationOptionSheetState = conversationOptionSheetState,
                     // FIXME: Compose - Find a way to not recreate this lambda
                     onMutingConversationStatusChange = { mutedStatus ->
                         conversationState.muteConversation(mutedStatus)
-                        viewModel.muteConversation(conversationId = conversationSheetContent.conversationId)
+                        viewModel.muteConversation(conversationId = conversationSheetContent.conversationId, mutedStatus)
                     },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,

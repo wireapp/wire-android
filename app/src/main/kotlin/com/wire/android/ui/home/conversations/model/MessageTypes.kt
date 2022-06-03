@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations.model
 
 import android.graphics.Bitmap
+import android.text.util.Linkify
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
+import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationViewModel
@@ -60,11 +62,7 @@ import kotlin.math.roundToInt
 // waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(messageBody: MessageBody) {
-    Text(
-        buildAnnotatedString {
-            appendBody(messageBody = messageBody)
-        }
-    )
+    LinkifyText(text = messageBody.message.asString(), mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
 }
 
 @Composable

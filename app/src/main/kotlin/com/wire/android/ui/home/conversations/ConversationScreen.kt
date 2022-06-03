@@ -25,6 +25,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
@@ -122,7 +124,10 @@ private fun ConversationScreen(
                             title = conversationName,
                             avatar = {
                                 when (conversationAvatar) {
-                                    is ConversationAvatar.Group -> GroupConversationAvatar(colorValue = conversationAvatar.groupColorValue)
+                                    is ConversationAvatar.Group ->
+                                        GroupConversationAvatar(
+                                            color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
+                                        )
                                     is ConversationAvatar.OneOne -> UserProfileAvatar(userAvatarAsset = conversationAvatar.avatarAsset)
                                     ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
                                 }

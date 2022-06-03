@@ -17,6 +17,8 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
@@ -38,7 +40,10 @@ internal fun HomeSheetContent(
         headerTitle = conversationSheetContent.title,
         headerIcon = {
             if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
-                GroupConversationAvatar(colorValue = conversationSheetContent.conversationTypeDetail.groupColorValue)
+                GroupConversationAvatar(
+                    color = colorsScheme()
+                        .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
+                )
             } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
                 UserProfileAvatar(userAvatarAsset = conversationSheetContent.conversationTypeDetail.avatarAsset)
             }

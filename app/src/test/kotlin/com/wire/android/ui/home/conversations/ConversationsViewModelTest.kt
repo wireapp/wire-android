@@ -6,11 +6,17 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.MessageMapper
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
@@ -185,6 +191,9 @@ class ConversationsViewModelTest {
 
         val otherMember = mockOtherUserDetails(otherUserName, senderId)
         val (arrangement, viewModel) = Arrangement().withChannelUpdates(messages, listOf(otherMember)).arrange()
+        coEvery { arrangement.messageMapper.toUIMessages(any(), any()) } returns listOf(
+            mockUIMessage(otherUserName)
+        )
 
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (otherUserName)
@@ -373,7 +382,7 @@ class ConversationsViewModelTest {
             coEvery { observeConversationDetails(any()) } returns flowOf()
             coEvery { markMessagesAsNotified(any(), any()) } returns Success
             coEvery { getSelfUserTeam() } returns flowOf()
-            coEvery { messageMapper.toUIMessages(any(),any()) } returns listOf()
+            coEvery { messageMapper.toUIMessages(any(), any()) } returns listOf()
         }
 
         @MockK
@@ -460,6 +469,7 @@ class ConversationsViewModelTest {
             coEvery { getMessages(any()) } returns flowOf(messages)
             coEvery { observeMemberDetails(any()) } returns otherMemberUpdatesChannel.consumeAsFlow()
             coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
+
             otherMemberUpdatesChannel.send(members)
             conversationDetails?.run { conversationDetailsChannel.send(this) }
             return this
@@ -534,6 +544,24 @@ class ConversationsViewModelTest {
             every { user.previewPicture } returns null
         }
         every { it.userType } returns userType
+    }
+
+    private fun mockUIMessage(userName: String = "mockUserName"): UIMessage {
+        return mockk<UIMessage>().also {
+            every { it.user } returns mockk<User>().also {
+                every { it.avatarAsset } returns null
+                every { it.availabilityStatus } returns UserStatus.AVAILABLE
+            }
+            every { it.messageSource } returns MessageSource.OtherUser
+            every { it.messageHeader } returns mockk<MessageHeader>().also {
+                every { it.messageId } returns "someId"
+                every { it.username } returns UIText.DynamicString(userName)
+                every { it.isLegalHold } returns false
+                every { it.time } returns ""
+                every { it.messageStatus } returns MessageStatus.Untouched
+            }
+            every { it.messageContent } returns null
+        }
     }
 
     private fun mockedMessage(senderId: UserId) = Message(

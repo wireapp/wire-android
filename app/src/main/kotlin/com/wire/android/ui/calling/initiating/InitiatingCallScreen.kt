@@ -41,12 +41,14 @@ fun InitiatingCallScreen(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()
 ) {
-    InitiatingCallContent(
-        callState = sharedCallingViewModel.callState,
-        toggleMute = { sharedCallingViewModel.toggleMute() },
-        onNavigateBack = { sharedCallingViewModel.navigateBack() },
-        onHangUpCall = { sharedCallingViewModel.hangUpCall() }
-    )
+    with(sharedCallingViewModel) {
+        InitiatingCallContent(
+            callState = callState,
+            toggleMute = ::toggleMute,
+            onNavigateBack = ::navigateBack,
+            onHangUpCall = ::hangUpCall
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)

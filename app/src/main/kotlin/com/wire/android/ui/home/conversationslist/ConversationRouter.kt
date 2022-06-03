@@ -30,6 +30,8 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionSheetState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
@@ -53,6 +55,10 @@ fun ConversationRouterHomeBridge(
         ConversationState()
     }
 
+    val conversationOptionSheetState = remember(conversationState.conversationSheetContent) {
+        ConversationOptionSheetState(initialNavigation = ConversationOptionNavigation.Home)
+    }
+
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
     LaunchedEffect(conversationState.conversationSheetContent) {
@@ -60,6 +66,7 @@ fun ConversationRouterHomeBridge(
             onHomeBottomSheetContentChange {
                 ConversationSheetContent(
                     conversationSheetContent = conversationSheetContent,
+                    conversationOptionSheetState = conversationOptionSheetState,
                     onMutingConversationStatusChange = {
                         conversationState.muteConversation(it)
                         viewModel.muteConversation(conversationSheetContent.conversationId, it)
@@ -86,7 +93,12 @@ fun ConversationRouterHomeBridge(
         },
         onScrollPositionChanged = onScrollPositionChanged,
         onError = onBottomSheetVisibilityChanged,
-        openProfile = viewModel::openUserProfile
+        openProfile = viewModel::openUserProfile,
+        onEditNotifications = { conversationItem ->
+            conversationState.changeModalSheetContentState(conversationItem)
+            onBottomSheetVisibilityChanged()
+            conversationOptionSheetState.toMutingNotificationOption()
+        },
     )
 }
 
@@ -100,6 +112,7 @@ private fun ConversationRouter(
     openConversation: (ConversationId) -> Unit,
     openNewConversation: () -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
+    onEditNotifications: (ConversationItem) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
     onError: () -> Unit,
     openProfile: (UserId) -> Unit,
@@ -163,6 +176,7 @@ private fun ConversationRouter(
                             onEditConversation = onEditConversationItem,
                             onScrollPositionChanged = onScrollPositionChanged,
                             onOpenUserProfile = openProfile,
+                            onOpenConversationNotificationsSettings = onEditNotifications
                         )
                     }
                 )
@@ -176,6 +190,7 @@ private fun ConversationRouter(
                             onEditConversationItem = onEditConversationItem,
                             onScrollPositionChanged = onScrollPositionChanged,
                             onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = onEditNotifications
                         )
                     }
                 )
@@ -188,7 +203,8 @@ private fun ConversationRouter(
                             onMentionItemClick = openConversation,
                             onEditConversationItem = onEditConversationItem,
                             onScrollPositionChanged = onScrollPositionChanged,
-                            onOpenUserProfile = openProfile
+                            onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = onEditNotifications
                         )
                     }
                 )

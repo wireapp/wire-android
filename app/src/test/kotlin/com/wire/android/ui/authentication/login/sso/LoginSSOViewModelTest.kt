@@ -4,6 +4,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.mockUri
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
@@ -87,6 +88,7 @@ class LoginSSOViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
+        mockUri()
         every { savedStateHandle.get<String>(any()) } returns ""
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { serverConfig.apiBaseUrl } returns apiBaseUrl

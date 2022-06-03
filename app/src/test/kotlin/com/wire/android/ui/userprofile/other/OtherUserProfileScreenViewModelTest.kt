@@ -6,8 +6,8 @@ import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.CoreFailure.Unknown
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -30,7 +30,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -174,6 +173,7 @@ class OtherUserProfileScreenViewModelTest {
         runTest {
             // given
             coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(CONVERSATION)
+            coEvery { navigationManager.navigate(command = any()) } returns Unit
 
             // when
             otherUserProfileScreenViewModel.openConversation()
@@ -190,7 +190,7 @@ class OtherUserProfileScreenViewModelTest {
         runTest {
             // given
             coEvery { getOrCreateOneToOneConversation(USER_ID) } returns
-                CreateConversationResult.Failure(Unknown(RuntimeException("some error")))
+                    CreateConversationResult.Failure(Unknown(RuntimeException("some error")))
 
             // when
             otherUserProfileScreenViewModel.openConversation()
@@ -233,6 +233,7 @@ class OtherUserProfileScreenViewModelTest {
             null,
             MutedConversationStatus.AllAllowed,
             null,
-            null)
+            null
+        )
     }
 }

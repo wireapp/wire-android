@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.mapper.MessageMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
@@ -372,7 +373,7 @@ class ConversationsViewModelTest {
             coEvery { observeConversationDetails(any()) } returns flowOf()
             coEvery { markMessagesAsNotified(any(), any()) } returns Success
             coEvery { getSelfUserTeam() } returns flowOf()
-            coEvery { userTypeMapper.toMembership(any()) } returns Membership.None
+            coEvery { messageMapper.toUIMessages(any(),any()) } returns listOf()
         }
 
         @MockK
@@ -418,7 +419,7 @@ class ConversationsViewModelTest {
         lateinit var fileManager: FileManager
 
         @MockK
-        lateinit var userTypeMapper: UserTypeMapper
+        lateinit var messageMapper: MessageMapper
 
         @MockK
         lateinit var context: Context
@@ -447,7 +448,7 @@ class ConversationsViewModelTest {
                 updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
                 getSelfUserTeam = getSelfUserTeam,
                 fileManager = fileManager,
-                userTypeMapper = userTypeMapper
+                messageMapper = messageMapper
             )
         }
 

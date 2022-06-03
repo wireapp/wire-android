@@ -26,6 +26,10 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
+import io.mockk.verify
 
 class SharedCallingViewModelTest {
 
@@ -57,6 +61,15 @@ class SharedCallingViewModelTest {
     private lateinit var updateVideoState: UpdateVideoStateUseCase
 
     @MockK
+    private lateinit var turnLoudSpeakerOff: TurnLoudSpeakerOffUseCase
+
+    @MockK
+    private lateinit var turnLoudSpeakerOn: TurnLoudSpeakerOnUseCase
+
+    @MockK
+    private lateinit var observeSpeaker: ObserveSpeakerUseCase
+
+    @MockK
     private lateinit var callRinger: CallRinger
 
     @MockK
@@ -84,6 +97,9 @@ class SharedCallingViewModelTest {
             unMuteCall = unMuteCall,
             setVideoPreview = setVideoPreview,
             updateVideoState = updateVideoState,
+            turnLoudSpeakerOff = turnLoudSpeakerOff,
+            turnLoudSpeakerOn = turnLoudSpeakerOn,
+            observeSpeaker = observeSpeaker,
             callRinger = callRinger
         )
     }
@@ -112,23 +128,29 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given camera is turned on, when toggling video, then turn off video`() {
+    fun `given camera is turned on, when toggling video, then turn off video and speaker`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = true)
         coEvery { updateVideoState(any(), any()) } returns Unit
+        every { turnLoudSpeakerOff() } returns Unit
 
         runTest { sharedCallingViewModel.toggleVideo() }
 
+        verify(exactly = 1) { turnLoudSpeakerOff() }
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
+        sharedCallingViewModel.callState.isSpeakerOn shouldBeEqualTo false
     }
 
     @Test
-    fun `given camera is turned off, when toggling video, then turn on video`() {
+    fun `given camera is turned off, when toggling video, then turn on video and speaker`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = false)
         coEvery { updateVideoState(any(), any()) } returns Unit
+        every { turnLoudSpeakerOn() } returns Unit
 
         runTest { sharedCallingViewModel.toggleVideo() }
 
+        verify(exactly = 1) { turnLoudSpeakerOn() }
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo true
+        sharedCallingViewModel.callState.isSpeakerOn shouldBeEqualTo true
     }
 
     @Test

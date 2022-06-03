@@ -39,16 +39,22 @@ fun IncomingCallScreen(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
 ) {
-    val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(incomingCallViewModel = incomingCallViewModel)
-
-    IncomingCallContent(
-        callState = sharedCallingViewModel.callState,
-        toggleMute = sharedCallingViewModel::toggleMute,
-        toggleVideo = sharedCallingViewModel::toggleVideo,
-        declineCall = incomingCallViewModel::declineCall,
-        acceptCall = audioPermissionCheck::launch,
-        onVideoPreviewCreated = { sharedCallingViewModel.setVideoPreview(it) }
+    val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(
+        { incomingCallViewModel.acceptCall() },
+        { incomingCallViewModel.declineCall() }
     )
+
+    with(sharedCallingViewModel) {
+        IncomingCallContent(
+            callState = callState,
+            toggleMute = ::toggleMute,
+            toggleSpeaker = ::toggleSpeaker,
+            toggleVideo = ::toggleVideo,
+            declineCall = incomingCallViewModel::declineCall,
+            acceptCall = audioPermissionCheck::launch,
+            onVideoPreviewCreated = { setVideoPreview(it) }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -56,6 +62,7 @@ fun IncomingCallScreen(
 private fun IncomingCallContent(
     callState: CallState,
     toggleMute: () -> Unit,
+    toggleSpeaker: () -> Unit,
     toggleVideo: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit,
@@ -63,6 +70,7 @@ private fun IncomingCallContent(
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
+
     BottomSheetScaffold(
         topBar = { IncomingCallTopBar { } },
         sheetShape = RoundedCornerShape(dimensions().corner16x, dimensions().corner16x, 0.dp, 0.dp),
@@ -71,14 +79,53 @@ private fun IncomingCallContent(
         scaffoldState = scaffoldState,
         sheetPeekHeight = dimensions().defaultIncomingCallSheetPeekHeight,
         sheetContent = {
-            CallingControls(
+            CallOptionsControls(
                 isMuted = callState.isMuted,
                 isCameraOn = callState.isCameraOn,
+                isSpeakerOn = callState.isSpeakerOn,
+                toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
-                toggleVideo = toggleVideo,
-                declineCall = declineCall,
-                acceptCall = acceptCall
+                toggleVideo = toggleVideo
             )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = dimensions().spacing40x,
+                        top = dimensions().spacing32x,
+                        end = dimensions().spacing40x
+                    )
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.align(alignment = Alignment.CenterStart)
+                ) {
+                    DeclineButton { declineCall() }
+                    Text(
+                        text = stringResource(id = R.string.calling_label_decline),
+                        style = MaterialTheme.wireTypography.body03,
+                        modifier = Modifier.padding(
+                            top = dimensions().spacing8x,
+                            bottom = dimensions().spacing40x
+                        )
+                    )
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .align(alignment = Alignment.CenterEnd)
+                ) {
+                    AcceptButton { acceptCall() }
+                    Text(
+                        text = stringResource(id = R.string.calling_label_accept),
+                        style = MaterialTheme.wireTypography.body03,
+                        modifier = Modifier.padding(
+                            top = dimensions().spacing8x,
+                            bottom = dimensions().spacing40x
+                        )
+                    )
+                }
+            }
         },
     ) {
         CallPreview(
@@ -106,71 +153,16 @@ private fun IncomingCallTopBar(
 }
 
 @Composable
-private fun CallingControls(
-    isMuted: Boolean,
-    isCameraOn: Boolean,
-    toggleMute: () -> Unit,
-    toggleVideo: () -> Unit,
-    declineCall: () -> Unit,
-    acceptCall: () -> Unit
-) {
-    CallOptionsControls(
-        isMuted = isMuted,
-        isCameraOn = isCameraOn,
-        toggleMute = toggleMute,
-        toggleVideo = toggleVideo
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                start = dimensions().spacing40x,
-                top = dimensions().spacing32x,
-                end = dimensions().spacing40x
-            )
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.align(alignment = Alignment.CenterStart)
-        ) {
-            DeclineButton { declineCall() }
-            Text(
-                text = stringResource(id = R.string.calling_label_decline),
-                style = MaterialTheme.wireTypography.body03,
-                modifier = Modifier.padding(
-                    top = dimensions().spacing8x,
-                    bottom = dimensions().spacing40x
-                )
-            )
-        }
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .align(alignment = Alignment.CenterEnd)
-        ) {
-            AcceptButton { acceptCall() }
-            Text(
-                text = stringResource(id = R.string.calling_label_accept),
-                style = MaterialTheme.wireTypography.body03,
-                modifier = Modifier.padding(
-                    top = dimensions().spacing8x,
-                    bottom = dimensions().spacing40x
-                )
-            )
-        }
-    }
+private fun AudioBluetoothPermissionCheckFlow(
+    onAcceptCall: () -> Unit,
+    onDeclineCall: () -> Unit
+) = rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
+    appLogger.d("IncomingCall - Permissions granted")
+    onAcceptCall()
+}) {
+    appLogger.d("IncomingCall - Permissions denied")
+    onDeclineCall()
 }
-
-@Composable
-private fun AudioBluetoothPermissionCheckFlow(incomingCallViewModel: IncomingCallViewModel) =
-    rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
-        appLogger.d("IncomingCall - Permissions granted")
-        incomingCallViewModel.acceptCall()
-    }) {
-        appLogger.d("IncomingCall - Permissions denied")
-        incomingCallViewModel.declineCall()
-    }
 
 @Preview
 @Composable

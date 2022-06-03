@@ -14,7 +14,10 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetOngoingCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
@@ -376,6 +379,27 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SetVideoPreviewUseCase = coreLogic.getSessionScope(currentAccount).calls.setVideoPreview
+
+    @ViewModelScoped
+    @Provides
+    fun turnLoudSpeakerOffUseCaseProvider(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): TurnLoudSpeakerOffUseCase = coreLogic.getSessionScope(currentAccount).calls.turnLoudSpeakerOffUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun turnLoudSpeakerOnUseCaseProvider(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): TurnLoudSpeakerOnUseCase = coreLogic.getSessionScope(currentAccount).calls.turnLoudSpeakerOnUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun observeSpeakerUseCaseProvider(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveSpeakerUseCase = coreLogic.getSessionScope(currentAccount).calls.observeSpeakerUseCase
 
     @ViewModelScoped
     @Provides

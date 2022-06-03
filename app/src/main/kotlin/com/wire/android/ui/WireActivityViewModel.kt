@@ -57,7 +57,7 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            launch { notificationManager.listenForMessageNotifications(userIdFlow) }
+            launch { notificationManager.observeMessageNotifications(userIdFlow) }
         }
     }
 

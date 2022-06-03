@@ -18,7 +18,6 @@ import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -39,12 +38,9 @@ class InitiatingCallViewModel @Inject constructor(
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
-    val conversationType: Deferred<ConversationType> = retrieveConversationTypeAsync()
-
     init {
         viewModelScope.launch {
-            val job = launch { initiateCall() }
-            job.join()
+            initiateCall()
             observeStartedCall()
         }
     }
@@ -62,7 +58,7 @@ class InitiatingCallViewModel @Inject constructor(
             is ConversationDetails.OneOne -> {
                 return@async ConversationType.OneOnOne
             }
-            is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
+            else -> throw IllegalStateException("Invalid conversation type")
         }
     }
 
@@ -97,9 +93,10 @@ class InitiatingCallViewModel @Inject constructor(
     }
 
     private suspend fun initiateCall() {
+        val conversationType = retrieveConversationTypeAsync().await()
         startCall(
             conversationId = conversationId,
-            conversationType = conversationType.await()
+            conversationType = conversationType
         )
         callRinger.ring(R.raw.ringing_from_me)
     }

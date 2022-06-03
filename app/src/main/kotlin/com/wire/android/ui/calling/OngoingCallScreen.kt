@@ -47,7 +47,10 @@ fun OngoingCallScreen(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel()
 ) {
     OngoingCallContent(sharedCallingViewModel)
-    observeScreenLifecycleChanges(lifecycleOwner, sharedCallingViewModel)
+    observeScreenLifecycleChanges(
+        lifecycleOwner = lifecycleOwner,
+        onPauseVideo = sharedCallingViewModel::pauseVideo
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -57,56 +60,58 @@ private fun OngoingCallContent(
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
-    BottomSheetScaffold(
-        topBar = {
-            OngoingCallTopBar(
-                conversationName = when (sharedCallingViewModel.callState.conversationName) {
-                    is ConversationName.Known -> (sharedCallingViewModel.callState.conversationName as ConversationName.Known).name
-                    is ConversationName.Unknown -> stringResource(
-                        id = (sharedCallingViewModel.callState.conversationName as ConversationName.Unknown).resourceId
-                    )
-                    else -> ""
-                }
-            ) { }
-        },
-        sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
-        backgroundColor = MaterialTheme.wireColorScheme.ongoingCallBackground,
-        sheetPeekHeight = dimensions().defaultSheetPeekHeight,
-        scaffoldState = scaffoldState,
-        sheetContent = {
-            with(sharedCallingViewModel) {
+    with(sharedCallingViewModel) {
+        BottomSheetScaffold(
+            topBar = {
+                val conversationName = callState.conversationName
+                OngoingCallTopBar(
+                    conversationName = when (conversationName) {
+                        is ConversationName.Known -> conversationName.name
+                        is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
+                        else -> ""
+                    }
+                ) { }
+            },
+            sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
+            backgroundColor = MaterialTheme.wireColorScheme.ongoingCallBackground,
+            sheetPeekHeight = dimensions().defaultSheetPeekHeight,
+            scaffoldState = scaffoldState,
+            sheetContent = {
                 CallingControls(
-                    callState = callState,
+                    isMuted = callState.isMuted,
+                    isCameraOn = callState.isCameraOn,
                     toggleMute = ::toggleMute,
                     onHangUpCall = ::hangUpCall,
                     onToggleVideo = ::toggleVideo
                 )
-            }
-        },
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+
+            },
         ) {
-            if (sharedCallingViewModel.callState.isCameraOn) {
-                //TODO fix memory leak when the app goes to background with video turned on
-                // https://issuetracker.google.com/issues/198012639
-                // The issue is marked as fixed in the issue tracker,
-                // but we are still getting it with our current compose version 1.2.0-beta01
-                AndroidView(factory = {
-                    val videoPreview = VideoPreview(it)
-                    sharedCallingViewModel.setVideoPreview(null)
-                    sharedCallingViewModel.setVideoPreview(videoPreview)
-                    videoPreview
-                })
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (callState.isCameraOn) {
+                    //TODO fix memory leak when the app goes to background with video turned on
+                    // https://issuetracker.google.com/issues/198012639
+                    // The issue is marked as fixed in the issue tracker,
+                    // but we are still getting it with our current compose version 1.2.0-beta01
+                    AndroidView(factory = {
+                        val videoPreview = VideoPreview(it)
+                        setVideoPreview(null)
+                        setVideoPreview(videoPreview)
+                        videoPreview
+                    })
+                }
+                UserProfileAvatar(
+                    userAvatarAsset = callState.avatarAssetId,
+                    size = dimensions().onGoingCallUserAvatarSize
+                )
             }
-            UserProfileAvatar(
-                userAvatarAsset = sharedCallingViewModel.callState.avatarAssetId,
-                size = dimensions().onGoingCallUserAvatarSize
-            )
         }
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,7 +131,8 @@ private fun OngoingCallTopBar(
 
 @Composable
 private fun CallingControls(
-    callState: CallState,
+    isMuted: Boolean,
+    isCameraOn: Boolean,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
     onToggleVideo: () -> Unit
@@ -138,9 +144,9 @@ private fun CallingControls(
             .fillMaxWidth()
             .padding(0.dp, dimensions().spacing16x, 0.dp, 0.dp)
     ) {
-        MicrophoneButton(callState.isMuted) { toggleMute() }
+        MicrophoneButton(isMuted) { toggleMute() }
         CameraButton(
-            isCameraOn = callState.isCameraOn,
+            isCameraOn = isCameraOn,
             onCameraPermissionDenied = { },
             onCameraButtonClicked = {
                 onToggleVideo()
@@ -159,14 +165,13 @@ private fun CallingControls(
 @Composable
 private fun observeScreenLifecycleChanges(
     lifecycleOwner: LifecycleOwner,
-    sharedCallingViewModel: SharedCallingViewModel
+    onPauseVideo: () -> Unit
 ) {
     // If `lifecycleOwner` changes, dispose and reset the effect
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) {
-                if(sharedCallingViewModel.callState.isCameraOn)
-                    sharedCallingViewModel.pauseVideo()
+                onPauseVideo()
             }
         }
 

@@ -52,7 +52,7 @@ class SharedCallingViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             launch {
-                initializeScreenState()
+                observeConversationDetails()
             }
             launch {
                 initializeCallingButtons()
@@ -60,7 +60,7 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    private suspend fun initializeScreenState() {
+    private suspend fun observeConversationDetails() {
         conversationDetails(conversationId = conversationId)
             .collect { details ->
                 callState = when (details) {
@@ -77,7 +77,7 @@ class SharedCallingViewModel @Inject constructor(
                             conversationType = ConversationType.OneOnOne
                         )
                     }
-                    is ConversationDetails.Self -> throw IllegalStateException("Invalid conversation type")
+                    else -> throw IllegalStateException("Invalid conversation type")
                 }
             }
     }
@@ -141,9 +141,11 @@ class SharedCallingViewModel @Inject constructor(
 
     fun pauseVideo() {
         viewModelScope.launch {
-            updateVideoState(conversationId, VideoState.PAUSED)
-            setVideoPreview(null)
-            callState = callState.copy(isCameraOn = false)
+            if (callState.isCameraOn) {
+                updateVideoState(conversationId, VideoState.PAUSED)
+                setVideoPreview(null)
+                callState = callState.copy(isCameraOn = false)
+            }
         }
     }
 

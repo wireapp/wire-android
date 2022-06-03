@@ -8,6 +8,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -34,6 +35,8 @@ import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import kotlinx.coroutines.launch
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
+import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @OptIn(ExperimentalMaterialApi::class)
@@ -45,7 +48,8 @@ abstract class CreateAccountBaseViewModel(
     private val requestActivationCodeUseCase: RequestActivationCodeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registerAccountUseCase: RegisterAccountUseCase,
-    private val clientScopeProviderFactory: ClientScopeProvider.Factory
+    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    private val pushTokenUseCase: RegisterTokenUseCase
 ) : ViewModel(),
     CreateAccountOverviewViewModel,
     CreateAccountEmailViewModel,
@@ -232,7 +236,10 @@ abstract class CreateAccountBaseViewModel(
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
-                    is RegisterClientResult.Success -> onCodeSuccess()
+                    is RegisterClientResult.Success -> {
+                        registerPushToken(it.client.clientId.value)
+                        onCodeSuccess()
+                    }
                 }
             }
         }
@@ -249,12 +256,22 @@ abstract class CreateAccountBaseViewModel(
 
     private suspend fun registerClient(userId: UserId, password: String) =
         clientScopeProviderFactory.create(userId).clientScope.register(
-            RegisterClientParam.ClientWithToken(
+            RegisterClientParam(
                 password = password,
-                capabilities = null,
-                senderId = BuildConfig.SENDER_ID
-            )
+                capabilities = null)
         )
+
+    suspend fun registerPushToken(clientId: String){
+        pushTokenUseCase(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
+            when (registerTokenResult) {
+                is RegisterTokenResult.Success ->
+                    appLogger.i("PushToken Registered Successfully")
+                is RegisterTokenResult.Failure ->
+                    //TODO: handle failure in settings to allow the user to retry tokenRegistration
+                    appLogger.i("PushToken Registration Failed: $registerTokenResult")
+            }
+        }
+    }
 
 
     abstract fun onCodeSuccess()
@@ -290,8 +307,6 @@ private fun RequestActivationCodeResult.toCodeError() = when (this) {
 private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeViewState.CodeError.TooManyDevicesError
     RegisterClientResult.Failure.InvalidCredentials -> CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
-    //TODO: PushTokenRegister need to be handled in the settings page to register the Push Token
-    RegisterClientResult.Failure.PushTokenRegister -> CreateAccountCodeViewState.CodeError.None
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
 }
 

@@ -8,6 +8,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
@@ -26,6 +28,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCaseImpl
 
 @ExperimentalMaterialApi
 @HiltViewModel
@@ -34,9 +39,10 @@ class LoginSSOViewModel @Inject constructor(
     private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase,
     private val getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
+    pushTokenUseCase: RegisterTokenUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     navigationManager: NavigationManager,
-) : LoginViewModel(navigationManager, clientScopeProviderFactory) {
+) : LoginViewModel(navigationManager, clientScopeProviderFactory, pushTokenUseCase) {
 
     var loginState by mutableStateOf(
         LoginSSOState(ssoCode = TextFieldValue(savedStateHandle.get(SSO_CODE_SAVED_STATE_KEY) ?: String.EMPTY))
@@ -81,8 +87,10 @@ class LoginSSOViewModel @Inject constructor(
             }
             registerClient(storedUserId).let {
                 when (it) {
-                    //TODO: PushTokenRegister need to be handled in the settings page to register the Push Token
-                    is RegisterClientResult.Success, RegisterClientResult.Failure.PushTokenRegister -> navigateToConvScreen()
+                    is RegisterClientResult.Success -> {
+                        registerPushToken(it.client.clientId.value)
+                        navigateToConvScreen()
+                    }
                     is RegisterClientResult.Failure -> {
                         updateLoginError(it.toLoginError())
                         return@launch

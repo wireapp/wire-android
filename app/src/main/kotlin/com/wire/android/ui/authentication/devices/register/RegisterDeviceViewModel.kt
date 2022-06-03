@@ -9,6 +9,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -16,6 +17,8 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,6 +29,7 @@ class RegisterDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val registerClientUseCase: RegisterClientUseCase,
+    private val pushTokenUseCase: RegisterTokenUseCase
 ) : ViewModel() {
 
     var state: RegisterDeviceState by mutableStateOf(RegisterDeviceState())
@@ -46,13 +50,13 @@ class RegisterDeviceViewModel @Inject constructor(
             if (!validatePasswordUseCase(state.password.text))
                 state = state.copy(loading = false, continueEnabled = true, error = RegisterDeviceError.InvalidCredentialsError)
             else when (val registerDeviceResult = registerClientUseCase(
-                RegisterClientUseCase.RegisterClientParam.ClientWithToken(
+                RegisterClientUseCase.RegisterClientParam(
                     password = state.password.text,
                     capabilities = null,
-                    senderId = BuildConfig.SENDER_ID
                 ))) {
                 is RegisterClientResult.Failure.TooManyClients -> navigateToRemoveDevicesScreen()
                 is RegisterClientResult.Success -> {
+                    registerPushToken(registerDeviceResult.client.clientId.value)
                     navigateToHomeScreen()}
                 is RegisterClientResult.Failure.Generic -> state = state.copy(
                         loading = false,
@@ -64,6 +68,18 @@ class RegisterDeviceViewModel @Inject constructor(
                         continueEnabled = true,
                         error = RegisterDeviceError.InvalidCredentialsError
                     )
+            }
+        }
+    }
+
+    private suspend fun registerPushToken(clientId: String){
+        pushTokenUseCase(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
+            when (registerTokenResult) {
+                is RegisterTokenResult.Success ->
+                    appLogger.i("PushToken Registered Successfully")
+                is RegisterTokenResult.Failure ->
+                    //TODO: handle failure in settings to allow the user to retry tokenRegistration
+                    appLogger.i("PushToken Registration Failed: $registerTokenResult")
             }
         }
     }

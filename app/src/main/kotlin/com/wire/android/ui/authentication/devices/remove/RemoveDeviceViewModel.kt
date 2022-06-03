@@ -8,6 +8,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -21,6 +22,8 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.client.SelfClientsUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,7 +35,8 @@ class RemoveDeviceViewModel @Inject constructor(
     private val selfClientsUseCase: SelfClientsUseCase,
     private val deleteClientUseCase: DeleteClientUseCase,
     private val registerClientUseCase: RegisterClientUseCase,
-    private val validatePasswordUseCase: ValidatePasswordUseCase
+    private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val pushTokenUseCase: RegisterTokenUseCase
 ) : ViewModel() {
 
     var state: RemoveDeviceState by mutableStateOf(
@@ -87,13 +91,18 @@ class RemoveDeviceViewModel @Inject constructor(
                     val removeDeviceError =
                         if (deleteClientResult is DeleteClientResult.Success)
                             if (!validatePasswordUseCase(dialogStateVisible.password.text)) RemoveDeviceError.InvalidCredentialsError
-                            else registerClientUseCase(
-                                RegisterClientUseCase.RegisterClientParam.ClientWithToken(
-                                    password = dialogStateVisible.password.text,
-                                    capabilities = null,
-                                    senderId = BuildConfig.SENDER_ID
-                                )
-                            ).toRemoveDeviceError()
+                            else {
+                                registerClientUseCase(
+                                    RegisterClientUseCase.RegisterClientParam(
+                                        password = dialogStateVisible.password.text,
+                                        capabilities = null,
+                                    )
+                                ).let { registerClientResult ->
+                                    if (registerClientResult is RegisterClientResult.Success)
+                                        registerPushToken(registerClientResult.client.clientId.value)
+                                    registerClientResult.toRemoveDeviceError()
+                                }
+                            }
                         else
                             deleteClientResult.toRemoveDeviceError()
                     updateStateIfDialogVisible { it.copy(loading = false, error = removeDeviceError) }
@@ -102,6 +111,18 @@ class RemoveDeviceViewModel @Inject constructor(
                         navigateToConvScreen()
                     }
                 }
+            }
+        }
+    }
+
+    private suspend fun registerPushToken(clientId: String) {
+        pushTokenUseCase(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
+            when (registerTokenResult) {
+                is RegisterTokenResult.Success ->
+                    appLogger.i("PushToken Registered Successfully")
+                is RegisterTokenResult.Failure ->
+                    //TODO: handle failure in settings to allow the user to retry tokenRegistration
+                    appLogger.i("PushToken Registration Failed: $registerTokenResult")
             }
         }
     }
@@ -118,8 +139,6 @@ class RemoveDeviceViewModel @Inject constructor(
             is RegisterClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
-            //TODO: PushTokenRegister need to be handled in the settings page to register the Push Token
-            is RegisterClientResult.Failure.PushTokenRegister -> RemoveDeviceError.None
             is RegisterClientResult.Success -> RemoveDeviceError.None
         }
 

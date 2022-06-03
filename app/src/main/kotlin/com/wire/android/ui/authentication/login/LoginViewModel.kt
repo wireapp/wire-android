@@ -5,6 +5,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -12,6 +13,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +22,8 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
@@ -27,7 +31,8 @@ import kotlinx.coroutines.launch
 open class LoginViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-) : ViewModel() {
+    private val pushTokenUseCase: RegisterTokenUseCase
+    ) : ViewModel() {
 
     //todo: will inject it later
     var serverConfig = ServerConfig.DEFAULT
@@ -61,12 +66,22 @@ open class LoginViewModel @Inject constructor(
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
         return clientScope.register(
-            RegisterClientUseCase.RegisterClientParam.ClientWithToken(
+            RegisterClientUseCase.RegisterClientParam(
                 password = password,
-                capabilities = capabilities,
-                senderId = BuildConfig.SENDER_ID
-            )
+                capabilities = capabilities)
         )
+    }
+
+    suspend fun registerPushToken(clientId: String){
+        pushTokenUseCase(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
+            when (registerTokenResult) {
+                is RegisterTokenResult.Success ->
+                    appLogger.i("PushToken Registered Successfully")
+                is RegisterTokenResult.Failure ->
+                    //TODO: handle failure in settings to allow the user to retry tokenRegistration
+                    appLogger.i("PushToken Registration Failed: $registerTokenResult")
+            }
+        }
     }
 
     fun navigateBack() = viewModelScope.launch {
@@ -92,8 +107,6 @@ fun AuthenticationResult.Failure.toLoginError() = when (this) {
 fun RegisterClientResult.Failure.toLoginError() = when (this) {
     is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-    //TODO: PushTokenRegister need to be handled in the settings page to register the Push Token
-    RegisterClientResult.Failure.PushTokenRegister -> LoginError.None
     RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
 }
 

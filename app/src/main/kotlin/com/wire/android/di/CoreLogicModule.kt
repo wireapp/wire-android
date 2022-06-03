@@ -234,6 +234,12 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun registerPushTokenUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.registerPushToken
+
+
+    @ViewModelScoped
+    @Provides
     fun needsToRegisterClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).client.needsToRegisterClient
 

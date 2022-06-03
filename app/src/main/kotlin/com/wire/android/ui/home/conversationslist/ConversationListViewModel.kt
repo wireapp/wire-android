@@ -247,7 +247,7 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
         throw IllegalArgumentException("Self conversations should not be visible to the user.")
     }
     else -> {
-        throw IllegalArgumentException("Self conversations should not be visible to the user.")
+        throw IllegalArgumentException("$this conversations should not be visible to the user.")
     }
 }
 

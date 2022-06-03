@@ -248,10 +248,8 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
     }
     else -> {
         throw IllegalArgumentException("Self conversations should not be visible to the user.")
-            is ConversationDetails.Connection -> throw IllegalArgumentException("Self conversations should not be visible to the user.")
-
-        }
     }
+}
 
 private fun UserType.toMembership(): Membership {
     return when (this) {

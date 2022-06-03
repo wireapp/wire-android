@@ -11,12 +11,15 @@ import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.Message
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MessageMapper @Inject constructor(
+    private val dispatcherProvider: DispatcherProvider,
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
 ) {
@@ -24,8 +27,8 @@ class MessageMapper @Inject constructor(
     suspend fun toUIMessages(
         memberDetails: List<MemberDetails>,
         messages: List<Message>
-    ): List<UIMessage> {
-        return messages.map { message ->
+    ): List<UIMessage> = withContext(dispatcherProvider.io()) {
+        messages.map { message ->
             val sender = memberDetails.findSender(message.senderUserId)
 
             UIMessage(

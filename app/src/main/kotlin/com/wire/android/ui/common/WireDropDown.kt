@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -48,6 +49,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -57,6 +59,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.PopupProperties
 import com.wire.android.R
 import com.wire.android.ui.common.textfield.Label
+import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
@@ -69,95 +72,246 @@ import okhttp3.internal.wait
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WireDropdown(
-    newGroupState: NewGroupState, modifier: Modifier,
+    items: List<String>,
+    defaultItemIndex: Int = -1,
+    label: String,
+    modifier: Modifier,
+    onSelected: (selectedIndex: Int, selectedValue: String) -> Unit
 ) {
-    val dropDownLabel = "Protocol"
-    val items = listOf<Any>()
     val menuShape = RoundedCornerShape(
         0.dp,
         0.dp,
         MaterialTheme.wireDimensions.textFieldCornerSize,
         MaterialTheme.wireDimensions.textFieldCornerSize
     )
-    with(newGroupState) {
-        val defaultText = " (Default)"
-        val defaultIndicatorText = if (groupProtocol == ConversationOptions.Protocol.PROTEUS) defaultText else ""
-        val focusManager = LocalFocusManager.current
-        var expanded by remember { mutableStateOf(false) }
-        var textfieldSize by remember { mutableStateOf(200) }
-        val rotation: Float by animateFloatAsState(if (expanded) 180f else 0f)
-        val indicatorWidth = (if (expanded) 2 else 1).dp
-        val indicatorColor =
-            if (expanded) Color.Yellow.copy(alpha = ContentAlpha.high)
-            else Color.Yellow.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
-//
-        val options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5")
-        var selectedOptionText by remember { mutableStateOf(options[0]) }
 
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = {
-                expanded = !expanded
-            },
-        ) {
-            Column {
-                Label(
-                    dropDownLabel, false, WireTextFieldState.Default,
-                    remember { MutableInteractionSource() }, wireTextFieldColors()
-                )
-                TextField(
-                    readOnly = true,
-                    value = groupProtocol.name + defaultIndicatorText,
-                    onValueChange = { },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            expanded = expanded
-                        )
-                    },
-                    textStyle = MaterialTheme.wireTypography.body01,
-                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                    modifier = Modifier
-                        .background(
-                            color = Color.White,
-                            shape = textBoxShape(isExpanded = expanded)
-                        )
-                        .clip(textBoxShape(isExpanded = expanded))
-                        .clickable {
-                            expanded = !expanded
-                            focusManager.clearFocus()
-                        }
-                        .border(
-                            width = 1.dp,
-                            color = Color.LightGray,
-                            shape = textBoxShape(isExpanded = expanded)
-                        )
-                )
-            }
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                },
-                modifier = Modifier
+    val defaultText = " (Default)"
+    val preSelectionText = "Select an Item"
+    val focusManager = LocalFocusManager.current
+    var expanded by remember { mutableStateOf(false) }
+    var textFieldSize by remember { mutableStateOf(Size.Zero) }
+    var selectedIndex by remember { mutableStateOf(defaultItemIndex) }
+    val rotation: Float by animateFloatAsState(if (expanded) 180f else 0f)
+    val indicatorWidth = (if (expanded) 2 else 1).dp
+    val indicatorColor =
+        if (expanded) Color.Yellow.copy(alpha = ContentAlpha.high)
+        else Color.Yellow.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
+//
+//        Column(
+//            modifier = modifier
+//                .padding(
+//                    start = MaterialTheme.wireDimensions.textFieldCornerSize,
+//                    end = MaterialTheme.wireDimensions.textFieldCornerSize,
+//                    top = MaterialTheme.wireDimensions.textFieldCornerSize, bottom = 0.dp
+//                )
+//                .background(Color.Transparent)
+//        ) {
+//
+//            Label(
+//                dropDownLabel, false, WireTextFieldState.Default,
+//                remember { MutableInteractionSource() }, wireTextFieldColors()
+//            )
+//
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .onGloballyPositioned { coordinates ->
+//                        //This value is used to assign to the DropDown the same width
+//                        textfieldSize = coordinates.size.toSize()
+//                    }
+//                    .background(
+//                        color = Color.White,
+//                        shape = if (expanded) RoundedCornerShape(
+//                            MaterialTheme.wireDimensions.textFieldCornerSize,
+//                            MaterialTheme.wireDimensions.textFieldCornerSize,
+//                            0.dp,
+//                            0.dp
+//                        ) else RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize)
+//                    )
+//                    .border(
+//                        width = 1.dp,
+//                        color = wireTextFieldColors().borderColor(
+//                            WireTextFieldState.Default,
+//                            remember { MutableInteractionSource() }).value,
+//                        shape = if (expanded) RoundedCornerShape(
+//                            MaterialTheme.wireDimensions.textFieldCornerSize,
+//                            MaterialTheme.wireDimensions.textFieldCornerSize,
+//                            0.dp,
+//                            0.dp
+//                        ) else RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize)
+//                    )
+//            ) {
+//
+//                Box(
+//                    Modifier
+//                        .fillMaxWidth()
+//                        .background(
+//                            color = Color.White,
+//                            shape = textBoxShape(isExpanded = expanded)
+//                        )
+////
+//                        .onGloballyPositioned { textfieldSize = it.size.toSize() }
+//                        .clip(textBoxShape(isExpanded = expanded))
+//                        .clickable {
+//                            expanded = !expanded
+//                            focusManager.clearFocus()
+//                        }
+//                        .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
+//                ) {
+//                    Column(Modifier.padding(end = 32.dp)) {
+//                        Text(
+//                            modifier = Modifier
+//                                .padding(top = 1.dp)
+//                                .align(Alignment.CenterHorizontally),
+//                            text = groupProtocol.name + defaultIndicatorText,
+//                            style = MaterialTheme.wireTypography.body01,
+//                            color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
+//                        )
+//                    }
+//                    Icon(
+//                        imageVector = Icons.Filled.ExpandMore,
+//                        contentDescription = "Change",
+//                        tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+//                        modifier = Modifier
+//                            .padding(top = 4.dp)
+//                            .align(Alignment.CenterEnd)
+//                            .rotate(rotation),
+//                    )
+//
+//
+//
+//                }
+//            }
+//        }
+//        DropdownMenu(
+//            expanded = expanded,
+//            properties = PopupProperties(focusable = true),
+//            onDismissRequest = { expanded = false },
+//            modifier = Modifier
+//                .border(
+//                    width = 1.dp,
+//                    color = wireTextFieldColors().borderColor(
+//                        WireTextFieldState.Default,
+//                        remember { MutableInteractionSource() }).value,
+//                    shape = menuShape
+//                )
+//                .clip(menuShape)
+//                .background(
+//                            color = Color.Red,
+//                            shape = menuShape
+//                        )
+//        ) {
+//            DropdownItem(
+//                ConversationOptions.Protocol.PROTEUS.name + defaultText,
+//                ConversationOptions.Protocol.PROTEUS == groupProtocol,
+//                onClick = {
+//                    groupProtocol = ConversationOptions.Protocol.PROTEUS
+//                    expanded = false
+//                })
+//            Spacer(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(1.dp)
+//                    .background(
+//                        wireTextFieldColors().borderColor(
+//                            WireTextFieldState.Default,
+//                            remember { MutableInteractionSource() }).value
+//                    )
+//            )
+//            DropdownItem(ConversationOptions.Protocol.MLS.name,
+//                ConversationOptions.Protocol.MLS == groupProtocol,
+//                onClick = {
+//                    groupProtocol = ConversationOptions.Protocol.MLS
+//                    expanded = false
+//                })
+//        }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = {
+            expanded = !expanded
+        },
+        modifier = modifier
+            .padding(
+                start = MaterialTheme.wireDimensions.spacing16x,
+                end = MaterialTheme.wireDimensions.spacing16x,
+                top = MaterialTheme.wireDimensions.spacing16x,
+                bottom = 0.dp
+            )
+    ) {
+        Column {
+            Label(
+                label, false, WireTextFieldState.Default,
+                remember { MutableInteractionSource() }, wireTextFieldColors()
+            )
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(textBoxShape(isExpanded = expanded))
+                    .background(
+                        color = Color.White,
+                        shape = textBoxShape(isExpanded = expanded)
+                    )
+                    .onGloballyPositioned { textFieldSize = it.size.toSize() }
                     .border(
                         width = 1.dp,
-                        color = Color.Yellow,
-                        shape = menuShape
+                        color = Color.LightGray,
+                        shape = textBoxShape(expanded)
                     )
-                    .clip(menuShape)
-                    .background(
-                        color = Color.Red,
-                        shape = menuShape
-                    ).clipToBounds(),
+//                    .clickable {
+//                        expanded = !expanded
+////                        focusManager.clearFocus()
+//                    }
+                    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
             ) {
+                Column(Modifier.padding(end = 32.dp)) {
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 1.dp)
+                            .align(Alignment.CenterHorizontally),
+                        text = if (selectedIndex != -1) items[selectedIndex] else preSelectionText,
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Filled.ExpandMore,
+                    contentDescription = "Change",
+                    tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .align(Alignment.CenterEnd)
+                        .rotate(rotation),
+                )
+            }
+        }
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+            },
+            modifier = Modifier
+                .clip(menuShape)
+                .background(
+                    color = Color.White,
+                    shape = menuShape
+                )
+                .border(
+                    width = 1.dp,
+                    color = Color.LightGray,
+                    shape = menuShape
+                )
+        ) {
+            items.map {
+                val currentIndex = items.indexOf(it)
                 DropdownItem(
-                    ConversationOptions.Protocol.PROTEUS.name + defaultText,
-                    ConversationOptions.Protocol.PROTEUS == groupProtocol,
+                    it + if (currentIndex == defaultItemIndex) defaultText else "",
+                    currentIndex == selectedIndex,
                     onClick = {
-                        groupProtocol = ConversationOptions.Protocol.PROTEUS
+                        selectedIndex = currentIndex
                         expanded = false
+                        onSelected(selectedIndex, it)
                     })
-                Spacer(
+                if (currentIndex != items.size - 1) Spacer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
@@ -167,12 +321,6 @@ internal fun WireDropdown(
                                 remember { MutableInteractionSource() }).value
                         )
                 )
-                DropdownItem(ConversationOptions.Protocol.MLS.name,
-                    ConversationOptions.Protocol.MLS == groupProtocol,
-                    onClick = {
-                        groupProtocol = ConversationOptions.Protocol.MLS
-                        expanded = false
-                    })
             }
         }
     }
@@ -190,7 +338,6 @@ private fun textBoxShape(isExpanded: Boolean) = if (isExpanded) RoundedCornerSha
 
 @Composable
 private fun DropdownItem(text: String, isSelected: Boolean, onClick: () -> Unit) = DropdownMenuItem(onClick) {
-
     Text(
         text,
         modifier = Modifier
@@ -207,5 +354,11 @@ private fun DropdownItem(text: String, isSelected: Boolean, onClick: () -> Unit)
 @Composable
 @Preview
 private fun WireDropdownPreviewWithLabel() {
-    WireDropdown(newGroupState = NewGroupState(), modifier = Modifier)
+    WireDropdown(
+        items =
+        ConversationOptions.Protocol.values().map { it.name },
+        defaultItemIndex = 0,
+        "Protocol",
+        modifier = Modifier
+    ) { i: Int, s: String -> }
 }

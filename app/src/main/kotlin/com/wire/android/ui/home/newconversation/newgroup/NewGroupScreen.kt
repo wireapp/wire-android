@@ -153,11 +153,16 @@ fun NewGroupScreenContent(
 
                 }
 
-                WireDropdown(this@with,
+                WireDropdown(items =
+                ConversationOptions.Protocol.values().map { it.name },
+                    defaultItemIndex = 0,
+                    "Protocol",
                     modifier = Modifier.constrainAs(protocol) {
                         top.linkTo(textField.bottom)
-                    })
-
+                    }
+                ) {selectedIndex, selectedValue ->
+                    groupProtocol = ConversationOptions.Protocol.values()[selectedIndex]
+                }
                 WirePrimaryButton(
                     text = stringResource(R.string.label_continue),
                     onClick = onContinuePressed,
